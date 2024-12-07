@@ -1,0 +1,1006 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{4937e132-c0fb-4e28-9b6b-3d651109d61d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cdn">
+      <UniqueIdentifier>{78d360d6-28ed-4b69-85db-ddf562b0c070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="container">
+      <UniqueIdentifier>{1ef7945b-1d26-41bf-9f58-c719dc22c61b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="d3d">
+      <UniqueIdentifier>{ea9dc06f-264e-4565-a096-4c11804cfff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dialog">
+      <UniqueIdentifier>{6a2f53ea-3719-45cb-bb6a-7d0fbac6c6fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encoding">
+      <UniqueIdentifier>{590b9b3c-13a3-47f4-b44e-0b3325b6e83f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file">
+      <UniqueIdentifier>{09174e25-1a0a-48fa-8260-cd9a1627129f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework">
+      <UniqueIdentifier>{00e9e4fa-dc46-4283-8be5-c9bbb75f37c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry">
+      <UniqueIdentifier>{ff24d76d-cde5-4212-bb42-dad6a2761ba0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{664dddcf-59a1-4493-9d90-03a134132997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="http">
+      <UniqueIdentifier>{f1c14652-08ae-4615-bfb2-4fa022661399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="image">
+      <UniqueIdentifier>{f4195222-cb50-42bc-852b-82e910fa82f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{ac3e0dfb-a341-4cfc-9d60-2f3e7942b692}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{5310ea78-5f6b-43e1-84b9-3d1339242565}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module">
+      <UniqueIdentifier>{44a2e0ef-afbc-41f1-997d-e14bc91d131e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{992ffe49-5b11-4efb-9bbb-bbf6ff0cf398}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pointer">
+      <UniqueIdentifier>{38024203-df7b-41df-a297-207479159f38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="raster">
+      <UniqueIdentifier>{e8645092-4536-4b63-a21f-b579b831c1f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{fcec14f7-f260-444f-a061-ed6786ff2ec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="script">
+      <UniqueIdentifier>{43572fcd-2b7d-4170-8b67-05cbc99e2451}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="time">
+      <UniqueIdentifier>{ba85012e-2adf-4370-9e35-d41543ba4943}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="type">
+      <UniqueIdentifier>{8e323843-176e-40a8-80a5-72904cecb15d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="view">
+      <UniqueIdentifier>{2af7f602-565c-43ba-a4b5-be22b1b04b6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="voxel">
+      <UniqueIdentifier>{3cc94a17-96ef-470b-b56b-d437dad4a752}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="web_cgi">
+      <UniqueIdentifier>{5c9ad974-22c6-4aef-a002-98fa32dacff5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="xml">
+      <UniqueIdentifier>{975efb15-1710-468b-9a48-cd974da95602}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="aliases">
+      <UniqueIdentifier>{9c8faac4-2cef-4de2-b7d7-d1faadec19d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="event">
+      <UniqueIdentifier>{33bc41b4-20b1-4ce6-85a6-0d2e0d7abaf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="models">
+      <UniqueIdentifier>{c4a3d5db-612d-4dd8-997a-c250f35e04df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="string">
+      <UniqueIdentifier>{f8fc180c-c5d2-4bba-ba41-864cb8042745}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="llc_adam7.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_aes.h">
+      <Filter>encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_align.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_aobj_pobj.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_aobj_ppod.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_color.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_n2.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_n3.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_serialize.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_tri.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_tri2.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_tri3.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_app_impl.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_array.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_array_base.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_array_bit.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_array_obj.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_array_pod.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_array_ptr.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_array_static.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ascii_color.h">
+      <Filter>raster</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ascii_target.h">
+      <Filter>raster</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_astatic_serialize.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_auto_handler.h">
+      <Filter>type</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_axis.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_base64.h">
+      <Filter>encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_bit.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_bitmap_target.h">
+      <Filter>raster</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_block.h">
+      <Filter>cdn</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_block_container.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_block_container_nts.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_camera.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cdn.h">
+      <Filter>cdn</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cgi.h">
+      <Filter>web_cgi</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cgi_app_impl.h">
+      <Filter>web_cgi</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cgi_app_impl_v2.h">
+      <Filter>web_cgi</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cgi_module.h">
+      <Filter>web_cgi</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cgi_runtime.h">
+      <Filter>web_cgi</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_chrono.h">
+      <Filter>time</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_circle.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_collision.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_color.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_color_type.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_complus.h">
+      <Filter>pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_component_scene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_coord.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_d3d.h">
+      <Filter>d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_debug.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_deflate.h">
+      <Filter>encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_dialog.h">
+      <Filter>dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_dialog_controls.h">
+      <Filter>dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_encoding.h">
+      <Filter>encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_enum.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_error.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_eval.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_expression.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_file.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_font.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_frameinfo.h">
+      <Filter>time</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_framework.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_functional.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_geometry.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_geometry_draw.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_geometry_lh.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_grid.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_grid_color.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_grid_copy.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_grid_scale.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_grid_static.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_control.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_control_list.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_control_state.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_desktop.h">
+      <Filter>dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_inputbox.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_text.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_viewport.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_http.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_http_client.h">
+      <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_image.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_input.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cstdio.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_json.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_json_expression.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_keyval.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_label.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_label_manager.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_line.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_line2.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_line3.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_log.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_math.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_matrix.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_member_registry.h">
+      <Filter>type</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_memory.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_model.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_module.h">
+      <Filter>module</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_n2.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_n3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_noise.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_parse.h">
+      <Filter>script</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_particle.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_path.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_platform_globals.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_png.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_process.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ptr_nco.h">
+      <Filter>pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ptr_obj.h">
+      <Filter>pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ptr_pod.h">
+      <Filter>pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_quad.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_quad2.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_quad3.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_quat.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_raster_lh.h">
+      <Filter>raster</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_rect.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_rect2.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_rect3.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_rect_align.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ref.h">
+      <Filter>pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_rsa.h">
+      <Filter>encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_runtime.h">
+      <Filter>module</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_runtime_module.h">
+      <Filter>module</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_safe.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_size.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_sphere.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_stdsocket.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_stdstring.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cstring.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_sync.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_tcpip.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_timer.h">
+      <Filter>time</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_tri.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_tri2.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_tri3.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_type_identifier.h">
+      <Filter>type</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_type_registry.h">
+      <Filter>type</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_typeint.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_bit.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_layered.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_manager.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_n2.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_n3.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_pobj.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_ppod.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_serialize.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_stream.h">
+      <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_tri.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_tri2.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_tri3.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_virtual_keyboard.h">
+      <Filter>dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_voxel.h">
+      <Filter>voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_voxel_geometry.h">
+      <Filter>voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_window.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_windows.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_xml_reader.h">
+      <Filter>xml</Filter>
+    </ClInclude>
+    <ClInclude Include="keyed_bit_array.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_event_input.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_event_screen.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_system_event.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_system_key.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_pod_definition.h">
+      <Filter>type</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_geometry_buffers.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gltf.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_stl.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_scene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_view_color.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_astatic_color.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_img_color.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_event.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_vox.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_img_serialize.h">
+      <Filter>image</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_range.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_slice.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_gauge.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_minmax.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_range.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_minmax_n2.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_minmax_n3.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_minmax.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gauge.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_slice.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_linear_map_pod.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_range_n2.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_range_n3.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_slice_n3.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_slice_n2.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gauge_n3.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gauge_n2.h">
+      <Filter>aliases</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_queue_async.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_queue_event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gtl_command.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_log_level.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_log_core.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_apod_tcpip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_i2c.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_serial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_spi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_keyed_bit_array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_array_circular.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_linear_map_pobj.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cpow.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gpio.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_arduino_string.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_string_compose.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_string_helper.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_datatype.h">
+      <Filter>type</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_append_css.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_append_frontend.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_append_html.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_append_js.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_append_json.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_append_xml.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cloud_register.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_bus.h">
+      <Filter>event</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_micro.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_pack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_platform_error.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_packed_int.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_cerrno.h">
+      <Filter>base</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="llc_adam7.cpp">
+      <Filter>image</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_aes.cpp">
+      <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_array.cpp">
+      <Filter>container</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ascii_target.cpp">
+      <Filter>raster</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_base64.cpp">
+      <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_block.cpp">
+      <Filter>cdn</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_cgi.cpp">
+      <Filter>web_cgi</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_cgi_main.cpp">
+      <Filter>web_cgi</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_cgi_module.cpp">
+      <Filter>web_cgi</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_cgi_runtime.cpp">
+      <Filter>web_cgi</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_chrono.cpp">
+      <Filter>time</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_component_scene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_component_scene_draw.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_d3d.cpp">
+      <Filter>d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_datatype.cpp">
+      <Filter>type</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_deflate.cpp">
+      <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_dialog.cpp">
+      <Filter>dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_encoding.cpp">
+      <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_expression.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_file.cpp">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_font.cpp">
+      <Filter>image</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_framework.cpp">
+      <Filter>framework</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_geometry.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_geometry_draw.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_geometry_lh.cpp">
+      <Filter>geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_control_list.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_desktop.cpp">
+      <Filter>dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_draw.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_inputbox.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_viewport.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_http_client.cpp">
+      <Filter>http</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_https_client.cpp">
+      <Filter>http</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_json.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_json_expression.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_keyval.cpp">
+      <Filter>container</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_label.cpp">
+      <Filter>container</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_log.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_mapblock.cpp">
+      <Filter>cdn</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_noise.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_parse.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_particle.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_path.cpp">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_png.cpp">
+      <Filter>image</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_png_write.cpp">
+      <Filter>image</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_process.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_raster_lh.cpp">
+      <Filter>raster</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_rsa.cpp">
+      <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_runtime_module.cpp">
+      <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_stdstring.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_tcpip.cpp">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_timer.cpp">
+      <Filter>time</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_view.cpp">
+      <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_virtual_keyboard.cpp">
+      <Filter>dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_voxel_geometry.cpp">
+      <Filter>voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_window.cpp">
+      <Filter>framework</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_windows.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_xml_reader.cpp">
+      <Filter>xml</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_header_checkingg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gltf.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_stl.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_scene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_i2c.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_spi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_string_compose.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_string_helper.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_append_css.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_append_html.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_append_js.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_append_json.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_append_xml.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_apod_tcpip.cpp">
+      <Filter>aliases</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_pack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_platform_globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_view_color.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="character_codes.json" />
+    <None Include="copy_llc_config.bat" />
+    <None Include="cpp.hint" />
+    <None Include="llc_cgi_interceptor.json" />
+    <None Include="llc_config.json" />
+    <None Include="Makefile" />
+    <None Include="country_coords.json" />
+    <None Include="library.json" />
+  </ItemGroup>
+</Project>

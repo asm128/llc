@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="llc_cerrno.h" />
+    <ClInclude Include="llc_micro.h" />
+    <ClInclude Include="llc_bus.h" />
+    <ClInclude Include="llc_adam7.h" />
+    <ClInclude Include="llc_aes.h" />
+    <ClInclude Include="llc_align.h" />
+    <ClInclude Include="llc_apod_gauge.h" />
+    <ClInclude Include="llc_apod_minmax.h" />
+    <ClInclude Include="llc_apod_range.h" />
+    <ClInclude Include="llc_apod_serialize.h" />
+    <ClInclude Include="llc_apod_slice.h" />
+    <ClInclude Include="llc_apod_tcpip.h" />
+    <ClInclude Include="llc_append_css.h" />
+    <ClInclude Include="llc_append_frontend.h" />
+    <ClInclude Include="llc_append_html.h" />
+    <ClInclude Include="llc_append_js.h" />
+    <ClInclude Include="llc_append_json.h" />
+    <ClInclude Include="llc_append_xml.h" />
+    <ClInclude Include="llc_app_impl.h" />
+    <ClInclude Include="llc_arduino_string.h" />
+    <ClInclude Include="llc_array.h" />
+    <ClInclude Include="llc_array_base.h" />
+    <ClInclude Include="llc_array_bit.h" />
+    <ClInclude Include="llc_apod_color.h" />
+    <ClInclude Include="llc_apod_n2.h" />
+    <ClInclude Include="llc_apod_n3.h" />
+    <ClInclude Include="llc_array_obj.h" />
+    <ClInclude Include="llc_aobj_pobj.h" />
+    <ClInclude Include="llc_array_pod.h" />
+    <ClInclude Include="llc_aobj_ppod.h" />
+    <ClInclude Include="llc_array_static.h" />
+    <ClInclude Include="llc_apod_tri.h" />
+    <ClInclude Include="llc_apod_tri2.h" />
+    <ClInclude Include="llc_apod_tri3.h" />
+    <ClInclude Include="llc_ascii_color.h" />
+    <ClInclude Include="llc_ascii_target.h" />
+    <ClInclude Include="llc_astatic_color.h" />
+    <ClInclude Include="llc_auto_handler.h" />
+    <ClInclude Include="llc_axis.h" />
+    <ClInclude Include="llc_base64.h" />
+    <ClInclude Include="llc_bit.h" />
+    <ClInclude Include="llc_bitmap_target.h" />
+    <ClInclude Include="llc_block.h" />
+    <ClInclude Include="llc_block_container_nts.h" />
+    <ClInclude Include="llc_camera.h" />
+    <ClInclude Include="llc_cdn.h" />
+    <ClInclude Include="llc_cgi.h" />
+    <ClInclude Include="llc_cgi_app_impl.h" />
+    <ClInclude Include="llc_cgi_app_impl_v2.h" />
+    <ClInclude Include="llc_cgi_module.h" />
+    <ClInclude Include="llc_cgi_runtime.h" />
+    <ClInclude Include="llc_chrono.h" />
+    <ClInclude Include="llc_circle.h" />
+    <ClInclude Include="llc_cloud_register.h" />
+    <ClInclude Include="llc_collision.h" />
+    <ClInclude Include="llc_color.h" />
+    <ClInclude Include="llc_color_type.h" />
+    <ClInclude Include="llc_complus.h" />
+    <ClInclude Include="llc_component_scene.h" />
+    <ClInclude Include="llc_coord.h" />
+    <ClInclude Include="llc_cpow.h" />
+    <ClInclude Include="llc_d3d.h" />
+    <ClInclude Include="llc_datatype.h" />
+    <ClInclude Include="llc_debug.h" />
+    <ClInclude Include="llc_deflate.h" />
+    <ClInclude Include="llc_dialog.h" />
+    <ClInclude Include="llc_dialog_controls.h" />
+    <ClInclude Include="llc_gpio.h" />
+    <ClInclude Include="llc_i2c.h" />
+    <ClInclude Include="llc_keyed_bit_array.h" />
+    <ClInclude Include="llc_linear_map_pobj.h" />
+    <ClInclude Include="llc_log_level.h" />
+    <ClInclude Include="llc_event_input.h" />
+    <ClInclude Include="llc_event_screen.h" />
+    <ClInclude Include="llc_gauge.h" />
+    <ClInclude Include="llc_gauge_n2.h" />
+    <ClInclude Include="llc_gauge_n3.h" />
+    <ClInclude Include="llc_geometry_buffers.h" />
+    <ClInclude Include="llc_geometry_draw.h" />
+    <ClInclude Include="llc_font.h" />
+    <ClInclude Include="llc_gltf.h" />
+    <ClInclude Include="llc_grid_color.h" />
+    <ClInclude Include="llc_gui_control.h" />
+    <ClInclude Include="llc_gui_control_state.h" />
+    <ClInclude Include="llc_gui_inputbox.h" />
+    <ClInclude Include="llc_gui_viewport.h" />
+    <ClInclude Include="llc_img_color.h" />
+    <ClInclude Include="llc_img_serialize.h" />
+    <ClInclude Include="llc_line.h" />
+    <ClInclude Include="llc_line2.h" />
+    <ClInclude Include="llc_line3.h" />
+    <ClInclude Include="llc_linear_map_pod.h" />
+    <ClInclude Include="llc_log_core.h" />
+    <ClInclude Include="llc_minmax.h" />
+    <ClInclude Include="llc_minmax_n2.h" />
+    <ClInclude Include="llc_minmax_n3.h" />
+    <ClInclude Include="llc_n3.h" />
+    <ClInclude Include="llc_pack.h" />
+    <ClInclude Include="llc_path.h" />
+    <ClInclude Include="llc_platform_error.h" />
+    <ClInclude Include="llc_pod_definition.h" />
+    <ClInclude Include="llc_quad3.h" />
+    <ClInclude Include="llc_queue_event.h" />
+    <ClInclude Include="llc_range.h" />
+    <ClInclude Include="llc_range_n2.h" />
+    <ClInclude Include="llc_range_n3.h" />
+    <ClInclude Include="llc_serial.h" />
+    <ClInclude Include="llc_slice.h" />
+    <ClInclude Include="llc_slice_n2.h" />
+    <ClInclude Include="llc_slice_n3.h" />
+    <ClInclude Include="llc_spi.h" />
+    <ClInclude Include="llc_string_compose.h" />
+    <ClInclude Include="llc_system_event.h" />
+    <ClInclude Include="llc_system_key.h" />
+    <ClInclude Include="llc_ptr_nco.h" />
+    <ClInclude Include="llc_ptr_obj.h" />
+    <ClInclude Include="llc_ptr_pod.h" />
+    <ClInclude Include="llc_quad.h" />
+    <ClInclude Include="llc_quat.h" />
+    <ClInclude Include="llc_rect.h" />
+    <ClInclude Include="llc_rect2.h" />
+    <ClInclude Include="llc_rect3.h" />
+    <ClInclude Include="llc_rect_align.h" />
+    <ClInclude Include="llc_ref.h" />
+    <ClInclude Include="llc_tri.h" />
+    <ClInclude Include="llc_tri2.h" />
+    <ClInclude Include="llc_tri3.h" />
+    <ClInclude Include="llc_array_circular.h" />
+    <ClInclude Include="llc_view_color.h" />
+    <ClInclude Include="llc_view_n3.h" />
+    <ClInclude Include="llc_view_pobj.h" />
+    <ClInclude Include="llc_view_ppod.h" />
+    <ClInclude Include="llc_view_serialize.h" />
+    <ClInclude Include="llc_view_tri.h" />
+    <ClInclude Include="llc_view_tri2.h" />
+    <ClInclude Include="llc_view_tri3.h" />
+    <ClInclude Include="llc_virtual_keyboard.h" />
+    <ClInclude Include="llc_vox.h" />
+    <ClInclude Include="llc_voxel_geometry.h" />
+    <ClInclude Include="llc_window.h" />
+    <ClInclude Include="llc_framework.h" />
+    <ClInclude Include="llc_gui_control_list.h" />
+    <ClInclude Include="llc_gui_desktop.h" />
+    <ClInclude Include="llc_raster_lh.h" />
+    <ClInclude Include="llc_encoding.h" />
+    <ClInclude Include="llc_enum.h" />
+    <ClInclude Include="llc_error.h" />
+    <ClInclude Include="llc_eval.h" />
+    <ClInclude Include="llc_expression.h" />
+    <ClInclude Include="llc_frameinfo.h" />
+    <ClInclude Include="llc_geometry.h" />
+    <ClInclude Include="llc_geometry_lh.h" />
+    <ClInclude Include="llc_grid_copy.h" />
+    <ClInclude Include="llc_grid_scale.h" />
+    <ClInclude Include="llc_grid_static.h" />
+    <ClInclude Include="llc_gui.h" />
+    <ClInclude Include="llc_gui_text.h" />
+    <ClInclude Include="llc_http.h" />
+    <ClInclude Include="llc_http_client.h" />
+    <ClInclude Include="llc_image.h" />
+    <ClInclude Include="llc_input.h" />
+    <ClInclude Include="llc_cstdio.h" />
+    <ClInclude Include="llc_json.h" />
+    <ClInclude Include="llc_json_expression.h" />
+    <ClInclude Include="llc_keyval.h" />
+    <ClInclude Include="llc_label.h" />
+    <ClInclude Include="llc_label_manager.h" />
+    <ClInclude Include="llc_log.h" />
+    <ClInclude Include="llc_math.h" />
+    <ClInclude Include="llc_matrix.h" />
+    <ClInclude Include="llc_member_registry.h" />
+    <ClInclude Include="llc_memory.h" />
+    <ClInclude Include="llc_model.h" />
+    <ClInclude Include="llc_module.h" />
+    <ClInclude Include="llc_noise.h" />
+    <ClInclude Include="llc_parse.h" />
+    <ClInclude Include="llc_particle.h" />
+    <ClInclude Include="llc_platform_globals.h" />
+    <ClInclude Include="llc_png.h" />
+    <ClInclude Include="llc_process.h" />
+    <ClInclude Include="llc_array_ptr.h" />
+    <ClInclude Include="llc_rsa.h" />
+    <ClInclude Include="llc_runtime.h" />
+    <ClInclude Include="llc_runtime_module.h" />
+    <ClInclude Include="llc_safe.h" />
+    <ClInclude Include="llc_scene.h" />
+    <ClInclude Include="llc_size.h" />
+    <ClInclude Include="llc_stdsocket.h" />
+    <ClInclude Include="llc_stdstring.h" />
+    <ClInclude Include="llc_stl.h" />
+    <ClInclude Include="llc_file.h" />
+    <ClInclude Include="llc_cstring.h" />
+    <ClInclude Include="llc_string_helper.h" />
+    <ClInclude Include="llc_sync.h" />
+    <ClInclude Include="llc_tcpip.h" />
+    <ClInclude Include="llc_timer.h" />
+    <ClInclude Include="llc_typeint.h" />
+    <ClInclude Include="llc_type_identifier.h" />
+    <ClInclude Include="llc_type_registry.h" />
+    <ClInclude Include="llc_view.h" />
+    <ClInclude Include="llc_view_bit.h" />
+    <ClInclude Include="llc_grid.h" />
+    <ClInclude Include="llc_view_layered.h" />
+    <ClInclude Include="llc_view_manager.h" />
+    <ClInclude Include="llc_view_stream.h" />
+    <ClInclude Include="llc_windows.h" />
+    <ClInclude Include="llc_xml_reader.h" />
+    <ClInclude Include="llc_voxel.h" />
+    <ClInclude Include="llc_event.h" />
+    <ClInclude Include="llc_n2.h" />
+    <ClInclude Include="llc_functional.h" />
+    <ClInclude Include="llc_astatic_serialize.h" />
+    <ClInclude Include="llc_block_container.h" />
+    <ClInclude Include="llc_quad2.h" />
+    <ClInclude Include="llc_sphere.h" />
+    <ClInclude Include="llc_view_n2.h" />
+    <ClInclude Include="llc_gtl_command.h" />
+    <ClInclude Include="llc_packed_int.h" />
+    <ClInclude Include="keyed_bit_array.h" />
+    <ClInclude Include="llc_queue_async.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="llc_adam7.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_aes.cpp" />
+    <ClCompile Include="llc_apod_tcpip.cpp" />
+    <ClCompile Include="llc_append_css.cpp" />
+    <ClCompile Include="llc_append_html.cpp" />
+    <ClCompile Include="llc_append_js.cpp" />
+    <ClCompile Include="llc_append_json.cpp" />
+    <ClCompile Include="llc_append_xml.cpp" />
+    <ClCompile Include="llc_array.cpp" />
+    <ClCompile Include="llc_ascii_target.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_base64.cpp" />
+    <ClCompile Include="llc_block.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_cgi.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_cgi_main.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_cgi_module.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_cgi_runtime.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_chrono.cpp" />
+    <ClCompile Include="llc_component_scene.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_component_scene_draw.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_d3d.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_datatype.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_deflate.cpp" />
+    <ClCompile Include="llc_dialog.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_geometry.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_geometry_draw.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_gltf.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_gui_inputbox.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_gui_viewport.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_i2c.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_pack.cpp" />
+    <ClCompile Include="llc_particle.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_path.cpp" />
+    <ClCompile Include="llc_platform_globals.cpp" />
+    <ClCompile Include="llc_spi.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_string_compose.cpp" />
+    <ClCompile Include="llc_view_color.cpp" />
+    <ClCompile Include="llc_virtual_keyboard.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_voxel_geometry.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_window.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_framework.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_gui_control_list.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_gui_desktop.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_raster_lh.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_encoding.cpp" />
+    <ClCompile Include="llc_expression.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_scene.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_geometry_lh.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_gui.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_gui_draw.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_https_client.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_http_client.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_json.cpp" />
+    <ClCompile Include="llc_json_expression.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_keyval.cpp" />
+    <ClCompile Include="llc_label.cpp" />
+    <ClCompile Include="llc_log.cpp" />
+    <ClCompile Include="llc_mapblock.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_noise.cpp" />
+    <ClCompile Include="llc_parse.cpp" />
+    <ClCompile Include="llc_png.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_png_write.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_process.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_rsa.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_runtime_module.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_stdstring.cpp" />
+    <ClCompile Include="llc_stl.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_file.cpp" />
+    <ClCompile Include="llc_string_helper.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_tcpip.cpp" />
+    <ClCompile Include="llc_timer.cpp" />
+    <ClCompile Include="llc_view.cpp" />
+    <ClCompile Include="llc_windows.cpp" />
+    <ClCompile Include="llc_xml_reader.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_font.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_header_checkingg.cpp">
+      <ExcludedFromBuild >true</ExcludedFromBuild>    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="character_codes.json" />
+    <None Include="copy_llc_config.bat" />
+    <None Include="country_coords.json" />
+    <None Include="cpp.hint" />
+    <None Include="library.json" />
+    <None Include="llc_cgi_interceptor.json" />
+    <None Include="llc_config.json" />
+    <None Include="Makefile" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{830AB681-B788-47D4-9767-BA4E0792F682}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>llc</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)../$(Platform).$(Configuration)/</OutDir>
+    <IntDir>$(ProjectDir)../obj/$(Platform).$(Configuration)/$(ProjectName)/</IntDir>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>../zlib; </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
+    </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>../zlib; </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
+    </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>../zlib; </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
+    </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>../zlib; </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
+    </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

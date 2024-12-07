@@ -1,0 +1,10 @@
+LIBRARY
+EXPORTS
+	llc_moduleVersion	
+	llc_moduleCreate	
+	llc_moduleDelete	
+	llc_moduleSetup		
+	llc_moduleCleanup	
+	llc_moduleRender	
+	llc_moduleUpdate	
+	llc_moduleTitle		

@@ -1,0 +1,500 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>7.0</ProjectVersion>
+    <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
+    <ProjectGuid>{ac9b569a-4dcb-44bb-816e-7d592a45e994}</ProjectGuid>
+    <avrdevice>ATtiny85</avrdevice>
+    <avrdeviceseries>none</avrdeviceseries>
+    <OutputType>StaticLibrary</OutputType>
+    <Language>CPP</Language>
+    <OutputFileName>lib$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.a</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AvrGccProjectExtensions>
+    </AvrGccProjectExtensions>
+    <AssemblyName>llc</AssemblyName>
+    <Name>llc</Name>
+    <RootNamespace>llc</RootNamespace>
+    <ToolchainFlavour>Native</ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <CacheFlash>true</CacheFlash>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
+    <UncachedRange />
+    <preserveEEPROM>true</preserveEEPROM>
+    <OverrideVtorValue>exception_table</OverrideVtorValue>
+    <BootSegment>2</BootSegment>
+    <ResetRule>0</ResetRule>
+    <eraseonlaunchrule>0</eraseonlaunchrule>
+    <EraseKey />
+    <AsfFrameworkConfig>
+      <framework-data xmlns="">
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.49.1" />
+        </dependencies>
+      </framework-data>
+    </AsfFrameworkConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ToolchainSettings>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ToolchainSettings>
+      <AvrGccCpp>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>LLC_ATMEL</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.warnings.WarningsAsErrors>True</avrgcc.compiler.warnings.WarningsAsErrors>
+  <avrgcc.compiler.warnings.Pedantic>True</avrgcc.compiler.warnings.Pedantic>
+  <avrgcc.compiler.warnings.PedanticWarningsAsErrors>True</avrgcc.compiler.warnings.PedanticWarningsAsErrors>
+  <avrgcc.compiler.miscellaneous.OtherFlags>-std=c17</avrgcc.compiler.miscellaneous.OtherFlags>
+  <avrgcc.compiler.miscellaneous.Verbose>True</avrgcc.compiler.miscellaneous.Verbose>
+  <avrgcccpp.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>LLC_ATMEL</Value>
+    </ListValues>
+  </avrgcccpp.compiler.symbols.DefSymbols>
+  <avrgcccpp.compiler.warnings.WarningsAsErrors>True</avrgcccpp.compiler.warnings.WarningsAsErrors>
+  <avrgcccpp.compiler.warnings.Pedantic>True</avrgcccpp.compiler.warnings.Pedantic>
+  <avrgcccpp.compiler.warnings.PedanticWarningsAsErrors>True</avrgcccpp.compiler.warnings.PedanticWarningsAsErrors>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-std=c++17</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.compiler.miscellaneous.Verbose>True</avrgcccpp.compiler.miscellaneous.Verbose>
+</AvrGccCpp>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="llc_adam7.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_adam7.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_aes.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_aes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_array.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_array_static.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_ascii_color.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_ascii_target.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_ascii_target.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_auto_handler.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_base64.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_base64.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_bit.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_bitmap_target.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_block.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_block.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_camera.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi_app_impl.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi_app_impl_v2.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi_main.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi_module.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi_module.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi_runtime.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cgi_runtime.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_chrono.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_chrono.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_collision.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_color.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_coord.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_datatype.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_datatype.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_debug.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_deflate.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_deflate.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_encoding.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_encoding.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_enum.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_error.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_eval.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_expression.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_expression.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_frameinfo.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_geometry.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_geometry.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_geometry_lh.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_geometry_lh.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_grid_copy.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_grid_scale.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_grid_static.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_gui.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_gui.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_gui_draw.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_gui_text.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_http.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_https_client.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_http_client.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_http_client.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_i2c.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_i2c.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_image.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_input.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cstdio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_json.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_json.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_json_expression.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_json_expression.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_keyval.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_keyval.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_label.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_label.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_label_manager.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_log.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_log.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_mapblock.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_math.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_matrix.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_member_registry.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_memory.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_model.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_module.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_noise.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_noise.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_parse.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_parse.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_particle.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_platform.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_platform_error.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_platform_error.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_png.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_png.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_png_write.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_process.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_process.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_ptr.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_raster_lh.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_raster_lh.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_rigidbody.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_rigidbody.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_rsa.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_rsa.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_runtime.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_runtime_module.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_runtime_module.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_safe.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_scene.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_size.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_spi.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_spi.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_stdsocket.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_stdstring.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_stdstring.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_storage.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_storage.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_cstring.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_string_helper.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_string_helper.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_sync.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_tcpip.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_tcpip.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_timer.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_timer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_typeint.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_type_identifier.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_type_registry.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_type_registry.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_view_array.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_view_array.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_view_bit.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_view_grid.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_view_layered.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_view_manager.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_view_stream.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_windows.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_windows.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="initializer_list.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="llc_header_checkingg.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+</Project>
