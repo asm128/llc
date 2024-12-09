@@ -4,6 +4,7 @@
 
 #if(!defined(LLC_ESPIDF)) && (defined(ESP32) || defined(ESP_PLATFORM) || defined(ARDUINO_ARCH_ESP32))
 #	define LLC_ESPIDF
+#   define LLC_FREERTOS
 #endif
 
 #if (!defined(LLC_ARDUINO))	&&	(defined(ARDUINO) || defined(__ARDUINO__) || defined(ARDUINO) || defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266))

@@ -18,24 +18,14 @@
 namespace llc
 {
 #ifdef LLC_WINDOWS
-	stin err_t	sleep	(u2_t milliseconds)		noexcept	{ Sleep(milliseconds); return milliseconds; }
-	stin s3_t	sleepUs	(u3_t microseconds)		noexcept	{ std::this_thread::sleep_for(std::chrono::microseconds(microseconds)); return (s3_t)microseconds; }
+	stin err_t	sleep	(u2_t milliseconds)		noexcept	{ Sleep(milliseconds); return (err_t)milliseconds; }
+	stin u3_t	sleepUs	(u3_t microseconds)		noexcept	{ std::this_thread::sleep_for(std::chrono::microseconds(microseconds)); return (s3_t)microseconds; }
 #elif defined(LLC_ARDUINO)
-	stin err_t	sleep	(u2_t milliseconds)		noexcept	{ ::delay(milliseconds); return milliseconds; }
+	stin err_t	sleep	(u2_t milliseconds)		noexcept	{ ::delay(milliseconds); return (err_t)milliseconds; }
 	stin u3_t	sleepUs	(u3_t microseconds)		noexcept	{ ::delayMicroseconds(microseconds); return microseconds; }
 #else
-	stin err_t	sleep	(u2_t milliseconds)		noexcept	{ std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds)); return milliseconds; }
+	stin err_t	sleep	(u2_t milliseconds)		noexcept	{ std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds)); return (err_t)milliseconds; }
 	stin u3_t	sleepUs	(u3_t microseconds)		noexcept	{ std::this_thread::sleep_for(std::chrono::microseconds(microseconds)); return microseconds; }
-#endif
-
-#ifdef LLC_MTSUPPORT
-#	define LLC_MUTEX_DECLARE(Name) ::std::mutex Name 
-#	define LLC_MUTEX_ENTER(Name)   (Name).lock()
-#	define LLC_MUTEX_LEAVE(Name)   (Name).unlock()
-#else
-#	define LLC_MUTEX_DECLARE(...)
-#	define LLC_MUTEX_ENTER(...)		do {} while(0)
-#	define LLC_MUTEX_LEAVE(...)		do {} while(0)
 #endif
 
 #ifndef LLC_MTSUPPORT
