@@ -164,7 +164,7 @@ namespace llc
 
 #define LLC_DEFAULT_OPERATOR LLC_DEFAULT_OPERATOR_IC
 
-#ifndef LLC_ATMEL
+#if (defined(LLC_ESP32) && !defined(LLC_ARDUINO)) && !defined(LLC_ATMEL)
 #	define LLC_FMT_F2		"f"
 #	define LLC_FMT_F3		"f"
 #	define LLC_FMT_S2		"i"
