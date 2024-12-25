@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="llc_bus_manager.h" />
     <ClInclude Include="llc_cerrno.h" />
     <ClInclude Include="llc_micro.h" />
     <ClInclude Include="llc_bus.h" />
@@ -241,7 +242,9 @@
     <ClInclude Include="llc_queue_async.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="llc_adam7.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_adam7.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_aes.cpp" />
     <ClCompile Include="llc_apod_tcpip.cpp" />
     <ClCompile Include="llc_append_css.cpp" />
@@ -250,73 +253,178 @@
     <ClCompile Include="llc_append_json.cpp" />
     <ClCompile Include="llc_append_xml.cpp" />
     <ClCompile Include="llc_array.cpp" />
-    <ClCompile Include="llc_ascii_target.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_ascii_target.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_base64.cpp" />
-    <ClCompile Include="llc_block.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_cgi.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_cgi_main.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_cgi_module.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_cgi_runtime.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_block.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_cgi.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_cgi_main.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_cgi_module.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_cgi_runtime.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_chrono.cpp" />
-    <ClCompile Include="llc_component_scene.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_component_scene_draw.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_d3d.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_datatype.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_component_scene.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_component_scene_draw.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_d3d.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_datatype.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_deflate.cpp" />
-    <ClCompile Include="llc_dialog.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_geometry.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_geometry_draw.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_gltf.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_gui_inputbox.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_gui_viewport.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_i2c.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_dialog.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_geometry.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_geometry_draw.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gltf.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_inputbox.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_viewport.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_i2c.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_pack.cpp" />
-    <ClCompile Include="llc_particle.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_particle.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_path.cpp" />
     <ClCompile Include="llc_platform_globals.cpp" />
-    <ClCompile Include="llc_spi.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_spi.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_string_compose.cpp" />
     <ClCompile Include="llc_view_color.cpp" />
-    <ClCompile Include="llc_virtual_keyboard.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_voxel_geometry.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_window.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_framework.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_gui_control_list.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_gui_desktop.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_raster_lh.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_virtual_keyboard.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_voxel_geometry.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_window.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_framework.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_control_list.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_desktop.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_raster_lh.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_encoding.cpp" />
-    <ClCompile Include="llc_expression.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_scene.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_geometry_lh.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_gui.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_gui_draw.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_https_client.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_http_client.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_expression.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_scene.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_geometry_lh.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_draw.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_https_client.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_http_client.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_json.cpp" />
-    <ClCompile Include="llc_json_expression.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_json_expression.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_keyval.cpp" />
     <ClCompile Include="llc_label.cpp" />
     <ClCompile Include="llc_log.cpp" />
-    <ClCompile Include="llc_mapblock.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_mapblock.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_noise.cpp" />
     <ClCompile Include="llc_parse.cpp" />
-    <ClCompile Include="llc_png.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_png_write.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_process.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_rsa.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_runtime_module.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_png.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_png_write.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_process.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_rsa.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_runtime_module.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_stdstring.cpp" />
-    <ClCompile Include="llc_stl.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_stl.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_file.cpp" />
-    <ClCompile Include="llc_string_helper.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_string_helper.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_tcpip.cpp" />
     <ClCompile Include="llc_timer.cpp" />
     <ClCompile Include="llc_view.cpp" />
     <ClCompile Include="llc_windows.cpp" />
-    <ClCompile Include="llc_xml_reader.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
-    <ClCompile Include="llc_font.cpp"><ExcludedFromBuild >true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="llc_xml_reader.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_font.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_header_checkingg.cpp">
-      <ExcludedFromBuild >true</ExcludedFromBuild>    </ClCompile>
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="character_codes.json" />

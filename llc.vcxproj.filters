@@ -106,6 +106,9 @@
     <Filter Include="inet">
       <UniqueIdentifier>{0f1aa788-5273-469d-b6b6-3cdb5e02bc85}</UniqueIdentifier>
     </Filter>
+    <Filter Include="bus">
+      <UniqueIdentifier>{a72bc38d-899b-417b-9446-00cbec4da40b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="llc_adam7.h">
@@ -687,13 +690,7 @@
     <ClInclude Include="llc_apod_tcpip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="llc_i2c.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_serial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_spi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="llc_keyed_bit_array.h">
@@ -767,6 +764,15 @@
     </ClInclude>
     <ClInclude Include="llc_stdsocket.h">
       <Filter>inet</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_spi.h">
+      <Filter>bus</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_i2c.h">
+      <Filter>bus</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_bus_manager.h">
+      <Filter>bus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -953,12 +959,6 @@
     <ClCompile Include="llc_scene.cpp">
       <Filter>scene</Filter>
     </ClCompile>
-    <ClCompile Include="llc_i2c.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_spi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_string_compose.cpp">
       <Filter>string</Filter>
     </ClCompile>
@@ -995,9 +995,20 @@
     <ClCompile Include="llc_tcpip.cpp">
       <Filter>inet</Filter>
     </ClCompile>
+    <ClCompile Include="llc_spi.cpp">
+      <Filter>bus</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_i2c.cpp">
+      <Filter>bus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="Makefile" />
+    <None Include="character_codes.json" />
+    <None Include="copy_llc_config.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="country_coords.json" />
   </ItemGroup>
 </Project>

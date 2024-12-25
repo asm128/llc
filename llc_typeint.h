@@ -38,6 +38,7 @@ namespace llc
 	tydf double		f3_t, f3s_t;
 	tydf size_t		uP_t, iPu_t;
 	tydf intptr_t	sP_t, iPs_t;
+	tydf void*		uV_t, iVu_t;
 #define	szof(type)																\
 	( (sizeof(type) > 0xFFFFU)	? ::llc::u2_t(sizeof(type) & 0xFFFFFFFFU	)	\
 	: (sizeof(type) > 0xFFU)	? ::llc::u1_t(sizeof(type) & 0xFFFFU		)	\
