@@ -1,6 +1,8 @@
 #include "llc_log.h"
 #include "llc_chrono.h"
 
+LLC_USING_TYPEINT();
+
 #ifdef LLC_ATMEL
 #	include <stdio.h>
 #else
@@ -39,32 +41,21 @@ stxp		int		LOG_PREFIX_BUFFER_SIZE	= 256;
 }
 
 #if defined(LLC_WINDOWS)
-static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen) {	OutputDebugStringA(text); return textLen; }
+static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen) 	{ u2_t iChar = 0; for(; iChar < textLen; ++iChar) { sc_c buf[2] = {text[iChar], 0}; OutputDebugStringA(buf); } return iChar; }
+static	::llc::error_t	default_base_log_print	(const char * text)						{ OutputDebugStringA(text); return (::llc::error_t)strlen(text); }
 #elif defined(LLC_ANDROID)
-static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen) {	LOGI("%s", text); return textLen; }
+static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen)	{ LOGI("%s", text); return textLen; }
+static	::llc::error_t	default_base_log_print	(const char * text)						{ LOGI("%s", text); return (::llc::error_t)strlen(text); }
 #elif defined(LLC_ARDUINO)
-static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen) {	return Serial ? Serial.write(text, textLen) : textLen; }
+static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen)	{ return Serial ? Serial.write(text, textLen) : textLen; }
+static	::llc::error_t	default_base_log_print	(const char * text)						{ return Serial ? Serial.print(text) : (::llc::error_t)strlen(text); }
 #else
-static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen) {	(void)textLen; return (::llc::error_t)printf("%s", text); }
+static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen)	{ u2_t iChar = 0; for(; iChar < textLen; ++iChar) printf("%c", text[iChar]); return iChar; }
+static	::llc::error_t	default_base_log_print	(const char * text)						{ return (::llc::error_t)printf("%s", text); }
 #endif
 
-#if defined(LLC_WINDOWS)
-static	::llc::error_t	default_base_log_print	(const char * text) {	OutputDebugStringA(text); return (::llc::error_t)strlen(text); }
-#elif defined(LLC_ANDROID)
-static	::llc::error_t	default_base_log_print	(const char * text) {	LOGI("%s", text); return (::llc::error_t)strlen(text); }
-#elif defined(LLC_ARDUINO)
-static	::llc::error_t	default_base_log_print	(const char * text) {	return Serial ? Serial.print(text) : (::llc::error_t)strlen(text); }
-#else
-static	::llc::error_t	default_base_log_print	(const char * text) {	return (::llc::error_t)printf("%s", text); }
-#endif
-
-#if defined(LLC_WINDOWS)
 ::llc::log_write_t		llc_log_write					= default_base_log_write;
 ::llc::log_print_t		llc_log_print					= default_base_log_print;
-#else
-::llc::log_write_t		llc_log_write					= {};
-::llc::log_print_t		llc_log_print					= {};
-#endif
 
 ::llc::error_t			llc::_base_log_print			(const char* text)						{ return (llc_log_print && text) ? ::llc_log_print(text) : 0; }
 ::llc::error_t			llc::_base_log_write			(const char* text, uint32_t textLen)	{ return (llc_log_write && text && textLen) ? ::llc_log_write(text, textLen) : 0; }
