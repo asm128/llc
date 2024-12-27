@@ -109,7 +109,7 @@ namespace llc
 #		define if_zero_log(llc_logFunction, condition)									if_true_log					(llc_logFunction, 0 == (condition))						// - if condition == 0 -> log
 #		define if_zero_log_and_break(llc_logFunction, condition)						if_true_log_and_break		(llc_logFunction, 0 == (condition))						// - if condition == 0 -> break
 #		define if_zero_log_and_continue(llc_logFunction, condition)						if_true_log_and_continue	(llc_logFunction, 0 == (condition))						// - if condition == 0 -> continue
-#		define if_zero_log_and_throw(llc_logFunction, condition)						if_true_logf_and_throw		(llc_logFunction, 0 == (condition))						// - if condition == 0 -> return
+#		define if_zero_log_and_throw(llc_logFunction, condition)						if_true_log_and_throw		(llc_logFunction, 0 == (condition))						// - if condition == 0 -> return
 #		define if_zero_log_and_return(llc_logFunction, condition)						if_true_log_and_return		(llc_logFunction, 0 == (condition))						// - if condition == 0 -> return
 #		define if_zero_log_and_return_value(llc_logFunction, value, condition)			if_true_log_and_return_value(llc_logFunction, (value), 0 == (condition))			// - if condition == 0 -> return value
 #		define if_zero_log_and_fail(llc_logFunction, condition)							if_true_log_and_fail		(llc_logFunction, 0 == (condition))						// - if condition == 0 -> return -1
@@ -142,7 +142,7 @@ namespace llc
 #		define if_null_logf						if_zero_logf					// - if condition == 0 -> log
 #		define if_null_logf_and_break			if_zero_logf_and_break			// - if condition == 0 -> break
 #		define if_null_logf_and_continue		if_zero_logf_and_continue		// - if condition == 0 -> continue
-#		define if_null_log_and_throw			if_zero_log_and_throw			// - if condition == 0 -> return
+#		define if_null_logf_and_throw			if_zero_logf_and_throw			// - if condition == 0 -> return
 #		define if_null_logf_and_return			if_zero_logf_and_return			// - if condition == 0 -> return
 #		define if_null_logf_and_return_value	if_zero_logf_and_return_value	// - if condition == 0 -> return value
 #		define if_null_logf_and_fail			if_zero_logf_and_fail			// - if condition == 0 -> return -1

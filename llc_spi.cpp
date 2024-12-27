@@ -1,16 +1,16 @@
 #include "llc_spi.h"
 #include "llc_platform_error.h"
 
-::llc::err_t	llc::spiInit	(SSPIHost & device) {
+::llc::err_t	llc::spiInit	(SSPIDevice & device) {
 	(void)device;
 	return 0;
 }
-::llc::err_t	llc::spiLoad	(SSPIHost & host, u0_t pin, au0_t  & data, u2_t registerIndex, u2_t registerCount, u2_t timeout, BUS_MODE mode) {
+::llc::err_t	llc::spiLoad	(SSPIDevice & host, u0_t pin, au0_t  & data, u2_t registerIndex, u2_t registerCount, u2_t timeout, BUS_MODE mode) {
 	if_fail_fe(data.resize(registerCount));
 	if_fail_fe(spiLoad(host, pin, *(vu0_t*)&data, registerIndex, registerCount, timeout, mode));
 	return 0;
 }
-::llc::err_t	llc::spiLoad	(SSPIHost & host, u0_t pin, vu0_t & data, u2_t registerIndex, u2_t registerCount, u2_t timeout, BUS_MODE mode) {
+::llc::err_t	llc::spiLoad	(SSPIDevice & host, u0_t pin, vu0_t & data, u2_t registerIndex, u2_t registerCount, u2_t timeout, BUS_MODE mode) {
 #ifdef LLC_ST
 	HAL_StatusTypeDef result = HAL_ERROR;
 	switch(mode) {
@@ -26,7 +26,7 @@
 	return -1;
 #endif
 }
-::llc::error_t llc::spiSave		(SSPIHost & host, u0_t pin, vcu0_c & data, u2_t registerIndex, u2_t timeout, BUS_MODE mode) {
+::llc::err_t	llc::spiSave		(SSPIDevice & host, u0_t pin, vcu0_c & data, u2_t registerIndex, u2_t timeout, BUS_MODE mode) {
 #if defined(LLC_ST)
 	HAL_StatusTypeDef result = HAL_ERROR;
 	switch(mode) {

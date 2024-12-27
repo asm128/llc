@@ -687,6 +687,11 @@ namespace llc
 #define if_zero_tw	if_zero_log_and_throw_warning
 #define if_zero_ti	if_zero_log_and_throw_info
 #define if_zero_tv	if_zero_log_and_throw_verbose
+#define if_null_ta	if_null_log_and_throw_always
+#define if_null_te	if_null_log_and_throw_error
+#define if_null_tw	if_null_log_and_throw_warning
+#define if_null_ti	if_null_log_and_throw_info
+#define if_null_tv	if_null_log_and_throw_verbose
 #define if_true_taf	if_true_logf_and_throw_always
 #define if_true_tef	if_true_logf_and_throw_error
 #define if_true_twf	if_true_logf_and_throw_warning
@@ -702,6 +707,11 @@ namespace llc
 #define if_zero_twf	if_zero_logf_and_throw_warning
 #define if_zero_tif	if_zero_logf_and_throw_info
 #define if_zero_tvf	if_zero_logf_and_throw_verbose
+#define if_null_taf	if_null_logf_and_throw_always
+#define if_null_tef	if_null_logf_and_throw_error
+#define if_null_twf	if_null_logf_and_throw_warning
+#define if_null_tif	if_null_logf_and_throw_info
+#define if_null_tvf	if_null_logf_and_throw_verbose
 //
 #define a_if       if_true_a
 #define e_if       if_true_e
