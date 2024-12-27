@@ -27,8 +27,8 @@ namespace llc
 		sinx	err_t	unlock		()	{ rtrn 0; }
 #	else // !CONFIG_DISABLE_HAL_LOCKS
 		QueueHandle_t	Lock		= {};
-		inln			~mutex		()	{ if(Lock) vQueueDelete((QueueHandle_t)Lock); }
-						mutex		()	{ if_null_te(Lock = xQueueCreateMutex(queueQUEUE_TYPE_MUTEX)); }
+		inln			~hal_mutex	()	{ if(Lock) vQueueDelete((QueueHandle_t)Lock); }
+						hal_mutex	()	{ if_null_te(Lock = xQueueCreateMutex(queueQUEUE_TYPE_MUTEX)); }
 		err_t			lock		()	{ if_zero_fe(xQueueSemaphoreTake(Lock, portMAX_DELAY)); rtrn 0; }
 		err_t			try_lock	()	{ if_zero_fi(xQueueSemaphoreTake(Lock, 1)); rtrn 0; }
 		err_t			unlock		()	{ if_zero_fe(xQueueGenericSend((QueueHandle_t)Lock, 0, semGIVE_BLOCK_TIME, queueSEND_TO_BACK)); rtrn 0; }
