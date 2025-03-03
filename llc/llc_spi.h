@@ -22,7 +22,7 @@ namespace llc
 #ifdef LLC_CMSIS
 		SPI_HandleTypeDef	PlatformHandle		= 0;
 #elif defined(LLC_ARDUINO)
-		SPIClass			PlatformHandle		= 0;
+		SPIClass			PlatformHandle		= {};
 #else
 		void				* PlatformHandle	= 0;
 #endif // LLC_CMSIS

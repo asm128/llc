@@ -1,0 +1,402 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x86">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x86">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\llc\gpk_adam7.cpp" />
+    <ClCompile Include="..\llc\gpk_aes.cpp" />
+    <ClCompile Include="..\llc\gpk_array.cpp" />
+    <ClCompile Include="..\llc\gpk_ascii_target.cpp" />
+    <ClCompile Include="..\llc\gpk_base64.cpp" />
+    <ClCompile Include="..\llc\gpk_block.cpp" />
+    <ClCompile Include="..\llc\gpk_cgi.cpp" />
+    <ClCompile Include="..\llc\gpk_cgi_main.cpp" />
+    <ClCompile Include="..\llc\gpk_cgi_module.cpp" />
+    <ClCompile Include="..\llc\gpk_cgi_runtime.cpp" />
+    <ClCompile Include="..\llc\gpk_chrono.cpp" />
+    <ClCompile Include="..\llc\gpk_component_scene.cpp" />
+    <ClCompile Include="..\llc\gpk_component_scene_draw.cpp" />
+    <ClCompile Include="..\llc\gpk_d3d.cpp" />
+    <ClCompile Include="..\llc\gpk_datatype.cpp" />
+    <ClCompile Include="..\llc\gpk_deflate.cpp" />
+    <ClCompile Include="..\llc\gpk_dialog.cpp" />
+    <ClCompile Include="..\llc\gpk_encoding.cpp" />
+    <ClCompile Include="..\llc\gpk_expression.cpp" />
+    <ClCompile Include="..\llc\gpk_file.cpp" />
+    <ClCompile Include="..\llc\gpk_font.cpp" />
+    <ClCompile Include="..\llc\gpk_framework.cpp" />
+    <ClCompile Include="..\llc\gpk_geometry.cpp" />
+    <ClCompile Include="..\llc\gpk_geometry_lh.cpp" />
+    <ClCompile Include="..\llc\gpk_gui.cpp" />
+    <ClCompile Include="..\llc\gpk_gui_control_list.cpp" />
+    <ClCompile Include="..\llc\gpk_gui_desktop.cpp" />
+    <ClCompile Include="..\llc\gpk_gui_draw.cpp" />
+    <ClCompile Include="..\llc\gpk_gui_inputbox.cpp" />
+    <ClCompile Include="..\llc\gpk_gui_viewport.cpp" />
+    <ClCompile Include="..\llc\gpk_https_client.cpp" />
+    <ClCompile Include="..\llc\gpk_http_client.cpp" />
+    <ClCompile Include="..\llc\gpk_i2c.cpp" />
+    <ClCompile Include="..\llc\gpk_json.cpp" />
+    <ClCompile Include="..\llc\gpk_json_expression.cpp" />
+    <ClCompile Include="..\llc\gpk_keyval.cpp" />
+    <ClCompile Include="..\llc\gpk_label.cpp" />
+    <ClCompile Include="..\llc\gpk_log.cpp" />
+    <ClCompile Include="..\llc\gpk_mapblock.cpp" />
+    <ClCompile Include="..\llc\gpk_noise.cpp" />
+    <ClCompile Include="..\llc\gpk_parse.cpp" />
+    <ClCompile Include="..\llc\gpk_particle.cpp" />
+    <ClCompile Include="..\llc\gpk_path.cpp" />
+    <ClCompile Include="..\llc\gpk_platform_error.cpp" />
+    <ClCompile Include="..\llc\gpk_png.cpp" />
+    <ClCompile Include="..\llc\gpk_png_write.cpp" />
+    <ClCompile Include="..\llc\gpk_process.cpp" />
+    <ClCompile Include="..\llc\gpk_raster_lh.cpp" />
+    <ClCompile Include="..\llc\gpk_rsa.cpp" />
+    <ClCompile Include="..\llc\gpk_runtime_module.cpp" />
+    <ClCompile Include="..\llc\gpk_scene.cpp" />
+    <ClCompile Include="..\llc\gpk_spi.cpp" />
+    <ClCompile Include="..\llc\gpk_stdstring.cpp" />
+    <ClCompile Include="..\llc\gpk_stl.cpp" />
+    <ClCompile Include="..\llc\gpk_string_helper.cpp" />
+    <ClCompile Include="..\llc\gpk_tcpip.cpp" />
+    <ClCompile Include="..\llc\gpk_timer.cpp" />
+    <ClCompile Include="..\llc\gpk_view.cpp" />
+    <ClCompile Include="..\llc\gpk_virtual_keyboard.cpp" />
+    <ClCompile Include="..\llc\gpk_voxel_geometry.cpp" />
+    <ClCompile Include="..\llc\gpk_window.cpp" />
+    <ClCompile Include="..\llc\gpk_windows.cpp" />
+    <ClCompile Include="..\llc\gpk_xml_reader.cpp" />
+    <ClCompile Include="..\llc\llc_header_checkingg.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\llc\gpk_adam7.h" />
+    <ClInclude Include="..\llc\gpk_aes.h" />
+    <ClInclude Include="..\llc\gpk_align.h" />
+    <ClInclude Include="..\llc\gpk_apod_serialize.h" />
+    <ClInclude Include="..\llc\gpk_app_impl.h" />
+    <ClInclude Include="..\llc\gpk_array.h" />
+    <ClInclude Include="..\llc\gpk_array_base.h" />
+    <ClInclude Include="..\llc\gpk_array_obj.h" />
+    <ClInclude Include="..\llc\gpk_array_pod.h" />
+    <ClInclude Include="..\llc\gpk_array_static.h" />
+    <ClInclude Include="..\llc\gpk_ascii_color.h" />
+    <ClInclude Include="..\llc\gpk_ascii_target.h" />
+    <ClInclude Include="..\llc\gpk_astatic_serialize.h" />
+    <ClInclude Include="..\llc\gpk_auto_handler.h" />
+    <ClInclude Include="..\llc\gpk_axis.h" />
+    <ClInclude Include="..\llc\gpk_base64.h" />
+    <ClInclude Include="..\llc\gpk_bit.h" />
+    <ClInclude Include="..\llc\gpk_bitmap_target.h" />
+    <ClInclude Include="..\llc\gpk_block.h" />
+    <ClInclude Include="..\llc\gpk_block_container.h" />
+    <ClInclude Include="..\llc\gpk_block_container_nts.h" />
+    <ClInclude Include="..\llc\gpk_camera.h" />
+    <ClInclude Include="..\llc\gpk_cdn.h" />
+    <ClInclude Include="..\llc\gpk_cgi.h" />
+    <ClInclude Include="..\llc\gpk_cgi_app_impl.h" />
+    <ClInclude Include="..\llc\gpk_cgi_app_impl_v2.h" />
+    <ClInclude Include="..\llc\gpk_cgi_module.h" />
+    <ClInclude Include="..\llc\gpk_cgi_runtime.h" />
+    <ClInclude Include="..\llc\gpk_chrono.h" />
+    <ClInclude Include="..\llc\gpk_circle.h" />
+    <ClInclude Include="..\llc\gpk_collision.h" />
+    <ClInclude Include="..\llc\gpk_color.h" />
+    <ClInclude Include="..\llc\gpk_complus.h" />
+    <ClInclude Include="..\llc\gpk_component_scene.h" />
+    <ClInclude Include="..\llc\gpk_coord.h" />
+    <ClInclude Include="..\llc\gpk_d3d.h" />
+    <ClInclude Include="..\llc\gpk_datatype.h" />
+    <ClInclude Include="..\llc\gpk_debug.h" />
+    <ClInclude Include="..\llc\gpk_deflate.h" />
+    <ClInclude Include="..\llc\gpk_dialog.h" />
+    <ClInclude Include="..\llc\gpk_dialog_controls.h" />
+    <ClInclude Include="..\llc\gpk_encoding.h" />
+    <ClInclude Include="..\llc\gpk_enum.h" />
+    <ClInclude Include="..\llc\gpk_error.h" />
+    <ClInclude Include="..\llc\gpk_eval.h" />
+    <ClInclude Include="..\llc\gpk_event.h" />
+    <ClInclude Include="..\llc\gpk_expression.h" />
+    <ClInclude Include="..\llc\gpk_file.h" />
+    <ClInclude Include="..\llc\gpk_font.h" />
+    <ClInclude Include="..\llc\gpk_frameinfo.h" />
+    <ClInclude Include="..\llc\gpk_framework.h" />
+    <ClInclude Include="..\llc\gpk_functional.h" />
+    <ClInclude Include="..\llc\gpk_geometry.h" />
+    <ClInclude Include="..\llc\gpk_geometry_lh.h" />
+    <ClInclude Include="..\llc\gpk_grid_copy.h" />
+    <ClInclude Include="..\llc\gpk_grid_scale.h" />
+    <ClInclude Include="..\llc\gpk_grid_static.h" />
+    <ClInclude Include="..\llc\gpk_gui.h" />
+    <ClInclude Include="..\llc\gpk_gui_control.h" />
+    <ClInclude Include="..\llc\gpk_gui_desktop.h" />
+    <ClInclude Include="..\llc\gpk_gui_text.h" />
+    <ClInclude Include="..\llc\gpk_http.h" />
+    <ClInclude Include="..\llc\gpk_http_client.h" />
+    <ClInclude Include="..\llc\gpk_i2c.h" />
+    <ClInclude Include="..\llc\gpk_image.h" />
+    <ClInclude Include="..\llc\gpk_input.h" />
+    <ClInclude Include="..\llc\gpk_io.h" />
+    <ClInclude Include="..\llc\gpk_json.h" />
+    <ClInclude Include="..\llc\gpk_json_expression.h" />
+    <ClInclude Include="..\llc\gpk_keyval.h" />
+    <ClInclude Include="..\llc\gpk_label.h" />
+    <ClInclude Include="..\llc\gpk_label_manager.h" />
+    <ClInclude Include="..\llc\gpk_line.h" />
+    <ClInclude Include="..\llc\gpk_line2.h" />
+    <ClInclude Include="..\llc\gpk_line3.h" />
+    <ClInclude Include="..\llc\gpk_log.h" />
+    <ClInclude Include="..\llc\gpk_math.h" />
+    <ClInclude Include="..\llc\gpk_matrix.h" />
+    <ClInclude Include="..\llc\gpk_member_registry.h" />
+    <ClInclude Include="..\llc\gpk_memory.h" />
+    <ClInclude Include="..\llc\gpk_model.h" />
+    <ClInclude Include="..\llc\gpk_module.h" />
+    <ClInclude Include="..\llc\gpk_n2.h" />
+    <ClInclude Include="..\llc\gpk_n3.h" />
+    <ClInclude Include="..\llc\gpk_noise.h" />
+    <ClInclude Include="..\llc\gpk_parse.h" />
+    <ClInclude Include="..\llc\gpk_particle.h" />
+    <ClInclude Include="..\llc\gpk_path.h" />
+    <ClInclude Include="..\llc\gpk_platform_error.h" />
+    <ClInclude Include="..\llc\gpk_png.h" />
+    <ClInclude Include="..\llc\gpk_process.h" />
+    <ClInclude Include="..\llc\gpk_ptr_nco.h" />
+    <ClInclude Include="..\llc\gpk_ptr_obj.h" />
+    <ClInclude Include="..\llc\gpk_ptr_pod.h" />
+    <ClInclude Include="..\llc\gpk_quad.h" />
+    <ClInclude Include="..\llc\gpk_quat.h" />
+    <ClInclude Include="..\llc\gpk_raster_lh.h" />
+    <ClInclude Include="..\llc\gpk_rect.h" />
+    <ClInclude Include="..\llc\gpk_rect2.h" />
+    <ClInclude Include="..\llc\gpk_rect3.h" />
+    <ClInclude Include="..\llc\gpk_rect_align.h" />
+    <ClInclude Include="..\llc\gpk_ref.h" />
+    <ClInclude Include="..\llc\gpk_rigidbody.h" />
+    <ClInclude Include="..\llc\gpk_rsa.h" />
+    <ClInclude Include="..\llc\gpk_runtime.h" />
+    <ClInclude Include="..\llc\gpk_runtime_module.h" />
+    <ClInclude Include="..\llc\gpk_safe.h" />
+    <ClInclude Include="..\llc\gpk_scene.h" />
+    <ClInclude Include="..\llc\gpk_size.h" />
+    <ClInclude Include="..\llc\gpk_spi.h" />
+    <ClInclude Include="..\llc\gpk_stdsocket.h" />
+    <ClInclude Include="..\llc\gpk_stdstring.h" />
+    <ClInclude Include="..\llc\gpk_stl.h" />
+    <ClInclude Include="..\llc\gpk_string.h" />
+    <ClInclude Include="..\llc\gpk_string_helper.h" />
+    <ClInclude Include="..\llc\gpk_sync.h" />
+    <ClInclude Include="..\llc\gpk_tcpip.h" />
+    <ClInclude Include="..\llc\gpk_timer.h" />
+    <ClInclude Include="..\llc\gpk_tri.h" />
+    <ClInclude Include="..\llc\gpk_tri2.h" />
+    <ClInclude Include="..\llc\gpk_tri3.h" />
+    <ClInclude Include="..\llc\gpk_typeint.h" />
+    <ClInclude Include="..\llc\gpk_type_identifier.h" />
+    <ClInclude Include="..\llc\gpk_type_registry.h" />
+    <ClInclude Include="..\llc\gpk_view.h" />
+    <ClInclude Include="..\llc\gpk_view_bit.h" />
+    <ClInclude Include="..\llc\gpk_view_layered.h" />
+    <ClInclude Include="..\llc\gpk_view_manager.h" />
+    <ClInclude Include="..\llc\gpk_view_serialize.h" />
+    <ClInclude Include="..\llc\gpk_view_stream.h" />
+    <ClInclude Include="..\llc\gpk_virtual_keyboard.h" />
+    <ClInclude Include="..\llc\gpk_vox.h" />
+    <ClInclude Include="..\llc\gpk_voxel.h" />
+    <ClInclude Include="..\llc\gpk_voxel_geometry.h" />
+    <ClInclude Include="..\llc\gpk_window.h" />
+    <ClInclude Include="..\llc\gpk_windows.h" />
+    <ClInclude Include="..\llc\gpk_xml_reader.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3fa64f44-eac9-4db5-bd82-62b55deee884}</ProjectGuid>
+    <Keyword>Android</Keyword>
+    <RootNamespace>android_llc</RootNamespace>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <ApplicationType>Android</ApplicationType>
+    <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <OutDir>$(ProjectDir)..\..\$(Platform).$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\obj\$(Platform).$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
+      <AdditionalIncludeDirectories>../../gpk/llc; ..\..\gpk\llc; ..\..\zlib; $(StlIncludeDirectories);$(Sysroot)\usr\include;$(Sysroot)\usr\include\$(AndroidHeaderTriple);$(VS_NdkRoot)\sources\android\support\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-Wno-unused-value -Wno-misleading-indentation</AdditionalOptions>
+      <PreprocessorDefinitions />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
+      <AdditionalIncludeDirectories>../../gpk/llc; ..\..\gpk\llc; ..\..\zlib; $(StlIncludeDirectories);$(Sysroot)\usr\include;$(Sysroot)\usr\include\$(AndroidHeaderTriple);$(VS_NdkRoot)\sources\android\support\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-Wno-unused-value -Wno-misleading-indentation</AdditionalOptions>
+      <PreprocessorDefinitions />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <ClCompile>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
+      <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\zlib; $(StlIncludeDirectories);$(Sysroot)\usr\include;$(Sysroot)\usr\include\$(AndroidHeaderTriple);$(VS_NdkRoot)\sources\android\support\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-Wno-unused-value -Wno-misleading-indentation</AdditionalOptions>
+      <PreprocessorDefinitions />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <ClCompile>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
+      <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\zlib; $(StlIncludeDirectories);$(Sysroot)\usr\include;$(Sysroot)\usr\include\$(AndroidHeaderTriple);$(VS_NdkRoot)\sources\android\support\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-Wno-unused-value -Wno-misleading-indentation</AdditionalOptions>
+      <PreprocessorDefinitions />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
+      <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\zlib; $(StlIncludeDirectories);$(Sysroot)\usr\include;$(Sysroot)\usr\include\$(AndroidHeaderTriple);$(VS_NdkRoot)\sources\android\support\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-Wno-unused-value -Wno-misleading-indentation</AdditionalOptions>
+      <PreprocessorDefinitions />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
+      <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\zlib; $(StlIncludeDirectories);$(Sysroot)\usr\include;$(Sysroot)\usr\include\$(AndroidHeaderTriple);$(VS_NdkRoot)\sources\android\support\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-Wno-unused-value -Wno-misleading-indentation</AdditionalOptions>
+      <PreprocessorDefinitions />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
+      <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\zlib; $(StlIncludeDirectories);$(Sysroot)\usr\include;$(Sysroot)\usr\include\$(AndroidHeaderTriple);$(VS_NdkRoot)\sources\android\support\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-Wno-unused-value -Wno-misleading-indentation</AdditionalOptions>
+      <PreprocessorDefinitions />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
+      <AdditionalIncludeDirectories>..\..\gpk\llc; ..\..\zlib; $(StlIncludeDirectories);$(Sysroot)\usr\include;$(Sysroot)\usr\include\$(AndroidHeaderTriple);$(VS_NdkRoot)\sources\android\support\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>-Wno-unused-value -Wno-misleading-indentation</AdditionalOptions>
+      <PreprocessorDefinitions />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

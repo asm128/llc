@@ -7,14 +7,22 @@
 #	include "freertos/semphr.h"
 #endif // LLC_FREERTOS
 
-#include <mutex>
+#ifndef LLC_ATMEL
+#	include <mutex>
+#else
+#endif
 
 #ifndef LLC_MUTEX_H
 #define LLC_MUTEX_H
 
 namespace llc
 {
-#ifndef LLC_FREERTOS
+#ifdef LLC_ATMEL
+	struct mutex {
+		sinx	err_t	lock		()	{ rtrn 0; }
+		sinx	err_t	try_lock	()	{ rtrn 0; }
+		sinx	err_t	unlock		()	{ rtrn 0; }
+#elif !defined(LLC_FREERTOS)
 	struct mutex : ::std::mutex {
 		inln	err_t	lock		()	{ ::std::mutex::lock(); rtrn 0; }
 		inln	err_t	try_lock	()	{ rtrn ::std::mutex::try_lock() ? 0 : -1; }

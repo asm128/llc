@@ -183,7 +183,7 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 	ree_if(!fp, "Cannot open file: %s.", fileName.begin());
 	u2_c				fileSize					= (uint32_t)fp.size();
 	fileInMemory.clear();
-#if defined(LLC_ESP32)
+#ifdef LLC_ESP32
 	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
 #else
 	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());

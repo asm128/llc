@@ -28,7 +28,11 @@ namespace llc
 #ifdef LLC_CMSIS
 		I2C_HandleTypeDef	PlatformHandle	= 0;
 #elif defined(LLC_ARDUINO)
-		TwoWire				PlatformHandle	= 0;
+#	ifndef LLC_ESP32
+		TwoWire				PlatformHandle	= {};
+#	else
+		TwoWire				PlatformHandle	= {0};
+#	endif // LLC_ESP32
 #endif // LLC_CMSIS
 		apobj<SI2CSlave>	Slaves			= {};
 		SI2CPinout			Pinout			= {};

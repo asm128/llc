@@ -17,8 +17,8 @@ namespace llc
 		cnst T		bitsThatMatch		= (state & bitsToTest);
 		rtrn T((bitsThatMatch == bitsToTest) ? 0 : (state | bitsToTest) ? state | bitsToTest : -1);
 	}
-	tplTnsix	u2_t	bitsof			(cnst T&)	nxpt	{ rtrn szof(T); }
-	tplTnsix	u2_t	bitsof			()			nxpt	{ rtrn szof(T); }
+	tplTnsix	u2_t	bitsof			(cnst T&)		nxpt	{ rtrn szof(T); }
+	tplTnsix	u2_t	bitsof			()				nxpt	{ rtrn szof(T); }
 #ifdef LLC_DEBUG_ENABLED
 	tplT 		T		bit_make		(u0_t bitIndex)	nxpt	{
 		rve_if((T)-1LL, bitIndex >= (szof(T) * BYTE_SIZE), "Invalid bit index: %i", bitIndex);
@@ -27,13 +27,11 @@ namespace llc
 #endif // LLC_DEBUG_ENABLED
 		rtrn (T)(((T)1) << bitIndex);
 	}
-
 //#ifdef LLC_BIGENDIAN
 //	sinx	u0_t		le_byte_at		(uint32_t bytes, u0_t byteIndex)	nxpt	{ return ((0xFF000000 >> (byteIndex * 8)) & bytes) >> ((szof(bytes) - byteIndex) * 8); }
 //#else
 //	sinx	u0_t		le_byte_at		(uint32_t bytes, u0_t byteIndex)	nxpt	{ return ((0xFF << (byteIndex * 8)) & bytes) >> (byteIndex * 8); }
 //#endif
-
 	tplT	sttc	T	reverse_bitfield	(T input, s2_c bitDepth)	{
 		u2_c					sizeType			= u2_t(szof(T) * 8);
 		cnst T					mask				= ((T)(-1)) >> (sizeType - bitDepth);
