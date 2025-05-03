@@ -1,8 +1,8 @@
-#include "llc_string.h"
-
-stxp llc::vcsc_c    trim_blanks = " \n\r\t";
+#include "llc_arduino_string.h"
 
 #ifdef LLC_ARDUINO
+stxp llc::vcsc_c    trim_blanks = LLC_CXS(" \n\r\t");
+
 llc::error_t    llc::rtrim      (String & trimmed, const String & input) {
     trimmed = input;
     int         trimCount   = 0;

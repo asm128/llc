@@ -1,5 +1,8 @@
 #include "llc_array_pod.h"
 #include "llc_std_cstring.h"
+#ifdef LLC_ARDUINO
+#   include <IPAddress.h>
+#endif // LLC_ARDUINO
 
 #ifndef LLC_STRING_H
 #define LLC_STRING_H
@@ -24,7 +27,11 @@ namespace llc
         inline  string      (const String & other)          : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    { initialize(); }
         inline  string      (const IPAddress & other)       : string(other.toString())                              { initialize(); }
 
+#   ifdef LLC_ESP8266
+        ndin operator   String      ()  const   { return String(Data); }
+#   else
         ndin operator   String      ()  const   { return String(Data, Count); }
+#   endif
 #endif
         ndin operator   vcst_t      ()  const   { return {Data, Count}; }
         ndin operator   const char* ()  const   { return vcst_t{Data, Count}; }
