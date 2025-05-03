@@ -1,3 +1,10 @@
 .vs/
 .vscode/
-/obj/x64.Debug
+obj/
+bin2hex/
+checkmater/
+esp_build/
+ice_ping/
+llc_pack/
+llc_tokenizer/
+llc_test_compress/

@@ -69,9 +69,10 @@
 
 #if defined(LLC_WINDOWS)
 #	include <WS2tcpip.h>
-#elif defined(ESP8266)
-#	include <lwip/sockets.h>
-#	include <lwip/netdb.h>
+#elif defined(LLC_ESP8266)
+//#	include <lwip/sockets.h>
+//#	include <lwip/netdb.h>
+#	include <lwip/inet.h>
 #else
 #	include <netdb.h>
 #	include <arpa/inet.h>
@@ -100,7 +101,7 @@
 	address	= sockaddr_ipv4.sin_addr.s_addr;
 #else
 	address	= ::llc::SIPv4
-		{ sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b1
+		{ sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b1 
 		, sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b2
 		, sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b3
 		, sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b4

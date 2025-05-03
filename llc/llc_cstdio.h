@@ -23,9 +23,9 @@ namespace llc
 	GDEFINE_ENUM_VALUE(FSEEK, CUR, SEEK_CUR);
 	GDEFINE_ENUM_VALUE(FSEEK, END, SEEK_END);
 #ifdef LLC_WINDOWS
-	ndsi err_t	fseek		(FILE * fp, int64_t offset, FSEEK origin) { if_true_vef(-1, _fseeki64(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
+	ndsi err_t	fseek		(FILE * fp, int64_t offset, FSEEK origin) { if_true_vef(-1, ::_fseeki64(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
 #else
-	ndsi err_t	fseek		(FILE * fp, int64_t offset, FSEEK origin) { if_true_vef(-1, fseek(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
+	ndsi err_t	fseek		(FILE * fp, int64_t offset, FSEEK origin) { if_true_vef(-1, ::fseek(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
 #endif
 	// fopen_s
 	ndsi err_t	fopen_s		(FILE* * out_fp, vcs filename, vcs mode) {

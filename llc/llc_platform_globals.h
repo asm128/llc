@@ -1,4 +1,4 @@
-/// Copyright 2010-2024 - ogarnd
+/// Copyright 2010-2025 - ogarnd
 #ifndef LLC_PLATFORM_GLOBALS_H_23627
 #define LLC_PLATFORM_GLOBALS_H_23627
 
@@ -155,6 +155,7 @@
 #define tpl_tstin		tpl_t	stin
 
 #define tplTInTOut		tplt<tpnm TIn, tpnm TOut>
+#define tplTOutTIn		tplt<tpnm TOut, tpnm TIn>
 
 #define cxpr_if(condition)		if cxpr(condition)
 #define cxpr_if_not(condition)	if cxpr(not(condition))

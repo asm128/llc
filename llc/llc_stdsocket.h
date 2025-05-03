@@ -6,12 +6,17 @@
 
 #ifdef LLC_WINDOWS
 #	include <WinSock2.h>
-#elif defined(ESP8266)
-#	include <lwip/sockets.h>
+//#elif defined(LLC_ESP8266)
+//#	include <lwip/sockets.h>
 #else
-#	include <sys/types.h>
-#	include <sys/socket.h>
-#	include <netinet/in.h>
+#	if defined(LLC_ESP8266)
+//#		include <lwip/sockets.h>
+#		include <lwip/inet.h>
+#	else
+#		include <sys/types.h>
+#		include <sys/socket.h>
+#		include <netinet/in.h>
+#	endif
 #	include <unistd.h>
 #endif
 

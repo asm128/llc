@@ -6,7 +6,7 @@
 
 #include <new>
 
-#if defined(LLC_WINDOWS)
+#ifdef LLC_WINDOWS
 #	ifndef WIN32_LEAN_AND_MEAN
 #		define WIN32_LEAN_AND_MEAN
 #	endif
@@ -15,14 +15,16 @@
 #	include <dirent.h>
 #	include <unistd.h>
 #	include <fcntl.h> // Definition of AT_* constants
-#elif defined(ESP8266)
-#	include <LittleFS.h>
-#	include "umm_malloc/umm_malloc.h"
-#	define 	LLC_SOC_FILESYSTEM_INSTANCE LittleFS
-#elif defined(LLC_ESP32)
-#	include <SPIFFS.h>
-#	define 	LLC_SOC_FILESYSTEM_INSTANCE SPIFFS
-#endif
+#elif defined(LLC_ARDUINO)
+#	ifdef LLC_ESP8266
+#		include <LittleFS.h>
+#		include "umm_malloc/umm_malloc.h"
+#		define 	LLC_SOC_FILESYSTEM_INSTANCE LittleFS
+#	elif defined(LLC_ESP32) 
+#		include <SPIFFS.h>
+#		define 	LLC_SOC_FILESYSTEM_INSTANCE SPIFFS
+#	endif // LLC_ESP32
+#endif // LLC_ARDUINO
 
 LLC_USING_APOD();
 LLC_USING_VIEW();
@@ -42,32 +44,36 @@ stxp llc::vcst_t	LLC_OPEN_MODE_READ		= LLC_CXS("rb");
 stxp llc::vcst_t	LLC_OPEN_MODE_WRITE		= LLC_CXS("wb");
 stxp llc::vcst_t	LLC_OPEN_MODE_APPEND	= LLC_CXS("ab+");
 
-#if defined(LLC_ESP32) || defined(ESP8266)
+#ifdef LLC_ARDUINO
+#	if defined(LLC_ESP32) || defined(LLC_ESP8266)
 stin	fs::FS&		getSoCFileSystem	()	{ rtrn LLC_SOC_FILESYSTEM_INSTANCE; }
 sttc  	llc::err_t	socPath  			(llc::asc_t & fixed, llc::vcsc_t path) {
 	llc::vcsc_t			trimmd;
 	if_fail_fe(llc::ltrim(trimmd, path, "/ \t\n"));
 	rtrn llc::append_strings(fixed, '/', trimmd);
 }
-#	define FIX_SOC_PATH(_pathView)                      {   \
-	if_zero_fe(_pathView.size());                           \
-	asc_t      _fixedPath;                            \
-	if('/' != _pathView[0]) {                               \
-		if_fail_fe(::socPath(_fixedPath, _pathView)); \
-		_pathView = _fixedPath;                       \
-	}														\
+#		define FIX_SOC_PATH(_pathView)                      {   \
+	if_zero_fe(_pathView.size());                           	\
+	asc_t      _fixedPath;                            			\
+	if('/' != _pathView[0]) {                               	\
+		if_fail_fe(::socPath(_fixedPath, _pathView)); 			\
+		_pathView = _fixedPath;                       			\
+	}															\
 }
-#endif
+#	endif
+#endif // LLC_ARDUINO
 
 #define llc_file_info_printf(...) do {} while(0) // info_printf
 
 s3_t	llc::	fileSize			(llc::vcst_t usfileName)			{
 	llc::asc_t			fileName					= llc::toString(usfileName);
-#if defined(LLC_ESP32) || defined(ESP8266)
+#ifdef LLC_ARDUINO
+#	if defined(LLC_ESP32) || defined(LLC_ESP8266)
 	FIX_SOC_PATH(fileName);
 	File				fp						= getSoCFileSystem().open(fileName.begin(), LLC_OPEN_MODE_READ);
 	ree_if(!fp, "Cannot open file: %s.", fileName.begin());
 	u2_c				fileSize				= (uint32_t)fp.size();
+#	endif // LLC_ESP32
 #else
 	::FILE				* fp					= 0;
 	llc_necall(llc::fopen_s(&fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%s'.", fileName.begin());
@@ -81,7 +87,7 @@ s3_t	llc::	fileSize			(llc::vcst_t usfileName)			{
 	if(0 > fileSize)
 		error_printf("%s", "Unknown error reading '%s'.", fileName.begin());
 	fclose(fp);
-#endif
+#endif // LLC_ARDUINO
 	return fileSize;
 }
 
@@ -177,21 +183,23 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 	llc::asc_t			fileName					= llc::toString(usfileName);
 	llc_file_info_printf("Loading '%s'.", fileName.begin());
 
-#if defined(LLC_ESP32) || defined(ESP8266)
+#ifdef LLC_ARDUINO
+#	if defined(LLC_ESP32) || defined(ESP8266)
 	FIX_SOC_PATH(fileName);
 	File				fp					= getSoCFileSystem().open(fileName.begin(), LLC_OPEN_MODE_READ);
 	ree_if(!fp, "Cannot open file: %s.", fileName.begin());
 	u2_c				fileSize					= (uint32_t)fp.size();
 	fileInMemory.clear();
-#ifdef LLC_ESP32
+#		ifdef LLC_ESP32
 	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
-#else
+#		else
 	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
-#endif
+#		endif // LLC_ESP32
+#	endif // LLC_ESP32 || LLC_ESP8266
 	rees_if(fileSize != (uint32_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
 	fp.close();
 	llc::err_t	result				= 0;
-#else
+#else // !LLC_ARDUINO
 	::FILE				* fp				= 0;
 	const int32_t				fileErr				= llc::fopen_s(&fp, fileName, ::LLC_OPEN_MODE_READ);
 	rvw_if((fileErr > 0) ? -fileErr : fileErr, 0 != fileErr || 0 == fp, "Cannot open file: %s.", fileName.begin());
@@ -213,13 +221,13 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 		}
 	}
 	fclose(fp);
-#endif
+#endif // LLC_ARDUINO
 
 #ifdef LLC_DEBUG_FILE_CONTENTS
 	llc_file_info_printf("'%s' loaded successfully. Size: %" LLC_FMT_U2 ":\n%s\n", fileName.begin(), fileInMemory.size(), fileInMemory.size() ? fileInMemory.begin() : (const uint8_t*)"");
 #else
 	llc_file_info_printf("'%s' loaded successfully. Size: %" LLC_FMT_U2 ".", fileName.begin(), fileInMemory.size());
-#endif
+#endif // LLC_DEBUG_FILE_CONTENTS
 	return result;
 }
 
@@ -229,15 +237,17 @@ llc::err_t	llc::	fileFromMemory			(vcst_t usfileName, vcu0_c & fileInMemory, boo
 	llc_file_info_printf("%s '%s':\n%s\n", append ? "Appending to" : "Writing", fileName.begin(), fileInMemory.size() ? fileInMemory.begin() : (const uint8_t*)"");
 #else
 	llc_file_info_printf("%s '%s'.", append ? "Appending to" : "Writing", fileName.begin());
-#endif
+#endif // LLC_DEBUG_FILE_CONTENTS
 
 	llc::err_t	result				= 0;
-#if defined(LLC_ESP32) || defined(ESP8266)
+#ifdef LLC_ARDUINO
+#	if defined(LLC_ESP32) || defined(ESP8266)
 	FIX_SOC_PATH(fileName);
 	File 				fp	 				= ::getSoCFileSystem().open(fileName.begin(), append ? LLC_OPEN_MODE_APPEND : LLC_OPEN_MODE_WRITE);
 	ree_if(!fp, "Failed to open '%s'.", fileName.begin());
 	ree_if(!fp.write(fileInMemory.begin(), fileInMemory.size()), "Failed to write to '%s'.", fileName.begin());
-#else
+#	endif // LLC_ESP32 || LLC_ESP8266
+#else // !LLC_ARDUINO
 	::FILE				* fp				= 0;
 	const int32_t				fileErr				= llc::fopen_s(&fp, fileName, append ? LLC_OPEN_MODE_APPEND : LLC_OPEN_MODE_WRITE);
 	rvw_if((fileErr > 0) ? -fileErr : fileErr, 0 != fileErr || 0 == fp, "Failed to create '%s' for %s.", fileName.begin(), append ? "appending" : "writing");
@@ -246,7 +256,7 @@ llc::err_t	llc::	fileFromMemory			(vcst_t usfileName, vcu0_c & fileInMemory, boo
 		result				= -1;
 	}
 	fclose(fp);
-#endif
+#endif // LLC_ARDUINO
 	llc_file_info_printf("'%s' written successfully.", fileName.begin());
 	return result;
 }
@@ -254,13 +264,15 @@ llc::err_t	llc::	fileFromMemory			(vcst_t usfileName, vcu0_c & fileInMemory, boo
 llc::err_t	llc::	fileDelete				(vcst_t usfileName)	{
 	llc::asc_t	fileName					= llc::toString(usfileName);
 	llc_file_info_printf("Deleting '%s'.", fileName.begin());
-#if defined(LLC_ESP32) || defined(ESP8266)
-	FIX_SOC_PATH(fileName);
-	ree_if(0 == ::getSoCFileSystem().remove(fileName.begin()), "Failed to delete '%s'.", fileName.begin());
-#elif defined(LLC_WINDOWS)
+#ifdef LLC_WINDOWS
 	ree_if(FALSE == DeleteFileA(fileName.begin()), "Failed to delete '%s'.", fileName.begin());
 #elif defined(LLC_ANDROID)
-#elif defined(LLC_ATMEL)
+#elif defined(LLC_ARDUINO)
+#	if defined(LLC_ESP32) || defined(ESP8266)
+	FIX_SOC_PATH(fileName);
+	ree_if(0 == ::getSoCFileSystem().remove(fileName.begin()), "Failed to delete '%s'.", fileName.begin());
+#	elif defined(LLC_ATMEL)
+#	endif // LLC_ESP32 || LLC_ESP8266
 #else
 	llc_necall(unlink(fileName.begin()), "Failed to delete '%s'.", fileName.begin());
 #endif

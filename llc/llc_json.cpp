@@ -230,7 +230,7 @@ sttc	llc::err_t	jsonParseStringCharacter	(llc::SJSONReaderState & stateReader, l
 		stateReader.IndexCurrentChar	+= 1;	// skip the u to get the next 4 digits.
 		seterr_break_if(jsonAsString.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. JSON length: %s. Current index: %" LLC_FMT_U2 ".", jsonAsString.size(), stateReader.IndexCurrentChar);
 		json_info_printf("Unicode code point found: %4.4s", &jsonAsString[stateReader.IndexCurrentChar]);
-		currentElement		= {stateReader.IndexCurrentElement, llc::JSON_TYPE_CODEPOINT, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}};
+		currentElement		= {stateReader.IndexCurrentElement, llc::JSON_TYPE_CODEPOINT, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}, {}};
 		seterr_if_failed(tokens.push_back(currentElement), "token count: %" LLC_FMT_S2 "", tokens.size());
 		stateReader.CurrentElement		= &tokens[stateReader.IndexCurrentElement];
 		stateReader.IndexCurrentChar	+= 3;	// Parse unicode code point
@@ -338,7 +338,7 @@ sttc	llc::err_t	parseJsonNumber				(llc::SJSONReaderState & stateReader, llc::ap
 	ree_if(index < jsonAsString.size() && (charCurrent != '0' && (charCurrent < '1' || charCurrent > '9')), "Character '%c' at index %" LLC_FMT_S2 " is not a number.", charCurrent, index);
 
 	u2_c					sizeNum						= lengthJsonNumber(index, jsonAsString);
-	llc::SJSONToken			currentElement				= {stateReader.IndexCurrentElement, isFloat ? llc::JSON_TYPE_DECIMAL : llc::JSON_TYPE_INTEGER, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + signLength + sizeNum}};
+	llc::SJSONToken			currentElement				= {stateReader.IndexCurrentElement, isFloat ? llc::JSON_TYPE_DECIMAL : llc::JSON_TYPE_INTEGER, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + signLength + sizeNum}, {}};
 	llc::vcsc_t				numString					= {};
 	llc_necs(jsonAsString.slice(numString, index, sizeNum));
 
@@ -411,7 +411,7 @@ sttc	llc::err_t	jsonCloseContainer			(llc::SJSONReaderState & stateReader, llc::
 }
 
 sttc	llc::err_t	jsonOpenElement				(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::JSON_TYPE jsonType, u2_t indexChar) {
-	llc::SJSONToken			currentElement				= {stateReader.IndexCurrentElement, jsonType, {indexChar, indexChar}};
+	llc::SJSONToken			currentElement				= {stateReader.IndexCurrentElement, jsonType, {indexChar, indexChar}, {}};
 	llc_necs(stateReader.IndexCurrentElement = tokens.push_back(currentElement));
 	stateReader.CurrentElement	= &tokens[stateReader.IndexCurrentElement];
 	llc::vcsc_c			labelType					= llc::get_value_label(currentElement.Type);

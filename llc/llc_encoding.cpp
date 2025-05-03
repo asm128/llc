@@ -218,9 +218,9 @@ static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
 	return 0;
 }
 
-::llc::error_t			llc::digest									(vcu0_c & input, ::llc::asc_t & digest)		{
-	uint32_t					x								= 0;
-	::llc::au2_t					filtered						= {};
+::llc::error_t			llc::digest						(vcu0_c & input, ::llc::asc_t & digest)		{
+	u2_t						x								= 0;
+	::llc::au2_t				filtered						= {};
 	for(uint32_t i = 0; i < input.size() - 8; ++i) {
 		x	+= ::llc::noise1DBase32(input[i])
 			+  ::llc::noise1DBase32(input[i + 1])
@@ -251,7 +251,7 @@ static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
 	}
 	char						temp		[32]				= {};
 	for(uint32_t i = 0; i < ::llc::min(filtered.size(), (uint32_t)8U); ++i) {
-		snprintf(temp, ::llc::size(temp) - 2, "%" LLC_FMT_S2, filtered[i]);
+		snprintf(temp, ::llc::size(temp) - 2, "%" LLC_FMT_U2, filtered[i]);
 		llc_necs(digest.append_string(temp));
 	}
 	return 0;
