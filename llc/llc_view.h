@@ -513,7 +513,8 @@ namespace llc
 		,	::llc::vs2_t, ::llc::vs2_c, ::llc::vcs2_t, ::llc::vcs2_c	\
 		,	::llc::vs3_t, ::llc::vs3_c, ::llc::vcs3_t, ::llc::vcs3_c	\
 		,	::llc::vf2_t, ::llc::vf2_c, ::llc::vcf2_t, ::llc::vcf2_c	\
-		,	::llc::vf3_t, ::llc::vf3_c, ::llc::vcf3_t, ::llc::vcf3_c
+		,	::llc::vf3_t, ::llc::vf3_c, ::llc::vcf3_t, ::llc::vcf3_c	\
+		,	::llc::vstr_t, ::llc::vcst_t, ::llc::vstr_c, ::llc::vcst_c
 
 } // namespace
 

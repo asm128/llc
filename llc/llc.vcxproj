@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="llc_arduino.h" />
+    <ClInclude Include="llc_arduino_stream.h" />
     <ClInclude Include="llc_bus_manager.h" />
     <ClInclude Include="llc_cerrno.h" />
     <ClInclude Include="llc_micro.h" />
@@ -126,11 +128,16 @@
     <ClInclude Include="llc_range.h" />
     <ClInclude Include="llc_range_n2.h" />
     <ClInclude Include="llc_range_n3.h" />
+    <ClInclude Include="llc_rxtx.h" />
     <ClInclude Include="llc_serial.h" />
     <ClInclude Include="llc_slice.h" />
     <ClInclude Include="llc_slice_n2.h" />
     <ClInclude Include="llc_slice_n3.h" />
     <ClInclude Include="llc_spi.h" />
+    <ClInclude Include="llc_std_cstring.h" />
+    <ClInclude Include="llc_std_initializer_list.h" />
+    <ClInclude Include="llc_std_string.h" />
+    <ClInclude Include="llc_string.h" />
     <ClInclude Include="llc_string_compose.h" />
     <ClInclude Include="llc_system_event.h" />
     <ClInclude Include="llc_system_key.h" />
@@ -332,6 +339,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_string.cpp" />
     <ClCompile Include="llc_string_compose.cpp" />
     <ClCompile Include="llc_view_color.cpp" />
     <ClCompile Include="llc_virtual_keyboard.cpp">

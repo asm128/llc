@@ -774,6 +774,27 @@
     <ClInclude Include="llc_bus_manager.h">
       <Filter>bus</Filter>
     </ClInclude>
+    <ClInclude Include="llc_rxtx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_arduino_stream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_arduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_std_initializer_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_std_string.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_string.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_std_cstring.h">
+      <Filter>string</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -1000,6 +1021,9 @@
     </ClCompile>
     <ClCompile Include="llc_i2c.cpp">
       <Filter>bus</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_string.cpp">
+      <Filter>string</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
