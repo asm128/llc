@@ -339,7 +339,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="llc_string.cpp" />
     <ClCompile Include="llc_string_compose.cpp" />
     <ClCompile Include="llc_view_color.cpp" />
     <ClCompile Include="llc_virtual_keyboard.cpp">
