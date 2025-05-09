@@ -687,9 +687,6 @@
     <ClInclude Include="llc_log_core.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="llc_apod_tcpip.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_serial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -793,6 +790,9 @@
       <Filter>string</Filter>
     </ClInclude>
     <ClInclude Include="llc_std_cstring.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_append_tcpip.h">
       <Filter>string</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1001,9 +1001,6 @@
     <ClCompile Include="llc_append_xml.cpp">
       <Filter>string</Filter>
     </ClCompile>
-    <ClCompile Include="llc_apod_tcpip.cpp">
-      <Filter>aliases</Filter>
-    </ClCompile>
     <ClCompile Include="llc_pack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1021,6 +1018,9 @@
     </ClCompile>
     <ClCompile Include="llc_i2c.cpp">
       <Filter>bus</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_append_tcpip.cpp">
+      <Filter>string</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

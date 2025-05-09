@@ -16,18 +16,18 @@ namespace llc
 	err_t			ardellEncode			(as2_t & cache, vcu0_c & input, u3_t key, bool salt, au0_t & output);
 	err_t			ardellDecode			(as2_t & cache, vcu0_c & input, u3_t key, bool salt, au0_t & output);
 
-	stin	err_t	ardellEncode			(vcu0_c & input, u3_t key, bool salt, au0_t & output)	{ as2_t tempCache; return ardellEncode(tempCache, input, key, salt, output); }
-	stin	err_t	ardellDecode			(vcu0_c & input, u3_t key, bool salt, au0_t & output)	{ as2_t tempCache; return ardellDecode(tempCache, input, key, salt, output); }
-	stin	err_t	ardellEncode			(const vcs0_t & input, u3_t key, bool salt, au0_t & output)	{ as2_t tempCache; return ardellEncode(tempCache, *(vcu0_c*)&input, key, salt, output); }
-	stin	err_t	ardellDecode			(vcu0_c & input, u3_t key, bool salt, as0_t & output)	{ as2_t tempCache; return ardellDecode(tempCache, input, key, salt, *(au0_t*)&output); }
+	stin	err_t	ardellEncode			(vcu0_c & input, u3_t key, bool salt, au0_t & output)			{ as2_t tempCache; return ardellEncode(tempCache, input, key, salt, output); }
+	stin	err_t	ardellDecode			(vcu0_c & input, u3_t key, bool salt, au0_t & output)			{ as2_t tempCache; return ardellDecode(tempCache, input, key, salt, output); }
+	stin	err_t	ardellEncode			(const vcs0_t & input, u3_t key, bool salt, au0_t & output)		{ as2_t tempCache; return ardellEncode(tempCache, *(vcu0_c*)&input, key, salt, output); }
+	stin	err_t	ardellDecode			(vcu0_c & input, u3_t key, bool salt, as0_t & output)			{ as2_t tempCache; return ardellDecode(tempCache, input, key, salt, *(au0_t*)&output); }
 
 	stin	err_t	ardellEncode			(const vcsc_t  & input, u3_t key, bool salt, au0_t & output)	{ as2_t tempCache; return ardellEncode(tempCache, *(vcu0_c*)&input, key, salt, output); }
-	stin	err_t	ardellDecode			(vcu0_c & input, u3_t key, bool salt, asc_t  & output)	{ as2_t tempCache; return ardellDecode(tempCache, input, key, salt, *(au0_t*)&output); }
+	stin	err_t	ardellDecode			(vcu0_c & input, u3_t key, bool salt, asc_t  & output)			{ as2_t tempCache; return ardellDecode(tempCache, input, key, salt, *(au0_t*)&output); }
 
 	stin	err_t	ardellEncode			(as2_t & cache, const vcs0_t & input, u3_t key, bool salt, au0_t & output)	{ return ardellEncode(cache, *(vcu0_c*)&input, key, salt, output); }
-	stin	err_t	ardellDecode			(as2_t & cache, vcu0_c & input, u3_t key, bool salt, as0_t & output)	{ return ardellDecode(cache, input, key, salt, *(au0_t*)&output); }
+	stin	err_t	ardellDecode			(as2_t & cache, vcu0_c & input, u3_t key, bool salt, as0_t & output)		{ return ardellDecode(cache, input, key, salt, *(au0_t*)&output); }
 	stin	err_t	ardellEncode			(as2_t & cache, const vcsc_t  & input, u3_t key, bool salt, au0_t & output)	{ return ardellEncode(cache, *(vcu0_c*)&input, key, salt, output); }
-	stin	err_t	ardellDecode			(as2_t & cache, vcu0_c & input, u3_t key, bool salt, asc_t  & output)	{ return ardellDecode(cache, input, key, salt, *(au0_t*)&output); }
+	stin	err_t	ardellDecode			(as2_t & cache, vcu0_c & input, u3_t key, bool salt, asc_t  & output)		{ return ardellDecode(cache, input, key, salt, *(au0_t*)&output); }
 
 	err_t			saltDataSalt			(vcu0_c & binary, au0_t & salted);
 	err_t			saltDataUnsalt			(vcu0_c & salted, au0_t & binary);

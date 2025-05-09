@@ -10,11 +10,11 @@
 
 namespace llc
 {
-	//stxp	vcs				UNDEFINED_ENUM_TYPE_STR					= LLC_CXS("Undefined enumeration type.");
-	stxp	vcs				INVALID_ENUM_VALUE_STR		= LLC_CXS("INVALID");
-	stxp	vcs				UNDEFINED_ENUM_VALUE_STR	= LLC_CXS("Undefined enumeration value.");
-	stxp	vcs				UNRESOLVED_ENUM_LABEL_STR	= LLC_CXS("Unresolved enumeration value name.");
-	stxp	vcs				UNRESOLVED_ENUM_NAME_STR	= LLC_CXS("Enum definition name not set.");
+	//stxp	vcst_c		UNDEFINED_ENUM_TYPE_STR					= LLC_CXS("Undefined enumeration type.");
+	stxp	vcst_c		INVALID_ENUM_VALUE_STR		= LLC_CXS("INVALID");
+	stxp	vcst_c		UNDEFINED_ENUM_VALUE_STR	= LLC_CXS("Undefined enumeration value.");
+	stxp	vcst_c		UNRESOLVED_ENUM_LABEL_STR	= LLC_CXS("Unresolved enumeration value name.");
+	stxp	vcst_c		UNRESOLVED_ENUM_NAME_STR	= LLC_CXS("Enum definition name not set.");
 
 	// This tplt is intended to store the name of an enumeration, the values of such enumeration and a string representing each value.
 	// The implementation separates names from values for improving search speed by reducing the memory usage when performing searches for names/values.
@@ -348,10 +348,102 @@ namespace llc
 #define llc_enum_valued_warning(_enumValue)				llc_enum_valued_log	(warning_printf	, _enumValue)
 #define llc_enum_valued_error(_enumValue)				llc_enum_valued_log	(error_printf	, _enumValue)
 
+namespace llc
+{
+	tpl_t struct SLLCEnumValue {
+		_t			Value;
+		vcst_c		Name;
+	};
+}
+#define LLC_ENUM_BEGIN(EnumName, IntType)																							\
+	struct EnumName {																												\
+		IntType									Value; 																				\
+		stxp	vcst_c							Name	= LLC_CXS(#EnumName);														\
+																																	\
+		inxp									EnumName(IntType value = -1)		: Value(value) {}								\
+																																	\
+		inxp	oper							IntType	()				cnst nxpt	{ return Value;	}								\
+		inxp	EnumName						oper ~	()				cnst nxpt	{ return {IntType(~Value)};				}		\
+		inxp	EnumName						oper &	(EnumName b)	cnst nxpt	{ return {IntType(Value & b.Value)};	}		\
+		inxp	EnumName						oper ^	(EnumName b)	cnst nxpt	{ return {IntType(Value ^ b.Value)};	}		\
+		inxp	EnumName						oper |	(EnumName b)	cnst nxpt	{ return {IntType(Value | b.Value)};	}		\
+		inln	EnumName&						oper |=	(EnumName b)	nxpt		{ return *this = {IntType(Value |= b.Value)}; }	\
+		inln	EnumName&						oper &=	(EnumName b)	nxpt		{ return *this = {IntType(Value &= b.Value)}; }	\
+		inln	EnumName&						oper ^=	(EnumName b)	nxpt		{ return *this = {IntType(Value ^= b.Value)}; }	\
+																																	\
+		::llc::vcsc_c & 						getEnumName		()		cnst nxpt		{ return Name; }							\
+		::llc::vcsc_c & 						getValueName	()				cnst	{ return getValueName(Value); }				\
+		::llc::vcsc_c & 						getValueName	(IntType value)	cnst	{											\
+			for(uint32_t i=0, count = ::llc::size(Values); i < count; ++i) {														\
+				if(value == Values[i].Value)																						\
+					return Values[i].Name;																							\
+			}																														\
+			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);											\
+			return ::llc::UNRESOLVED_ENUM_LABEL_STR;																				\
+		}																															\
+		stxp 	::llc::SLLCEnumValue<IntType> 	Values	[]	= {
+
+#define LLC_ENUM_VALUE(ValueName, IntegerValue) { IntegerValue, LLC_CXS(#ValueName) },
+
+#define LLC_ENUM_END() \
+			};	\
+	};
 
 namespace llc
 {
-	GDEFINE_ENUM_TYPE (RESULT, int8_t);
+#ifdef LLC_ESP8266
+ 	LLC_ENUM_BEGIN	(RESULT, int8_t)
+	LLC_ENUM_VALUE	(Ok                , int8_t(::llc::OS_OK                ))
+	LLC_ENUM_VALUE	(Error             , int8_t(::llc::OS_ERROR             ))
+	LLC_ENUM_VALUE	(Busy              , int8_t(::llc::OS_BUSY              ))
+	LLC_ENUM_VALUE	(Timeout           , int8_t(::llc::OS_TIMEOUT           ))
+	LLC_ENUM_VALUE	(Full              , int8_t(::llc::OS_FULL              ))
+	LLC_ENUM_VALUE	(Empty             , int8_t(::llc::OS_EMPTY             ))
+	LLC_ENUM_VALUE	(Overrun           , int8_t(::llc::OS_OVERRUN           ))
+	LLC_ENUM_VALUE	(Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ))
+	LLC_ENUM_VALUE	(Not_found         , int8_t(::llc::OS_NOT_FOUND         ))
+	LLC_ENUM_VALUE	(Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ))
+	LLC_ENUM_VALUE	(Forbidden         , int8_t(::llc::OS_FORBIDDEN         ))
+	LLC_ENUM_VALUE	(Restart           , int8_t(::llc::OS_RESTART           ))
+	LLC_ENUM_VALUE	(Wake_up           , int8_t(::llc::OS_WAKE_UP           ))
+	LLC_ENUM_VALUE	(Sleep             , int8_t(::llc::OS_SLEEP             ))
+	LLC_ENUM_VALUE	(Offline           , int8_t(::llc::OS_OFFLINE           ))
+	LLC_ENUM_VALUE	(Disconnected      , int8_t(::llc::OS_DISCONNECTED      ))
+	LLC_ENUM_VALUE	(Connecting        , int8_t(::llc::OS_CONNECTING        ))
+	LLC_ENUM_VALUE	(Connected         , int8_t(::llc::OS_CONNECTED         ))
+	LLC_ENUM_VALUE	(Missing_data      , int8_t(::llc::OS_MISSING_DATA      ))
+	LLC_ENUM_VALUE	(No_Memory         , int8_t(::llc::OS_NO_MEMORY         ))
+	LLC_ENUM_VALUE	(Read              , int8_t(::llc::OS_READ              ))
+	LLC_ENUM_VALUE	(Write             , int8_t(::llc::OS_WRITE             ))
+ 	LLC_ENUM_END	();
+	
+ 	LLC_ENUM_BEGIN	(COMMAND, int8_t)
+	LLC_ENUM_VALUE	(Ok                , int8_t(::llc::OS_OK                ) * -1)
+	LLC_ENUM_VALUE	(Error             , int8_t(::llc::OS_ERROR             ) * -1)
+	LLC_ENUM_VALUE	(Busy              , int8_t(::llc::OS_BUSY              ) * -1)
+	LLC_ENUM_VALUE	(Timeout           , int8_t(::llc::OS_TIMEOUT           ) * -1)
+	LLC_ENUM_VALUE	(Full              , int8_t(::llc::OS_FULL              ) * -1)
+	LLC_ENUM_VALUE	(Empty             , int8_t(::llc::OS_EMPTY             ) * -1)
+	LLC_ENUM_VALUE	(Overrun           , int8_t(::llc::OS_OVERRUN           ) * -1)
+	LLC_ENUM_VALUE	(Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ) * -1)
+	LLC_ENUM_VALUE	(Not_found         , int8_t(::llc::OS_NOT_FOUND         ) * -1)
+	LLC_ENUM_VALUE	(Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ) * -1)
+	LLC_ENUM_VALUE	(Forbidden         , int8_t(::llc::OS_FORBIDDEN         ) * -1)
+	LLC_ENUM_VALUE	(Restart           , int8_t(::llc::OS_RESTART           ) * -1)
+	LLC_ENUM_VALUE	(Wake_up           , int8_t(::llc::OS_WAKE_UP           ) * -1)
+	LLC_ENUM_VALUE	(Sleep             , int8_t(::llc::OS_SLEEP             ) * -1)
+	LLC_ENUM_VALUE	(Offline           , int8_t(::llc::OS_OFFLINE           ) * -1)
+	LLC_ENUM_VALUE	(Disconnected      , int8_t(::llc::OS_DISCONNECTED      ) * -1)
+	LLC_ENUM_VALUE	(Connecting        , int8_t(::llc::OS_CONNECTING        ) * -1)
+	LLC_ENUM_VALUE	(Connected         , int8_t(::llc::OS_CONNECTED         ) * -1)
+	LLC_ENUM_VALUE	(Missing_data      , int8_t(::llc::OS_MISSING_DATA      ) * -1)
+	LLC_ENUM_VALUE	(No_Memory         , int8_t(::llc::OS_NO_MEMORY         ) * -1)
+	LLC_ENUM_VALUE	(Read              , int8_t(::llc::OS_READ              ) * -1)
+	LLC_ENUM_VALUE	(Write             , int8_t(::llc::OS_WRITE             ) * -1)
+ 	LLC_ENUM_END	();
+	
+#else // !LLC_ESP8266
+ 	GDEFINE_ENUM_TYPE (RESULT, int8_t);
 	GDEFINE_ENUM_VALUE(RESULT, Ok                , int8_t(::llc::OS_OK                ));
 	GDEFINE_ENUM_VALUE(RESULT, Error             , int8_t(::llc::OS_ERROR             ));
 	GDEFINE_ENUM_VALUE(RESULT, Busy              , int8_t(::llc::OS_BUSY              ));
@@ -375,7 +467,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(RESULT, Read              , int8_t(::llc::OS_READ              ));
 	GDEFINE_ENUM_VALUE(RESULT, Write             , int8_t(::llc::OS_WRITE             ));
 
-	GDEFINE_ENUM_TYPE (COMMAND, int8_t);
+ 	GDEFINE_ENUM_TYPE (COMMAND, int8_t);
 	GDEFINE_ENUM_VALUE(COMMAND, Ok                , RESULT_Ok                * -1);
 	GDEFINE_ENUM_VALUE(COMMAND, Error             , RESULT_Error             * -1);
 	GDEFINE_ENUM_VALUE(COMMAND, Busy              , RESULT_Busy              * -1);
@@ -398,6 +490,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(COMMAND, No_Memory         , RESULT_No_Memory         * -1);
 	GDEFINE_ENUM_VALUE(COMMAND, Read              , RESULT_Read              * -1);
 	GDEFINE_ENUM_VALUE(COMMAND, Write             , RESULT_Write             * -1);
+#endif // LLC_ESP8266
 }
 
 #endif // LLC_ENUM_H_23627

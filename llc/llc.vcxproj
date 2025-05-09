@@ -33,7 +33,7 @@
     <ClInclude Include="llc_apod_range.h" />
     <ClInclude Include="llc_apod_serialize.h" />
     <ClInclude Include="llc_apod_slice.h" />
-    <ClInclude Include="llc_apod_tcpip.h" />
+    <ClInclude Include="llc_append_tcpip.h" />
     <ClInclude Include="llc_append_css.h" />
     <ClInclude Include="llc_append_frontend.h" />
     <ClInclude Include="llc_append_html.h" />
@@ -253,7 +253,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_aes.cpp" />
-    <ClCompile Include="llc_apod_tcpip.cpp" />
+    <ClCompile Include="llc_append_tcpip.cpp" />
     <ClCompile Include="llc_append_css.cpp" />
     <ClCompile Include="llc_append_html.cpp" />
     <ClCompile Include="llc_append_js.cpp" />
