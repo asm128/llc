@@ -1,8 +1,12 @@
 #include "llc_tcpip.h"
-#include "llc_stdsocket.h"
 #include "llc_parse.h"
 #include "llc_json.h"
-#include "llc_windows.h"
+#ifdef LLC_WINDOWS
+#	include "llc_windows.h"
+#endif
+#ifndef LLC_ESP8266
+#	include "llc_stdsocket.h"
+#endif
 
 ::llc::error_t			llc::tcpipAddress		(::llc::vcst_t strIP, uint32_t & address, uint16_t & port) {
 	uint32_t					iOffset					= ::llc::tcpipAddress(strIP, address);
@@ -66,7 +70,7 @@
 }
 
 #ifndef LLC_ATMEL
-
+#ifndef LLC_ESP8266
 #if defined(LLC_WINDOWS)
 #	include <WS2tcpip.h>
 #elif defined(LLC_ESP8266)
@@ -164,7 +168,7 @@
 
 ::llc::error_t			llc::tcpipAddress	(uint16_t portRequested, uint32_t adapterIndex, TRANSPORT_PROTOCOL mode, uint8_t * a1, uint8_t * a2, uint8_t * a3, uint8_t * a4)										{
 	char						host_name[257]								= {};
-#if defined(ESP8266)
+#if defined(LLC_ESP8266)
 	sprintf(host_name, "%s", wifi_station_get_hostname());
 #else	
 	gethostname(host_name, 256);
@@ -174,7 +178,7 @@
 
 ::llc::error_t			llc::tcpipAddress	(uint16_t portRequested, uint32_t adapterIndex, TRANSPORT_PROTOCOL mode, uint32_t & address)										{
 	char						host_name[257]								= {};
-#if defined(ESP8266)
+#if defined(LLC_ESP8266)
 	sprintf(host_name, "%s", wifi_station_get_hostname());
 #else	
 	gethostname(host_name, 256);
@@ -223,7 +227,7 @@
 #endif
 		::sockaddr					* sockaddr_ip									=  0;
 		::sockaddr_in				* sockaddr_ipv4									=  0;
-#ifndef ESP8266
+#ifndef LLC_ESP8266
 		::sockaddr_in6				* sockaddr_ipv6									=  0;
 		(void)sockaddr_ipv6	;
 #endif
@@ -253,7 +257,7 @@
 				addressFound								= true;
 			}
 			break;
-#ifndef ESP8266
+#ifndef LLC_ESP8266
 		case AF_INET6	:
 			verbose_printf("%s", "AF_INET6 (IPv6)");
 			// the InetNtop function is available on Windows Vista and later
@@ -314,5 +318,5 @@
 //#endif
 	return iAddress;
 }
-
+#endif // LLC_ESP8266
 #endif // LLC_ATMEL

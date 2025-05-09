@@ -55,6 +55,15 @@ namespace llc
     GDEFINE_ENUM_VALUE(ESP_TCP, ILLEGAL_ARGUMENT      , -16);
 
 	GDEFINE_ENUM_TYPE  (ESP_RESET, int32_t); 
+#ifdef LLC_ESP8266
+	GDEFINE_ENUM_VALUED(ESP_RESET, POWERON   ,  0, "Reset due to power-on event"                            );
+	GDEFINE_ENUM_VALUED(ESP_RESET, WDT       ,  1, "Reset due to other watchdogs"                           );
+	GDEFINE_ENUM_VALUED(ESP_RESET, PANIC     ,  2, "Software reset due to exception/panic"                  );
+	GDEFINE_ENUM_VALUED(ESP_RESET, TASK_WDT  ,  3, "Reset due to task watchdog"                             );
+	GDEFINE_ENUM_VALUED(ESP_RESET, SW        ,  4, "Software reset via esp_restart"                         );
+	GDEFINE_ENUM_VALUED(ESP_RESET, DEEPSLEEP ,  5, "Reset after exiting deep sleep mode"                    );
+	GDEFINE_ENUM_VALUED(ESP_RESET, SDIO      ,  6, "Reset over SDIO"                                        );
+#else // !LLC_ESP8266
 	GDEFINE_ENUM_VALUED(ESP_RESET, UNKNOWN   ,  0, "Reset reason can not be determined"                     );
 	GDEFINE_ENUM_VALUED(ESP_RESET, POWERON   ,  1, "Reset due to power-on event"                            );
 	GDEFINE_ENUM_VALUED(ESP_RESET, EXT       ,  2, "Reset by external pin (not applicable for ESP32)"       );
@@ -66,7 +75,7 @@ namespace llc
 	GDEFINE_ENUM_VALUED(ESP_RESET, DEEPSLEEP ,  8, "Reset after exiting deep sleep mode"                    );
 	GDEFINE_ENUM_VALUED(ESP_RESET, BROWNOUT  ,  9, "Brownout reset (software or hardware)"                  );
 	GDEFINE_ENUM_VALUED(ESP_RESET, SDIO      , 10, "Reset over SDIO"                                        );
-
+#endif // LLC_ESP8266
 	GDEFINE_ENUM_TYPE  (ESP_AWAKE, int32_t);
     GDEFINE_ENUM_VALUE (ESP_AWAKE, UNDEFINED         ,   0); 
     GDEFINE_ENUM_VALUE (ESP_AWAKE, ALL               ,   1); 

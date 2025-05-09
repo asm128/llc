@@ -227,11 +227,16 @@ namespace llc
 		//
 		inxp				genum_value				()										= default;
 		inxp				genum_value				(const genum_value & other)				= default;
-							genum_value				(const T & value)																						: Value((T)value), Name(::llc::get_enum<T>().get_value_name(value))				{}
-							genum_value				(const T & value, ::llc::vcsc_c & name)																: Value((T)value), Name(name), Title(name), Description(name)			{ ::llc::get_enum<T>().add_value(value, name, name, name);			}
-							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & description)								: Value((T)value), Name(name), Title(name), Description(description)	{ ::llc::get_enum<T>().add_value(value, name, name, description);		}
+							genum_value				(const T & value)																			: Value((T)value), Name(::llc::get_enum<T>().get_value_name(value))		{}
+#ifndef LLC_ESP8266
+							genum_value				(const T & value, ::llc::vcsc_c & name)														: Value((T)value), Name(name), Title(name), Description(name)			{ ::llc::get_enum<T>().add_value(value, name, name, name);			}
+							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & description)						: Value((T)value), Name(name), Title(name), Description(description)	{ ::llc::get_enum<T>().add_value(value, name, name, description);		}
 							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & title, ::llc::vcsc_c & description)	: Value((T)value), Name(name), Title(title), Description(description)	{ ::llc::get_enum<T>().add_value(value, name, title, description);	}
-
+#else
+							genum_value				(const T & value, ::llc::vcsc_c & name)														: Value((T)value), Name(name), Title(name), Description(name)			{ }
+							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & description)						: Value((T)value), Name(name), Title(name), Description(description)	{ }
+							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & title, ::llc::vcsc_c & description)	: Value((T)value), Name(name), Title(title), Description(description)	{ }
+#endif
 		inxp	oper	const	T&				()			const	{ return Value; }
 	};
 

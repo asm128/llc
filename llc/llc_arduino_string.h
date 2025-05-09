@@ -21,7 +21,7 @@ namespace llc
 	ndsi	asc_t	toachar (cnst String & srcstr)	{ rtrn tovcc(srcstr); }
 	ndsi	vcsc_t	str		(cnst String & srcstr)	{ rtrn tovcc(srcstr); }
 	ndsi	u2_t 	size	(cnst String & srcstr)	{ rtrn srcstr.length(); }
-	stin	err_t	rtrim	(String & trimmed, const String & input);
+			err_t	rtrim	(String & trimmed, const String & input);
 } // namespace
 #endif // LLC_ARDUINO
 

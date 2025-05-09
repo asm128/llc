@@ -46,17 +46,22 @@ namespace llc { stxp size_t DEBUG_BUILD = (size_t)-1; }
 #			define LLC_PLATFORM_CRT_BREAKPOINT()	do {} while(0)
 #		endif
 #		define LLC_PLATFORM_CRT_CHECK_MEMORY()	do {} while(0) // (void)_CrtCheckMemory
-#	else
+#	else // LLC_WINDOWS
 #		define LLC_PLATFORM_CRT_BREAKPOINT()	do {} while(0)
 #		ifndef LLC_ESP32
-#			define LLC_PLATFORM_CRT_CHECK_MEMORY()	do {} while(0)
-#		else
+#		    ifdef LLC_ESP8266
+#			    include <user_interface.h>
+#			    define LLC_PLATFORM_CRT_CHECK_MEMORY() do { info_printf("Available RAM - Heap: %" LLC_FMT_U2 " bytes.", system_get_free_heap_size()); } while(0)
+#		    else // !LLC_ESP8266
+#			    define LLC_PLATFORM_CRT_CHECK_MEMORY()	do {} while(0)
+#		    endif // LLC_ESP8266
+#		else // LLC_ESP32
 #			include <esp_heap_caps.h>
 #			include <freertos/FreeRTOS.h>
 #			include <freertos/task.h>
 #			define LLC_PLATFORM_CRT_CHECK_MEMORY() do { info_printf("Available RAM - Heap: %" LLC_FMT_U2 " bytes, Stack: %" LLC_FMT_U2 " bytes.", heap_caps_get_free_size(MALLOC_CAP_8BIT), uxTaskGetStackHighWaterMark(NULL)); } while(0)
-#		endif
-#	endif
+#		endif // LLC_ESP32
+#	endif // LLC_WINDOWS
 #endif // LLC_DEBUG_ENABLED
 
 #endif // LLC_DEBUG_H
