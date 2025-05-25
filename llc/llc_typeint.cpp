@@ -1,4 +1,4 @@
- #include "llc_error.h"
+ #include "llc_typeint.h"
 
 #define GDEFINE_ENUM_CASE_DEFAULT(TEnum, TValue)    default                 : rtrn #TValue
 #define GDEFINE_ENUM_CASE(TEnum, TValue)            case TEnum##_##TValue   : rtrn #TValue

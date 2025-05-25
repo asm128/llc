@@ -327,7 +327,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_path.cpp" />
-    <ClCompile Include="llc_platform_globals.cpp" />
+    <ClCompile Include="llc_typeint.cpp" />
     <ClCompile Include="llc_spi.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

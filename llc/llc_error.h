@@ -64,64 +64,6 @@ namespace llc
 	stxp		err_c	ESP_FLASH_OP_TIMEOUT           = ESP_FLASH_OP_FAIL - 1;
 	stxp		err_c	ESP_HW_CRYPTO_BASE             = -0xc000;
 	stxp		err_c	ESP_MEMPROT_BASE               = -0xd000;
-
-	enum OPCODE_SET : u0_t
-		{ OPCODE_SET_UNKNOWN
-		, OPCODE_SET_ARM32
-		, OPCODE_SET_ARM64
-		, OPCODE_SET_AVR
-		, OPCODE_SET_PIC16F
-		, OPCODE_SET_PIC18F
-		, OPCODE_SET_STM32
-		, OPCODE_SET_X86
-		, OPCODE_SET_X86_64
-		, OPCODE_SET_XTENSA_LX6_SINGLE
-		, OPCODE_SET_XTENSA_LX6_DUAL
-		, OPCODE_SET_XTENSA_LX7
-		, OPCODE_SET_CUSTOM		 = 0x40U
-		};
-	enum OPCODE_EXT : u0_t
-		{ OPCODE_EXT_NONE
-		, OPCODE_EXT_AVX
-		, OPCODE_EXT_MMX
-		, OPCODE_EXT_SSE
-		, OPCODE_EXT_SSE2
-		, OPCODE_EXT_SSE3
-		, OPCODE_EXT_SSE4
-		, OPCODE_EXT_CUSTOM		 = 0x40U
-		};
-	enum DEVICE_TYPE : u0_t
-		{ DEVICE_TYPE_UNKNOWN
-		, DEVICE_TYPE_ANDROID
-		, DEVICE_TYPE_IPHONE
-		, DEVICE_TYPE_PC
-		, DEVICE_TYPE_RASPBERRY_PI_3
-		, DEVICE_TYPE_RASPBERRY_PI_4
-		, DEVICE_TYPE_MAC
-		, DEVICE_TYPE_CUSTOM		= 0x40U
-		};
-	enum OS_FAMILY : u0_t
-		{ OS_FAMILY_UNKNOWN
-		, OS_FAMILY_ANDROID
-		, OS_FAMILY_ARDUINO
-		, OS_FAMILY_FREERTOS
-		, OS_FAMILY_IOS
-		, OS_FAMILY_LINUX
-		, OS_FAMILY_MACOS
-		, OS_FAMILY_NO_OS
-		, OS_FAMILY_PI
-		, OS_FAMILY_RTOS
-		, OS_FAMILY_WINDOWS
-		, OS_FAMILY_CUSTOM		  = 0x40U
-		};
-#define GDEFINE_ENUM_NAMEP(TEnum)	\
-	nsix	::llc::sc_c*	get_enum_namep	(cnst TEnum&)	nxpt	{ rtrn #TEnum; } \
-	ndsc 	::llc::sc_c*  	get_value_namep (TEnum value) 	nxpt;
-	GDEFINE_ENUM_NAMEP(DEVICE_TYPE  );
-	GDEFINE_ENUM_NAMEP(OPCODE_SET   );
-	GDEFINE_ENUM_NAMEP(OPCODE_EXT   );
-	GDEFINE_ENUM_NAMEP(OS_FAMILY	);
-#define llc_enum_value_log(printf_fn, enumVal)	printf_fn("'%s':(0x%X)(%" LLC_FMT_S2 ")(%c)'%s'", get_enum_namep LLCREP3(enumVal) ? char(enumVal) : '?', get_value_namep(enumVal))
 } // nameespace
 
 #ifndef if_fail

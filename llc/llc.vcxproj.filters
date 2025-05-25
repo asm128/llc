@@ -1007,7 +1007,7 @@
     <ClCompile Include="llc_view_color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llc_platform_globals.cpp">
+    <ClCompile Include="llc_typeint.cpp">
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="llc_tcpip.cpp">
