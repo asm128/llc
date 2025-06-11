@@ -195,9 +195,9 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 #		else
 	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
 #		endif // LLC_ESP32
-#	endif // LLC_ESP32 || LLC_ESP8266
 	rees_if(fileSize != (uint32_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
 	fp.close();
+#	endif // LLC_ESP32 || LLC_ESP8266
 	llc::err_t	result				= 0;
 #else // !LLC_ARDUINO
 	::FILE				* fp				= 0;
