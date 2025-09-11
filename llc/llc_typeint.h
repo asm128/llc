@@ -298,6 +298,8 @@ namespace llc
 	GDEFINE_ENUM_NAMEP(OPCODE_EXT   );
 	GDEFINE_ENUM_NAMEP(OS_FAMILY	);
 #define llc_enum_value_log(printf_fn, enumVal)	printf_fn("'%s':(0x%X)(%" LLC_FMT_S2 ")(%c)'%s'", get_enum_namep LLCREP3(enumVal) ? char(enumVal) : '?', get_value_namep(enumVal))
+#define GDEFINE_ENUM_CASE_DEFAULT(TEnum, TValue)    default                 : rtrn #TValue
+#define GDEFINE_ENUM_CASE(TEnum, TValue)            case TEnum##_##TValue   : rtrn #TValue
 } // namespace
 
 

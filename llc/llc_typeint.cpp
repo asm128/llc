@@ -1,8 +1,5 @@
  #include "llc_typeint.h"
 
-#define GDEFINE_ENUM_CASE_DEFAULT(TEnum, TValue)    default                 : rtrn #TValue
-#define GDEFINE_ENUM_CASE(TEnum, TValue)            case TEnum##_##TValue   : rtrn #TValue
-
 llc::sc_c* llc::get_value_namep     (DEVICE_TYPE    value)  nxpt {
     switch(value) {
     GDEFINE_ENUM_CASE_DEFAULT(DEVICE_TYPE, UNKNOWN);
