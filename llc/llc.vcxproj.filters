@@ -109,6 +109,9 @@
     <Filter Include="bus">
       <UniqueIdentifier>{a72bc38d-899b-417b-9446-00cbec4da40b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="circuit">
+      <UniqueIdentifier>{ae79a9be-296c-4756-9b59-72ccd8071706}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="llc_adam7.h">
@@ -795,6 +798,9 @@
     <ClInclude Include="llc_append_tcpip.h">
       <Filter>string</Filter>
     </ClInclude>
+    <ClInclude Include="llc_circuit.h">
+      <Filter>circuit</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -1021,6 +1027,9 @@
     </ClCompile>
     <ClCompile Include="llc_append_tcpip.cpp">
       <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_circuit.cpp">
+      <Filter>circuit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
