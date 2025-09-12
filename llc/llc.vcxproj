@@ -119,6 +119,7 @@
     <ClInclude Include="llc_minmax.h" />
     <ClInclude Include="llc_minmax_n2.h" />
     <ClInclude Include="llc_minmax_n3.h" />
+    <ClInclude Include="llc_mutex.h" />
     <ClInclude Include="llc_n3.h" />
     <ClInclude Include="llc_pack.h" />
     <ClInclude Include="llc_path.h" />

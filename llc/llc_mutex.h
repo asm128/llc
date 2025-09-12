@@ -18,17 +18,31 @@
 namespace llc
 {
 #ifdef LLC_ATMEL
-	struct mutex {
+	stct mutex {
 		sinx	err_t	lock		()	{ rtrn 0; }
 		sinx	err_t	try_lock	()	{ rtrn 0; }
 		sinx	err_t	unlock		()	{ rtrn 0; }
 #elif !defined(LLC_FREERTOS)
-	struct mutex : ::std::mutex {
+#	ifndef LLC_ARDUINO
+	stct mutex : ::std::mutex {
 		inln	err_t	lock		()	{ ::std::mutex::lock(); rtrn 0; }
 		inln	err_t	try_lock	()	{ rtrn ::std::mutex::try_lock() ? 0 : -1; }
 		inln	err_t	unlock		()	{ ::std::mutex::unlock(); rtrn 0; }
+#	elif defined(LLC_ESP8266)
+	stct mutex { //  { b8_c val = true; ; rtrn 0; }
+		vltl	bool	Lock		= {};
+		inln	err_t	lock		()	{ rtrn 0; } //b8_c val = true; while(val) __atomic_exchange(&Lock, &val, &Lock, __ATOMIC_ACQ_REL); rtrn 0; }
+		inln	err_t	try_lock	()	{ rtrn 0; } //b8_c val = true; __atomic_exchange(&Lock, &val, &Lock, __ATOMIC_ACQ_REL); rtrn val ? -1 : 0; }
+		inln	err_t	unlock		()	{ rtrn 0; } //__sync_lock_release(&Lock); rtrn 0; }
+#	else // LLC_ARDUINO
+	stct mutex { //  { b8_c val = true; __atomic_exchange(&Lock, &val, &Lock, __ATOMIC_ACQ_REL); rtrn 0; }
+		vltl	bool	Lock		= {};
+		inln	err_t	lock		()	{ while (__sync_lock_test_and_set(&Lock, true)); rtrn 0; }
+		inln	err_t	try_lock	()	{ rtrn __sync_lock_test_and_set(&Lock, true) ? -1 : 0; }
+		inln	err_t	unlock		()	{ __sync_lock_release(&Lock); rtrn 0; }
+#	endif // LLC_ARDUINO
 #else // LLC_FREERTOS
-	struct hal_mutex {
+	stct hal_mutex {
 #	if CONFIG_DISABLE_HAL_LOCKS
 		sinx	err_t	lock		()	{ rtrn 0; }
 		sinx	err_t	try_lock	()	{ rtrn 0; }
@@ -42,7 +56,7 @@ namespace llc
 		err_t			unlock		()	{ if_zero_fe(xQueueGenericSend((QueueHandle_t)Lock, 0, semGIVE_BLOCK_TIME, queueSEND_TO_BACK)); rtrn 0; }
 #	endif // CONFIG_DISABLE_HAL_LOCKS
 	};
-	struct mutex {
+	stct mutex {
 		QueueHandle_t	Lock		= {};
 		inln			~mutex		()	{ if(Lock) vQueueDelete((QueueHandle_t)Lock); }
 						mutex		()	{ if_null_te(Lock = xQueueCreateMutex(queueQUEUE_TYPE_MUTEX)); }
@@ -50,6 +64,13 @@ namespace llc
 		err_t			try_lock	()	{ if_zero_fi(xQueueSemaphoreTake(Lock, 1)); rtrn 0; }
 		err_t			unlock		()	{ if_zero_fe(xQueueGenericSend((QueueHandle_t)Lock, 0, semGIVE_BLOCK_TIME, queueSEND_TO_BACK)); rtrn 0; }
 #endif // LLC_FREERTOS
+	};
+	tpl_t stct lock_guard {
+		tdfTTCnst(_t);
+		T 				& Lock;
+
+		inln			~lock_guard	()							{ Lock.unlock(); }
+		inln			lock_guard	(T & lock)	: Lock(lock)	{ Lock.lock(); }
 	};
 } // namespace
 
