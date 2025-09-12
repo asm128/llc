@@ -29,22 +29,26 @@ namespace llc
 	GDEFINE_ENUM_VALUE(OPEN_MODE, APPEND	, 'a' + (i2u_t('b') << 8) + (i2u_t('+') << 16));	//  3
 	// FILE wrapper
 	tpl_t struct SFile {	
-		tydf	_t					T;
-		T							File			{};
+		tdfTTCnst(_t);
+		vcst_t						Name			= {};
 		u3_t						Offset			= {};
-		vcs							Name			= {};
+		T							File			{};
 
 		inln						~SFile			()					{ llc_safe_fclose(File); }
 
 		inxp		oper			T&				()					{ return File; }
-		tplTOut		err_t			read			(view<TOut> output)	{ 
-			if(0 == File) 
-			llc_necall(fopen_s(&File, Name.begin(), "rb"), "%s", Name.begin()); 
-			auto nread = fread(output.begin(), szof(TOut), output.size(), File); 
-			fail_if_neu(nread, output.size()); 
-			return nread; 
+		
+		u3_t						size			()					{
+			if(0 == File) {
+				if_true_fef(fopen_s(&File, Name.begin(), "rb"), "%s", Name.begin());
+				Offset = 0;
+			}
+			if_true_fef(llc::fseek(File, 0, SEEK_END), "Failed to seek to end of file. %s.", "why?");
+			u3_c fileSize = ftell(File);
+			if_true_block_logf(error_printf, Offset > fileSize, Offset = fileSize, "Offset: %" LLC_FMT_U64 ". fileSize: %" LLC_FMT_U64 ".", Offset, fileSize);
+			if_true_fe(fseek(File, Offset, SEEK_SET));
+			return fileSize;
 		}
-		tplTOutN2	inln	err_t	read			(TOut (&output)[N])	{ return read<TOut>(output); }
 	};
 
 	struct CFile : SFile<FILE*> {};

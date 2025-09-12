@@ -396,58 +396,58 @@ namespace llc
 
 namespace llc
 {
-#ifdef LLC_ESP8266
- 	LLC_ENUM_BEGIN	(RESULT, int8_t)
-	LLC_ENUM_VALUE	(Ok                , int8_t(::llc::OS_OK                ))
-	LLC_ENUM_VALUE	(Error             , int8_t(::llc::OS_ERROR             ))
-	LLC_ENUM_VALUE	(Busy              , int8_t(::llc::OS_BUSY              ))
-	LLC_ENUM_VALUE	(Timeout           , int8_t(::llc::OS_TIMEOUT           ))
-	LLC_ENUM_VALUE	(Full              , int8_t(::llc::OS_FULL              ))
-	LLC_ENUM_VALUE	(Empty             , int8_t(::llc::OS_EMPTY             ))
-	LLC_ENUM_VALUE	(Overrun           , int8_t(::llc::OS_OVERRUN           ))
-	LLC_ENUM_VALUE	(Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ))
-	LLC_ENUM_VALUE	(Not_found         , int8_t(::llc::OS_NOT_FOUND         ))
-	LLC_ENUM_VALUE	(Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ))
-	LLC_ENUM_VALUE	(Forbidden         , int8_t(::llc::OS_FORBIDDEN         ))
-	LLC_ENUM_VALUE	(Restart           , int8_t(::llc::OS_RESTART           ))
-	LLC_ENUM_VALUE	(Wake_up           , int8_t(::llc::OS_WAKE_UP           ))
-	LLC_ENUM_VALUE	(Sleep             , int8_t(::llc::OS_SLEEP             ))
-	LLC_ENUM_VALUE	(Offline           , int8_t(::llc::OS_OFFLINE           ))
-	LLC_ENUM_VALUE	(Disconnected      , int8_t(::llc::OS_DISCONNECTED      ))
-	LLC_ENUM_VALUE	(Connecting        , int8_t(::llc::OS_CONNECTING        ))
-	LLC_ENUM_VALUE	(Connected         , int8_t(::llc::OS_CONNECTED         ))
-	LLC_ENUM_VALUE	(Missing_data      , int8_t(::llc::OS_MISSING_DATA      ))
-	LLC_ENUM_VALUE	(No_Memory         , int8_t(::llc::OS_NO_MEMORY         ))
-	LLC_ENUM_VALUE	(Read              , int8_t(::llc::OS_READ              ))
-	LLC_ENUM_VALUE	(Write             , int8_t(::llc::OS_WRITE             ))
- 	LLC_ENUM_END	();
-	
- 	LLC_ENUM_BEGIN	(COMMAND, int8_t)
-	LLC_ENUM_VALUE	(Ok                , int8_t(::llc::OS_OK                ) * -1)
-	LLC_ENUM_VALUE	(Error             , int8_t(::llc::OS_ERROR             ) * -1)
-	LLC_ENUM_VALUE	(Busy              , int8_t(::llc::OS_BUSY              ) * -1)
-	LLC_ENUM_VALUE	(Timeout           , int8_t(::llc::OS_TIMEOUT           ) * -1)
-	LLC_ENUM_VALUE	(Full              , int8_t(::llc::OS_FULL              ) * -1)
-	LLC_ENUM_VALUE	(Empty             , int8_t(::llc::OS_EMPTY             ) * -1)
-	LLC_ENUM_VALUE	(Overrun           , int8_t(::llc::OS_OVERRUN           ) * -1)
-	LLC_ENUM_VALUE	(Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ) * -1)
-	LLC_ENUM_VALUE	(Not_found         , int8_t(::llc::OS_NOT_FOUND         ) * -1)
-	LLC_ENUM_VALUE	(Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ) * -1)
-	LLC_ENUM_VALUE	(Forbidden         , int8_t(::llc::OS_FORBIDDEN         ) * -1)
-	LLC_ENUM_VALUE	(Restart           , int8_t(::llc::OS_RESTART           ) * -1)
-	LLC_ENUM_VALUE	(Wake_up           , int8_t(::llc::OS_WAKE_UP           ) * -1)
-	LLC_ENUM_VALUE	(Sleep             , int8_t(::llc::OS_SLEEP             ) * -1)
-	LLC_ENUM_VALUE	(Offline           , int8_t(::llc::OS_OFFLINE           ) * -1)
-	LLC_ENUM_VALUE	(Disconnected      , int8_t(::llc::OS_DISCONNECTED      ) * -1)
-	LLC_ENUM_VALUE	(Connecting        , int8_t(::llc::OS_CONNECTING        ) * -1)
-	LLC_ENUM_VALUE	(Connected         , int8_t(::llc::OS_CONNECTED         ) * -1)
-	LLC_ENUM_VALUE	(Missing_data      , int8_t(::llc::OS_MISSING_DATA      ) * -1)
-	LLC_ENUM_VALUE	(No_Memory         , int8_t(::llc::OS_NO_MEMORY         ) * -1)
-	LLC_ENUM_VALUE	(Read              , int8_t(::llc::OS_READ              ) * -1)
-	LLC_ENUM_VALUE	(Write             , int8_t(::llc::OS_WRITE             ) * -1)
- 	LLC_ENUM_END	();
-	
-#else // !LLC_ESP8266
+//#ifdef LLC_ESP8266
+// 	LLC_ENUM_BEGIN	(RESULT, int8_t)
+//	LLC_ENUM_VALUE	(Ok                , int8_t(::llc::OS_OK                ))
+//	LLC_ENUM_VALUE	(Error             , int8_t(::llc::OS_ERROR             ))
+//	LLC_ENUM_VALUE	(Busy              , int8_t(::llc::OS_BUSY              ))
+//	LLC_ENUM_VALUE	(Timeout           , int8_t(::llc::OS_TIMEOUT           ))
+//	LLC_ENUM_VALUE	(Full              , int8_t(::llc::OS_FULL              ))
+//	LLC_ENUM_VALUE	(Empty             , int8_t(::llc::OS_EMPTY             ))
+//	LLC_ENUM_VALUE	(Overrun           , int8_t(::llc::OS_OVERRUN           ))
+//	LLC_ENUM_VALUE	(Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ))
+//	LLC_ENUM_VALUE	(Not_found         , int8_t(::llc::OS_NOT_FOUND         ))
+//	LLC_ENUM_VALUE	(Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ))
+//	LLC_ENUM_VALUE	(Forbidden         , int8_t(::llc::OS_FORBIDDEN         ))
+//	LLC_ENUM_VALUE	(Restart           , int8_t(::llc::OS_RESTART           ))
+//	LLC_ENUM_VALUE	(Wake_up           , int8_t(::llc::OS_WAKE_UP           ))
+//	LLC_ENUM_VALUE	(Sleep             , int8_t(::llc::OS_SLEEP             ))
+//	LLC_ENUM_VALUE	(Offline           , int8_t(::llc::OS_OFFLINE           ))
+//	LLC_ENUM_VALUE	(Disconnected      , int8_t(::llc::OS_DISCONNECTED      ))
+//	LLC_ENUM_VALUE	(Connecting        , int8_t(::llc::OS_CONNECTING        ))
+//	LLC_ENUM_VALUE	(Connected         , int8_t(::llc::OS_CONNECTED         ))
+//	LLC_ENUM_VALUE	(Missing_data      , int8_t(::llc::OS_MISSING_DATA      ))
+//	LLC_ENUM_VALUE	(No_Memory         , int8_t(::llc::OS_NO_MEMORY         ))
+//	LLC_ENUM_VALUE	(Read              , int8_t(::llc::OS_READ              ))
+//	LLC_ENUM_VALUE	(Write             , int8_t(::llc::OS_WRITE             ))
+// 	LLC_ENUM_END	();
+//	
+// 	LLC_ENUM_BEGIN	(COMMAND, int8_t)
+//	LLC_ENUM_VALUE	(Ok                , int8_t(::llc::OS_OK                ) * -1)
+//	LLC_ENUM_VALUE	(Error             , int8_t(::llc::OS_ERROR             ) * -1)
+//	LLC_ENUM_VALUE	(Busy              , int8_t(::llc::OS_BUSY              ) * -1)
+//	LLC_ENUM_VALUE	(Timeout           , int8_t(::llc::OS_TIMEOUT           ) * -1)
+//	LLC_ENUM_VALUE	(Full              , int8_t(::llc::OS_FULL              ) * -1)
+//	LLC_ENUM_VALUE	(Empty             , int8_t(::llc::OS_EMPTY             ) * -1)
+//	LLC_ENUM_VALUE	(Overrun           , int8_t(::llc::OS_OVERRUN           ) * -1)
+//	LLC_ENUM_VALUE	(Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ) * -1)
+//	LLC_ENUM_VALUE	(Not_found         , int8_t(::llc::OS_NOT_FOUND         ) * -1)
+//	LLC_ENUM_VALUE	(Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ) * -1)
+//	LLC_ENUM_VALUE	(Forbidden         , int8_t(::llc::OS_FORBIDDEN         ) * -1)
+//	LLC_ENUM_VALUE	(Restart           , int8_t(::llc::OS_RESTART           ) * -1)
+//	LLC_ENUM_VALUE	(Wake_up           , int8_t(::llc::OS_WAKE_UP           ) * -1)
+//	LLC_ENUM_VALUE	(Sleep             , int8_t(::llc::OS_SLEEP             ) * -1)
+//	LLC_ENUM_VALUE	(Offline           , int8_t(::llc::OS_OFFLINE           ) * -1)
+//	LLC_ENUM_VALUE	(Disconnected      , int8_t(::llc::OS_DISCONNECTED      ) * -1)
+//	LLC_ENUM_VALUE	(Connecting        , int8_t(::llc::OS_CONNECTING        ) * -1)
+//	LLC_ENUM_VALUE	(Connected         , int8_t(::llc::OS_CONNECTED         ) * -1)
+//	LLC_ENUM_VALUE	(Missing_data      , int8_t(::llc::OS_MISSING_DATA      ) * -1)
+//	LLC_ENUM_VALUE	(No_Memory         , int8_t(::llc::OS_NO_MEMORY         ) * -1)
+//	LLC_ENUM_VALUE	(Read              , int8_t(::llc::OS_READ              ) * -1)
+//	LLC_ENUM_VALUE	(Write             , int8_t(::llc::OS_WRITE             ) * -1)
+// 	LLC_ENUM_END	();
+//	
+//#else // !LLC_ESP8266
  	GDEFINE_ENUM_TYPE (RESULT, int8_t);
 	GDEFINE_ENUM_VALUE(RESULT, Ok                , int8_t(::llc::OS_OK                ));
 	GDEFINE_ENUM_VALUE(RESULT, Error             , int8_t(::llc::OS_ERROR             ));
@@ -495,7 +495,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(COMMAND, No_Memory         , RESULT_No_Memory         * -1);
 	GDEFINE_ENUM_VALUE(COMMAND, Read              , RESULT_Read              * -1);
 	GDEFINE_ENUM_VALUE(COMMAND, Write             , RESULT_Write             * -1);
-#endif // LLC_ESP8266
+//#endif // LLC_ESP8266
 }
 
 #endif // LLC_ENUM_H_23627
