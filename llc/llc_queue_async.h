@@ -3,7 +3,7 @@
 #include "llc_ptr_pod.h"
 #include "llc_ptr_obj.h"
 
-#include <mutex>
+#include "llc_mutex.h"
 
 #ifndef LLC_QUEUE_ASYNC_H
 #define LLC_QUEUE_ASYNC_H
@@ -16,14 +16,14 @@ namespace llc
 		tydf	_tContainer	TContainer;
 
 		TContainer				Queue	= {};
-		::std::mutex			Lock	= {};
+		::llc::mutex			Lock	= {};
 
-		inline	::llc::error_t 	Size	()						{ ::std::lock_guard locked(Lock); return Queue.size(); }
-		inline	::llc::error_t	Clear	()						{ ::std::lock_guard	locked(Lock); return Queue.clear(); }
-		inline	::llc::error_t	Post	(const T & item) 		{ ::std::lock_guard locked(Lock); return Queue.push_back(item); }
+		inline	err_t 	Size	()						{ ::llc::lock_guard locked(Lock); return Queue.size(); }
+		inline	err_t	Clear	()						{ ::llc::lock_guard	locked(Lock); return Queue.clear(); }
+		inline	err_t	Post	(const T & item) 		{ ::llc::lock_guard locked(Lock); return Queue.push_back(item); }
 		// Appends to the `output` container all the messages from the queue
-		inline	::llc::error_t	Read	(TContainer & output, bool clearQueue = true) {
-			::std::lock_guard		locked(Lock);
+		inline	err_t	Read	(TContainer & output, bool clearQueue = true) {
+			::llc::lock_guard		locked(Lock);
 			llc_necs(output.append(Queue));
 			if(clearQueue) {
 				Queue.clear();
@@ -31,8 +31,8 @@ namespace llc
 			return 0;
 		}
 		// Returns 1 + the amount of messages remaining in the queue
-		::llc::error_t			Next	(T & output) {
-			::llc::error_t	left;
+		err_t			Next	(T & output) {
+			err_t	left;
 			{
 				::std::lock_guard	locked(Lock);
 				rnis_if(0 == Queue.size());
