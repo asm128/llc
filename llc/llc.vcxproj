@@ -168,6 +168,7 @@
     <ClInclude Include="llc_virtual_keyboard.h" />
     <ClInclude Include="llc_vox.h" />
     <ClInclude Include="llc_voxel_geometry.h" />
+    <ClInclude Include="llc_wifi.h" />
     <ClInclude Include="llc_window.h" />
     <ClInclude Include="llc_framework.h" />
     <ClInclude Include="llc_gui_control_list.h" />
@@ -350,6 +351,7 @@
     <ClCompile Include="llc_voxel_geometry.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_wifi.cpp" />
     <ClCompile Include="llc_window.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>

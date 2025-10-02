@@ -49,9 +49,6 @@
     <Filter Include="image">
       <UniqueIdentifier>{f4195222-cb50-42bc-852b-82e910fa82f9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="json">
-      <UniqueIdentifier>{ac3e0dfb-a341-4cfc-9d60-2f3e7942b692}</UniqueIdentifier>
-    </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{5310ea78-5f6b-43e1-84b9-3d1339242565}</UniqueIdentifier>
     </Filter>
@@ -111,6 +108,12 @@
     </Filter>
     <Filter Include="circuit">
       <UniqueIdentifier>{ae79a9be-296c-4756-9b59-72ccd8071706}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wifi">
+      <UniqueIdentifier>{63266755-28e9-4e94-acf1-eaf6e14fe5aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{ac3e0dfb-a341-4cfc-9d60-2f3e7942b692}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -804,6 +807,9 @@
     <ClInclude Include="llc_mutex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_wifi.h">
+      <Filter>wifi</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -1033,6 +1039,9 @@
     </ClCompile>
     <ClCompile Include="llc_circuit.cpp">
       <Filter>circuit</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_wifi.cpp">
+      <Filter>wifi</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
