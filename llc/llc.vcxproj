@@ -22,6 +22,7 @@
     <ClInclude Include="llc_arduino.h" />
     <ClInclude Include="llc_arduino_stream.h" />
     <ClInclude Include="llc_bus_manager.h" />
+    <ClInclude Include="llc_ccsds.h" />
     <ClInclude Include="llc_cerrno.h" />
     <ClInclude Include="llc_circuit.h" />
     <ClInclude Include="llc_micro.h" />
@@ -252,6 +253,7 @@
     <ClInclude Include="llc_queue_async.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="llc_ccsds.cpp" />
     <ClCompile Include="llc_circuit.cpp" />
     <ClCompile Include="llc_adam7.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>

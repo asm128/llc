@@ -810,6 +810,9 @@
     <ClInclude Include="llc_wifi.h">
       <Filter>wifi</Filter>
     </ClInclude>
+    <ClInclude Include="llc_ccsds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -1042,6 +1045,9 @@
     </ClCompile>
     <ClCompile Include="llc_wifi.cpp">
       <Filter>wifi</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ccsds.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
