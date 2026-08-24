@@ -56,8 +56,8 @@ namespace llc
 #pragma pack(pop)
 
     class CCSDSPayload {
-        au0_t                   EncodedPayload;
-        u2_t                    ValueCount;
+        au0_t                   EncodedPayload  = {};
+        u2_t                    ValueCount      = {};
     public:
                                 CCSDSPayload    ()                              = default;
                                 CCSDSPayload    (const CCSDSPayload&)           = default;

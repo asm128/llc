@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include <llc_array_pod.h>
 
 int WINAPI WinMain 
     ( _In_     HINSTANCE // hInstance
@@ -7,4 +7,10 @@ int WINAPI WinMain
     , _In_     int       // nShowCmd
     ) {
     return 0;
+}
+
+
+int main() {
+   info_printf("# Array Serialization Tests");
+   return 0;
 }

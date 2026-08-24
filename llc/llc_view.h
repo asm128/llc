@@ -23,15 +23,15 @@ namespace llc
 	tpl_t clss view {
 	prtc:
 		// Properties / Member Variables
-		_t					* Data			= 0;
-		u2_t				Count			= 0;
+		_t						* Data			= 0;
+		u2_t					Count			= 0;
 	pblc:
 		tdfTTCnst(_t);
-		tydf	view<T>		TV;
-		tydf	view<TCnst>	TConstView;
-		tydf	view<TCnst>	TCstV;
-		tdcs	view<T>		TVCst;
-		tdcs	view<TCnst>	TCVCs;
+		tydf	view<T>			TV;
+		tydf	view<TCnst>		TConstView;
+		tydf	view<TCnst>		TCstV;
+		tdcs	view<T>			TVCst;
+		tdcs	view<TCnst>		TCVCs;
 
 		// Constructors
 		inxp					view			()									nxpt	= dflt;
@@ -50,13 +50,13 @@ namespace llc
 			gthrow_if(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn Data[index];
 		}
-		cnst T&					operator[]		(u2_t index)			cnst				{
+		cnst T&					operator[]		(u2_t index)						cnst	{
 			gsthrow_if(0 == Data);
 			gthrow_if(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn Data[index];
 		}
-		bool					operator!=		(TCVCs & other)	cnst				{ rtrn  !operator==(other); } // I had to add this for the android build not supporting C++20.
-		bool					operator==		(TCVCs & other)	cnst				{
+		bool					operator!=		(TCVCs & other)	cnst						{ rtrn  !operator==(other); } // I had to add this for the android build not supporting C++20.
+		bool					operator==		(TCVCs & other)	cnst						{
 			if(this->size() != other.size())
 				rtrn false;
 			if(this->begin() == other.begin())
@@ -76,7 +76,7 @@ namespace llc
 		inxp	TCnst*			end				()														csnx	{ rtrn begin() + Count;	}
 		inln	T*				begin			()														nxpt	{ rtrn Data;				}
 		inln	T*				end				()														nxpt	{ rtrn begin() + Count;	}
-		err_t					slice			(TV & out, u2_t offset, u2_t count = (u2_t)-1)				{
+		err_t					slice			(TV & out, u2_t offset, u2_t count = (u2_t)-1)					{
 			reterr_gerror_if(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
 			u2_c					newSize			= Count - offset;
 			if(count != (u2_t)-1)
@@ -84,7 +84,7 @@ namespace llc
 			out						= {&Data[offset], ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
-		err_t			slice			(TCstV & out, u2_t offset, u2_t count = (u2_t)-1)	cnst	{
+		err_t					slice			(TCstV & out, u2_t offset, u2_t count = (u2_t)-1)		cnst	{
 			ree_if(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
 			u2_c					newSize			= Count - offset;
 			if(count != (u2_t)-1)
@@ -92,7 +92,7 @@ namespace llc
 			out						= {&Data[offset], ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
-		err_t			revert			()																			{
+		err_t					revert			()																{
 			u2_c					lastElement		= Count - 1;
 			for(u2_t i = 0, swapCount = Count / 2; i < swapCount; ++i) {
 				T							old				= Data[i];
@@ -102,35 +102,35 @@ namespace llc
 			rtrn 0;
 		}
 
-		inln	err_t	fill			(cnst T & value, u2_t offset = 0, u2_t stop = 0xFFFFFFFFU)		{ for(; offset < ::llc::min(Count, stop); ++offset) Data[offset] = value; rtrn Count; }
+		inln	err_t			fill			(cnst T & value, u2_t offset = 0, u2_t stop = 0xFFFFFFFFU)										{ for(; offset < ::llc::min(Count, stop); ++offset) Data[offset] = value; rtrn Count; }
 
 
-		err_t			for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset = 0)			{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
-		err_t			for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset = 0)	cnst	{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
-		err_t			enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset = 0)			{ for(; offset < Count; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
-		err_t			enumerate		(cnst ::llc::TFuncEnumerateConst<T> & funcForEach, u2_t offset = 0)	cnst	{ for(; offset < Count; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
+		err_t					for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset = 0)								{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
+		err_t					for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset = 0)						cnst	{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
+		err_t					enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset = 0)								{ for(; offset < Count; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
+		err_t					enumerate		(cnst ::llc::TFuncEnumerateConst<T> & funcForEach, u2_t offset = 0)						cnst	{ for(; offset < Count; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
 		//
-		err_t			for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset, u2_t stop)			{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(Data[offset]); rtrn offset; }
-		err_t			for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset, u2_t stop)	cnst	{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(Data[offset]); rtrn offset; }
-		err_t			enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset, u2_t stop)			{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
-		err_t			enumerate		(cnst ::llc::TFuncEnumerateConst<T> & funcForEach, u2_t offset, u2_t stop)	cnst	{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
+		err_t					for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset, u2_t stop)						{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(Data[offset]); rtrn offset; }
+		err_t					for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset, u2_t stop)				cnst	{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(Data[offset]); rtrn offset; }
+		err_t					enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset, u2_t stop)						{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
+		err_t					enumerate		(cnst ::llc::TFuncEnumerateConst<T> & funcForEach, u2_t offset, u2_t stop)				cnst	{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
 
-		err_t			find			(cnst FBool<T&>		& funcForEach, u2_t offset = 0)			{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
-		err_t			find			(cnst FBool<TCnst&>	& funcForEach, u2_t offset = 0)	cnst	{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
-		err_t			find			(cnst T & value, u2_t offset = 0)					cnst	{ for(; offset < Count; ++offset) if(Data[offset] == value) rtrn (err_t)offset; rtrn -1; }
+		err_t					find			(cnst FBool<T&>		& funcForEach	, u2_t offset = 0)											{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
+		err_t					find			(cnst FBool<TCnst&>	& funcForEach	, u2_t offset = 0)									cnst	{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
+		err_t					find			(cnst T				& value			, u2_t offset = 0)									cnst	{ for(; offset < Count; ++offset) if(Data[offset] == value) rtrn (err_t)offset; rtrn -1; }
 
-		tplt<tpnm _tMax> err_t	max	(_tMax & maxFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{ s2_t iMax = 0; for(; offset < Count; ++offset) { _tMax value = funcComparand(Data[offset]); if(value > maxFound) { iMax = offset; maxFound = value; } } rtrn iMax; }
-		tplt<tpnm _tMax> err_t	min	(_tMax & minFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{ s2_t iMin = 0; for(; offset < Count; ++offset) { _tMax value = funcComparand(Data[offset]); if(value < minFound) { iMin = offset; minFound = value; } } rtrn iMin; }
-		tplt<tpnm _tMax> err_t	max	(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)					cnst	{ _tMax maxFound; rtrn max(maxFound, funcComparand, offset); }
-		tplt<tpnm _tMax> err_t	min	(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)					cnst	{ _tMax minFound; rtrn min(minFound, funcComparand, offset); }
+		tplt<tpnm _tMax> err_t	max				(_tMax & maxFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{ s2_t iMax = 0; for(; offset < Count; ++offset) { _tMax value = funcComparand(Data[offset]); if(value > maxFound) { iMax = offset; maxFound = value; } } rtrn iMax; }
+		tplt<tpnm _tMax> err_t	min				(_tMax & minFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{ s2_t iMin = 0; for(; offset < Count; ++offset) { _tMax value = funcComparand(Data[offset]); if(value < minFound) { iMin = offset; minFound = value; } } rtrn iMin; }
+		tplt<tpnm _tMax> err_t	max				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax maxFound; rtrn max(maxFound, funcComparand, offset); }
+		tplt<tpnm _tMax> err_t	min				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax minFound; rtrn min(minFound, funcComparand, offset); }
 	}; // view<>
 
 	tplTusng	view_array	= ::llc::view<T>;
 	tplTusng	view1d		= ::llc::view<T>;
 	tplTusng	v1			= ::llc::view<T>;
 
-	tplTnsix	u2_t	size		(cnst ::llc::view<T> & viewToTest)	nxpt	{ rtrn viewToTest.size();			}
-	tplTnsix	u2_t	byte_count	(cnst ::llc::view<T> & viewToTest)	nxpt	{ rtrn viewToTest.byte_count();	}
+	tplTnsix	u2_t		size			(cnst ::llc::view<T> & viewToTest)														nxpt	{ rtrn viewToTest.size();		}
+	tplTnsix	u2_t		byte_count		(cnst ::llc::view<T> & viewToTest)														nxpt	{ rtrn viewToTest.byte_count();	}
 
 #pragma pack(pop)
 

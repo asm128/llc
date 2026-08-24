@@ -22,15 +22,15 @@ namespace llc
 		cxpr	Tn2			oper+			(cnst Tn2 & other)		csnx	{ return {T(x + other.x), T(y + other.y)}; }
 		cxpr	Tn2			oper-			(cnst Tn2 & other)		csnx	{ return {T(x - other.x), T(y - other.y)}; }
 		cxpr	Tn2			oper*			(f3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(f3_t	scalar)			cnst				{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper/			(f3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
 		cxpr	Tn2			oper*			(s3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(s3_t	scalar)			cnst				{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper/			(s3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
 		cxpr	Tn2			oper*			(u3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(u3_t	scalar)			cnst				{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper/			(u3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
 		cxpr	Tn2			oper*			(s2_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(s2_t	scalar)			cnst				{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper/			(s2_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
 		cxpr	Tn2			oper*			(u2_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(u2_t	scalar)			cnst				{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper/			(u2_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
 		//
 		Tn2&				oper+=			(cnst Tn2 & other)			nxpt			{ x += other.x; y += other.y; return *this; }
 		Tn2&				oper-=			(cnst Tn2 & other)			nxpt			{ x -= other.x; y -= other.y; return *this; }
