@@ -18,6 +18,10 @@
 #endif
 
 stxp	uint32_t LLC_MAX_PATH = 256;
+
+#define llc_path_debug info_printf
+
+
 //
 ::llc::err_t			llc::pathCreate				(::llc::vcst_c & pathName, sc_c separator) {
 	if_zero_fw(pathName.size());
@@ -36,6 +40,7 @@ stxp	uint32_t LLC_MAX_PATH = 256;
 		if(0 == strcmp(".", folder))
 			continue;
 #if defined(LLC_WINDOWS)
+		llc_path_debug("Creating folder \"%s\".", folder);
 		if(!CreateDirectoryA(folder, NULL)) {
 			DWORD						err							= GetLastError();
 			ree_if(err != ERROR_ALREADY_EXISTS, "Failed to create directory: %s. hr: (%" LLC_FMT_U2 ")", folder, err);
@@ -62,54 +67,70 @@ stxp	uint32_t LLC_MAX_PATH = 256;
 		::llc::max(indexOfStartOfFileName0, indexOfStartOfFileName1)
 		;
 }
+sttc	::llc::err_t 	stripSlashes				(::llc::vcsc_c & path, ::llc::asc_t & out_composed) {
+	llc_path_debug("path=\"%s\", out_composed=\"%s\"", path.begin(), out_composed.begin());
+	for(uint32_t iChar = 0; iChar < path.size(); ++iChar) {
+		const char				curChar						= path[iChar];
+		if(iChar < (path.size() - 1)) {
+			const char				nxtChar						= path[iChar + 1];
+			if_true_cwf
+			  ( ('\\' == curChar && '\\' == nxtChar)
+			 || ('\\' == curChar && '/'  == nxtChar)
+			 || ('/'  == curChar && '\\' == nxtChar)
+			 || ('/'  == curChar && '/'  == nxtChar)
+			 , "curChar: '%c', nxtChar: '%c', iChar: %" LLC_FMT_U2 ", path.size(): %" LLC_FMT_U2 "."
+			 , curChar, nxtChar, iChar, path.size()
+			);
+		}
+		if_fail_fef(out_composed.push_back(curChar), "out_composed.size()=%" LLC_FMT_U2 ".", out_composed.size());
+	}
+	llc_path_debug("out_composed=\"%s\"", out_composed.begin());
+	return 0;
+}
 //
 ::llc::err_t			llc::pathNameCompose		(::llc::vcsc_c & path, ::llc::vcsc_c & fileName, ::llc::asc_t & out_composed)		{
 	if(path.size()) {
-		for(uint32_t iChar = 0; iChar < path.size(); ++iChar) {
-			const char					curChar						= path[iChar];
-			if(iChar < (path.size() - 1)) {
-				const char					nxtChar						= path[iChar + 1];
-				if('\\' == curChar && '\\' == nxtChar)
-					continue;//++iChar;
-			}
-			out_composed.push_back(curChar);
-		}
+		if_fail_fe(::stripSlashes(path, out_composed));
 		if('\\' != path[path.size() - 1] && '/' != path[path.size() - 1])
-			out_composed.push_back('/');
+			if_fail_fef(out_composed.push_back('/'), "out_composed.size()=%" LLC_FMT_U2 ".", out_composed.size());
 	}
 	if(fileName.size()) {
-		for(uint32_t iChar = ('\\' == fileName[0]) ? 1 : 0; iChar < fileName.size(); ++iChar) {
-			const char					curChar						= fileName[iChar];
-			if(iChar < (fileName.size() - 1)) {
-				const char					nxtChar						= fileName[iChar + 1];
-				if('\\' == curChar && '\\' == nxtChar)
-					continue; //++iChar;
-			}
-			out_composed.push_back(curChar);
-		}
+		if_fail_fe(::stripSlashes(fileName, out_composed));
 	}
+	llc_path_debug("out_composed=\"%s\"", out_composed.begin());
 	return out_composed.size();
 }
 
 ::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::avcsc_t & output, ::llc::vcst_c extension)					{
+	llc_path_debug("extension=\"%s\"", extension.begin());
 	for(uint32_t iFile = 0; iFile < input.Files.size(); ++iFile) {
 		::llc::vcsc_c			& fileName					= input.Files[iFile];
-		if(0 == extension.size() || (extension.size() < fileName.size() && 0 == strncmp(fileName.end() - extension.size(), extension.begin(), ::llc::min(extension.size(), fileName.size()))))
+		b8_t 					extensionMatch 				= 0 == strncmp(fileName.end() - extension.size(), extension.begin(), ::llc::min(extension.size(), fileName.size()));
+		if(0 == extension.size() || (extension.size() < fileName.size() && extensionMatch)) {
+			llc_path_debug("fileName=\"%s\"", fileName.begin());
 			llc_necs(output.push_back(fileName));
+		}
 	}
 	for(uint32_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder)
-		llc_necall(llc::pathList(input.Folders[iFolder], output, extension), "%s", "Unknown error!");
+		if_fail_fef(llc::pathList(input.Folders[iFolder], output, extension), "%s", "Unknown error!");
 	return 0;
 }
 
 ::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::aasc_t & output, ::llc::vcst_c extension)					{
+	llc_path_debug("extension=\"%s\"", extension.begin());
 	for(uint32_t iFile = 0; iFile < input.Files.size(); ++iFile) {
 		::llc::vcsc_c			& fileName					= input.Files[iFile];
-		if(0 == extension.size() || (extension.size() < fileName.size() && 0 == strncmp(fileName.end() - extension.size(), extension.begin(), ::llc::min(extension.size(), fileName.size()))))
-			llc_necs(output.push_back(fileName));
+		llc_path_debug("fileName=\"%s\"", fileName.begin());
+		b8_t 					extensionMatch 				= 0 == strncmp(fileName.end() - extension.size(), extension.begin(), ::llc::min(extension.size(), fileName.size()));
+		if(0 == extension.size() || (extension.size() < fileName.size() && extensionMatch)) {
+			llc_path_debug("fileName=\"%s\"", fileName.begin());
+			if_fail_fef(output.push_back(fileName), "fileName=%s, output.size()=%" LLC_FMT_U2, fileName.begin(), output.size());
+		}
 	}
-	for(uint32_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder	)
-		llc_necall(llc::pathList(input.Folders[iFolder], output, extension), "%s", "Unknown error!");
+	for(uint32_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder	) {
+		const ::llc::SPathContents	& childPath	= input.Folders[iFolder];
+		if_fail_fef(llc::pathList(childPath, output, extension), "output=%s, extension=%s", output.begin(), extension.begin());
+	}
 	return 0;
 }
 
