@@ -51,11 +51,33 @@ static llc::err_t testPackedU3 () {
 
 tpl_t
 stxp    llc::err_t  testView    (/*uint32_t index*/) {
-    stxp const _t   testInputs[4][6] = 
-        { {0U, 1U, 2U, 3U, 4U, 5U}
-        , {0U, 1U, 2U, 3U, 4U, 5U}
-        , {0U, 1U, 2U, 3U, 4U, 5U}
-        , {0U, 1U, 2U, 3U, 4U, 5U}
+    stxp const _t   testInputs[6][20] = 
+        { {0}
+        , {0, 1}
+        , {0, 1, 2}
+        , {0, 1, 2, 3, 4, 5, 6, 7}
+        , {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+        , {  0
+          ,  1
+          ,  2
+          ,  3
+          ,  4
+          ,  5
+          ,  6
+          ,  7
+          ,  8
+          ,  9
+          , 10
+          , 11
+          , 12
+          , 13
+          , 14
+          , 15
+          , 16
+          , 17
+          , 18
+          , 19
+          }
         };
     cnst u2_t       totalInputs         = llc::size(testInputs) / llc::size(testInputs[0]);
     for(u0_t iInput = 0; iInput < totalInputs; ++iInput) { 
@@ -99,28 +121,30 @@ static	::llc::error_t	test_base_log_print	(const char * text) {	return Serial ? 
 static	::llc::error_t	test_base_log_print	(const char * text) {	return (::llc::error_t)printf("%s", text); }
 #endif
 
-int testPackedCounters() {
-    info_printf("# packed_uint<> Tests."); 
-    info_printf("## Running testPackedU1()"); if_fail_e(testPackedU1()); 
-    info_printf("## Running testPackedU2()"); if_fail_e(testPackedU2()); 
-    info_printf("## Running testPackedU3()"); if_fail_e(testPackedU3()); 
+static int testPackedCounters() {
+    always_printf("# packed_uint<> Tests."); 
+    always_printf("## Running testPackedU1()"); if_fail_e(testPackedU1()); 
+    always_printf("## Running testPackedU2()"); if_fail_e(testPackedU2()); 
+    always_printf("## Running testPackedU3()"); if_fail_e(testPackedU3()); 
     return 0;
 }
 
 int main() {
 	::llc::setupLogCallbacks(test_base_log_print, test_base_log_write);
-    info_printf("# Array Serialization Tests");
+    always_printf("# Array Serialization Tests");
     //for(uint32_t iSet = 0; iSet < 4; ++iSet) {
-        info_printf("## Running testView()"); if_fail_e(::testView<u0_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<u1_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<u2_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<u3_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<s0_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<s1_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<s2_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<s3_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<f2_t>(/*iSet*/)); 
-        info_printf("## Running testView()"); if_fail_e(::testView<f3_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<u0_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<u1_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<u2_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<u3_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<s0_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<s1_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<s2_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<s3_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<f2_t>(/*iSet*/)); 
+        always_printf("## Running testView()"); if_fail_e(::testView<f3_t>(/*iSet*/)); 
     //}
+    always_printf("# Array Counter Serialization Tests");
+    if_fail_e(testPackedCounters());
     return 0;
 }
