@@ -197,30 +197,30 @@ sttc	llc::err_t	testViewU8					() {
 	return 0;
 }
 sttc	llc::err_t	testViewCc					() { 
-	if_fail_fe(testViewCc<u0_t>()); // 
-	if_fail_fe(testViewCc<u1_t>()); // 
-	if_fail_fe(testViewCc<u2_t>()); // 
-	if_fail_fe(testViewCc<u3_t>()); // 
-	if_fail_fe(testViewCc<uc_t>()); // 
-	if_fail_fe(testViewCc<s0_t>()); // 
-	if_fail_fe(testViewCc<s1_t>()); // 
-	if_fail_fe(testViewCc<s2_t>()); // 
-	if_fail_fe(testViewCc<s3_t>()); // 
-	if_fail_fe(testViewCc<sc_t>()); // 
+	if_fail_fe(testViewCC<u0_t>()); // 
+	if_fail_fe(testViewCC<u1_t>()); // 
+	if_fail_fe(testViewCC<u2_t>()); // 
+	if_fail_fe(testViewCC<u3_t>()); // 
+	if_fail_fe(testViewCC<uc_t>()); // 
+	if_fail_fe(testViewCC<s0_t>()); // 
+	if_fail_fe(testViewCC<s1_t>()); // 
+	if_fail_fe(testViewCC<s2_t>()); // 
+	if_fail_fe(testViewCC<s3_t>()); // 
+	if_fail_fe(testViewCC<sc_t>()); // 
 	//if_fail_fe(testViewConstructors<b8_t>()); // 
 	return 0;
 }
 sttc	llc::err_t	testViewCu8					() { 
-	if_fail_fe(testViewCu8<u0_t>()); // 
-	if_fail_fe(testViewCu8<u1_t>()); // 
-	if_fail_fe(testViewCu8<u2_t>()); // 
-	if_fail_fe(testViewCu8<u3_t>()); // 
-	if_fail_fe(testViewCu8<uc_t>()); // 
-	if_fail_fe(testViewCu8<s0_t>()); // 
-	if_fail_fe(testViewCu8<s1_t>()); // 
-	if_fail_fe(testViewCu8<s2_t>()); // 
-	if_fail_fe(testViewCu8<s3_t>()); // 
-	if_fail_fe(testViewCu8<sc_t>()); // 
+	if_fail_fe(testViewCU8<u0_t>()); // 
+	if_fail_fe(testViewCU8<u1_t>()); // 
+	if_fail_fe(testViewCU8<u2_t>()); // 
+	if_fail_fe(testViewCU8<u3_t>()); // 
+	if_fail_fe(testViewCU8<uc_t>()); // 
+	if_fail_fe(testViewCU8<s0_t>()); // 
+	if_fail_fe(testViewCU8<s1_t>()); // 
+	if_fail_fe(testViewCU8<s2_t>()); // 
+	if_fail_fe(testViewCU8<s3_t>()); // 
+	if_fail_fe(testViewCU8<sc_t>()); // 
 	//if_fail_fe(testViewConstructors<b8_t>()); // 
 	return 0;
 }
