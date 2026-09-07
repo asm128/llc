@@ -1058,5 +1058,6 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="country_coords.json" />
+    <None Include="..\.gitignore" />
   </ItemGroup>
 </Project>

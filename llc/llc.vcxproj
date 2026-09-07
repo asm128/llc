@@ -441,6 +441,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.gitignore" />
     <None Include="character_codes.json" />
     <None Include="copy_llc_config.bat" />
     <None Include="country_coords.json" />

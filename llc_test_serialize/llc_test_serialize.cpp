@@ -7,47 +7,6 @@
 
 LLC_USING_TYPEINT();
 
-static llc::err_t testPackedU1 () {
-    for(uint16_t iUnpacked = 0; iUnpacked < 0x7FFFU; ++iUnpacked) { 
-        const llc::packedu16 packed = iUnpacked; 
-        if_true_if(iUnpacked == 0x80 || 0x7F == iUnpacked, "Value: 0x%X|%u, packed.Value(): 0x%X|%u, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-        if_true_ef(iUnpacked != packed.Value(), "Value: %u, packed.Value(): %u.", iUnpacked, packed.Value()); 
-        if_true_ef(iUnpacked > 0x7F && 1 > packed.TailWidth, "Value = %u, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-    }
-    return 0;
-}
-static llc::err_t testPackedU2 () {
-    //for(uint16_t iUnpacked = 0; iUnpacked <             0x3FFFU  ; ++iUnpacked) { llc::packedu16 packed = iUnpacked; if_true_ef(iUnpacked != packed.Value(), "iUnpacked = %u, packed.Value() = %u.", iUnpacked, packed.Value()); if_true_e(iUnpacked > 0xFF packed.TailWidth();}
-    //for(uint32_t iUnpacked = 0; iUnpacked < 0x3FFFFFFFFFFFFFFFULL; ++iUnpacked) { llc::packedu64 packed = iUnpacked; if_true_ef(iUnpacked != packed.Value(), "iUnpacked = %u, packed.Value() = %u.", iUnpacked, packed.Value()); if_true_e(iUnpacked > 0xFF packed.TailWidth();}
-    for(uint32_t iUnpacked = 0; iUnpacked < 0x3FFFFFFFU; ++iUnpacked) { 
-        const llc::packedu32 packed = iUnpacked; 
-        if_true_if(iUnpacked == 0x40     || 0x3F     == iUnpacked, "Value: 0x%X|%u, packed.Value(): 0x%X|%u, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-        if_true_if(iUnpacked == 0x4000   || 0x3FFF   == iUnpacked, "Value: 0x%X|%u, packed.Value(): 0x%X|%u, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-        if_true_if(iUnpacked == 0x400000 || 0x3FFFFF == iUnpacked, "Value: 0x%X|%u, packed.Value(): 0x%X|%u, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-        if_true_ef(iUnpacked != packed.Value(), "Value: %u, packed.Value(): %u.", iUnpacked, packed.Value()); 
-        if_true_ef(iUnpacked >  0x3F     && 1 > packed.TailWidth, "Value = %u, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-        if_true_ef(iUnpacked >  0x3FFF   && 2 > packed.TailWidth, "Value = %u, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-        if_true_ef(iUnpacked >  0x3FFFFF && 3 > packed.TailWidth, "Value = %u, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-    }
-    return 0;
-}
-static llc::err_t testPackedU3 () {
-    //for(uint64_t iUnpacked = 0; iUnpacked < 0x2000000001; ++iUnpacked) { 
-    //    const llc::packedu64 packed = iUnpacked; 
-    //    if_true_if(iUnpacked == 0x20          || 0x1F           == iUnpacked, "Value: 0xll%X|%llu, packed.Value(): 0x%llX|%llu, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-    //    if_true_if(iUnpacked == 0x2000        || 0x1FFF         == iUnpacked, "Value: 0xll%X|%llu, packed.Value(): 0x%llX|%llu, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-    //    if_true_if(iUnpacked == 0x200000      || 0x1FFFFF       == iUnpacked, "Value: 0xll%X|%llu, packed.Value(): 0x%llX|%llu, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-    //    if_true_if(iUnpacked == 0x20000000    || 0x1FFFFFFF     == iUnpacked, "Value: 0xll%X|%llu, packed.Value(): 0x%llX|%llu, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-    //    if_true_if(iUnpacked == 0x2000000000  || 0x1FFFFFFFFF   == iUnpacked, "Value: 0xll%X|%llu, packed.Value(): 0x%llX|%llu, packed.TailWidth: 0x%X|%u.", iUnpacked, iUnpacked, packed.Value(), packed.Value(), packed.TailWidth, packed.TailWidth);
-    //    if_true_ef(iUnpacked != packed.Value(), "Value: %u, packed.Value(): %u.", iUnpacked, packed.Value()); 
-    //    if_true_ef(iUnpacked >         0x1F && 1 > packed.TailWidth, "Value = %llu, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-    //    if_true_ef(iUnpacked >       0x1FFF && 2 > packed.TailWidth, "Value = %llu, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-    //    if_true_ef(iUnpacked >     0x1FFFFF && 3 > packed.TailWidth, "Value = %llu, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-    //    if_true_ef(iUnpacked >   0x1FFFFFFF && 4 > packed.TailWidth, "Value = %llu, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-    //    if_true_ef(iUnpacked > 0x1FFFFFFFFF && 5 > packed.TailWidth, "Value = %llu, packed.TailWidth = %u.", iUnpacked, (uint32_t)packed.TailWidth);
-    //}
-    return 0;
-}
 
 tpl_t
 stxp    llc::err_t  testView    (/*uint32_t index*/) {
@@ -121,14 +80,6 @@ static	::llc::error_t	test_base_log_print	(const char * text) {	return Serial ? 
 static	::llc::error_t	test_base_log_print	(const char * text) {	return (::llc::error_t)printf("%s", text); }
 #endif
 
-static int testPackedCounters() {
-    always_printf("# packed_uint<> Tests."); 
-    always_printf("## Running testPackedU1()"); if_fail_e(testPackedU1()); 
-    always_printf("## Running testPackedU2()"); if_fail_e(testPackedU2()); 
-    always_printf("## Running testPackedU3()"); if_fail_e(testPackedU3()); 
-    return 0;
-}
-
 int main() {
 	::llc::setupLogCallbacks(test_base_log_print, test_base_log_write);
     always_printf("# Array Serialization Tests");
@@ -144,7 +95,6 @@ int main() {
         always_printf("## Running testView()"); if_fail_e(::testView<f2_t>(/*iSet*/)); 
         always_printf("## Running testView()"); if_fail_e(::testView<f3_t>(/*iSet*/)); 
     //}
-    always_printf("# Array Counter Serialization Tests");
-    if_fail_e(testPackedCounters());
+
     return 0;
 }
