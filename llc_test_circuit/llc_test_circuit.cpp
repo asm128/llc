@@ -1,5 +1,3 @@
-#define STDOUT
-
 #include "llc_circuit.h"
 
 LLC_USING_TYPEINT();
