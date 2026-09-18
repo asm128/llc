@@ -32,16 +32,17 @@ stxp	uint32_t LLC_MAX_PATH = 256;
 		++offsetBar;
 		offsetBar				= ::llc::find(separator, pathName, offsetBar);
 		if(0 == offsetBar) {
-			if(offsetBar < 0 || offsetBar == (int32_t)pathName.size() - 1)
+			if(offsetBar == (int32_t)pathName.size() - 1)
 				break;
 			continue;
 		}
-		ree_if(0 == strncpy_s(folder, pathName.begin(), (offsetBar < 0) ? pathName.size() : offsetBar), "String buffer overflow? Path size: %" LLC_FMT_U2 ".", pathName.size());
+		ree_if(0 != strncpy_s(folder, pathName.begin(), (offsetBar < 0) ? pathName.size() : offsetBar), "String buffer overflow? Path size: %" LLC_FMT_U2 ".", pathName.size());
 		if(0 == strcmp(".", folder))
 			continue;
 #if defined(LLC_WINDOWS)
 		llc_path_debug("Creating folder \"%s\".", folder);
-		if(!CreateDirectoryA(folder, NULL)) {
+		if(FALSE == CreateDirectoryA(folder, NULL)) {
+			ci_if(strlen(folder) == 2 && folder[1] == ':');
 			DWORD						err							= GetLastError();
 			ree_if(err != ERROR_ALREADY_EXISTS, "Failed to create directory: %s. hr: (%" LLC_FMT_U2 ")", folder, err);
 		}
@@ -51,9 +52,7 @@ stxp	uint32_t LLC_MAX_PATH = 256;
 			mkdir(folder, 0700);
 		}
 #endif
-		if(offsetBar < 0 || offsetBar == (s2_t)pathName.size() - 1)
-			break;
-	} while(true);
+	} while(offsetBar >= 0 && offsetBar != (s2_t)pathName.size() - 1);
 #endif
 	return 0;
 }
