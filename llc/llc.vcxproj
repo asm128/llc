@@ -25,6 +25,7 @@
     <ClInclude Include="llc_ccsds.h" />
     <ClInclude Include="llc_cerrno.h" />
     <ClInclude Include="llc_circuit.h" />
+    <ClInclude Include="llc_keyval_old.h" />
     <ClInclude Include="llc_micro.h" />
     <ClInclude Include="llc_bus.h" />
     <ClInclude Include="llc_adam7.h" />
@@ -447,6 +448,7 @@
     <None Include="country_coords.json" />
     <None Include="cpp.hint" />
     <None Include="Makefile" />
+    <None Include="README.md" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

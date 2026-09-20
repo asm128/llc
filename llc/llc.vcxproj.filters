@@ -813,6 +813,9 @@
     <ClInclude Include="llc_ccsds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_keyval_old.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -1059,5 +1062,6 @@
     </None>
     <None Include="country_coords.json" />
     <None Include="..\.gitignore" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>
