@@ -1,7 +1,7 @@
 #include "llc_label.h"
 #include "llc_array_pod.h"
 
-#include <string>
+#include <cstring>
 
 #ifndef LLC_STD_CSTRING_H
 #define LLC_STD_CSTRING_H

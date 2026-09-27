@@ -45,6 +45,7 @@
     <ClInclude Include="llc_append_xml.h" />
     <ClInclude Include="llc_app_impl.h" />
     <ClInclude Include="llc_arduino_string.h" />
+    <ClInclude Include="llc_args.h" />
     <ClInclude Include="llc_array.h" />
     <ClInclude Include="llc_array_base.h" />
     <ClInclude Include="llc_array_bit.h" />
@@ -266,6 +267,7 @@
     <ClCompile Include="llc_append_js.cpp" />
     <ClCompile Include="llc_append_json.cpp" />
     <ClCompile Include="llc_append_xml.cpp" />
+    <ClCompile Include="llc_args.cpp" />
     <ClCompile Include="llc_array.cpp" />
     <ClCompile Include="llc_ascii_target.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>

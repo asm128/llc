@@ -104,7 +104,6 @@ namespace llc
 
 		inln	err_t			fill			(cnst T & value, u2_t offset = 0, u2_t stop = 0xFFFFFFFFU)										{ for(; offset < ::llc::min(Count, stop); ++offset) Data[offset] = value; rtrn Count; }
 
-
 		err_t					for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset = 0)								{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
 		err_t					for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset = 0)						cnst	{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
 		err_t					enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset = 0)								{ for(; offset < Count; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }

@@ -1,4 +1,6 @@
-#include "llc_array.h"
+#include "llc_array_obj.h"
+#include "llc_string.h"
+#include "llc_string_compose.h"
 #include "llc_keyval.h"
 
 #ifndef LLC_ARGS_H_23627
@@ -6,19 +8,15 @@
 
 namespace llc
 {
-	enum ARGS_STATE : u0_t {
-		ARGS_STATE_ARGUMENT,
-		ARGS_STATE_OPTION_VALUE,
-		ARGS_STATE_POSITIONAL,
-	};
-
 	stct SCommandLineArgs {
-		apod<kvvcst_t<vcst_t>>	Options		= {};
+		vcst_t					ProgramName = {};
+		aobj<keyval<vcst_t>>	Options		= {};
 		aobj<vcst_t>			Positionals	= {};
 	};
 
-	err_t	argsParse			(view<sc_c *> argv, SCommandLineArgs & output);
-	err_t	argsValueFromKey	(vcst_t key, vcst_t & output);
+	err_t			argsParse			(SCommandLineArgs & output, view<vcst_t> argv);
+	stin	err_t	argsOptionIndex		(const SCommandLineArgs & input, vcst_t key)					{ return input.Options.find([&key](const llc::kvvcst_t<llc::vcst_t> & option) { return option.Key == key; }); }
+	err_t			argsOptionValue		(const SCommandLineArgs & input, vcst_t key, vcst_t & output);
 }
 
 #endif // LLC_ARGS_H_23627

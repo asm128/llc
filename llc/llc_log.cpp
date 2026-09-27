@@ -41,8 +41,8 @@ stxp		int		LOG_PREFIX_BUFFER_SIZE	= 256;
 }
 
 #if defined(LLC_WINDOWS)
-static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen) 	{ u2_t iChar = 0; for(; iChar < textLen; ++iChar) { sc_c buf[2] = {text[iChar], 0}; OutputDebugStringA(buf); } return iChar; }
-static	::llc::error_t	default_base_log_print	(const char * text)						{ OutputDebugStringA(text); return (::llc::error_t)strlen(text); }
+static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen) 	{  u2_t iChar = 0; for(; iChar < textLen; ++iChar) { sc_c buf[2] = {text[iChar], 0}; OutputDebugStringA(buf); } return (::llc::error_t)fprintf(stderr, "%.*s", textLen, text); }
+static	::llc::error_t	default_base_log_print	(const char * text)						{ OutputDebugStringA(text); return (::llc::error_t)fprintf(stderr, "%s", text); }
 #elif defined(LLC_ANDROID)
 static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen)	{ LOGI("%s", text); return textLen; }
 static	::llc::error_t	default_base_log_print	(const char * text)						{ LOGI("%s", text); return (::llc::error_t)strlen(text); }
@@ -50,8 +50,8 @@ static	::llc::error_t	default_base_log_print	(const char * text)						{ LOGI("%s
 static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen)	{ return Serial ? Serial.write(text, textLen) : textLen; }
 static	::llc::error_t	default_base_log_print	(const char * text)						{ return Serial ? Serial.print(text) : (::llc::error_t)strlen(text); }
 #else
-static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen)	{ u2_t iChar = 0; for(; iChar < textLen; ++iChar) printf("%c", text[iChar]); return iChar; }
-static	::llc::error_t	default_base_log_print	(const char * text)						{ return (::llc::error_t)printf("%s", text); }
+static	::llc::error_t	default_base_log_write	(const char * text, uint32_t textLen)	{ return (::llc::error_t)fprintf(stderr, "%.*s", textLen, text); }
+static	::llc::error_t	default_base_log_print	(const char * text)						{ return (::llc::error_t)fprintf(stderr, "%s", text); }
 #endif
 
 ::llc::log_write_t		llc_log_write					= default_base_log_write;

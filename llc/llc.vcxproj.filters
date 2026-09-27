@@ -156,6 +156,9 @@
     <ClInclude Include="llc_app_impl.h">
       <Filter>framework</Filter>
     </ClInclude>
+    <ClInclude Include="llc_args.h">
+      <Filter>container</Filter>
+    </ClInclude>
     <ClInclude Include="llc_array.h">
       <Filter>container</Filter>
     </ClInclude>
@@ -823,6 +826,9 @@
     </ClCompile>
     <ClCompile Include="llc_aes.cpp">
       <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_args.cpp">
+      <Filter>container</Filter>
     </ClCompile>
     <ClCompile Include="llc_array.cpp">
       <Filter>container</Filter>

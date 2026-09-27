@@ -5,7 +5,7 @@
 
 namespace llc
 {
-	tplt<tpnm _tKey, tpnm _tVal>
+	tplt<tpnm _tKey, tpnm _tVal = _tKey>
 	stct keyval {
 		tydf	_tKey			TKey;
 		tydf	_tVal			TVal;

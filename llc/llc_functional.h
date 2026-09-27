@@ -21,6 +21,7 @@ namespace llc
 
 	tplt<tpnm ..._tArgs>					using	FVoid				= ::llc::function<void(_tArgs&&...)>;
 	tplt<tpnm ..._tArgs>					using	FBool				= ::llc::function<bool(_tArgs&&...)>;
+	tplt<tpnm ..._tArgs>					using	FError				= ::llc::function<::llc::error_t(_tArgs&&...)>;
 	tplt<tpnm T, tpnm ..._tArgs>			using	FTransform			= ::llc::function<T(_tArgs&&...)>;
 
 	tplt<tpnm T>							using	TFuncForEach		= FVoid<T&>;
