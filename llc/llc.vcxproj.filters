@@ -435,9 +435,6 @@
     <ClInclude Include="llc_png.h">
       <Filter>image</Filter>
     </ClInclude>
-    <ClInclude Include="llc_process.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="llc_ptr_nco.h">
       <Filter>pointer</Filter>
     </ClInclude>
@@ -929,7 +926,7 @@
     <ClCompile Include="llc_json_expression.cpp">
       <Filter>json</Filter>
     </ClCompile>
-    <ClCompile Include="llc_keyval.cpp">
+    <ClCompile Include="llc_keyval_old.cpp">
       <Filter>container</Filter>
     </ClCompile>
     <ClCompile Include="llc_label.cpp">
@@ -958,9 +955,6 @@
     </ClCompile>
     <ClCompile Include="llc_png_write.cpp">
       <Filter>image</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_process.cpp">
-      <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="llc_raster_lh.cpp">
       <Filter>raster</Filter>

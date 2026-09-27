@@ -1,4 +1,4 @@
-#include "llc_keyval.h"
+#include "llc_keyval_old.h"
 #include "llc_safe.h"
 #include "llc_parse.h"
 #include "llc_apod_serialize.h"
@@ -26,17 +26,19 @@
 	return sprintfable;
 }
 
-::llc::error_t			llc::token_split		(char token, const ::llc::vcst_t & input_string, TKeyValConstChar & output_views)	{
-	int32_t						indexToken;
-	llc_necall(indexToken = ::llc::find(token, input_string), "'%c' not found.", token);
-	output_views.Key		= {input_string.begin(), (uint32_t)indexToken};
-	output_views.Val		= (uint32_t(indexToken + 1) < input_string.size())
-		? ::llc::vcst_t{&input_string[indexToken + 1U], input_string.size() - (indexToken + 1U)}
+::llc::error_t			llc::token_split		(char valueSeparator, const ::llc::vcst_t & input_string, TKeyValConstChar & output_views)	{
+	int32_t						indexSeparator;
+	if_fail_wf(indexSeparator = ::llc::find(valueSeparator, input_string), "'%c' character not found.", valueSeparator);
+	output_views.Key		= {input_string.begin(), (uint32_t)indexSeparator};
+
+	llc::b8_c					hasValue			= indexSeparator > 0 && uint32_t(indexSeparator + 1) < input_string.size();
+	output_views.Val		= hasValue
+		? ::llc::vcst_t{&input_string[indexSeparator + 1U], input_string.size() - (indexSeparator + 1U)}
 		: ::llc::vcst_t{}	// empty view if there's no data after the separator.
 		;
 	::llc::trim(output_views.Key, output_views.Key);
 	::llc::trim(output_views.Val, output_views.Val);
-	return 0;
+	return output_views.Val.size();
 }
 
 ::llc::error_t			llc::find				(const ::llc::vcst_t & keyToFind, const ::llc::view<const ::llc::TKeyValConstString> & keyvals, ::llc::vcsc_t & out_val)		{

@@ -1,6 +1,24 @@
 #include "llc_args.h"
 #include "llc_enum.h"
 
+llc::err_t			llc::viewsFromEnvp(llc::aobj<vcst_t> & outputViews, char * envp[]) {
+	if_null_fe(envp);
+	u2_t iVar = 0;
+	for (; envp[iVar]; ++iVar) {
+		if_fail_fe(outputViews.push_back({envp[iVar], (u2_t)-1}));
+	}
+	rtrn iVar;
+}
+
+llc::err_t			llc::viewsFromArgv(llc::aobj<vcst_t> & outputViews, u2_t argc, char * argv[]) {
+	if_zero_vi(0, argc);
+	if_null_fe(argv);
+	u2_t iArg = 0;
+	for(; iArg < argc; ++iArg) {
+		if_fail_fe(outputViews.push_back({argv[iArg], (u2_t)-1}));
+	}
+	rtrn iArg;
+}
 llc::err_t			llc::argsOptionValue	(const SCommandLineArgs & input, vcst_t key, vcst_t & output)	{
 	err_c 					optionIndex			= argsOptionIndex(input, key);
 	if(0 <= optionIndex) { // success!
@@ -40,11 +58,23 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 	rtrn option.Val.size();
 }
 
-::llc::err_t		llc::argsParse		(::llc::SCommandLineArgs & output, ::llc::view<vcst_t> argv) {
+
+::llc::err_t		llc::argsParse			(SCommandLineArgs & output, int argc, char ** argv, char ** envp) {
+	llc::aobj<llc::vcst_t> arguments, envvars;											
+	if_fail_fe(viewsFromArgv(arguments, argc, argv));
+	if(envp)
+		if_fail_fe(viewsFromEnvp(envvars, envp));
+	return argsParse(output, arguments, envvars);
+}
+
+::llc::err_t		llc::argsParse		(::llc::SCommandLineArgs & output, ::llc::view<vcst_t> argv, ::llc::view<vcst_t> envp) {
+	output.Environment	= envp;
+	if_zero_vw(argv.size(), 0); // Exit early if no argv: nothing to do
+
+	output.ProgramName	= argv[0];
+
 	ARGS_STATE				state				= ARGS_STATE_ARGUMENT;
 	kvvcst_t<vcst_t>		option				= {};
-	output.ProgramName = argv[0];
-
 	for(u2_t iArg = 1; iArg < argv.size(); ++iArg) {
 		vcst_t					argument			= {argv[iArg], (u2_t)-1};
 		if_zero_cwf(argument.size(), "iArg:(%" LLC_FMT_U2  ")", iArg);
@@ -75,7 +105,8 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 			option				= {};
 		}
 	}
-	if(state == ARGS_STATE_OPTION_VALUE)
+	if(state == ARGS_STATE_OPTION_VALUE) {
 		if_fail_fe(output.Options.push_back(option));
+	}
 	rtrn output.Options.size() + output.Positionals.size();
 }

@@ -3,7 +3,8 @@
   <PropertyGroup>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup >
+  <PropertyGroup>
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+    <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
 </Project>

@@ -212,7 +212,6 @@
     <ClInclude Include="llc_particle.h" />
     <ClInclude Include="llc_platform_globals.h" />
     <ClInclude Include="llc_png.h" />
-    <ClInclude Include="llc_process.h" />
     <ClInclude Include="llc_array_ptr.h" />
     <ClInclude Include="llc_rsa.h" />
     <ClInclude Include="llc_runtime.h" />
@@ -398,7 +397,7 @@
     <ClCompile Include="llc_json_expression.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="llc_keyval.cpp" />
+    <ClCompile Include="llc_keyval_old.cpp" />
     <ClCompile Include="llc_label.cpp" />
     <ClCompile Include="llc_log.cpp" />
     <ClCompile Include="llc_mapblock.cpp">
@@ -410,9 +409,6 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_png_write.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_process.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_rsa.cpp">
