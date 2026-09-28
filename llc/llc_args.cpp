@@ -42,7 +42,8 @@ namespace llc
 } // namespace
 
 sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::llc::vcst_t> & option) {
-	::llc::b8_c				isDoubleDash		= '-' == argument[1];
+	if_zero_fw(argument.size());
+	::llc::b8_c				isDoubleDash		= argument.size() > 1 && '-' == argument[1];
 	::llc::u0_c				prefixLen			= isDoubleDash ? 2U : 1U;
 	::llc::u2_t				iChar				= prefixLen;
 	for(; iChar < argument.size() && argument[iChar] != '='; ++iChar) 
@@ -69,7 +70,7 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 
 ::llc::err_t		llc::argsParse		(::llc::SCommandLineArgs & output, ::llc::view<vcst_t> argv, ::llc::view<vcst_t> envp) {
 	output.Environment	= envp;
-	if_zero_vw(argv.size(), 0); // Exit early if no argv: nothing to do
+	if_zero_vw(0, argv.size()); // Exit early if no argv: nothing to do
 
 	output.ProgramName	= argv[0];
 
