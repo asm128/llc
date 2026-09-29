@@ -26,7 +26,7 @@ namespace llc
 	tplt<>				ndix	f2s_t			cpow<0>	(f2s_t/*base*/)	{ return 1; }
 	tplt<>				ndix	f3s_t			cpow<0>	(f3s_t/*base*/)	{ return 1; }
 
-	stxp	u0_t		ASCII_ALPHABET_LENGTH	= 'Z' - 'A';
+	stxp	u0_t		ASCII_ALPHABET_LENGTH	= 'Z' - 'A' + 1;
 	stxp	u0_t		ASCII_LETTER_COUNT		= ASCII_ALPHABET_LENGTH * 2;
 	stxp	u0_t		ASCII_DIGIT_COUNT		= ASCII_LETTER_COUNT + 10;
 
