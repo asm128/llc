@@ -11,95 +11,81 @@ namespace llc
 	struct bit_proxy {
 		tydf	_tInt			T;
 
-		T						& Element;
-		uint8_t					Offset;
+		T							& Element;
+		u0_t						Offset;
 
-		oper				bool			()				cnst	{ return Element & (1ULL << Offset); }
+		oper					bool		()				cnst	{ return Element & (1ULL << Offset); }
 		bit_proxy&				oper=		(bool value)			{ value ? Element |= (1ULL << Offset) : Element &= ~(1ULL << Offset); return *this; }
 	};
 
-	tplt <tpnm _tInt>
+	tplt<tpnm _tInt>	ndsx	u0_t		bit_offset_field_size	() 	{
+		return
+			( (szof(_tInt) > 4) ? 6
+			: (szof(_tInt) > 2) ? 5
+			: (szof(_tInt) > 1) ? 4
+			: 3
+			);
+	}
+
+	tplt<tpnm _tInt, u0_t offsetField = bit_offset_field_size<_tInt>()>
 	struct bit_iterator {
 		tydf	_tInt			T;
 
-		stxp	u2_t		ELEMENT_BITS	= szof(T) * 8;
+		stxp	u2_t			ELEMENT_BITS	= szof(T) * 8;
 
-		cnst T					& Begin;
-		cnst T					& End;
-		T						* Element;
-		uint8_t					Offset	: 4;
-		uint8_t					Stop	: 4;
+		T							* Begin			= 0;
+		T							* End			= 0;
+		T							* Element		= 0;
+		u0_t					Offset			: offsetField;
+		u0_t					Stop			: offsetField;
 
-		bit_proxy<T>			oper*		()				{
-			gthrow_if(Element == &End, "Invalid index: %" LLC_FMT_U2 ".", u2_t(&Element - &Begin) + Offset);
-			return {Element, (uint8_t)Offset};
-		}
-		
-		bool					oper*		()		cnst	{
-			gthrow_if(Element == &End, "Invalid index: %" LLC_FMT_U2 ".", u2_t(&Element - &Begin) + Offset);
-			return (*Element) & (1ULL << Offset);
-		}
+		u2_t					Limit		()		cnst	{ return Begin ? u2_t((End - Begin) * ELEMENT_BITS - (Stop ? ELEMENT_BITS - Stop : 0)) : 0; }
+		u2_t					Index		()		cnst	{ return Begin ? u2_t((Element - Begin) * ELEMENT_BITS + Offset) : 0; }
 
-		inline	oper		bool			()									cnst				{ gthrow_if(Element == &End, "Invalid index: %" LLC_FMT_U2 ".", u2_t(&Element - &Begin) + Offset); return (*Element) & (1ULL << Offset); }
-		inxp	bool			oper==		(cnst bit_iterator & other)		cnst	nxpt	{ return (((1ULL << Offset)) & *Element) == (((1ULL << other.Offset)) & *other.Element); }
-		inxp	bool			oper!=		(cnst bit_iterator & other)		cnst	nxpt	{ return (((1ULL << Offset)) & *Element) != (((1ULL << other.Offset)) & *other.Element); }
+		bit_proxy<T>			oper*		()				{ if_true_tef(Index() >= Limit(), "Invalid index:%" LLC_FMT_U2 ", size:%" LLC_FMT_U2 ".", Index(), Limit()); return {*Element, (u0_t)Offset}; }
+		bool					oper*		()		cnst	{ if_true_tef(Index() >= Limit(), "Invalid index:%" LLC_FMT_U2 ", size:%" LLC_FMT_U2 ".", Index(), Limit()); return (*Element) & (1ULL << Offset); }
 
-		inline	bit_iterator&	oper=		(bool value)	{ value ? *Element |= (1ULL << Offset)	: *Element &= ~(1ULL << Offset); return *this; }
-		bit_iterator&			oper++		()				{ ++Offset; if(Offset >= ELEMENT_BITS)	{ ++Element; Offset = 0;				gthrow_if(Element >= (End   + 1), "Out of range: %" LLC_FMT_U2 ". End: %" LLC_FMT_U2 ".", Element, End  ); } return *this; }
-		bit_iterator&			oper--		()				{ --Offset; if(Offset < 0)				{ --Element; Offset = ELEMENT_BITS - 1; gthrow_if(Element <  (Begin - 1), "Out of range: %" LLC_FMT_U2 ". End: %" LLC_FMT_U2 ".", Element, Begin); } return *this; }
-		bit_iterator			oper++		(int)			{
-			bit_iterator				result			(*this);	// Make a copy.
-			++(*this);					// Use the prefix version to do the work.
-			return result;				// Return the old value.
-		}
-		bit_iterator			oper--		(int)			{
-			bit_iterator				result			(*this);	// Make a copy.
-			--(*this);					// Use the prefix version to do the work.
-			return result;				// Return the old value.
-		}
+		inline	oper			bool		()							cnst	{ if_true_tef(Index() >= Limit(), "Invalid index:%" LLC_FMT_U2 ", size:%" LLC_FMT_U2 ".", Index(), Limit()); return (*Element) & (1ULL << Offset); }
+		inxp	bool			oper==		(cnst bit_iterator & other)	csnx	{ rtrn Element == other.Element && Offset == other.Offset; }
+		inxp	bool			oper!=		(cnst bit_iterator & other)	csnx	{ rtrn Element != other.Element || Offset != other.Offset; }
+
+		bit_iterator			oper++		(int)			{ bit_iterator result (*this); ++(*this); return result; }
+		bit_iterator			oper--		(int)			{ bit_iterator result (*this); --(*this); return result; }
+		bit_iterator&			oper++		()				{ if_true_tef(Index() >= Limit(), "Invalid index:%" LLC_FMT_U2 ", size:%" LLC_FMT_U2 ".", Index(), Limit()); if(0 == ++Offset) ++Element; return *this; }
+		bit_iterator&			oper--		()				{ if_true_tef(0 == Index(), "Invalid index:%" LLC_FMT_U2 ", size:%" LLC_FMT_U2 ".", Index(), Limit()); if(0 == Offset) { --Element; Offset = ELEMENT_BITS - 1; } else --Offset; return *this; }
+		inline	bit_iterator&	oper=		(bool value)	{ if_true_tef(Index() >= Limit(), "Invalid index:%" LLC_FMT_U2 ", size:%" LLC_FMT_U2 ".", Index(), Limit()); value ? *Element |= (1ULL << Offset) : *Element &= ~(1ULL << Offset); return *this; }
 	};
 
 	tplt<tpnm _tInt>
 	class view_bit {
 	protected:
 		// Properties / Member Variables
-		_tInt					* Data			= 0;
-		u2_t					Count			= 0;
+		_tInt				* Data			= 0;
+		u2_t				Count			= 0;
 	public:
 		tydf	_tInt					T;
 		tydf	bit_iterator<T>			TIter;
 		tydf	bit_iterator<cnst T>	TIterConst;
 		tydf	TIter					iterator;
 
-		stxp	uint8_t			ELEMENT_BITS	= szof(T) * 8;
-		//stxp	uint8_t			SHIFT_VALUE		= ;
+		stxp	u0_t		ELEMENT_BITS	= szof(T) * 8;
 
 		// Constructors
-		inxp					view_bit		()								nxpt	= default;
-		inline					view_bit		(T * data, u2_t bitCount)				: Data(data), Count(bitCount) { gthrow_if(bitCount && 0 == data, "Invalid parameters. Element count: %" LLC_FMT_U2 ".", bitCount); }
-		tplN0u	inxp			view_bit		(T (&data)[N])					nxpt	: Data(data), Count(N * ELEMENT_BITS)								{}
-		tplN0u	inline			view_bit		(T (&data)[N], u2_t bitCount)			: Data(data), Count(::llc::min(u2_t(N * ELEMENT_BITS), bitCount))	{ gthrow_if(bitCount > (N * ELEMENT_BITS), "Out of range count. Max count: %" LLC_FMT_U2 ". Requested: %" LLC_FMT_U2 ".", N * ELEMENT_BITS, bitCount); }
+		inxp				view_bit		()								nxpt	= default;
+		inline				view_bit		(T * data, u2_t bitCount)				: Data(data), Count(bitCount) { if_true_tef(bitCount && 0 == data, "bitCount(%" LLC_FMT_U2 ")", bitCount); }
+		tplN0u	inxp		view_bit		(T (&data)[N])					nxpt	: Data(data), Count(N * ELEMENT_BITS)								{}
+		tplN0u	inln		view_bit		(T (&data)[N], u2_t bitCount)			: Data(data), Count(::llc::min(u2_t(N * ELEMENT_BITS), bitCount))	{ if_true_tef(bitCount > (N * ELEMENT_BITS), "max(%" LLC_FMT_U2 "), bitCount(%" LLC_FMT_U2 ")", N * ELEMENT_BITS, bitCount); }
 		// Operators
-		bit_proxy<T>			oper[]		(u2_t index)			{
-			gthrow_if(index >= Count, LLC_FMT_GE_U2, index, Count);
-			u2_c				offsetRow		= index / ELEMENT_BITS;
-			u2_c				offsetBit		= index % ELEMENT_BITS;
-			return {Data[offsetRow], (uint8_t)offsetBit};
-		}
-		bool					oper[]		(u2_t index)	cnst	{
-			gthrow_if(index >= Count, LLC_FMT_GE_U2, index, Count);
-			u2_c				offsetRow		= index / ELEMENT_BITS;
-			u2_c				offsetBit		= index % ELEMENT_BITS;
-			return Data[offsetRow] & (1ULL << offsetBit);
-		}
+		bit_proxy<T>		oper[]		(u2_t index)			{ if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count); u2_c offsetRow = index / ELEMENT_BITS, offsetBit = index % ELEMENT_BITS; return {Data[offsetRow], (u0_t)offsetBit}; }
+		bool				oper[]		(u2_t index)	cnst	{ if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count); u2_c offsetRow = index / ELEMENT_BITS, offsetBit = index % ELEMENT_BITS; return Data[offsetRow] & (1ULL << offsetBit); }
 		// Methods
-		inline	TIter			begin			()			nxpt	{ return {*Data, *(Data + round_up(Count, ELEMENT_BITS)), Data, 0, Count % ELEMENT_BITS}; }
-		inline	TIter			end				()			nxpt	{ return {*Data, *(Data + round_up(Count, ELEMENT_BITS)), Data + round_up(Count, ELEMENT_BITS), 0, Count % ELEMENT_BITS}; }
-		//																		  *		 *(									   )  *
-		inxp	TIterConst		begin			()	cnst	nxpt	{ return {*Data, *(Data + round_up(Count, ELEMENT_BITS)), Data, 0, Count % ELEMENT_BITS}; }
-		inxp	TIterConst		end				()	cnst	nxpt	{ return {*Data, *(Data + round_up(Count, ELEMENT_BITS)), Data + round_up(Count, ELEMENT_BITS), 0, Count % ELEMENT_BITS}; }
+		inln	TIter		begin			()			nxpt	{ return Count ? TIter{Data, Data + round_up(Count, ELEMENT_BITS), Data, 0, Count % ELEMENT_BITS} : TIter{}; }
+		inln	TIter		end				()			nxpt	{ return Count ? TIter{Data, Data + round_up(Count, ELEMENT_BITS), Data + Count / ELEMENT_BITS, Count % ELEMENT_BITS, Count % ELEMENT_BITS} : TIter{}; }
+		//
+		inxp	TIterConst	begin			()	cnst	nxpt	{ return Count ? TIterConst{Data, Data + round_up(Count, ELEMENT_BITS), Data, 0, Count % ELEMENT_BITS} : TIterConst{}; }
+		inxp	TIterConst	end				()	cnst	nxpt	{ return Count ? TIterConst{Data, Data + round_up(Count, ELEMENT_BITS), Data + Count / ELEMENT_BITS, Count % ELEMENT_BITS, Count % ELEMENT_BITS} : TIterConst{}; }
 
-		inxp	u2_c&			size			()	cnst	nxpt	{ return Count; }
+		inxp	u2_c&		size			()	cnst	nxpt	{ return Count; }
 	};
 #pragma pack(pop)
 
@@ -108,7 +94,7 @@ namespace llc
 	tydf	::llc::view_bit<u1_t>	vbitu1_t, vbitu16	;
 	tydf	::llc::view_bit<u2_t>	vbitu2_t, vbitu32	;
 	tydf	::llc::view_bit<u3_t>	vbitu3_t, vbitu64	;
-	tplT	err_t		reverse_bits		(::llc::view_bit<T> toReverse)													{
+	tplT	err_t		reverse_bits		(::llc::view_bit<T> toReverse)											{
 		u2_c				countBits			= toReverse.size() / 2;
 		u2_c				lastBitIndex		= toReverse.size() - 1;
 		for(u2_t iBit = 0; iBit < countBits; ++iBit) {
