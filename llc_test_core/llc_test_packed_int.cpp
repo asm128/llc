@@ -1,5 +1,6 @@
+#include "llc_test_core.h"
 #include "llc_view_serialize.h"
-#include "llc_enum.h"
+#include "llc_noise.h"
 
 static_assert(1 == ::llc::uint_width_field_size<::llc::u0_t>(), "u8 width field");
 static_assert(1 == ::llc::uint_width_field_size<::llc::u1_t>(), "u16 width field");
@@ -19,18 +20,21 @@ GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, LOAD_RESULT		, 8, "loadUInt() did n
 GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, LOAD_VALUE			, 9, "loadUInt() did not reconstruct the packed source value.");
 GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, LOAD_CONSUMPTION	, 10, "loadUInt() did not consume exactly one packed integer.");
 
+stxp ::llc::u3_t PACKED_RANDOM_SEED	= 0x5041434B45445549ULL;
+stxp ::llc::u2_t PACKED_RANDOM_COUNT	= 256;
+
 tplt<tpnm T>
-PACKED_UINT_TEST_RESULT testDefault() {
+sttc ::llc::err_t testDefault(ATestError & errors) {
 	cnst ::llc::packed_uint<T> packed{};
-	if_true_vef(PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.TailWidth || packed.Multiplier || packed.ValueWidth() != 1 || packed.Value()
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.TailWidth || packed.Multiplier || packed.ValueWidth() != 1 || packed.Value()
 		, "%u-bit default mismatch. tail width:%u, multiplier:%u, value width:%u, value:%" LLC_FMT_U3 "."
 		, ::llc::u2_t(szof(T) * 8), ::llc::u2_t(packed.TailWidth), ::llc::u2_t(packed.Multiplier), ::llc::u2_t(packed.ValueWidth()), ::llc::u3_t(packed.Value())
 		);
-	return PACKED_UINT_TEST_RESULT_OK;
+	return 0;
 }
 
 tplt<tpnm T>
-PACKED_UINT_TEST_RESULT testValue(::llc::u3_c source, ::llc::u0_c expectedTailWidth) {
+sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c expectedTailWidth) {
 	cnst T value = (T)source;
 	cnst ::llc::packed_uint<T> packed{value};
 	::llc::u3_c expectedMultiplier = source >> (expectedTailWidth * 8);
@@ -38,29 +42,33 @@ PACKED_UINT_TEST_RESULT testValue(::llc::u3_c source, ::llc::u0_c expectedTailWi
 	::llc::u0_c expectedValueWidth = 1 + expectedTailWidth;
 	::llc::u2_c typeBits = szof(T) * 8;
 
-	if_true_vef(PACKED_UINT_TEST_RESULT_TAIL_WIDTH, packed.TailWidth != expectedTailWidth || ::llc::uint_tail_width(value) != expectedTailWidth
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_TAIL_WIDTH, packed.TailWidth != expectedTailWidth || ::llc::uint_tail_width(value) != expectedTailWidth
 		, "%u-bit tail-width mismatch for value:%" LLC_FMT_U3 ". packed:%u, helper:%u, expected:%u."
 		, typeBits, source, ::llc::u2_t(packed.TailWidth), ::llc::u2_t(::llc::uint_tail_width(value)), ::llc::u2_t(expectedTailWidth)
 		);
-	if_true_vef(PACKED_UINT_TEST_RESULT_VALUE_WIDTH, packed.ValueWidth() != expectedValueWidth || ::llc::uint_value_width(value) != expectedValueWidth
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_VALUE_WIDTH, packed.ValueWidth() != expectedValueWidth || ::llc::uint_value_width(value) != expectedValueWidth
 		, "%u-bit value-width mismatch for value:%" LLC_FMT_U3 ". packed:%u, helper:%u, expected:%u."
 		, typeBits, source, ::llc::u2_t(packed.ValueWidth()), ::llc::u2_t(::llc::uint_value_width(value)), ::llc::u2_t(expectedValueWidth)
 		);
-	if_true_vef(PACKED_UINT_TEST_RESULT_MULTIPLIER, ::llc::u3_t(packed.Multiplier) != expectedMultiplier || ::llc::u3_t(::llc::uint_tail_multiplier(value)) != expectedMultiplier
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_MULTIPLIER, ::llc::u3_t(packed.Multiplier) != expectedMultiplier || ::llc::u3_t(::llc::uint_tail_multiplier(value)) != expectedMultiplier
 		, "%u-bit multiplier mismatch for value:%" LLC_FMT_U3 ". packed:%" LLC_FMT_U3 ", helper:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
 		, typeBits, source, ::llc::u3_t(packed.Multiplier), ::llc::u3_t(::llc::uint_tail_multiplier(value)), expectedMultiplier
 		);
-	if_true_vef(PACKED_UINT_TEST_RESULT_TAIL_BASE, ::llc::u3_t(::llc::uint_tail_base(value)) != expectedTail
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_TAIL_BASE, ::llc::u3_t(::llc::uint_tail_base(value)) != expectedTail
 		, "%u-bit tail mismatch for value:%" LLC_FMT_U3 ". helper:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
 		, typeBits, source, ::llc::u3_t(::llc::uint_tail_base(value)), expectedTail
 		);
-	if_true_vef(PACKED_UINT_TEST_RESULT_VALUE_ROUND_TRIP, ::llc::u3_t(packed.Value()) != source
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_VALUE_ROUND_TRIP, ::llc::u3_t(packed.Value()) != source
 		, "%u-bit round-trip mismatch. source:%" LLC_FMT_U3 ", unpacked:%" LLC_FMT_U3 "."
 		, typeBits, source, ::llc::u3_t(packed.Value())
 		);
 
 	cnst ::llc::vcu0_t bytes = packed.tplt cu8<::llc::vcu0_t>();
-	if_true_vef(PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.begin() != (cnst ::llc::u0_t*)(cnst void*)&packed || bytes.size() != expectedValueWidth
+	LLC_TEST_REQUIRE(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.begin() != (cnst ::llc::u0_t*)(cnst void*)&packed || bytes.size() > szof(packed)
+		, "%u-bit byte view exceeded its packed storage for value:%" LLC_FMT_U3 ". begin:%p, expected begin:%p, size:%u, storage size:%u."
+		, typeBits, source, (cnst void*)bytes.begin(), (cnst void*)&packed, bytes.size(), ::llc::u2_t(szof(packed))
+		);
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.size() != expectedValueWidth
 		, "%u-bit byte-view mismatch for value:%" LLC_FMT_U3 ". begin:%p, expected begin:%p, size:%u, expected size:%u."
 		, typeBits, source, (cnst void*)bytes.begin(), (cnst void*)&packed, bytes.size(), ::llc::u2_t(expectedValueWidth)
 		);
@@ -68,25 +76,24 @@ PACKED_UINT_TEST_RESULT testValue(::llc::u3_c source, ::llc::u0_c expectedTailWi
 	::llc::vcu0_t input = bytes;
 	T loaded = {};
 	cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
-	if_true_vef(PACKED_UINT_TEST_RESULT_LOAD_RESULT, loadResult != expectedValueWidth
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_LOAD_RESULT, loadResult != expectedValueWidth
 		, "%u-bit load result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u."
 		, typeBits, source, loadResult, ::llc::u2_t(expectedValueWidth)
 		);
-	if_true_vef(PACKED_UINT_TEST_RESULT_LOAD_VALUE, ::llc::u3_t(loaded) != source
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_LOAD_VALUE, ::llc::u3_t(loaded) != source
 		, "%u-bit loaded-value mismatch. source:%" LLC_FMT_U3 ", loaded:%" LLC_FMT_U3 "."
 		, typeBits, source, ::llc::u3_t(loaded)
 		);
-	if_true_vef(PACKED_UINT_TEST_RESULT_LOAD_CONSUMPTION, input.size()
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_LOAD_CONSUMPTION, input.size()
 		, "%u-bit load left bytes behind for value:%" LLC_FMT_U3 ". remaining:%u, expected:0."
 		, typeBits, source, input.size()
 		);
-	return PACKED_UINT_TEST_RESULT_OK;
+	return 0;
 }
 
 tplt<tpnm T>
-PACKED_UINT_TEST_RESULT testType() {
-	PACKED_UINT_TEST_RESULT result = testDefault<T>();
-	if(result) return result;
+sttc ::llc::err_t testType(ATestError & errors) {
+	if_fail_fe(testDefault<T>(errors));
 
 	stxp ::llc::u0_t MULTIPLIER_BITS = 8 - ::llc::uint_width_field_size<T>();
 	::llc::u3_t previousMaximum = 0;
@@ -95,19 +102,42 @@ PACKED_UINT_TEST_RESULT testType() {
 		::llc::u3_c maximum = (::llc::u3_t(1) << valueBits) - 1;
 		::llc::u3_c minimum = tailWidth ? previousMaximum + 1 : 0;
 		::llc::u3_c sample = minimum + (maximum - minimum) / 3;
-		if(PACKED_UINT_TEST_RESULT_OK != (result = testValue<T>(minimum, tailWidth))) return result;
-		if(sample != minimum && sample != maximum && PACKED_UINT_TEST_RESULT_OK != (result = testValue<T>(sample, tailWidth))) return result;
-		if(maximum != minimum && PACKED_UINT_TEST_RESULT_OK != (result = testValue<T>(maximum, tailWidth))) return result;
+		if_fail_fe(testValue<T>(errors, minimum, tailWidth));
+		if(sample != minimum && sample != maximum)
+			if_fail_fe(testValue<T>(errors, sample, tailWidth));
+		if(maximum != minimum)
+			if_fail_fe(testValue<T>(errors, maximum, tailWidth));
 		previousMaximum = maximum;
 	}
-	return PACKED_UINT_TEST_RESULT_OK;
+	::llc::SPRNG random = {PACKED_RANDOM_SEED};
+	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
+	stxp ::llc::u3_t VALUE_MASK = (::llc::u3_t(1) << VALUE_BITS) - 1;
+	for(::llc::u2_t iRandom = 0; iRandom < PACKED_RANDOM_COUNT; ++iRandom) {
+		cnst T value = T(random.Next() & VALUE_MASK);
+		cnst ::llc::u2_t failureCount = testErrorCount(errors);
+		if_fail_fe(testValue<T>(errors, value, ::llc::uint_tail_width(value)));
+		if(failureCount != testErrorCount(errors))
+			error_printf("%u-bit randomized packed_uint<> case failed. seed:%" LLC_FMT_U3 ", iteration:%u, value:%" LLC_FMT_U3 "."
+				, ::llc::u2_t(szof(T) * 8), PACKED_RANDOM_SEED, iRandom, ::llc::u3_t(value)
+				);
+	}
+	return 0;
 }
 
-int testPackedUInt() {
-	PACKED_UINT_TEST_RESULT testResult = PACKED_UINT_TEST_RESULT_OK;
-	if_true_vef(testResult, testResult = testType<::llc::u0_t>(), " 8-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf(" 8-bit suite OK.");
-	if_true_vef(testResult, testResult = testType<::llc::u1_t>(), "16-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("16-bit suite OK.");
-	if_true_vef(testResult, testResult = testType<::llc::u2_t>(), "32-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("32-bit suite OK.");
-	if_true_vef(testResult, testResult = testType<::llc::u3_t>(), "64-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("64-bit suite OK.");
-	return PACKED_UINT_TEST_RESULT_OK;
+tplt<tpnm T>
+sttc ::llc::err_t testTypeLogged(ATestError & errors) {
+	cnst ::llc::u2_t failureCount = testErrorCount(errors);
+	if_fail_fe(testType<T>(errors));
+	cnst ::llc::u2_t typeFailures = testErrorCount(errors) - failureCount;
+	if(typeFailures) error_printf("%2u-bit suite completed with %u failures.", ::llc::u2_t(szof(T) * 8), typeFailures);
+	else always_printf("%2u-bit suite OK.", ::llc::u2_t(szof(T) * 8));
+	return 0;
+}
+
+::llc::err_t testPackedUInt(ATestError & errors) {
+	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
+	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));
+	if_fail_fe(testTypeLogged<::llc::u2_t>(errors));
+	if_fail_fe(testTypeLogged<::llc::u3_t>(errors));
+	return 0;
 }

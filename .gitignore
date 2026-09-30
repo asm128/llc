@@ -12,3 +12,4 @@ llc_tokenizer/
 llc.win32.client/
 llc.win32.server/
 llc_cloner_win32/
+llc_test_core/codex_build

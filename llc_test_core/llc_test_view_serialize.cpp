@@ -1,5 +1,6 @@
+#include "llc_test_core.h"
 #include "llc_apod_serialize.h"
-#include "llc_enum.h"
+#include "llc_noise.h"
 
 GDEFINE_ENUM_TYPE(VIEW_SERIALIZE_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, OK					,  0, "All view-serialization tests passed.");
@@ -28,31 +29,35 @@ GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_PACKED_POSITION	, 22, "load
 
 stxp ::llc::u0_t PRECEDING_FIELD[] = {0x91U, 0xE4U, 0x2BU};
 stxp ::llc::u0_t FOLLOWING_FIELD[] = {0xC3U, 0x5AU, 0x7EU, 0x19U};
+stxp ::llc::u3_t SERIALIZE_UINT_RANDOM_SEED	= 0x53455249414C495AULL;
+stxp ::llc::u3_t SERIALIZE_VIEW_RANDOM_SEED	= 0x56494557434F554EULL;
+stxp ::llc::u2_t SERIALIZE_UINT_RANDOM_COUNT	= 256;
+stxp ::llc::u2_t SERIALIZE_VIEW_RANDOM_COUNT	= 32;
 
-bool isFollowingField(cnst ::llc::vcu0_t & input) {
+sttc bool isFollowingField(cnst ::llc::vcu0_t & input) {
 	return input.size() == ::llc::size(FOLLOWING_FIELD) && 0 == memcmp(input.begin(), FOLLOWING_FIELD, ::llc::size(FOLLOWING_FIELD));
 }
 
 tplt<tpnm T>
-VIEW_SERIALIZE_TEST_RESULT testUIntValue(::llc::u3_c source) {
+sttc ::llc::err_t testUIntValue(ATestError & errors, ::llc::u3_c source) {
 	cnst T value = (T)source;
 	cnst ::llc::packed_uint<T> packed{value};
 	cnst ::llc::u2_t expectedWidth = packed.ValueWidth();
 	::llc::au0_t serialized;
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, 0 > serialized.append(PRECEDING_FIELD)
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, 0 > serialized.append(PRECEDING_FIELD)
 		, "%u-bit saveUInt() test could not append its preceding field for value:%" LLC_FMT_U3 "."
 		, ::llc::u2_t(szof(T) * 8), source
 		);
 	cnst ::llc::err_t saveResult = ::llc::saveUInt(serialized, value);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_RESULT, saveResult != (::llc::err_t)expectedWidth
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_RESULT, saveResult != (::llc::err_t)expectedWidth
 		, "%u-bit saveUInt() result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), source, saveResult, expectedWidth
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, serialized.size() != ::llc::size(PRECEDING_FIELD) + expectedWidth || 0 != memcmp(serialized.begin(), PRECEDING_FIELD, ::llc::size(PRECEDING_FIELD))
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, serialized.size() != ::llc::size(PRECEDING_FIELD) + expectedWidth || 0 != memcmp(serialized.begin(), PRECEDING_FIELD, ::llc::size(PRECEDING_FIELD))
 		, "%u-bit saveUInt() append mismatch for value:%" LLC_FMT_U3 ". size:%u, expected:%u, prefix bytes:%u."
 		, ::llc::u2_t(szof(T) * 8), source, serialized.size(), ::llc::u2_t(::llc::size(PRECEDING_FIELD) + expectedWidth), ::llc::u2_t(::llc::size(PRECEDING_FIELD))
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, 0 > serialized.append(FOLLOWING_FIELD)
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, 0 > serialized.append(FOLLOWING_FIELD)
 		, "%u-bit saveUInt() test could not append its following field for value:%" LLC_FMT_U3 "."
 		, ::llc::u2_t(szof(T) * 8), source
 		);
@@ -60,15 +65,15 @@ VIEW_SERIALIZE_TEST_RESULT testUIntValue(::llc::u3_c source) {
 	::llc::vcu0_t packedInput{&serialized[::llc::size(PRECEDING_FIELD)], serialized.size() - ::llc::size(PRECEDING_FIELD)};
 	T loadedPacked = {};
 	cnst ::llc::err_t packedResult = ::llc::loadPacked(packedInput, loadedPacked);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_LOAD_PACKED_RESULT, packedResult != (::llc::err_t)expectedWidth
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_PACKED_RESULT, packedResult != (::llc::err_t)expectedWidth
 		, "%u-bit loadPacked() result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), source, packedResult, expectedWidth
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_LOAD_PACKED_VALUE, ::llc::u3_t(loadedPacked) != source
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_PACKED_VALUE, ::llc::u3_t(loadedPacked) != source
 		, "%u-bit loadPacked() value mismatch. loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
 		, ::llc::u2_t(szof(T) * 8), ::llc::u3_t(loadedPacked), source
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_LOAD_PACKED_POSITION, !isFollowingField(packedInput)
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_PACKED_POSITION, !isFollowingField(packedInput)
 		, "%u-bit loadPacked() cursor mismatch for value:%" LLC_FMT_U3 ". remaining:%u, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), source, packedInput.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD))
 		);
@@ -76,39 +81,51 @@ VIEW_SERIALIZE_TEST_RESULT testUIntValue(::llc::u3_c source) {
 	::llc::vcu0_t input{&serialized[::llc::size(PRECEDING_FIELD)], serialized.size() - ::llc::size(PRECEDING_FIELD)};
 	T loaded = {};
 	cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_RESULT, loadResult != (::llc::err_t)expectedWidth
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_RESULT, loadResult != (::llc::err_t)expectedWidth
 		, "%u-bit loadUInt() result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), source, loadResult, expectedWidth
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_VALUE, ::llc::u3_t(loaded) != source
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_VALUE, ::llc::u3_t(loaded) != source
 		, "%u-bit loadUInt() value mismatch. loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
 		, ::llc::u2_t(szof(T) * 8), ::llc::u3_t(loaded), source
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_POSITION, !isFollowingField(input)
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_POSITION, !isFollowingField(input)
 		, "%u-bit loadUInt() cursor mismatch for value:%" LLC_FMT_U3 ". remaining:%u, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), source, input.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD))
 		);
-	return VIEW_SERIALIZE_TEST_RESULT_OK;
+	return 0;
 }
 
 tplt<tpnm T>
-VIEW_SERIALIZE_TEST_RESULT testUIntType() {
-	VIEW_SERIALIZE_TEST_RESULT result = VIEW_SERIALIZE_TEST_RESULT_OK;
+sttc ::llc::err_t testUIntType(ATestError & errors) {
 	stxp ::llc::u0_t MULTIPLIER_BITS = 8 - ::llc::uint_width_field_size<T>();
 	::llc::u3_t previousMaximum = 0;
 	for(::llc::u0_t tailWidth = 0; tailWidth < szof(T); ++tailWidth) {
 		::llc::u0_c valueBits = MULTIPLIER_BITS + tailWidth * 8;
 		::llc::u3_c maximum = (::llc::u3_t(1) << valueBits) - 1;
 		::llc::u3_c minimum = tailWidth ? previousMaximum + 1 : 0;
-		if(VIEW_SERIALIZE_TEST_RESULT_OK != (result = testUIntValue<T>(minimum))) return result;
-		if(maximum != minimum && VIEW_SERIALIZE_TEST_RESULT_OK != (result = testUIntValue<T>(maximum))) return result;
+		if_fail_fe(testUIntValue<T>(errors, minimum));
+		if(maximum != minimum)
+			if_fail_fe(testUIntValue<T>(errors, maximum));
 		previousMaximum = maximum;
 	}
-	return VIEW_SERIALIZE_TEST_RESULT_OK;
+	::llc::SPRNG random = {SERIALIZE_UINT_RANDOM_SEED};
+	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
+	stxp ::llc::u3_t VALUE_MASK = (::llc::u3_t(1) << VALUE_BITS) - 1;
+	for(::llc::u2_t iRandom = 0; iRandom < SERIALIZE_UINT_RANDOM_COUNT; ++iRandom) {
+		cnst T value = T(random.Next() & VALUE_MASK);
+		cnst ::llc::u2_t failureCount = testErrorCount(errors);
+		if_fail_fe(testUIntValue<T>(errors, value));
+		if(failureCount != testErrorCount(errors))
+			error_printf("%u-bit randomized integer serialization case failed. seed:%" LLC_FMT_U3 ", iteration:%u, value:%" LLC_FMT_U3 "."
+				, ::llc::u2_t(szof(T) * 8), SERIALIZE_UINT_RANDOM_SEED, iRandom, ::llc::u3_t(value)
+				);
+	}
+	return 0;
 }
 
 tplt<tpnm T>
-VIEW_SERIALIZE_TEST_RESULT testTruncatedUInt() {
+sttc ::llc::err_t testTruncatedUInt(ATestError & errors) {
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
 	cnst T value = (T)((::llc::u3_t(1) << VALUE_BITS) - 1);
 	cnst ::llc::packed_uint<T> packed{value};
@@ -120,19 +137,19 @@ VIEW_SERIALIZE_TEST_RESULT testTruncatedUInt() {
 		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
 		::llc::setupDefaultLogCallbacks();
-		if_true_vef(VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, 0 <= loadResult || loaded || input.begin() != originalPosition || input.size() != byteCount
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, 0 <= loadResult || loaded || input.begin() != originalPosition || input.size() != byteCount
 			, "%u-bit loadUInt() truncation mismatch. supplied:%u, required:%u, result:%i, loaded:%" LLC_FMT_U3 ", remaining:%u."
 			, ::llc::u2_t(szof(T) * 8), byteCount, bytes.size(), loadResult, ::llc::u3_t(loaded), input.size()
 			);
 	}
-	return VIEW_SERIALIZE_TEST_RESULT_OK;
+	return 0;
 }
 
 tplt<tpnm T>
-VIEW_SERIALIZE_TEST_RESULT testViewCount(::llc::u2_c elementCount) {
+sttc ::llc::err_t testViewCount(ATestError & errors, ::llc::u2_c elementCount) {
 	::llc::apod<T> source;
 	cnst ::llc::err_t resizeResult = source.resize(elementCount);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SOURCE_RESIZE, resizeResult != (::llc::err_t)elementCount
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SOURCE_RESIZE, resizeResult != (::llc::err_t)elementCount
 		, "%u-bit source resize mismatch. result:%i, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), resizeResult, elementCount
 		);
@@ -144,37 +161,41 @@ VIEW_SERIALIZE_TEST_RESULT testViewCount(::llc::u2_c elementCount) {
 	cnst ::llc::u2_t headerWidth = countHeader.ValueWidth();
 	cnst ::llc::u2_t expectedSize = headerWidth + expected.byte_count();
 	::llc::au0_t serialized;
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_SIZE, 0 > serialized.append(PRECEDING_FIELD)
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_SIZE, 0 > serialized.append(PRECEDING_FIELD)
 		, "%u-bit saveView() test could not append its preceding field for %u elements."
 		, ::llc::u2_t(szof(T) * 8), elementCount
 		);
 	cnst ::llc::err_t saveResult = ::llc::saveView(serialized, expected);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_RESULT, saveResult != (::llc::err_t)expectedSize
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_RESULT, saveResult != (::llc::err_t)expectedSize
 		, "%u-bit saveView() result mismatch for %u elements. result:%i, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), elementCount, saveResult, expectedSize
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_SIZE, serialized.size() != ::llc::size(PRECEDING_FIELD) + expectedSize || 0 != memcmp(serialized.begin(), PRECEDING_FIELD, ::llc::size(PRECEDING_FIELD))
-		, "%u-bit saveView() append mismatch for %u elements. size:%u, expected:%u, prefix:%u, header:%u, payload:%u."
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_SIZE, serialized.size() != ::llc::size(PRECEDING_FIELD) + expectedSize
+		, "%u-bit saveView() append-size mismatch for %u elements. size:%u, expected:%u, prefix:%u, header:%u, payload:%u."
 		, ::llc::u2_t(szof(T) * 8), elementCount, serialized.size(), ::llc::u2_t(::llc::size(PRECEDING_FIELD) + expectedSize), ::llc::u2_t(::llc::size(PRECEDING_FIELD)), headerWidth, expected.byte_count()
 		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_SIZE, 0 != memcmp(serialized.begin(), PRECEDING_FIELD, ::llc::size(PRECEDING_FIELD))
+		, "%u-bit saveView() modified its preceding field for %u elements. prefix:%u, header:%u, payload:%u."
+		, ::llc::u2_t(szof(T) * 8), elementCount, ::llc::u2_t(::llc::size(PRECEDING_FIELD)), headerWidth, expected.byte_count()
+		);
 
-	cnst ::llc::vcu0_t exactInput{&serialized[::llc::size(PRECEDING_FIELD)], expectedSize};
+	cnst ::llc::vcu0_t exactInput{serialized.begin() + ::llc::size(PRECEDING_FIELD), expectedSize};
 	::llc::view<cnst T> readView;
 	cnst ::llc::err_t readResult = ::llc::viewRead(readView, exactInput);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_RESULT, readResult != (::llc::err_t)expectedSize
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_RESULT, readResult != (::llc::err_t)expectedSize
 		, "%u-bit viewRead() result mismatch for %u elements. result:%i, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), elementCount, readResult, expectedSize
 		);
 	cnst T * expectedReadPosition = elementCount ? (cnst T*)(cnst void*)(serialized.begin() + ::llc::size(PRECEDING_FIELD) + headerWidth) : 0;
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_POSITION, readView.size() != elementCount || readView.begin() != expectedReadPosition
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_POSITION, readView.size() != elementCount || readView.begin() != expectedReadPosition
 		, "%u-bit viewRead() position mismatch for %u elements. count:%u, begin:%p, expected begin:%p."
 		, ::llc::u2_t(szof(T) * 8), elementCount, readView.size(), (cnst void*)readView.begin(), (cnst void*)expectedReadPosition
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_VALUE, readView != expected
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_VALUE, readView != expected
 		, "%u-bit viewRead() value mismatch for %u elements."
 		, ::llc::u2_t(szof(T) * 8), elementCount
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_SIZE, 0 > serialized.append(FOLLOWING_FIELD)
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_SIZE, 0 > serialized.append(FOLLOWING_FIELD)
 		, "%u-bit view test could not append its following field for %u elements."
 		, ::llc::u2_t(szof(T) * 8), elementCount
 		);
@@ -183,15 +204,15 @@ VIEW_SERIALIZE_TEST_RESULT testViewCount(::llc::u2_c elementCount) {
 	::llc::view<cnst T> loadedView;
 	cnst ::llc::err_t viewLoadResult = ::llc::loadView(viewInput, loadedView);
 	cnst T * expectedLoadPosition = elementCount ? (cnst T*)(cnst void*)(serialized.begin() + ::llc::size(PRECEDING_FIELD) + headerWidth) : 0;
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_RESULT, viewLoadResult
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_RESULT, viewLoadResult
 		, "%u-bit non-owning loadView() failed for %u elements. result:%i."
 		, ::llc::u2_t(szof(T) * 8), elementCount, viewLoadResult
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, loadedView.begin() != expectedLoadPosition || loadedView.size() != elementCount || !isFollowingField(viewInput)
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, loadedView.begin() != expectedLoadPosition || loadedView.size() != elementCount || !isFollowingField(viewInput)
 		, "%u-bit non-owning loadView() position mismatch for %u elements. count:%u, begin:%p, expected begin:%p, remaining:%u."
 		, ::llc::u2_t(szof(T) * 8), elementCount, loadedView.size(), (cnst void*)loadedView.begin(), (cnst void*)expectedLoadPosition, viewInput.size()
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_VALUE, loadedView != expected
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_VALUE, loadedView != expected
 		, "%u-bit non-owning loadView() value mismatch for %u elements."
 		, ::llc::u2_t(szof(T) * 8), elementCount
 		);
@@ -199,49 +220,61 @@ VIEW_SERIALIZE_TEST_RESULT testViewCount(::llc::u2_c elementCount) {
 	::llc::vcu0_t ownedInput{&serialized[::llc::size(PRECEDING_FIELD)], serialized.size() - ::llc::size(PRECEDING_FIELD)};
 	::llc::apod<T> loadedArray;
 	cnst ::llc::err_t arrayLoadResult = ::llc::loadView(ownedInput, loadedArray);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_RESULT, arrayLoadResult
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_RESULT, arrayLoadResult
 		, "%u-bit owned loadView() failed for %u elements. result:%i."
 		, ::llc::u2_t(szof(T) * 8), elementCount, arrayLoadResult
 		);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_POSITION, !isFollowingField(ownedInput)
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_POSITION, !isFollowingField(ownedInput)
 		, "%u-bit owned loadView() cursor mismatch for %u elements. remaining:%u, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), elementCount, ownedInput.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD))
 		);
 	cnst ::llc::view<cnst T> loadedValues = loadedArray;
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_VALUE, loadedValues != expected || (elementCount && loadedValues.begin() == expected.begin())
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_VALUE, loadedValues != expected || (elementCount && loadedValues.begin() == expected.begin())
 		, "%u-bit owned loadView() value/ownership mismatch for %u elements. loaded count:%u, loaded begin:%p, source begin:%p."
 		, ::llc::u2_t(szof(T) * 8), elementCount, loadedValues.size(), (cnst void*)loadedValues.begin(), (cnst void*)expected.begin()
 		);
-	return VIEW_SERIALIZE_TEST_RESULT_OK;
+	return 0;
 }
 
 tplt<tpnm T>
-VIEW_SERIALIZE_TEST_RESULT testViewType() {
+sttc ::llc::err_t testViewType(ATestError & errors) {
 	stxp ::llc::u2_t COUNTS[] = {0, 1, 2, 63, 64, 255, 16383, 16384};
-	for(::llc::u2_c count : COUNTS) {
-		cnst VIEW_SERIALIZE_TEST_RESULT result = testViewCount<T>(count);
-		if(result) return result;
+	for(::llc::u2_c count : COUNTS)
+		if_fail_fe(testViewCount<T>(errors, count));
+	::llc::SPRNG random = {SERIALIZE_VIEW_RANDOM_SEED};
+	for(::llc::u2_t iRandom = 0; iRandom < SERIALIZE_VIEW_RANDOM_COUNT; ++iRandom) {
+		cnst ::llc::u2_t elementCount = random.Next() & 0xFFFU;
+		cnst ::llc::u2_t failureCount = testErrorCount(errors);
+		if_fail_fe(testViewCount<T>(errors, elementCount));
+		if(failureCount != testErrorCount(errors))
+			error_printf("%u-bit randomized view serialization case failed. seed:%" LLC_FMT_U3 ", iteration:%u, element count:%u."
+				, ::llc::u2_t(szof(T) * 8), SERIALIZE_VIEW_RANDOM_SEED, iRandom, elementCount
+				);
 	}
-	return VIEW_SERIALIZE_TEST_RESULT_OK;
+	return 0;
 }
 
 tplt<tpnm T>
-VIEW_SERIALIZE_TEST_RESULT testTruncatedView() {
+sttc ::llc::err_t testTruncatedView(ATestError & errors) {
 	::llc::apod<T> source;
 	cnst ::llc::u2_t elementCount = 64;
 	cnst ::llc::err_t resizeResult = source.resize(elementCount);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SOURCE_RESIZE, resizeResult != (::llc::err_t)elementCount
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SOURCE_RESIZE, resizeResult != (::llc::err_t)elementCount
 		, "%u-bit truncation source resize mismatch. result:%i, expected:%u."
 		, ::llc::u2_t(szof(T) * 8), resizeResult, elementCount
 		);
 	::llc::au0_t serialized;
 	cnst ::llc::view<cnst T> sourceView = source;
 	cnst ::llc::err_t saveResult = ::llc::saveView(serialized, sourceView);
-	if_true_vef(VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_RESULT, saveResult != (::llc::err_t)serialized.size()
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_RESULT, saveResult != (::llc::err_t)serialized.size()
 		, "%u-bit truncation source serialization mismatch. result:%i, size:%u."
 		, ::llc::u2_t(szof(T) * 8), saveResult, serialized.size()
 		);
 	cnst ::llc::u2_t headerWidth = ::llc::packedu32{elementCount}.ValueWidth();
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_RESULT, serialized.size() <= headerWidth
+		, "%u-bit truncation source serialization was too short. size:%u, header:%u."
+		, ::llc::u2_t(szof(T) * 8), serialized.size(), headerWidth
+		);
 	cnst ::llc::u2_t cuts[] = {0, headerWidth - 1, headerWidth, serialized.size() - 1};
 	for(::llc::u2_t iCut = 0; iCut < ::llc::size(cuts); ++iCut) {
 		cnst ::llc::u2_t byteCount = cuts[iCut];
@@ -252,28 +285,36 @@ VIEW_SERIALIZE_TEST_RESULT testTruncatedView() {
 		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t loadResult = ::llc::loadView(input, loaded);
 		::llc::setupDefaultLogCallbacks();
-		if_true_vef(VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, 0 <= loadResult || input.begin() != originalPosition || input.size() != byteCount || loaded.size() || loaded.begin()
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, 0 <= loadResult || input.begin() != originalPosition || input.size() != byteCount || loaded.size() || loaded.begin()
 			, "%u-bit loadView() truncation mismatch. supplied:%u, required:%u, header:%u, result:%i, remaining:%u, loaded count:%u, loaded begin:%p."
 			, ::llc::u2_t(szof(T) * 8), byteCount, serialized.size(), headerWidth, loadResult, input.size(), loaded.size(), (cnst void*)loaded.begin()
 			);
 	}
-	return VIEW_SERIALIZE_TEST_RESULT_OK;
+	return 0;
 }
 
 tplt<tpnm T>
-VIEW_SERIALIZE_TEST_RESULT testType() {
-	VIEW_SERIALIZE_TEST_RESULT result = testUIntType<T>();
-	if(result) return result;
-	if(VIEW_SERIALIZE_TEST_RESULT_OK != (result = testTruncatedUInt<T>())) return result;
-	if(VIEW_SERIALIZE_TEST_RESULT_OK != (result = testViewType<T>())) return result;
-	return testTruncatedView<T>();
+sttc ::llc::err_t testType(ATestError & errors) {
+	if_fail_fe(testUIntType<T>		(errors));
+	if_fail_fe(testTruncatedUInt<T>	(errors));
+	if_fail_fe(testViewType<T>		(errors));
+	return testTruncatedView<T>(errors);
 }
 
-int testViewSerialize() {
-	VIEW_SERIALIZE_TEST_RESULT testResult = VIEW_SERIALIZE_TEST_RESULT_OK;
-	if_true_vef(testResult, testResult = testType<::llc::u0_t>(), " 8-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf(" 8-bit suite OK.");;
-	if_true_vef(testResult, testResult = testType<::llc::u1_t>(), "16-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("16-bit suite OK.");;
-	if_true_vef(testResult, testResult = testType<::llc::u2_t>(), "32-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("32-bit suite OK.");;
-	if_true_vef(testResult, testResult = testType<::llc::u3_t>(), "64-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("64-bit suite OK.");;
-	return VIEW_SERIALIZE_TEST_RESULT_OK;
+tplt<tpnm T>
+sttc ::llc::err_t testTypeLogged(ATestError & errors) {
+	cnst ::llc::u2_t failureCount = testErrorCount(errors);
+	if_fail_fe(testType<T>(errors));
+	cnst ::llc::u2_t typeFailures = testErrorCount(errors) - failureCount;
+	if(typeFailures) error_printf("%2u-bit suite completed with %u failures.", ::llc::u2_t(szof(T) * 8), typeFailures);
+	else always_printf("%2u-bit suite OK.", ::llc::u2_t(szof(T) * 8));
+	return 0;
+}
+
+::llc::err_t testViewSerialize(ATestError & errors) {
+	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
+	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));
+	if_fail_fe(testTypeLogged<::llc::u2_t>(errors));
+	if_fail_fe(testTypeLogged<::llc::u3_t>(errors));
+	return 0;
 }
