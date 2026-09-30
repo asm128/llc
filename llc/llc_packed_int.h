@@ -81,13 +81,13 @@ namespace llc
 				: count
 				)
 			: (8 == szof(_tInt)) ? 
-				( (u3_t(count) > (uint_tail_mask<_tInt>() >> (1 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (1 * 8))
-				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (2 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (2 * 8))
-				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (3 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (3 * 8))
-				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (4 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (4 * 8))
-				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (5 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (5 * 8))
-				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (6 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (6 * 8))
-				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (7 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (7 * 8))
+				( (u3_t(count) > (uint_tail_mask<_tInt>() >> (0 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (1 * 8))
+				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (1 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (2 * 8))
+				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (2 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (3 * 8))
+				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (3 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (4 * 8))
+				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (4 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (5 * 8))
+				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (5 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (6 * 8))
+				: (u3_t(count) > (uint_tail_mask<_tInt>() >> (6 * 8))) ? count & (0xFFFFFFFFFFFFFFFFULL >> (7 * 8))
 				: count
 				)
 			: count
@@ -97,6 +97,8 @@ namespace llc
 #pragma pack(push, 1)
 	tplt<tpnm _tInt = u2_t, u0_t widthField = uint_width_field_size<_tInt>()>
 	struct packed_uint { 
+		static_assert(_tInt(-1) > _tInt(0), "packed_uint<> requires an unsigned integer type.");
+
 		tydf _tInt	T;
 		tydf cnst T	TConst;
 

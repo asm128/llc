@@ -23,11 +23,11 @@ GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, WIDTH_DECREMENT			, 12, "Decrementing 
 
 tplt<tpnm T>
 BIT_VIEW_TEST_RESULT testPartialWidth() {
-	T data[2] = {};
-	::llc::u2_c bitCount = szof(T) * 8 + 3;
-	::llc::view_bit<T> bits{data, bitCount};
-	auto it = bits.begin();
-	auto end = bits.end();
+	T					data[2]		= {};
+	::llc::u2_c			bitCount	= szof(T) * 8 + 3;
+	::llc::view_bit<T>	bits		{data, bitCount};
+	auto				it			= bits.begin();
+	auto				end			= bits.end();
 	{
 		::llc::u2_t count = 0;
 		for(; it != end; ++it, ++count)
@@ -49,14 +49,15 @@ BIT_VIEW_TEST_RESULT testPartialWidth() {
 
 tplt<tpnm _dataValues, size_t _dataSize>
 BIT_VIEW_TEST_RESULT testPartial(_dataValues (&data)[_dataSize]) {
-	stxp ::llc::u2_t ELEMENT_BITS = szof(_dataValues) * 8;
-	stxp ::llc::u2_t BIT_COUNT = 10;
+	stxp ::llc::u2_t ELEMENT_BITS			= szof(_dataValues) * 8;
+	stxp ::llc::u2_t BIT_COUNT				= 10;
 	static_assert(_dataSize * ELEMENT_BITS >= BIT_COUNT, "10-bit view exceeds its backing storage.");
-	_dataValues * expectedElement = data + BIT_COUNT / ELEMENT_BITS;
-	_dataValues * expectedEnd = data + (BIT_COUNT + ELEMENT_BITS - 1) / ELEMENT_BITS;
-	::llc::u2_c expectedOffset = BIT_COUNT % ELEMENT_BITS;
 
-	::llc::view_bit<_dataValues> partial{data, BIT_COUNT};
+	_dataValues		* expectedElement		= data + BIT_COUNT / ELEMENT_BITS;
+	_dataValues		* expectedEnd			= data + (BIT_COUNT + ELEMENT_BITS - 1) / ELEMENT_BITS;
+	::llc::u2_c		expectedOffset			= BIT_COUNT % ELEMENT_BITS;
+
+	::llc::view_bit<_dataValues> partial	{data, BIT_COUNT};
 	auto it = partial.begin();
 	auto end = partial.end();
 	{
@@ -153,19 +154,19 @@ tplt<tpnm T>
 BIT_VIEW_TEST_RESULT testType() {
 	T data[2] = {(T)0xA5U, (T)0x02U};
 	BIT_VIEW_TEST_RESULT result = BIT_VIEW_TEST_RESULT_OK;
-	if(BIT_VIEW_TEST_RESULT_OK != (result = testPartial		(data))) return result;
-	if(BIT_VIEW_TEST_RESULT_OK != (result = testSixBits		(data))) return result;
+	if(BIT_VIEW_TEST_RESULT_OK != (result = testPartial			(data))) return result;
+	if(BIT_VIEW_TEST_RESULT_OK != (result = testSixBits			(data))) return result;
 	if(BIT_VIEW_TEST_RESULT_OK != (result = testEmpty			(data))) return result;
 	if(BIT_VIEW_TEST_RESULT_OK != (result = testIteratorPosition<T>	())) return result;
 	if(BIT_VIEW_TEST_RESULT_OK != (result = testConstIteration	(data))) return result;
 	return testPartialWidth<T>();
 }
 
-int main() {
+int testViewBit() {
 	BIT_VIEW_TEST_RESULT testResult = BIT_VIEW_TEST_RESULT_OK;
-	if_true_vef(testResult, testResult = testType<::llc::u0_t>(), "8-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult));
-	if_true_vef(testResult, testResult = testType<::llc::u1_t>(), "16-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult));
-	if_true_vef(testResult, testResult = testType<::llc::u2_t>(), "32-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult));
-	if_true_vef(testResult, testResult = testType<::llc::u3_t>(), "64-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult));
+	if_true_vef(testResult, testResult = testType<::llc::u0_t>(), " 8-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf(" 8-bit suite OK.");
+	if_true_vef(testResult, testResult = testType<::llc::u1_t>(), "16-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("16-bit suite OK.");
+	if_true_vef(testResult, testResult = testType<::llc::u2_t>(), "32-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("32-bit suite OK.");
+	if_true_vef(testResult, testResult = testType<::llc::u3_t>(), "64-bit suite failed. %s: %s", ::llc::get_value_namep(testResult), ::llc::get_value_descp(testResult)) else always_printf("64-bit suite OK.");
 	return BIT_VIEW_TEST_RESULT_OK;
 }

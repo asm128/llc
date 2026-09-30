@@ -1,6 +1,8 @@
 .vs/
 .vscode/
 obj/
+x64/
+Win32/
 bin2hex/
 checkmater/
 esp_build/

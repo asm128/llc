@@ -77,18 +77,18 @@ namespace llc
 		inln	T*				begin			()														nxpt	{ rtrn Data;				}
 		inln	T*				end				()														nxpt	{ rtrn begin() + Count;	}
 		err_t					slice			(TV & out, u2_t offset, u2_t count = (u2_t)-1)					{
-			reterr_gerror_if(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
+			if_true_fef(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
 			u2_c					newSize			= Count - offset;
 			if(count != (u2_t)-1)
-				ree_if(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
+				if_true_fef(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
 			out						= {&Data[offset], ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
 		err_t					slice			(TCstV & out, u2_t offset, u2_t count = (u2_t)-1)		cnst	{
-			ree_if(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
+			if_true_fef(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
 			u2_c					newSize			= Count - offset;
 			if(count != (u2_t)-1)
-				ree_if(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
+				if_true_fef(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
 			out						= {&Data[offset], ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
