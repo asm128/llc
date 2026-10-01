@@ -19,6 +19,25 @@ namespace llc
 		usng array_base<T>	::alloc_with_reserve	;
 		usng array_base<T>	::find					;
 
+	private:
+		err_t				source_offset		(cnst T * source, u2_t count, u2_t & offset)cnst noexcept	{
+			offset					= (u2_t)-1;
+			if(0 == Data || 0 == source)
+				return 0;
+			u3_c				dataAddress			= (u3_t)Data;
+			u3_c				sourceAddress		= (u3_t)source;
+			u3_c				endAddress			= dataAddress + (u3_t)Count * szof(T);
+			if(sourceAddress < dataAddress || sourceAddress > endAddress)
+				return 0;
+			u3_c				byteOffset			= sourceAddress - dataAddress;
+			ree_if(byteOffset % szof(T), "Misaligned source address: 0x%p.", source);
+			offset					= (u2_t)(byteOffset / szof(T));
+			ree_if(count > Count - offset, LLC_FMT_GT_U2, count, Count - offset);
+			return 1;
+		}
+
+	public:
+
 		inxp				array_pod			()										noexcept	= default;
 							array_pod			(::std::initializer_list<T> init)					{
 			if_fail_te(resize((u2_t)init.size()));
@@ -45,6 +64,15 @@ namespace llc
 		inxp	oper		view<cnst T>	()									cnst	noexcept	{ return {Data, Count}; }
 		TArray&				oper =			(cnst array_pod<T>& other)								{ return oper=((cnst view<T> &) other); }
 		TArray&				oper =			(cnst view<cnst T> & other)								{
+			u2_t					sourceOffset		= 0;
+			cnst err_t			aliased			= source_offset(other.begin(), other.size(), sourceOffset);
+			gsthrow_if(aliased < 0);
+			if(aliased) {
+				memmove(Data, &Data[sourceOffset], other.byte_count());
+				Count					= other.size();
+				Data[Count]				= {};
+				return *this;
+			}
 			gsthrow_if(resize(other.size()) != (s2_t)other.size());
 			if(Count)
 				memcpy(Data, other.begin(), other.byte_count());
@@ -80,8 +108,8 @@ namespace llc
 		}
 		inln		err_t	append_string		(cnst llc::function<err_t(TArray&)> & funcAppend)	noexcept	{ return funcAppend ? funcAppend(*this) : 0; }
 		
-		tplN2uinln	err_t	append_string		(cnst T (&newChain)[N])								noexcept	{ return append(::llc::vcst_t{newChain}); }
-		inln		err_t	append_string		(cnst ::llc::vcst_t & newChain)						noexcept	{ return append(newChain.begin(), newChain.size()); }
+		tplN2uinln	err_t	append_string		(cnst T (&newChain)[N])								noexcept	{ return append_string(::llc::vcst_t{newChain}); }
+		inln		err_t	append_string		(cnst ::llc::vcst_t & newChain)						noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
 		inln		err_t	append_string		(cnst T & element)									noexcept	{ llc_necs(push_back(element)); return 1; }
 		inln		err_t	append_strings		(cnst ::llc::view<cnst ::llc::vcst_t> & newChains)	noexcept	{ 
 			s2_t					appended				= 0;
@@ -95,18 +123,27 @@ namespace llc
 		tplN2uinln	err_t	append				(cnst T (&newChain)[N])										noexcept	{ return append(newChain, (u2_t)N); }
 		inln		err_t	append				(cnst ::llc::view<cnst T> & newChain)						noexcept	{ return append(newChain.begin(), newChain.size());	}
 		inln		err_t	append				(cnst ::llc::view<cnst ::llc::view<cnst T>> & newChains)	noexcept	{ 
-			s2_t count = 0;
-			err_t err = 0;
-			newChains.for_each([this, &count, &err](cnst view<cnst T> &newChain) { if(false == failed(err)) { if_fail_e(err = append(newChain)); count += newChain.size(); } }); 
-			return failed(err) ? err : count;
+			s2_t					count				= 0;
+			for(u2_t i = 0, stop = newChains.size(); i < stop; ++i) {
+				cnst ::llc::view<cnst T> & newChain		= newChains[i];
+				llc_necs(append(newChain));
+				count					+= newChain.size();
+			}
+			return count;
 		}
 		err_t				append				(cnst T * chainToAppend, u2_t chainLength)					noexcept	{
 			if(0 == chainLength)
 				return Count;
+			if_null_fe(chainToAppend);
+			u2_t					sourceOffset		= 0;
+			cnst err_t			aliased			= source_offset(chainToAppend, chainLength, sourceOffset);
+			llc_necs(aliased);
 			u2_c				newCount			= Count + chainLength;
 			llc_necs(reserve(newCount));
+			if(aliased)
+				chainToAppend			= &Data[sourceOffset];
 			u2_c				iFirst				= Count;
-			memcpy(&Data[iFirst], chainToAppend, szof(T) * chainLength);
+			memmove(&Data[iFirst], chainToAppend, szof(T) * chainLength);
 			Count					+= chainLength;
 			Data[Count]				= {};
 			return iFirst;
@@ -141,10 +178,11 @@ namespace llc
 		}
 		// Returns the new size of the array.
 		err_t				resize				(u2_t newCount, cnst T & newValue)		noexcept	{
+			cnst T				valueCopy			= newValue;
 			llc_necs(reserve(newCount));
 			if(Data) {
 				for(; Count < newCount; ++Count)
-					Data[Count] = newValue;
+					Data[Count] = valueCopy;
 				Data[Count = newCount]	= {};
 			}
 			return Count;
@@ -152,6 +190,7 @@ namespace llc
 		// returns the new size of the list or -1 on failure.
 		err_t				insert				(u2_t index, cnst T & newValue)	noexcept	{
 			ree_if(index > Count, LLC_FMT_GT_U2, index, Count);
+			cnst T				valueCopy			= newValue;
 			u2_c				newCount			= Count + 1;
 			if(Size < newCount) {
 				T							* newData			= 0;
@@ -159,7 +198,7 @@ namespace llc
 				rees_if(0 == newData);
 				if(Data)
 					memcpy(newData, Data, index * szof(T));
-				newData[index]			= newValue;
+				newData[index]			= valueCopy;
 				if(Data)
 					memcpy(&newData[index + 1], &Data[index], (Count - index) * szof(T));
 				T							* oldData			= Data;
@@ -170,7 +209,7 @@ namespace llc
 			else {
 				for(s2_t i = (int)Count - 1; i >= (int)index; --i)
 					Data[i + 1]				= Data[i];
-				Data[index]				= newValue;
+				Data[index]				= valueCopy;
 			}
 			Data[newCount]			= {};
 			return Count = newCount;
@@ -178,6 +217,12 @@ namespace llc
 		// returns the new size of the list or -1 on failure.
 		err_t				insert				(u2_t index, cnst T * chainToInsert, u2_t chainLength)	noexcept	{
 			ree_if(index > Count, LLC_FMT_GT_U2, index, Count);
+			if(0 == chainLength)
+				return Count;
+			if_null_fe(chainToInsert);
+			u2_t					sourceOffset		= 0;
+			cnst err_t			aliased			= source_offset(chainToInsert, chainLength, sourceOffset);
+			llc_necs(aliased);
 
 			u2_c				newCount			= Count + chainLength;
 			if(Size < newCount) {
@@ -195,9 +240,19 @@ namespace llc
 				::llc::llc_free(oldData);
 			}
 			else {	// no need to reallocate and copy, just shift rightmost elements and insert in-place
-				for(s2_t i = (int)Count - 1; i >= (int)index; --i)
-					Data[i + chainLength]	= Data[i];
-				memcpy(&Data[index], chainToInsert, chainLength * szof(T));
+				memmove(&Data[index + chainLength], &Data[index], (Count - index) * szof(T));
+				if(aliased) {
+					if(sourceOffset >= index)
+						chainToInsert			= &Data[sourceOffset + chainLength];
+					else if(sourceOffset + chainLength > index) {
+						u2_c				prefixCount			= index - sourceOffset;
+						memmove(&Data[index], &Data[sourceOffset], prefixCount * szof(T));
+						memmove(&Data[index + prefixCount], &Data[index + chainLength], (chainLength - prefixCount) * szof(T));
+						chainToInsert			= 0;
+					}
+				}
+				if(chainToInsert)
+					memmove(&Data[index], chainToInsert, chainLength * szof(T));
 			}
 			Data[newCount]			= {};
 			return Count = newCount;
@@ -214,9 +269,8 @@ namespace llc
 		}
 		// returns the new array size or -1 if failed.
 		err_t				erase				(cnst T * address)										noexcept	{
-			cnst ptrdiff_t				ptrDiff				= ptrdiff_t(address) - (ptrdiff_t)Data;
-			u2_c				index				= (u2_t)(ptrDiff / (ptrdiff_t)szof(T));
-			ree_if(index >= Count, LLC_FMT_GE_U2 ", p: 0x%p", index, Count, address);
+			u2_t					index				= 0;
+			ree_if(1 != source_offset(address, 1, index), "Address outside the array range: 0x%p.", address);
 			return remove(index);
 		}
 		// returns the new array size or -1 if failed.
