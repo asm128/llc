@@ -88,7 +88,7 @@ namespace llc
 	tplN2uusng	astvcf64	= ::llc::astatic<::llc::vcf64	, N>; tplN2uusng astaticvcf64	= ::llc::astvcf64<N>;
 	
 	tplTN2sinx	u2_t	size		(::llc::astatic<T, N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N);				}
-	tplTN2sinx	u2_t	byte_count	(::llc::astatic<T, N> viewToTest)		nxpt	{ rtrn u2_t(sizeof(T) * N);	}
+	tplTN2sinx	u2_t	byte_count	(::llc::astatic<T, N> /*viewToTest*/)	nxpt	{ rtrn u2_t(sizeof(T) * N);	}
 
 	// Is this really worth it?
 	tplN2usinx	u2_t	size(astc	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
@@ -123,8 +123,8 @@ namespace llc
 	stin astchar< 7>	str			(u1_t arg)	{ astchar< 7> dest = {}; sprintf_s(dest.Storage, "%u" , arg); rtrn dest; }
 	stin astchar<12>	str			(u2_t arg)	{ astchar<12> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_U2, arg); rtrn dest; }
 	stin astchar<22>	str			(u3_t arg)	{ astchar<22> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_U3, arg); rtrn dest; }
-	stin astchar< 7>	str			(s1_t arg)	{ astchar< 7> dest = {}; sprintf_s(dest.Storage, "%i", arg); rtrn dest; }
-	stin astchar<12>	str			(s2_t arg)	{ astchar<12> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_S2, arg); rtrn dest; }
+	stin astchar< 8>	str			(s1_t arg)	{ astchar< 8> dest = {}; sprintf_s(dest.Storage, "%i", arg); rtrn dest; }
+	stin astchar<13>	str			(s2_t arg)	{ astchar<13> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_S2, arg); rtrn dest; }
 	stin astchar<22>	str			(s3_t arg)	{ astchar<22> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_S3, arg); rtrn dest; }
 	stin astchar<64>	str			(f2_t arg)	{ astchar<64> dest = {}; sprintf_s(dest.Storage, "%f", arg); rtrn dest; }
 	stin astchar<384>	str			(f3_t arg)	{ astchar<384> dest = {}; sprintf_s(dest.Storage, "%f", arg); rtrn dest; }

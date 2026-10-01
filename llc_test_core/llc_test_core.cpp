@@ -37,6 +37,7 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 	result = LLC_TEST_SUITE_RUN(testSPRNG         );
 	result = LLC_TEST_SUITE_RUN(testCPow          );
 	result = LLC_TEST_SUITE_RUN(testStr           );
+	result = LLC_TEST_SUITE_RUN(testArrayStatic   );
 	result = LLC_TEST_SUITE_RUN(testView          );
 	result = LLC_TEST_SUITE_RUN(testViewBit       );
 	result = LLC_TEST_SUITE_RUN(testPackedUInt    );
