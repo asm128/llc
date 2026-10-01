@@ -51,6 +51,17 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERT_EDGE				, 44, "revert() did not acc
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERSE_ODD				, 45, "reverse() did not reverse an odd number of elements.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERSE_EVEN				, 46, "reverse() did not reverse an even subrange without changing its guards.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERSE_EDGE				, 47, "reverse() did not accept a single-element or empty view.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FOREACH_MUTABLE_FULL		, 48, "Mutable for_each() did not visit and update every element.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FOREACH_MUTABLE_OFFSET	, 49, "Mutable for_each() did not report and process the elements after its offset.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FOREACH_MUTABLE_RANGE		, 50, "Mutable for_each() did not honor its explicit or clipped range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FOREACH_CONST				, 51, "Const for_each() did not visit the expected elements without mutation.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FOREACH_EMPTY				, 52, "for_each() invoked its callback or reported work for an empty range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ENUMERATE_MUTABLE			, 53, "Mutable enumerate() did not provide the correct indices and elements.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ENUMERATE_RANGE			, 54, "enumerate() did not honor its requested range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ENUMERATE_CONST			, 55, "Const enumerate() did not provide the correct indices and elements.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ENUMERATE_EMPTY			, 56, "enumerate() invoked its callback or reported work for an empty range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FOREACH_FAILURE			, 57, "for_each() did not stop and propagate a callback failure.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ENUMERATE_FAILURE			, 58, "enumerate() did not stop and propagate a callback failure.");
 
 tplt<tpnm T>
 sttc ::llc::err_t testRepresentation(ATestError & errors) {
@@ -512,6 +523,180 @@ sttc ::llc::err_t testReverse(ATestError & errors) {
 }
 
 tplt<tpnm T>
+sttc ::llc::err_t testForEach(ATestError & errors) {
+	T full[5] = {T(0), T(1), T(2), T(3), T(4)};
+	T fullExpected[5] = {T(10), T(11), T(12), T(13), T(14)};
+	::llc::u2_t visited = 0;
+	::llc::TFuncForEach<T> addTen = [&visited](T & value) { ++visited; value += T(10); return 0; };
+	::llc::err_t result = ::llc::view<T>{full}.for_each(addTen);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_MUTABLE_FULL, result != 5 || visited != 5
+		, "%s mutable full for_each mismatch. result:%i, visited:%u, expected:5."
+		, ::llc::get_type_namep<T>(), result, visited
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FOREACH_MUTABLE_FULL, full, fullExpected, "mutable full for_each"));
+
+	T offset[5] = {T(0), T(1), T(2), T(3), T(4)};
+	T offsetExpected[5] = {T(0), T(1), T(12), T(13), T(14)};
+	visited = 0;
+	result = ::llc::view<T>{offset}.for_each(addTen, 2);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_MUTABLE_OFFSET, result != 3 || visited != 3
+		, "%s mutable offset for_each mismatch. result:%i, visited:%u, expected:3."
+		, ::llc::get_type_namep<T>(), result, visited
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FOREACH_MUTABLE_OFFSET, offset, offsetExpected, "mutable offset for_each"));
+
+	T ranged[5] = {T(0), T(1), T(2), T(3), T(4)};
+	T rangedExpected[5] = {T(0), T(11), T(12), T(13), T(4)};
+	visited = 0;
+	result = ::llc::view<T>{ranged}.for_each(addTen, 1, 4);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_MUTABLE_RANGE, result != 3 || visited != 3
+		, "%s mutable ranged for_each mismatch. result:%i, visited:%u, expected:3."
+		, ::llc::get_type_namep<T>(), result, visited
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FOREACH_MUTABLE_RANGE, ranged, rangedExpected, "mutable ranged for_each"));
+
+	T clipped[5] = {T(0), T(1), T(2), T(3), T(4)};
+	T clippedExpected[5] = {T(0), T(1), T(2), T(13), T(14)};
+	visited = 0;
+	result = ::llc::view<T>{clipped}.for_each(addTen, 3, 20);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_MUTABLE_RANGE, result != 2 || visited != 2
+		, "%s mutable clipped for_each mismatch. result:%i, visited:%u, expected:2."
+		, ::llc::get_type_namep<T>(), result, visited
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FOREACH_MUTABLE_RANGE, clipped, clippedExpected, "mutable clipped for_each"));
+
+	T constData[5] = {T(0), T(1), T(2), T(3), T(4)};
+	cnst ::llc::view<T> constView{constData};
+	::llc::s3_t sum = 0;
+	visited = 0;
+	::llc::TFuncForEachConst<T> read = [&visited, &sum](cnst T & value) { ++visited; sum += value; return 0; };
+	result = constView.for_each(read, 2);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_CONST, result != 3 || visited != 3 || sum != 9
+		, "%s const offset for_each mismatch. result:%i, visited:%u, sum:%" LLC_FMT_S3 ", expected result:3, visited:3, sum:9."
+		, ::llc::get_type_namep<T>(), result, visited, sum
+		);
+
+	T unchanged[5] = {T(0), T(1), T(2), T(3), T(4)};
+	T unchangedExpected[5] = {T(0), T(1), T(2), T(3), T(4)};
+	visited = 0;
+	result = ::llc::view<T>{unchanged}.for_each(addTen, 4, 2);
+	::llc::view<T> nullEmpty;
+	cnst ::llc::err_t emptyResult = nullEmpty.for_each(addTen);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_EMPTY, result || emptyResult || visited
+		, "%s empty for_each mismatch. reversed result:%i, empty result:%i, visited:%u."
+		, ::llc::get_type_namep<T>(), result, emptyResult, visited
+		);
+	return testMutationValues(errors, VIEW_TEST_RESULT_FOREACH_EMPTY, unchanged, unchangedExpected, "empty-range for_each");
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testEnumerate(ATestError & errors) {
+	T full[5] = {};
+	T fullExpected[5] = {T(10), T(11), T(12), T(13), T(14)};
+	::llc::u2_t visited = 0, indices = 0;
+	::llc::TFuncEnumerate<T> writeIndex = [&visited, &indices](::llc::u2_t & index, T & value) { ++visited; indices |= 1U << index; value = T(10 + index); return 0; };
+	::llc::err_t result = ::llc::view<T>{full}.enumerate(writeIndex);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ENUMERATE_MUTABLE, result != 5 || visited != 5 || indices != 0x1F
+		, "%s mutable full enumerate mismatch. result:%i, visited:%u, indices:0x%X."
+		, ::llc::get_type_namep<T>(), result, visited, indices
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_ENUMERATE_MUTABLE, full, fullExpected, "mutable full enumerate"));
+
+	T ranged[5] = {};
+	T rangedExpected[5] = {T(0), T(11), T(12), T(13), T(0)};
+	visited = indices = 0;
+	result = ::llc::view<T>{ranged}.enumerate(writeIndex, 1, 4);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ENUMERATE_RANGE, result != 3 || visited != 3 || indices != 0x0E
+		, "%s mutable ranged enumerate mismatch. result:%i, visited:%u, indices:0x%X, expected result:3, visited:3, indices:0x0E."
+		, ::llc::get_type_namep<T>(), result, visited, indices
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_ENUMERATE_RANGE, ranged, rangedExpected, "mutable ranged enumerate"));
+
+	T constData[5] = {T(0), T(1), T(2), T(3), T(4)};
+	cnst ::llc::view<T> constView{constData};
+	::llc::s3_t sum = 0;
+	visited = indices = 0;
+	::llc::TFuncEnumerateConst<T> readIndex = [&visited, &indices, &sum](::llc::u2_t & index, cnst T & value) { ++visited; indices |= 1U << index; sum += value; return 0; };
+	result = constView.enumerate(readIndex, 2);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ENUMERATE_CONST, result != 3 || visited != 3 || indices != 0x1C || sum != 9
+		, "%s const offset enumerate mismatch. result:%i, visited:%u, indices:0x%X, sum:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), result, visited, indices, sum
+		);
+
+	visited = indices = 0;
+	result = ::llc::view<T>{ranged}.enumerate(writeIndex, 4, 2);
+	::llc::view<T> nullEmpty;
+	cnst ::llc::err_t emptyResult = nullEmpty.enumerate(writeIndex);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ENUMERATE_EMPTY, result || emptyResult || visited || indices
+		, "%s empty enumerate mismatch. reversed result:%i, empty result:%i, visited:%u, indices:0x%X."
+		, ::llc::get_type_namep<T>(), result, emptyResult, visited, indices
+		);
+	return 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testTraversalFailures(ATestError & errors) {
+	T data[5] = {T(0), T(1), T(2), T(3), T(4)};
+	::llc::view<T> mutableView{data};
+	cnst ::llc::view<T> & constView = mutableView;
+	::llc::u2_t mutableForEachVisits = 0, constForEachVisits = 0, mutableRangeVisits = 0, constRangeVisits = 0;
+	::llc::u2_t mutableEnumerateVisits = 0, constEnumerateVisits = 0, mutableEnumerateRangeVisits = 0, constEnumerateRangeVisits = 0;
+	::llc::TFuncForEach<T> mutableForEach = [&mutableForEachVisits](T &) { return (++mutableForEachVisits == 3) ? -1 : 0; };
+	::llc::TFuncForEachConst<T> constForEach = [&constForEachVisits](cnst T &) { return (++constForEachVisits == 3) ? -1 : 0; };
+	::llc::TFuncForEach<T> mutableRange = [&mutableRangeVisits](T &) { return (++mutableRangeVisits == 2) ? -1 : 0; };
+	::llc::TFuncForEachConst<T> constRange = [&constRangeVisits](cnst T &) { return (++constRangeVisits == 2) ? -1 : 0; };
+	::llc::TFuncEnumerate<T> mutableEnumerate = [&mutableEnumerateVisits](::llc::u2_t &, T &) { return (++mutableEnumerateVisits == 3) ? -1 : 0; };
+	::llc::TFuncEnumerateConst<T> constEnumerate = [&constEnumerateVisits](::llc::u2_t &, cnst T &) { return (++constEnumerateVisits == 3) ? -1 : 0; };
+	::llc::TFuncEnumerate<T> mutableEnumerateRange = [&mutableEnumerateRangeVisits](::llc::u2_t &, T &) { return (++mutableEnumerateRangeVisits == 2) ? -1 : 0; };
+	::llc::TFuncEnumerateConst<T> constEnumerateRange = [&constEnumerateRangeVisits](::llc::u2_t &, cnst T &) { return (++constEnumerateRangeVisits == 2) ? -1 : 0; };
+
+	::llc::setupLogCallbacks(0, 0);
+	cnst ::llc::err_t mutableForEachResult = mutableView.for_each(mutableForEach);
+	cnst ::llc::err_t constForEachResult = constView.for_each(constForEach);
+	cnst ::llc::err_t mutableRangeResult = mutableView.for_each(mutableRange, 1, 5);
+	cnst ::llc::err_t constRangeResult = constView.for_each(constRange, 1, 5);
+	cnst ::llc::err_t mutableEnumerateResult = mutableView.enumerate(mutableEnumerate);
+	cnst ::llc::err_t constEnumerateResult = constView.enumerate(constEnumerate);
+	cnst ::llc::err_t mutableEnumerateRangeResult = mutableView.enumerate(mutableEnumerateRange, 1, 5);
+	cnst ::llc::err_t constEnumerateRangeResult = constView.enumerate(constEnumerateRange, 1, 5);
+	::llc::setupDefaultLogCallbacks();
+
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_FAILURE, !::llc::failed(mutableForEachResult) || mutableForEachVisits != 3
+		, "%s mutable for_each failure mismatch. result:%i, visited:%u, expected visited:3."
+		, ::llc::get_type_namep<T>(), mutableForEachResult, mutableForEachVisits
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_FAILURE, !::llc::failed(constForEachResult) || constForEachVisits != 3
+		, "%s const for_each failure mismatch. result:%i, visited:%u, expected visited:3."
+		, ::llc::get_type_namep<T>(), constForEachResult, constForEachVisits
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_FAILURE, !::llc::failed(mutableRangeResult) || mutableRangeVisits != 2
+		, "%s mutable ranged for_each failure mismatch. result:%i, visited:%u, expected visited:2."
+		, ::llc::get_type_namep<T>(), mutableRangeResult, mutableRangeVisits
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FOREACH_FAILURE, !::llc::failed(constRangeResult) || constRangeVisits != 2
+		, "%s const ranged for_each failure mismatch. result:%i, visited:%u, expected visited:2."
+		, ::llc::get_type_namep<T>(), constRangeResult, constRangeVisits
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ENUMERATE_FAILURE, !::llc::failed(mutableEnumerateResult) || mutableEnumerateVisits != 3
+		, "%s mutable enumerate failure mismatch. result:%i, visited:%u, expected visited:3."
+		, ::llc::get_type_namep<T>(), mutableEnumerateResult, mutableEnumerateVisits
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ENUMERATE_FAILURE, !::llc::failed(constEnumerateResult) || constEnumerateVisits != 3
+		, "%s const enumerate failure mismatch. result:%i, visited:%u, expected visited:3."
+		, ::llc::get_type_namep<T>(), constEnumerateResult, constEnumerateVisits
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ENUMERATE_FAILURE, !::llc::failed(mutableEnumerateRangeResult) || mutableEnumerateRangeVisits != 2
+		, "%s mutable ranged enumerate failure mismatch. result:%i, visited:%u, expected visited:2."
+		, ::llc::get_type_namep<T>(), mutableEnumerateRangeResult, mutableEnumerateRangeVisits
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ENUMERATE_FAILURE, !::llc::failed(constEnumerateRangeResult) || constEnumerateRangeVisits != 2
+		, "%s const ranged enumerate failure mismatch. result:%i, visited:%u, expected visited:2."
+		, ::llc::get_type_namep<T>(), constEnumerateRangeResult, constEnumerateRangeVisits
+		);
+	return 0;
+}
+
+tplt<tpnm T>
 sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
 #ifdef LLC_WINDOWS
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { cnst ::llc::view<T> invalid{(T*)0, 1}; (void)invalid; })
@@ -534,6 +719,9 @@ sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testRepresentationViews<T>(errors));
 	if_fail_fe(testFill<T>(errors));
 	if_fail_fe(testReverse<T>(errors));
+	if_fail_fe(testForEach<T>(errors));
+	if_fail_fe(testEnumerate<T>(errors));
+	if_fail_fe(testTraversalFailures<T>(errors));
 	return testInvalidConstruction<T>(errors);
 }
 
