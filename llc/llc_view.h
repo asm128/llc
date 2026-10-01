@@ -40,7 +40,6 @@ namespace llc
 		tplN2u	inxp			view			(T (&elements)[N])					nxpt	: Data(elements), Count(N)								{}
 		tplN2u	inxp			view			(u2_t elementCount, T (&elements)[N])		: Data(elements), Count(::llc::min(N, elementCount))	{}
 		inln					view			(T * elements, u2_t elementCount)			: Data(elements), Count(elementCount)					{ gthrow_if(0 == elements && 0 != elementCount, "%" LLC_FMT_U2 " -> 0.", elementCount);	}
-		tplN2u	inln			view			(T (&elements)[N], u2_t elementCount)		: Data(elements), Count(::llc::min(N, elementCount))	{ gthrow_if(elementCount > N, LLC_FMT_GT_U2, elementCount, (u2_t)N); }
 
 		// Operators
 		inxp	oper			view<TCnst>		()									csnx	{ rtrn {Data, Count}; }

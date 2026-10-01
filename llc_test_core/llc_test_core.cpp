@@ -4,6 +4,8 @@
 #include "llc_log.h"
 #include "llc_timer.h"
 
+//#define LLC_TEST_LOG_SUCCESS_DETAILS
+
 #define LLC_TEST_SUITE_RUN(testSuiteFunction) { \
 	::llc::u2_c checkCountBefore = testCheckCount(results); \
 	::llc::u2_c failureCountBefore = testErrorCount(results); \
@@ -24,6 +26,7 @@ int main()
 	llc::err_t result = 0;
 	::llc::STimer testTimer;
 	LLC_TEST_SUITE_RUN(testSPRNG         );
+	LLC_TEST_SUITE_RUN(testView          );
 	LLC_TEST_SUITE_RUN(testViewBit       );
 	LLC_TEST_SUITE_RUN(testPackedUInt    );
 	LLC_TEST_SUITE_RUN(testViewSerialize );
@@ -34,8 +37,10 @@ int main()
 	else always_printf("Test run completed in %" LLC_FMT_U3 " us: all %u checks passed across %u result groups.", testTimer.LastTimeMicroseconds, successCount, results.size());
 	for(::llc::u2_t iResult = 0; iResult < results.size(); ++iResult) {
 		cnst STestError & testResult = results[iResult];
+#ifdef LLC_TEST_LOG_SUCCESS_DETAILS
 		if(testResult.SuccessCount)
 			always_printf("PASS %s::%s(%" LLC_FMT_S3 ") x %u - validated against failure: %s", testResult.EnumName, testResult.ValueName, testResult.Value, testResult.SuccessCount, testResult.Description);
+#endif
 		if(testResult.Count)
 			error_printf("FAIL %s::%s(%" LLC_FMT_S3 ") x %u: %s", testResult.EnumName, testResult.ValueName, testResult.Value, testResult.Count, testResult.Description);
 	}
