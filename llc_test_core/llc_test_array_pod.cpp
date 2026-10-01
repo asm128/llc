@@ -33,6 +33,17 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_EMPTY				, 24, "array_pod<>::a
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, CLEAR						, 25, "array_pod<>::clear() did not retain allocation as an empty range.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, CLEAR_POINTER			, 26, "array_pod<>::clear_pointer() did not release and reset its storage.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, TERMINATOR				, 27, "array_pod<> did not preserve its zero-value terminator.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, POP_BACK					, 28, "array_pod<>::pop_back() did not remove its final element.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, POP_BACK_VALUE			, 29, "array_pod<>::pop_back(value) did not return and remove its final element.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_VALUE				, 30, "array_pod<>::insert(value) did not insert at the requested position.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_VALUE_REALLOCATE	, 31, "array_pod<>::insert(value) failed while growing its allocation.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_POINTER			, 32, "array_pod<>::insert(pointer, count) did not insert its source range.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_ARRAY				, 33, "array_pod<>::insert(array) did not insert its source range.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_VIEW				, 34, "array_pod<>::insert(view) did not insert its source range.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_CHAIN_REALLOCATE	, 35, "array_pod<>::insert(pointer, count) failed while growing its allocation.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE						, 36, "array_pod<>::remove() did not erase the requested element in order.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_UNORDERED			, 37, "array_pod<>::remove_unordered() did not replace the removed element with the last one.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE						, 38, "array_pod<>::erase() did not erase the addressed element.");
 
 tplt<tpnm T>
 sttc bool podMismatch(cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected) {
@@ -267,6 +278,179 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 }
 
 tplt<tpnm T>
+sttc ::llc::err_t testPodPopBack(ATestError & errors) {
+	::llc::apod<T> values = {T(1), T(2), T(3)};
+	T removed = {};
+	::llc::err_t result = values.pop_back(removed);
+	T expectedValue[] = {T(1), T(2)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_POP_BACK_VALUE, result != 2 || removed != T(3) || podMismatch(values, expectedValue)
+		, "%s pop_back(value) mismatch. result:%i, removed:%" LLC_FMT_S3 ", size:%u."
+		, ::llc::get_type_namep<T>(), result, (::llc::s3_t)removed, values.size()
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
+		, "%s pop_back(value) terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), values.size(), (::llc::s3_t)values.begin()[values.size()]
+		);
+
+	result = values.pop_back();
+	T expected[] = {T(1)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_POP_BACK, result != 1 || podMismatch(values, expected)
+		, "%s pop_back mismatch. result:%i, size:%u, first:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), result, values.size(), (::llc::s3_t)values[0]
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
+		, "%s pop_back terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), values.size(), (::llc::s3_t)values.begin()[values.size()]
+		);
+	rtrn 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testPodInsert(ATestError & errors) {
+	::llc::apod<T> values = {T(2), T(4)};
+	values.reserve(16);
+	T * reservedAddress = values.begin();
+	::llc::err_t result = values.insert(0, T(1));
+	T expectedFront[] = {T(1), T(2), T(4)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 3 || values.begin() != reservedAddress || podMismatch(values, expectedFront)
+		, "%s front value insertion mismatch. result:%i, size:%u, address:%p/%p."
+		, ::llc::get_type_namep<T>(), result, values.size(), (void*)values.begin(), (void*)reservedAddress
+		);
+	result = values.insert(2, T(3));
+	T expectedMiddle[] = {T(1), T(2), T(3), T(4)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 4 || values.begin() != reservedAddress || podMismatch(values, expectedMiddle)
+		, "%s middle value insertion mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, values.size()
+		);
+	result = values.insert(values.size(), T(5));
+	T expectedEnd[] = {T(1), T(2), T(3), T(4), T(5)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 5 || values.begin() != reservedAddress || podMismatch(values, expectedEnd)
+		, "%s end value insertion mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, values.size()
+		);
+
+	::llc::apod<T> reallocated = {T(1), T(3)};
+	cnst ::llc::u2_t capacity = reallocated.reserve(reallocated.size());
+	if_fail_fe(reallocated.resize(capacity, T(8)));
+	T * previousAddress = reallocated.begin();
+	result = reallocated.insert(1, T(2));
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE_REALLOCATE
+		, result != (::llc::err_t)capacity + 1 || reallocated.size() != capacity + 1 || reallocated.begin() == previousAddress
+		|| reallocated[0] != T(1) || reallocated[1] != T(2) || reallocated[2] != T(3)
+		, "%s reallocating value insertion mismatch. result:%i, size:%u/%u, address:%p/%p."
+		, ::llc::get_type_namep<T>(), result, reallocated.size(), capacity + 1, (void*)reallocated.begin(), (void*)previousAddress
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(reallocated)
+		, "%s reallocating value insertion terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), reallocated.size(), (::llc::s3_t)reallocated.begin()[reallocated.size()]
+		);
+
+	::llc::apod<T> chains = {T(4), T(8)};
+	chains.reserve(32);
+	T pointerValues[] = {T(1), T(2), T(3)};
+	result = chains.insert(0, pointerValues, 3);
+	T expectedPointer[] = {T(1), T(2), T(3), T(4), T(8)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_POINTER, result != 5 || podMismatch(chains, expectedPointer)
+		, "%s pointer insertion mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, chains.size()
+		);
+	T arrayValues[] = {T(5), T(6)};
+	result = chains.insert(4, arrayValues);
+	T expectedArray[] = {T(1), T(2), T(3), T(4), T(5), T(6), T(8)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_ARRAY, result != 7 || podMismatch(chains, expectedArray)
+		, "%s array insertion mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, chains.size()
+		);
+	T viewValues[] = {T(7)};
+	result = chains.insert(chains.size() - 1, ::llc::view<cnst T>{viewValues});
+	T expectedView[] = {T(1), T(2), T(3), T(4), T(5), T(6), T(7), T(8)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VIEW, result != 8 || podMismatch(chains, expectedView)
+		, "%s view insertion mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, chains.size()
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(chains)
+		, "%s chain insertion terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), chains.size(), (::llc::s3_t)chains.begin()[chains.size()]
+		);
+
+	::llc::apod<T> chainReallocated = {T(1), T(4)};
+	cnst ::llc::u2_t chainCapacity = chainReallocated.reserve(chainReallocated.size());
+	if_fail_fe(chainReallocated.resize(chainCapacity, T(8)));
+	previousAddress = chainReallocated.begin();
+	T inserted[] = {T(2), T(3)};
+	result = chainReallocated.insert(1, inserted, 2);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_CHAIN_REALLOCATE
+		, result != (::llc::err_t)chainCapacity + 2 || chainReallocated.size() != chainCapacity + 2 || chainReallocated.begin() == previousAddress
+		|| chainReallocated[0] != T(1) || chainReallocated[1] != T(2) || chainReallocated[2] != T(3) || chainReallocated[3] != T(4)
+		, "%s reallocating chain insertion mismatch. result:%i, size:%u/%u, address:%p/%p."
+		, ::llc::get_type_namep<T>(), result, chainReallocated.size(), chainCapacity + 2, (void*)chainReallocated.begin(), (void*)previousAddress
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(chainReallocated)
+		, "%s reallocating chain insertion terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), chainReallocated.size(), (::llc::s3_t)chainReallocated.begin()[chainReallocated.size()]
+		);
+	rtrn 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testPodRemove(ATestError & errors) {
+	::llc::apod<T> ordered = {T(1), T(2), T(3), T(4), T(5)};
+	::llc::err_t result = ordered.remove(0);
+	T expectedFront[] = {T(2), T(3), T(4), T(5)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE, result != 4 || podMismatch(ordered, expectedFront)
+		, "%s ordered front removal mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, ordered.size()
+		);
+	result = ordered.remove(1);
+	T expectedMiddle[] = {T(2), T(4), T(5)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE, result != 3 || podMismatch(ordered, expectedMiddle)
+		, "%s ordered middle removal mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, ordered.size()
+		);
+	result = ordered.remove(ordered.size() - 1);
+	T expectedEnd[] = {T(2), T(4)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE, result != 2 || podMismatch(ordered, expectedEnd)
+		, "%s ordered end removal mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, ordered.size()
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(ordered)
+		, "%s ordered removal terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), ordered.size(), (::llc::s3_t)ordered.begin()[ordered.size()]
+		);
+
+	::llc::apod<T> unordered = {T(1), T(2), T(3), T(4)};
+	result = unordered.remove_unordered(1);
+	T expectedUnordered[] = {T(1), T(4), T(3)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED, result != 3 || podMismatch(unordered, expectedUnordered)
+		, "%s unordered middle removal mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, unordered.size()
+		);
+	result = unordered.remove_unordered(unordered.size() - 1);
+	T expectedUnorderedEnd[] = {T(1), T(4)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED, result != 2 || podMismatch(unordered, expectedUnorderedEnd)
+		, "%s unordered end removal mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, unordered.size()
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(unordered)
+		, "%s unordered removal terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), unordered.size(), (::llc::s3_t)unordered.begin()[unordered.size()]
+		);
+
+	::llc::apod<T> erased = {T(1), T(2), T(3), T(4)};
+	result = erased.erase(&erased[1]);
+	T expectedErased[] = {T(1), T(3), T(4)};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE, result != 3 || podMismatch(erased, expectedErased)
+		, "%s addressed removal mismatch. result:%i, size:%u."
+		, ::llc::get_type_namep<T>(), result, erased.size()
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(erased)
+		, "%s addressed removal terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), erased.size(), (::llc::s3_t)erased.begin()[erased.size()]
+		);
+	rtrn 0;
+}
+
+tplt<tpnm T>
 sttc ::llc::err_t testPodClear(ATestError & errors) {
 	::llc::apod<T> values = {T(1), T(2), T(3)};
 	T * allocated = values.begin();
@@ -292,6 +476,9 @@ sttc ::llc::err_t testPodType(ATestError & errors) {
 	if_fail_fe(testPodAssignment<T>(errors));
 	if_fail_fe(testPodReserveResize<T>(errors));
 	if_fail_fe(testPodAppend<T>(errors));
+	if_fail_fe(testPodPopBack<T>(errors));
+	if_fail_fe(testPodInsert<T>(errors));
+	if_fail_fe(testPodRemove<T>(errors));
 	rtrn testPodClear<T>(errors);
 }
 
