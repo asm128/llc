@@ -80,7 +80,7 @@ namespace llc
 			u2_c					newSize			= Count - offset;
 			if(count != (u2_t)-1)
 				if_true_fef(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
-			out						= {&Data[offset], ::llc::min(newSize, count)};
+			out						= {Data ? &Data[offset] : 0, ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
 		err_t					slice			(TCstV & out, u2_t offset, u2_t count = (u2_t)-1)		cnst	{
@@ -88,7 +88,7 @@ namespace llc
 			u2_c					newSize			= Count - offset;
 			if(count != (u2_t)-1)
 				if_true_fef(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
-			out						= {&Data[offset], ::llc::min(newSize, count)};
+			out						= {Data ? &Data[offset] : 0, ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
 		err_t					revert			()																{
