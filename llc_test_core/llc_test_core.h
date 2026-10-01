@@ -65,6 +65,7 @@ bool testThrows(TCall call) {
 
 ::llc::err_t testPackedUInt		(ATestError & errors);
 ::llc::err_t testSPRNG			(ATestError & errors);
+::llc::err_t testStr			(ATestError & errors);
 ::llc::err_t testView			(ATestError & errors);
 ::llc::err_t testViewBit		(ATestError & errors);
 ::llc::err_t testViewSerialize	(ATestError & errors);

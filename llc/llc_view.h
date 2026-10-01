@@ -300,8 +300,13 @@ namespace llc
 	tdcs	vstr_t				vstr_c;
 	tdcs	vcst_t				vcst_c;
 
-	stin			llc::vcst_t	str				(cnst llc::vcst_t & arg)	{ rtrn arg; }
+	stin			llc::vs		str				(llc::vs & arg)			{ rtrn arg; }
 	stin			llc::vcst_t	str				(cnst llc::vs & arg)		{ rtrn arg.cc(); }
+	stin			llc::vcst_t	str				(cnst llc::vcst_t & arg)	{ rtrn arg; }
+	stin			llc::vs		str				(llc::vsc_t arg)			{ rtrn arg; }
+	stin			llc::vcst_t	str				(llc::vcsc_t arg)			{ rtrn arg; }
+	tplN2usinx		llc::vs		str				(llc::sc_t (&arg)[N])		{ rtrn arg; }
+	tplN2usinx		llc::vcst_t	str				(llc::sc_c (&arg)[N])		{ rtrn arg; }
 	sinx			llc::vcst_t	str				(cnst bool arg)				{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
 	//
 	tplTnsix		::llc::vcst_t	get_type_namev	()									nxpt	{ rtrn LLC_CXS("unknown"); }

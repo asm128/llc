@@ -27,6 +27,9 @@
     <ClCompile Include="llc_test_packed_int.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="llc_test_str.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="llc_test_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
