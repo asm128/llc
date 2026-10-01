@@ -116,10 +116,34 @@ namespace llc
 		err_t					find			(cnst FBool<TCnst&>	& funcForEach	, u2_t offset = 0)									cnst	{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
 		err_t					find			(cnst T				& value			, u2_t offset = 0)									cnst	{ for(; offset < Count; ++offset) if(Data[offset] == value) rtrn (err_t)offset; rtrn -1; }
 
-		tplt<tpnm _tMax> err_t	max				(_tMax & maxFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{ s2_t iMax = 0; for(; offset < Count; ++offset) { _tMax value = funcComparand(Data[offset]); if(value > maxFound) { iMax = offset; maxFound = value; } } rtrn iMax; }
-		tplt<tpnm _tMax> err_t	min				(_tMax & minFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{ s2_t iMin = 0; for(; offset < Count; ++offset) { _tMax value = funcComparand(Data[offset]); if(value < minFound) { iMin = offset; minFound = value; } } rtrn iMin; }
-		tplt<tpnm _tMax> err_t	max				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax maxFound; rtrn max(maxFound, funcComparand, offset); }
-		tplt<tpnm _tMax> err_t	min				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax minFound; rtrn min(minFound, funcComparand, offset); }
+		tplt<tpnm _tMax> err_t	max				(_tMax & maxFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{
+			if_true_fef(offset >= Count, LLC_FMT_GE_U2, offset, Count);
+			err_t					iMax			= (err_t)offset;
+			maxFound								= funcComparand(Data[offset]);
+			for(++offset; offset < Count; ++offset) {
+				_tMax					value			= funcComparand(Data[offset]);
+				if(value > maxFound) {
+					iMax								= (err_t)offset;
+					maxFound							= value;
+				}
+			}
+			rtrn iMax;
+		}
+		tplt<tpnm _tMax> err_t	min				(_tMax & minFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{
+			if_true_fef(offset >= Count, LLC_FMT_GE_U2, offset, Count);
+			err_t					iMin			= (err_t)offset;
+			minFound								= funcComparand(Data[offset]);
+			for(++offset; offset < Count; ++offset) {
+				_tMax					value			= funcComparand(Data[offset]);
+				if(value < minFound) {
+					iMin								= (err_t)offset;
+					minFound							= value;
+				}
+			}
+			rtrn iMin;
+		}
+		tplt<tpnm _tMax> err_t	max				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax maxFound = {}; rtrn max(maxFound, funcComparand, offset); }
+		tplt<tpnm _tMax> err_t	min				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax minFound = {}; rtrn min(minFound, funcComparand, offset); }
 	}; // view<>
 
 	tplTusng	view_array	= ::llc::view<T>;

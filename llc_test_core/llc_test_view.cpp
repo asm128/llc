@@ -62,6 +62,18 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ENUMERATE_CONST			, 55, "Const enumerate()
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ENUMERATE_EMPTY			, 56, "enumerate() invoked its callback or reported work for an empty range.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FOREACH_FAILURE			, 57, "for_each() did not stop and propagate a callback failure.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ENUMERATE_FAILURE			, 58, "enumerate() did not stop and propagate a callback failure.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FIND_MUTABLE				, 59, "Mutable predicate find() did not return the first matching index.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FIND_CONST				, 60, "Const predicate find() did not return the first matching index.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FIND_VALUE				, 61, "Value find() did not return the first matching index.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FIND_OFFSET				, 62, "find() did not honor its starting offset.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FIND_NOT_FOUND			, 63, "find() did not return -1 when no element matched.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FIND_EMPTY				, 64, "find() invoked its predicate or found an element in an empty range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MAXIMUM_OUTPUT			, 65, "max() did not return the first maximum and its transformed value.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MINIMUM_OUTPUT			, 66, "min() did not return the first minimum and its transformed value.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EXTREMA_OFFSET			, 67, "min()/max() did not honor the starting offset.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EXTREMA_CONVENIENCE		, 68, "The min()/max() convenience overload did not return the correct index.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EXTREMA_EMPTY			, 69, "min()/max() did not reject an empty search range without changing its output.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EXTREMA_SINGLE			, 70, "min()/max() did not handle a single-element view.");
 
 tplt<tpnm T>
 sttc ::llc::err_t testRepresentation(ATestError & errors) {
@@ -697,6 +709,123 @@ sttc ::llc::err_t testTraversalFailures(ATestError & errors) {
 }
 
 tplt<tpnm T>
+sttc ::llc::err_t testFind(ATestError & errors) {
+	T mutableData[5] = {T(0), T(1), T(2), T(3), T(2)};
+	T mutableExpected[5] = {T(10), T(11), T(12), T(3), T(2)};
+	::llc::u2_t visited = 0;
+	::llc::FBool<T&> mutablePredicate = [&visited](T & value) { ++visited; cnst bool match = value == T(2); value += T(10); return match; };
+	::llc::err_t result = ::llc::view<T>{mutableData}.find(mutablePredicate);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FIND_MUTABLE, result != 2 || visited != 3
+		, "%s mutable predicate find mismatch. result:%i, visited:%u, expected result:2, visited:3."
+		, ::llc::get_type_namep<T>(), result, visited
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FIND_MUTABLE, mutableData, mutableExpected, "mutable predicate find"));
+
+	T constData[5] = {T(0), T(1), T(2), T(3), T(2)};
+	cnst ::llc::view<T> constView{constData};
+	visited = 0;
+	::llc::FBool<cnst T&> constPredicate = [&visited](cnst T & value) { ++visited; return value == T(2); };
+	result = constView.find(constPredicate);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FIND_CONST, result != 2 || visited != 3
+		, "%s const predicate find mismatch. result:%i, visited:%u, expected result:2, visited:3."
+		, ::llc::get_type_namep<T>(), result, visited
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FIND_VALUE, constView.find(T(2)) != 2
+		, "%s value find did not return index:2. result:%i."
+		, ::llc::get_type_namep<T>(), constView.find(T(2))
+		);
+
+	visited = 0;
+	result = constView.find(constPredicate, 3);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FIND_OFFSET, result != 4 || visited != 2 || constView.find(T(2), 3) != 4
+		, "%s offset find mismatch. predicate result:%i, visited:%u, value result:%i, expected result:4, visited:2."
+		, ::llc::get_type_namep<T>(), result, visited, constView.find(T(2), 3)
+		);
+
+	visited = 0;
+	::llc::FBool<cnst T&> missingPredicate = [&visited](cnst T & value) { ++visited; return value == T(9); };
+	result = constView.find(missingPredicate);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FIND_NOT_FOUND, result != -1 || visited != constView.size() || constView.find(T(9)) != -1
+		, "%s missing find mismatch. predicate result:%i, visited:%u, value result:%i."
+		, ::llc::get_type_namep<T>(), result, visited, constView.find(T(9))
+		);
+
+	visited = 0;
+	::llc::view<T> empty;
+	cnst ::llc::view<T> & constEmpty = empty;
+	cnst ::llc::err_t emptyPredicateResult = constEmpty.find(missingPredicate);
+	cnst ::llc::err_t emptyValueResult = constEmpty.find(T(0));
+	cnst ::llc::err_t pastEndResult = constView.find(missingPredicate, constView.size());
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FIND_EMPTY, emptyPredicateResult != -1 || emptyValueResult != -1 || pastEndResult != -1 || visited
+		, "%s empty find mismatch. predicate:%i, value:%i, past-end:%i, visited:%u."
+		, ::llc::get_type_namep<T>(), emptyPredicateResult, emptyValueResult, pastEndResult, visited
+		);
+	return 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testExtrema(ATestError & errors) {
+	T data[6] = {T(3), T(7), T(1), T(7), T(2), T(6)};
+	cnst ::llc::view<T> values{data};
+	::llc::FTransform<::llc::s3_t, cnst T&> transform = [](cnst T & value) { return (::llc::s3_t)value; };
+	::llc::s3_t maximum = 999, minimum = -999;
+	::llc::err_t iMaximum = values.max(maximum, transform);
+	::llc::err_t iMinimum = values.min(minimum, transform);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MAXIMUM_OUTPUT, iMaximum != 1 || maximum != 7
+		, "%s maximum mismatch. index:%i, value:%" LLC_FMT_S3 ", expected index:1, value:7."
+		, ::llc::get_type_namep<T>(), iMaximum, maximum
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MINIMUM_OUTPUT, iMinimum != 2 || minimum != 1
+		, "%s minimum mismatch. index:%i, value:%" LLC_FMT_S3 ", expected index:2, value:1."
+		, ::llc::get_type_namep<T>(), iMinimum, minimum
+		);
+
+	maximum = 999;
+	minimum = -999;
+	iMaximum = values.max(maximum, transform, 3);
+	iMinimum = values.min(minimum, transform, 3);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EXTREMA_OFFSET, iMaximum != 3 || maximum != 7 || iMinimum != 4 || minimum != 2
+		, "%s offset extrema mismatch. max index:%i, max:%" LLC_FMT_S3 ", min index:%i, min:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), iMaximum, maximum, iMinimum, minimum
+		);
+
+	iMaximum = values.max(transform);
+	iMinimum = values.min(transform);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EXTREMA_CONVENIENCE, iMaximum != 1 || iMinimum != 2 || values.max(transform, 3) != 3 || values.min(transform, 3) != 4
+		, "%s convenience extrema mismatch. max:%i, min:%i, offset max:%i, offset min:%i."
+		, ::llc::get_type_namep<T>(), iMaximum, iMinimum, values.max(transform, 3), values.min(transform, 3)
+		);
+
+	T singleData[1] = {T(5)};
+	cnst ::llc::view<T> single{singleData};
+	maximum = 999;
+	minimum = -999;
+	iMaximum = single.max(maximum, transform);
+	iMinimum = single.min(minimum, transform);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EXTREMA_SINGLE, iMaximum || maximum != 5 || iMinimum || minimum != 5 || single.max(transform) || single.min(transform)
+		, "%s single extrema mismatch. max index:%i, max:%" LLC_FMT_S3 ", min index:%i, min:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), iMaximum, maximum, iMinimum, minimum
+		);
+
+	cnst ::llc::view<T> empty;
+	maximum = 123;
+	minimum = 456;
+	::llc::u2_t transformed = 0;
+	::llc::FTransform<::llc::s3_t, cnst T&> countTransform = [&transformed](cnst T & value) { ++transformed; return (::llc::s3_t)value; };
+	::llc::setupLogCallbacks(0, 0);
+	iMaximum = empty.max(maximum, countTransform);
+	iMinimum = empty.min(minimum, countTransform);
+	cnst ::llc::err_t convenienceMaximum = empty.max(countTransform);
+	cnst ::llc::err_t convenienceMinimum = empty.min(countTransform);
+	::llc::setupDefaultLogCallbacks();
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EXTREMA_EMPTY, iMaximum != -1 || iMinimum != -1 || maximum != 123 || minimum != 456 || transformed || convenienceMaximum != -1 || convenienceMinimum != -1
+		, "%s empty extrema mismatch. max index:%i, min index:%i, max:%" LLC_FMT_S3 ", min:%" LLC_FMT_S3 ", transformed:%u."
+		, ::llc::get_type_namep<T>(), iMaximum, iMinimum, maximum, minimum, transformed
+		);
+	return 0;
+}
+
+tplt<tpnm T>
 sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
 #ifdef LLC_WINDOWS
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { cnst ::llc::view<T> invalid{(T*)0, 1}; (void)invalid; })
@@ -722,6 +851,8 @@ sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testForEach<T>(errors));
 	if_fail_fe(testEnumerate<T>(errors));
 	if_fail_fe(testTraversalFailures<T>(errors));
+	if_fail_fe(testFind<T>(errors));
+	if_fail_fe(testExtrema<T>(errors));
 	return testInvalidConstruction<T>(errors);
 }
 
