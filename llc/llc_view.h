@@ -44,18 +44,17 @@ namespace llc
 		// Operators
 		inxp	oper			view<TCnst>		()									csnx	{ rtrn {Data, Count}; }
 		T&						oper[]			(u2_t index)								{
-			static T dymmy = {};
-			rves_if(dymmy, 0 == Data);
-			gthrow_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_null_te(Data);
+			if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn Data[index];
 		}
-		cnst T&					operator[]		(u2_t index)						cnst	{
-			gsthrow_if(0 == Data);
-			gthrow_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+		cnst T&					oper[]			(u2_t index)						cnst	{
+			if_null_te(Data);
+			if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn Data[index];
 		}
-		bool					operator!=		(TCVCs & other)	cnst						{ rtrn  !operator==(other); } // I had to add this for the android build not supporting C++20.
-		bool					operator==		(TCVCs & other)	cnst						{
+		bool					oper!=			(TCVCs & other)	cnst						{ rtrn  !operator==(other); } // I had to add this for the android build not supporting C++20.
+		bool					oper==			(TCVCs & other)	cnst						{
 			if(this->size() != other.size())
 				rtrn false;
 			if(this->begin() == other.begin())

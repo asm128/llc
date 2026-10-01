@@ -21,6 +21,16 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_INVALID_OFFSET		, 14, "slice() accep
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_INVALID_COUNT		, 15, "slice() accepted a count beyond the remaining source range.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_FAILURE_STATE		, 16, "A failed slice() modified its output view.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_EMPTY			, 17, "Slicing a default empty view did not produce a default empty range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SUBSCRIPT_READ			, 18, "operator[] did not read the selected element.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SUBSCRIPT_WRITE			, 19, "Mutable operator[] did not update the selected element.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, INVALID_SUBSCRIPT			, 20, "operator[] accepted an index at or beyond the view size.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EMPTY_SUBSCRIPT			, 21, "operator[] accepted an element access on a default empty view.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_IDENTITY			, 22, "Equal views over the same range compared different.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_CONTENT			, 23, "Views over independent equal contents compared different.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_VALUE			, 24, "Views containing a different value compared equal.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_SIZE			, 25, "Views with different element counts compared equal.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_EMPTY			, 26, "Empty views with different boundary pointers compared different.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, INEQUALITY_SYMMETRY		, 27, "operator!= was not the inverse of operator==.");
 
 tplt<tpnm T>
 sttc ::llc::err_t testRepresentation(ATestError & errors) {
@@ -218,6 +228,90 @@ sttc ::llc::err_t testConstSlice(ATestError & errors) {
 }
 
 tplt<tpnm T>
+sttc ::llc::err_t testSubscript(ATestError & errors) {
+	T data[4] = {T(1), T(2), T(3), T(4)};
+	::llc::view<T> mutableView{data};
+	cnst ::llc::view<T> & constView = mutableView;
+	for(::llc::u2_t iElement = 0; iElement < ::llc::size(data); ++iElement) {
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SUBSCRIPT_READ, mutableView[iElement] != data[iElement]
+			, "%s mutable subscript mismatch. index:%u, value:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+			, ::llc::get_type_namep<T>(), iElement, ::llc::s3_t(mutableView[iElement]), ::llc::s3_t(data[iElement])
+			);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SUBSCRIPT_READ, constView[iElement] != data[iElement]
+			, "%s const subscript mismatch. index:%u, value:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+			, ::llc::get_type_namep<T>(), iElement, ::llc::s3_t(constView[iElement]), ::llc::s3_t(data[iElement])
+			);
+	}
+	mutableView[2] = T(9);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SUBSCRIPT_WRITE, data[2] != T(9) || mutableView[2] != T(9) || constView[2] != T(9)
+		, "%s mutable subscript write mismatch. storage:%" LLC_FMT_S3 ", mutable:%" LLC_FMT_S3 ", const:%" LLC_FMT_S3 "."
+		, ::llc::get_type_namep<T>(), ::llc::s3_t(data[2]), ::llc::s3_t(mutableView[2]), ::llc::s3_t(constView[2])
+		);
+#ifdef LLC_WINDOWS
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)mutableView[mutableView.size()]; })
+		, "%s mutable view accepted index:%u at size:%u."
+		, ::llc::get_type_namep<T>(), mutableView.size(), mutableView.size()
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)constView[constView.size()]; })
+		, "%s const view accepted index:%u at size:%u."
+		, ::llc::get_type_namep<T>(), constView.size(), constView.size()
+		);
+	::llc::view<T> empty;
+	cnst ::llc::view<T> constEmpty;
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_SUBSCRIPT, !testThrows([&]() { (void)empty[0]; })
+		, "%s mutable default empty view accepted index:0."
+		, ::llc::get_type_namep<T>()
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_SUBSCRIPT, !testThrows([&]() { (void)constEmpty[0]; })
+		, "%s const default empty view accepted index:0."
+		, ::llc::get_type_namep<T>()
+		);
+#endif
+	return 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testEquality(ATestError & errors) {
+	T valuesA[4] = {T(1), T(2), T(3), T(4)};
+	T valuesB[4] = {T(1), T(2), T(3), T(4)};
+	T valuesDifferent[4] = {T(1), T(2), T(3), T(5)};
+	::llc::view<T> viewA{valuesA};
+	::llc::view<T> aliasA{valuesA};
+	::llc::view<T> viewB{valuesB};
+	::llc::view<T> viewDifferent{valuesDifferent};
+	::llc::view<T> viewShort{3U, valuesA};
+
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EQUALITY_IDENTITY, viewA != aliasA || !(viewA == aliasA)
+		, "%s same-range views compared different. left:%p, right:%p, size:%u."
+		, ::llc::get_type_namep<T>(), (void*)viewA.begin(), (void*)aliasA.begin(), viewA.size()
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EQUALITY_CONTENT, viewA != viewB || !(viewA == viewB)
+		, "%s equal-content views compared different. left:%p, right:%p, size:%u."
+		, ::llc::get_type_namep<T>(), (void*)viewA.begin(), (void*)viewB.begin(), viewA.size()
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EQUALITY_VALUE, viewA == viewDifferent || !(viewA != viewDifferent)
+		, "%s different-content views compared equal. size:%u."
+		, ::llc::get_type_namep<T>(), viewA.size()
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EQUALITY_SIZE, viewA == viewShort || !(viewA != viewShort)
+		, "%s different-size views compared equal. left size:%u, right size:%u."
+		, ::llc::get_type_namep<T>(), viewA.size(), viewShort.size()
+		);
+	::llc::view<T> emptyDefault;
+	::llc::view<T> emptyAtData{0U, valuesA};
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EQUALITY_EMPTY, emptyDefault != emptyAtData || !(emptyDefault == emptyAtData)
+		, "%s empty views compared different. left:%p, right:%p."
+		, ::llc::get_type_namep<T>(), (void*)emptyDefault.begin(), (void*)emptyAtData.begin()
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INEQUALITY_SYMMETRY
+		, (viewA == viewB) == (viewA != viewB) || (viewA == viewDifferent) == (viewA != viewDifferent) || (viewA == viewShort) == (viewA != viewShort)
+		, "%s equality and inequality operators disagreed."
+		, ::llc::get_type_namep<T>()
+		);
+	return 0;
+}
+
+tplt<tpnm T>
 sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
 #ifdef LLC_WINDOWS
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { cnst ::llc::view<T> invalid{(T*)0, 1}; (void)invalid; })
@@ -235,6 +329,8 @@ sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testRepresentation<T>(errors));
 	if_fail_fe(testMutableSlice<T>(errors));
 	if_fail_fe(testConstSlice<T>(errors));
+	if_fail_fe(testSubscript<T>(errors));
+	if_fail_fe(testEquality<T>(errors));
 	return testInvalidConstruction<T>(errors);
 }
 
