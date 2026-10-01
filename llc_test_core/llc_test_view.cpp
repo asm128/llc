@@ -31,6 +31,15 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_VALUE			, 24, "Views containing a
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_SIZE			, 25, "Views with different element counts compared equal.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_EMPTY			, 26, "Empty views with different boundary pointers compared different.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, INEQUALITY_SYMMETRY		, 27, "operator!= was not the inverse of operator==.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, BYTE_COUNT				, 28, "byte_count() did not report the storage occupied by the view elements.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, BIT_COUNT				, 29, "bit_count() did not report eight times the byte count.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MUTABLE_CHAR_VIEW			, 30, "c() did not expose the complete mutable character representation.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MUTABLE_BYTE_VIEW			, 31, "u8() did not expose the complete mutable byte representation.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, CONST_CHAR_VIEW			, 32, "cc() did not expose the complete const character representation.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, CONST_BYTE_VIEW			, 33, "Const u8() did not expose the complete const byte representation.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, CONST_BYTE_ALIAS			, 34, "cu8() did not match the const byte representation.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MUTABLE_REPRESENTATION		, 35, "A write through a mutable representation view did not update the backing storage.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EMPTY_REPRESENTATION		, 36, "A representation projection did not preserve an empty view boundary.");
 
 tplt<tpnm T>
 sttc ::llc::err_t testRepresentation(ATestError & errors) {
@@ -312,6 +321,73 @@ sttc ::llc::err_t testEquality(ATestError & errors) {
 }
 
 tplt<tpnm T>
+sttc ::llc::err_t testRepresentationViews(ATestError & errors) {
+	T data[3] = {};
+	::llc::view<T> mutableView{data};
+	cnst ::llc::view<T> & constView = mutableView;
+	::llc::u2_c expectedBytes = szof(data);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_BYTE_COUNT, mutableView.byte_count() != expectedBytes || constView.byte_count() != expectedBytes || ::llc::byte_count(mutableView) != expectedBytes
+		, "%s byte count mismatch. mutable:%u, const:%u, free:%u, expected:%u."
+		, ::llc::get_type_namep<T>(), mutableView.byte_count(), constView.byte_count(), ::llc::byte_count(mutableView), expectedBytes
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_BIT_COUNT, mutableView.bit_count() != expectedBytes * 8ULL || constView.bit_count() != expectedBytes * 8ULL
+		, "%s bit count mismatch. mutable:%" LLC_FMT_U3 ", const:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
+		, ::llc::get_type_namep<T>(), mutableView.bit_count(), constView.bit_count(), ::llc::u3_t(expectedBytes * 8ULL)
+		);
+
+	::llc::view<::llc::sc_t> chars = mutableView.c();
+	::llc::view<::llc::u0_t> bytes = mutableView.u8();
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_CHAR_VIEW, chars.begin() != (::llc::sc_t*)data || chars.size() != expectedBytes
+		, "%s mutable character view mismatch. begin:%p, expected:%p, size:%u, expected:%u."
+		, ::llc::get_type_namep<T>(), (void*)chars.begin(), (void*)data, chars.size(), expectedBytes
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_BYTE_VIEW, bytes.begin() != (::llc::u0_t*)data || bytes.size() != expectedBytes
+		, "%s mutable byte view mismatch. begin:%p, expected:%p, size:%u, expected:%u."
+		, ::llc::get_type_namep<T>(), (void*)bytes.begin(), (void*)data, bytes.size(), expectedBytes
+		);
+	chars[0] = 0x2A;
+	bytes[expectedBytes - 1] = 0x5A;
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_REPRESENTATION, ((::llc::u0_t*)data)[0] != 0x2A || ((::llc::u0_t*)data)[expectedBytes - 1] != 0x5A
+		, "%s mutable representation write mismatch. first:%u, last:%u."
+		, ::llc::get_type_namep<T>(), ((::llc::u0_t*)data)[0], ((::llc::u0_t*)data)[expectedBytes - 1]
+		);
+
+	::llc::view<::llc::sc_c> constChars = constView.cc();
+	::llc::view<::llc::u0_c> constBytes = constView.u8();
+	::llc::view<::llc::u0_c> constByteAlias = constView.cu8();
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_CONST_CHAR_VIEW, constChars.begin() != (::llc::sc_c*)data || constChars.size() != expectedBytes || (::llc::u0_t)constChars[0] != 0x2A
+		, "%s const character view mismatch. begin:%p, expected:%p, size:%u, expected:%u, first:%u."
+		, ::llc::get_type_namep<T>(), (cnst void*)constChars.begin(), (cnst void*)data, constChars.size(), expectedBytes, (::llc::u0_t)constChars[0]
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_CONST_BYTE_VIEW, constBytes.begin() != (::llc::u0_c*)data || constBytes.size() != expectedBytes || constBytes[expectedBytes - 1] != 0x5A
+		, "%s const byte view mismatch. begin:%p, expected:%p, size:%u, expected:%u, last:%u."
+		, ::llc::get_type_namep<T>(), (cnst void*)constBytes.begin(), (cnst void*)data, constBytes.size(), expectedBytes, constBytes[expectedBytes - 1]
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_CONST_BYTE_ALIAS, constByteAlias.begin() != constBytes.begin() || constByteAlias.size() != constBytes.size()
+		, "%s const byte aliases differ. u8 begin:%p, cu8 begin:%p, u8 size:%u, cu8 size:%u."
+		, ::llc::get_type_namep<T>(), (cnst void*)constBytes.begin(), (cnst void*)constByteAlias.begin(), constBytes.size(), constByteAlias.size()
+		);
+
+	::llc::view<T> nullEmpty;
+	cnst ::llc::view<T> & constNullEmpty = nullEmpty;
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_REPRESENTATION
+		, nullEmpty.c().size() || nullEmpty.c().begin() || nullEmpty.u8().size() || nullEmpty.u8().begin()
+		|| constNullEmpty.cc().size() || constNullEmpty.cc().begin() || constNullEmpty.u8().size() || constNullEmpty.u8().begin() || constNullEmpty.cu8().size() || constNullEmpty.cu8().begin()
+		, "%s null-empty representation mismatch."
+		, ::llc::get_type_namep<T>()
+		);
+	::llc::view<T> boundaryEmpty{(T*)data, 0};
+	cnst ::llc::view<T> & constBoundaryEmpty = boundaryEmpty;
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_REPRESENTATION
+		, boundaryEmpty.c().size() || boundaryEmpty.c().begin() != (::llc::sc_t*)data || boundaryEmpty.u8().size() || boundaryEmpty.u8().begin() != (::llc::u0_t*)data
+		|| constBoundaryEmpty.cc().size() || constBoundaryEmpty.cc().begin() != (::llc::sc_c*)data || constBoundaryEmpty.u8().size() || constBoundaryEmpty.u8().begin() != (::llc::u0_c*)data || constBoundaryEmpty.cu8().size() || constBoundaryEmpty.cu8().begin() != (::llc::u0_c*)data
+		, "%s boundary-empty representation mismatch. boundary:%p."
+		, ::llc::get_type_namep<T>(), (void*)data
+		);
+	return 0;
+}
+
+tplt<tpnm T>
 sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
 #ifdef LLC_WINDOWS
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { cnst ::llc::view<T> invalid{(T*)0, 1}; (void)invalid; })
@@ -331,6 +407,7 @@ sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testConstSlice<T>(errors));
 	if_fail_fe(testSubscript<T>(errors));
 	if_fail_fe(testEquality<T>(errors));
+	if_fail_fe(testRepresentationViews<T>(errors));
 	return testInvalidConstruction<T>(errors);
 }
 
