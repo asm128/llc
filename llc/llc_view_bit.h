@@ -74,7 +74,7 @@ namespace llc
 		inxp				view_bit		()								nxpt	= default;
 		inline				view_bit		(T * data, u2_t bitCount)				: Data(data), Count(bitCount) { if_true_tef(bitCount && 0 == data, "bitCount(%" LLC_FMT_U2 ")", bitCount); }
 		tplN0u	inxp		view_bit		(T (&data)[N])					nxpt	: Data(data), Count(N * ELEMENT_BITS)								{}
-		tplN0u	inln		view_bit		(T (&data)[N], u2_t bitCount)			: Data(data), Count(::llc::min(u2_t(N * ELEMENT_BITS), bitCount))	{ if_true_tef(bitCount > (N * ELEMENT_BITS), "max(%" LLC_FMT_U2 "), bitCount(%" LLC_FMT_U2 ")", N * ELEMENT_BITS, bitCount); }
+		tplN0u	inln		view_bit		(u2_t bitCount, T (&data)[N])			: Data(data), Count(::llc::min(u2_t(N * ELEMENT_BITS), bitCount))	{ if_true_tef(bitCount > (N * ELEMENT_BITS), "max(%" LLC_FMT_U2 "), bitCount(%" LLC_FMT_U2 ")", N * ELEMENT_BITS, bitCount); }
 		// Operators
 		bit_proxy<T>		oper[]		(u2_t index)			{ if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count); u2_c offsetRow = index / ELEMENT_BITS, offsetBit = index % ELEMENT_BITS; return {Data[offsetRow], (u0_t)offsetBit}; }
 		bool				oper[]		(u2_t index)	cnst	{ if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count); u2_c offsetRow = index / ELEMENT_BITS, offsetBit = index % ELEMENT_BITS; return Data[offsetRow] & (1ULL << offsetBit); }

@@ -26,6 +26,12 @@ GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, RANDOM_ITERATOR_VALUE	, 14, "A randomi
 GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, RANDOM_END_POSITION		, 15, "A randomized view produced the wrong logical or storage end.");
 GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, RANDOM_DECREMENT			, 16, "Decrementing a randomized end produced the wrong final bit.");
 GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, RANDOM_PROXY_WRITE		, 17, "A randomized mutable bit proxy did not update its selected bit.");
+GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, REVERSE_RESULT			, 18, "reverse_bits() reported an unexpected result.");
+GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, REVERSE_VALUE			, 19, "reverse_bits() produced the wrong logical bit order.");
+GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, REVERSE_OUTSIDE			, 20, "reverse_bits() modified bits outside the logical view.");
+GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, INVALID_CONSTRUCTION		, 21, "view_bit accepted invalid backing storage or an excessive bit count.");
+GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, INVALID_SUBSCRIPT		, 22, "view_bit accepted an out-of-range mutable or const subscript.");
+GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, INVALID_ITERATOR			, 23, "A bit iterator accepted an invalid boundary operation.");
 
 stxp ::llc::u3_t BIT_RANDOM_SEED	= 0x4249545649455753ULL;
 stxp ::llc::u2_t BIT_RANDOM_COUNT	= 128;
@@ -213,6 +219,113 @@ sttc ::llc::err_t testRandom(ATestError & errors) {
 }
 
 tplt<tpnm T>
+sttc ::llc::err_t testReverseBits(ATestError & errors) {
+	stxp ::llc::u2_t ELEMENT_BITS	= szof(T) * 8;
+	T data[2]		= {T(0x5AU), T(0xC3U)};
+	T original[2]	= {data[0], data[1]};
+	::llc::u2_c bitCount = ELEMENT_BITS + 3;
+	::llc::view_bit<T> bits{data, bitCount};
+	cnst ::llc::err_t result = ::llc::reverse_bits(bits);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_RESULT, result
+		, "%u-bit reverse_bits() returned:%i for %u bits."
+		, ELEMENT_BITS, result, bitCount
+		);
+	for(::llc::u2_t iBit = 0; iBit < bitCount; ++iBit) {
+		::llc::u2_c sourceBit = bitCount - 1 - iBit;
+		cnst bool expected = 0 != (original[sourceBit / ELEMENT_BITS] & (T(1) << (sourceBit % ELEMENT_BITS)));
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_VALUE, bool(bits[iBit]) != expected
+			, "%u-bit reverse mismatch. bit count:%u, index:%u, value:%u, expected:%u."
+			, ELEMENT_BITS, bitCount, iBit, ::llc::u2_t(bool(bits[iBit])), ::llc::u2_t(expected)
+			);
+	}
+	for(::llc::u2_t iBit = bitCount; iBit < ::llc::size(data) * ELEMENT_BITS; ++iBit) {
+		cnst bool current = 0 != (data[iBit / ELEMENT_BITS] & (T(1) << (iBit % ELEMENT_BITS)));
+		cnst bool expected = 0 != (original[iBit / ELEMENT_BITS] & (T(1) << (iBit % ELEMENT_BITS)));
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_OUTSIDE, current != expected
+			, "%u-bit reverse modified an outside bit. bit count:%u, index:%u, value:%u, expected:%u."
+			, ELEMENT_BITS, bitCount, iBit, ::llc::u2_t(current), ::llc::u2_t(expected)
+			);
+	}
+	T unchanged = T(0xA5U);
+	cnst T expectedUnchanged = unchanged;
+	::llc::view_bit<T> empty{&unchanged, 0};
+	cnst ::llc::err_t emptyResult = ::llc::reverse_bits(empty);
+	::llc::view_bit<T> single{&unchanged, 1};
+	cnst ::llc::err_t singleResult = ::llc::reverse_bits(single);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_RESULT, emptyResult || singleResult
+		, "%u-bit empty/single reverse result mismatch. empty:%i, single:%i."
+		, ELEMENT_BITS, emptyResult, singleResult
+		);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_OUTSIDE, unchanged != expectedUnchanged
+		, "%u-bit empty or single-bit reverse modified its backing value. value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
+		, ELEMENT_BITS, ::llc::u3_t(unchanged), ::llc::u3_t(expectedUnchanged)
+		);
+	return 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testInvalid(ATestError & errors) {
+#ifdef LLC_WINDOWS
+	stxp ::llc::u2_t ELEMENT_BITS = szof(T) * 8;
+	T data[2] = {};
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { ::llc::view_bit<T> invalid{(T*)0, 1}; (void)invalid; })
+		, "%u-bit view accepted a null pointer with a nonzero count."
+		, ELEMENT_BITS
+		);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { ::llc::view_bit<T> invalid{::llc::u2_t(::llc::size(data) * ELEMENT_BITS + 1), data}; (void)invalid; })
+		, "%u-bit array view accepted a count beyond its %u-bit capacity."
+		, ELEMENT_BITS, ::llc::u2_t(::llc::size(data) * ELEMENT_BITS)
+		);
+	::llc::view_bit<T> bits{data, 1};
+	cnst ::llc::view_bit<T> readOnly{data, 1};
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)bits[bits.size()]; })
+		, "%u-bit mutable view accepted index:%u for size:%u."
+		, ELEMENT_BITS, bits.size(), bits.size()
+		);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)readOnly[readOnly.size()]; })
+		, "%u-bit const view accepted index:%u for size:%u."
+		, ELEMENT_BITS, readOnly.size(), readOnly.size()
+		);
+	auto mutableEnd = bits.end();
+	cnst auto constEnd = readOnly.end();
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { (void)*mutableEnd; })
+		, "%u-bit mutable iterator dereferenced end index:%u, limit:%u."
+		, ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit()
+		);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { (void)*constEnd; })
+		, "%u-bit const iterator dereferenced end index:%u, limit:%u."
+		, ELEMENT_BITS, constEnd.Index(), constEnd.Limit()
+		);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { (void)(bool)mutableEnd; })
+		, "%u-bit iterator converted end index:%u to bool."
+		, ELEMENT_BITS, mutableEnd.Index()
+		);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { ++mutableEnd; })
+		, "%u-bit iterator incremented end index:%u, limit:%u."
+		, ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit()
+		);
+	auto mutableBegin = bits.begin();
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { --mutableBegin; })
+		, "%u-bit iterator decremented begin index:%u."
+		, ELEMENT_BITS, mutableBegin.Index()
+		);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { mutableEnd = true; })
+		, "%u-bit iterator assigned through end index:%u, limit:%u."
+		, ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit()
+		);
+	::llc::view_bit<T> empty;
+	auto emptyBegin = empty.begin();
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { (void)*emptyBegin; })
+		, "%u-bit default empty iterator was dereferenceable."
+		, ELEMENT_BITS
+		);
+#else
+	(void)errors;
+#endif
+	return 0;
+}
+
+tplt<tpnm T>
 sttc ::llc::err_t testType(ATestError & errors) {
 	T data[2] = {(T)0xA5U, (T)0x02U};
 	if_fail_fe(testPartial			(errors, data));
@@ -221,16 +334,20 @@ sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testIteratorPosition<T>	(errors));
 	if_fail_fe(testConstIteration		(errors, data));
 	if_fail_fe(testPartialWidth<T>		(errors));
+	if_fail_fe(testReverseBits<T>		(errors));
+	if_fail_fe(testInvalid<T>			(errors));
 	return testRandom<T>(errors);
 }
 
 tplt<tpnm T>
 sttc ::llc::err_t testTypeLogged(ATestError & errors) {
+	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testType<T>(errors));
 	cnst ::llc::u2_t typeFailures = testErrorCount(errors) - failureCount;
-	if(typeFailures) error_printf("%2u-bit suite completed with %u failures.", ::llc::u2_t(szof(T) * 8), typeFailures);
-	else always_printf("%2u-bit suite OK.", ::llc::u2_t(szof(T) * 8));
+	cnst ::llc::u2_t typeChecks = testCheckCount(errors) - checkCount;
+	if(typeFailures) error_printf("%2u-bit suite completed: %u/%u checks passed, %u failed.", ::llc::u2_t(szof(T) * 8), typeChecks - typeFailures, typeChecks, typeFailures);
+	else always_printf("%2u-bit suite OK: %u checks passed.", ::llc::u2_t(szof(T) * 8), typeChecks);
 	return 0;
 }
 

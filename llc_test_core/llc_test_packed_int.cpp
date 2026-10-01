@@ -19,6 +19,7 @@ GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, BYTE_VIEW			, 7, "The serialization
 GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, LOAD_RESULT		, 8, "loadUInt() did not report the packed byte width.");
 GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, LOAD_VALUE			, 9, "loadUInt() did not reconstruct the packed source value.");
 GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, LOAD_CONSUMPTION	, 10, "loadUInt() did not consume exactly one packed integer.");
+GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, INVALID_VALUE		, 11, "packed_uint<> accepted a value outside its representable range.");
 
 stxp ::llc::u3_t PACKED_RANDOM_SEED	= 0x5041434B45445549ULL;
 stxp ::llc::u2_t PACKED_RANDOM_COUNT	= 256;
@@ -30,6 +31,22 @@ sttc ::llc::err_t testDefault(ATestError & errors) {
 		, "%u-bit default mismatch. tail width:%u, multiplier:%u, value width:%u, value:%" LLC_FMT_U3 "."
 		, ::llc::u2_t(szof(T) * 8), ::llc::u2_t(packed.TailWidth), ::llc::u2_t(packed.Multiplier), ::llc::u2_t(packed.ValueWidth()), ::llc::u3_t(packed.Value())
 		);
+	return 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testInvalidValue(ATestError & errors) {
+#ifdef LLC_WINDOWS
+	stxp ::llc::u0_t WIDTH_FIELD = ::llc::uint_width_field_size<T>();
+	cnst T maximum = T(-1) >> WIDTH_FIELD;
+	cnst T invalid = maximum + 1;
+	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_INVALID_VALUE, !testThrows([&]() { cnst ::llc::packed_uint<T> packed{invalid}; (void)packed; })
+		, "%u-bit packed_uint<> accepted value:%" LLC_FMT_U3 " above maximum:%" LLC_FMT_U3 "."
+		, ::llc::u2_t(szof(T) * 8), ::llc::u3_t(invalid), ::llc::u3_t(maximum)
+		);
+#else
+	(void)errors;
+#endif
 	return 0;
 }
 
@@ -94,6 +111,7 @@ sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c
 tplt<tpnm T>
 sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testDefault<T>(errors));
+	if_fail_fe(testInvalidValue<T>(errors));
 
 	stxp ::llc::u0_t MULTIPLIER_BITS = 8 - ::llc::uint_width_field_size<T>();
 	::llc::u3_t previousMaximum = 0;
@@ -126,11 +144,13 @@ sttc ::llc::err_t testType(ATestError & errors) {
 
 tplt<tpnm T>
 sttc ::llc::err_t testTypeLogged(ATestError & errors) {
+	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testType<T>(errors));
 	cnst ::llc::u2_t typeFailures = testErrorCount(errors) - failureCount;
-	if(typeFailures) error_printf("%2u-bit suite completed with %u failures.", ::llc::u2_t(szof(T) * 8), typeFailures);
-	else always_printf("%2u-bit suite OK.", ::llc::u2_t(szof(T) * 8));
+	cnst ::llc::u2_t typeChecks = testCheckCount(errors) - checkCount;
+	if(typeFailures) error_printf("%2u-bit suite completed: %u/%u checks passed, %u failed.", ::llc::u2_t(szof(T) * 8), typeChecks - typeFailures, typeChecks, typeFailures);
+	else always_printf("%2u-bit suite OK: %u checks passed.", ::llc::u2_t(szof(T) * 8), typeChecks);
 	return 0;
 }
 

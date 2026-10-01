@@ -99,15 +99,15 @@ namespace llc
 	struct packed_uint { 
 		static_assert(_tInt(-1) > _tInt(0), "packed_uint<> requires an unsigned integer type.");
 
-		tydf _tInt	T;
-		tydf cnst T	TConst;
+		tydf _tInt		T;
+		tydf cnst T		TConst;
 
-		TConst		TailWidth		: widthField;
-		TConst		Multiplier		: 8 - widthField;
-		TConst		Tail			: max((u0_t)1U, u0_t((szof(T) - 1) * 8));
+		TConst			TailWidth		: widthField;
+		TConst			Multiplier		: 8 - widthField;
+		TConst			Tail			: max((u0_t)1U, u0_t((szof(T) - 1) * 8));
 
-		inxp			packed_uint		()												: TailWidth{}, Multiplier{}, Tail{} {}
-		inxp			packed_uint		(TConst & value)								: TailWidth{(T)uint_tail_width(value)}, Multiplier{(T)uint_tail_multiplier(value)}, Tail{(T)uint_tail_base(value)} {}
+		inxp			packed_uint		()											: TailWidth{}, Multiplier{}, Tail{} {}
+		inxp			packed_uint		(TConst & value)							: TailWidth{(T)uint_tail_width(value)}, Multiplier{(T)uint_tail_multiplier(value)}, Tail{(T)uint_tail_base(value)} { if(value > (T(-1) >> widthField)) throw "packed_uint<> value exceeds its representable range."; }
 		inxp			packed_uint		(u0_t tailWidth, u0_t multiplier, T tail)	: TailWidth(tailWidth), Multiplier(multiplier), Tail(tail) {}
 
 		tplt<tpnm TView>

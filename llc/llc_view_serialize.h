@@ -37,6 +37,7 @@ namespace llc
 		u2_t					elementCount	= 0;
 		err_t					counterWidth	= 0;
 		if_fail_fe(counterWidth	= loadPacked(byteInput, elementCount));
+		if_true_fef(elementCount > byteInput.size() / szof(T), LLC_FMT_GT_U2, elementCount, byteInput.size() / szof(T));
 		u2_c					dataSize		= szof(T) * elementCount;
 		if_true_fef(dataSize > byteInput.size(), LLC_FMT_GT_U2, dataSize, byteInput.size());
 		headerToRead			= {elementCount ? (T*)byteInput.begin() : 0, elementCount};
