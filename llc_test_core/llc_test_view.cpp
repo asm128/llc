@@ -3,24 +3,24 @@
 #include "llc_test_core.h"
 
 GDEFINE_ENUM_TYPE(VIEW_TEST_RESULT, ::llc::u0_t);
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, OK					, 0, "All view tests passed.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, DEFAULT_STATE			, 1, "A default view was not empty with null boundaries.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, OK						, 0, "All view tests passed.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, DEFAULT_STATE				, 1, "A default view was not empty with null boundaries.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ARRAY_CONSTRUCTION		, 2, "An array-backed view did not preserve its storage and full element count.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, COUNT_FIRST_CONSTRUCTION	, 3, "A count-first array view did not clip its element count to the backing array.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, ARRAY_FIRST_CONSTRUCTION	, 4, "An array-first view did not preserve its explicitly checked element count.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, POINTER_CONSTRUCTION		, 5, "A pointer-backed view did not preserve its supplied range.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EMPTY_RANGE			, 6, "A zero-length view did not preserve equal begin and end boundaries.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EMPTY_RANGE				, 6, "A zero-length view did not preserve equal begin and end boundaries.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, CONST_CONVERSION			, 7, "Converting a mutable view to a const view changed its range.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, INVALID_CONSTRUCTION		, 8, "view<> accepted null storage with a nonzero element count.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_FULL				, 9, "slice() did not reproduce the full source range.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_REMAINDER			, 10, "slice() did not produce the expected range after an offset.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_COUNT			, 11, "slice() did not honor an explicit valid element count.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_END				, 12, "slice() at the exact end did not produce an empty one-past-end range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_COUNT				, 11, "slice() did not honor an explicit valid element count.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_END					, 12, "slice() at the exact end did not produce an empty one-past-end range.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_SELF				, 13, "slice() could not advance and shorten its own view.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_INVALID_OFFSET		, 14, "slice() accepted an offset beyond the source range.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_INVALID_COUNT		, 15, "slice() accepted a count beyond the remaining source range.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_FAILURE_STATE		, 16, "A failed slice() modified its output view.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_EMPTY			, 17, "Slicing a default empty view did not produce a default empty range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_EMPTY				, 17, "Slicing a default empty view did not produce a default empty range.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SUBSCRIPT_READ			, 18, "operator[] did not read the selected element.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SUBSCRIPT_WRITE			, 19, "Mutable operator[] did not update the selected element.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, INVALID_SUBSCRIPT			, 20, "operator[] accepted an index at or beyond the view size.");
@@ -28,18 +28,29 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EMPTY_SUBSCRIPT			, 21, "operator[] accept
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_IDENTITY			, 22, "Equal views over the same range compared different.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_CONTENT			, 23, "Views over independent equal contents compared different.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_VALUE			, 24, "Views containing a different value compared equal.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_SIZE			, 25, "Views with different element counts compared equal.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_SIZE				, 25, "Views with different element counts compared equal.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EQUALITY_EMPTY			, 26, "Empty views with different boundary pointers compared different.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, INEQUALITY_SYMMETRY		, 27, "operator!= was not the inverse of operator==.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, BYTE_COUNT				, 28, "byte_count() did not report the storage occupied by the view elements.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, BIT_COUNT				, 29, "bit_count() did not report eight times the byte count.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, BIT_COUNT					, 29, "bit_count() did not report eight times the byte count.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MUTABLE_CHAR_VIEW			, 30, "c() did not expose the complete mutable character representation.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MUTABLE_BYTE_VIEW			, 31, "u8() did not expose the complete mutable byte representation.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, CONST_CHAR_VIEW			, 32, "cc() did not expose the complete const character representation.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, CONST_BYTE_VIEW			, 33, "Const u8() did not expose the complete const byte representation.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, CONST_BYTE_ALIAS			, 34, "cu8() did not match the const byte representation.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MUTABLE_REPRESENTATION		, 35, "A write through a mutable representation view did not update the backing storage.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, MUTABLE_REPRESENTATION	, 35, "A write through a mutable representation view did not update the backing storage.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EMPTY_REPRESENTATION		, 36, "A representation projection did not preserve an empty view boundary.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FILL_FULL					, 37, "fill() did not replace every element in the view.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FILL_RANGE				, 38, "fill() did not restrict replacement to the requested range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FILL_CLIPPED				, 39, "fill() did not clip its stop position to the view size.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FILL_EMPTY_RANGE			, 40, "fill() changed storage when given an empty range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FILL_EMPTY_VIEW			, 41, "fill() did not accept an empty view.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERT_ODD				, 42, "revert() did not reverse an odd number of elements.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERT_EVEN				, 43, "revert() did not reverse an even subrange without changing its guards.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERT_EDGE				, 44, "revert() did not accept a single-element or empty view.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERSE_ODD				, 45, "reverse() did not reverse an odd number of elements.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERSE_EVEN				, 46, "reverse() did not reverse an even subrange without changing its guards.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, REVERSE_EDGE				, 47, "reverse() did not accept a single-element or empty view.");
 
 tplt<tpnm T>
 sttc ::llc::err_t testRepresentation(ATestError & errors) {
@@ -387,6 +398,119 @@ sttc ::llc::err_t testRepresentationViews(ATestError & errors) {
 	return 0;
 }
 
+tplt<tpnm T, ::llc::u2_t N>
+sttc ::llc::err_t testMutationValues(ATestError & errors, VIEW_TEST_RESULT result, cnst T (&actual)[N], cnst T (&expected)[N], ::llc::sc_c * operation) {
+	for(::llc::u2_t iElement = 0; iElement < N; ++iElement)
+		LLC_TEST_CHECK(errors, result, actual[iElement] != expected[iElement]
+			, "%s %s mismatch. index:%u, value:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+			, ::llc::get_type_namep<T>(), operation, iElement, ::llc::s3_t(actual[iElement]), ::llc::s3_t(expected[iElement])
+			);
+	return 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testFill(ATestError & errors) {
+	T full[6] = {T(0), T(1), T(2), T(3), T(4), T(5)};
+	T fullExpected[6] = {T(9), T(9), T(9), T(9), T(9), T(9)};
+	::llc::err_t result = ::llc::view<T>{full}.fill(T(9));
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FILL_FULL, result != (::llc::err_t)::llc::size(full)
+		, "%s full fill returned:%i, expected:%u."
+		, ::llc::get_type_namep<T>(), result, ::llc::u2_t(::llc::size(full))
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FILL_FULL, full, fullExpected, "full fill"));
+
+	T ranged[6] = {T(0), T(1), T(2), T(3), T(4), T(5)};
+	T rangedExpected[6] = {T(0), T(8), T(8), T(8), T(4), T(5)};
+	result = ::llc::view<T>{ranged}.fill(T(8), 1, 4);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FILL_RANGE, result != 3
+		, "%s ranged fill returned:%i, expected:3."
+		, ::llc::get_type_namep<T>(), result
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FILL_RANGE, ranged, rangedExpected, "ranged fill"));
+
+	T clipped[6] = {T(0), T(1), T(2), T(3), T(4), T(5)};
+	T clippedExpected[6] = {T(0), T(1), T(2), T(7), T(7), T(7)};
+	result = ::llc::view<T>{clipped}.fill(T(7), 3, 20);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FILL_CLIPPED, result != 3
+		, "%s clipped fill returned:%i, expected:3."
+		, ::llc::get_type_namep<T>(), result
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FILL_CLIPPED, clipped, clippedExpected, "clipped fill"));
+
+	T unchanged[6] = {T(0), T(1), T(2), T(3), T(4), T(5)};
+	T unchangedExpected[6] = {T(0), T(1), T(2), T(3), T(4), T(5)};
+	result = ::llc::view<T>{unchanged}.fill(T(6), 4, 2);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FILL_EMPTY_RANGE, result
+		, "%s empty-range fill returned:%i, expected:0."
+		, ::llc::get_type_namep<T>(), result
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FILL_EMPTY_RANGE, unchanged, unchangedExpected, "empty-range fill"));
+
+	::llc::view<T> nullEmpty;
+	::llc::view<T> boundaryEmpty{(T*)unchanged, 0};
+	cnst ::llc::err_t nullResult = nullEmpty.fill(T(1));
+	cnst ::llc::err_t boundaryResult = boundaryEmpty.fill(T(1));
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FILL_EMPTY_VIEW, nullResult || boundaryResult
+		, "%s empty fill returned a nonzero result. null:%i, boundary:%i."
+		, ::llc::get_type_namep<T>(), nullResult, boundaryResult
+		);
+	return 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testReverse(ATestError & errors) {
+	T odd[5] = {T(0), T(1), T(2), T(3), T(4)};
+	T oddExpected[5] = {T(4), T(3), T(2), T(1), T(0)};
+	::llc::err_t result = ::llc::view<T>{odd}.revert();
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_REVERT_ODD, result
+		, "%s odd revert returned:%i."
+		, ::llc::get_type_namep<T>(), result
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_REVERT_ODD, odd, oddExpected, "odd revert"));
+
+	T even[6] = {T(9), T(1), T(2), T(3), T(4), T(8)};
+	T evenExpected[6] = {T(9), T(4), T(3), T(2), T(1), T(8)};
+	result = ::llc::view<T>{even + 1, 4}.revert();
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_REVERT_EVEN, result
+		, "%s even subrange revert returned:%i."
+		, ::llc::get_type_namep<T>(), result
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_REVERT_EVEN, even, evenExpected, "even subrange revert"));
+
+	T one[1] = {T(5)};
+	T oneExpected[1] = {T(5)};
+	::llc::view<T> nullEmpty;
+	::llc::view<T> boundaryEmpty{one, 0U};
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_REVERT_EDGE, ::llc::view<T>{one}.revert() || nullEmpty.revert() || boundaryEmpty.revert()
+		, "%s edge revert returned a failure."
+		, ::llc::get_type_namep<T>()
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_REVERT_EDGE, one, oneExpected, "single-element revert"));
+
+	T freeOdd[5] = {T(0), T(1), T(2), T(3), T(4)};
+	result = ::llc::reverse(::llc::view<T>{freeOdd});
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_REVERSE_ODD, result
+		, "%s odd reverse returned:%i."
+		, ::llc::get_type_namep<T>(), result
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_REVERSE_ODD, freeOdd, oddExpected, "odd reverse"));
+
+	T freeEven[6] = {T(9), T(1), T(2), T(3), T(4), T(8)};
+	result = ::llc::reverse(::llc::view<T>{freeEven + 1, 4});
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_REVERSE_EVEN, result
+		, "%s even subrange reverse returned:%i."
+		, ::llc::get_type_namep<T>(), result
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_REVERSE_EVEN, freeEven, evenExpected, "even subrange reverse"));
+
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_REVERSE_EDGE, ::llc::reverse(::llc::view<T>{one}) || ::llc::reverse(nullEmpty) || ::llc::reverse(boundaryEmpty)
+		, "%s edge reverse returned a failure."
+		, ::llc::get_type_namep<T>()
+		);
+	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_REVERSE_EDGE, one, oneExpected, "single-element reverse"));
+	return 0;
+}
+
 tplt<tpnm T>
 sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
 #ifdef LLC_WINDOWS
@@ -408,6 +532,8 @@ sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testSubscript<T>(errors));
 	if_fail_fe(testEquality<T>(errors));
 	if_fail_fe(testRepresentationViews<T>(errors));
+	if_fail_fe(testFill<T>(errors));
+	if_fail_fe(testReverse<T>(errors));
 	return testInvalidConstruction<T>(errors);
 }
 

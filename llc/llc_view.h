@@ -100,7 +100,7 @@ namespace llc
 			rtrn 0;
 		}
 
-		inln	err_t			fill			(cnst T & value, u2_t offset = 0, u2_t stop = 0xFFFFFFFFU)										{ for(; offset < ::llc::min(Count, stop); ++offset) Data[offset] = value; rtrn Count; }
+		inln	err_t			fill			(cnst T & value, u2_t offset = 0, u2_t stop = 0xFFFFFFFFU)										{ u2_c offsetStart = offset; for(; offset < ::llc::min(Count, stop); ++offset) Data[offset] = value; rtrn offset - offsetStart; }
 
 		err_t					for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset = 0)								{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
 		err_t					for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset = 0)						cnst	{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
