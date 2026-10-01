@@ -176,6 +176,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="llc_test_core.cpp" />
+	<ClCompile Include="llc_test_cpow.cpp" />
 	<ClCompile Include="llc_test_noise.cpp" />
     <ClCompile Include="llc_test_packed_int.cpp" />
     <ClCompile Include="llc_test_str.cpp" />
