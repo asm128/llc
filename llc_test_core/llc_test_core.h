@@ -64,6 +64,7 @@ bool testThrows(TCall call) {
 #define LLC_TEST_REQUIRE(errors, result, condition, format, ...)	LLC_TEST_CHECK_BASE(errors, result, condition, format, { if_fail_fe(testErrorRecord((errors), (result))); return 0; }, __VA_ARGS__)
 
 ::llc::err_t testArrayStatic		(ATestError & errors);
+::llc::err_t testArrayPod		(ATestError & errors);
 ::llc::err_t testPackedUInt		(ATestError & errors);
 ::llc::err_t testCPow			(ATestError & errors);
 ::llc::err_t testSPRNG			(ATestError & errors);

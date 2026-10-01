@@ -53,23 +53,23 @@ namespace llc
 		tplN0u	TArray&		oper =			(cnst T (&init)[N])										{
 			gsthrow_if(resize(N) != N);
 			memcpy(Data, init, Count * szof(T));
-			*(u1_t*)&Data[Count]		= 0;
+			Data[Count]				= {};
 			return *this;
 		}
 
-		inln	err_t		clear				()										noexcept	{ return Count = 0; }
+		inln	err_t		clear				()										noexcept	{ Count = 0; if(Data) Data[Count] = {}; return Count; }
 		err_t				clear_pointer		()										noexcept	{ safe_llc_free(Data); Data = 0; return Size = Count = 0; }
 		// Returns the new size of the array
 		err_t				pop_back			()										noexcept	{
 			rees_if(0 == Count);
-			*(u1_t*)&Data[--Count]		= 0;
+			Data[--Count]				= {};
 			return Count;
 		}
 		// Returns the new size of the array
 		err_t				pop_back			(T & oldValue)							noexcept	{
 			rees_if(0 == Count);
 			oldValue				= Data[--Count];
-			*(u1_t*)&Data[Count]		= 0;
+			Data[Count]				= {};
 			return Count;
 		}
 		// Returns the index of the pushed value or -1 on failure
@@ -108,7 +108,7 @@ namespace llc
 			u2_c				iFirst				= Count;
 			memcpy(&Data[iFirst], chainToAppend, szof(T) * chainLength);
 			Count					+= chainLength;
-			*(u1_t*)&Data[Count]		= 0;
+			Data[Count]				= {};
 			return iFirst;
 		}
 		err_t				reserve				(u2_t newCount)										{
@@ -119,7 +119,7 @@ namespace llc
 				if(Data)
 					memcpy(newData, Data, this->byte_count());
 					
-				*(u1_t*)&newData[Count]	= 0;
+				newData[Count]			= {};
 				T							* oldData			= Data;
 				Data					= newData;
 				Size					= newSize;
@@ -136,7 +136,7 @@ namespace llc
 			llc_necs(reserve(newCount));
 			Count					= newCount;
 			if(Data)
-				*(u1_t*)&Data[Count]		= 0;
+				Data[Count]				= {};
 			return Count;
 		}
 		// Returns the new size of the array.
@@ -145,7 +145,7 @@ namespace llc
 			if(Data) {
 				for(; Count < newCount; ++Count)
 					Data[Count] = newValue;
-				*(u1_t*)&Data[Count = newCount]	= 0;
+				Data[Count = newCount]	= {};
 			}
 			return Count;
 		}
@@ -172,7 +172,7 @@ namespace llc
 					Data[i + 1]				= Data[i];
 				Data[index]				= newValue;
 			}
-			*(u1_t*)&Data[newCount]	= 0;
+			Data[newCount]			= {};
 			return Count = newCount;
 		}
 		// returns the new size of the list or -1 on failure.
@@ -199,7 +199,7 @@ namespace llc
 					Data[i + chainLength]	= Data[i];
 				memcpy(&Data[index], chainToInsert, chainLength * szof(T));
 			}
-			*(u1_t*)&Data[newCount]	= 0;
+			Data[newCount]			= {};
 			return Count = newCount;
 		}
 		tplt<size_t _chainLength>
@@ -209,7 +209,7 @@ namespace llc
 		err_t				remove_unordered	(u2_t index)											noexcept	{
 			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
 			Data[index]				= Data[--Count];
-			*(u1_t*)&Data[Count]		= 0;
+			Data[Count]				= {};
 			return Count;
 		}
 		// returns the new array size or -1 if failed.
@@ -227,7 +227,7 @@ namespace llc
 				Data[index]				= Data[index + 1];
 				++index;
 			}
-			*(u1_t*)&Data[Count]		= 0;
+			Data[Count]				= {};
 			return Count;
 		}
 	}; // array_pod

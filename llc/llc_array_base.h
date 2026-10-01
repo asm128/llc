@@ -72,7 +72,7 @@ namespace llc
 		static	::llc::error_t	alloc_with_reserve		(u2_c newCount, T* & reserved)	noexcept	{ 
 			u2_t					newSize					= 0;
 			llc_necall(calc_reserve_count(newCount, newSize), "Too large. newCount: %" LLC_FMT_S2 ".", newCount);
-			u2_c				bytesToAllocate			= 2 + szof(T) * newSize;
+			u2_c				bytesToAllocate			= szof(T) * (newSize + 1);
 			if(bool(reserved = (T*)::llc::llc_malloc(bytesToAllocate)))
 				return (::llc::error_t)newSize;
 			error_printf("failed to reserve %" LLC_FMT_U2 " bytes.", bytesToAllocate);
