@@ -21,11 +21,11 @@ namespace llc
 #endif
 #ifndef LLC_ATMEL
 	tplt<u2_t fmtLen, tpnm... TArgs>
-	sttc	void	_llc_debug_printf				(s0_t severity, sc_c * path, u2_t line, sc_c * function, sc_c (&format)[fmtLen], cnst TArgs... args)	{
+	sttc	err_t	_llc_debug_printf				(s0_t severity, sc_c * path, u2_t line, sc_c * function, sc_c (&format)[fmtLen], cnst TArgs... args)	{
 		debug_print_prefix((int8_t)severity, path, line, function);
 #else
 	tplt<tpnm... TArgs>
-	sttc	void	_llc_debug_printf				(sc_c * function, cnst __FlashStringHelper * format, cnst TArgs... args)			{
+	sttc	err_t	_llc_debug_printf				(sc_c * function, cnst __FlashStringHelper * format, cnst TArgs... args)			{
 		base_log_print_F("{");
 		base_log_print(function);
 		base_log_print_F("}:");
@@ -54,7 +54,7 @@ namespace llc
 		if(2 >= severity)
 			::llc::_llc_print_system_errors("", 0);
 #	endif
-		base_log_write(customDynamicString, min(szof(customDynamicString), stringLength + 1U));
+		return base_log_write(customDynamicString, min(szof(customDynamicString), stringLength + 1U));
 #endif
 	}
 
@@ -67,7 +67,7 @@ namespace llc
 #	define llc_debug_printf(severity, format, ...)	::llc::_llc_debug_printf(severity, __FILE__, __LINE__, __FUNCTION__, format, __VA_ARGS__)
 #else
 #	ifdef LLC_ATMEL
-#		define llc_debug_printf(severity, format, ...)	do{ /*base_log_print_F(__FILE__ "(" LLC_TOSTRING(__LINE__) ")");*/ ::llc::_llc_debug_printf(__func__, F(format), ##__VA_ARGS__); } while(0) //::llc::_llc_debug_printf("(" LLC_TOSTRING(__LINE__) ")", "")
+#		define llc_debug_printf(severity, format, ...) ::llc::_llc_debug_printf(__func__, F(format), ##__VA_ARGS__)
 #	else
 #		define llc_debug_printf(severity, format, ...)	::llc::_llc_debug_printf(severity, __FILE__, __LINE__, __func__, format, ##__VA_ARGS__)
 #	endif
