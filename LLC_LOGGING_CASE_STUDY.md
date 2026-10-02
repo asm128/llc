@@ -78,11 +78,13 @@ appState.CommandLineArgs.Positionals[1].cu8()
 
 Lesson: inspect `llc_view.h` and the source type before inventing an adapter.
 
-### Diagnostics versus user-facing output
+### Framework output versus raw C output
 
-The terminal used `fprintf(stderr, ...)` for request failures. That text may be readable, but it is invisible to LLC's configured diagnostic pipeline.
+The terminal used `printf()` and `fprintf(stderr, ...)` directly. That text may be readable, but it is invisible to LLC's configured output pipeline.
 
-Use LLC log functions/macros for failures and operational diagnostics. Keep direct `printf()` only when the text is intentionally the terminal program's product—such as help text or a status report—and should not carry diagnostic prefixes.
+Prefer `always_printf()` for ordinary console text unless a more specific LLC output facility fits better. Use the corresponding LLC severity function or macro for failures and operational diagnostics. This keeps help, status and other intentional console output inside the same callback-capable framework.
+
+If a C-standard boundary is genuinely necessary, prefer `fprintf()` with an explicit stream over implicit `printf()`, but make that choice knowingly: both bypass the LLC framework.
 
 ### Metadata instead of duplicated command knowledge
 
@@ -122,5 +124,6 @@ Therefore:
 - Must an exact negative result be preserved?
 - What values would make the log immediately actionable?
 - Is cleanup required before the control transfer?
-- Is this diagnostic output or deliberate user-facing program output?
+- Which LLC output facility fits this message? Default ordinary console output to `always_printf()`.
+- If raw C output is unavoidable, is the stream explicit and is bypassing the LLC framework intentional?
 - Does an existing view, serialization, enum or event helper already express the operation?

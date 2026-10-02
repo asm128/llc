@@ -29,7 +29,9 @@ This file is operational memory for future work in this repository. Read it befo
   - use the formatted variant when operational values make the failure actionable.
 - Do not guess a compact macro's semantics from one letter. Inspect its alias in `llc_log_level.h`, especially when it matters whether the exact negative result or a generic failure is returned.
 - Preserve cleanup. A macro should compress the diagnostic and branch, not silently skip disconnect/close/reset work. Use a block form when cleanup must precede `continue`, `break` or `return`.
-- Use `error_printf`, `warning_printf`, `info_printf` and `always_printf` for diagnostics so callbacks, timestamps and source context keep working. Direct `printf` may still be correct for intentional user-facing CLI output; direct `fprintf(stderr, ...)` is not a substitute for LLC diagnostics.
+- Prefer `always_printf()` for ordinary console output unless a more specific LLC output facility fits better. This keeps output inside the framework even when it is not an error, warning or informational diagnostic.
+- Use `error_printf`, `warning_printf` and `info_printf` for their corresponding diagnostic levels so callbacks, timestamps and source context keep working.
+- Do not default to `printf()`. If a C-standard output boundary is genuinely required, prefer `fprintf()` with an explicit stream, and recognize that it deliberately bypasses the LLC logging framework.
 - `LLC_LOGGING_CASE_STUDY.md` records a concrete failure of this discipline in the initial `lls`, `lls-l` and `lls-t` implementation, with the exact Git commits and files needed to recover the full before/after evidence.
 
 ## Views and strings
