@@ -30,6 +30,9 @@
 		<ClCompile Include="llc_test_cpow.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_ctti.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_json.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>

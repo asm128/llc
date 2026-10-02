@@ -708,6 +708,9 @@
     <ClInclude Include="llc_cpow.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="llc_ctti.h">
+      <Filter>type</Filter>
+    </ClInclude>
     <ClInclude Include="llc_gpio.h">
       <Filter>base</Filter>
     </ClInclude>
