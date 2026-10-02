@@ -7,22 +7,34 @@
 
 using FTestSuite = ::llc::err_t(*)(ATestError &);
 
-sttc	::llc::err_t	testSuiteRun				(ATestError & results, FTestSuite testSuite, ::llc::sc_c * suiteName) {
+stct STestSuite {
+	FTestSuite		Function;
+	::llc::vcsc_t	Name;
+};
+
+sttc	::llc::err_t	testSuiteRun				(ATestError & results, cnst STestSuite & testSuite) {
 	::llc::u2_c		checkCountBefore	= testCheckCount(results);
 	::llc::u2_c		failureCountBefore	= testErrorCount(results);
 	::llc::STimer	suiteTimer;
-	::llc::err_t	tempResult			= testSuite(results);
+	::llc::err_t	tempResult			= testSuite.Function(results);
 	suiteTimer.Frame();
 
 	::llc::u2_c		checkCount			= testCheckCount(results) - checkCountBefore;
 	::llc::u2_c		failureCount		= testErrorCount(results) - failureCountBefore;
-	if_true_fef(::llc::failed(tempResult), "%s() failed with result:%i after %" LLC_FMT_U3 " us.", suiteName, tempResult, suiteTimer.LastTimeMicroseconds);
-	if_true_fef(failureCount, "%s() completed in %" LLC_FMT_U3 " us: %u/%u checks passed, %u failed.", suiteName, suiteTimer.LastTimeMicroseconds, checkCount - failureCount, checkCount, failureCount);
-	always_printf("%s() result OK in %" LLC_FMT_U3 " us: %u checks passed.", suiteName, suiteTimer.LastTimeMicroseconds, checkCount);
+	if_true_fef(::llc::failed(tempResult), "%.*s() failed with result:%i after %" LLC_FMT_U3 " us.", (int)testSuite.Name.size(), testSuite.Name.begin(), tempResult, suiteTimer.LastTimeMicroseconds);
+	if_true_fef(failureCount, "%.*s() completed in %" LLC_FMT_U3 " us: %u/%u checks passed, %u failed.", (int)testSuite.Name.size(), testSuite.Name.begin(), suiteTimer.LastTimeMicroseconds, checkCount - failureCount, checkCount, failureCount);
+	always_printf("%.*s() result OK in %" LLC_FMT_U3 " us: %u checks passed.", (int)testSuite.Name.size(), testSuite.Name.begin(), suiteTimer.LastTimeMicroseconds, checkCount);
 	rtrn 0;
 }
 
-#define LLC_TEST_SUITE_RUN(funcSuite) ::llc::min(result, ::testSuiteRun(results, funcSuite, #funcSuite))
+tplt<tpnm... TSuites>
+sttc	::llc::err_t	testSuitesRun				(ATestError & results, cnst TSuites &... suites) {
+	::llc::err_t	result				= 0;
+	((result = ::llc::min(result, ::testSuiteRun(results, suites))), ...);
+	rtrn result;
+}
+
+#define LLC_TEST_SUITE(funcSuite) ::STestSuite{funcSuite, LLC_CXS(#funcSuite)}
 
 sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues);
 LLC_SYSTEM_OS_ENTRY_POINT(::test_core_entry_point);
@@ -34,15 +46,19 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 	cnst bool		logSuccessDetails	= 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "success-details");
 
 	::llc::STimer	testTimer;
-	result = LLC_TEST_SUITE_RUN(testSPRNG         );
-	result = LLC_TEST_SUITE_RUN(testCPow          );
-	result = LLC_TEST_SUITE_RUN(testStr           );
-	result = LLC_TEST_SUITE_RUN(testArrayStatic   );
-	result = LLC_TEST_SUITE_RUN(testArrayPod      );
-	result = LLC_TEST_SUITE_RUN(testView          );
-	result = LLC_TEST_SUITE_RUN(testViewBit       );
-	result = LLC_TEST_SUITE_RUN(testPackedUInt    );
-	result = LLC_TEST_SUITE_RUN(testViewSerialize );
+	result = testSuitesRun(results
+		, LLC_TEST_SUITE(testSPRNG         )
+		, LLC_TEST_SUITE(testBitField      )
+		, LLC_TEST_SUITE(testCPow          )
+		, LLC_TEST_SUITE(testStr           )
+		, LLC_TEST_SUITE(testArrayStatic   )
+		, LLC_TEST_SUITE(testArrayPod      )
+		, LLC_TEST_SUITE(testJSONReader    )
+		, LLC_TEST_SUITE(testView          )
+		, LLC_TEST_SUITE(testViewBit       )
+		, LLC_TEST_SUITE(testPackedUInt    )
+		, LLC_TEST_SUITE(testViewSerialize )
+		);
 	testTimer.Frame();
 
 	::llc::u2_c		successCount		= testSuccessCount(results);

@@ -21,10 +21,16 @@
 		<ClCompile Include="llc_test_array_static.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_bit.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
     <ClCompile Include="llc_test_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
 		<ClCompile Include="llc_test_cpow.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_json.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 		<ClCompile Include="llc_test_noise.cpp">

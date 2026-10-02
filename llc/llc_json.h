@@ -1,4 +1,5 @@
 #include "llc_enum.h"
+#include "llc_bit.h"
 #include "llc_array_ptr.h"
 #include "llc_slice.h"
 
@@ -27,6 +28,27 @@ namespace llc
 	GDEFINE_ENUM_VALUE(JSON_TYPE, CODEPOINT	,  9);
 	GDEFINE_ENUM_VALUE(JSON_TYPE, COUNT		, 10);
 	GDEFINE_ENUM_VALUE(JSON_TYPE, UNKNOWN	, -1);
+	GDEFINE_FLAG_TYPE(JSON_PARSE_OPTION, u1_t);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, NONE						, 0x0000U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, BUILD_TREE					, 0x0001U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, BUILD_VIEWS				, 0x0002U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, FINAL_INPUT				, 0x0004U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, ALLOW_LINE_COMMENTS		, 0x0008U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, ALLOW_TRAILING_COMMAS		, 0x0010U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, ALLOW_LEADING_PLUS			, 0x0020U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, ALLOW_LEADING_DECIMAL_POINT	, 0x0040U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, ALLOW_TRAILING_DECIMAL_POINT	, 0x0080U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, ALLOW_LEADING_ZEROES			, 0x0100U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, ALLOW_TRAILING_CONTENT		, 0x0200U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, ALLOW_UNESCAPED_CONTROLS		, 0x0400U);
+	GDEFINE_FLAG_VALUE(JSON_PARSE_OPTION, CONTAINER_ROOT_ONLY			, 0x0800U);
+	tydf bit_field<JSON_PARSE_OPTION> SJSONParseOptions;
+	stxp SJSONParseOptions JSON_PARSE_STRICT		= {JSON_PARSE_OPTION_BUILD_TREE | JSON_PARSE_OPTION_BUILD_VIEWS | JSON_PARSE_OPTION_FINAL_INPUT};
+	stxp SJSONParseOptions JSON_PARSE_LEGACY_ROOT	= {JSON_PARSE_OPTION(JSON_PARSE_STRICT) | JSON_PARSE_OPTION_CONTAINER_ROOT_ONLY};
+	stxp SJSONParseOptions JSON_PARSE_LLC			= {JSON_PARSE_OPTION(JSON_PARSE_STRICT)
+		| JSON_PARSE_OPTION_ALLOW_LINE_COMMENTS | JSON_PARSE_OPTION_ALLOW_TRAILING_COMMAS | JSON_PARSE_OPTION_ALLOW_LEADING_PLUS
+		| JSON_PARSE_OPTION_ALLOW_LEADING_DECIMAL_POINT | JSON_PARSE_OPTION_ALLOW_TRAILING_DECIMAL_POINT | JSON_PARSE_OPTION_ALLOW_LEADING_ZEROES
+		| JSON_PARSE_OPTION_ALLOW_TRAILING_CONTENT | JSON_PARSE_OPTION_ALLOW_UNESCAPED_CONTROLS};
 	stct SJSONToken {
 		json_id_t				ParentIndex;
 		JSON_TYPE				Type;
@@ -68,16 +90,21 @@ namespace llc
 		cnst pobj<SJSONNode>*	begin	()				cnst	{ rtrn Tree.begin(); }
 		cnst pobj<SJSONNode>*	end		()				cnst	{ rtrn Tree.end(); }
 		err_t					Reset	()						{
-			Token	.clear();
-			View	.clear();
+			::llc::clear(Token, View);
 			StateRead				= {};
 			rtrn 0;
 		}
 	};
 
 	// Reader functions: Populate a SJSONReader structure from an input JSON string.
-	err_t			jsonParse			(SJSONReader & reader, vcsc_c & jsonAsString, bool buildTree = true, bool buildViews = true);
-	err_t			jsonParseStep		(SJSONReader & reader, vcsc_c & jsonAsString);
+	err_t			jsonParse			(SJSONReader & reader, vcsc_c & jsonAsString, SJSONParseOptions options = JSON_PARSE_LLC);
+	err_t			jsonParseStep		(SJSONReader & reader, vcsc_c & jsonAsString, SJSONParseOptions options = JSON_PARSE_LLC);
+	stin err_t		jsonParse			(SJSONReader & reader, vcsc_c & jsonAsString, bool buildTree, bool buildViews = true) {
+		SJSONParseOptions options = JSON_PARSE_LLC;
+		options.Set(JSON_PARSE_OPTION_BUILD_TREE , buildTree );
+		options.Set(JSON_PARSE_OPTION_BUILD_VIEWS, buildViews);
+		rtrn jsonParse(reader, jsonAsString, options);
+	}
 	err_t			jsonTreeRebuild		(view<SJSONToken> & in_object, apobj<SJSONNode> & out_nodes);
 
 	nsix	err_t	jsonArraySize		(cnst SJSONNode & node)												nxpt	{ rtrn node.Children.size(); }	// returns the index of the JSON element corresponding to the index provided as parameter.

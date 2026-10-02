@@ -83,7 +83,7 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, cnst llc::view<vcsc_t
 	switch(node->Token->Type) {
 	case llc::JSON_TYPE_INTEGER		: {
 		sc_t					temp[64]					= {};
-		snprintf(temp, llc::size(temp) - 2, "%" LLC_FMT_S3, (u3_t)node->Token->Value);
+		snprintf(temp, llc::size(temp) - 2, "%" LLC_FMT_S3, (s3_t)node->Token->Value);
 		if_fail_fe(output.append_string(temp));
 	}
 		break;
@@ -352,8 +352,11 @@ sttc	llc::err_t	parseJsonNumber				(llc::SJSONReaderState & stateReader, llc::ap
 		json_info_printf("Decimal read: %f.", valuef64);
 	}
 	else { // there is an integer part so we need to check for decimals
-		if(intCount >= (s2_t)sizeNum) // No more digits after the integer part. Leave it this way.
+		if(intCount >= (s2_t)sizeNum) { // No more digits after the integer part. Leave it this way.
+			if(isNegative)
+				currentElement.Value	= 0ULL - currentElement.Value;
 			json_info_printf("Integer read: %lli.", currentElement.Value);
+		}
 		else { 
 			json_info_printf("Integer part: %lli.", currentElement.Value);
 			currentElement.Type		= llc::JSON_TYPE_DECIMAL;
@@ -491,7 +494,8 @@ sttc	llc::err_t	jsonParseDocumentCharacter	(llc::SJSONReaderState & stateReader,
 	rtrn errVal;
 }
 
-llc::err_t			llc::jsonParseStep			(llc::SJSONReader & reader, llc::vcsc_c & jsonAsString)	{
+llc::err_t			llc::jsonParseStep			(llc::SJSONReader & reader, llc::vcsc_c & jsonAsString, llc::SJSONParseOptions options)	{
+	(void)options;
 	reader.StateRead.CharCurrent	= jsonAsString[reader.StateRead.IndexCurrentChar];
 	if_true_block_logf(error_printf, llc::failed(reader.StateRead.InsideString
 		? ::jsonParseStringCharacter	(reader.StateRead, reader.Token, jsonAsString)
@@ -562,14 +566,14 @@ llc::err_t			llc::jsonTreeRebuild		(llc::view<llc::SJSONToken>& in_object, llc::
 
 #define json_bi_if(condition, format, ...) if(condition) break; //
 
-llc::err_t			llc::jsonParse				(llc::SJSONReader & reader, llc::vcsc_c & jsonAsString, bool buildTree, bool buildViews)	{
+llc::err_t			llc::jsonParse				(llc::SJSONReader & reader, llc::vcsc_c & jsonAsString, llc::SJSONParseOptions options)	{
 	llc::SJSONReaderState		& stateReader			= reader.StateRead;
 	for(stateReader.IndexCurrentChar = 0; stateReader.IndexCurrentChar < jsonAsString.size(); ++stateReader.IndexCurrentChar) {
-		if_fail_fe(llc::jsonParseStep(reader, jsonAsString));
+		if_fail_fe(llc::jsonParseStep(reader, jsonAsString, options));
 		json_bi_if(reader.StateRead.DoneReading, "%" LLC_FMT_S2 " json characters read.", stateReader.IndexCurrentChar + 1);
 	}
 	ree_if(stateReader.NestLevel, "Nest level: %" LLC_FMT_S2 " (Needs to be zero).", stateReader.NestLevel);
-	if(false == buildViews) {
+	if(false == options.All(llc::JSON_PARSE_OPTION_BUILD_VIEWS)) {
 		if_fail_fe(reader.View.resize(1));
 		reader.View[0] = jsonAsString;
 	}
@@ -580,7 +584,7 @@ llc::err_t			llc::jsonParse				(llc::SJSONReader & reader, llc::vcsc_c & jsonAsS
 			if_fail_fe(jsonAsString.slice(reader.View[iView], currentElement.Span.Begin, currentElement.Span.End - currentElement.Span.Begin));
 		}
 	}	
-	rtrn buildTree ? llc::jsonTreeRebuild(reader.Token, reader.Tree) : 0;
+	rtrn options.All(llc::JSON_PARSE_OPTION_BUILD_TREE) ? llc::jsonTreeRebuild(reader.Token, reader.Tree) : 0;
 }
 
 llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, cnst llc::view<vcsc_t> & views, llc::as2_t & indices, llc::avcsc_t & keys)	{
