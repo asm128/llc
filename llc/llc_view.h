@@ -282,6 +282,9 @@ namespace llc
 		inxp	sc_c*	begin					()	csnx	{ rtrn (Data && Count) ? Data : ""; }
 		inxp	sc_c*	end						()	csnx	{ rtrn (Data && Count) ? Data + Count : begin(); }
 		ndin	oper	sc_c* 					()  csnx	{ rtrn begin(); }
+		inln	sc_t*	begin					()	nxpt	{ rtrn Data; }
+		inln	sc_t*	end						()	nxpt	{ rtrn begin() + Count; }
+		ndin	oper	sc_t* 					()  nxpt	{ rtrn begin(); }
 	};
 	struct view_const_string : view<sc_c> {
 		inxp			view_const_string		()											: view(0, "") 							{}
