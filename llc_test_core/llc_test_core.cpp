@@ -5,14 +5,17 @@
 #include "llc_timer.h"
 #include "llc_runtime.h"
 
-using FTestSuite = ::llc::err_t(*)(ATestError &);
-
+tplt<tpnm TFunction>
 stct STestSuite {
-	FTestSuite		Function;
+	TFunction		& Function;
 	::llc::vcsc_t	Name;
 };
 
-sttc	::llc::err_t	testSuiteRun				(ATestError & results, cnst STestSuite & testSuite) {
+tplt<tpnm TFunction>
+sinx	STestSuite<TFunction>	testSuite			(TFunction & function, ::llc::vcsc_t name) nxpt { rtrn {function, name}; }
+
+tplt<tpnm TFunction>
+sttc	::llc::err_t	testSuiteRun				(ATestError & results, cnst STestSuite<TFunction> & testSuite) {
 	::llc::u2_c		checkCountBefore	= testCheckCount(results);
 	::llc::u2_c		failureCountBefore	= testErrorCount(results);
 	::llc::STimer	suiteTimer;
@@ -34,7 +37,7 @@ sttc	::llc::err_t	testSuitesRun				(ATestError & results, cnst TSuites &... suit
 	rtrn result;
 }
 
-#define LLC_TEST_SUITE(funcSuite) ::STestSuite{funcSuite, LLC_CXS(#funcSuite)}
+#define LLC_TEST_SUITE(funcSuite) ::testSuite(funcSuite, LLC_CXS(#funcSuite))
 
 sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues);
 LLC_SYSTEM_OS_ENTRY_POINT(::test_core_entry_point);
