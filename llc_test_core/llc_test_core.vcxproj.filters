@@ -21,6 +21,9 @@
 		<ClCompile Include="llc_test_array_static.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_base64.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_bit.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -56,6 +59,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="llc_test_base64_font_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="llc_test_core.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -65,6 +65,7 @@ bool testThrows(TCall call) {
 
 ::llc::err_t testArrayStatic		(ATestError & errors);
 ::llc::err_t testArrayPod		(ATestError & errors);
+::llc::err_t testBase64			(ATestError & errors);
 ::llc::err_t testBitField		(ATestError & errors);
 ::llc::err_t testPackedUInt		(ATestError & errors);
 ::llc::err_t testCPow			(ATestError & errors);

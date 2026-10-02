@@ -177,6 +177,7 @@
   <ItemGroup>
 	<ClCompile Include="llc_test_array_pod.cpp" />
 	<ClCompile Include="llc_test_array_static.cpp" />
+	<ClCompile Include="llc_test_base64.cpp" />
 	<ClCompile Include="llc_test_bit.cpp" />
     <ClCompile Include="llc_test_core.cpp" />
 	<ClCompile Include="llc_test_cpow.cpp" />
@@ -190,6 +191,7 @@
     <ClCompile Include="llc_test_view_serialize.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="llc_test_base64_font_data.h" />
     <ClInclude Include="llc_test_core.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
