@@ -20,12 +20,12 @@ tplt<size_t exp, tpnm T>
 sttc ::llc::err_t testCPowValue(ATestError & errors, T base, T expected, CPOW_TEST_RESULT result = CPOW_TEST_RESULT_VALUE) {
 	cnst T actual = ::llc::cpow<exp>(base);
 	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_RETURN_TYPE, false == (::std::is_same_v<decltype(::llc::cpow<exp>(base)), T>)
-		, "%s cpow<%u>() return type mismatch. base:%f."
-		, ::llc::get_type_namep<T>(), (::llc::u2_t)exp, (::llc::f3_t)base
+		, "cpow<%u>() return type mismatch. base:%f."
+		, (::llc::u2_t)exp, (::llc::f3_t)base
 		);
 	LLC_TEST_CHECK(errors, result, actual != expected
-		, "%s cpow<%u>(%f) mismatch. actual:%f, expected:%f."
-		, ::llc::get_type_namep<T>(), (::llc::u2_t)exp, (::llc::f3_t)base, (::llc::f3_t)actual, (::llc::f3_t)expected
+		, "cpow<%u>(%f) mismatch. actual:%f, expected:%f."
+		, (::llc::u2_t)exp, (::llc::f3_t)base, (::llc::f3_t)actual, (::llc::f3_t)expected
 		);
 	rtrn 0;
 }
@@ -34,8 +34,8 @@ tplt<tpnm T>
 sttc ::llc::err_t testCPowType(ATestError & errors) {
 	stxp T compileTimeValue = ::llc::cpow<6>(T(2));
 	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_CONSTEXPR_VALUE, compileTimeValue != T(64)
-		, "%s constexpr cpow<6>(2) mismatch. actual:%f, expected:64."
-		, ::llc::get_type_namep<T>(), (::llc::f3_t)compileTimeValue
+		, "constexpr cpow<6>(2) mismatch. actual:%f, expected:64."
+		, (::llc::f3_t)compileTimeValue
 		);
 	if_fail_fe(testCPowValue<0>(errors, T(0), T(1)));
 	if_fail_fe(testCPowValue<1>(errors, T(0), T(0)));
@@ -67,8 +67,8 @@ tplt<::llc::u0_t exp, tpnm T>
 sttc ::llc::err_t testDigitValue(ATestError & errors, T value, char expected) {
 	cnst char actual = ::llc::digit<exp>(value);
 	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_POSITION, actual != expected
-		, "%s digit<%u>(%" LLC_FMT_U3 ") mismatch. actual:'%c', expected:'%c'."
-		, ::llc::get_type_namep<T>(), (::llc::u2_t)exp, (::llc::u3_t)value, actual, expected
+		, "digit<%u>(%" LLC_FMT_U3 ") mismatch. actual:'%c', expected:'%c'."
+		, (::llc::u2_t)exp, (::llc::u3_t)value, actual, expected
 		);
 	rtrn 0;
 }

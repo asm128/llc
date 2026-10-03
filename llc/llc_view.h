@@ -3,15 +3,12 @@
 #include "llc_functional.h"
 
 #if defined(LLC_ATMEL)
-#	include <string.h>
 #	ifdef max
 #		undef max
 #	endif
 #	ifdef min
 #		undef min
 #	endif
-#else
-#	include <cstring>
 #endif
 
 #ifndef LLC_ARRAY_VIEW_H_23627

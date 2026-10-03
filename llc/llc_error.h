@@ -89,9 +89,9 @@ namespace llc
 #endif
 
 #ifdef LLC_ESP32
-#	define LLC_CRASH()	do { ::llc::u3_t * _tasdas = 0; for(::llc::u2_t i = 0; i < 0xFFFFFFFF; ++i) { for(::llc::u2_t j = 0; j < 1000; ++j) delay(1); base_log_print("I had to do something with this.\n"); } } while(0)	// No throw? Just crash.
+#	define LLC_CRASH()	do { ::llc::u3_t * _tasdas = 0; for(::llc::u2_t i = 0; i < 0xFFFFFFFF; ++i) { for(::llc::u2_t j = 0; j < 1000; ++j) delay(1); log_print("I had to do something with this.\n"); } } while(0)	// No throw? Just crash.
 #elif defined(LLC_ARDUINO) 
-#	define LLC_CRASH()	do { ::llc::u3_t * _tasdas = 0; for(::llc::u2_t i = 0; i < 0xFFFFFFFF; ++i) { for(::llc::u2_t j = 0; j < 1000; ++j) delay(1); base_log_print_F("I had to do something with this.\n"); } } while(0)	// No throw? Just crash.
+#	define LLC_CRASH()	do { ::llc::u3_t * _tasdas = 0; for(::llc::u2_t i = 0; i < 0xFFFFFFFF; ++i) { for(::llc::u2_t j = 0; j < 1000; ++j) delay(1); log_print_F("I had to do something with this.\n"); } } while(0)	// No throw? Just crash.
 #else
 #	define LLC_CRASH()	do { ::llc::u3_t * _tasdas = 0; for(::llc::u2_t i = 0; i < 0xFFFFFFFF; ++i) _tasdas[i] = 0xFFFFFFFF00000000ULL; } while(0)	// No throw? Just crash.
 #endif

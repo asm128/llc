@@ -1,6 +1,9 @@
 #include "llc_path.h"
+#include "llc_file.h"
 
 #include "llc_test_core.h"
+
+#include <filesystem>
 
 GDEFINE_ENUM_TYPE(PATH_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, OK						, 0, "All path tests passed.");
@@ -40,6 +43,11 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_RETURN			, 33, "pathAbsolute() di
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_TERMINATOR		, 34, "pathAbsolute() did not preserve the output terminator.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_INVALID			, 35, "pathAbsolute() did not reject invalid input.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_FAILURE_PRESERVE	, 36, "pathAbsolute() changed caller output after rejecting invalid input.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_RESULT		, 37, "Recursive pathList() with a callback failed.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_RECURSIVE	, 38, "Recursive pathList() did not forward its callback to nested folders.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_COUNTS		, 39, "Recursive pathList() callback reported unexpected file or folder counts.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_TREE		, 40, "Recursive pathList() with a callback produced an unexpected tree.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_EQUIVALENT		, 41, "Callback and non-callback pathList() produced different tree counts.");
 
 stct SPathSlashCase {
 	::llc::vcsc_t		Path;
@@ -64,6 +72,30 @@ stct SPathNormalizeCase {
 
 sttc bool pathTextMismatch(::llc::vcsc_t actual, ::llc::vcsc_t expected) {
 	rtrn actual.size() != expected.size() || (actual.size() && memcmp(actual.begin(), expected.begin(), actual.size()));
+}
+
+stct SPathListCounts {
+	::llc::u2_t		Files		= 0;
+	::llc::u2_t		Folders		= 0;
+};
+
+stct SPathListFixture {
+	::llc::vcst_t			Root		= LLC_CXS("./llc_test_path_list");
+						~SPathListFixture	() { std::error_code error; std::filesystem::remove_all(Root.begin(), error); }
+};
+
+sttc SPathListCounts pathListCounts(const ::llc::SPathContents & pathContents) {
+	SPathListCounts		counts		= {pathContents.Files.size(), pathContents.Folders.size()};
+	for(cnst ::llc::SPathContents & child : pathContents.Folders) {
+		cnst SPathListCounts	childCounts	= ::pathListCounts(child);
+		counts.Files		+= childCounts.Files;
+		counts.Folders		+= childCounts.Folders;
+	}
+	rtrn counts;
+}
+
+sttc bool pathEndsWith(::llc::vcst_c & path, ::llc::vcst_c & suffix) {
+	rtrn suffix.size() <= path.size() && 0 == memcmp(path.end() - suffix.size(), suffix.begin(), suffix.size());
 }
 
 sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
@@ -281,6 +313,63 @@ sttc ::llc::err_t testPathAbsoluteInvalid(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
+	SPathListFixture		fixture;
+	std::error_code		filesystemError;
+	std::filesystem::remove_all(fixture.Root.begin(), filesystemError);
+	if_true_fef(filesystemError.value(), "Failed to clear pathList() test fixture:'%s'. Error:%i.", fixture.Root.begin(), filesystemError.value());
+	std::filesystem::create_directories("./llc_test_path_list/child/grandchild", filesystemError);
+	if_true_fef(filesystemError.value(), "Failed to create pathList() test fixture:'%s'. Error:%i.", fixture.Root.begin(), filesystemError.value());
+	if_fail_fe(::llc::fileFromMemory(LLC_CXS("./llc_test_path_list/root.bin"), ::llc::vcu0_c{}));
+	if_fail_fe(::llc::fileFromMemory(LLC_CXS("./llc_test_path_list/child/child.bin"), ::llc::vcu0_c{}));
+	if_fail_fe(::llc::fileFromMemory(LLC_CXS("./llc_test_path_list/child/grandchild/deep.bin"), ::llc::vcu0_c{}));
+
+	cnst ::llc::vcst_t	rootPath		= fixture.Root;
+	::llc::u2_t			callbackFiles	= 0;
+	::llc::u2_t			callbackFolders	= 0;
+	bool					deepFileSeen	= false;
+	::llc::SPathContents	callbackTree;
+	cnst ::llc::err_t	callbackResult	= ::llc::pathList(rootPath, callbackTree
+		, [&](::llc::b8_t isFolder, ::llc::vcst_c & path) -> ::llc::err_t {
+			isFolder ? ++callbackFolders : ++callbackFiles;
+			deepFileSeen		|= false == isFolder && ::pathEndsWith(path, LLC_CXS("deep.bin"));
+			rtrn 0;
+		}
+		, {}
+		);
+	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_LIST_CALLBACK_RESULT, ::llc::failed(callbackResult)
+		, "Root:'%s' returned:%" LLC_FMT_S2 "."
+		, rootPath.begin(), callbackResult
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_RECURSIVE, false == deepFileSeen
+		, "Root:'%s' did not report the grandchild file. Callback files:%u, folders:%u."
+		, rootPath.begin(), callbackFiles, callbackFolders
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_COUNTS, 3 != callbackFiles || 2 != callbackFolders
+		, "Root:'%s' reported files:%u/3, folders:%u/2."
+		, rootPath.begin(), callbackFiles, callbackFolders
+		);
+
+	cnst SPathListCounts	callbackCounts	= ::pathListCounts(callbackTree);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE, 3 != callbackCounts.Files || 2 != callbackCounts.Folders
+		, "Root:'%s' callback tree contains files:%u/3, folders:%u/2."
+		, rootPath.begin(), callbackCounts.Files, callbackCounts.Folders
+		);
+
+	::llc::SPathContents	plainTree;
+	cnst ::llc::err_t	plainResult		= ::llc::pathList(rootPath, plainTree, {});
+	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_LIST_TREE_EQUIVALENT, ::llc::failed(plainResult)
+		, "Root:'%s' non-callback traversal returned:%" LLC_FMT_S2 "."
+		, rootPath.begin(), plainResult
+		);
+	cnst SPathListCounts	plainCounts		= ::pathListCounts(plainTree);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_TREE_EQUIVALENT, callbackCounts.Files != plainCounts.Files || callbackCounts.Folders != plainCounts.Folders
+		, "Root:'%s' callback tree files/folders:%u/%u, plain tree:%u/%u."
+		, rootPath.begin(), callbackCounts.Files, callbackCounts.Folders, plainCounts.Files, plainCounts.Folders
+		);
+	rtrn 0;
+}
+
 ::llc::err_t testPath(ATestError & errors) {
 	if_fail_fe(testFindLastSlash(errors));
 	if_fail_fe(testPathNameCompose(errors));
@@ -289,5 +378,6 @@ sttc ::llc::err_t testPathAbsoluteInvalid(ATestError & errors) {
 	if_fail_fe(testPathNormalizeInvalid(errors));
 	if_fail_fe(testPathAbsolute(errors));
 	if_fail_fe(testPathAbsoluteInvalid(errors));
+	if_fail_fe(testPathListRecursive(errors));
 	rtrn 0;
 }

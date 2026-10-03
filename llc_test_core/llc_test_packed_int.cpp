@@ -83,11 +83,11 @@ sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c
 	cnst ::llc::vcu0_t bytes = packed.tplt cu8<::llc::vcu0_t>();
 	LLC_TEST_REQUIRE(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.begin() != (cnst ::llc::u0_t*)(cnst void*)&packed || bytes.size() > szof(packed)
 		, "%u-bit byte view exceeded its packed storage for value:%" LLC_FMT_U3 ". begin:%p, expected begin:%p, size:%u, storage size:%u."
-		, typeBits, source, (cnst void*)bytes.begin(), (cnst void*)&packed, bytes.size(), ::llc::u2_t(szof(packed))
+		, typeBits, source, bytes.begin(), &packed, bytes.size(), ::llc::u2_t(szof(packed))
 		);
 	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.size() != expectedValueWidth
 		, "%u-bit byte-view mismatch for value:%" LLC_FMT_U3 ". begin:%p, expected begin:%p, size:%u, expected size:%u."
-		, typeBits, source, (cnst void*)bytes.begin(), (cnst void*)&packed, bytes.size(), ::llc::u2_t(expectedValueWidth)
+		, typeBits, source, bytes.begin(), &packed, bytes.size(), ::llc::u2_t(expectedValueWidth)
 		);
 
 	::llc::vcu0_t input = bytes;
@@ -150,14 +150,18 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	cnst ::llc::u2_t typeFailures = testErrorCount(errors) - failureCount;
 	cnst ::llc::u2_t typeChecks = testCheckCount(errors) - checkCount;
 	if(typeFailures) error_printf("%2u-bit suite completed: %u/%u checks passed, %u failed.", ::llc::u2_t(szof(T) * 8), typeChecks - typeFailures, typeChecks, typeFailures);
-	else always_printf("%2u-bit suite OK: %u checks passed.", ::llc::u2_t(szof(T) * 8), typeChecks);
 	return 0;
 }
 
 ::llc::err_t testPackedUInt(ATestError & errors) {
+	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u2_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u3_t>(errors));
+	if(failureCount == testErrorCount(errors))
+		always_printf("Element widths tested successfully:\n%u, %u, %u and %u bits."
+			, ::llc::u2_t(szof(::llc::u0_t) * 8), ::llc::u2_t(szof(::llc::u1_t) * 8), ::llc::u2_t(szof(::llc::u2_t) * 8), ::llc::u2_t(szof(::llc::u3_t) * 8)
+			);
 	return 0;
 }

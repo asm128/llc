@@ -39,16 +39,16 @@ sttc ::llc::err_t testNumericStrValue(ATestError & errors, T value, ::llc::vcst_
 	auto				storage	= ::llc::str(value);
 	auto				text	= ::llc::str(storage);
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_NUMERIC_RESULT_TYPE, false == (::std::is_same_v<decltype(storage), ::llc::astchar<N>>)
-		, "%s result type mismatch. capacity:%u, expected:%u."
-		, ::llc::get_type_namep<T>(), storage.size(), N
+		, "result type mismatch. capacity:%u, expected:%u."
+		, storage.size(), N
 		);
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_NUMERIC_TEXT, stringMismatch(text, expected) || text.begin() != storage.begin()
-		, "%s text mismatch. actual:'%.*s'/%u at:%p, expected:'%.*s'/%u at:%p."
-		, ::llc::get_type_namep<T>(), (int)text.size(), text.begin(), text.size(), (cnst void*)text.begin(), (int)expected.size(), expected.begin(), expected.size(), (cnst void*)storage.begin()
+		, "text mismatch. actual:'%.*s'/%u at:%p, expected:'%.*s'/%u at:%p."
+		, (int)text.size(), text.begin(), text.size(), text.begin(), (int)expected.size(), expected.begin(), expected.size(), storage.begin()
 		);
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_NUMERIC_TERMINATION, text.size() >= storage.size() || storage.Storage[text.size()]
-		, "%s termination mismatch. text size:%u, capacity:%u, terminator:%i."
-		, ::llc::get_type_namep<T>(), text.size(), storage.size(), text.size() < storage.size() ? storage.Storage[text.size()] : -1
+		, "termination mismatch. text size:%u, capacity:%u, terminator:%i."
+		, text.size(), storage.size(), text.size() < storage.size() ? storage.Storage[text.size()] : -1
 		);
 	rtrn 0;
 }
@@ -125,11 +125,11 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 		);
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_RANGE, stringMismatch(mutableArrayText, LLC_CXS("alpha")) || mutableArrayText.begin() != mutableArray
 		, "Mutable array range mismatch. size:%u, expected:5, begin:%p, expected begin:%p."
-		, mutableArrayText.size(), (cnst void*)mutableArrayText.begin(), (cnst void*)mutableArray
+		, mutableArrayText.size(), mutableArrayText.begin(), mutableArray
 		);
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_RANGE, stringMismatch(constArrayText, LLC_CXS("beta")) || constArrayText.begin() != constArray
 		, "Const array range mismatch. size:%u, expected:4, begin:%p, expected begin:%p."
-		, constArrayText.size(), (cnst void*)constArrayText.begin(), (cnst void*)constArray
+		, constArrayText.size(), constArrayText.begin(), constArray
 		);
 	mutableArrayText[0] = 'A';
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_MUTATION, mutableArray[0] != 'A'
@@ -153,7 +153,7 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_COUNTED_VIEW_RANGE
 		, countedText.size() != ::llc::size(countedStorage) || countedText.begin() != countedStorage || countedConstText.size() != ::llc::size(countedStorage) || countedConstText.begin() != countedStorage
 		, "Counted range mismatch. mutable size:%u, const size:%u, expected:%u, mutable begin:%p, const begin:%p, expected begin:%p."
-		, countedText.size(), countedConstText.size(), (::llc::u2_t)::llc::size(countedStorage), (cnst void*)countedText.begin(), (cnst void*)countedConstText.begin(), (cnst void*)countedStorage
+		, countedText.size(), countedConstText.size(), (::llc::u2_t)::llc::size(countedStorage), countedText.begin(), countedConstText.begin(), countedStorage
 		);
 	countedText[3] = 'U';
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_MUTATION, countedStorage[3] != 'U'
@@ -175,7 +175,7 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STRING_VIEW_RANGE
 		, mutableStringText.begin() != mutableString.begin() || mutableStringText.size() != mutableString.size() || constMutableText.begin() != mutableString.begin() || constMutableText.size() != mutableString.size() || constStringText.begin() != constString.begin() || constStringText.size() != constString.size()
 		, "String-view range mismatch. mutable:%p/%u, const mutable:%p/%u, const:%p/%u."
-		, (cnst void*)mutableStringText.begin(), mutableStringText.size(), (cnst void*)constMutableText.begin(), constMutableText.size(), (cnst void*)constStringText.begin(), constStringText.size()
+		, mutableStringText.begin(), mutableStringText.size(), constMutableText.begin(), constMutableText.size(), constStringText.begin(), constStringText.size()
 		);
 
 	::llc::astchar<8>	staticText		= {'s', 't', 'a', 't', 'i', 'c', 0};
@@ -193,7 +193,7 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STATIC_RANGE
 		, stringMismatch(mutableStaticView, LLC_CXS("static")) || mutableStaticView.begin() != staticText.begin() || stringMismatch(constStaticView, LLC_CXS("static")) || constStaticView.begin() != staticText.begin()
 		, "Static range mismatch. mutable:%p/%u, const:%p/%u, expected begin:%p."
-		, (cnst void*)mutableStaticView.begin(), mutableStaticView.size(), (cnst void*)constStaticView.begin(), constStaticView.size(), (cnst void*)staticText.begin()
+		, mutableStaticView.begin(), mutableStaticView.size(), constStaticView.begin(), constStaticView.size(), staticText.begin()
 		);
 
 	::llc::asc_t	dynamicText		= {'p', 'o', 'd'};
@@ -211,7 +211,7 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_POD_RANGE
 		, stringMismatch(mutableDynamicView, LLC_CXS("pod")) || mutableDynamicView.begin() != dynamicText.begin() || stringMismatch(constDynamicView, LLC_CXS("pod")) || constDynamicView.begin() != dynamicText.begin()
 		, "POD range mismatch. mutable:%p/%u, const:%p/%u, expected begin:%p."
-		, (cnst void*)mutableDynamicView.begin(), mutableDynamicView.size(), (cnst void*)constDynamicView.begin(), constDynamicView.size(), (cnst void*)dynamicText.begin()
+		, mutableDynamicView.begin(), mutableDynamicView.size(), constDynamicView.begin(), constDynamicView.size(), dynamicText.begin()
 		);
 	mutableDynamicView[0] = 'P';
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_POD_MUTATION, dynamicText[0] != 'P'
@@ -226,7 +226,7 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_STRING
 		, emptyDynamicText.size() || 0 == emptyDynamicText.begin() || emptyDynamicText.begin()[0] || emptyArrayText.size() || 0 == emptyArrayText.begin() || emptyArrayText.begin()[0]
 		, "Empty string mismatch. POD:%p/%u/'%c', array:%p/%u/'%c'."
-		, (cnst void*)emptyDynamicText.begin(), emptyDynamicText.size(), emptyDynamicText.begin()[0], (cnst void*)emptyArrayText.begin(), emptyArrayText.size(), emptyArrayText.begin()[0]
+		, emptyDynamicText.begin(), emptyDynamicText.size(), emptyDynamicText.begin()[0], emptyArrayText.begin(), emptyArrayText.size(), emptyArrayText.begin()[0]
 		);
 
 	auto trueText	= ::llc::str(true);

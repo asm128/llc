@@ -210,15 +210,21 @@ sttc ::llc::err_t testBitTypeLogged(ATestError & errors) {
 	if_fail_fe(testBitType<T>(errors));
 	cnst ::llc::u2_t typeFailures = testErrorCount(errors) - failureCount;
 	cnst ::llc::u2_t typeChecks = testCheckCount(errors) - checkCount;
-	if(typeFailures) error_printf("%2u-bit suite completed: %u/%u checks passed, %u failed.", ::llc::u2_t(szof(T) * 8), typeChecks - typeFailures, typeChecks, typeFailures);
-	else always_printf("%2u-bit suite OK: %u checks passed.", ::llc::u2_t(szof(T) * 8), typeChecks);
+	if(typeFailures) error_printf("%2u-bit suite completed: %u/%u checks passed, %u failed.", bcof(T), typeChecks - typeFailures, typeChecks, typeFailures);
 	rtrn 0;
 }
 
 ::llc::err_t testBitField(ATestError & errors) {
+	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testBitTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testBitTypeLogged<::llc::u1_t>(errors));
 	if_fail_fe(testBitTypeLogged<::llc::u2_t>(errors));
 	if_fail_fe(testBitTypeLogged<::llc::u3_t>(errors));
-	rtrn testEnumFlags(errors);
+	cnst bool typesSucceeded = failureCount == testErrorCount(errors);
+	if_fail_fe(testEnumFlags(errors));
+	if(typesSucceeded)
+		always_printf("Element widths tested successfully:\n%u, %u, %u and %u bits."
+			, ::llc::u2_t(szof(::llc::u0_t) * 8), ::llc::u2_t(szof(::llc::u1_t) * 8), ::llc::u2_t(szof(::llc::u2_t) * 8), ::llc::u2_t(szof(::llc::u3_t) * 8)
+			);
+	rtrn 0;
 }

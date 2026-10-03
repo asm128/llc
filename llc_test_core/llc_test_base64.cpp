@@ -310,7 +310,7 @@ sttc ::llc::err_t testBase64DecodeRejected(ATestError & errors, ::llc::vcu0_c & 
 		, output.begin() != addressBefore || output.size() != countBefore || output.Size != capacityBefore
 		|| bytesMismatch(output, {expected}) || output.begin()[output.size()]
 		, "Rejected decode changed output. case:%.*s, address:%p/%p, count:%u/%u, capacity:%u/%u, terminator:0x%02X."
-		, (int)name.size(), name.begin(), (cnst void*)output.begin(), (cnst void*)addressBefore
+		, (int)name.size(), name.begin(), output.begin(), addressBefore
 		, output.size(), countBefore, output.Size, capacityBefore, output.begin()[output.size()]
 		);
 	rtrn 0;
@@ -366,7 +366,7 @@ sttc ::llc::err_t testBase64AlphabetRejected(ATestError & errors, ::llc::vcsc_c 
 			, output.begin() != addressBefore || output.size() != ::llc::size(expected) || output.Size != capacityBefore
 			|| bytesMismatch(output, {expected}) || output.begin()[output.size()]
 			, "Rejected alphabet %s changed output. case:%.*s, address:%p/%p, count:%u/%u, capacity:%u/%u."
-			, decode ? "decode" : "encode", (int)name.size(), name.begin(), (cnst void*)output.begin(), (cnst void*)addressBefore
+			, decode ? "decode" : "encode", (int)name.size(), name.begin(), output.begin(), addressBefore
 			, output.size(), ::llc::size(expected), output.Size, capacityBefore
 			);
 	}

@@ -95,6 +95,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>../llc</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +119,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>../llc</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,6 +141,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>../llc</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -162,6 +165,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>../llc</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -175,15 +179,15 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-	<ClCompile Include="llc_test_array_pod.cpp" />
-	<ClCompile Include="llc_test_array_static.cpp" />
-	<ClCompile Include="llc_test_base64.cpp" />
-	<ClCompile Include="llc_test_bit.cpp" />
+    <ClCompile Include="llc_test_array_pod.cpp" />
+    <ClCompile Include="llc_test_array_static.cpp" />
+    <ClCompile Include="llc_test_base64.cpp" />
+    <ClCompile Include="llc_test_bit.cpp" />
     <ClCompile Include="llc_test_core.cpp" />
-	<ClCompile Include="llc_test_cpow.cpp" />
-	<ClCompile Include="llc_test_ctti.cpp" />
-	<ClCompile Include="llc_test_json.cpp" />
-	<ClCompile Include="llc_test_noise.cpp" />
+    <ClCompile Include="llc_test_cpow.cpp" />
+    <ClCompile Include="llc_test_ctti.cpp" />
+    <ClCompile Include="llc_test_json.cpp" />
+    <ClCompile Include="llc_test_noise.cpp" />
     <ClCompile Include="llc_test_path.cpp" />
     <ClCompile Include="llc_test_packed_int.cpp" />
     <ClCompile Include="llc_test_str.cpp" />

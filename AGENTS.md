@@ -32,6 +32,10 @@ This file is operational memory for future work in this repository. Read it befo
 - Prefer `always_printf()` for ordinary console output unless a more specific LLC output facility fits better. This keeps output inside the framework even when it is not an error, warning or informational diagnostic.
 - Use `error_printf`, `warning_printf` and `info_printf` for their corresponding diagnostic levels so callbacks, timestamps and source context keep working.
 - Do not default to `printf()`. If a C-standard output boundary is genuinely required, prefer `fprintf()` with an explicit stream, and recognize that it deliberately bypasses the LLC logging framework.
+- `log_print()` and `log_write()` are the direct callback-dispatch boundaries. Do not recreate `base_`, underscored or default-forwarding aliases around them.
+- Let `printf_arg()` in `llc_typeint.h` normalize typed pointers for the formatting boundary. Do not scatter `(const void *)` casts through log call sites merely to satisfy `%p`; keep semantic representation casts visible where their meaning is chosen.
+- The Arduino flash-string path is deliberately a macro at the literal call site: `log_print_F(text)` must let `F(text)` see the original literal. Keep actual dispatch and policy in functions.
+- `LLC_VA_TAIL(...)` isolates optional variadic-comma syntax: C++20 uses `__VA_OPT__`, while older targets retain the compatible fallback. Do not duplicate whole severity macros to solve that preprocessing detail.
 - `LLC_LOGGING_CASE_STUDY.md` records a concrete failure of this discipline in the initial `lls`, `lls-l` and `lls-t` implementation, with the exact Git commits and files needed to recover the full before/after evidence.
 
 ## Views and strings
@@ -57,6 +61,8 @@ This file is operational memory for future work in this repository. Read it befo
 - Return structured compile-time results when diagnostics matter: value/state, error category and exact source offset are more useful than a boolean.
 - If returned spans reference parsed text, keep their storage lifetime explicit. The current CTTI parse result owns copies of its structure name and member declaration text.
 - Use `static_assert` to prove the important path truly executes at compile time, then add runtime test records for visible diagnostics and negative cases.
+- When replacing a macro with a constexpr function, verify both value and `decltype`. Conditional-expression promotion and `if constexpr` return deduction can produce identical numbers with different types, changing overload resolution.
+- The live `szof` macro currently retains its original promoted expression type. Do not enable the commented constexpr replacement until its fixed-versus-size-dependent type contract is chosen deliberately. `bcof(type)` expresses `szof(type) * 8U` without forcing a consumer width.
 - Before recreating compile-time arithmetic or string conversion, inspect `llc/llc_cpow.h`, `llc/llc_view.h` and their suites; some existing operations are already constexpr-capable.
 - Fold expressions are useful when one operation genuinely applies to every pack element:
   - ordered comma fold for suite execution: `((operation(suites)), ...);`
@@ -110,6 +116,9 @@ This file is operational memory for future work in this repository. Read it befo
 - `LLC_TEST_REQUIRE` records and returns only when continuing would make the test invalid or unsafe.
 - A suite's `err_t` is for test-machinery failure. Logical contract failures belong in the shared result collection.
 - Production logging macros already provide file, line, function and formatted values. Test checks should add the counterexample: type width, index/count, expected/actual value, seed and iteration where relevant.
+- Keep stable diagnostic context at the caller that owns it. A typed caller should report its type once after the group; do not thread an unchanging type-name pointer through every helper and check.
+- Let the private result enum own durable operation identity, numeric value and description. Do not pass a second operation-name string that can become stale.
+- Inner helpers report the values that vary per case. Outer callers aggregate successful completion once per type or suite instead of repeating the same file, function and type information for every check.
 - A successful run remains concise but must say what ran: each suite prints elapsed microseconds and executed-check count, followed by the aggregate. `--success-details` prints every successful result group at runtime.
 - `LLC_TEST_SUITE(func)` deliberately stringifies the same function token used for dispatch so the diagnostic name cannot drift from the callable.
 - The variadic runner uses a fold expression and concrete function references. Do not replace it with a raw function-pointer table.

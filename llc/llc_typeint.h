@@ -23,41 +23,56 @@
 
 namespace llc
 {
-	tydf bool		b8_t, b8u_t;
-	tydf char		sc_t, c0s_t;
-	tydf int8_t		s0_t, i0s_t;
-	tydf int16_t	s1_t, i1s_t;
-	tydf int32_t	s2_t, i2s_t;
-	tydf int64_t	s3_t, i3s_t;
-	tydf unsd char	uc_t, c0u_t;
-	tydf uint8_t	u0_t, i0u_t;
-	tydf uint16_t	u1_t, i1u_t;
-	tydf uint32_t	u2_t, i2u_t;
-	tydf uint64_t	u3_t, i3u_t;
-	tydf float		f2_t, f2s_t;
-	tydf double		f3_t, f3s_t;
-	tydf size_t		uP_t, iPu_t;
-	tydf intptr_t	sP_t, iPs_t;
-	tydf void*		uV_t, iVu_t;
+	tydf		bool		b8_t, b8u_t;
+	tydf		char		sc_t, c0s_t;
+	tydf		int8_t		s0_t, i0s_t;
+	tydf		int16_t		s1_t, i1s_t;
+	tydf		int32_t		s2_t, i2s_t;
+	tydf		int64_t		s3_t, i3s_t;
+	tydf		unsd char	uc_t, c0u_t;
+	tydf		uint8_t		u0_t, i0u_t;
+	tydf		uint16_t	u1_t, i1u_t;
+	tydf		uint32_t	u2_t, i2u_t;
+	tydf		uint64_t	u3_t, i3u_t;
+	tydf		float		f2_t, f2s_t;
+	tydf		double		f3_t, f3s_t;
+	tydf		size_t		uP_t, iPu_t;
+	tydf		intptr_t	sP_t, iPs_t;
+	tydf		void*		uV_t, iVu_t;
+
+//	tplt<size_t _size>
+//	sinx auto szof() nxpt {
+//			 cxpr_if(_size > 0xFFFFU)	rtrn ::llc::u2_t(_size & 0xFFFFFFFFU);
+//		else cxpr_if(_size > 0x00FFU)	rtrn ::llc::u1_t(_size & 0xFFFFU);
+//		else rtrn ::llc::u0_t(_size & 0xFFU);
+//	}
+//#define szof(type) ::llc::szof<sizeof(type)>()
 #define	szof(type)																\
 	( (sizeof(type) > 0xFFFFU)	? ::llc::u2_t(sizeof(type) & 0xFFFFFFFFU	)	\
 	: (sizeof(type) > 0xFFU)	? ::llc::u1_t(sizeof(type) & 0xFFFFU		)	\
 	: ::llc::u0_t(sizeof(type) & 0xFFU)											\
 	)
-	tdcs	b8_t	b8_c, b8u_c;
-	tdcs	uc_t	uc_c, c0u_c;
-	tdcs	sc_t	sc_c, c0s_c;
-	tdcs	u0_t	u0_c, i0u_c;
-	tdcs	u1_t	u1_c, i1u_c;
-	tdcs	u2_t	u2_c, i2u_c;
-	tdcs	u3_t	u3_c, i3u_c;
-	tdcs	s0_t	s0_c, i0s_c;
-	tdcs	s1_t	s1_c, i1s_c;
-	tdcs	s2_t	s2_c, i2s_c;
-	tdcs	s3_t	s3_c, i3s_c;
-	tdcs	f2_t	f2_c, f2s_c;
-	tdcs	f3_t	f3_c, f3s_c;
-	tdcs	uP_t	uP_c, iPu_c;
+#define bcof(type) (szof(type) * 8U)
+	tdcs		b8_t	b8_c, b8u_c;
+	tdcs		uc_t	uc_c, c0u_c;
+	tdcs		sc_t	sc_c, c0s_c;
+	tdcs		u0_t	u0_c, i0u_c;
+	tdcs		u1_t	u1_c, i1u_c;
+	tdcs		u2_t	u2_c, i2u_c;
+	tdcs		u3_t	u3_c, i3u_c;
+	tdcs		s0_t	s0_c, i0s_c;
+	tdcs		s1_t	s1_c, i1s_c;
+	tdcs		s2_t	s2_c, i2s_c;
+	tdcs		s3_t	s3_c, i3s_c;
+	tdcs		f2_t	f2_c, f2s_c;
+	tdcs		f3_t	f3_c, f3s_c;
+	tdcs		uP_t	uP_c, iPu_c;
+
+	tplTsinx	T			printf_arg		(T value)			nxpt	{ rtrn value; }
+	tplTsinx	void*		printf_arg		(T * value)			nxpt	{ rtrn value; }
+	tplTsinx	cnst void*	printf_arg		(cnst T * value)	nxpt	{ rtrn value; }
+	sinx		sc_t*		printf_arg		(sc_t * value)		nxpt	{ rtrn value; }
+	sinx		sc_c*		printf_arg		(sc_c * value)		nxpt	{ rtrn value; }
 
 #define tplN0u		tplt<::llc::u0_t N>
 #define tplN1u		tplt<::llc::u1_t N>

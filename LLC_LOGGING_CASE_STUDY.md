@@ -86,6 +86,20 @@ Prefer `always_printf()` for ordinary console text unless a more specific LLC ou
 
 If a C-standard boundary is genuinely necessary, prefer `fprintf()` with an explicit stream over implicit `printf()`, but make that choice knowingly: both bypass the LLC framework.
 
+### Typed arguments at the final formatting boundary
+
+Formatting requirements should not leak back through otherwise typed code. A pointer remains `T *` or `const T *` while it moves through the application; `printf_arg()` performs the conversion required by `%p` at the formatter boundary. This keeps call sites such as the following focused on evidence rather than adapter syntax:
+
+```cpp
+error_printf("range: %p to %p", view.begin(), view.end());
+```
+
+That conversion is representational and belongs to formatting. A semantic cast that reinterprets storage or deliberately changes the value's meaning must remain visible where the decision is made.
+
+The same boundary rule applies to logging dispatch. `log_print()` and `log_write()` are the direct callback-facing operations; layers named `base_`, underscored forwarding versions and default forwarding aliases add vocabulary without adding a contract. Platform-specific preprocessing stays narrow. For example, Arduino's `F()` must see the original literal at the call site, so `log_print_F(text)` remains a macro, while the resulting flash-string output is handled by the ordinary logging functions.
+
+Optional variadic arguments are another legitimate preprocessing concern. `LLC_VA_TAIL(...)` contains the C++20 `__VA_OPT__` comma rule and its older-target fallback so severity macros share one implementation instead of duplicating Windows and non-Windows bodies.
+
 ### Metadata instead of duplicated command knowledge
 
 The generated terminal hard-coded command parsing and repeated the same command descriptions in help text. The refactor moved descriptions into `GDEFINE_ENUM_VALUED`, added `MAX` sentinels, indexed command/result behavior with tables and checked table sizes at compile time.
@@ -126,4 +140,6 @@ Therefore:
 - Is cleanup required before the control transfer?
 - Which LLC output facility fits this message? Default ordinary console output to `always_printf()`.
 - If raw C output is unavoidable, is the stream explicit and is bypassing the LLC framework intentional?
+- Can `printf_arg()` perform a formatting-only conversion instead of repeating a cast at the call site?
+- Is a macro actually recovering call-site information or syntax, or could this behavior remain in a typed function?
 - Does an existing view, serialization, enum or event helper already express the operation?
