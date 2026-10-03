@@ -1,4 +1,5 @@
 #include "llc_log.h"
+#include "llc_keyval.h"
 
 #include "llc_functional.h"
 
@@ -299,6 +300,7 @@ namespace llc
 	tydf	view_const_string	vcst_t, vcs;
 	tdcs	vstr_t				vstr_c;
 	tdcs	vcst_t				vcst_c;
+	tplt<tpnm _tVal>						using kvvcst_t	= kv<vcst_t, _tVal>;
 
 	stin			llc::vs		str				(llc::vs & arg)			{ rtrn arg; }
 	stin			llc::vcst_t	str				(cnst llc::vs & arg)		{ rtrn arg.cc(); }

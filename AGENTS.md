@@ -54,6 +54,21 @@ This file is operational memory for future work in this repository. Read it befo
 - Bounds failures should use the current throwing idiom (`if_null_te()`, `if_true_tef()` and `LLC_FMT_*`) where the API contract throws.
 - `view<>` behavior and negative cases live in `llc_test_core/llc_test_view.cpp`. Use those tests before changing constructors, slicing, iteration, lookup, extrema or callback semantics.
 
+## Paths, locators and runtime syntax policy
+
+- Path syntax is documented grammar, not behavior that must be discovered by calling the host. Implement Windows, POSIX and URI interpretation in LLC; keep native calls for actual filesystem observation and for runtime context only when a caller does not supply it.
+- Parsing policy must be runtime data. A cross-platform program running on Linux must be able to select Windows semantics for supplied text, and a runtime URL must be parseable without choosing a new template type or rebuilding.
+- The parser may still be `constexpr`. This means the same state machine can participate in `static_assert` when both input and policy are constant; it does not make compile-time policy selection the primary interface.
+- Preserve the complete leading separator/prefix span until the selected policy classifies it. Do not reject or collapse repeated leading separators through a universal duplicate-separator rule.
+- Windows policy must distinguish at least ordinary relative paths, current-drive-rooted paths, drive-relative paths such as `C:x`, drive-absolute paths such as `C:/x`, UNC paths and device/file namespace prefixes. `C:x` requires the remembered current directory for drive C when resolution is requested; the parser can identify that requirement without obtaining the value itself.
+- Parsing, classification, normalization, composition and resolution against a supplied base do not require `std::filesystem`. Enumeration, existence/type queries, symlink or junction resolution and acquisition of an omitted runtime base are separate native operations.
+- URI parsing should expose scheme, authority, path, query and fragment as views. Query key/value parsing and decoding are a separate facility over the returned query view.
+- Known current debt, not yet repaired:
+  - recursive `pathList()` strips `/` to empty and `C:/` to `C:` before enumeration;
+  - fixed `LLC_MAX_PATH` buffers accept `snprintf()` truncation lengths and can use the required length as though it were stored length;
+  - the recursive overload carries `extension` through recursion without applying it to files.
+- Root preservation must be tested end to end through listing, not only through `pathNormalize()`. Include native-root, drive-root and applicable network/device-prefix cases under their selected policies.
+
 ## Compile-time algorithms and fold expressions
 
 - The project builds as C++20. Loops and state machines can be evaluated at compile time; do not assume constexpr code must be a single expression.
