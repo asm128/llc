@@ -134,16 +134,21 @@ This file is operational memory for future work in this repository. Read it befo
 
 - From this repository root, run:
 
-  `build_test_core.bat Debug x64`
+  `build_test_core.bat`
 
-- The batch file finds Visual Studio with `vswhere`, normalizes the inherited `PATH`, disables MSBuild node reuse so the command owns a finite process lifetime, builds `zlibvc`, `llc` and `llc_test_core`, then runs the shared executable from the unified output directory.
-- To build one solution target without running the shared suite, use the same entry point and select its solution group and target, for example:
+- The batch file defaults to `x64|Debug`, finds Visual Studio with `vswhere`, normalizes the inherited `PATH`, asks the solution to build `llc_test_core` and its dependencies, then runs the shared executable from the unified output directory.
+- To build one solution target without running the shared suite, use the same entry point and select its build directory and target, for example:
 
-  `build_test_core.bat Debug x64 llc llc_test_core`
+  `build_test_core.bat llc llc_test_core`
 
-  `build_test_core.bat Debug x64 llt lls`
+  `build_test_core.bat llt lls`
 
-- Do not invoke an individual project directly. The solution supplies `SolutionDir`, dependency ordering and the shared `llb/<platform>.<configuration>` output layout; a direct project build can create `obj` and configuration directories inside a source repository.
+- Override the defaults by adding platform and configuration after the build directory and target, for example:
+
+  `build_test_core.bat llt lls x64 Release`
+
+- The batch file discovers exactly one `.sln` or `.slnx` in the selected directory instead of depending on a solution filename. It rejects missing or ambiguous solution directories.
+- Do not invoke an individual project directly. The discovered solution supplies `SolutionDir`, dependency ordering and the shared `llb/<platform>.<configuration>` output layout; a direct project build can create `obj` and configuration directories inside a source repository.
 - The build is C++20 with `/W4 /WX`; treat warnings as failures.
 - `LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG` is defined for the test project so expected negative cases do not stop in `crtdebugbreak()`.
 - Keep using this shared workflow instead of repairing the Visual Studio environment ad hoc in each session.
