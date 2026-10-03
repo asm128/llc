@@ -42,6 +42,9 @@
 		<ClCompile Include="llc_test_noise.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+    <ClCompile Include="llc_test_path.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="llc_test_view_serialize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -24,6 +24,8 @@ namespace llc
 	// this function was ceated in order to work around the problem of the JSON system returning pointers to the original string, without having the opportunity of processing escaped path slashes.
 	//err_t						pathNameCompose			(::llc::asc_t & out_composed, ::llc::vcst_t fileName, ::llc::vcst_t path = {}, ::llc::vcst_t extension = {});
 	err_t						pathNameCompose			(::llc::vcsc_c & path, ::llc::vcsc_c & fileName, ::llc::asc_t & out_composed);
+	err_t						pathNormalize			(::llc::vcsc_c & path, ::llc::asc_t & output, sc_c separator = '/');
+	err_t						pathAbsolute			(::llc::vcsc_c & path, ::llc::asc_t & output, sc_c separator = '/');
 	err_t						findLastSlash			(::llc::vcsc_c & path);
 
 	err_t						pathList				(::llc::vcst_c & pathToList, ::llc::SPathContents & outputTree, ::llc::function<err_t(bool, vcst_c&)> onItem, llc::vcst_c extension);

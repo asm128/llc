@@ -17,6 +17,11 @@
 ////#	include <unistd.h>
 #endif
 
+#if !defined(LLC_ARDUINO) && !defined(LLC_ATMEL)
+#	include <filesystem>
+#	include <string>
+#endif
+
 stxp	uint32_t LLC_MAX_PATH = 256;
 
 #define llc_path_debug info_printf
@@ -66,38 +71,132 @@ stxp	uint32_t LLC_MAX_PATH = 256;
 		::llc::max(indexOfStartOfFileName0, indexOfStartOfFileName1)
 		;
 }
-sttc	::llc::err_t 	stripSlashes				(::llc::vcsc_c & path, ::llc::asc_t & out_composed) {
-	llc_path_debug("path=\"%s\", out_composed=\"%s\"", path.begin(), out_composed.begin());
-	for(uint32_t iChar = 0; iChar < path.size(); ++iChar) {
-		const char				curChar						= path[iChar];
-		if(iChar < (path.size() - 1)) {
-			const char				nxtChar						= path[iChar + 1];
-			if_true_cwf
-			  ( ('\\' == curChar && '\\' == nxtChar)
-			 || ('\\' == curChar && '/'  == nxtChar)
-			 || ('/'  == curChar && '\\' == nxtChar)
-			 || ('/'  == curChar && '/'  == nxtChar)
-			 , "curChar: '%c', nxtChar: '%c', iChar: %" LLC_FMT_U2 ", path.size(): %" LLC_FMT_U2 "."
-			 , curChar, nxtChar, iChar, path.size()
+stxp	bool				pathSeparator			(::llc::sc_c value) { rtrn '/' == value || '\\' == value; }
+stxp	bool				pathDriveLetter			(::llc::sc_c value) { rtrn ('A' <= value && value <= 'Z') || ('a' <= value && value <= 'z'); }
+
+sttc	::llc::err_t	validatePathSeparators	(::llc::vcsc_c & path, bool allowUNC) {
+	for(::llc::u2_t iChar = 1; iChar < path.size(); ++iChar)
+		if_true_fef(::pathSeparator(path[iChar - 1]) && ::pathSeparator(path[iChar]) && false == (allowUNC && 1 == iChar)
+			, "Adjacent separators at offset %" LLC_FMT_U2 ": '%.*s'."
+			, iChar - 1, (int)path.size(), path.begin()
 			);
-		}
-		if_fail_fef(out_composed.push_back(curChar), "out_composed.size()=%" LLC_FMT_U2 ".", out_composed.size());
+	rtrn 0;
+}
+
+sttc	::llc::err_t 	appendPathNormalized		(::llc::vcsc_c & path, ::llc::asc_t & output) {
+	::llc::u2_t			written				= 0;
+	for(::llc::u2_t iChar = 0; iChar < path.size(); ++iChar) {
+		::llc::sc_t			curChar				= path[iChar];
+		if(::pathSeparator(curChar))
+			curChar					= '/';
+		if_fail_fef(output.push_back(curChar), "output.size()=%" LLC_FMT_U2 ".", output.size());
+		++written;
 	}
-	llc_path_debug("out_composed=\"%s\"", out_composed.begin());
-	return 0;
+	rtrn written;
+}
+
+::llc::err_t			llc::pathNormalize			(::llc::vcsc_c & path, ::llc::asc_t & output, sc_c separator) {
+	if_true_fef(false == ::pathSeparator(separator), "Invalid separator: '%c'.", separator);
+	if_fail_fe(::validatePathSeparators(path, true));
+	if(0 == path.size())
+		rtrn output.clear();
+
+	cnst bool				isUNC					= path.size() > 1 && ::pathSeparator(path[0]) && ::pathSeparator(path[1]);
+	cnst bool				hasDrive				= path.size() > 1 && ::pathDriveLetter(path[0]) && ':' == path[1];
+	cnst bool				isAbsolute				= isUNC || (!hasDrive && ::pathSeparator(path[0])) || (hasDrive && path.size() > 2 && ::pathSeparator(path[2]));
+	::llc::u2_t				iChar					= isUNC ? 2U : hasDrive ? 2U : isAbsolute ? 1U : 0U;
+	if(hasDrive && isAbsolute)
+		++iChar;
+
+	::llc::avcsc_t			segments;
+	cnst ::llc::u2_t		protectedSegments		= isUNC ? 2U : 0U;
+	while(iChar < path.size()) {
+		cnst ::llc::u2_t		segmentStart			= iChar;
+		while(iChar < path.size() && false == ::pathSeparator(path[iChar]))
+			++iChar;
+		::llc::vcsc_c			segment					= {path.begin() + segmentStart, iChar - segmentStart};
+		if(segment == LLC_CXS(".")) {}
+		else if(segment == LLC_CXS("..")) {
+			if(segments.size() > protectedSegments && segments[segments.size() - 1] != LLC_CXS("..")) {
+				if_fail_fe(segments.pop_back());
+			}
+			else if(false == isAbsolute) {
+				if_fail_fe(segments.push_back(segment));
+			}
+		}
+		else if(segment.size())
+			if_fail_fe(segments.push_back(segment));
+		if(iChar < path.size())
+			++iChar;
+	}
+	if_true_fef(isUNC && segments.size() < 2, "Incomplete UNC root: '%.*s'.", (int)path.size(), path.begin());
+
+	::llc::asc_t			normalized;
+	if(hasDrive)
+		if_fail_fe(normalized.append(path.begin(), 2));
+	if(isUNC) {
+		if_fail_fe(normalized.push_back(separator));
+		if_fail_fe(normalized.push_back(separator));
+	}
+	else if(isAbsolute)
+		if_fail_fe(normalized.push_back(separator));
+	for(::llc::u2_t iSegment = 0; iSegment < segments.size(); ++iSegment) {
+		cnst bool				driveRelativeFirst		= hasDrive && false == isAbsolute && 0 == iSegment;
+		if(normalized.size() && normalized[normalized.size() - 1] != separator && false == driveRelativeFirst)
+			if_fail_fe(normalized.push_back(separator));
+		if_fail_fe(normalized.append(segments[iSegment]));
+	}
+	if(isUNC && segments.size() == protectedSegments && normalized[normalized.size() - 1] != separator) {
+		if_fail_fe(normalized.push_back(separator));
+	}
+	else if(false == normalized.size() && path.size()) {
+		if_fail_fe(normalized.push_back('.'));
+	}
+	output						= normalized;
+	rtrn output.size();
+}
+
+::llc::err_t			llc::pathAbsolute			(::llc::vcsc_c & path, ::llc::asc_t & output, sc_c separator) {
+	if_zero_fef(path.size(), "%s", "Empty path.");
+	if_true_fef(false == ::pathSeparator(separator), "Invalid separator: '%c'.", separator);
+	if_fail_fe(::validatePathSeparators(path, true));
+#if !defined(LLC_ARDUINO) && !defined(LLC_ATMEL)
+	try {
+		cnst ::std::string		input					= {path.begin(), path.size()};
+		cnst ::std::string		absolute				= ::std::filesystem::absolute(input).generic_string();
+		::llc::vcsc_c			absoluteView			= {absolute.data(), (::llc::u2_t)absolute.size()};
+		rtrn ::llc::pathNormalize(absoluteView, output, separator);
+	}
+	catch(cnst ::std::filesystem::filesystem_error & exception) {
+		error_printf("Failed to resolve absolute path '%.*s': %s.", (int)path.size(), path.begin(), exception.what());
+		rtrn -1;
+	}
+#else
+	(void)output;
+	(void)separator;
+	error_printf("Absolute path resolution is unavailable on this platform: '%.*s'.", (int)path.size(), path.begin());
+	rtrn -1;
+#endif
 }
 //
 ::llc::err_t			llc::pathNameCompose		(::llc::vcsc_c & path, ::llc::vcsc_c & fileName, ::llc::asc_t & out_composed)		{
-	if(path.size()) {
-		if_fail_fe(::stripSlashes(path, out_composed));
-		if('\\' != path[path.size() - 1] && '/' != path[path.size() - 1])
-			if_fail_fef(out_composed.push_back('/'), "out_composed.size()=%" LLC_FMT_U2 ".", out_composed.size());
-	}
+	if_fail_fe(::validatePathSeparators(path, true));
+	if_fail_fe(::validatePathSeparators(fileName, 0 == path.size()));
+	::llc::u2_t				pathLength				= 0;
+	if(path.size())
+		if_fail_fe(pathLength = ::appendPathNormalized(path, out_composed));
 	if(fileName.size()) {
-		if_fail_fe(::stripSlashes(fileName, out_composed));
+		::llc::u2_t				fileOffset				= 0;
+		if(pathLength) {
+			while(fileOffset < fileName.size() && ::pathSeparator(fileName[fileOffset]))
+				++fileOffset;
+			if('/' != out_composed[out_composed.size() - 1] && fileOffset < fileName.size())
+				if_fail_fef(out_composed.push_back('/'), "out_composed.size()=%" LLC_FMT_U2 ".", out_composed.size());
+		}
+		::llc::vcsc_c			fileToAppend				= {fileName.begin() + fileOffset, fileName.size() - fileOffset};
+		if_fail_fe(::appendPathNormalized(fileToAppend, out_composed));
 	}
-	llc_path_debug("out_composed=\"%s\"", out_composed.begin());
-	return out_composed.size();
+	rtrn out_composed.size();
 }
 
 ::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::avcsc_t & output, ::llc::vcst_c extension)					{
