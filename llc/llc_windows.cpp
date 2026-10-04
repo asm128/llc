@@ -48,3 +48,33 @@
 }
 
 #endif
+
+// `d:\dev_extras\battleground`
+// `d:\dev_extras\blitdb`
+// `d:\dev_extras\blitter`
+// `d:\dev_extras\ced`
+// `d:\dev_extras\ced_data`
+// `d:\dev_extras\demo`
+// `d:\dev_extras\gpftw`
+// `d:\dev_extras\gpftw_advanced`
+// `d:\dev_extras\gpftw_expert`
+// `d:\dev_extras\gpftw_master`
+// `d:\dev_extras\gpftw_professional`
+// `d:\dev_extras\gpk`
+// `d:\dev_extras\gpk_data`
+// `d:\dev_extras\gpk_games`
+// `d:\dev_extras\gpk_samples`
+// `d:\dev_extras\kitsurpg`
+// `d:\dev_extras\lilia`
+// `d:\dev_extras\llc`
+// `d:\dev_extras\llt`
+// `d:\dev_extras\neutralizer`
+// `d:\dev_extras\nwol`
+// `d:\dev_extras\nwol_samples`
+// `d:\dev_extras\the_one`
+
+// `d:\dev_extras\obj`
+// `d:\dev_extras\Win32.Debug`
+// `d:\dev_extras\Win32.Release`
+// `d:\dev_extras\x64.Debug`
+// `d:\dev_extras\x64.Release`

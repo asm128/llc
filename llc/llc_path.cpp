@@ -75,6 +75,35 @@ stxp	uint32_t LLC_MAX_PATH = 256;
 stxp	bool				pathSeparator			(::llc::sc_c value) { rtrn '/' == value || '\\' == value; }
 stxp	bool				pathDriveLetter			(::llc::sc_c value) { rtrn ('A' <= value && value <= 'Z') || ('a' <= value && value <= 'z'); }
 
+::llc::err_t			llc::pathBegin				(::llc::vcsc_c & path, ::llc::vcsc_t & output) {
+	::llc::u2_t				prefixSize				= 0;
+	if(path.size() && ::pathSeparator(path[0])) {
+		prefixSize							= 1;
+		if(path.size() > 1 && ::pathSeparator(path[1])) {
+			prefixSize						= 2;
+			while(prefixSize < path.size() && false == ::pathSeparator(path[prefixSize]))
+				++prefixSize;
+			if(prefixSize < path.size())
+				++prefixSize;
+			while(prefixSize < path.size() && false == ::pathSeparator(path[prefixSize]))
+				++prefixSize;
+			if(prefixSize < path.size())
+				++prefixSize;
+		}
+	}
+	else {
+		::llc::vcsc_t			drive					= path;
+		if_fail_fe(::llc::split(':', drive));
+		if(1 == drive.size() && drive.size() < path.size() && ::pathDriveLetter(drive[0])) {
+			prefixSize						= 2;
+			if(prefixSize < path.size() && ::pathSeparator(path[prefixSize]))
+				++prefixSize;
+		}
+	}
+	if_fail_fe(path.slice(output, 0, prefixSize));
+	rtrn output.size();
+}
+
 sttc	::llc::err_t	validatePathSeparators	(::llc::vcsc_c & path, bool allowUNC) {
 	for(::llc::u2_t iChar = 1; iChar < path.size(); ++iChar)
 		if_true_fef(::pathSeparator(path[iChar - 1]) && ::pathSeparator(path[iChar]) && false == (allowUNC && 1 == iChar)
@@ -365,6 +394,9 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_c & pathToList, ::llc::SPathCon
 }
 
 ::llc::err_t			llc::pathList				(::llc::vcst_c & pathToList, ::llc::SPathContents & pathContents, ::llc::function<err_t(bool, vcst_c&)> onItem, ::llc::vcst_c extension)						{
-	::llc::string				withoutTrailingSlash		= (pathToList.size() - 1 > (uint32_t)::llc::findLastSlash(pathToList)) ? pathToList : ::llc::vcst_t{pathToList.begin(), pathToList.size() - 1};
+	::llc::vcsc_t				pathBegin;
+	if_fail_fe(::llc::pathBegin(pathToList, pathBegin));
+	cnst bool					removeTrailingSlash		= pathToList.size() > pathBegin.size() && ::pathSeparator(pathToList[pathToList.size() - 1]);
+	::llc::string				withoutTrailingSlash		= removeTrailingSlash ? ::llc::vcst_t{pathToList.begin(), pathToList.size() - 1} : pathToList;
 	rtrn ::pathListNative(withoutTrailingSlash, pathContents, onItem, extension);
 }

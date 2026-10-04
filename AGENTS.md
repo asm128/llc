@@ -16,6 +16,10 @@ This file is operational memory for future work in this repository. Read it befo
 - Use existing LLC aliases and macros (`u0_t`, `s2_t`, `cnst`, `stxp`, `inxp`, `rtrn`, `szof`, and the diagnostic macros) instead of introducing a parallel vocabulary.
 - Keep foundational headers light. Avoid adding a dependency tree when one constexpr expression or small local facility will do.
 - Use actual APIs and call sites before designing a change. Do not invent missing LLC interfaces from memory.
+- Preserve LLC's `err_t` result convention. Operations that can fail or report an operational result return `err_t` and place produced values in output parameters. Direct value returns are for operations that cannot fail, such as arithmetic. A different return type requires Pablo to request and approve that exact exception three separate times.
+- After every code edit, re-evaluate the changed signatures and bodies against this file and `../../FIRST_LEVEL_CONSTRAINTS.md`. Check return types before implementation details; then check ignored results, failure propagation, output mutation, ownership and allocation.
+- Inspect both the staged and unstaged LLC diff during that post-edit evaluation. A corrected working tree is not sufficient if the rejected version remains staged.
+- Do not call an API more convenient because its call expression is shorter when the shorter form removes an error channel, output or behavior. That is functionality erasure, not simplification.
 - Do not add OOP ceremony, registration machinery or external-framework structure unless a demonstrated requirement pays for it.
 - Preserve unrelated working-tree edits. This repository is often edited concurrently from Visual Studio.
 
@@ -52,6 +56,7 @@ This file is operational memory for future work in this repository. Read it befo
   - `llc_test_core/llc_test_str.cpp` — mutable/const arrays, views, static/dynamic POD arrays, empty strings, booleans and numeric storage.
 - Empty views may be null. Never form an invalid pointer merely to represent an empty range. One-past-end is valid; `begin - 1` and `end + 1` are not.
 - Bounds failures should use the current throwing idiom (`if_null_te()`, `if_true_tef()` and `LLC_FMT_*`) where the API contract throws.
+- The working-tree `split(separator, input)` overload returns `err_t` and mutates the supplied view to its left slice. Do not replace that result channel with a directly returned view. Its intended composition relies on `find()` returning `-1` and `slice()` interpreting `(u2_t)-1` as the complete remaining range; the heavier overload derives the right side from the untouched original at `left.size() + 1`.
 - `view<>` behavior and negative cases live in `llc_test_core/llc_test_view.cpp`. Use those tests before changing constructors, slicing, iteration, lookup, extrema or callback semantics.
 
 ## Paths, locators and runtime syntax policy
@@ -63,8 +68,8 @@ This file is operational memory for future work in this repository. Read it befo
 - Windows policy must distinguish at least ordinary relative paths, current-drive-rooted paths, drive-relative paths such as `C:x`, drive-absolute paths such as `C:/x`, UNC paths and device/file namespace prefixes. `C:x` requires the remembered current directory for drive C when resolution is requested; the parser can identify that requirement without obtaining the value itself.
 - Parsing, classification, normalization, composition and resolution against a supplied base do not require `std::filesystem`. Enumeration, existence/type queries, symlink or junction resolution and acquisition of an omitted runtime base are separate native operations.
 - URI parsing should expose scheme, authority, path, query and fragment as views. Query key/value parsing and decoding are a separate facility over the returned query view.
-- Known current debt, not yet repaired:
-  - recursive `pathList()` strips `/` to empty and `C:/` to `C:` before enumeration;
+- Current working-tree status and remaining debt:
+  - an unverified `pathBegin()`/protected-span repair is intended to prevent recursive `pathList()` from stripping `/` to empty or `C:/` to `C:`; focused cases exist, but no build or test run had verified this checkpoint when it was recorded;
   - fixed `LLC_MAX_PATH` buffers accept `snprintf()` truncation lengths and can use the required length as though it were stored length;
   - the recursive overload carries `extension` through recursion without applying it to files.
 - Root preservation must be tested end to end through listing, not only through `pathNormalize()`. Include native-root, drive-root and applicable network/device-prefix cases under their selected policies.

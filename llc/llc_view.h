@@ -433,21 +433,23 @@ namespace llc
 		rtrn -1;
 	}
 
-	stin	err_t			find_string				(cnst ::llc::vcst_t & toFind, cnst ::llc::vcsc_t & target, u2_t offset = 0) { rtrn ::llc::find_sequence_pod (toFind, target, offset); }
-	stin	err_t			rfind_string			(cnst ::llc::vcst_t & toFind, cnst ::llc::vcsc_t & target, u2_t offset = 0) { rtrn ::llc::rfind_sequence_pod(toFind, target, offset); }
+	stin	err_t					find_string				(cnst ::llc::vcst_t & toFind, cnst ::llc::vcsc_t & target, u2_t offset = 0) { rtrn ::llc::find_sequence_pod (toFind, target, offset); }
+	stin	err_t					rfind_string			(cnst ::llc::vcst_t & toFind, cnst ::llc::vcsc_t & target, u2_t offset = 0) { rtrn ::llc::rfind_sequence_pod(toFind, target, offset); }
+
+	tplT	err_t					split					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> & input) {
+		cnst err_t							iValue					= ::llc::find<llc_rmcnst(T)>(valueToFind, input);
+		rtrn input.slice(input, 0, (::llc::u2_t)iValue);
+	}
 
 	tplT	err_t					split					(cnst T & valueToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
-		cnst err_t				iValue					= ::llc::find(valueToFind, original);
-		if(0 > iValue) {
-			left							= original;
+		left							= original;
+		if_fail_fe(::llc::split(valueToFind, left));
+		if(left.size() == original.size()) {
 			right							= {};
+			rtrn -1;
 		}
-		else {
-			llc_necs(original.slice(left, 0, iValue));
-			u2_c						offsetRight				= iValue + 1;
-			llc_necs(original.slice(right, offsetRight, original.size() - offsetRight));
-		}
-		rtrn iValue;
+		if_fail_fe(original.slice(right, left.size() + 1));
+		rtrn left.size();
 	}
 
 	tplT	err_t					splitAt					(cnst T & valueToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {

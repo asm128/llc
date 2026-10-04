@@ -26,6 +26,7 @@ namespace llc
 	err_t						pathNameCompose			(::llc::vcsc_c & path, ::llc::vcsc_c & fileName, ::llc::asc_t & out_composed);
 	err_t						pathNormalize			(::llc::vcsc_c & path, ::llc::asc_t & output, sc_c separator = '/');
 	err_t						pathAbsolute			(::llc::vcsc_c & path, ::llc::asc_t & output, sc_c separator = '/');
+	err_t						pathBegin				(::llc::vcsc_c & path, ::llc::vcsc_t & output);
 	err_t						findLastSlash			(::llc::vcsc_c & path);
 
 	err_t						pathList				(::llc::vcst_c & pathToList, ::llc::SPathContents & outputTree, ::llc::function<err_t(bool, vcst_c&)> onItem, llc::vcst_c extension);

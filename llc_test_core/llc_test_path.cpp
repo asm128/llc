@@ -48,6 +48,8 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_RECURSIVE	, 38, "Recursive p
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_COUNTS		, 39, "Recursive pathList() callback reported unexpected file or folder counts.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_TREE		, 40, "Recursive pathList() with a callback produced an unexpected tree.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_EQUIVALENT		, 41, "Callback and non-callback pathList() produced different tree counts.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, BEGIN_TEXT					, 42, "pathBegin() produced an unexpected protected prefix.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, BEGIN_RETURN				, 43, "pathBegin() did not return the protected prefix size.");
 
 stct SPathSlashCase {
 	::llc::vcsc_t		Path;
@@ -68,6 +70,11 @@ stct SPathNormalizeCase {
 	::llc::vcsc_t		Expected;
 	::llc::sc_t		Separator;
 	PATH_TEST_RESULT	Result;
+};
+
+stct SPathBeginCase {
+	::llc::vcsc_t		Path;
+	::llc::vcsc_t		Expected;
 };
 
 sttc bool pathTextMismatch(::llc::vcsc_t actual, ::llc::vcsc_t expected) {
@@ -114,6 +121,40 @@ sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 		LLC_TEST_CHECK(errors, testCase.Result, actual != testCase.Expected
 			, "Path:'%.*s' returned:%" LLC_FMT_S2 ", expected:%" LLC_FMT_S2 "."
 			, (int)testCase.Path.size(), testCase.Path.begin(), actual, testCase.Expected
+			);
+	}
+	rtrn 0;
+}
+
+sttc ::llc::err_t testPathBegin(ATestError & errors) {
+	cnst SPathBeginCase cases[] =
+		{ {LLC_CXS("")						, LLC_CXS("")}
+		, {LLC_CXS("folder/file")			, LLC_CXS("")}
+		, {LLC_CXS("/a/b")					, LLC_CXS("/")}
+		, {LLC_CXS("/folder/file")			, LLC_CXS("/")}
+		, {LLC_CXS("\\folder\\file")			, LLC_CXS("\\")}
+		, {LLC_CXS("C:a")					, LLC_CXS("C:")}
+		, {LLC_CXS("C:folder\\file")			, LLC_CXS("C:")}
+		, {LLC_CXS("C:/a")					, LLC_CXS("C:/")}
+		, {LLC_CXS("D:/folder/file")			, LLC_CXS("D:/")}
+		, {LLC_CXS("z:\\folder\\file")			, LLC_CXS("z:\\")}
+		, {LLC_CXS("C:")						, LLC_CXS("C:")}
+		, {LLC_CXS("C:/")					, LLC_CXS("C:/")}
+		, {LLC_CXS("//server/share/a")		, LLC_CXS("//server/share/")}
+		, {LLC_CXS("//server/share/folder")	, LLC_CXS("//server/share/")}
+		, {LLC_CXS("\\\\server\\share\\folder")	, LLC_CXS("\\\\server\\share\\")}
+		, {LLC_CXS("1:/folder")					, LLC_CXS("")}
+		};
+	for(cnst SPathBeginCase & testCase : cases) {
+		::llc::vcsc_t		actual;
+		cnst ::llc::err_t result = ::llc::pathBegin(testCase.Path, actual);
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_BEGIN_TEXT, pathTextMismatch(actual, testCase.Expected)
+			, "Path:'%.*s' produced prefix:'%.*s'/%u, expected:'%.*s'/%u."
+			, (int)testCase.Path.size(), testCase.Path.begin(), (int)actual.size(), actual.begin(), actual.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size()
+			);
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_BEGIN_RETURN, result != (::llc::err_t)actual.size()
+			, "Path:'%.*s' returned:%" LLC_FMT_S2 ", prefix size:%u."
+			, (int)testCase.Path.size(), testCase.Path.begin(), result, actual.size()
 			);
 	}
 	rtrn 0;
@@ -188,10 +229,14 @@ sttc ::llc::err_t testPathNormalize(ATestError & errors) {
 		, {LLC_CXS("folder/child/../file")		, LLC_CXS("folder/file")			, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
 		, {LLC_CXS("folder/../../file")			, LLC_CXS("../file")				, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
 		, {LLC_CXS("folder/..")					, LLC_CXS(".")						, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
+		, {LLC_CXS("/a/b")						, LLC_CXS("/a/b")					, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
 		, {LLC_CXS("/folder/../")				, LLC_CXS("/")						, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
+		, {LLC_CXS("C:/a")						, LLC_CXS("C:/a")					, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
+		, {LLC_CXS("C:a")						, LLC_CXS("C:a")					, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
 		, {LLC_CXS("C:\\folder\\..\\file")		, LLC_CXS("C:/file")				, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
 		, {LLC_CXS("C:folder\\..\\file")			, LLC_CXS("C:file")				, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
 		, {LLC_CXS("C:\\")						, LLC_CXS("C:/")					, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
+		, {LLC_CXS("//server/share/a")			, LLC_CXS("//server/share/a")		, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
 		, {LLC_CXS("\\\\server\\share\\folder\\..\\file"), LLC_CXS("//server/share/file")	, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
 		, {LLC_CXS("\\\\server\\share\\")			, LLC_CXS("//server/share/")		, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
 		, {LLC_CXS("C:/folder/file")				, LLC_CXS("C:\\folder\\file")		, '\\', PATH_TEST_RESULT_NORMALIZE_SEPARATOR}
@@ -221,7 +266,10 @@ sttc ::llc::err_t testPathNormalize(ATestError & errors) {
 
 sttc ::llc::err_t testPathNormalizeInvalid(ATestError & errors) {
 	cnst SPathNormalizeCase cases[] =
-		{ {LLC_CXS("root//folder")	, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		{ {LLC_CXS("a//b")			, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {LLC_CXS("root//folder")	, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {LLC_CXS("C://a")			, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {LLC_CXS("//server/share//a"), LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
 		, {LLC_CXS("///server/share")	, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
 		, {LLC_CXS("//server")		, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
 		, {LLC_CXS("folder/file")		, LLC_CXS("preserved")	, ':', PATH_TEST_RESULT_NORMALIZE_INVALID}
@@ -372,6 +420,7 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 
 ::llc::err_t testPath(ATestError & errors) {
 	if_fail_fe(testFindLastSlash(errors));
+	if_fail_fe(testPathBegin(errors));
 	if_fail_fe(testPathNameCompose(errors));
 	if_fail_fe(testPathNameComposeInvalid(errors));
 	if_fail_fe(testPathNormalize(errors));
