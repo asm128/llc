@@ -2,26 +2,43 @@
 
 #include "llc_size.h"
 #include "llc_cstring.h"
+#include "llc_memory.h"
 
-#ifdef LLC_ATMEL
-#	include <stdio.h>
-#	include <string.h>
-#else
-#	include <cstdio>
-#endif
 
 #ifndef LLC_LOG_LEVEL_H
 #define LLC_LOG_LEVEL_H
+
+#if defined(LLC_ATMEL) || defined(ESP8266)
+#	define LLC_PLATFORM_LOG_FORMAT(format)	((::llc::sc_c*)format)
+#else
+#	define LLC_PLATFORM_LOG_FORMAT(format)	(format)
+#endif
 
 namespace llc
 {
 	err_t			debug_print_prefix				(s0_t severity, sc_c * path, u2_t line, sc_c * function);
 #ifndef LLC_ARDUINO
 	void			_llc_print_system_errors		(sc_c * prefix, u2_t prefixLen);
+#endif
+#if !defined(LLC_ARDUINO) || defined(LLC_ESP32)
 	tplt<u2_t fmtLen, tpnm... TArgs>
 	sttc	err_t	debug_printf					(s0_t severity, sc_c * path, u2_t line, sc_c * function, sc_c (&format)[fmtLen], cnst TArgs... args) {
 		debug_print_prefix(severity, path, line, function);
 
+#ifdef LLC_ESP32
+		u2_c			bufferSize						= u2_t(strlen(format) + 1024 * 8);
+		sc_t			* formatted						= {};
+		if(0 == ::llc::malloc(formatted, bufferSize))
+			rtrn -1;
+		::llc::auto_llc_free	formattedOwner;
+		formattedOwner.Handle							= formatted;
+		cnst err_t		formatLength					= snprintf(formatted, bufferSize - 2U, format, printf_arg(args)...);
+		if(0 > formatLength)
+			rtrn formatLength;
+		u2_t			outputLength					= min(u2_t(formatLength), bufferSize - 2U);
+		formatted[outputLength++] = '\n';
+		rtrn log_write(formatted, outputLength);
+#else
 		sc_t			formatted	[fmtLen + 1024 * 32]	= {};
 		cnst err_t		formatLength					= ::llc::sprintf_s(formatted, format, printf_arg(args)...);
 		if(0 > formatLength)
@@ -32,8 +49,10 @@ namespace llc
 		if(2 >= severity)
 			_llc_print_system_errors("", 0);
 		rtrn log_write(formatted, outputLength);
+#endif
 	}
 #endif
+#if defined(LLC_ARDUINO) && !defined(LLC_ESP32)
 #ifndef LLC_ATMEL
 	tplt<u2_t fmtLen, tpnm... TArgs>
 	sttc	err_t	_llc_debug_printf				(s0_t severity, sc_c * path, u2_t line, sc_c * function, sc_c (&format)[fmtLen], cnst TArgs... args)	{
@@ -46,62 +65,40 @@ namespace llc
 		log_print_F("}:");
 #endif
 
-#ifdef LLC_ESP32 // Use dynamic string buffer to save flash space.
-		/*if(format) */{
-			u2_c bufferSize = u2_t(strlen(format) + 1024 * 8);
-			if(char * customDynamicString = (char*)malloc(bufferSize)) {
-				u2_c 				stringLength		= (u2_t)snprintf(customDynamicString, bufferSize - 2U, format, printf_arg(args)...);
-				customDynamicString[min(stringLength, bufferSize - 2U)] = '\n';
-				customDynamicString[min(stringLength + 1, bufferSize - 1U)] = 0;
-				log_write(customDynamicString, (int)min(stringLength + 1U, bufferSize - 1U));
-				free(customDynamicString);
-			}
-		}
-#else
-#	if defined(LLC_ATMEL) || defined(ESP8266)
 		sc_t					customDynamicString	[128]		= {};
-		u2_c 					stringLength					= (u2_t)snprintf_P(customDynamicString, szof(customDynamicString) - 1U, (sc_c*)format, printf_arg(args)...);
+		u2_c 					stringLength					= (u2_t)::llc::sprintf_s(customDynamicString, LLC_PLATFORM_LOG_FORMAT(format), printf_arg(args)...);
 		customDynamicString[min(stringLength, szof(customDynamicString) - 1U)] = '\n';
-	#else
-		sc_t					customDynamicString	[fmtLen + 1024 * 32]	= {};
-		u2_c 					stringLength					= (u2_t)::llc::sprintf_s(customDynamicString, format, printf_arg(args)...);
-		customDynamicString[min(stringLength, szof(customDynamicString) - 2U)] = '\n';
-		if(2 >= severity)
-			::llc::_llc_print_system_errors("", 0);
-#	endif
 		return log_write(customDynamicString, min(szof(customDynamicString), stringLength + 1U));
-#endif
 	}
+#endif
 
 	tpl_vtArgs
 	sinx	void*		nully				(_tArgs&&...)		{ return 0; }
 
 }
 
-#if (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) || (!defined(_MSC_VER) && __cplusplus >= 202002L)
-#	define LLC_VA_TAIL(...) __VA_OPT__(,) __VA_ARGS__
-#else
-#	define LLC_VA_TAIL(...) , ##__VA_ARGS__
-#endif
-
 #ifdef LLC_ATMEL
-#	define llc_debug_printf(severity, format, ...)	::llc::_llc_debug_printf(__func__, F(format) LLC_VA_TAIL(__VA_ARGS__))
+#	define llc_debug_printf(severity, format, ...)	::llc::_llc_debug_printf(__func__, F(format), ##__VA_ARGS__)
+#elif defined(LLC_ESP32)
+#	define llc_debug_printf(severity, ...)			::llc::debug_printf(severity, __FILE__, __LINE__, __func__, __VA_ARGS__)
+#elif defined(LLC_WINDOWS)
+#	define llc_debug_printf(severity, ...)			::llc::debug_printf(severity, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 #elif defined(LLC_ARDUINO)
-#	define llc_debug_printf(severity, format, ...)	::llc::_llc_debug_printf(severity, __FILE__, __LINE__, __func__, format LLC_VA_TAIL(__VA_ARGS__))
+#	define llc_debug_printf(severity, ...)			::llc::_llc_debug_printf(severity, __FILE__, __LINE__, __func__, __VA_ARGS__)
 #else
-#	define llc_debug_printf(severity, format, ...)	::llc::debug_printf(severity, __FILE__, __LINE__, __func__, format LLC_VA_TAIL(__VA_ARGS__))
+#	define llc_debug_printf(severity, ...)			::llc::debug_printf(severity, __FILE__, __LINE__, __func__, __VA_ARGS__)
 #endif
 
 #ifndef always_printf
 #ifndef logf_always
-#	define always_printf(format, ...)					llc_debug_printf(3, format LLC_VA_TAIL(__VA_ARGS__))
+#	define always_printf(...)						llc_debug_printf(3, __VA_ARGS__)
 #endif
 #endif
 
 #ifndef error_printf
 #ifndef logf_error
 #	if defined (LLC_ERROR_PRINTF_ENABLED)
-#		define error_printf(format, ...)					do { llc_debug_printf(1, format LLC_VA_TAIL(__VA_ARGS__)); LLC_PLATFORM_CRT_BREAKPOINT(); } while(0)
+#		define error_printf(...)						do { llc_debug_printf(1, __VA_ARGS__); LLC_PLATFORM_CRT_BREAKPOINT(); } while(0)
 #	else
 #		define error_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); LLC_PLATFORM_CRT_BREAKPOINT(); } while(0)
 #	endif
@@ -111,7 +108,7 @@ namespace llc
 #ifndef warning_printf
 #ifndef logf_warning
 #	if defined (LLC_WARNING_PRINTF_ENABLED)
-#		define warning_printf(format, ...)					llc_debug_printf(2, format LLC_VA_TAIL(__VA_ARGS__))
+#		define warning_printf(...)						llc_debug_printf(2, __VA_ARGS__)
 #	else
 #		define warning_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
 #	endif
@@ -121,7 +118,7 @@ namespace llc
 #ifndef info_printf
 #ifndef logf_info
 #	if defined (LLC_INFO_PRINTF_ENABLED)
-#		define info_printf(format, ...)						llc_debug_printf(3, format LLC_VA_TAIL(__VA_ARGS__))
+#		define info_printf(...)							llc_debug_printf(3, __VA_ARGS__)
 #	else
 #		define info_printf(format, ...)						do { ::llc::dummy(__VA_ARGS__); } while(0)
 #	endif
@@ -131,7 +128,7 @@ namespace llc
 #ifndef success_printf
 #ifndef logf_success
 #	if defined (LLC_SUCCESS_PRINTF_ENABLED)
-#		define success_printf(format, ...)					llc_debug_printf(4, format LLC_VA_TAIL(__VA_ARGS__))
+#		define success_printf(...)						llc_debug_printf(4, __VA_ARGS__)
 #	else
 #		define success_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
 #	endif
@@ -141,7 +138,7 @@ namespace llc
 #ifndef verbose_printf
 #ifndef logf_verbose
 #	if defined (LLC_VERBOSE_PRINTF_ENABLED)
-#		define verbose_printf(format, ...)					llc_debug_printf(4, format LLC_VA_TAIL(__VA_ARGS__))
+#		define verbose_printf(...)						llc_debug_printf(4, __VA_ARGS__)
 #	else
 #		define verbose_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
 #	endif

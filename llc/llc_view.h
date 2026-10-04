@@ -441,7 +441,7 @@ namespace llc
 		rtrn input.slice(input, 0, (::llc::u2_t)iValue);
 	}
 
-	tplT	err_t					split					(cnst T & valueToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
+	tplT	err_t					split					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> original, ::llc::view<T> & left, ::llc::view<T> & right) {
 		left							= original;
 		if_fail_fe(::llc::split(valueToFind, left));
 		if(left.size() == original.size()) {
@@ -452,8 +452,14 @@ namespace llc
 		rtrn left.size();
 	}
 
-	tplT	err_t					splitAt					(cnst T & valueToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
-		cnst err_t				iValue					= ::llc::find(valueToFind, original);
+	tplT requires(false == ::llc::is_cnst<T>::Value)
+	err_t						split					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> original, tpnm ::llc::view<T>::TConstView & left, tpnm ::llc::view<T>::TConstView & right) {
+		tpnm ::llc::view<T>::TConstView	constOriginal			= original;
+		rtrn ::llc::split(valueToFind, constOriginal, left, right);
+	}
+
+	tplT	err_t					splitAt					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> original, ::llc::view<T> & left, ::llc::view<T> & right) {
+		cnst err_t				iValue					= original.find(valueToFind);
 		if(0 > iValue) { // Read until the end unless fragment is found.
 			left							= original;
 			right							= {};
@@ -465,8 +471,14 @@ namespace llc
 		rtrn iValue;
 	}
 
+	tplT requires(false == ::llc::is_cnst<T>::Value)
+	err_t						splitAt					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> original, tpnm ::llc::view<T>::TConstView & left, tpnm ::llc::view<T>::TConstView & right) {
+		tpnm ::llc::view<T>::TConstView	constOriginal			= original;
+		rtrn ::llc::splitAt(valueToFind, constOriginal, left, right);
+	}
+
 	// Returns the index of the start of the sequence if the latter found.
-	tplT	err_t					split					(cnst ::llc::view<T> & sequenceToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
+	tplT	err_t					split					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> original, ::llc::view<T> & left, ::llc::view<T> & right) {
 		cnst err_t				iValue					= ::llc::find_sequence_pod(sequenceToFind, original);
 		if(0 > iValue) {
 			left							= original;
@@ -479,12 +491,19 @@ namespace llc
 		rtrn iValue;
 	}
 
+	tplT requires(false == ::llc::is_cnst<T>::Value)
+	err_t						split					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> original, tpnm ::llc::view<T>::TConstView & left, tpnm ::llc::view<T>::TConstView & right) {
+		tpnm ::llc::view<T>::TConstView	constSequence			= sequenceToFind;
+		tpnm ::llc::view<T>::TConstView	constOriginal			= original;
+		rtrn ::llc::split(constSequence, constOriginal, left, right);
+	}
+
 	tplt<tpnm T>
 	inln	err_t			split					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> & inputOrLeft, ::llc::view<T> & right) {
 		rtrn ::llc::split(sequenceToFind, inputOrLeft, inputOrLeft, right);
 	}
 
-	tplT	err_t					splitAt					(cnst ::llc::view<T> & sequenceToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
+	tplT	err_t					splitAt					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> original, ::llc::view<T> & left, ::llc::view<T> & right) {
 		cnst err_t				iValue					= ::llc::find_sequence_pod(sequenceToFind, original);
 		if(0 > iValue) { // Read until the end unless fragment is found.
 			left							= original;
@@ -495,6 +514,13 @@ namespace llc
 			llc_necall(original.slice(right, iValue, (u2_t)original.size() - iValue), "%s", "Invalid slice");
 		}
 		rtrn iValue;
+	}
+
+	tplT requires(false == ::llc::is_cnst<T>::Value)
+	err_t						splitAt					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> original, tpnm ::llc::view<T>::TConstView & left, tpnm ::llc::view<T>::TConstView & right) {
+		tpnm ::llc::view<T>::TConstView	constSequence			= sequenceToFind;
+		tpnm ::llc::view<T>::TConstView	constOriginal			= original;
+		rtrn ::llc::splitAt(constSequence, constOriginal, left, right);
 	}
 
 	tplT	err_t		max						(view<T> input, T ** result) {

@@ -295,52 +295,33 @@ namespace llc
 	tdcs	avcs3_t	avcs3_c;
 
 
-	tplT	err_t							split					(cnst ::llc::view<cnst T> & target, cnst T & separator, ::llc::aobj<::llc::view<cnst T>> & output)	{
-		::llc::view<cnst T>				remaining				= target;
-		while(remaining.size()) {
-			::llc::view<cnst T>			left					= remaining;
-			llc_necs(::llc::split(separator, left));
-			if(left.size())
-				llc_necs(output.push_back(left));
-			if(left.size() == remaining.size())
-				break;
-			llc_necs(remaining.slice(remaining, left.size() + 1));
+	tplt<tpnm T, tpnm TSeparator, tpnm TView>
+		err_t							split					(cnst ::llc::view<cnst T> & target, cnst ::llc::view<cnst TSeparator> & separators, ::llc::aobj<TView> & output)	{
+		u2_t									lastOffset				= 0;
+		for(u2_t iChar = 0; iChar < target.size(); ++iChar) {
+			bool								separatorFound			= false;
+			for(u2_t iSeparator = 0; iSeparator < separators.size(); ++iSeparator)
+				if(target[iChar] == separators[iSeparator]) {
+					separatorFound						= true;
+					break;
+				}
+			if(false == separatorFound)
+				continue;
+			if(lastOffset < iChar)
+				llc_necs(output.push_back(TView{&target[lastOffset], iChar - lastOffset}));
+			lastOffset							= iChar + 1;
 		}
+		if(lastOffset < target.size())
+			llc_necs(output.push_back(TView{&target[lastOffset], target.size() - lastOffset}));
 		rtrn (s2_t)output.size();
 	}
 
-	tplT	err_t							split					(cnst ::llc::view<cnst T> & target, cnst ::llc::view<cnst T>& separators, ::llc::aobj<::llc::view<cnst T>> & split)	{
-		u2_t									lastOffset				= 0;
-		for(u2_t iChar = 0; iChar < target.size(); ++iChar) {
-			for(u2_t iSeparator = 0; iSeparator < separators.size(); ++iSeparator) {
-				if(target[iChar] == separators[iSeparator]) {
-					cnst ::llc::view<cnst T>			newView					= {&target[lastOffset], iChar - lastOffset};
-					++iChar;
-					llc_necs(split.push_back(newView));
-					lastOffset								= iChar;
-				}
-			}
-		}
-		if(lastOffset < target.size())
-			llc_necs(split.push_back({&target[lastOffset], target.size() - lastOffset}));
-		rtrn (s2_t)split.size();
+	tplT	err_t							split					(cnst ::llc::view<cnst T> & target, cnst T & separator, ::llc::aobj<::llc::view<cnst T>> & output)	{
+		rtrn ::llc::split<T, T, ::llc::view<cnst T>>(target, {&separator, 1}, output);
 	}
 
 	tplT	err_t							split					(cnst ::llc::vcst_t & target, cnst T & separator, ::llc::aobj<::llc::vcst_t> & split)	{
-		s2_t										lastOffset				= 0;
-		for(s2_t iChar = 0, countChars = target.size(); iChar < countChars; ++iChar) {
-			if(target[iChar] == separator) {
-				cnst ::llc::vcst_t							newView					= {&target[lastOffset], (u2_t)::llc::max((s2_t)0, s2_t(iChar - lastOffset))};
-				++iChar;
-				llc_necs(split.push_back(newView));
-				lastOffset								= iChar;
-			}
-		}
-		if(lastOffset < (s2_t)target.size()) {
-			llc_necs(split.push_back({&target[lastOffset], target.size() - lastOffset}));
-			//if(split[split.size()-1][] == separator)
-		}
-		rtrn (s2_t)split.size();
+		rtrn ::llc::split<::llc::sc_t, T, ::llc::vcst_t>(target, {&separator, 1}, split);
 	}
 
 

@@ -1,4 +1,5 @@
 #include "llc_view.h"
+#include "llc_array_obj.h"
 
 #include "llc_test_core.h"
 
@@ -75,6 +76,24 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EXTREMA_OFFSET			, 68, "min()/max() did no
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EXTREMA_CONVENIENCE		, 69, "The min()/max() convenience overload did not return the correct index.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EXTREMA_EMPTY			, 70, "min()/max() did not reject an empty search range without changing its output.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, EXTREMA_SINGLE			, 71, "min()/max() did not handle a single-element view.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_VALUE				, 72, "split() did not remove a scalar delimiter and preserve both resulting ranges.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_VALUE_MISSING		, 73, "split() did not preserve the complete input when a scalar delimiter was absent.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_VALUE_BOUNDARY		, 74, "split() did not preserve empty boundary ranges around a scalar delimiter.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_AT_VALUE			, 75, "splitAt() did not retain the scalar delimiter at the start of the right range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_SEQUENCE			, 76, "split() did not remove a delimiter sequence and preserve both resulting ranges.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_SEQUENCE_MISSING	, 77, "split() did not preserve the complete input when a delimiter sequence was absent.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_AT_SEQUENCE		, 78, "splitAt() did not retain the delimiter sequence at the start of the right range.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_SEQUENCE_IN_PLACE	, 79, "The in-place sequence split did not preserve its left and right ranges.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_COLLECTION			, 80, "The scalar split collector did not discard empty fields and delimiters.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_COLLECTION_APPEND	, 81, "The scalar split collector did not append to the existing output.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_COLLECTION_SET		, 82, "The delimiter-set split collector did not discard empty fields and delimiters.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_STRING_COLLECTION	, 83, "The string split collector did not discard empty fields and delimiters.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_HETEROGENEOUS		, 84, "The split collector narrowed a comparable separator before testing equality.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_CONST_OUTPUT		, 85, "A mutable view did not produce the requested const slice.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_VALUE_CONST_OUTPUT	, 86, "split() did not project a mutable scalar-split source into const output views.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_AT_VALUE_CONST_OUTPUT, 87, "splitAt() did not project a mutable scalar-split source into const output views.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_SEQUENCE_CONST_OUTPUT, 88, "split() did not project a mutable sequence-split source into const output views.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_AT_SEQUENCE_CONST_OUTPUT, 89, "splitAt() did not project a mutable sequence-split source into const output views.");
 
 tplt<tpnm T>
 sttc ::llc::err_t testRepresentation(ATestError & errors) {
@@ -166,6 +185,12 @@ sttc ::llc::err_t testMutableSlice(ATestError & errors) {
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_END, result || output.size() || output.begin() != data + 5 || output.end() != data + 5
 		, "mutable end slice mismatch. result:%i, size:%u, begin:%p, expected boundary:%p, end:%p."
 		, result, output.size(), output.begin(), (data + 5), output.end()
+		);
+	::llc::view<cnst T> constOutput;
+	result = source.slice(constOutput, 1, 2);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_CONST_OUTPUT, result != 2 || constOutput.size() != 2 || constOutput.begin() != data + 1 || constOutput.end() != data + 3
+		, "mutable-to-const slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
+		, result, constOutput.size(), constOutput.begin(), (data + 1), constOutput.end(), (data + 3)
 		);
 
 	::llc::view<T> self{data};
@@ -815,6 +840,214 @@ sttc ::llc::err_t testExtrema(ATestError & errors) {
 	return 0;
 }
 
+tplt<tpnm TView, tpnm TPointer>
+sttc bool splitRangeIs(cnst TView & range, TPointer rangeBegin, ::llc::u2_c count) {
+	rtrn range.size() == count && range.begin() == rangeBegin && range.end() == rangeBegin + count;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testSplit(ATestError & errors) {
+	T values[5] = {T(1), T(2), T(3), T(2), T(4)};
+	::llc::view<T> source{values};
+	::llc::view<T> left = source, right;
+	::llc::err_t result = ::llc::split(T(2), left);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE, result != 1 || !splitRangeIs(left, values, 1)
+		, "in-place scalar split mismatch. result:%i, left size:%u, expected result/size:1."
+		, result, left.size()
+		);
+
+	left = source;
+	result = ::llc::split(T(9), left);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_MISSING, result != 5 || !splitRangeIs(left, values, 5)
+		, "missing in-place scalar split mismatch. result:%i, left size:%u, expected result/size:5."
+		, result, left.size()
+		);
+
+	result = ::llc::split(T(2), source, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 2, 3)
+		, "scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/3."
+		, result, left.size(), right.size()
+		);
+
+	result = ::llc::split(T(1), source, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_BOUNDARY, result || !splitRangeIs(left, values, 0) || !splitRangeIs(right, values + 1, 4)
+		, "leading scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:0/0/4."
+		, result, left.size(), right.size()
+		);
+	result = ::llc::split(T(4), source, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_BOUNDARY, result != 4 || !splitRangeIs(left, values, 4) || !splitRangeIs(right, values + 5, 0)
+		, "trailing scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:4/4/0."
+		, result, left.size(), right.size()
+		);
+
+	result = ::llc::split(T(9), source, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_MISSING, result != -1 || !splitRangeIs(left, values, 5) || right.size()
+		, "missing scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:-1/5/0."
+		, result, left.size(), right.size()
+		);
+
+	result = ::llc::splitAt(T(2), source, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_VALUE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 1, 4)
+		, "scalar splitAt mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/4."
+		, result, left.size(), right.size()
+		);
+
+	::llc::view<cnst T> constLeft, constRight;
+	result = ::llc::split(T(2), source, constLeft, constRight);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 2, 3)
+		, "const-output scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/3."
+		, result, constLeft.size(), constRight.size()
+		);
+	result = ::llc::splitAt(T(2), source, constLeft, constRight);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_VALUE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 1, 4)
+		, "const-output scalar splitAt mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/4."
+		, result, constLeft.size(), constRight.size()
+		);
+
+	cnst ::llc::view<cnst T> constSource{values};
+	result = ::llc::split(T(2), constSource, constLeft, constRight);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 2, 3)
+		, "const scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/3."
+		, result, constLeft.size(), constRight.size()
+		);
+
+	T sequenceValues[2] = {T(2), T(3)};
+	cnst ::llc::view<T> sequence{sequenceValues};
+	result = ::llc::split(sequence, source, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 3, 2)
+		, "sequence split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/2."
+		, result, left.size(), right.size()
+		);
+
+	T missingValues[2] = {T(8), T(9)};
+	cnst ::llc::view<T> missingSequence{missingValues};
+	result = ::llc::split(missingSequence, source, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE_MISSING, result != -1 || !splitRangeIs(left, values, 5) || right.size()
+		, "missing sequence split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:-1/5/0."
+		, result, left.size(), right.size()
+		);
+
+	result = ::llc::splitAt(sequence, source, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_SEQUENCE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 1, 4)
+		, "sequence splitAt mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/4."
+		, result, left.size(), right.size()
+		);
+	result = ::llc::split(sequence, source, constLeft, constRight);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 3, 2)
+		, "const-output sequence split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/2."
+		, result, constLeft.size(), constRight.size()
+		);
+	result = ::llc::splitAt(sequence, source, constLeft, constRight);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_SEQUENCE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 1, 4)
+		, "const-output sequence splitAt mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/4."
+		, result, constLeft.size(), constRight.size()
+		);
+
+	left = source;
+	result = ::llc::split(sequence, left, right);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE_IN_PLACE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 3, 2)
+		, "in-place sequence split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/2."
+		, result, left.size(), right.size()
+		);
+	rtrn 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t testSplitCollections(ATestError & errors) {
+	{
+		T values[3] = {T(1), T(0), T(2)};
+		::llc::aobj<::llc::view<cnst T>> output;
+		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 2 || output.size() != 2 || !splitRangeIs(output[0], values, 1) || !splitRangeIs(output[1], values + 2, 1)
+			, "ordinary collection mismatch. result:%i, output size:%u, expected:2."
+			, result, output.size()
+			);
+	}
+	{
+		T values[4] = {T(1), T(0), T(0), T(2)};
+		::llc::aobj<::llc::view<cnst T>> output;
+		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 2 || output.size() != 2 || !splitRangeIs(output[0], values, 1) || !splitRangeIs(output[1], values + 3, 1)
+			, "consecutive delimiter collection mismatch. result:%i, output size:%u, expected:2."
+			, result, output.size()
+			);
+	}
+	{
+		T values[3] = {T(0), T(1), T(0)};
+		::llc::aobj<::llc::view<cnst T>> output;
+		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 1 || output.size() != 1 || !splitRangeIs(output[0], values + 1, 1)
+			, "boundary delimiter collection mismatch. result:%i, output size:%u, expected:1."
+			, result, output.size()
+			);
+	}
+	{
+		T values[2] = {T(0), T(0)};
+		::llc::aobj<::llc::view<cnst T>> output;
+		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result || output.size()
+			, "delimiter-only collection mismatch. result:%i, output size:%u, expected:0."
+			, result, output.size()
+			);
+	}
+	{
+		T values[1] = {T(1)};
+		::llc::aobj<::llc::view<cnst T>> output;
+		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 1 || output.size() != 1 || !splitRangeIs(output[0], values, 1)
+			, "delimiter-free collection mismatch. result:%i, output size:%u, expected:1."
+			, result, output.size()
+			);
+	}
+	{
+		::llc::aobj<::llc::view<cnst T>> output;
+		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{}, T(0), output);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result || output.size()
+			, "empty collection mismatch. result:%i, output size:%u, expected:0."
+			, result, output.size()
+			);
+	}
+	{
+		T seed[1] = {T(9)};
+		T values[4] = {T(1), T(0), T(0), T(2)};
+		::llc::aobj<::llc::view<cnst T>> output;
+		if_fail_fe(output.push_back({seed}));
+		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION_APPEND, result != 3 || output.size() != 3 || !splitRangeIs(output[0], seed, 1) || !splitRangeIs(output[1], values, 1) || !splitRangeIs(output[2], values + 3, 1)
+			, "append collection mismatch. result:%i, output size:%u, expected:3."
+			, result, output.size()
+			);
+	}
+	{
+		T values[6] = {T(0), T(1), T(3), T(0), T(2), T(3)};
+		T separators[2] = {T(0), T(3)};
+		::llc::aobj<::llc::view<cnst T>> output;
+		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, ::llc::view<cnst T>{separators}, output);
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION_SET, result != 2 || output.size() != 2 || !splitRangeIs(output[0], values + 1, 1) || !splitRangeIs(output[1], values + 4, 1)
+			, "delimiter-set collection mismatch. result:%i, output size:%u, expected:2."
+			, result, output.size()
+			);
+	}
+	rtrn 0;
+}
+
+sttc ::llc::err_t testStringSplitCollection(ATestError & errors) {
+	::llc::aobj<::llc::vcst_t> output;
+	cnst ::llc::err_t result = ::llc::split(LLC_CXS(",a,,b,"), ',', output);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, result != 2 || output.size() != 2 || output[0] != LLC_CXS("a") || output[1] != LLC_CXS("b")
+		, "string collection mismatch. result:%i, output size:%u, expected:2."
+		, result, output.size()
+		);
+
+	::llc::aobj<::llc::vcst_t> heterogeneousOutput;
+	cnst ::llc::err_t heterogeneousResult = ::llc::split(LLC_CXS("a,b"), ::llc::u1_t(300), heterogeneousOutput);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_HETEROGENEOUS, heterogeneousResult != 1 || heterogeneousOutput.size() != 1 || heterogeneousOutput[0] != LLC_CXS("a,b")
+		, "heterogeneous separator mismatch. result:%i, output size:%u, expected:1."
+		, heterogeneousResult, heterogeneousOutput.size()
+		);
+	rtrn 0;
+}
+
 tplt<tpnm T>
 sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
 #ifdef LLC_WINDOWS
@@ -841,6 +1074,8 @@ sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testEnumerate<T>(errors));
 	if_fail_fe(testTraversalFailures<T>(errors));
 	if_fail_fe(testFind<T>(errors));
+	if_fail_fe(testSplit<T>(errors));
+	if_fail_fe(testSplitCollections<T>(errors));
 	if_fail_fe(testExtrema<T>(errors));
 	return testInvalidConstruction<T>(errors);
 }
@@ -866,6 +1101,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	if_fail_fe(testTypeLogged<::llc::s1_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::s2_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::s3_t>(errors));
+	if_fail_fe(testStringSplitCollection(errors));
 	if(failureCount == testErrorCount(errors))
 		always_printf("Types tested successfully:\n%s, %s, %s, %s, %s, %s, %s, %s."
 			, ::llc::get_type_namep<::llc::u0_t>(), ::llc::get_type_namep<::llc::u1_t>(), ::llc::get_type_namep<::llc::u2_t>(), ::llc::get_type_namep<::llc::u3_t>()

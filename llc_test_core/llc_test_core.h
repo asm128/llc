@@ -50,18 +50,18 @@ bool testThrows(TCall call) {
 }
 #endif
 
-#define LLC_TEST_CHECK_BASE(errors, result, condition, format, block, ...) do {													\
-	if_true_block_logf(error_printf, condition, block																			\
-		, "%s::%s(%" LLC_FMT_S3 "):\"%s\" " format																				\
+#define LLC_TEST_CHECK_BASE(errors, result, condition, block, ...) do {														\
+	if_true_block_logf(error_printf, (condition), block																		\
+		, "%s::%s(%" LLC_FMT_S3 "):\"%s\" " __VA_ARGS__																	\
 		, ::llc::get_enum_namep(result), ::llc::get_value_namep(result), (::llc::s3_t)(result), ::llc::get_value_descp(result)	\
-		__VA_OPT__(,) __VA_ARGS__)																											\
+		)																															\
 	else {																														\
 		if_fail_fe(testSuccessRecord((errors), (result)));																		\
 	}																															\
 } while(0)
 
-#define LLC_TEST_CHECK(errors, result, condition, format, ...)		LLC_TEST_CHECK_BASE(errors, result, condition, format, { if_fail_fe(testErrorRecord((errors), (result))); } __VA_OPT__(,) __VA_ARGS__)
-#define LLC_TEST_REQUIRE(errors, result, condition, format, ...)	LLC_TEST_CHECK_BASE(errors, result, condition, format, { if_fail_fe(testErrorRecord((errors), (result))); return 0; } __VA_OPT__(,) __VA_ARGS__)
+#define LLC_TEST_CHECK(errors, result, condition, ...)		LLC_TEST_CHECK_BASE(errors, result, (condition), { if_fail_fe(testErrorRecord((errors), (result))); }, __VA_ARGS__)
+#define LLC_TEST_REQUIRE(errors, result, condition, ...)	LLC_TEST_CHECK_BASE(errors, result, (condition), { if_fail_fe(testErrorRecord((errors), (result))); return 0; }, __VA_ARGS__)
 
 ::llc::err_t testArrayStatic		(ATestError & errors);
 ::llc::err_t testArrayPod		(ATestError & errors);

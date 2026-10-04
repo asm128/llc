@@ -124,6 +124,8 @@ namespace llc
 
 	tpl_tstct	rm_cnst				{ usng T = _t; };
 	tpl_tstct	rm_cnst<cnst _t>	{ usng T = _t; };
+	tpl_tstct	is_cnst				{ stxp bool Value = false; };
+	tpl_tstct	is_cnst<cnst _t>	{ stxp bool Value = true; };
 	tpl_tstct	rm_vltl				{ usng T = _t; };
 	tpl_tstct	rm_vltl<vltl _t>	{ usng T = _t; };
 	tpl_tstct	rm_csvl				{ usng T = _t; };
