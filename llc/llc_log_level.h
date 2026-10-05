@@ -30,7 +30,7 @@ namespace llc
 		sc_t			* formatted						= {};
 		if(0 == ::llc::malloc(formatted, bufferSize))
 			rtrn -1;
-		::llc::auto_llc_free	formattedOwner;
+		::llc::auto_free		formattedOwner;
 		formattedOwner.Handle							= formatted;
 		cnst err_t		formatLength					= snprintf(formatted, bufferSize - 2U, format, printf_arg(args)...);
 		if(0 > formatLength)

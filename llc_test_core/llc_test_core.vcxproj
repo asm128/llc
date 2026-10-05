@@ -187,9 +187,11 @@
     <ClCompile Include="llc_test_cpow.cpp" />
     <ClCompile Include="llc_test_ctti.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
+    <ClCompile Include="llc_test_xml.cpp" />
     <ClCompile Include="llc_test_noise.cpp" />
     <ClCompile Include="llc_test_path.cpp" />
     <ClCompile Include="llc_test_packed_int.cpp" />
+    <ClCompile Include="llc_test_ptr.cpp" />
     <ClCompile Include="llc_test_str.cpp" />
     <ClCompile Include="llc_test_view.cpp" />
     <ClCompile Include="llc_test_view_bit.cpp" />

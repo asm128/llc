@@ -430,9 +430,7 @@
     <ClCompile Include="llc_timer.cpp" />
     <ClCompile Include="llc_view.cpp" />
     <ClCompile Include="llc_windows.cpp" />
-    <ClCompile Include="llc_xml_reader.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_xml_reader.cpp" />
     <ClCompile Include="llc_font.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
