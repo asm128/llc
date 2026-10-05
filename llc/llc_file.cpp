@@ -5,6 +5,9 @@
 #include "llc_string_compose.h"
 
 #include <new>
+#ifndef LLC_ARDUINO
+#	include <sys/stat.h>
+#endif
 
 #ifdef LLC_WINDOWS
 #	ifndef WIN32_LEAN_AND_MEAN
@@ -89,6 +92,26 @@ s3_t	llc::	fileSize			(llc::vcst_t usfileName)			{
 	fclose(fp);
 #endif // LLC_ARDUINO
 	return fileSize;
+}
+
+llc::err_t	llc::fileLastWriteTime	(vcst_t usfileName, s3_t & modified) {
+	llc::asc_t	fileName	= llc::toString(usfileName);
+#ifdef LLC_WINDOWS
+	struct _stat64	fileStatus	= {};
+	if(_stat64(fileName.begin(), &fileStatus))
+		rtrn 1;
+	modified = (s3_t)fileStatus.st_mtime;
+#elif defined(LLC_ARDUINO)
+	(void)fileName;
+	(void)modified;
+	rtrn 1;
+#else
+	struct stat		fileStatus	= {};
+	if(stat(fileName.begin(), &fileStatus))
+		rtrn 1;
+	modified = (s3_t)fileStatus.st_mtime;
+#endif
+	rtrn 0;
 }
 
 // This function is useful for splitting files smaller than 4gb very quick.

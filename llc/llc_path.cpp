@@ -72,6 +72,17 @@ stxp	uint32_t LLC_MAX_PATH = 256;
 		::llc::max(indexOfStartOfFileName0, indexOfStartOfFileName1)
 		;
 }
+::llc::err_t			llc::pathStem				(::llc::vcsc_t path, ::llc::vcsc_t & stem) {
+	::llc::vcsc_t filename = {};
+	if_fail_fe(::llc::pathFilename(path, filename));
+	if_zero_fef(filename.size(), "Path has no filename:'%.*s'.", (int)path.size(), path.begin());
+	::llc::u2_t iEnd = filename.size();
+	while(1 < iEnd)
+		if('.' == filename[--iEnd])
+			rtrn filename.slice(stem, 0, iEnd);
+	rtrn filename.slice(stem, 0, filename.size());
+}
+
 stxp	bool				pathSeparator			(::llc::sc_c value) { rtrn '/' == value || '\\' == value; }
 stxp	bool				pathDriveLetter			(::llc::sc_c value) { rtrn ('A' <= value && value <= 'Z') || ('a' <= value && value <= 'z'); }
 

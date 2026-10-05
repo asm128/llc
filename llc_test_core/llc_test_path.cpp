@@ -50,6 +50,9 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_TREE		, 40, "Recursive pathL
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_EQUIVALENT		, 41, "Callback and non-callback pathList() produced different tree counts.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, BEGIN_TEXT					, 42, "pathBegin() produced an unexpected protected prefix.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, BEGIN_RETURN				, 43, "pathBegin() did not return the protected prefix size.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, DIRECTORY_TEXT				, 44, "pathDirectory() produced an unexpected directory slice.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, FILENAME_TEXT				, 45, "pathFilename() produced an unexpected filename slice.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, STEM_TEXT					, 46, "pathStem() produced an unexpected stem slice.");
 
 stct SPathSlashCase {
 	::llc::vcsc_t		Path;
@@ -75,6 +78,13 @@ stct SPathNormalizeCase {
 stct SPathBeginCase {
 	::llc::vcsc_t		Path;
 	::llc::vcsc_t		Expected;
+};
+
+stct SPathPartsCase {
+	::llc::vcsc_t		Path		= {};
+	::llc::vcsc_t		Directory	= {};
+	::llc::vcsc_t		Filename	= {};
+	::llc::vcsc_t		Stem		= {};
 };
 
 sttc bool pathTextMismatch(::llc::vcsc_t actual, ::llc::vcsc_t expected) {
@@ -122,6 +132,25 @@ sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 			, "Path:'%.*s' returned:%" LLC_FMT_S2 ", expected:%" LLC_FMT_S2 "."
 			, (int)testCase.Path.size(), testCase.Path.begin(), actual, testCase.Expected
 			);
+	}
+	cnst SPathPartsCase partCases[] =
+		{ {LLC_CXS("file.txt")					, LLC_CXS("")			, LLC_CXS("file.txt")			, LLC_CXS("file")}
+		, {LLC_CXS("folder/archive.test.cpp")	, LLC_CXS("folder/")	, LLC_CXS("archive.test.cpp")	, LLC_CXS("archive.test")}
+		, {LLC_CXS("C:\\folder\\archive.test.cpp"), LLC_CXS("C:\\folder\\"), LLC_CXS("archive.test.cpp")	, LLC_CXS("archive.test")}
+		, {LLC_CXS("/file")						, LLC_CXS("/")		, LLC_CXS("file")				, LLC_CXS("file")}
+		, {LLC_CXS("README")						, LLC_CXS("")			, LLC_CXS("README")			, LLC_CXS("README")}
+		, {LLC_CXS(".profile")					, LLC_CXS("")			, LLC_CXS(".profile")			, LLC_CXS(".profile")}
+		};
+	for(cnst SPathPartsCase & testCase : partCases) {
+		::llc::vcsc_t directory = {};
+		::llc::vcsc_t filename  = {};
+		::llc::vcsc_t stem      = {};
+		if_fail_fe(::llc::pathDirectory(testCase.Path, directory));
+		if_fail_fe(::llc::pathFilename(testCase.Path, filename));
+		if_fail_fe(::llc::pathStem(testCase.Path, stem));
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_DIRECTORY_TEXT, pathTextMismatch(directory, testCase.Directory), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_FILENAME_TEXT , pathTextMismatch(filename , testCase.Filename ), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_STEM_TEXT     , pathTextMismatch(stem     , testCase.Stem     ), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
 	}
 	rtrn 0;
 }

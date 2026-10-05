@@ -28,6 +28,15 @@ namespace llc
 	err_t						pathAbsolute			(::llc::vcsc_c & path, ::llc::asc_t & output, sc_c separator = '/');
 	err_t						pathBegin				(::llc::vcsc_c & path, ::llc::vcsc_t & output);
 	err_t						findLastSlash			(::llc::vcsc_c & path);
+	stin err_t					pathDirectory			(::llc::vcsc_t path, ::llc::vcsc_t & directory) {
+		cnst err_t iSlash = ::llc::findLastSlash(path);
+		rtrn path.slice(directory, 0, 0 <= iSlash ? (::llc::u2_t)iSlash + 1 : 0);
+	}
+	stin err_t					pathFilename			(::llc::vcsc_t path, ::llc::vcsc_t & filename) {
+		cnst err_t iSlash = ::llc::findLastSlash(path);
+		rtrn path.slice(filename, 0 <= iSlash ? (::llc::u2_t)iSlash + 1 : 0);
+	}
+	err_t						pathStem				(::llc::vcsc_t path, ::llc::vcsc_t & stem);
 
 	err_t						pathList				(::llc::vcst_c & pathToList, ::llc::SPathContents & outputTree, ::llc::function<err_t(bool, vcst_c&)> onItem, llc::vcst_c extension);
 } // namespace
