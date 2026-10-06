@@ -5,9 +5,9 @@
 
 struct STestError {
 	::llc::s3_t		Value			= {};
-	::llc::sc_c		* EnumName		= {};
-	::llc::sc_c		* ValueName		= {};
-	::llc::sc_c		* Description	= {};
+	::llc::vcst_t	EnumName		= {};
+	::llc::vcst_t	ValueName		= {};
+	::llc::vcst_t	Description		= {};
 	::llc::u2_t		Count			= {};
 	::llc::u2_t		SuccessCount	= {};
 };
@@ -15,13 +15,20 @@ struct STestError {
 tydf ::llc::aobj<STestError> ATestError;
 
 tplt<tpnm TEnum>			::llc::err_t testResultRecord(ATestError & errors, TEnum value, bool failed) {
-	::llc::sc_c * enumName = ::llc::get_enum_namep(value);
+	cnst ::llc::vcsc_t & enumName = ::llc::get_enum_namev(value);
 	for(::llc::u2_t iError = 0; iError < errors.size(); ++iError)
-		if(errors[iError].Value == (::llc::s3_t)value && 0 == strcmp(errors[iError].EnumName, enumName)) {
+		if(errors[iError].Value == (::llc::s3_t)value && errors[iError].EnumName == enumName) {
 			failed ? ++errors[iError].Count : ++errors[iError].SuccessCount;
 			return 0;
 		}
-	cnst ::llc::err_t result = errors.push_back({(::llc::s3_t)value, enumName, ::llc::get_value_namep(value), ::llc::get_value_descp(value), failed ? 1U : 0U, failed ? 0U : 1U});
+	cnst ::llc::err_t result = errors.push_back
+		({ (::llc::s3_t)value
+		, enumName
+		, ::llc::get_value_namev(value)
+		, ::llc::get_value_descv(value)
+		, failed ? 1U : 0U
+		, failed ? 0U : 1U
+		});
 	return ::llc::failed(result) ? result : 0;
 }
 tplt<tpnm TEnum>	stin	::llc::err_t testErrorRecord	(ATestError & errors, TEnum value) { return testResultRecord(errors, value, true); }
@@ -52,8 +59,10 @@ bool testThrows(TCall call) {
 
 #define LLC_TEST_CHECK_BASE(errors, result, condition, block, ...) do {														\
 	if_true_block_logf(error_printf, (condition), block																		\
-		, "%s::%s(%" LLC_FMT_S3 "):\"%s\" " __VA_ARGS__																	\
-		, ::llc::get_enum_namep(result), ::llc::get_value_namep(result), (::llc::s3_t)(result), ::llc::get_value_descp(result)	\
+		, "%.*s::%.*s(%" LLC_FMT_S3 "):\"%.*s\" " __VA_ARGS__													\
+		, (int)::llc::get_enum_namev(result).size(), ::llc::get_enum_namev(result).begin()									\
+		, (int)::llc::get_value_namev(result).size(), ::llc::get_value_namev(result).begin(), (::llc::s3_t)(result)			\
+		, (int)::llc::get_value_descv(result).size(), ::llc::get_value_descv(result).begin()								\
 		)																															\
 	else {																														\
 		if_fail_fe(testSuccessRecord((errors), (result)));																		\
@@ -62,23 +71,5 @@ bool testThrows(TCall call) {
 
 #define LLC_TEST_CHECK(errors, result, condition, ...)		LLC_TEST_CHECK_BASE(errors, result, (condition), { if_fail_fe(testErrorRecord((errors), (result))); }, __VA_ARGS__)
 #define LLC_TEST_REQUIRE(errors, result, condition, ...)	LLC_TEST_CHECK_BASE(errors, result, (condition), { if_fail_fe(testErrorRecord((errors), (result))); return 0; }, __VA_ARGS__)
-
-::llc::err_t testArrayStatic		(ATestError & errors);
-::llc::err_t testArrayPod		(ATestError & errors);
-::llc::err_t testBase64			(ATestError & errors);
-::llc::err_t testBitField		(ATestError & errors);
-::llc::err_t testPackedUInt		(ATestError & errors);
-::llc::err_t testCPow			(ATestError & errors);
-::llc::err_t testCTTIParser		(ATestError & errors);
-::llc::err_t testJSONReader		(ATestError & errors);
-::llc::err_t testKeyVal			(ATestError & errors);
-::llc::err_t testXMLReader		(ATestError & errors);
-::llc::err_t testPath			(ATestError & errors);
-::llc::err_t testPointers		(ATestError & errors);
-::llc::err_t testSPRNG			(ATestError & errors);
-::llc::err_t testStr			(ATestError & errors);
-::llc::err_t testView			(ATestError & errors);
-::llc::err_t testViewBit		(ATestError & errors);
-::llc::err_t testViewSerialize	(ATestError & errors);
 
 #endif // LLC_TEST_CORE_H

@@ -111,10 +111,6 @@ sttc SPathListCounts pathListCounts(const ::llc::SPathContents & pathContents) {
 	rtrn counts;
 }
 
-sttc bool pathEndsWith(::llc::vcst_c & path, ::llc::vcst_c & suffix) {
-	rtrn suffix.size() <= path.size() && 0 == memcmp(path.end() - suffix.size(), suffix.begin(), suffix.size());
-}
-
 sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 	cnst SPathSlashCase cases[] =
 		{ {LLC_CXS("")						, -1, PATH_TEST_RESULT_LAST_SLASH_NONE}
@@ -405,11 +401,13 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 	::llc::u2_t			callbackFiles	= 0;
 	::llc::u2_t			callbackFolders	= 0;
 	bool					deepFileSeen	= false;
+	stxp ::llc::vcst_t	deepFileName	= LLC_CXS("deep.bin");
 	::llc::SPathContents	callbackTree;
 	cnst ::llc::err_t	callbackResult	= ::llc::pathList(rootPath, callbackTree
 		, [&](::llc::b8_t isFolder, ::llc::vcst_c & path) -> ::llc::err_t {
 			isFolder ? ++callbackFolders : ++callbackFiles;
-			deepFileSeen		|= false == isFolder && ::pathEndsWith(path, LLC_CXS("deep.bin"));
+			cnst ::llc::err_t iDeepFile = ::llc::rfind_sequence_pod(deepFileName, path);
+			deepFileSeen		|= false == isFolder && 0 <= iDeepFile && (::llc::u2_t)iDeepFile + deepFileName.size() == path.size();
 			rtrn 0;
 		}
 		, {}

@@ -136,11 +136,11 @@ sttc ::llc::err_t testPodConstruction(ATestError & errors) {
 		, (::llc::s3_t)initialized[0]
 		);
 
-	T * movedAddress = initialized.begin();
+	cnst ::llc::view<T> movedStorage = initialized;
 	::llc::apod<T> moved{::std::move(initialized)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_MOVE_CONSTRUCTION, moved.begin() != movedAddress || podMismatch(moved, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_MOVE_CONSTRUCTION, moved.begin() != movedStorage.begin() || podMismatch(moved, expected)
 		, "move construction mismatch. old:%p, moved:%p/%u."
-		, movedAddress, moved.begin(), moved.size()
+		, movedStorage.begin(), moved.begin(), moved.size()
 		);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_MOVE_SOURCE, initialized.size() || initialized.begin() || initialized.end()
 		, "moved source mismatch. size:%u, begin:%p, end:%p."
@@ -209,11 +209,11 @@ sttc ::llc::err_t testPodReserveResize(ATestError & errors) {
 		, "reserve changed content. size:%u, expected:3."
 		, values.size()
 		);
-	T * reservedAddress = values.begin();
+	cnst ::llc::view<T> reservedStorage = values;
 	cnst ::llc::err_t stableCapacity = values.reserve(16);
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESERVE_STABLE, stableCapacity != capacity || values.begin() != reservedAddress
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESERVE_STABLE, stableCapacity != capacity || values.begin() != reservedStorage.begin()
 		, "satisfied reserve changed allocation. capacity:%i/%i, address:%p/%p."
-		, stableCapacity, capacity, values.begin(), reservedAddress
+		, stableCapacity, capacity, values.begin(), reservedStorage.begin()
 		);
 
 	::llc::err_t result = values.resize(5, T(9));
@@ -298,11 +298,11 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 		, "view append mismatch. result:%i, size:%u, expected index:7/size:9."
 		, result, values.size()
 		);
-	T * addressBeforeEmpty = values.begin();
-	result = values.append((cnst T*)0, 0);
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_EMPTY, result != 9 || values.size() != 9 || values.begin() != addressBeforeEmpty
+	cnst ::llc::view<T> storageBeforeEmpty = values;
+	result = values.append(nullptr, 0);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_EMPTY, result != 9 || values.size() != 9 || values.begin() != storageBeforeEmpty.begin()
 		, "empty append mismatch. result:%i, size:%u, address:%p/%p."
-		, result, values.size(), values.begin(), addressBeforeEmpty
+		, result, values.size(), values.begin(), storageBeforeEmpty.begin()
 		);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
 		, "append terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
@@ -434,22 +434,22 @@ tplt<tpnm T>
 sttc ::llc::err_t testPodInsert(ATestError & errors) {
 	::llc::apod<T> values = {T(2), T(4)};
 	values.reserve(16);
-	T * reservedAddress = values.begin();
+	cnst ::llc::view<T> reservedStorage = values;
 	::llc::err_t result = values.insert(0, T(1));
 	T expectedFront[] = {T(1), T(2), T(4)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 3 || values.begin() != reservedAddress || podMismatch(values, expectedFront)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 3 || values.begin() != reservedStorage.begin() || podMismatch(values, expectedFront)
 		, "front value insertion mismatch. result:%i, size:%u, address:%p/%p."
-		, result, values.size(), values.begin(), reservedAddress
+		, result, values.size(), values.begin(), reservedStorage.begin()
 		);
 	result = values.insert(2, T(3));
 	T expectedMiddle[] = {T(1), T(2), T(3), T(4)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 4 || values.begin() != reservedAddress || podMismatch(values, expectedMiddle)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 4 || values.begin() != reservedStorage.begin() || podMismatch(values, expectedMiddle)
 		, "middle value insertion mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
 	result = values.insert(values.size(), T(5));
 	T expectedEnd[] = {T(1), T(2), T(3), T(4), T(5)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 5 || values.begin() != reservedAddress || podMismatch(values, expectedEnd)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 5 || values.begin() != reservedStorage.begin() || podMismatch(values, expectedEnd)
 		, "end value insertion mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
@@ -457,13 +457,13 @@ sttc ::llc::err_t testPodInsert(ATestError & errors) {
 	::llc::apod<T> reallocated = {T(1), T(3)};
 	cnst ::llc::u2_t capacity = reallocated.reserve(reallocated.size());
 	if_fail_fe(reallocated.resize(capacity, T(8)));
-	T * previousAddress = reallocated.begin();
+	cnst ::llc::view<T> previousStorage = reallocated;
 	result = reallocated.insert(1, T(2));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE_REALLOCATE
-		, result != (::llc::err_t)capacity + 1 || reallocated.size() != capacity + 1 || reallocated.begin() == previousAddress
+		, result != (::llc::err_t)capacity + 1 || reallocated.size() != capacity + 1 || reallocated.begin() == previousStorage.begin()
 		|| reallocated[0] != T(1) || reallocated[1] != T(2) || reallocated[2] != T(3)
 		, "reallocating value insertion mismatch. result:%i, size:%u/%u, address:%p/%p."
-		, result, reallocated.size(), capacity + 1, reallocated.begin(), previousAddress
+		, result, reallocated.size(), capacity + 1, reallocated.begin(), previousStorage.begin()
 		);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(reallocated)
 		, "reallocating value insertion terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
@@ -501,14 +501,14 @@ sttc ::llc::err_t testPodInsert(ATestError & errors) {
 	::llc::apod<T> chainReallocated = {T(1), T(4)};
 	cnst ::llc::u2_t chainCapacity = chainReallocated.reserve(chainReallocated.size());
 	if_fail_fe(chainReallocated.resize(chainCapacity, T(8)));
-	previousAddress = chainReallocated.begin();
+	cnst ::llc::view<T> previousChainStorage = chainReallocated;
 	T inserted[] = {T(2), T(3)};
 	result = chainReallocated.insert(1, inserted, 2);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_CHAIN_REALLOCATE
-		, result != (::llc::err_t)chainCapacity + 2 || chainReallocated.size() != chainCapacity + 2 || chainReallocated.begin() == previousAddress
+		, result != (::llc::err_t)chainCapacity + 2 || chainReallocated.size() != chainCapacity + 2 || chainReallocated.begin() == previousChainStorage.begin()
 		|| chainReallocated[0] != T(1) || chainReallocated[1] != T(2) || chainReallocated[2] != T(3) || chainReallocated[3] != T(4)
 		, "reallocating chain insertion mismatch. result:%i, size:%u/%u, address:%p/%p."
-		, result, chainReallocated.size(), chainCapacity + 2, chainReallocated.begin(), previousAddress
+		, result, chainReallocated.size(), chainCapacity + 2, chainReallocated.begin(), previousChainStorage.begin()
 		);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(chainReallocated)
 		, "reallocating chain insertion terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
@@ -592,79 +592,80 @@ sttc ::llc::err_t testPodFailures(ATestError & errors) {
 
 	T expected[] = {T(1), T(2), T(3)};
 	::llc::apod<T> values{expected};
-	T * address = values.begin();
+	cnst ::llc::view<T> originalStorage = values;
 	result = podExpectedFailure([&values]() { rtrn values.insert(values.size() + 1, T(9)); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_INVALID_INDEX, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_INVALID_INDEX, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "invalid insertion mismatch. result:%i, size:%u, address:%p/%p."
-		, result, values.size(), values.begin(), address
+		, result, values.size(), values.begin(), originalStorage.begin()
 		);
 	result = podExpectedFailure([&values]() { rtrn values.remove(values.size()); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_INVALID_INDEX, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_INVALID_INDEX, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "invalid ordered removal mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
 	result = podExpectedFailure([&values]() { rtrn values.remove_unordered(values.size()); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED_INVALID, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED_INVALID, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "invalid unordered removal mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
 	result = podExpectedFailure([&values]() { rtrn values.erase(values.end()); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "one-past erase mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
 	result = podExpectedFailure([&values]() { rtrn values.erase(0); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "null erase mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
 	T unrelated = T(9);
 	result = podExpectedFailure([&values, &unrelated]() { rtrn values.erase(&unrelated); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "unrelated-pointer erase mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
 	if constexpr(szof(T) > 1) {
+		// erase() accepts an element pointer; this deliberately malformed pointer proves its boundary validation.
 		cnst T * misaligned = (cnst T*)((cnst ::llc::u0_t*)values.begin() + 1);
 		result = podExpectedFailure([&values, misaligned]() { rtrn values.erase(misaligned); });
 	}
 	else
 		result = -1;
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "misaligned-pointer erase mismatch. result:%i, size:%u, element bytes:%u."
 		, result, values.size(), (unsigned)szof(T)
 		);
 
 	result = podExpectedFailure([&values]() { rtrn values.reserve(0x40000000U); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESERVE_INVALID_COUNT, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESERVE_INVALID_COUNT, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "oversized reserve mismatch. result:%i, size:%u, address:%p/%p."
-		, result, values.size(), values.begin(), address
+		, result, values.size(), values.begin(), originalStorage.begin()
 		);
 	result = podExpectedFailure([&values]() { rtrn values.resize(0x40000000U); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESIZE_INVALID_COUNT, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESIZE_INVALID_COUNT, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "oversized resize mismatch. result:%i, size:%u, address:%p/%p."
-		, result, values.size(), values.begin(), address
+		, result, values.size(), values.begin(), originalStorage.begin()
 		);
 	result = podExpectedFailure([&values]() { rtrn values.resize(0x40000000U, T(9)); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESIZE_INVALID_COUNT, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESIZE_INVALID_COUNT, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "oversized filled resize mismatch. result:%i, size:%u, address:%p/%p."
-		, result, values.size(), values.begin(), address
+		, result, values.size(), values.begin(), originalStorage.begin()
 		);
 
-	result = podExpectedFailure([&values]() { rtrn values.append((cnst T*)0, 1); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_NULL_SOURCE, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	result = podExpectedFailure([&values]() { rtrn values.append(nullptr, 1); });
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_NULL_SOURCE, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "null append mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
-	result = podExpectedFailure([&values]() { rtrn values.insert(1, (cnst T*)0, 1); });
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_NULL_SOURCE, false == ::llc::failed(result) || values.begin() != address || podMismatch(values, expected)
+	result = podExpectedFailure([&values]() { rtrn values.insert(1, nullptr, 1); });
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_NULL_SOURCE, false == ::llc::failed(result) || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "null insertion mismatch. result:%i, size:%u."
 		, result, values.size()
 		);
-	result = values.insert(1, (cnst T*)0, 0);
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_EMPTY_SOURCE, result != 3 || values.begin() != address || podMismatch(values, expected)
+	result = values.insert(1, nullptr, 0);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_EMPTY_SOURCE, result != 3 || values.begin() != originalStorage.begin() || podMismatch(values, expected)
 		, "empty insertion mismatch. result:%i, size:%u, address:%p/%p."
-		, result, values.size(), values.begin(), address
+		, result, values.size(), values.begin(), originalStorage.begin()
 		);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
 		, "failed-operation terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
@@ -745,11 +746,11 @@ sttc ::llc::err_t testPodAliasing(ATestError & errors) {
 tplt<tpnm T>
 sttc ::llc::err_t testPodClear(ATestError & errors) {
 	::llc::apod<T> values = {T(1), T(2), T(3)};
-	T * allocated = values.begin();
+	cnst ::llc::view<T> allocatedStorage = values;
 	cnst ::llc::err_t result = values.clear();
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_CLEAR, result || values.size() || values.begin() != allocated || values.end() != allocated
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_CLEAR, result || values.size() || values.begin() != allocatedStorage.begin() || values.end() != allocatedStorage.begin()
 		, "clear mismatch. result:%i, range:%p..%p, retained:%p."
-		, result, values.begin(), values.end(), allocated
+		, result, values.begin(), values.end(), allocatedStorage.begin()
 		);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
 		, "clear terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."

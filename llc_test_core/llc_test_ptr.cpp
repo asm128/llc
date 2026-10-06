@@ -16,6 +16,8 @@ GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, SHARED_RELEASE		, 7, "Releasing a shared po
 GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, FINAL_RELEASE		, 8, "Releasing the final pointer did not destroy the instance exactly once.");
 GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, REFERENCE_BOUNDARY	, 9, "The raw reference boundary did not preserve ownership, identity or typed access.");
 
+// Raw pointers in this suite are the instance and control-block boundaries exposed by ppod<>, pobj<>, pnco<> and ref_*(); their null, identity and output behavior is what these tests verify.
+
 stct SPtrPodValue {
 	::llc::u2_t	Value;
 };
@@ -189,7 +191,7 @@ sttc ::llc::err_t testPointerNCO(ATestError & errors) {
 		, "NCO move mismatch. references:%" LLC_FMT_S2 ", moved-from:%p/%p, owner:%p, moved:%p/%p."
 		, (::llc::s2_t)owner.get_ref()->References, shared.get_ref(), assigned.get_ref(), owner.get_ref(), moved.get_ref(), moveAssigned.get_ref()
 		);
-	LLC_TEST_CHECK(errors, PTR_TEST_RESULT_REFERENCE_BOUNDARY, owner != moved || owner != moveAssigned || (SPtrObject*)moved != instance
+	LLC_TEST_CHECK(errors, PTR_TEST_RESULT_REFERENCE_BOUNDARY, owner != moved || owner != moveAssigned || moved.operator->() != instance
 		, "NCO identity mismatch. owner:%p, moved:%p, assigned:%p, instance:%p."
 		, owner.get_ref(), moved.get_ref(), moveAssigned.get_ref(), instance
 		);

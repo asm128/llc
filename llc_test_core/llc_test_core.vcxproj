@@ -188,6 +188,7 @@
     <ClCompile Include="llc_test_ctti.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
     <ClCompile Include="llc_test_keyval.cpp" />
+    <ClCompile Include="llc_test_msbuild_xml.cpp" />
     <ClCompile Include="llc_test_xml.cpp" />
     <ClCompile Include="llc_test_noise.cpp" />
     <ClCompile Include="llc_test_path.cpp" />
@@ -201,6 +202,7 @@
   <ItemGroup>
     <ClInclude Include="llc_test_base64_font_data.h" />
     <ClInclude Include="llc_test_core.h" />
+    <ClInclude Include="llc_test_core_suites.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

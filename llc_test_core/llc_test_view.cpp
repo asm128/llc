@@ -104,6 +104,7 @@ sttc ::llc::err_t testRepresentation(ATestError & errors) {
 		, empty.size(), empty.begin(), empty.end()
 		);
 
+	// The remaining pointer arithmetic in this function verifies the one-past boundary returned by view::end().
 	::llc::view<T> full{data};
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ARRAY_CONSTRUCTION, full.size() != ::llc::size(data) || full.begin() != data || full.end() != data + ::llc::size(data)
 		, "array range mismatch. size:%u, expected:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
@@ -111,9 +112,9 @@ sttc ::llc::err_t testRepresentation(ATestError & errors) {
 		);
 
 	::llc::view<T> partialCountFirst{3U, data};
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_COUNT_FIRST_CONSTRUCTION, partialCountFirst.size() != 3 || partialCountFirst.begin() != data || partialCountFirst.end() != data + 3
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_COUNT_FIRST_CONSTRUCTION, partialCountFirst.size() != 3 || partialCountFirst.begin() != data || partialCountFirst.end() != &data[3]
 		, "count-first range mismatch. size:%u, expected:3, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, partialCountFirst.size(), partialCountFirst.begin(), data, partialCountFirst.end(), (data + 3)
+		, partialCountFirst.size(), partialCountFirst.begin(), data, partialCountFirst.end(), &data[3]
 		);
 	::llc::view<T> clippedCountFirst{::llc::u2_t(::llc::size(data) + 1), data};
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_COUNT_FIRST_CONSTRUCTION, clippedCountFirst.size() != ::llc::size(data) || clippedCountFirst.begin() != data || clippedCountFirst.end() != data + ::llc::size(data)
@@ -122,15 +123,15 @@ sttc ::llc::err_t testRepresentation(ATestError & errors) {
 		);
 
 	::llc::view<T> partialArrayFirst{data, 3U};
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ARRAY_FIRST_CONSTRUCTION, partialArrayFirst.size() != 3 || partialArrayFirst.begin() != data || partialArrayFirst.end() != data + 3
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_ARRAY_FIRST_CONSTRUCTION, partialArrayFirst.size() != 3 || partialArrayFirst.begin() != data || partialArrayFirst.end() != &data[3]
 		, "array-first range mismatch. size:%u, expected:3, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, partialArrayFirst.size(), partialArrayFirst.begin(), data, partialArrayFirst.end(), (data + 3)
+		, partialArrayFirst.size(), partialArrayFirst.begin(), data, partialArrayFirst.end(), &data[3]
 		);
 
-	::llc::view<T> pointerRange{data + 1, 3};
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_POINTER_CONSTRUCTION, pointerRange.size() != 3 || pointerRange.begin() != data + 1 || pointerRange.end() != data + 4
+	::llc::view<T> pointerRange{&data[1], 3};
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_POINTER_CONSTRUCTION, pointerRange.size() != 3 || pointerRange.begin() != &data[1] || pointerRange.end() != &data[4]
 		, "pointer range mismatch. size:%u, expected:3, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, pointerRange.size(), pointerRange.begin(), (data + 1), pointerRange.end(), (data + 4)
+		, pointerRange.size(), pointerRange.begin(), &data[1], pointerRange.end(), &data[4]
 		);
 
 	::llc::view<T> emptyAtData{data, 0};
@@ -138,7 +139,7 @@ sttc ::llc::err_t testRepresentation(ATestError & errors) {
 		, "zero-length range mismatch. size:%u, begin:%p, expected boundary:%p, end:%p."
 		, emptyAtData.size(), emptyAtData.begin(), data, emptyAtData.end()
 		);
-	::llc::view<T> emptyAtNull{(T*)0, 0};
+	::llc::view<T> emptyAtNull{nullptr, 0};
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_RANGE, emptyAtNull.size() || emptyAtNull.begin() || emptyAtNull.end()
 		, "null zero-length range mismatch. size:%u, begin:%p, end:%p."
 		, emptyAtNull.size(), emptyAtNull.begin(), emptyAtNull.end()
@@ -167,37 +168,37 @@ sttc ::llc::err_t testMutableSlice(ATestError & errors) {
 	::llc::view<T> output;
 
 	::llc::err_t result = source.slice(output, 0);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_FULL, result != 5 || output.size() != 5 || output.begin() != data || output.end() != data + 5
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_FULL, result != 5 || output.size() != 5 || output.begin() != data || output.end() != source.end()
 		, "mutable full slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, output.size(), output.begin(), data, output.end(), (data + 5)
+		, result, output.size(), output.begin(), data, output.end(), source.end()
 		);
 	result = source.slice(output, 2);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_REMAINDER, result != 3 || output.size() != 3 || output.begin() != data + 2 || output.end() != data + 5
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_REMAINDER, result != 3 || output.size() != 3 || output.begin() != &data[2] || output.end() != source.end()
 		, "mutable remainder slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, output.size(), output.begin(), (data + 2), output.end(), (data + 5)
+		, result, output.size(), output.begin(), &data[2], output.end(), source.end()
 		);
 	result = source.slice(output, 1, 2);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_COUNT, result != 2 || output.size() != 2 || output.begin() != data + 1 || output.end() != data + 3
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_COUNT, result != 2 || output.size() != 2 || output.begin() != &data[1] || output.end() != &data[3]
 		, "mutable counted slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, output.size(), output.begin(), (data + 1), output.end(), (data + 3)
+		, result, output.size(), output.begin(), &data[1], output.end(), &data[3]
 		);
 	result = source.slice(output, 5);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_END, result || output.size() || output.begin() != data + 5 || output.end() != data + 5
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_END, result || output.size() || output.begin() != source.end() || output.end() != source.end()
 		, "mutable end slice mismatch. result:%i, size:%u, begin:%p, expected boundary:%p, end:%p."
-		, result, output.size(), output.begin(), (data + 5), output.end()
+		, result, output.size(), output.begin(), source.end(), output.end()
 		);
 	::llc::view<cnst T> constOutput;
 	result = source.slice(constOutput, 1, 2);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_CONST_OUTPUT, result != 2 || constOutput.size() != 2 || constOutput.begin() != data + 1 || constOutput.end() != data + 3
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_CONST_OUTPUT, result != 2 || constOutput.size() != 2 || constOutput.begin() != &data[1] || constOutput.end() != &data[3]
 		, "mutable-to-const slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, constOutput.size(), constOutput.begin(), (data + 1), constOutput.end(), (data + 3)
+		, result, constOutput.size(), constOutput.begin(), &data[1], constOutput.end(), &data[3]
 		);
 
 	::llc::view<T> self{data};
 	result = self.slice(self, 2, 2);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_SELF, result != 2 || self.size() != 2 || self.begin() != data + 2 || self.end() != data + 4
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_SELF, result != 2 || self.size() != 2 || self.begin() != &data[2] || self.end() != &data[4]
 		, "mutable self-slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, self.size(), self.begin(), (data + 2), self.end(), (data + 4)
+		, result, self.size(), self.begin(), &data[2], self.end(), &data[4]
 		);
 
 	T preserved[2] = {};
@@ -238,31 +239,31 @@ sttc ::llc::err_t testConstSlice(ATestError & errors) {
 	::llc::view<cnst T> output;
 
 	::llc::err_t result = source.slice(output, 0);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_FULL, result != 5 || output.size() != 5 || output.begin() != data || output.end() != data + 5
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_FULL, result != 5 || output.size() != 5 || output.begin() != data || output.end() != source.end()
 		, "const full slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, output.size(), output.begin(), data, output.end(), (data + 5)
+		, result, output.size(), output.begin(), data, output.end(), source.end()
 		);
 	result = source.slice(output, 2);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_REMAINDER, result != 3 || output.size() != 3 || output.begin() != data + 2 || output.end() != data + 5
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_REMAINDER, result != 3 || output.size() != 3 || output.begin() != &data[2] || output.end() != source.end()
 		, "const remainder slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, output.size(), output.begin(), (data + 2), output.end(), (data + 5)
+		, result, output.size(), output.begin(), &data[2], output.end(), source.end()
 		);
 	result = source.slice(output, 1, 2);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_COUNT, result != 2 || output.size() != 2 || output.begin() != data + 1 || output.end() != data + 3
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_COUNT, result != 2 || output.size() != 2 || output.begin() != &data[1] || output.end() != &data[3]
 		, "const counted slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, output.size(), output.begin(), (data + 1), output.end(), (data + 3)
+		, result, output.size(), output.begin(), &data[1], output.end(), &data[3]
 		);
 	result = source.slice(output, 5);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_END, result || output.size() || output.begin() != data + 5 || output.end() != data + 5
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_END, result || output.size() || output.begin() != source.end() || output.end() != source.end()
 		, "const end slice mismatch. result:%i, size:%u, begin:%p, expected boundary:%p, end:%p."
-		, result, output.size(), output.begin(), (data + 5), output.end()
+		, result, output.size(), output.begin(), source.end(), output.end()
 		);
 
 	::llc::view<cnst T> self{data};
 	result = self.slice(self, 2, 2);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_SELF, result != 2 || self.size() != 2 || self.begin() != data + 2 || self.end() != data + 4
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SLICE_SELF, result != 2 || self.size() != 2 || self.begin() != &data[2] || self.end() != &data[4]
 		, "const self-slice mismatch. result:%i, size:%u, begin:%p, expected begin:%p, end:%p, expected end:%p."
-		, result, self.size(), self.begin(), (data + 2), self.end(), (data + 4)
+		, result, self.size(), self.begin(), &data[2], self.end(), &data[4]
 		);
 
 	T preserved[2] = {};
@@ -389,29 +390,29 @@ sttc ::llc::err_t testRepresentationViews(ATestError & errors) {
 
 	::llc::view<::llc::sc_t> chars = mutableView.c();
 	::llc::view<::llc::u0_t> bytes = mutableView.u8();
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_CHAR_VIEW, chars.begin() != (::llc::sc_t*)data || chars.size() != expectedBytes
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_CHAR_VIEW, (::llc::uP_t)chars.begin() != (::llc::uP_t)data || chars.size() != expectedBytes
 		, "mutable character view mismatch. begin:%p, expected:%p, size:%u, expected:%u."
 		, chars.begin(), data, chars.size(), expectedBytes
 		);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_BYTE_VIEW, bytes.begin() != (::llc::u0_t*)data || bytes.size() != expectedBytes
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_BYTE_VIEW, (::llc::uP_t)bytes.begin() != (::llc::uP_t)data || bytes.size() != expectedBytes
 		, "mutable byte view mismatch. begin:%p, expected:%p, size:%u, expected:%u."
 		, bytes.begin(), data, bytes.size(), expectedBytes
 		);
 	chars[0] = 0x2A;
 	bytes[expectedBytes - 1] = 0x5A;
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_REPRESENTATION, ((::llc::u0_t*)data)[0] != 0x2A || ((::llc::u0_t*)data)[expectedBytes - 1] != 0x5A
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_MUTABLE_REPRESENTATION, constView.cu8()[0] != 0x2A || constView.cu8()[expectedBytes - 1] != 0x5A
 		, "mutable representation write mismatch. first:%u, last:%u."
-		, ((::llc::u0_t*)data)[0], ((::llc::u0_t*)data)[expectedBytes - 1]
+		, constView.cu8()[0], constView.cu8()[expectedBytes - 1]
 		);
 
 	::llc::view<::llc::sc_c> constChars = constView.cc();
 	::llc::view<::llc::u0_c> constBytes = constView.u8();
 	::llc::view<::llc::u0_c> constByteAlias = constView.cu8();
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_CONST_CHAR_VIEW, constChars.begin() != (::llc::sc_c*)data || constChars.size() != expectedBytes || (::llc::u0_t)constChars[0] != 0x2A
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_CONST_CHAR_VIEW, (::llc::uP_t)constChars.begin() != (::llc::uP_t)data || constChars.size() != expectedBytes || (::llc::u0_t)constChars[0] != 0x2A
 		, "const character view mismatch. begin:%p, expected:%p, size:%u, expected:%u, first:%u."
 		, constChars.begin(), data, constChars.size(), expectedBytes, (::llc::u0_t)constChars[0]
 		);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_CONST_BYTE_VIEW, constBytes.begin() != (::llc::u0_c*)data || constBytes.size() != expectedBytes || constBytes[expectedBytes - 1] != 0x5A
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_CONST_BYTE_VIEW, (::llc::uP_t)constBytes.begin() != (::llc::uP_t)data || constBytes.size() != expectedBytes || constBytes[expectedBytes - 1] != 0x5A
 		, "const byte view mismatch. begin:%p, expected:%p, size:%u, expected:%u, last:%u."
 		, constBytes.begin(), data, constBytes.size(), expectedBytes, constBytes[expectedBytes - 1]
 		);
@@ -427,11 +428,11 @@ sttc ::llc::err_t testRepresentationViews(ATestError & errors) {
 		|| constNullEmpty.cc().size() || constNullEmpty.cc().begin() || constNullEmpty.u8().size() || constNullEmpty.u8().begin() || constNullEmpty.cu8().size() || constNullEmpty.cu8().begin()
 		, "null-empty representation mismatch."
 		);
-	::llc::view<T> boundaryEmpty{(T*)data, 0};
+	::llc::view<T> boundaryEmpty{data, 0};
 	cnst ::llc::view<T> & constBoundaryEmpty = boundaryEmpty;
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_REPRESENTATION
-		, boundaryEmpty.c().size() || boundaryEmpty.c().begin() != (::llc::sc_t*)data || boundaryEmpty.u8().size() || boundaryEmpty.u8().begin() != (::llc::u0_t*)data
-		|| constBoundaryEmpty.cc().size() || constBoundaryEmpty.cc().begin() != (::llc::sc_c*)data || constBoundaryEmpty.u8().size() || constBoundaryEmpty.u8().begin() != (::llc::u0_c*)data || constBoundaryEmpty.cu8().size() || constBoundaryEmpty.cu8().begin() != (::llc::u0_c*)data
+		, boundaryEmpty.c().size() || (::llc::uP_t)boundaryEmpty.c().begin() != (::llc::uP_t)data || boundaryEmpty.u8().size() || (::llc::uP_t)boundaryEmpty.u8().begin() != (::llc::uP_t)data
+		|| constBoundaryEmpty.cc().size() || (::llc::uP_t)constBoundaryEmpty.cc().begin() != (::llc::uP_t)data || constBoundaryEmpty.u8().size() || (::llc::uP_t)constBoundaryEmpty.u8().begin() != (::llc::uP_t)data || constBoundaryEmpty.cu8().size() || (::llc::uP_t)constBoundaryEmpty.cu8().begin() != (::llc::uP_t)data
 		, "boundary-empty representation mismatch. boundary:%p."
 		, data
 		);
@@ -487,7 +488,7 @@ sttc ::llc::err_t testFill(ATestError & errors) {
 	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_FILL_EMPTY_RANGE, unchanged, unchangedExpected));
 
 	::llc::view<T> nullEmpty;
-	::llc::view<T> boundaryEmpty{(T*)unchanged, 0};
+	::llc::view<T> boundaryEmpty{unchanged, 0};
 	cnst ::llc::err_t nullResult = nullEmpty.fill(T(1));
 	cnst ::llc::err_t boundaryResult = boundaryEmpty.fill(T(1));
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FILL_EMPTY_VIEW, nullResult || boundaryResult
@@ -510,7 +511,7 @@ sttc ::llc::err_t testReverse(ATestError & errors) {
 
 	T even[6] = {T(9), T(1), T(2), T(3), T(4), T(8)};
 	T evenExpected[6] = {T(9), T(4), T(3), T(2), T(1), T(8)};
-	result = ::llc::view<T>{even + 1, 4}.revert();
+	result = ::llc::view<T>{&even[1], 4}.revert();
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_REVERT_EVEN, result
 		, "even subrange revert returned:%i."
 		, result
@@ -535,7 +536,7 @@ sttc ::llc::err_t testReverse(ATestError & errors) {
 	if_fail_fe(testMutationValues(errors, VIEW_TEST_RESULT_REVERSE_ODD, freeOdd, oddExpected));
 
 	T freeEven[6] = {T(9), T(1), T(2), T(3), T(4), T(8)};
-	result = ::llc::reverse(::llc::view<T>{freeEven + 1, 4});
+	result = ::llc::reverse(::llc::view<T>{&freeEven[1], 4});
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_REVERSE_EVEN, result
 		, "even subrange reverse returned:%i."
 		, result
@@ -842,7 +843,7 @@ sttc ::llc::err_t testExtrema(ATestError & errors) {
 
 tplt<tpnm TView, tpnm TPointer>
 sttc bool splitRangeIs(cnst TView & range, TPointer rangeBegin, ::llc::u2_c count) {
-	rtrn range.size() == count && range.begin() == rangeBegin && range.end() == rangeBegin + count;
+	rtrn range.size() == count && range.begin() == rangeBegin;
 }
 
 tplt<tpnm T>
@@ -864,18 +865,18 @@ sttc ::llc::err_t testSplit(ATestError & errors) {
 		);
 
 	result = ::llc::split(T(2), source, left, right);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 2, 3)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, &values[2], 3)
 		, "scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/3."
 		, result, left.size(), right.size()
 		);
 
 	result = ::llc::split(T(1), source, left, right);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_BOUNDARY, result || !splitRangeIs(left, values, 0) || !splitRangeIs(right, values + 1, 4)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_BOUNDARY, result || !splitRangeIs(left, values, 0) || !splitRangeIs(right, &values[1], 4)
 		, "leading scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:0/0/4."
 		, result, left.size(), right.size()
 		);
 	result = ::llc::split(T(4), source, left, right);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_BOUNDARY, result != 4 || !splitRangeIs(left, values, 4) || !splitRangeIs(right, values + 5, 0)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_BOUNDARY, result != 4 || !splitRangeIs(left, values, 4) || !splitRangeIs(right, source.end(), 0)
 		, "trailing scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:4/4/0."
 		, result, left.size(), right.size()
 		);
@@ -887,26 +888,26 @@ sttc ::llc::err_t testSplit(ATestError & errors) {
 		);
 
 	result = ::llc::splitAt(T(2), source, left, right);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_VALUE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 1, 4)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_VALUE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, &values[1], 4)
 		, "scalar splitAt mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/4."
 		, result, left.size(), right.size()
 		);
 
 	::llc::view<cnst T> constLeft, constRight;
 	result = ::llc::split(T(2), source, constLeft, constRight);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 2, 3)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, &values[2], 3)
 		, "const-output scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/3."
 		, result, constLeft.size(), constRight.size()
 		);
 	result = ::llc::splitAt(T(2), source, constLeft, constRight);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_VALUE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 1, 4)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_VALUE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, &values[1], 4)
 		, "const-output scalar splitAt mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/4."
 		, result, constLeft.size(), constRight.size()
 		);
 
 	cnst ::llc::view<cnst T> constSource{values};
 	result = ::llc::split(T(2), constSource, constLeft, constRight);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 2, 3)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_VALUE, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, &values[2], 3)
 		, "const scalar split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/3."
 		, result, constLeft.size(), constRight.size()
 		);
@@ -914,7 +915,7 @@ sttc ::llc::err_t testSplit(ATestError & errors) {
 	T sequenceValues[2] = {T(2), T(3)};
 	cnst ::llc::view<T> sequence{sequenceValues};
 	result = ::llc::split(sequence, source, left, right);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 3, 2)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, &values[3], 2)
 		, "sequence split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/2."
 		, result, left.size(), right.size()
 		);
@@ -928,24 +929,24 @@ sttc ::llc::err_t testSplit(ATestError & errors) {
 		);
 
 	result = ::llc::splitAt(sequence, source, left, right);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_SEQUENCE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 1, 4)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_SEQUENCE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, &values[1], 4)
 		, "sequence splitAt mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/4."
 		, result, left.size(), right.size()
 		);
 	result = ::llc::split(sequence, source, constLeft, constRight);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 3, 2)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, &values[3], 2)
 		, "const-output sequence split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/2."
 		, result, constLeft.size(), constRight.size()
 		);
 	result = ::llc::splitAt(sequence, source, constLeft, constRight);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_SEQUENCE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, values + 1, 4)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_AT_SEQUENCE_CONST_OUTPUT, result != 1 || !splitRangeIs(constLeft, values, 1) || !splitRangeIs(constRight, &values[1], 4)
 		, "const-output sequence splitAt mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/4."
 		, result, constLeft.size(), constRight.size()
 		);
 
 	left = source;
 	result = ::llc::split(sequence, left, right);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE_IN_PLACE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, values + 3, 2)
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_SEQUENCE_IN_PLACE, result != 1 || !splitRangeIs(left, values, 1) || !splitRangeIs(right, &values[3], 2)
 		, "in-place sequence split mismatch. result:%i, left size:%u, right size:%u, expected result/left/right:1/1/2."
 		, result, left.size(), right.size()
 		);
@@ -958,7 +959,7 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 		T values[3] = {T(1), T(0), T(2)};
 		::llc::aobj<::llc::view<cnst T>> output;
 		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
-		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 2 || output.size() != 2 || !splitRangeIs(output[0], values, 1) || !splitRangeIs(output[1], values + 2, 1)
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 2 || output.size() != 2 || !splitRangeIs(output[0], values, 1) || !splitRangeIs(output[1], &values[2], 1)
 			, "ordinary collection mismatch. result:%i, output size:%u, expected:2."
 			, result, output.size()
 			);
@@ -967,7 +968,7 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 		T values[4] = {T(1), T(0), T(0), T(2)};
 		::llc::aobj<::llc::view<cnst T>> output;
 		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
-		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 2 || output.size() != 2 || !splitRangeIs(output[0], values, 1) || !splitRangeIs(output[1], values + 3, 1)
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 2 || output.size() != 2 || !splitRangeIs(output[0], values, 1) || !splitRangeIs(output[1], &values[3], 1)
 			, "consecutive delimiter collection mismatch. result:%i, output size:%u, expected:2."
 			, result, output.size()
 			);
@@ -976,7 +977,7 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 		T values[3] = {T(0), T(1), T(0)};
 		::llc::aobj<::llc::view<cnst T>> output;
 		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
-		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 1 || output.size() != 1 || !splitRangeIs(output[0], values + 1, 1)
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION, result != 1 || output.size() != 1 || !splitRangeIs(output[0], &values[1], 1)
 			, "boundary delimiter collection mismatch. result:%i, output size:%u, expected:1."
 			, result, output.size()
 			);
@@ -1013,7 +1014,7 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 		::llc::aobj<::llc::view<cnst T>> output;
 		if_fail_fe(output.push_back({seed}));
 		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, T(0), output);
-		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION_APPEND, result != 3 || output.size() != 3 || !splitRangeIs(output[0], seed, 1) || !splitRangeIs(output[1], values, 1) || !splitRangeIs(output[2], values + 3, 1)
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION_APPEND, result != 3 || output.size() != 3 || !splitRangeIs(output[0], seed, 1) || !splitRangeIs(output[1], values, 1) || !splitRangeIs(output[2], &values[3], 1)
 			, "append collection mismatch. result:%i, output size:%u, expected:3."
 			, result, output.size()
 			);
@@ -1023,7 +1024,7 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 		T separators[2] = {T(0), T(3)};
 		::llc::aobj<::llc::view<cnst T>> output;
 		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, ::llc::view<cnst T>{separators}, output);
-		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION_SET, result != 2 || output.size() != 2 || !splitRangeIs(output[0], values + 1, 1) || !splitRangeIs(output[1], values + 4, 1)
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION_SET, result != 2 || output.size() != 2 || !splitRangeIs(output[0], &values[1], 1) || !splitRangeIs(output[1], &values[4], 1)
 			, "delimiter-set collection mismatch. result:%i, output size:%u, expected:2."
 			, result, output.size()
 			);
@@ -1051,7 +1052,7 @@ sttc ::llc::err_t testStringSplitCollection(ATestError & errors) {
 tplt<tpnm T>
 sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
 #ifdef LLC_WINDOWS
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { cnst ::llc::view<T> invalid{(T*)0, 1}; (void)invalid; })
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { cnst ::llc::view<T> invalid{nullptr, 1}; (void)invalid; })
 		, "view accepted null storage with one element."
 		);
 #else

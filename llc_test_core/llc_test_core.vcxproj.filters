@@ -42,6 +42,9 @@
 		<ClCompile Include="llc_test_keyval.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_msbuild_xml.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_xml.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="llc_test_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_test_core_suites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

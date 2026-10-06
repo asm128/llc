@@ -76,6 +76,7 @@ sttc ::llc::err_t testStaticStructure(ATestError & errors) {
 		, "bit count mismatch. actual:%u, expected:%u."
 		, data.bit_count(), (::llc::u2_t)(szof(T) * 5U * 8U)
 		);
+	// The one-past expression is the expected boundary under test for array_static::end().
 	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_BOUNDARIES
 		, data.begin() != data.Storage || data.end() != data.Storage + 5 || constData.begin() != data.Storage || constData.end() != data.Storage + 5
 		, "boundaries mismatch. mutable:%p..%p, const:%p..%p, expected:%p..%p."
@@ -152,11 +153,11 @@ sttc ::llc::err_t testStaticRepresentations(ATestError & errors) {
 		, "representation type mismatch. byte count:%u."
 		, data.byte_count()
 		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_BYTE_VIEW, mutableBytes.begin() != (::llc::u0_t*)data.begin() || mutableBytes.size() != data.byte_count()
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_BYTE_VIEW, (::llc::uP_t)mutableBytes.begin() != (::llc::uP_t)data.begin() || mutableBytes.size() != data.byte_count()
 		, "mutable byte range mismatch. begin:%p, expected:%p, size:%u, expected:%u."
 		, mutableBytes.begin(), data.begin(), mutableBytes.size(), data.byte_count()
 		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_VIEW, constBytes.begin() != (cnst ::llc::u0_t*)constData.begin() || constBytes.size() != constData.byte_count()
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_VIEW, (::llc::uP_t)constBytes.begin() != (::llc::uP_t)constData.begin() || constBytes.size() != constData.byte_count()
 		, "const byte range mismatch. begin:%p, expected:%p, size:%u, expected:%u."
 		, constBytes.begin(), constData.begin(), constBytes.size(), constData.byte_count()
 		);
@@ -164,25 +165,25 @@ sttc ::llc::err_t testStaticRepresentations(ATestError & errors) {
 		, "const byte alias mismatch. alias:%p/%u, bytes:%p/%u."
 		, constByteAlias.begin(), constByteAlias.size(), constBytes.begin(), constBytes.size()
 		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_VIEW, mutableChars.begin() != (::llc::sc_t*)data.begin() || mutableChars.size() != data.byte_count()
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_VIEW, (::llc::uP_t)mutableChars.begin() != (::llc::uP_t)data.begin() || mutableChars.size() != data.byte_count()
 		, "mutable character range mismatch. begin:%p, expected:%p, size:%u, expected:%u."
 		, mutableChars.begin(), data.begin(), mutableChars.size(), data.byte_count()
 		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_VIEW, constChars.begin() != (cnst ::llc::sc_t*)constData.begin() || constChars.size() != constData.byte_count()
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_VIEW, (::llc::uP_t)constChars.begin() != (::llc::uP_t)constData.begin() || constChars.size() != constData.byte_count()
 		, "const character range mismatch. begin:%p, expected:%p, size:%u, expected:%u."
 		, constChars.begin(), constData.begin(), constChars.size(), constData.byte_count()
 		);
 	cnst ::llc::u0_t replacement = (::llc::u0_t)(mutableBytes[0] ^ 0x5AU);
 	mutableBytes[0] = replacement;
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_WRITE, *(::llc::u0_t*)data.Storage != replacement
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_WRITE, constData.cu8()[0] != replacement
 		, "byte representation write mismatch. storage byte:%u, expected:%u."
-		, *(::llc::u0_t*)data.Storage, replacement
+		, constData.cu8()[0], replacement
 		);
 	cnst ::llc::sc_t charReplacement = (::llc::sc_t)(mutableChars[1] ^ 0x35);
 	mutableChars[1] = charReplacement;
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_WRITE, *((::llc::sc_t*)data.Storage + 1) != charReplacement
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_WRITE, constData.cc()[1] != charReplacement
 		, "character representation write mismatch. storage byte:%i, expected:%i."
-		, *((::llc::sc_t*)data.Storage + 1), charReplacement
+		, constData.cc()[1], charReplacement
 		);
 	rtrn 0;
 }
@@ -197,14 +198,14 @@ sttc ::llc::err_t testStaticSlice(ATestError & errors) {
 		, result, output.begin(), output.end(), data.begin(), data.end()
 		);
 	result = data.slice(output, 2);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_REMAINDER, result != 3 || output.begin() != data.begin() + 2 || output.end() != data.end()
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_REMAINDER, result != 3 || output.begin() != &data[2] || output.end() != data.end()
 		, "remainder slice mismatch. result:%i, range:%p..%p, expected:%p..%p."
-		, result, output.begin(), output.end(), (data.begin() + 2), data.end()
+		, result, output.begin(), output.end(), &data[2], data.end()
 		);
 	result = data.slice(output, 1, 2);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_COUNT, result != 2 || output.begin() != data.begin() + 1 || output.end() != data.begin() + 3
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_COUNT, result != 2 || output.begin() != &data[1] || output.end() != &data[3]
 		, "counted slice mismatch. result:%i, range:%p..%p, expected:%p..%p."
-		, result, output.begin(), output.end(), (data.begin() + 1), (data.begin() + 3)
+		, result, output.begin(), output.end(), &data[1], &data[3]
 		);
 	result = data.slice(output, 5);
 	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END, result || output.size() || output.begin() != data.end() || output.end() != data.end()
@@ -213,17 +214,17 @@ sttc ::llc::err_t testStaticSlice(ATestError & errors) {
 		);
 	::llc::view<T> self = data;
 	result = data.slice(self, 2, 2);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_SELF, result != 2 || self.begin() != data.begin() + 2 || self.end() != data.begin() + 4
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_SELF, result != 2 || self.begin() != &data[2] || self.end() != &data[4]
 		, "self slice mismatch. result:%i, range:%p..%p, expected:%p..%p."
-		, result, self.begin(), self.end(), (data.begin() + 2), (data.begin() + 4)
+		, result, self.begin(), self.end(), &data[2], &data[4]
 		);
 
 	cnst ::llc::array_static<T, 5> & constData = data;
 	::llc::view<cnst T> constOutput;
 	result = constData.slice(constOutput, 1, 3);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_SLICE, result != 3 || constOutput.begin() != constData.begin() + 1 || constOutput.end() != constData.begin() + 4
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_SLICE, result != 3 || constOutput.begin() != &constData[1] || constOutput.end() != &constData[4]
 		, "const slice mismatch. result:%i, range:%p..%p, expected:%p..%p."
-		, result, constOutput.begin(), constOutput.end(), (constData.begin() + 1), (constData.begin() + 4)
+		, result, constOutput.begin(), constOutput.end(), &constData[1], &constData[4]
 		);
 
 	T guard[] = {T(8), T(9)};

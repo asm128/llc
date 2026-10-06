@@ -81,7 +81,7 @@ sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c
 		);
 
 	cnst ::llc::vcu0_t bytes = packed.tplt cu8<::llc::vcu0_t>();
-	LLC_TEST_REQUIRE(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.begin() != (cnst ::llc::u0_t*)(cnst void*)&packed || bytes.size() > szof(packed)
+	LLC_TEST_REQUIRE(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, (::llc::uP_t)bytes.begin() != (::llc::uP_t)&packed || bytes.size() > szof(packed)
 		, "%u-bit byte view exceeded its packed storage for value:%" LLC_FMT_U3 ". begin:%p, expected begin:%p, size:%u, storage size:%u."
 		, typeBits, source, bytes.begin(), &packed, bytes.size(), ::llc::u2_t(szof(packed))
 		);

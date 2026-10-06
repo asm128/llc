@@ -41,12 +41,15 @@ static_assert(CTTI_ALL_TYPES.Success() && 13 == CTTI_ALL_TYPES.Count, "Every ini
 		, "Member count mismatch. actual:%u, expected:4."
 		, CTTI_COORD.Count
 		);
-	stxp ::llc::sc_c * expectedNames[] = {"x", "y", "z", "weight"};
-	for(::llc::u2_t iMember = 0; iMember < CTTI_COORD.Count; ++iMember)
-		LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MEMBER_ORDER, false == ::llc::cttiSpanEqualsP(CTTI_COORD.MemberText, CTTI_COORD.Members[iMember].Name, expectedNames[iMember])
-			, "Member %u name mismatch. span:%u/%u, expected:'%s'."
-			, iMember, CTTI_COORD.Members[iMember].Name.Offset, CTTI_COORD.Members[iMember].Name.Count, expectedNames[iMember]
+	stxp ::llc::vcst_t expectedNames[] = {LLC_CXS("x"), LLC_CXS("y"), LLC_CXS("z"), LLC_CXS("weight")};
+	for(::llc::u2_t iMember = 0; iMember < CTTI_COORD.Count; ++iMember) {
+		cnst ::llc::SCTTISpan & nameSpan = CTTI_COORD.Members[iMember].Name;
+		cnst ::llc::vcsc_t actualName = {&CTTI_COORD.MemberText[nameSpan.Offset], nameSpan.Count};
+		LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MEMBER_ORDER, actualName != expectedNames[iMember]
+			, "Member %u name mismatch. span:%u/%u, expected:'%.*s'."
+			, iMember, nameSpan.Offset, nameSpan.Count, (int)expectedNames[iMember].size(), expectedNames[iMember].begin()
 			);
+	}
 
 	stxp ::llc::CTTI_TYPE expectedTypes[] =
 		{ ::llc::CTTI_TYPE_B8, ::llc::CTTI_TYPE_SC, ::llc::CTTI_TYPE_UC

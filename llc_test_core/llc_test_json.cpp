@@ -28,12 +28,6 @@ sttc bool jsonTextMismatch(::llc::vcsc_c & actual, ::llc::vcsc_c & expected) {
 	rtrn actual.size() != expected.size() || (actual.size() && 0 != memcmp(actual.begin(), expected.begin(), actual.size()));
 }
 
-sttc cnst ::llc::SJSONNode * jsonSemanticNode(cnst ::llc::SJSONNode * node) {
-	if(node && node->Token->Type == ::llc::JSON_TYPE_VALUE && node->Children.size())
-		rtrn node->Children[0];
-	rtrn node;
-}
-
 sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader & reader, ::llc::vcsc_c & input) {
 	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_STORAGE_COUNTS
 		, reader.Token.size() != reader.View.size() || reader.Token.size() != reader.Tree.size()
@@ -43,19 +37,21 @@ sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader
 	for(::llc::u2_t iToken = 0; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SJSONToken & token = reader.Token[iToken];
 		cnst ::llc::vcsc_t & tokenView = reader.View[iToken];
-		cnst ::llc::SJSONNode * node = reader.Tree[iToken];
-		cnst ::llc::SJSONNode * parent = (token.ParentIndex >= 0 && (::llc::u2_t)token.ParentIndex < reader.Tree.size()) ? reader.Tree[token.ParentIndex].operator->() : 0;
+		cnst ::llc::pobj<::llc::SJSONNode> & node = reader.Tree[iToken];
+		cnst bool nodeMissing = 0 == node.get_ref();
+		cnst bool hasParent = token.ParentIndex >= 0 && (::llc::u2_t)token.ParentIndex < reader.Tree.size();
+		cnst bool parentMismatch = false == nodeMissing && (hasParent ? node->Parent != reader.Tree[token.ParentIndex].operator->() : 0 != node->Parent);
 		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TOKEN_VIEW
 			, token.Span.Begin > token.Span.End || token.Span.End > input.size()
-			|| tokenView.size() != token.Span.End - token.Span.Begin || tokenView.begin() != input.begin() + token.Span.Begin
+			|| tokenView.size() != token.Span.End - token.Span.Begin || tokenView.begin() != (token.Span.Begin < input.size() ? &input[token.Span.Begin] : input.end())
 			, "Token %u view mismatch. type:%i, span:%u..%u, input:%u, view:%p/%u."
 			, iToken, (::llc::s2_t)token.Type, token.Span.Begin, token.Span.End, input.size(), tokenView.begin(), tokenView.size()
 			);
 		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_NODE
-			, 0 == node || node->Token != &reader.Token[iToken] || node->ObjectIndex != (::llc::json_id_t)iToken || node->Parent != parent
+			, nodeMissing || node->Token != &reader.Token[iToken] || node->ObjectIndex != (::llc::json_id_t)iToken || parentMismatch
 			, "Tree node %u mismatch. node:%p, token:%p/%p, index:%i, parent:%p/%p."
-			, iToken, node, node ? node->Token : 0, &reader.Token[iToken]
-			, node ? node->ObjectIndex : -1, node ? node->Parent : 0, parent
+			, iToken, node.get_ref(), nodeMissing ? 0 : node->Token, &reader.Token[iToken]
+			, nodeMissing ? -1 : node->ObjectIndex, nodeMissing ? 0 : node->Parent, hasParent ? reader.Tree[token.ParentIndex].operator->() : 0
 			);
 	}
 	rtrn 0;
@@ -75,10 +71,15 @@ sttc ::llc::err_t testJSONDocument
 		, "Reader final state mismatch. done:%u, level:%i, index:%i, current:%p."
 		, (::llc::u2_t)reader.StateRead.DoneReading, reader.StateRead.NestLevel, reader.StateRead.IndexCurrentElement, reader.StateRead.CurrentElement
 		);
-	cnst ::llc::SJSONNode * root = reader.Tree.size() ? jsonSemanticNode(reader.Tree[0]) : 0;
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_ROOT_TYPE, 0 == root || root->Token->Type != expectedType
+	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_ROOT_TYPE, 0 == reader.Tree.size() || 0 == reader.Tree[0].get_ref()
+		, "Missing JSON root. tree nodes:%u."
+		, reader.Tree.size()
+		);
+	cnst ::llc::pobj<::llc::SJSONNode> & treeRoot = reader.Tree[0];
+	cnst ::llc::pobj<::llc::SJSONNode> & root = treeRoot->Token->Type == ::llc::JSON_TYPE_VALUE && treeRoot->Children.size() ? treeRoot->Children[0] : treeRoot;
+	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_ROOT_TYPE, 0 == root.get_ref() || root->Token->Type != expectedType
 		, "Root type mismatch. actual:%i, expected:%i, tree nodes:%u."
-		, root ? (::llc::s2_t)root->Token->Type : -1, (::llc::s2_t)expectedType, reader.Tree.size()
+		, root.get_ref() ? (::llc::s2_t)root->Token->Type : -1, (::llc::s2_t)expectedType, reader.Tree.size()
 		);
 	::llc::asc_t output;
 	cnst ::llc::err_t writeResult = ::llc::jsonWrite(reader.Tree[0], reader.View, output);
@@ -112,20 +113,20 @@ sttc ::llc::err_t testJSONReset(ATestError & errors) {
 	::llc::SJSONReader reader;
 	if_fail_fe(::llc::jsonParse(reader, LLC_CXS("{\"values\":[1,2,3],\"flag\":true}")));
 	::llc::u2_c treeSize = reader.Tree.size();
-	cnst ::llc::pobj<::llc::SJSONNode> * treeStorage = reader.Tree.begin();
-	cnst ::llc::gref<::llc::SJSONNode> * rootReference = reader.Tree[0].get_ref();
-	cnst ::llc::pobj<::llc::SJSONNode> * childStorage = reader.Tree[0]->Children.begin();
+	cnst ::llc::view<const ::llc::pobj<::llc::SJSONNode>> treeStorage = {reader.Tree.begin(), reader.Tree.size()};
+	cnst ::llc::view<const ::llc::gref<::llc::SJSONNode>> rootReference = {reader.Tree[0].get_ref(), 1};
+	cnst ::llc::view<const ::llc::pobj<::llc::SJSONNode>> childStorage = {reader.Tree[0]->Children.begin(), reader.Tree[0]->Children.size()};
 	cnst ::llc::err_t result = reader.Reset();
 	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET
 		, result || reader.Token.size() || reader.View.size() || reader.Tree.size() != treeSize
-		|| reader.Tree.begin() != treeStorage || reader.Tree[0].get_ref() != rootReference || reader.Tree[0]->Children.begin() != childStorage
+		|| reader.Tree.begin() != treeStorage.begin() || reader.Tree[0].get_ref() != rootReference.begin() || reader.Tree[0]->Children.begin() != childStorage.begin()
 		|| reader.StateRead.IndexCurrentChar || reader.StateRead.IndexCurrentElement != -1 || reader.StateRead.CurrentElement
 		|| reader.StateRead.NestLevel || reader.StateRead.CharCurrent || reader.StateRead.Escaping || reader.StateRead.InsideString
 		|| reader.StateRead.ExpectingSeparator || reader.StateRead.DoneReading
 		, "Reset mismatch. result:%i, tokens:%u, views:%u, tree:%u/%u, storage:%p/%p, root:%p/%p, children:%p/%p, position:%u, element:%i, level:%i."
 		, result, reader.Token.size(), reader.View.size(), reader.Tree.size(), treeSize
-		, reader.Tree.begin(), treeStorage, reader.Tree[0].get_ref(), rootReference
-		, reader.Tree[0]->Children.begin(), childStorage
+		, reader.Tree.begin(), treeStorage.begin(), reader.Tree[0].get_ref(), rootReference.begin()
+		, reader.Tree[0]->Children.begin(), childStorage.begin()
 		, reader.StateRead.IndexCurrentChar, reader.StateRead.IndexCurrentElement, reader.StateRead.NestLevel
 		);
 
@@ -133,10 +134,10 @@ sttc ::llc::err_t testJSONReset(ATestError & errors) {
 	if_fail_fe(::llc::jsonParse(reader, input));
 	if_fail_fe(testJSONStructure(errors, reader, input));
 	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_REUSE
-		, reader.Tree.begin() != treeStorage || reader.Tree[0].get_ref() != rootReference || reader.Tree[0]->Children.begin() != childStorage
+		, reader.Tree.begin() != treeStorage.begin() || reader.Tree[0].get_ref() != rootReference.begin() || reader.Tree[0]->Children.begin() != childStorage.begin()
 		, "Tree storage changed after rebuild. tree:%p/%p, root:%p/%p, children:%p/%p, nodes:%u."
-		, reader.Tree.begin(), treeStorage, reader.Tree[0].get_ref(), rootReference
-		, reader.Tree[0]->Children.begin(), childStorage, reader.Tree.size()
+		, reader.Tree.begin(), treeStorage.begin(), reader.Tree[0].get_ref(), rootReference.begin()
+		, reader.Tree[0]->Children.begin(), childStorage.begin(), reader.Tree.size()
 		);
 	rtrn 0;
 }
@@ -144,9 +145,14 @@ sttc ::llc::err_t testJSONReset(ATestError & errors) {
 sttc ::llc::err_t testJSONSignedInteger(ATestError & errors) {
 	::llc::SJSONReader reader;
 	if_fail_fe(::llc::jsonParse(reader, LLC_CXS("-42")));
-	cnst ::llc::SJSONNode * root = reader.Tree.size() ? jsonSemanticNode(reader.Tree[0]) : 0;
+	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_INTEGER_VALUE, 0 == reader.Tree.size() || 0 == reader.Tree[0].get_ref()
+		, "Missing signed-integer root. tree nodes:%u."
+		, reader.Tree.size()
+		);
+	cnst ::llc::pobj<::llc::SJSONNode> & treeRoot = reader.Tree[0];
+	cnst ::llc::pobj<::llc::SJSONNode> & root = treeRoot->Token->Type == ::llc::JSON_TYPE_VALUE && treeRoot->Children.size() ? treeRoot->Children[0] : treeRoot;
 	::llc::s3_t value = {};
-	cnst ::llc::err_t result = root ? ::llc::jsonObjectGetInteger(reader, root->ObjectIndex, value) : -1;
+	cnst ::llc::err_t result = root.get_ref() ? ::llc::jsonObjectGetInteger(reader, root->ObjectIndex, value) : -1;
 	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_INTEGER_VALUE, ::llc::failed(result) || value != -42
 		, "Signed integer mismatch. result:%i, value:%" LLC_FMT_S3 ", expected:-42."
 		, result, value

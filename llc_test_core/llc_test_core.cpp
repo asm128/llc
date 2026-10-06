@@ -1,6 +1,6 @@
 // llc_test_core.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-#include "llc_test_core.h"
+#include "llc_test_core_suites.h"
 #include "llc_log.h"
 #include "llc_timer.h"
 #include "llc_runtime.h"
@@ -61,6 +61,7 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 		, LLC_TEST_SUITE(testJSONReader    )
 		, LLC_TEST_SUITE(testKeyVal        )
 		, LLC_TEST_SUITE(testXMLReader     )
+		, LLC_TEST_SUITE(testMSBuildXML    )
 		, LLC_TEST_SUITE(testPath          )
 		, LLC_TEST_SUITE(testPointers      )
 		, LLC_TEST_SUITE(testView          )
@@ -80,8 +81,14 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 	for(::llc::u2_t iResult = 0; iResult < results.size(); ++iResult) {
 		cnst STestError & testResult = results[iResult];
 		if(logSuccessDetails && testResult.SuccessCount)
-			always_printf("PASS %s::%s(%" LLC_FMT_S3 ") x %u - validated against failure: %s", testResult.EnumName, testResult.ValueName, testResult.Value, testResult.SuccessCount, testResult.Description);
-		if_true_ef(testResult.Count, "FAIL %s::%s(%" LLC_FMT_S3 ") x %u: %s", testResult.EnumName, testResult.ValueName, testResult.Value, testResult.Count, testResult.Description);
+			always_printf("PASS %.*s::%.*s(%" LLC_FMT_S3 ") x %u - validated against failure: %.*s"
+				, (int)testResult.EnumName.size(), testResult.EnumName.begin(), (int)testResult.ValueName.size(), testResult.ValueName.begin()
+				, testResult.Value, testResult.SuccessCount, (int)testResult.Description.size(), testResult.Description.begin()
+				);
+		if_true_ef(testResult.Count, "FAIL %.*s::%.*s(%" LLC_FMT_S3 ") x %u: %.*s"
+			, (int)testResult.EnumName.size(), testResult.EnumName.begin(), (int)testResult.ValueName.size(), testResult.ValueName.begin()
+			, testResult.Value, testResult.Count, (int)testResult.Description.size(), testResult.Description.begin()
+			);
 	}
 	return llc::failed(result) || failureCount ? EXIT_FAILURE : EXIT_SUCCESS;
 }
