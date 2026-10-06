@@ -51,17 +51,17 @@ namespace llc
 
 	err_t			xmlParse			(SXMLReader & reader, vcsc_t xmlDoc);
 	err_t			xmlTokenView		(vcsc_t xmlDoc, cnst SXMLToken & token, vcsc_t & output);
-	err_t			xmlNodeName		(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t & output);
+	err_t			xmlNodeName			(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t & output);
 	err_t			xmlNodeAttribute	(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t name, vcsc_t & output);
 	err_t			xmlNodeChild		(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t name);
-	err_t			xmlNodeText		(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t & output);
+	err_t			xmlNodeText			(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t & output);
 
 	stct SXMLFile {
 		asc_t				Bytes;
 		SXMLReader			Reader;
 	};
 
-	err_t			xmlFileRead		(SXMLFile & file, vcsc_t filename);
+	err_t			xmlFileRead			(SXMLFile & file, vcsc_t filename);
 }
 
 #endif // LLC_XML_READER_H_23627

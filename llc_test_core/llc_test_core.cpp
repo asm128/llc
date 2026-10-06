@@ -51,11 +51,13 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 	::llc::STimer	testTimer;
 	result = testSuitesRun(results
 		, LLC_TEST_SUITE(testSPRNG         )
+		, LLC_TEST_SUITE(testArgs          )
 		, LLC_TEST_SUITE(testBitField      )
 		, LLC_TEST_SUITE(testCPow          )
 		, LLC_TEST_SUITE(testCTTIParser    )
 		, LLC_TEST_SUITE(testStr           )
 		, LLC_TEST_SUITE(testArrayStatic   )
+		, LLC_TEST_SUITE(testArrayObj      )
 		, LLC_TEST_SUITE(testArrayPod      )
 		, LLC_TEST_SUITE(testBase64       )
 		, LLC_TEST_SUITE(testJSONReader    )

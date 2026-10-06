@@ -1,5 +1,4 @@
 #include "llc_args.h"
-#include "llc_enum.h"
 
 llc::err_t			llc::viewsFromEnvp(llc::aobj<vcst_t> & outputViews, char * envp[]) {
 	if_null_fe(envp);
@@ -20,26 +19,21 @@ llc::err_t			llc::viewsFromArgv(llc::aobj<vcst_t> & outputViews, u2_t argc, char
 	rtrn iArg;
 }
 llc::err_t			llc::argsOptionValue	(const SCommandLineArgs & input, vcst_t key, vcst_t & output)	{
-	err_c 					optionIndex			= argsOptionIndex(input, key);
-	if(0 <= optionIndex) { // success!
-		output = input.Options[optionIndex].Val;
-		return optionIndex;
-	}
-	llc::string				possibleKeys		= {};
-	for(u2_t iKey = 0; iKey < input.Options.size(); ++iKey) {
-		if_fail_fe(llc::append_strings(possibleKeys, iKey ? str(", ") : str(""), '"', input.Options[iKey].Key, '"'));
-	}
-	warning_printf("{%s} contains no [\"%.*s\"]", possibleKeys.begin(), key.size(), key.begin());
-	return -1;
+	output							= {};
+	err_c					optionIndex			= argsOptionIndex(input, key);
+	if_fail_fwf(optionIndex, "Option not found:'%.*s'.", key.size(), key.begin());
+	if_true_vef(-2, 0 <= argsOptionIndex(input, key, (u2_t)optionIndex + 1), "Option has multiple values:'%.*s'.", key.size(), key.begin());
+	output							= input.Options[optionIndex].Val;
+	rtrn optionIndex;
 }
 
-namespace llc 
-{
-	GDEFINE_ENUM_TYPE(ARGS_STATE, llc::u0_t);
-	GDEFINE_ENUM_VALUE(ARGS_STATE, ARGUMENT		, 0);
-	GDEFINE_ENUM_VALUE(ARGS_STATE, OPTION_VALUE	, 1);
-	GDEFINE_ENUM_VALUE(ARGS_STATE, POSITIONAL	, 2);
-} // namespace
+llc::err_t			llc::argsOptionValues	(const SCommandLineArgs & input, vcst_t key, aobj<vcst_t> & output)	{
+	u2_c					outputStart			= output.size();
+	for(const kvvcst_t<vcst_t> & option : input.Options)
+		if(option.Key == key)
+			if_fail_fe(output.push_back(option.Val));
+	rtrn output.size() - outputStart;
+}
 
 sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::llc::vcst_t> & option) {
 	if_zero_fw(argument.size());
@@ -49,14 +43,13 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 	for(; iChar < argument.size() && argument[iChar] != '='; ++iChar) 
 		continue;
 
-	option.Key			= {&argument[prefixLen], iChar - prefixLen};
+	if_fail_fe(argument.slice(option.Key, prefixLen, iChar - prefixLen));
+	if_zero_fef(option.Key.size(), "Option has no name:'%.*s'.", argument.size(), argument.begin());
 
 	llc::b8_c				hasValue			= iChar < argument.size(); // If we found an '=' character, then the option has a value.
-	if(not hasValue) 
-		return 0;
-
-	option.Val			=  {&argument[iChar + 1], argument.size() - iChar - 1};
-	rtrn option.Val.size();
+	if(hasValue)
+		if_fail_fe(argument.slice(option.Val, iChar + 1));
+	rtrn hasValue;
 }
 
 
@@ -69,45 +62,52 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 }
 
 ::llc::err_t		llc::argsParse		(::llc::SCommandLineArgs & output, ::llc::view<vcst_t> argv, ::llc::view<vcst_t> envp) {
-	output.Environment	= envp;
+	output							= {};
+	output.Environment				= envp;
 	if_zero_vw(0, argv.size()); // Exit early if no argv: nothing to do
 
-	output.ProgramName	= argv[0];
+	output.ProgramName				= argv[0];
 
-	ARGS_STATE				state				= ARGS_STATE_ARGUMENT;
 	kvvcst_t<vcst_t>		option				= {};
+	bool					hasOptionValues		= false;
+	bool					positionalOnly		= false;
 	for(u2_t iArg = 1; iArg < argv.size(); ++iArg) {
-		vcst_t					argument			= {argv[iArg], (u2_t)-1};
-		if_zero_cwf(argument.size(), "iArg:(%" LLC_FMT_U2  ")", iArg);
-		if(state != ARGS_STATE_ARGUMENT) {
-				 if(state == ARGS_STATE_POSITIONAL)		{ if_fail_fe(output.Positionals.push_back(argument)); }
-			else if(state != ARGS_STATE_OPTION_VALUE)	{ warning_printf("Unrecognized state! 0x%X(%s)", (u2_t)state, llc::get_value_namep(state)); }
-			else { // state == ARGS_STATE_OPTION_VALUE, obviously
-				option.Val			= argument; // The value of the current option is the next argument
-				if_fail_fe(output.Options.push_back(option));
-				state				= ARGS_STATE_ARGUMENT;
-			}
-			continue;
-		}
-		if(argument[0] != '-') {
+		vcst_t					argument			= argv[iArg];
+		if(positionalOnly) {
 			if_fail_fe(output.Positionals.push_back(argument));
 			continue;
 		}
 		if(argument == vcsc_t{"--", 2}) {
-			state				= ARGS_STATE_POSITIONAL;
+			if(option.Key.size() && false == hasOptionValues) {
+				if_fail_fe(output.Options.push_back(option));
+			}
+			option				= {};
+			positionalOnly		= true;
 			continue;
 		}
-		err_t				hasValue;
+		if(1 >= argument.size() || '-' != argument[0]) {
+			if(0 == option.Key.size()) {
+				if_fail_fe(output.Positionals.push_back(argument));
+			}
+			else {
+				if_fail_fe(output.Options.emplace_back(option.Key, argument));
+				hasOptionValues	= true;
+			}
+			continue;
+		}
+		if(option.Key.size() && false == hasOptionValues) {
+			if_fail_fe(output.Options.push_back(option));
+		}
+		option				= {};
+		hasOptionValues		= false;
+		err_t					hasValue			= {};
 		if_fail_fe(hasValue = argsOptionName(argument, option));
-		if(not hasValue) 
-			state				= ARGS_STATE_OPTION_VALUE;
-		else {
+		if(hasValue) {
 			if_fail_fe(output.Options.push_back(option));
 			option				= {};
 		}
 	}
-	if(state == ARGS_STATE_OPTION_VALUE) {
+	if(option.Key.size() && false == hasOptionValues)
 		if_fail_fe(output.Options.push_back(option));
-	}
 	rtrn output.Options.size() + output.Positionals.size();
 }

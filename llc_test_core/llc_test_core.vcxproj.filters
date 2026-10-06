@@ -15,10 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+		<ClCompile Include="llc_test_array_obj.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_array_pod.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 		<ClCompile Include="llc_test_array_static.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_args.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 		<ClCompile Include="llc_test_base64.cpp">

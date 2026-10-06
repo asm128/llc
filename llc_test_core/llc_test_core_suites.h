@@ -4,7 +4,9 @@
 #define LLC_TEST_CORE_SUITES_H
 
 ::llc::err_t testArrayStatic		(ATestError & errors);
+::llc::err_t testArrayObj		(ATestError & errors);
 ::llc::err_t testArrayPod		(ATestError & errors);
+::llc::err_t testArgs			(ATestError & errors);
 ::llc::err_t testBase64			(ATestError & errors);
 ::llc::err_t testBitField		(ATestError & errors);
 ::llc::err_t testPackedUInt		(ATestError & errors);

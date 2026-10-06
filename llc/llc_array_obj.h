@@ -119,6 +119,11 @@ namespace llc
 			llc_necs(resize(oldSize + 1, newValue));
 			rtrn oldSize;
 		}
+		tpl_vtArgs	err_t	emplace_back		(_tArgs&&... constructorArgs)											{
+			cnst s2_t				oldSize				= Count;
+			llc_necs(resize(oldSize + 1, constructorArgs...));
+			rtrn oldSize;
+		}
 		// returns the new array size or -1 if failed.
 		inln	err_t	erase				(TCnst * address)																	{
 			ree_if(0 == Data, "Uninitialized array pointer! Invalid address to erase: %p.", address);
