@@ -187,6 +187,7 @@
     <ClCompile Include="llc_test_cpow.cpp" />
     <ClCompile Include="llc_test_ctti.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
+    <ClCompile Include="llc_test_keyval.cpp" />
     <ClCompile Include="llc_test_xml.cpp" />
     <ClCompile Include="llc_test_noise.cpp" />
     <ClCompile Include="llc_test_path.cpp" />

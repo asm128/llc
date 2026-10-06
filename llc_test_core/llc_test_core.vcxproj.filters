@@ -39,6 +39,9 @@
 		<ClCompile Include="llc_test_json.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_keyval.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_xml.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>

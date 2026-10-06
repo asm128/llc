@@ -5,7 +5,7 @@
 
 namespace llc
 {
-	err_t			with				(vcs filepath, vcs mode, const function<err_t(FILE*&)> & funcFile);	// 
+	err_t			with				(vcst_t filepath, vcst_t mode, const function<err_t(FILE*&)> & funcFile);	//
 
 	err_t			fileJoin			(vcst_t fileNameDst);								// Joins a file split into file.split.## parts.
 	err_t			fileSplit			(vcst_t fileNameSrc, u2_c partSize);		// Splits a file into file.split.## parts.
@@ -13,15 +13,15 @@ namespace llc
 	err_t			fileLastWriteTime	(vcst_t fileName, s3_t & modified);
 	err_t			fileDelete			(vcst_t fileName);
 
-	err_t			fileFromMemory		(vcst_t fileName, vcu0_c & fileInMemory, bool append = false);
+	err_t			fileFromMemory		(vcst_t fileName, vcu0_t fileInMemory, bool append = false);
 	err_t			fileToMemory		(vcst_t fileName, au0_t & fileInMemory, uint32_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0);
 	err_t			fileToMemory		(vcst_t folderPath, vcst_t fileName, au0_t & fileBytes, uint32_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0);
-	err_t			fileFromMemory		(vcst_t folderPath, vcst_t fileName, vcu0_c & fileInMemory, bool append = false);
+	err_t			fileFromMemory		(vcst_t folderPath, vcst_t fileName, vcu0_t fileInMemory, bool append = false);
 
 	stin	err_t	fileToMemory		(vcst_t fileName, as0_t & fileInMemory, uint32_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
 	stin	err_t	fileToMemory		(vcst_t fileName, asc_t & fileInMemory, uint32_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
-	stin	err_t	fileFromMemory		(vcst_t fileName, vcs0_c & fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, *(vcu0_c*)&fileInMemory, append); }
-	stin	err_t	fileFromMemory		(vcst_t fileName, vcsc_c & fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, *(vcu0_c*)&fileInMemory, append); }
+	stin	err_t	fileFromMemory		(vcst_t fileName, vcs0_c & fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.cu8(), append); }
+	stin	err_t	fileFromMemory		(vcst_t fileName, vcsc_c & fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.cu8(), append); }
 
 	GDEFINE_ENUM_TYPE(OPEN_MODE, i2u_t);
 	GDEFINE_ENUM_VALUE(OPEN_MODE, CLOSE		, 0);												
@@ -41,7 +41,7 @@ namespace llc
 		
 		u3_t						size			()					{
 			if(0 == File) {
-				if_true_fef(fopen_s(&File, Name.begin(), "rb"), "%s", Name.begin());
+				if_true_fef(fopen_s(File, Name, "rb"), "%s", Name.begin());
 				Offset = 0;
 			}
 			if_true_fef(llc::fseek(File, 0, SEEK_END), "Failed to seek to end of file. %s.", "why?");

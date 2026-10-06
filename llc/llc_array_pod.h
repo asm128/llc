@@ -308,7 +308,7 @@ namespace llc
 
 	asc_t		toString	(::llc::vcsc_c & strToLog);
 	err_t		camelCase	(::llc::vcsc_t input, ::llc::asc_t & camelCased);
-	err_t		join		(::llc::asc_t & query, char separator, ::llc::vcvsc_t fields);
+	err_t		join		(::llc::asc_t & output, sc_t separator, ::llc::view<cnst ::llc::vcst_t> fields);
 } // namespace
 
 #define LLC_USING_APOD()				\

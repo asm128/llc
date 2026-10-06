@@ -71,6 +71,7 @@ bool testThrows(TCall call) {
 ::llc::err_t testCPow			(ATestError & errors);
 ::llc::err_t testCTTIParser		(ATestError & errors);
 ::llc::err_t testJSONReader		(ATestError & errors);
+::llc::err_t testKeyVal			(ATestError & errors);
 ::llc::err_t testXMLReader		(ATestError & errors);
 ::llc::err_t testPath			(ATestError & errors);
 ::llc::err_t testPointers		(ATestError & errors);

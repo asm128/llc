@@ -1,6 +1,9 @@
-#define LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
+#ifndef LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
+#	define LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
+#endif
 
 #include "llc_json.h"
+
 #include "llc_file.h"
 #include "llc_parse.h"
 #include "llc_math.h"

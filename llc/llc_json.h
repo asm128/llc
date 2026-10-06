@@ -191,7 +191,7 @@ namespace llc
 		SJSONReader		Reader					= {};
 	};
 
-	tydf SKeyVal<vcsc_t, SJSONFile>	TKeyValJSONFile;
+	tydf keyval<vcsc_t, SJSONFile>	TKeyValJSONFile;
 
 	err_t			jsonFileRead			(SJSONFile & file, vcsc_c & filename);
 	err_t			jsonWrite				(cnst SJSONNode * node, cnst view<vcsc_t> & jsonViews, apod<sc_t> & output);

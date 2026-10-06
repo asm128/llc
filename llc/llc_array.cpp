@@ -1,6 +1,20 @@
 #include "llc_array.h"
 #include "llc_stdstring.h"
 
+::llc::err_t			llc::join			(::llc::asc_t & output, ::llc::sc_t separator, ::llc::view<cnst ::llc::vcst_t> fields) {
+	::llc::err_t			appended			= 0;
+	::llc::err_t			result				= {};
+	for(::llc::u2_t iField = 0; iField < fields.size(); ++iField) {
+		if(iField) {
+			if_fail_fef(result = output.append_string(separator), "Failed to append separator before field:%" LLC_FMT_U2 ".", iField);
+			appended			+= result;
+		}
+		if_fail_fef(result = output.append_string(fields[iField]), "Failed to append field:%" LLC_FMT_U2 ".", iField);
+		appended				+= result;
+	}
+	rtrn appended;
+}
+
 ::llc::error_t			llc::filterPostfix	(::llc::view<::llc::vcsc_c> input, ::llc::vcsc_c postfix, ::llc::aobj<::llc::vcsc_t> & filtered, bool nullIncluded) { 
 	for(uint32_t iInput = 0; iInput < input.size(); ++iInput) { 
 		::llc::vcsc_c & currentInput = input[iInput]; 

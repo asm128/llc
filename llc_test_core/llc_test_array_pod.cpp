@@ -67,6 +67,9 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ALIAS_APPEND					, 58, "array_pod<>::
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ALIAS_INSERT_VALUE			, 59, "array_pod<>::insert(value) did not preserve a source value from its own shifted storage.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ALIAS_INSERT_CHAIN			, 60, "array_pod<>::insert(chain) did not preserve a source view of its own shifted storage.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ALIAS_ASSIGNMENT			, 61, "array_pod<> assignment did not safely copy an overlapping subview of itself.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_EMPTY					, 62, "join() changed its output or reported characters for an empty field list.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_SINGLE					, 63, "join() added a separator around a single field or reported the wrong character count.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_MULTIPLE				, 64, "join() did not preserve empty fields, separator placement or its appended character count.");
 
 tplt<tpnm TCall>
 sttc ::llc::err_t podExpectedFailure(TCall call) {
@@ -370,9 +373,31 @@ sttc ::llc::err_t testPodStringAppend(ATestError & errors) {
 		, "Multiple string append mismatch. result:%i, size:%u, expected written:5/text:'seedabxyz!ok12345'."
 		, result, text.size()
 		);
+
+	::llc::asc_t joined = {'s', 'e', 'e', 'd', ':'};
+	result = ::llc::join(joined, '|', {});
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, result || podStringMismatch(joined, "seed:")
+		, "Empty join mismatch. result:%i, size:%u, expected written:0/text:'seed:'."
+		, result, joined.size()
+		);
+
+	cnst ::llc::vcst_t single[] = {LLC_CXS("one")};
+	result = ::llc::join(joined, '|', single);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_SINGLE, result != 3 || podStringMismatch(joined, "seed:one")
+		, "Single join mismatch. result:%i, size:%u, expected written:3/text:'seed:one'."
+		, result, joined.size()
+		);
+
+	cnst ::llc::vcst_t multiple[] = {LLC_CXS(""), LLC_CXS("two"), LLC_CXS("")};
+	result = ::llc::join(joined, '|', multiple);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, result != 5 || podStringMismatch(joined, "seed:one|two|")
+		, "Multiple join mismatch. result:%i, size:%u, expected written:5/text:'seed:one|two|'."
+		, result, joined.size()
+		);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(text)
-		, "String append terminator mismatch. size:%u, terminator:%i."
-		, text.size(), text.begin()[text.size()]
+		|| podTerminatorMismatch(joined)
+		, "String append terminator mismatch. sizes:%u/%u, terminators:%i/%i."
+		, text.size(), joined.size(), text.begin()[text.size()], joined.begin()[joined.size()]
 		);
 	rtrn 0;
 }

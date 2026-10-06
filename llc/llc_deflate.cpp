@@ -1,6 +1,7 @@
 #include "llc_deflate.h"
 
 #include "llc_path.h"
+#include "llc_string.h"
 
 #include "llc_file.h"
 #include "llc_safe.h"
@@ -142,8 +143,9 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 	const ::llc::au0_t			& compressedContentsPacked	= folderPackage.CompressedContentsPacked	;
 	{
 		FILE						* fp						= 0;
-		llc_necall(::llc::fopen_s(&fp, nameFileDst, "wb"), "'%s'", nameFileDst.begin());
-		ree_if(0 == fp, "Failed to create file: %s.", ::llc::toString(nameFileDst).begin());
+		if_fail_fef(::llc::fopen_s(fp, nameFileDst, "wb"), "\"%.*s\"", nameFileDst.size(), nameFileDst.begin());
+		if_null_fef(fp, "Failed to create file: \"%.*s\"", nameFileDst.size(), nameFileDst.begin());
+
 		fwrite(&fileHeader							, 1, szof(::llc::SPackHeader)			, fp);
 		fwrite(compressedTableFiles		.begin	()	, 1, compressedTableFiles		.size()	, fp);
 		fwrite(compressedContentsPacked	.begin	()	, 1, compressedContentsPacked	.size()	, fp);
@@ -241,16 +243,16 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 // Write folder to disk.
 ::llc::error_t			llc::folderToDisk			(const ::llc::SFolderInMemory & virtualFolder, ::llc::vcst_t destinationPath)				{
 	char						bufferFormat	[32]		= {};
-	::llc::asc_t					finalPathName				= {};
-	finalPathName.resize(8 * 1024);
-	finalPathName.fill(0);
+	::llc::string				finalPathName				= {};
+	if_fail_fe(finalPathName.resize(8 * 1024));
+	if_fail_fe(finalPathName.fill(0));
 	FILE						* fp						= 0;
 	for(uint32_t iFile = 0, countFiles = virtualFolder.Names.size(); iFile < countFiles; ++iFile) {
 		llc_safe_fclose(fp);
 		const ::llc::vcst_t			& fileName					= virtualFolder.Names		[iFile];
 		vcu0_c			& fileContent				= virtualFolder.Contents	[iFile];
 		sprintf_s(bufferFormat, "%%.%us%%.%us", destinationPath.size(), fileName.size());
-		snprintf(finalPathName.begin(), finalPathName.size(), bufferFormat, destinationPath.begin(), fileName.begin());
+		snprintf(&finalPathName[0], finalPathName.size(), bufferFormat, destinationPath.begin(), fileName.begin());
 		info_printf("File found (%u):'%s'. Size: %u.", iFile, finalPathName.begin(), fileContent.size());
 		uint32_t					lenPath						= (uint32_t)strlen(finalPathName.begin());
 		::llc::error_t				indexSlash					= ::llc::findLastSlash(::llc::vcst_t{finalPathName.begin(), uint32_t(-1)});
@@ -260,7 +262,7 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
  			if_fail_cef(::llc::pathCreate({finalPathName.begin(), lenPath}), "Failed to create foder: %s.", finalPathName.begin());
 			finalPathName[indexSlash]	= '/';
 		}
-		llc_necall(::llc::fopen_s(&fp, finalPathName, "wb"), "%s", finalPathName.begin());
+		if_fail_fef(::llc::fopen_s(fp, finalPathName, "wb"), "%.*s", finalPathName.size(), finalPathName.begin());
 		cef_if(0 == fp, "Failed to create file: %s.", finalPathName.begin());
 		cef_if(fileContent.size() != fwrite(fileContent.begin(), 1, fileContent.size(), fp), "Failed to write file: %s. Disk full?", finalPathName.begin());
 	}

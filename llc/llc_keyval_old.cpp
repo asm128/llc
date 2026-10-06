@@ -3,15 +3,6 @@
 #include "llc_parse.h"
 #include "llc_apod_serialize.h"
 
-::llc::error_t			llc::join				(::llc::asc_t & output, char separator, ::llc::vcvsc_t fields)	{
-	for(uint32_t iField = 0; iField < fields.size();) {
-		llc_necall(output.append(fields[iField]), "%" LLC_FMT_U2 "", iField);
-		if(++iField < fields.size())
-			llc_necall(output.push_back(separator), "%" LLC_FMT_U2 "", iField);
-	}
-	return 0;
-}
-
 ::llc::asc_t		llc::toString			(::llc::vcsc_c & strToLog)	{
 	::llc::asc_t			sprintfable				= strToLog;
 	if(sprintfable.size() && sprintfable[sprintfable.size() - 1] == 0) { // it already contains a null, so resize it to avoid counting it as part of the array.
@@ -41,18 +32,10 @@
 	return output_views.Val.size();
 }
 
-::llc::error_t			llc::find				(const ::llc::vcst_t & keyToFind, const ::llc::view<const ::llc::TKeyValConstString> & keyvals, ::llc::vcsc_t & out_val)		{
-	::llc::error_t				index					= ::llc::find(keyToFind, keyvals);
-	out_val					= (-1 == index) ? ::llc::vcst_t{} : keyvals[index].Val;
-	return index;
-}
-
-::llc::error_t			llc::keyvalNumeric		(const ::llc::vcst_t & key, const ::llc::view<const ::llc::TKeyValConstString> keyVals, uint64_t * outputNumber)	{
-	ree_if(0 == outputNumber, "%s", "Output number cannot point to a null address.");
-	::llc::error_t				indexKey				= ::llc::find(key, keyVals);
-	if(-1 != indexKey)
-		::llc::parseIntegerDecimal(keyVals[indexKey].Val, outputNumber);
-
+::llc::error_t			llc::keyvalNumeric		(::llc::vcst_t key, const ::llc::view<const ::llc::TKeyValConstString> keyVals, uint64_t & outputNumber)	{
+	::llc::error_t				indexKey;
+	if_fail_fwf(indexKey = ::llc::find(key, keyVals), "key:\"%.*s\"", key.size(), key.begin());
+	if_fail_vef(-2, ::llc::parseIntegerDecimal(keyVals[indexKey].Val, outputNumber), "%.*s", keyVals[indexKey].Val.size(), keyVals[indexKey].Val.begin());
 	return indexKey;
 }
 

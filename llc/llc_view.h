@@ -1,7 +1,7 @@
-#include "llc_log.h"
 #include "llc_keyval.h"
-
 #include "llc_functional.h"
+#include "llc_log.h"
+
 
 #if defined(LLC_ATMEL)
 #	ifdef max
@@ -388,7 +388,19 @@ namespace llc
 				rtrn iOffset;
 		rtrn -1;
 	}
-
+	tplt<tpnm _tKey, tpnm _tVal>
+	err_t	find	(cnst llc_rmcnst(_tKey) & keyToFind, view<cnst keyval<_tKey, _tVal>> keyvals) {
+		for(u2_t iKeyVal = 0; iKeyVal < keyvals.size(); ++iKeyVal)
+			if(keyToFind == keyvals[iKeyVal].Key)
+				rtrn iKeyVal;
+		rtrn -1;
+	}
+	tplt<tpnm _tKey, tpnm _tVal>
+	err_t	find	(cnst llc_rmcnst(_tKey) & keyToFind, view<cnst keyval<_tKey, _tVal>> keyvals, llc_rmcnst(_tVal) & out_val) {
+		cnst err_t	index	= ::llc::find(keyToFind, keyvals);
+		out_val				= 0 > index ? llc_rmcnst(_tVal){} : keyvals[index].Val;
+		rtrn index;
+	}
 	tplT	err_t	find_sequence_obj		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T> & target, u2_t offset = 0)	{
 		for(s2_t iOffset = (s2_t)offset, offsetStop = ((s2_t)target.size() - sequence.size()) + 1; iOffset < offsetStop; ++iOffset) {
 			bool								equal					= true;

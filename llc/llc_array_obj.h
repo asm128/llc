@@ -326,7 +326,7 @@ namespace llc
 
 
 
-	tydf ::llc::SKeyVal<::llc::vcst_t, ::llc::aobj<::llc::vcst_t>>	TKeyValConstStringArray;
+	tydf ::llc::keyval<::llc::vcst_t, ::llc::aobj<::llc::vcst_t>>	TKeyValConstStringArray;
 	//------------------------------------------------------------------------------------------------------------
 	err_t							keyValConstStringDeserialize	(vcu0_c & input, ::llc::aobj<::llc::TKeyValConstChar> & output);
 
