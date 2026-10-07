@@ -51,14 +51,14 @@ stxp llc::vcst_t	LLC_OPEN_MODE_APPEND	= LLC_CXS("ab+");
 #ifdef LLC_ARDUINO
 #	if defined(LLC_ESP32) || defined(LLC_ESP8266)
 stin	fs::FS&		getSoCFileSystem	()	{ rtrn LLC_SOC_FILESYSTEM_INSTANCE; }
-sttc  	llc::err_t	socPath  			(llc::asc_t & fixed, llc::vcsc_t path) {
+sttc  	llc::err_t	socPath  			(llc::string & fixed, llc::vcsc_t path) {
 	llc::vcsc_t			trimmd;
 	if_fail_fe(llc::ltrim(trimmd, path, "/ \t\n"));
 	rtrn llc::append_strings(fixed, '/', trimmd);
 }
 #		define FIX_SOC_PATH(_pathView)                      {   \
 	if_zero_fe(_pathView.size());                           	\
-	asc_t      _fixedPath;                            			\
+	string      _fixedPath;                            			\
 	if('/' != _pathView[0]) {                               	\
 		if_fail_fe(::socPath(_fixedPath, _pathView)); 			\
 		_pathView = _fixedPath;                       			\
@@ -305,14 +305,14 @@ llc::err_t	llc::	fileDelete				(vcst_t usfileName)	{
 	return 0;
 }
 llc::err_t	llc::fileToMemory		(vcst_t folderPath, vcst_t fileName, llc::au0_t & fileBytes, uint32_t maxSize, uint64_t offset) {
-	llc::asc_t			filePath			= {};
+	llc::string			filePath			= {};
 	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", folderPath.size(), folderPath.begin(), fileName.size(), fileName.begin());
-	if_fail_fef(llc::fileToMemory({filePath}, fileBytes, maxSize, offset), "folderPath: '%.*s', fileName: '%.*s'.", folderPath.size(), folderPath.begin(), fileName.size(), fileName.begin());
+	if_fail_fef(llc::fileToMemory(filePath, fileBytes, maxSize, offset), "folderPath: '%.*s', fileName: '%.*s'.", folderPath.size(), folderPath.begin(), fileName.size(), fileName.begin());
 	return 0;
 }
 llc::err_t	llc::fileFromMemory		(vcst_t folderPath, vcst_t fileName, vcu0_c fileInMemory, bool append) {
-	llc::asc_t			filePath			= {}; 
+	llc::string			filePath			= {}; 
 	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", folderPath.size(), folderPath.begin(), fileName.size(), fileName.begin());
-	if_fail_fef(llc::fileFromMemory({filePath}, fileInMemory, append), "folderPath: '%.*s', fileName: '%.*s', append: %s.", folderPath.size(), folderPath.begin(), fileName.size(), fileName.begin(), llc::bool2char(append));
+	if_fail_fef(llc::fileFromMemory(filePath, fileInMemory, append), "folderPath: '%.*s', fileName: '%.*s', append: %s.", folderPath.size(), folderPath.begin(), fileName.size(), fileName.begin(), llc::bool2char(append));
 	return 0;
 }

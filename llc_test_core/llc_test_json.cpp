@@ -24,6 +24,35 @@ GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, OPTION_OUTPUTS			, 16, "JSON output
 static_assert(szof(::llc::JSON_PARSE_OPTION) == szof(::llc::u1_t), "JSON parse options must use one uniform 16-bit field.");
 static_assert(szof(::llc::SJSONParseOptions) == szof(::llc::JSON_PARSE_OPTION), "bit_field<> must not add storage overhead.");
 
+tydf ::llc::view<const ::llc::vcst_t> TJSONConstViews;
+tydf ::llc::err_t (*TJSONObjectValueGet)(cnst ::llc::SJSONNode &, TJSONConstViews, ::llc::vcst_t);
+tydf ::llc::err_t (*TJSONObjectKeyList)(cnst ::llc::SJSONNode &, TJSONConstViews, ::llc::aobj<::llc::vcst_t> &);
+tydf ::llc::err_t (*TJSONObjectIndexedKeyList)(cnst ::llc::SJSONNode &, TJSONConstViews, ::llc::as2_t &, ::llc::aobj<::llc::vcst_t> &);
+tydf ::llc::err_t (*TJSONCompare)(cnst ::llc::SJSONNode &, TJSONConstViews, cnst ::llc::SJSONNode &, TJSONConstViews);
+tydf ::llc::err_t (*TJSONCompareSharedViews)(cnst ::llc::SJSONNode &, cnst ::llc::SJSONNode &, TJSONConstViews);
+tydf ::llc::err_t (*TJSONWrite)(cnst ::llc::SJSONNode *, TJSONConstViews, ::llc::string &);
+tydf ::llc::err_t (*TJSONArraySplit)(cnst ::llc::SJSONNode &, TJSONConstViews, ::llc::u2_t, ::llc::aobj<::llc::string> &);
+
+static_assert(::llc::is_cnst<TJSONConstViews::T>::Value, "JSON view collections must expose const view descriptors.");
+static_assert(::llc::is_cnst<::llc::vcst_t::T>::Value, "String views must expose const characters.");
+static_assert(requires {
+	static_cast<TJSONObjectValueGet>(&::llc::jsonObjectValueGet);
+	static_cast<TJSONObjectKeyList>(&::llc::jsonObjectKeyList);
+	static_cast<TJSONObjectIndexedKeyList>(&::llc::jsonObjectKeyList);
+	}, "JSON object access must preserve const view collections.");
+static_assert(requires {
+	static_cast<TJSONCompare>(&::llc::jsonCompareNumber);
+	static_cast<TJSONCompare>(&::llc::jsonCompareArray);
+	static_cast<TJSONCompare>(&::llc::jsonCompareObject);
+	static_cast<TJSONCompareSharedViews>(&::llc::jsonCompareNumber);
+	static_cast<TJSONCompareSharedViews>(&::llc::jsonCompareArray);
+	static_cast<TJSONCompareSharedViews>(&::llc::jsonCompareObject);
+	}, "JSON comparison must preserve const view collections.");
+static_assert(requires {
+	static_cast<TJSONWrite>(&::llc::jsonWrite);
+	static_cast<TJSONArraySplit>(&::llc::jsonArraySplit);
+	}, "JSON serialization must preserve const view collections.");
+
 sttc bool jsonTextMismatch(::llc::vcsc_c & actual, ::llc::vcsc_c & expected) {
 	rtrn actual.size() != expected.size() || (actual.size() && 0 != memcmp(actual.begin(), expected.begin(), actual.size()));
 }
@@ -81,7 +110,7 @@ sttc ::llc::err_t testJSONDocument
 		, "Root type mismatch. actual:%i, expected:%i, tree nodes:%u."
 		, root.get_ref() ? (::llc::s2_t)root->Token->Type : -1, (::llc::s2_t)expectedType, reader.Tree.size()
 		);
-	::llc::asc_t output;
+	::llc::string output;
 	cnst ::llc::err_t writeResult = ::llc::jsonWrite(reader.Tree[0], reader.View, output);
 	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_WRITE, ::llc::failed(writeResult)
 		, "JSON write failed. result:%i, root type:%i."

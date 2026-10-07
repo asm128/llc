@@ -1,6 +1,6 @@
 #include "llc_enum.h"
 #include "llc_range.h"
-#include "llc_array_pod.h"
+#include "llc_string.h"
 
 #ifndef LLC_XML_READER_H_23627
 #define LLC_XML_READER_H_23627
@@ -22,7 +22,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(XML_TOKEN, TAG_TEXT		, 0xC);
 	GDEFINE_ENUM_VALUE(XML_TOKEN, ATTR			, 0xD);
 	GDEFINE_ENUM_VALUE(XML_TOKEN, ATTR_NAME		, 0xE);
-	GDEFINE_ENUM_VALUE(XML_TOKEN, ATTR_VALUE		, 0xF);
+	GDEFINE_ENUM_VALUE(XML_TOKEN, ATTR_VALUE	, 0xF);
 
 	stct SXMLToken {
 		XML_TOKEN			Type;
@@ -49,19 +49,19 @@ namespace llc
 		}
 	};
 
-	err_t			xmlParse			(SXMLReader & reader, vcsc_t xmlDoc);
-	err_t			xmlTokenView		(vcsc_t xmlDoc, cnst SXMLToken & token, vcsc_t & output);
-	err_t			xmlNodeName			(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t & output);
-	err_t			xmlNodeAttribute	(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t name, vcsc_t & output);
-	err_t			xmlNodeChild		(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t name);
-	err_t			xmlNodeText			(cnst SXMLReader & reader, vcsc_t xmlDoc, u2_t iNode, vcsc_t & output);
+	err_t			xmlParse			(SXMLReader & reader, vcst_t xmlDoc);
+	err_t			xmlTokenView		(vcst_t xmlDoc, cnst SXMLToken & token, vcst_t & output);
+	err_t			xmlNodeName			(cnst SXMLReader & reader, vcst_t xmlDoc, u2_t iNode, vcst_t & output);
+	err_t			xmlNodeAttribute	(cnst SXMLReader & reader, vcst_t xmlDoc, u2_t iNode, vcst_t name, vcst_t & output);
+	err_t			xmlNodeChild		(cnst SXMLReader & reader, vcst_t xmlDoc, u2_t iNode, vcst_t name);
+	err_t			xmlNodeText			(cnst SXMLReader & reader, vcst_t xmlDoc, u2_t iNode, vcst_t & output);
 
 	stct SXMLFile {
-		asc_t				Bytes;
+		string				Bytes;
 		SXMLReader			Reader;
 	};
 
-	err_t			xmlFileRead			(SXMLFile & file, vcsc_t filename);
+	err_t			xmlFileRead			(SXMLFile & file, vcst_t filename);
 }
 
 #endif // LLC_XML_READER_H_23627

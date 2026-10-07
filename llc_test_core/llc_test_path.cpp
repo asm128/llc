@@ -16,9 +16,9 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_APPEND			, 6, "pathNameCompose() d
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_EMPTY				, 7, "pathNameCompose() changed an empty composition.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_RETURN			, 8, "pathNameCompose() did not return the resulting output size.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_TERMINATOR		, 9, "pathNameCompose() did not preserve the output terminator.");
-GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_SEPARATOR		, 10, "pathNameCompose() did not normalize path separators.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_SEPARATOR			, 10, "pathNameCompose() did not normalize path separators.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_BOUNDARY			, 11, "pathNameCompose() did not collapse separators at the component boundary.");
-GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_PATH_ONLY		, 12, "pathNameCompose() changed a path composed without a filename.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_PATH_ONLY			, 12, "pathNameCompose() changed a path composed without a filename.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_ROOT				, 13, "pathNameCompose() did not preserve the path root.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, COMPOSE_FAILURE_PRESERVE	, 14, "pathNameCompose() changed caller output after rejecting invalid input.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, NORMALIZE_EMPTY			, 15, "pathNormalize() did not normalize an empty path.");
@@ -54,40 +54,80 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, DIRECTORY_TEXT				, 44, "pathDirectory() p
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, FILENAME_TEXT				, 45, "pathFilename() produced an unexpected filename slice.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, STEM_TEXT					, 46, "pathStem() produced an unexpected stem slice.");
 
+tydf ::llc::err_t (*TFileToString)(::llc::vcst_t, ::llc::string &, uint32_t, uint64_t);
+tydf ::llc::err_t (*TFileFromBytes)(::llc::vcst_t, ::llc::vcs0_t, bool);
+tydf ::llc::err_t (*TFileFromString)(::llc::vcst_t, ::llc::vcst_t, bool);
+tydf ::llc::err_t (*TPathCreate)(::llc::vcst_t, ::llc::sc_c);
+tydf ::llc::err_t (*TPathListFlat)(::llc::vcst_t, ::llc::aobj<::llc::string> &, bool, ::llc::vcst_t);
+tydf ::llc::err_t (*TPathListOwned)(cnst ::llc::SPathContents &, ::llc::aobj<::llc::string> &, ::llc::vcst_t);
+tydf ::llc::err_t (*TPathListViews)(cnst ::llc::SPathContents &, ::llc::aobj<::llc::vcst_t> &, ::llc::vcst_t);
+tydf ::llc::err_t (*TPathListTree)(::llc::vcst_t, ::llc::SPathContents &, ::llc::vcst_t);
+tydf ::llc::err_t (*TPathListRecursive)(::llc::vcst_t, ::llc::aobj<::llc::string> &, ::llc::vcst_t);
+tydf ::llc::err_t (*TPathCompose)(::llc::vcst_t, ::llc::vcst_t, ::llc::string &);
+tydf ::llc::err_t (*TPathTransform)(::llc::vcst_t, ::llc::string &, ::llc::sc_c);
+tydf ::llc::err_t (*TPathSlice)(::llc::vcst_t, ::llc::vcst_t &);
+tydf ::llc::err_t (*TPathFindSlash)(::llc::vcst_t);
+
+static_assert(::llc::is_cnst<::llc::vcst_t::T>::Value, "Path string views must expose const characters.");
+static_assert(::llc::is_cnst<::llc::vcs0_t::T>::Value, "File byte views must expose const bytes.");
+static_assert(requires {
+	static_cast<TFileToString>(&::llc::fileToMemory);
+	static_cast<TFileFromBytes>(&::llc::fileFromMemory);
+	static_cast<TFileFromString>(&::llc::fileFromMemory);
+	}, "File memory operations must preserve their string and const-view contracts.");
+static_assert(requires {
+	static_cast<TPathCreate>(&::llc::pathCreate);
+	static_cast<TPathListFlat>(&::llc::pathList);
+	static_cast<TPathListOwned>(&::llc::pathList);
+	static_cast<TPathListViews>(&::llc::pathList);
+	static_cast<TPathListTree>(&::llc::pathList);
+	static_cast<TPathListRecursive>(&::llc::pathList);
+	}, "Path listing must preserve its owned and borrowed output contracts.");
+static_assert(requires {
+	static_cast<TPathCompose>(&::llc::pathNameCompose);
+	static_cast<TPathTransform>(&::llc::pathNormalize);
+	static_cast<TPathTransform>(&::llc::pathAbsolute);
+	static_cast<TPathSlice>(&::llc::pathBegin);
+	static_cast<TPathSlice>(&::llc::pathDirectory);
+	static_cast<TPathSlice>(&::llc::pathFilename);
+	static_cast<TPathSlice>(&::llc::pathStem);
+	static_cast<TPathFindSlash>(&::llc::findLastSlash);
+	}, "Path operations must preserve their string-view contracts.");
+
 stct SPathSlashCase {
-	::llc::vcsc_t		Path;
+	::llc::vcst_t		Path;
 	::llc::err_t		Expected;
 	PATH_TEST_RESULT	Result;
 };
 
 stct SPathComposeCase {
-	::llc::vcsc_t		Prefix;
-	::llc::vcsc_t		Path;
-	::llc::vcsc_t		FileName;
-	::llc::vcsc_t		Expected;
+	::llc::vcst_t		Prefix;
+	::llc::vcst_t		Path;
+	::llc::vcst_t		FileName;
+	::llc::vcst_t		Expected;
 	PATH_TEST_RESULT	Result;
 };
 
 stct SPathNormalizeCase {
-	::llc::vcsc_t		Path;
-	::llc::vcsc_t		Expected;
+	::llc::vcst_t		Path;
+	::llc::vcst_t		Expected;
 	::llc::sc_t		Separator;
 	PATH_TEST_RESULT	Result;
 };
 
 stct SPathBeginCase {
-	::llc::vcsc_t		Path;
-	::llc::vcsc_t		Expected;
+	::llc::vcst_t		Path;
+	::llc::vcst_t		Expected;
 };
 
 stct SPathPartsCase {
-	::llc::vcsc_t		Path		= {};
-	::llc::vcsc_t		Directory	= {};
-	::llc::vcsc_t		Filename	= {};
-	::llc::vcsc_t		Stem		= {};
+	::llc::vcst_t		Path		= {};
+	::llc::vcst_t		Directory	= {};
+	::llc::vcst_t		Filename	= {};
+	::llc::vcst_t		Stem		= {};
 };
 
-sttc bool pathTextMismatch(::llc::vcsc_t actual, ::llc::vcsc_t expected) {
+sttc bool pathTextMismatch(::llc::vcst_t actual, ::llc::vcst_t expected) {
 	rtrn actual.size() != expected.size() || (actual.size() && memcmp(actual.begin(), expected.begin(), actual.size()));
 }
 
@@ -138,9 +178,9 @@ sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 		, {LLC_CXS(".profile")					, LLC_CXS("")			, LLC_CXS(".profile")			, LLC_CXS(".profile")}
 		};
 	for(cnst SPathPartsCase & testCase : partCases) {
-		::llc::vcsc_t directory = {};
-		::llc::vcsc_t filename  = {};
-		::llc::vcsc_t stem      = {};
+		::llc::vcst_t directory = {};
+		::llc::vcst_t filename  = {};
+		::llc::vcst_t stem      = {};
 		if_fail_fe(::llc::pathDirectory(testCase.Path, directory));
 		if_fail_fe(::llc::pathFilename(testCase.Path, filename));
 		if_fail_fe(::llc::pathStem(testCase.Path, stem));
@@ -171,7 +211,7 @@ sttc ::llc::err_t testPathBegin(ATestError & errors) {
 		, {LLC_CXS("1:/folder")					, LLC_CXS("")}
 		};
 	for(cnst SPathBeginCase & testCase : cases) {
-		::llc::vcsc_t		actual;
+		::llc::vcst_t		actual;
 		cnst ::llc::err_t result = ::llc::pathBegin(testCase.Path, actual);
 		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_BEGIN_TEXT, pathTextMismatch(actual, testCase.Expected)
 			, "Path:'%.*s' produced prefix:'%.*s'/%u, expected:'%.*s'/%u."
@@ -201,7 +241,7 @@ sttc ::llc::err_t testPathNameCompose(ATestError & errors) {
 		, {LLC_CXS("prefix:")	, LLC_CXS("folder")			, LLC_CXS("file.txt")	, LLC_CXS("prefix:folder/file.txt"), PATH_TEST_RESULT_COMPOSE_APPEND}
 		};
 	for(cnst SPathComposeCase & testCase : cases) {
-		::llc::asc_t		output		= testCase.Prefix;
+		::llc::string		output		= testCase.Prefix;
 		cnst ::llc::err_t result		= ::llc::pathNameCompose(testCase.Path, testCase.FileName, output);
 		LLC_TEST_CHECK(errors, testCase.Result, pathTextMismatch(output, testCase.Expected)
 			, "Prefix:'%.*s', path:'%.*s', file:'%.*s' produced:'%.*s'/%u, expected:'%.*s'/%u."
@@ -229,7 +269,7 @@ sttc ::llc::err_t testPathNameComposeInvalid(ATestError & errors) {
 		, {LLC_CXS("preserved:")	, LLC_CXS("///server/share")	, LLC_CXS("file.txt")		, LLC_CXS("preserved:")	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
 		};
 	for(cnst SPathComposeCase & testCase : cases) {
-		::llc::asc_t		output		= testCase.Prefix;
+		::llc::string		output		= testCase.Prefix;
 		cnst ::llc::err_t result		= ::llc::pathNameCompose(testCase.Path, testCase.FileName, output);
 		LLC_TEST_CHECK(errors, testCase.Result, false == ::llc::failed(result)
 			, "Path:'%.*s', file:'%.*s' returned:%" LLC_FMT_S2 ", expected failure."
@@ -267,7 +307,7 @@ sttc ::llc::err_t testPathNormalize(ATestError & errors) {
 		, {LLC_CXS("C:/folder/file")				, LLC_CXS("C:\\folder\\file")		, '\\', PATH_TEST_RESULT_NORMALIZE_SEPARATOR}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
-		::llc::asc_t		output		= LLC_CXS("stale");
+		::llc::string		output		= LLC_CXS("stale");
 		cnst ::llc::err_t result		= ::llc::pathNormalize(testCase.Path, output, testCase.Separator);
 		LLC_TEST_CHECK(errors, testCase.Result, pathTextMismatch(output, testCase.Expected)
 			, "Path:'%.*s', separator:'%c' produced:'%.*s'/%u, expected:'%.*s'/%u."
@@ -300,7 +340,7 @@ sttc ::llc::err_t testPathNormalizeInvalid(ATestError & errors) {
 		, {LLC_CXS("folder/file")		, LLC_CXS("preserved")	, ':', PATH_TEST_RESULT_NORMALIZE_INVALID}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
-		::llc::asc_t		output		= testCase.Expected;
+		::llc::string		output		= testCase.Expected;
 		cnst ::llc::err_t result		= ::llc::pathNormalize(testCase.Path, output, testCase.Separator);
 		LLC_TEST_CHECK(errors, testCase.Result, false == ::llc::failed(result)
 			, "Path:'%.*s', separator:'%c' returned:%" LLC_FMT_S2 ", expected failure."
@@ -314,21 +354,21 @@ sttc ::llc::err_t testPathNormalizeInvalid(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc bool pathIsAbsolute(::llc::vcsc_t path) {
+sttc bool pathIsAbsolute(::llc::vcst_t path) {
 	rtrn path.size() && ('/' == path[0] || '\\' == path[0] || (path.size() > 2 && ':' == path[1] && ('/' == path[2] || '\\' == path[2])));
 }
 
 sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
-	::llc::asc_t		current;
+	::llc::string		current;
 	cnst ::llc::err_t currentResult	= ::llc::pathAbsolute(LLC_CXS("."), current);
 	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT, ::llc::failed(currentResult) || false == ::pathIsAbsolute(current)
 		, "Current directory resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u."
 		, currentResult, (int)current.size(), current.begin(), current.size()
 		);
 
-	::llc::asc_t		expected;
+	::llc::string		expected;
 	if_fail_fe(::llc::pathNameCompose(current, LLC_CXS("llc_test_path_nonexistent"), expected));
-	::llc::asc_t		resolved;
+	::llc::string		resolved;
 	cnst ::llc::err_t resolvedResult = ::llc::pathAbsolute(LLC_CXS("./llc/../llc_test_path_nonexistent"), resolved);
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE, pathTextMismatch(resolved, expected)
 		, "Relative resolution produced:'%.*s'/%u, expected:'%.*s'/%u."
@@ -339,7 +379,7 @@ sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 		, resolvedResult, (int)resolved.size(), resolved.begin(), resolved.size()
 		);
 
-	::llc::asc_t		idempotent;
+	::llc::string		idempotent;
 	cnst ::llc::err_t idempotentResult = ::llc::pathAbsolute(current, idempotent);
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT, pathTextMismatch(idempotent, current)
 		, "Absolute input:'%.*s'/%u produced:'%.*s'/%u."
@@ -354,9 +394,9 @@ sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 		, current.size() ? current.begin()[current.size()] : 0, resolved.size() ? resolved.begin()[resolved.size()] : 0, idempotent.size() ? idempotent.begin()[idempotent.size()] : 0
 		);
 
-	::llc::asc_t		backslash;
+	::llc::string		backslash;
 	if_fail_fe(::llc::pathAbsolute(LLC_CXS("."), backslash, '\\'));
-	::llc::asc_t		backslashAsSlash;
+	::llc::string		backslashAsSlash;
 	if_fail_fe(::llc::pathNormalize(backslash, backslashAsSlash));
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_SEPARATOR, pathTextMismatch(backslashAsSlash, current)
 		, "Backslash path:'%.*s' normalized to:'%.*s', expected:'%.*s'."
@@ -372,7 +412,7 @@ sttc ::llc::err_t testPathAbsoluteInvalid(ATestError & errors) {
 		, {LLC_CXS("folder/file")		, LLC_CXS("preserved")	, ':', PATH_TEST_RESULT_ABSOLUTE_INVALID}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
-		::llc::asc_t		output		= testCase.Expected;
+		::llc::string		output		= testCase.Expected;
 		cnst ::llc::err_t result		= ::llc::pathAbsolute(testCase.Path, output, testCase.Separator);
 		LLC_TEST_CHECK(errors, testCase.Result, false == ::llc::failed(result)
 			, "Path:'%.*s', separator:'%c' returned:%" LLC_FMT_S2 ", expected failure."

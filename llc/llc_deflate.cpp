@@ -158,7 +158,7 @@ stxp	uint32_t		DEFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 ::llc::error_t			llc::folderPack				(::llc::SFolderPackage & output, const ::llc::vcst_t nameFolderSrc) {
 	::llc::SPackHeader 			& fileHeader			= output.PackageInfo = {};
 	// -- The following two arrays store the file table and the file contents that are going to be compressed and stored on disk
-	::llc::asc_t					finalPathName			= {};
+	::llc::string					finalPathName			= {};
 	finalPathName.resize(1024*8);
 
 	::llc::au0_t					tableFiles				;
@@ -214,7 +214,7 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 	// -- The following two arrays store the file table and the file contents that are going to be compressed and stored on disk
 	uint32_t					totalFileCount			= 0;
 	{
-		::llc::aobj<::llc::asc_t>		listFiles				= {};
+		::llc::aobj<::llc::string>		listFiles				= {};
 		llc_necall(llc::pathList(nameFolderSrc, listFiles), "Failed to list folder: %s.", nameFolderSrc.begin());
 
 		::llc::au0_t					contentsTemp			= {};

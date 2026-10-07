@@ -4,13 +4,31 @@
 
 GDEFINE_ENUM_TYPE(XML_READER_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, OK				, 0, "All XML reader tests passed.");
-GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, PARSE				, 1, "xmlParse() rejected a valid XML document.");
-GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, TOKEN_RANGE			, 2, "An XML token range escaped its source document.");
-GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, TOKEN_PARENT			, 3, "An XML token referenced an invalid parent.");
-GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, READER_STATE			, 4, "The XML reader did not finish a valid document in a closed state.");
-GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, CLOSING_TAG			, 5, "The XML reader accepted a mismatched closing tag.");
-GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, COUNTED_INPUT			, 6, "xmlParse() depended on a terminator beyond counted input.");
-GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, RESET_REUSE			, 7, "The XML reader did not clear and reuse its token storage.");
+GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, PARSE			, 1, "xmlParse() rejected a valid XML document.");
+GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, TOKEN_RANGE		, 2, "An XML token range escaped its source document.");
+GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, TOKEN_PARENT	, 3, "An XML token referenced an invalid parent.");
+GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, READER_STATE	, 4, "The XML reader did not finish a valid document in a closed state.");
+GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, CLOSING_TAG		, 5, "The XML reader accepted a mismatched closing tag.");
+GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, COUNTED_INPUT	, 6, "xmlParse() depended on a terminator beyond counted input.");
+GDEFINE_ENUM_VALUED(XML_READER_TEST_RESULT, RESET_REUSE		, 7, "The XML reader did not clear and reuse its token storage.");
+
+tydf ::llc::err_t (*TXMLParse)(::llc::SXMLReader &, ::llc::vcst_t);
+tydf ::llc::err_t (*TXMLTokenView)(::llc::vcst_t, cnst ::llc::SXMLToken &, ::llc::vcst_t &);
+tydf ::llc::err_t (*TXMLNodeView)(cnst ::llc::SXMLReader &, ::llc::vcst_t, ::llc::u2_t, ::llc::vcst_t &);
+tydf ::llc::err_t (*TXMLNodeAttribute)(cnst ::llc::SXMLReader &, ::llc::vcst_t, ::llc::u2_t, ::llc::vcst_t, ::llc::vcst_t &);
+tydf ::llc::err_t (*TXMLNodeChild)(cnst ::llc::SXMLReader &, ::llc::vcst_t, ::llc::u2_t, ::llc::vcst_t);
+tydf ::llc::err_t (*TXMLFileRead)(::llc::SXMLFile &, ::llc::vcst_t);
+
+static_assert(::llc::is_cnst<::llc::vcst_t::T>::Value, "XML string views must expose const characters.");
+static_assert(requires {
+	static_cast<TXMLParse>(&::llc::xmlParse);
+	static_cast<TXMLTokenView>(&::llc::xmlTokenView);
+	static_cast<TXMLNodeView>(&::llc::xmlNodeName);
+	static_cast<TXMLNodeAttribute>(&::llc::xmlNodeAttribute);
+	static_cast<TXMLNodeChild>(&::llc::xmlNodeChild);
+	static_cast<TXMLNodeView>(&::llc::xmlNodeText);
+	static_cast<TXMLFileRead>(&::llc::xmlFileRead);
+	}, "XML operations must preserve their string-view contracts.");
 
 sttc ::llc::err_t testXMLDocument
 	(ATestError & errors, ::llc::vcsc_t input, XML_READER_TEST_RESULT parseTest = XML_READER_TEST_RESULT_PARSE) {

@@ -1,4 +1,5 @@
 #include "llc_cstdio.h"
+#include "llc_string.h"
 
 #ifndef LLC_FILE_H_23627
 #define LLC_FILE_H_23627
@@ -19,9 +20,9 @@ namespace llc
 	err_t			fileFromMemory		(vcst_t folderPath, vcst_t fileName, vcu0_t fileInMemory, bool append = false);
 
 	stin	err_t	fileToMemory		(vcst_t fileName, as0_t & fileInMemory, uint32_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
-	stin	err_t	fileToMemory		(vcst_t fileName, asc_t & fileInMemory, uint32_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
-	stin	err_t	fileFromMemory		(vcst_t fileName, vcs0_c & fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.cu8(), append); }
-	stin	err_t	fileFromMemory		(vcst_t fileName, vcsc_c & fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.cu8(), append); }
+	stin	err_t	fileToMemory		(vcst_t fileName, string & fileInMemory, uint32_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
+	stin	err_t	fileFromMemory		(vcst_t fileName, vcs0_t fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.cu8(), append); }
+	stin	err_t	fileFromMemory		(vcst_t fileName, vcst_t fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.cu8(), append); }
 
 	GDEFINE_ENUM_TYPE(OPEN_MODE, i2u_t);
 	GDEFINE_ENUM_VALUE(OPEN_MODE, CLOSE		, 0);												

@@ -9,7 +9,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_ATTRIBUTE	, 2, "The XML rea
 GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader did not expose the expected MSBuild project value.");
 
 ::llc::err_t testMSBuildXML(ATestError & errors) {
-	cnst ::llc::vcsc_t input = LLC_CXS
+	cnst ::llc::vcst_t input = LLC_CXS
 		("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 		"<Project DefaultTargets=\"Build\">"
 		"<PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">"
@@ -37,7 +37,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader
 		, iPropertyGroup
 		);
 
-	::llc::vcsc_t condition = {};
+	::llc::vcst_t condition = {};
 	cnst ::llc::err_t iCondition = ::llc::xmlNodeAttribute(reader, input, (::llc::u2_t)iPropertyGroup, LLC_CXS("Condition"), condition);
 	LLC_TEST_CHECK(errors, MSBUILD_XML_TEST_RESULT_PROJECT_ATTRIBUTE
 		, ::llc::failed(iCondition) || condition != LLC_CXS("'$(Configuration)|$(Platform)'=='Debug|x64'")
@@ -46,7 +46,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader
 		);
 
 	cnst ::llc::err_t iOutDir = ::llc::xmlNodeChild(reader, input, (::llc::u2_t)iPropertyGroup, LLC_CXS("OutDir"));
-	::llc::vcsc_t outDir = {};
+	::llc::vcst_t outDir = {};
 	cnst ::llc::err_t iOutText = ::llc::failed(iOutDir) ? -1 : ::llc::xmlNodeText(reader, input, (::llc::u2_t)iOutDir, outDir);
 	LLC_TEST_CHECK(errors, MSBUILD_XML_TEST_RESULT_PROJECT_VALUE
 		, ::llc::failed(iOutText) || outDir != LLC_CXS("$(SolutionDir)../$(Platform).$(Configuration)/")
@@ -55,7 +55,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader
 		);
 
 	cnst ::llc::err_t iIntDir = ::llc::xmlNodeChild(reader, input, (::llc::u2_t)iPropertyGroup, LLC_CXS("IntDir"));
-	::llc::vcsc_t intDir = {};
+	::llc::vcst_t intDir = {};
 	cnst ::llc::err_t iIntText = ::llc::failed(iIntDir) ? -1 : ::llc::xmlNodeText(reader, input, (::llc::u2_t)iIntDir, intDir);
 	LLC_TEST_CHECK(errors, MSBUILD_XML_TEST_RESULT_PROJECT_VALUE
 		, ::llc::failed(iIntText) || intDir != LLC_CXS("$(SolutionDir)../obj/$(Platform).$(Configuration)/$(ProjectName)/")

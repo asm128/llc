@@ -17,7 +17,7 @@ This file is operational memory for future work in this repository. Read it befo
 - Keep foundational headers light. Avoid adding a dependency tree when one constexpr expression or small local facility will do.
 - Use actual APIs and call sites before designing a change. Do not invent missing LLC interfaces from memory.
 - Preserve LLC's `err_t` result convention. Operations that can fail or report an operational result return `err_t` and place produced values in output parameters. Direct value returns are for operations that cannot fail, such as arithmetic. A different return type requires Pablo to request and approve that exact exception three separate times.
-- After every code edit, re-evaluate the changed signatures and bodies against this file and `../../AGENT_RECOLLECTIONS/FIRST_LEVEL_CONSTRAINTS.md`. Check return types before implementation details; then check ignored results, failure propagation, output mutation, ownership and allocation.
+- After every code edit, re-evaluate the changed signatures and bodies against this file and `../../AGENT_RECOLLECTIONS/CommonGround/FIRST_LEVEL_CONSTRAINTS.md`. Check return types before implementation details; then check ignored results, failure propagation, output mutation, ownership and allocation.
 - Inspect both the staged and unstaged LLC diff during that post-edit evaluation. A corrected working tree is not sufficient if the rejected version remains staged.
 - Do not call an API more convenient because its call expression is shorter when the shorter form removes an error channel, output or behavior. That is functionality erasure, not simplification.
 - Do not add OOP ceremony, registration machinery or external-framework structure unless a demonstrated requirement pays for it.
