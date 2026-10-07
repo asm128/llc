@@ -61,7 +61,7 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 	return argsParse(output, arguments, envvars);
 }
 
-::llc::err_t		llc::argsParse		(::llc::SCommandLineArgs & output, ::llc::view<vcst_t> argv, ::llc::view<vcst_t> envp) {
+::llc::err_t		llc::argsParse		(::llc::SCommandLineArgs & output, ::llc::view<cnst vcst_t> argv, ::llc::view<cnst vcst_t> envp) {
 	output							= {};
 	output.Environment				= envp;
 	if_zero_vw(0, argv.size()); // Exit early if no argv: nothing to do

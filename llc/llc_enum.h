@@ -1,6 +1,6 @@
 // These sources are best viewed in Visual Studio 2017 or newer with a screen of at least 1920x1080 screen, Consolas font and zoom set to 81 %.
 // Ogarnd - Copyright (c) 2016-2024
-#include "llc_array_pod.h"
+#include "llc_string.h"
 #include "llc_array_obj.h"
 
 #ifndef LLC_ENUM_H_23627
@@ -20,55 +20,55 @@ namespace llc
 	// The implementation separates names from values for improving search speed by reducing the memory usage when performing searches for names/values.
 	tpl_tstct enum_definition {
 		tdfT(_t);
-		stxp	T					INVALID_VALUE			= (T)(-1);
+		stxp	T		INVALID_VALUE				= (T)(-1);
 
-		::llc::vcsc_t					Name					= UNRESOLVED_ENUM_NAME_STR;
-		::llc::apod<T>					Values					= {};
-		::llc::avcsc_t					Names					= {};
-		::llc::avcsc_t					Titles					= {};
-		::llc::avcsc_t					Descriptions			= {};
+		vcst_t			Name						= UNRESOLVED_ENUM_NAME_STR;
+		apod<T>			Values						= {};
+		aobj<vcst_t>	Names						= {};
+		aobj<vcst_t>	Titles						= {};
+		aobj<vcst_t>	Descriptions				= {};
 
 		stin	enum_definition<T>&	get				()											{
 			static	enum_definition<T>		valueRegistry;
 			return valueRegistry;
 		}
-		stin	T					init					(::llc::vcsc_c & enumName)						{
+		stin	T					init			(vcst_t enumName)					{
 			enum_definition<T>&				instanceHere			= get();
 
 			if( instanceHere.Name != enumName || (instanceHere.Values.size() && (instanceHere.Values[0] != INVALID_VALUE)) )
-				verbose_printf("Initializing enumeration type: '%s'.", enumName.begin());
+				verbose_printf("Initializing enumeration type: '%.*s'.", enumName.size(), enumName.begin());
 
 			if(instanceHere.Name.size() != enumName.size())
 				instanceHere.Name			= enumName;
 
 			return INVALID_VALUE;
 		}
-		err_t				get_value				(::llc::vcsc_c & name, T & value)		const			{
+		err_t				get_value				(vcst_t name, T & value)		const	{
 			for(uint32_t i=0, count = Names.size(); i<count; ++i)
 				if(name == Names[i]) {
 					value				= Values[i];
 					return 0;
 				}
-			enum_printf("Enumeration value not found! Name: %s.", ::llc::toString(name).begin());
+			enum_printf("Enumeration value not found! Name: %.*s.", name.size(), name.begin());
 			value				= INVALID_VALUE;
 			return -1;
 		}
-		err_t				get_value				(const char* name, T & value)				const			{
-			for(uint32_t i=0, count = Names.size(); i<count; ++i)
-				if(0 == ::strcmp(name, Names[i].begin())) {
-					value				= Values[i];
-					return 0;
-				}
-			enum_printf("Enumeration value not found! Name: %s.", name);
-			value				= INVALID_VALUE;
-			return -1;
-		}
-		T					get_value				(::llc::vcsc_c & name)					const			{
+		//err_t				get_value				(const char* name, T & value)				const			{
+		//	for(uint32_t i=0, count = Names.size(); i<count; ++i)
+		//		if(0 == ::strcmp(name, Names[i].begin())) {
+		//			value				= Values[i];
+		//			return 0;
+		//		}
+		//	enum_printf("Enumeration value not found! Name: %s.", name.size(), name.begin());
+		//	value				= INVALID_VALUE;
+		//	return -1;
+		//}
+		T					get_value				(vcst_t name)					const			{
 			for(uint32_t i=0, count = Names.size(); i<count; ++i) {
 				if(name == Names[i])
 					return Values[i];
 			}
-			enum_printf("Enumeration value not found! Name: %s.", ::llc::toString(name).begin());
+			enum_printf("Enumeration value not found! Name: %.*s.", name.size(), name.begin());
 			return INVALID_VALUE;
 		}
 		err_t				get_value_by_index		(uint32_t index, T & value)					const			{
@@ -84,36 +84,36 @@ namespace llc
 			retval_gwarn_if(INVALID_VALUE, index >= Values.size(), "Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
 			return Values[index];
 		}
-		err_t				get_label_by_index		(uint32_t index, ::llc::vcsc_t & value)		const			{
+		err_t				get_label_by_index		(uint32_t index, vcst_t & value)		const			{
 			if(index < Names.size()) {
 				value				= Names[index];
 				return 0;
 			}
-			value				= ::llc::UNDEFINED_ENUM_VALUE_STR;
+			value				= UNDEFINED_ENUM_VALUE_STR;
 			enum_printf("Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
 			return -1;
 		}
-		::llc::vcsc_t			get_label_by_index		(uint32_t index)					const			{
+		vcst_t			get_label_by_index		(uint32_t index)					const			{
 			if(index < Names.size())
 				return Names[index];
 			enum_printf("Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
-			return ::llc::UNDEFINED_ENUM_VALUE_STR;
+			return UNDEFINED_ENUM_VALUE_STR;
 		}
-		err_t				get_value_index			(::llc::vcsc_c & name, int32_t & index)	const			{
+		err_t				get_value_index			(vcst_t name, int32_t & index)	const			{
 			for(uint32_t i=0, count = Names.size(); i < count; ++i)
 				if(name == Names[i]) {
 					index				= (int32_t)i;
 					return index;
 				}
-			enum_printf("Enumeration value not found! Name: %s.", name.begin());
+			enum_printf("Enumeration value not found! Name: %.*s.", name.size(), name.begin());
 			return index				= -1;
 		}
-		int32_t				get_value_index			(::llc::vcsc_c & name)					const			{
+		int32_t				get_value_index			(vcst_t name)					const			{
 			for(uint32_t i=0, count = Names.size(); i < count; ++i) {
 				if(name == Names[i])
 					return (int32_t)i;
 			}
-			enum_printf("Enumeration value not found! Name: %s.", name.begin());
+			enum_printf("Enumeration value not found! Name: %.*s.", name.size(), name.begin());
 			return -1;
 		}
 		err_t				get_value_index			(const T & value, int32_t & index)		const			{
@@ -133,43 +133,43 @@ namespace llc
 			enum_printf("Enumeration value not found! Value: %llX.", (uint64_t)value);
 			return -1;
 		}
-		err_t				get_value_label			(const T & value, ::llc::vcsc_t & name)	const			{
+		err_t				get_value_label			(const T & value, vcst_t & name)	const			{
 			for(uint32_t i=0, count = Values.size(); i < count; ++i)
 				if(value == Values[i]) {
 					name				= Names[i];
 					return 0;
 				}
 			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
-			name				= ::llc::UNRESOLVED_ENUM_LABEL_STR;
+			name				= UNRESOLVED_ENUM_LABEL_STR;
 			return -1;
 		}
-		err_t				get_value_desc			(const T & value, ::llc::vcsc_t & name)	const			{
+		err_t				get_value_desc			(const T & value, vcst_t & name)	const			{
 			for(uint32_t i=0, count = Values.size(); i < count; ++i)
 				if(value == Values[i]) {
 					name				= Descriptions[i];
 					return 0;
 				}
 			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
-			name				= ::llc::UNRESOLVED_ENUM_LABEL_STR;
+			name				= UNRESOLVED_ENUM_LABEL_STR;
 			return -1;
 		}
-		::llc::vcsc_c&	get_value_label			(const T & value)				const			{
+		vcst_t	get_value_label			(const T & value)				const			{
 			for(uint32_t i=0, count = Values.size(); i < count; ++i) {
 				if(value == Values[i])
 					return Names[i];
 			}
 			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
-			return ::llc::UNRESOLVED_ENUM_LABEL_STR;
+			return UNRESOLVED_ENUM_LABEL_STR;
 		}
-		::llc::vcsc_c&	get_value_desc			(const T & value)				const			{
+		vcst_t	get_value_desc			(const T & value)				const			{
 			for(uint32_t i=0, count = Values.size(); i < count; ++i) {
 				if(value == Values[i])
 					return Descriptions[i];
 			}
 			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
-			return ::llc::UNRESOLVED_ENUM_LABEL_STR;
+			return UNRESOLVED_ENUM_LABEL_STR;
 		}
-		err_t				add_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & title, ::llc::vcsc_c & description)	{
+		err_t				add_value				(const T & value, vcst_t name, vcst_t title, vcst_t description)	{
 			for(uint32_t i=0, count = Values.size(); i < count; ++i)
 				if(Values[i] == value) {
 					rww_if(name != Names[i], "Enumeration value already defined! Type: '%s'. Value: 0x%llX. Previous name: %s. New name: %s. Second definition ignored..."
@@ -193,7 +193,7 @@ namespace llc
 				);
 			return newIndex;
 		}
-		err_t				add_value_auto			(::llc::vcsc_c & name, ::llc::vcsc_c & title, ::llc::vcsc_c & description)	{
+		err_t				add_value_auto			(vcst_t name, vcst_t title, vcst_t description)	{
 			for(uint32_t i=0, count = Names.size(); i < count; ++i) {
 				ree_if(name == Names[i], "Enumeration value already defined! Type: '%s'. Value: 0x%llX. Previous name: %s. New name: %s. Second definition ignored..."
 					, Name		.begin()
@@ -213,78 +213,78 @@ namespace llc
 		}
 	};
 
-	tplt <tpnm TEnum>	inline	::llc::enum_definition<TEnum>&	get_enum	()					noexcept	{ return ::llc::enum_definition<TEnum>::get();	}
-	tplt <tpnm TEnum>	inline	::llc::enum_definition<TEnum>&	get_enum	(const TEnum & )	noexcept	{ return ::llc::enum_definition<TEnum>::get();	}
+	tplt <tpnm TEnum>	inline	enum_definition<TEnum>&	get_enum	()					noexcept	{ return enum_definition<TEnum>::get();	}
+	tplt <tpnm TEnum>	inline	enum_definition<TEnum>&	get_enum	(const TEnum & )	noexcept	{ return enum_definition<TEnum>::get();	}
 
 	// This type is used to initialize an enumeration value.
 	tpl_t struct genum_value {
 		tdfT(_t);
 
-		T					Value					= ::llc::enum_definition<T>::INVALID_VALUE;
-		::llc::vcsc_t			Name					= INVALID_ENUM_VALUE_STR;
-		::llc::vcsc_t			Title					= INVALID_ENUM_VALUE_STR;
-		::llc::vcsc_t			Description				= INVALID_ENUM_VALUE_STR;
+		T					Value					= enum_definition<T>::INVALID_VALUE;
+		vcst_t				Name					= INVALID_ENUM_VALUE_STR;
+		vcst_t				Title					= INVALID_ENUM_VALUE_STR;
+		vcst_t				Description				= INVALID_ENUM_VALUE_STR;
 		//
 		inxp				genum_value				()										= default;
 		inxp				genum_value				(const genum_value & other)				= default;
-							genum_value				(const T & value)																			: Value((T)value), Name(::llc::get_enum<T>().get_value_name(value))		{}
+							genum_value				(const T & value)													: Value((T)value), Name(get_enum<T>().get_value_name(value))		{}
 #ifndef LLC_ESP8266
-							genum_value				(const T & value, ::llc::vcsc_c & name)														: Value((T)value), Name(name), Title(name), Description(name)			{ ::llc::get_enum<T>().add_value(value, name, name, name);			}
-							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & description)						: Value((T)value), Name(name), Title(name), Description(description)	{ ::llc::get_enum<T>().add_value(value, name, name, description);	}
-							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & title, ::llc::vcsc_c & description)	: Value((T)value), Name(name), Title(title), Description(description)	{ ::llc::get_enum<T>().add_value(value, name, title, description);	}
+							genum_value				(const T & value, vcst_t name)										: Value((T)value), Name(name), Title(name), Description(name)			{ get_enum<T>().add_value(value, name, name, name);			}
+							genum_value				(const T & value, vcst_t name, vcst_t description)					: Value((T)value), Name(name), Title(name), Description(description)	{ get_enum<T>().add_value(value, name, name, description);	}
+							genum_value				(const T & value, vcst_t name, vcst_t title, vcst_t description)	: Value((T)value), Name(name), Title(title), Description(description)	{ get_enum<T>().add_value(value, name, title, description);	}
 #else
-							genum_value				(const T & value, ::llc::vcsc_c & name)														: Value((T)value), Name(name), Title(name), Description(name)			{ }
-							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & description)						: Value((T)value), Name(name), Title(name), Description(description)	{ }
-							genum_value				(const T & value, ::llc::vcsc_c & name, ::llc::vcsc_c & title, ::llc::vcsc_c & description)	: Value((T)value), Name(name), Title(title), Description(description)	{ }
+							genum_value				(const T & value, vcst_t name)										: Value((T)value), Name(name), Title(name), Description(name)			{ }
+							genum_value				(const T & value, vcst_t name, vcst_t description)					: Value((T)value), Name(name), Title(name), Description(description)	{ }
+							genum_value				(const T & value, vcst_t name, vcst_t title, vcst_t description)	: Value((T)value), Name(name), Title(title), Description(description)	{ }
 #endif
 		inxp	oper	const	T&				()			const	{ return Value; }
 	};
 
 	tplt <tpnm TEnum, size_t nameLen>
-	TEnum						get_value			(const char (&valueLabel)[nameLen])		{ return ::llc::get_enum<TEnum>().get_value(::llc::vcst_t{valueLabel}); }
-	tplt <tpnm TEnum>	TEnum	get_value			(::llc::vcsc_c & valueLabel)			{ return ::llc::get_enum<TEnum>().get_value(valueLabel); }
+	TEnum						get_value			(const char (&valueLabel)[nameLen])	{ return get_enum<TEnum>().get_value(vcst_t{valueLabel}); }
+	tplt <tpnm TEnum>	TEnum	get_value			(vcst_t valueLabel)					{ return get_enum<TEnum>().get_value(valueLabel); }
 
-	tplt <tpnm TEnum>	TEnum	get_value_camelcased(::llc::vcsc_c & uncased)			{
-		::llc::asc_t					camelCased;
-		::llc::camelCase(uncased, camelCased);
-		return ::llc::get_enum<TEnum>().get_value(camelCased);
+	tplt <tpnm TEnum>	TEnum	get_value_camelcased(vcst_t uncased)					{
+		string						camelCased;
+		camelCase(uncased, camelCased);
+		return get_enum<TEnum>().get_value(camelCased);
 	}
-	tplt<tpnm TEnum>	ndsi	uint32_t		get_value_count		()							nxpt	{ return ::llc::get_enum<TEnum>().Values.size(); }
-	tplt<tpnm TEnum>	ndsi	::llc::vcsc_c&	get_value_label		(const TEnum & statusBit)			{ return ::llc::get_enum<TEnum>().get_value_label(statusBit); }
-	tplt<tpnm TEnum>	ndsi	::llc::vcsc_c&	get_value_namev		(const TEnum & statusBit)			{ return ::llc::get_enum<TEnum>().get_value_label(statusBit); }
-	tplt<tpnm TEnum>	ndsi	sc_c*			get_value_namep		(const TEnum & statusBit)			{ return ::llc::get_enum<TEnum>().get_value_label(statusBit).begin(); }
-	tplt<tpnm TEnum>	ndsi	::llc::vcsc_c&	get_value_descv		(const TEnum & statusBit)			{ return ::llc::get_enum<TEnum>().get_value_desc (statusBit); }
-	tplt<tpnm TEnum>	ndsi	sc_c*			get_value_descp		(const TEnum & statusBit)			{ return ::llc::get_enum<TEnum>().get_value_desc (statusBit).begin(); }
-	tplt<tpnm TEnum>	ndsi	::llc::vcvsc_c&	get_value_labels	()							nxpt	{ return ::llc::get_enum<TEnum>().Names; }
-	tplt<tpnm TEnum>	ndsi	::llc::vcvsc_c&	get_value_names		()							nxpt	{ return ::llc::get_enum<TEnum>().Names; }
-	tplt<tpnm TEnum>	ndsi	::llc::vcvsc_c&	get_value_descs		()							nxpt	{ return ::llc::get_enum<TEnum>().Names; }
-	tplt<tpnm TEnum>	ndsi	int32_t			get_value_index		(const TEnum & statusBit)			{ return ::llc::get_enum<TEnum>().get_value_index(statusBit); }
-	tplt<tpnm TEnum>	ndsi	::llc::vcsc_c&	get_enum_namev		()							nxpt	{ return ::llc::get_enum<TEnum>().Name;			}
-	tplt<tpnm TEnum>	ndsi	::llc::vcsc_c&	get_enum_namev		(const TEnum & )			nxpt	{ return ::llc::get_enum<TEnum>().Name;			}
-	tplt<tpnm TEnum>	ndsi	sc_c*			get_enum_namep		()							nxpt	{ return ::llc::get_enum<TEnum>().Name.begin();	}
-	tplt<tpnm TEnum>	ndsi	sc_c*			get_enum_namep		(const TEnum & )			nxpt	{ return ::llc::get_enum<TEnum>().Name.begin();	}
+	tplt<tpnm TEnum>	ndsi	uint32_t		get_value_count		()							nxpt	{ return get_enum<TEnum>().Values.size(); }
+	tplt<tpnm TEnum>	ndsi	vcst_t			get_value_label		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit); }
+	tplt<tpnm TEnum>	ndsi	vcst_t			get_value_namev		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit); }
+	tplt<tpnm TEnum>	ndsi	sc_c*			get_value_namep		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit).begin(); }
+	tplt<tpnm TEnum>	ndsi	vcst_t			get_value_descv		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_desc (statusBit); }
+	tplt<tpnm TEnum>	ndsi	sc_c*			get_value_descp		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_desc (statusBit).begin(); }
+	tplt<tpnm TEnum>	ndsi	view<vcst_c>	get_value_labels	()							nxpt	{ return get_enum<TEnum>().Names; }
+	tplt<tpnm TEnum>	ndsi	view<vcst_c>	get_value_names		()							nxpt	{ return get_enum<TEnum>().Names; }
+	tplt<tpnm TEnum>	ndsi	view<vcst_c>	get_value_descs		()							nxpt	{ return get_enum<TEnum>().Names; }
+	tplt<tpnm TEnum>	ndsi	int32_t			get_value_index		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_index(statusBit); }
+	tplt<tpnm TEnum>	ndsi	vcst_t			get_enum_namev		()							nxpt	{ return get_enum<TEnum>().Name;			}
+	tplt<tpnm TEnum>	ndsi	vcst_t			get_enum_namev		(const TEnum & )			nxpt	{ return get_enum<TEnum>().Name;			}
+	tplt<tpnm TEnum>	ndsi	sc_c*			get_enum_namep		()							nxpt	{ return get_enum<TEnum>().Name.begin();	}
+	tplt<tpnm TEnum>	ndsi	sc_c*			get_enum_namep		(const TEnum & )			nxpt	{ return get_enum<TEnum>().Name.begin();	}
 
 	tplTstct genum_value_auto {
-		T						Value				= ::llc::enum_definition<T>::INVALID_VALUE;
-		::llc::vcsc_t			Name				= INVALID_ENUM_VALUE_STR;
-		::llc::vcsc_t			Title				= INVALID_ENUM_VALUE_STR;
-		::llc::vcsc_t			Description			= INVALID_ENUM_VALUE_STR;
+		T		Value				= enum_definition<T>::INVALID_VALUE;
+		vcst_t	Name				= INVALID_ENUM_VALUE_STR;
+		vcst_t	Title				= INVALID_ENUM_VALUE_STR;
+		vcst_t	Description			= INVALID_ENUM_VALUE_STR;
 		//
-		inxp				genum_value_auto	()									= default;
-		inxp				genum_value_auto	(const genum_value_auto & other)	= default;
-							genum_value_auto	(::llc::vcsc_c & name)														: Value((T)0), Name(name), Title(name), Description(name)			{ ::llc::get_enum<T>().add_value_auto(name, name, name);			Value = ::llc::get_value<T>(name); }
-							genum_value_auto	(::llc::vcsc_c & name, ::llc::vcsc_c & description)							: Value((T)0), Name(name), Title(name), Description(description)	{ ::llc::get_enum<T>().add_value_auto(name, name, description);		Value = ::llc::get_value<T>(name); }
-							genum_value_auto	(::llc::vcsc_c & name, ::llc::vcsc_c & title, ::llc::vcsc_c & description)	: Value((T)0), Name(name), Title(title), Description(description)	{ ::llc::get_enum<T>().add_value_auto(name, title, description);	Value = ::llc::get_value<T>(name); }
+		inxp	genum_value_auto	()									= default;
+		inxp	genum_value_auto	(const genum_value_auto & other)	= default;
+				genum_value_auto	(vcst_t name)													: Value((T)0), Name(name), Title(name), Description(name)			{ get_enum<T>().add_value_auto(name, name, name);			Value = get_value<T>(name); }
+				genum_value_auto	(vcst_t name, vcst_t description)							: Value((T)0), Name(name), Title(name), Description(description)	{ get_enum<T>().add_value_auto(name, name, description);		Value = get_value<T>(name); }
+				genum_value_auto	(vcst_t name, vcst_t title, vcst_t description)	: Value((T)0), Name(name), Title(title), Description(description)	{ get_enum<T>().add_value_auto(name, title, description);	Value = get_value<T>(name); }
 
-		inxp	oper	const	T&		()			const	{ return Value; }
+		inxp	oper	cnst T&		()			const	{ return Value; }
 	};
 
 } // namespace
 
 // Defines the enumeration type, the invalid value (-1) and the flag operators
-#define GDEFINE_ENUM_TYPE(EnumName, IntType)																	\
-	enum EnumName : IntType {};																					\
-	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(#EnumName);	\
+#define GDEFINE_ENUM_TYPE(EnumName, IntType)																							\
+	enum EnumName : IntType {};																											\
+	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(LLC_CXS(#EnumName));					\
 	sinx	EnumName		oper &	(EnumName  a, EnumName b)	noexcept	{ return (EnumName)		(a & (IntType)b);				}	\
 	sinx	EnumName		oper ~	(EnumName  a)				noexcept	{ return (EnumName)		(~(IntType)a);					}	\
 	sinx	EnumName		oper ^	(EnumName  a, EnumName b)	noexcept	{ return (EnumName)		(a ^ (IntType)b);				}	\
@@ -299,7 +299,7 @@ namespace llc
 		inline	oper		IntType&		()			nxpt	{ return Value; }															\
 		inxp	oper		const IntType&	()	const	nxpt	{ return Value; }															\
 	};																																		\
-	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(#EnumName);								\
+	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(LLC_CXS(#EnumName));								\
 	sinx	EnumName		oper &	(EnumName  a, EnumName b)	noexcept	{ return {a & (IntType)b};				}	\
 	sinx	EnumName		oper ~	(EnumName  a)				noexcept	{ return {~(IntType)a};					}	\
 	sinx	EnumName		oper ^	(EnumName  a, EnumName b)	noexcept	{ return {a ^ (IntType)b};				}	\
@@ -324,17 +324,17 @@ namespace llc
 #else
 #	define GDEFINE_ENUM_VALUE(EnumName, ValueName, EnumValue)							\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, #ValueName})
+	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), LLC_CXS(#ValueName))
 
-#	define GDEFINE_ENUM_AVALUE(EnumName, ValueName) static	const EnumName	EnumName##_##ValueName	= (EnumName)::llc::genum_value_auto<EnumName>({szof(#ValueName) - 1, #ValueName})
+#	define GDEFINE_ENUM_AVALUE(EnumName, ValueName) static	const EnumName	EnumName##_##ValueName	= (EnumName)::llc::genum_value_auto<EnumName>(LLC_CXS(#ValueName))
 
 #	define GDEFINE_ENUM_VALUED(EnumName, ValueName, EnumValue, EnumDescription)				\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, #ValueName}, {szof(EnumDescription) - 1, EnumDescription})
+	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), LLC_CXS(#ValueName), LLC_CXS(EnumDescription))
 
 #	define GDEFINE_ENUM_VALTD(EnumName, ValueName, EnumValue, EnumTitle, EnumDescription)				\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, #ValueName}, {szof(EnumTitle) - 1, EnumTitle}, {szof(EnumDescription) - 1, EnumDescription})
+	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), LLC_CXS(#ValueName), LLC_CXS(EnumTitle), LLC_CXS(EnumDescription))
 #endif
 
 #define GDEFINE_FLAG_TYPE		GDEFINE_ENUM_TYPE
@@ -376,9 +376,9 @@ namespace llc
 		inln	EnumName&						oper &=	(EnumName b)	nxpt		{ return *this = {IntType(Value &= b.Value)}; }	\
 		inln	EnumName&						oper ^=	(EnumName b)	nxpt		{ return *this = {IntType(Value ^= b.Value)}; }	\
 																																	\
-		::llc::vcsc_c & 						getEnumName		()		cnst nxpt		{ return Name; }							\
-		::llc::vcsc_c & 						getValueName	()				cnst	{ return getValueName(Value); }				\
-		::llc::vcsc_c & 						getValueName	(IntType value)	cnst	{											\
+		::llc::vcst_t 						getEnumName		()		cnst nxpt		{ return Name; }								\
+		::llc::vcst_t 						getValueName	()				cnst	{ return getValueName(Value); }					\
+		::llc::vcst_t 						getValueName	(IntType value)	cnst	{												\
 			for(uint32_t i=0, count = ::llc::size(Values); i < count; ++i) {														\
 				if(value == Values[i].Value)																						\
 					return Values[i].Name;																							\

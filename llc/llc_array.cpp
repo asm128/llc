@@ -1,10 +1,10 @@
 #include "llc_array.h"
 #include "llc_stdstring.h"
 
-::llc::err_t			llc::join			(::llc::asc_t & output, ::llc::sc_t separator, ::llc::view<cnst ::llc::vcst_t> fields) {
-	::llc::err_t			appended			= 0;
-	::llc::err_t			result				= {};
-	for(::llc::u2_t iField = 0; iField < fields.size(); ++iField) {
+llc::err_t	llc::join			(asc_t & output, sc_t separator, view<cnst vcst_t> fields) {
+	err_t			appended			= 0;
+	err_t			result				= {};
+	for(u2_t iField = 0; iField < fields.size(); ++iField) {
 		if(iField) {
 			if_fail_fef(result = output.append_string(separator), "Failed to append separator before field:%" LLC_FMT_U2 ".", iField);
 			appended			+= result;
@@ -15,39 +15,20 @@
 	rtrn appended;
 }
 
-::llc::error_t			llc::filterPostfix	(::llc::view<::llc::vcsc_c> input, ::llc::vcsc_c postfix, ::llc::aobj<::llc::vcsc_t> & filtered, bool nullIncluded) { 
+llc::err_t	llc::filterPostfix	(view<cnst vcst_t> input, vcst_t postfix, aobj<vcst_t> & filtered, bool nullIncluded) { 
 	for(uint32_t iInput = 0; iInput < input.size(); ++iInput) { 
-		::llc::vcsc_c & currentInput = input[iInput]; 
+		vcst_t	currentInput = input[iInput]; 
 		if((postfix.size() < currentInput.size() || (nullIncluded && postfix.size() == currentInput.size())) && 0 == strncmp(currentInput.end() - postfix.size(), postfix.begin(), postfix.size())) 
 			filtered.push_back(currentInput); 
 	} 
 	return 0; 
 }
 
-::llc::error_t			llc::filterPrefix	(::llc::view<::llc::vcsc_c> input, ::llc::vcsc_c prefix, ::llc::aobj<::llc::vcsc_t> & filtered, bool nullIncluded) { 
+llc::err_t	llc::filterPrefix	(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded) { 
 	for(uint32_t iInput = 0; iInput < input.size(); ++iInput) { 
-		::llc::vcsc_c & currentInput = input[iInput]; 
+		vcst_t	currentInput = input[iInput]; 
 		if((prefix .size() < currentInput.size() || (nullIncluded && prefix .size() == currentInput.size())) && 0 == strncmp(currentInput.begin(), prefix .begin(), prefix .size())) 
-			filtered.push_back(currentInput); 
+			if_fail_fe(filtered.push_back(currentInput)); 
 	}
 	return 0; 
-}
-
-::llc::error_t			llc::camelCase		(::llc::vcsc_t input, ::llc::asc_t & camelCased) {
-	bool						capsNext			= true;
-	for(uint32_t i = 0; i < input.size(); ++i) {
-		char						current				= input[i];
-		if(current == '_' || current == '-')
-			capsNext	= true;
-		else {
-			if(capsNext) {
-				::llc::toupper(current);
-				capsNext	= false;
-			}
-			//else
-			//	::llc::tolower(::llc::vc{&camelCased[1], camelCased.size() - 1});
-			camelCased.push_back(current);
-		}
-	}
-	return 0;
 }

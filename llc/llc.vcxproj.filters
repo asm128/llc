@@ -1028,9 +1028,6 @@
     <ClCompile Include="llc_pack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llc_view_color.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_typeint.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -1054,6 +1051,12 @@
     </ClCompile>
     <ClCompile Include="llc_ccsds.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_string.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_view_color.cpp">
+      <Filter>view</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

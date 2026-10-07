@@ -56,7 +56,7 @@ namespace llc
 	tplTstin		err_t	loadView					(vcs0_t & input, apod<T> & output)				{ return loadView(*(vcu0_t*)& input, output); }
 	tplTstin		err_t	loadView					(vcsc_t & input, apod<T> & output)				{ return loadView(*(vcu0_t*)& input, output); }
 
-	err_t					keyValConstStringSerialize	(cnst view<cnst TKeyValConstChar> & keyVals, vcvsc_c & keysToSave, au0_t & output);
+	err_t					keyValConstStringSerialize	(view<cnst TKeyValConstString> keyVals, view<cnst vcst_t> keysToSave, au0_t & output);
 } // namespace
 
 #endif // LLC_APOD_SERIALIZE_H_23627

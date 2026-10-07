@@ -48,6 +48,9 @@ namespace llc
 #ifdef LLC_ARDUINO
     ndsi string  str (const IPAddress & s)   { return s.toString(); }
 #endif
+
+	err_t		camelCase	(::llc::vcst_t input, ::llc::string & camelCased);
+
 } // namespace
 
 #endif // LLC_STRING_H

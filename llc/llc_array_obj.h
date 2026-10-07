@@ -69,7 +69,7 @@ namespace llc
 				T						* oldData			= Data;
 				Data					= newData;
 				Size					= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			rtrn Size;
 		}
@@ -192,7 +192,7 @@ namespace llc
 				T				* oldData			= Data;
 				Data		= newData;
 				Size		= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			else {
 				for(s2_t i = (int)Count - 1; i >= (int)index; --i) {
@@ -227,7 +227,7 @@ namespace llc
 				T					* oldData			= Data;
 				Data			= newData;
 				Size			= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			else {	// no need to reallocate and copy, just shift rightmost elements and insert in-place
 				for(s2_t i = (int)Count - 1; i >= (int)index; --i) {
@@ -243,11 +243,11 @@ namespace llc
 
 	}; // array_obj
 
-	tplT	using aobj		= ::llc::array_obj<T>; 
-	tplT	using ao		= ::llc::aobj<T>; 
+	tplT	using aobj		= array_obj<T>; 
+	tplT	using ao		= aobj<T>; 
 
-	tplT	using aview		= ::llc::aobj	<::llc::view<T>>; 
-	tplT	using av		= ::llc::aview	<T>; 
+	tplT	using aview		= aobj	<view<T>>; 
+	tplT	using av		= aview	<T>; 
 
 	tydf	aview<uc_t>	avuc_t;
 	tydf	aview<sc_t>	avsc_t;
@@ -298,9 +298,7 @@ namespace llc
 	tdcs	avcs1_t	avcs1_c;
 	tdcs	avcs2_t	avcs2_c;
 	tdcs	avcs3_t	avcs3_c;
-
-
-	tplt<tpnm T, tpnm TSeparator, tpnm TView>
+		tplt<tpnm T, tpnm TSeparator, tpnm TView>
 		err_t							split					(cnst ::llc::view<cnst T> & target, cnst ::llc::view<cnst TSeparator> & separators, ::llc::aobj<TView> & output)	{
 		u2_t									lastOffset				= 0;
 		for(u2_t iChar = 0; iChar < target.size(); ++iChar) {
@@ -328,14 +326,15 @@ namespace llc
 	tplT	err_t							split					(cnst ::llc::vcst_t & target, cnst T & separator, ::llc::aobj<::llc::vcst_t> & split)	{
 		rtrn ::llc::split<::llc::sc_t, T, ::llc::vcst_t>(target, {&separator, 1}, split);
 	}
+	
+	err_t			filterPrefix			(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
+	err_t			filterPostfix			(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
 
 
 
-	tydf ::llc::keyval<::llc::vcst_t, ::llc::aobj<::llc::vcst_t>>	TKeyValConstStringArray;
+	tydf keyval<vcst_t, aobj<vcst_t>>	TKeyValConstStringArray;
 	//------------------------------------------------------------------------------------------------------------
-	err_t							keyValConstStringDeserialize	(vcu0_c & input, ::llc::aobj<::llc::TKeyValConstChar> & output);
+	err_t			keyValConstStringDeserialize	(vcu0_t input, aobj<TKeyValConstChar> & output);
 
-	err_t							filterPrefix					(::llc::view<::llc::vcsc_c> input, ::llc::vcsc_c prefix, ::llc::aobj<::llc::vcsc_t> & filtered, bool nullIncluded = false);
-	err_t							filterPostfix					(::llc::view<::llc::vcsc_c> input, ::llc::vcsc_c prefix, ::llc::aobj<::llc::vcsc_t> & filtered, bool nullIncluded = false);
 }
 #endif // LLC_ARRAY_OBJ_H_23627

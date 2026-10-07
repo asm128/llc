@@ -205,7 +205,7 @@ llc::err_t	llc::	fileJoin				(vcst_t fileNameDst)	{
 #define LLC_DEBUG_FILE_CONTENTS
 
 llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, uint32_t maxSize, uint64_t offset)		{
-	llc::string			fileName					= llc::toString(usfileName);
+	llc::string			fileName					= usfileName;
 	llc_file_info_printf("Loading '%s'.", fileName.begin());
 
 #ifdef LLC_ARDUINO
@@ -257,7 +257,7 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 }
 
 llc::err_t	llc::	fileFromMemory			(vcst_t usfileName, vcu0_t fileInMemory, bool append)	{
-	llc::string			fileName					= llc::toString(usfileName);
+	llc::string			fileName					= usfileName;
 #ifdef LLC_DEBUG_FILE_CONTENTS
 	llc_file_info_printf("%s '%s':\n%s\n", append ? "Appending to" : "Writing", fileName.begin(), fileInMemory.size() ? fileInMemory.begin() : (const uint8_t*)"");
 #else

@@ -18,7 +18,7 @@
 
 ::llc::error_t			jsonTcpipAddress		(llc::vcst_t strIP, uint32_t & ipv4) {
 	::llc::SJSONReader			reader					= {};
-	llc_necall(llc::jsonParse(reader, strIP), "Failed to parse ip from string: '%s'.", ::llc::toString(strIP).begin());
+	if_fail_fef(llc::jsonParse(reader, strIP), "Failed to parse ip from string: '%.*s'.", strIP.size(), strIP.begin());
 	ipv4					= 0;
 	{ int32_t iToken; llc_necs(iToken = ::llc::jsonArrayValueGet(reader, 0, 0)); ipv4 |= ::llc::byte_to<uint32_t>((uint8_t)reader[iToken]->Token->Value, 0); }
 	{ int32_t iToken; llc_necs(iToken = ::llc::jsonArrayValueGet(reader, 0, 1)); ipv4 |= ::llc::byte_to<uint32_t>((uint8_t)reader[iToken]->Token->Value, 1); }
@@ -198,7 +198,7 @@
 }
 
 ::llc::error_t		llc::tcpipAddress		(::llc::vcst_t hostName, uint16_t portRequested, uint32_t adapterIndex, TRANSPORT_PROTOCOL mode, uint8_t * a1, uint8_t * a2, uint8_t * a3, uint8_t * a4, uint16_t* port) { 
-	return ::llc::tcpipAddress(::llc::toString(hostName).begin(), portRequested, adapterIndex, mode, a1, a2, a3, a4, port); 
+	return ::llc::tcpipAddress(::llc::string(hostName).begin(), portRequested, adapterIndex, mode, a1, a2, a3, a4, port); 
 }
 
 ::llc::error_t			llc::tcpipAddress	(const char* szHostName, uint16_t portRequested, uint32_t adapterIndex, TRANSPORT_PROTOCOL mode, uint32_t & address, uint16_t & port) {

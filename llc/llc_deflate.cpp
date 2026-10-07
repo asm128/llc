@@ -23,7 +23,7 @@ LLC_USING_TYPEINT();
 
 stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 
-::llc::error_t			llc::crcGenerate			(vcu0_c & bytes, uint64_t & crc)	{
+::llc::error_t			llc::crcGenerate			(vcu0_t bytes, uint64_t & crc)	{
 	crc						= 0;
 	u2_c				lastPos						= bytes.size() - 1;
 	for(uint32_t i=0; i < bytes.size(); ++i) {
@@ -51,7 +51,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 	return 0;
 }
 
-::llc::error_t			llc::arrayDeflate		(vcu0_c & inflated, ::llc::au0_t & deflated, u2_c chunkSize)	{
+::llc::error_t			llc::arrayDeflate		(vcu0_t inflated, ::llc::au0_t & deflated, u2_c chunkSize)	{
 #if defined(LLC_ESP32) || defined(LLC_ARDUINO)
 #	ifdef LLC_ESP32
 	deflated				= inflated;
@@ -88,7 +88,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 	return 0;
 }
 
-::llc::error_t			llc::arrayInflate		(vcu0_c & deflated, ::llc::au0_t & inflated, u2_c chunkSize)	{
+::llc::error_t			llc::arrayInflate		(vcu0_t deflated, ::llc::au0_t & inflated, u2_c chunkSize)	{
 #if defined(LLC_ESP32) || defined(LLC_ARDUINO)
 #	ifdef LLC_ESP32
 	inflated				= deflated;
@@ -130,7 +130,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 	return 0;
 }
 
-::llc::error_t			llc::folderUnpack			(::llc::SFolderInMemory & out_loaded, const ::llc::vcst_t nameFileSrc)					{
+::llc::error_t			llc::folderUnpack			(::llc::SFolderInMemory & out_loaded, ::llc::vcst_t nameFileSrc)					{
 	::llc::au0_t					rawFileInMemory				= {};
 	llc_necall(llc::fileToMemory(nameFileSrc, rawFileInMemory), "Failed to load pak file: %s.", nameFileSrc);
 	llc_necall(llc::folderUnpack(out_loaded, rawFileInMemory), "Failed to unpack pak file: %s.", nameFileSrc);
@@ -183,7 +183,7 @@ stxp	uint32_t		DEFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 }
 
 stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
-::llc::error_t			llc::folderUnpack			(::llc::SFolderInMemory & output, vcu0_c & rawFileInMemory)		{
+::llc::error_t			llc::folderUnpack			(::llc::SFolderInMemory & output, vcu0_t rawFileInMemory)		{
 	const ::llc::SPackHeader	& header					= *(::llc::SPackHeader*)&rawFileInMemory[0];
 	output.Names	.resize(header.TotalFileCount);
 	output.Contents	.resize(header.TotalFileCount);
@@ -207,26 +207,26 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 }
 
 ::llc::error_t			llc::folderLoad			
-	( const ::llc::vcst_t	nameFolderSrc 
-	, ::llc::au0_t		& tableFiles				
-	, ::llc::au0_t		& contentsPacked			
+	( ::llc::vcst_t	nameFolderSrc 
+	, ::llc::au0_t	& tableFiles				
+	, ::llc::au0_t	& contentsPacked			
 	) {
 	// -- The following two arrays store the file table and the file contents that are going to be compressed and stored on disk
 	uint32_t					totalFileCount			= 0;
 	{
-		::llc::aobj<::llc::string>		listFiles				= {};
-		llc_necall(llc::pathList(nameFolderSrc, listFiles), "Failed to list folder: %s.", nameFolderSrc.begin());
+		::llc::aobj<::llc::string>	listFiles				= {};
+		llc_necall(llc::pathList(nameFolderSrc, listFiles), "Failed to list folder: %.*s.", nameFolderSrc.size(), nameFolderSrc.begin());
 
-		::llc::au0_t					contentsTemp			= {};
+		::llc::au0_t				contentsTemp			= {};
 		::llc::rangeu2_t			fileLocation			= {0, 0};
 		for(uint32_t iFile = 0; iFile < listFiles.size(); ++iFile) {
 			fileLocation.Offset		= contentsPacked.size();
-			const ::llc::vcst_t			pathToLoad				= {listFiles[iFile].begin(), listFiles[iFile].size()};
+			cnst ::llc::vcst_t			pathToLoad				= {listFiles[iFile].begin(), listFiles[iFile].size()};
 			if(0 == pathToLoad.size())
 				continue;
 
-			info_printf("pathToLoad (%u): '%s'.", iFile, ::llc::toString(pathToLoad).begin());
-			llc_necall(llc::fileToMemory(pathToLoad, contentsTemp), "Failed to load file: %s.", ::llc::toString(pathToLoad).begin());
+			info_printf("pathToLoad (%u): '%.*s'.", iFile, pathToLoad.size(), pathToLoad.begin());
+			llc_necall(llc::fileToMemory(pathToLoad, contentsTemp), "Failed to load file: %.*s.", pathToLoad.size(), pathToLoad.begin());
 
 			fileLocation.Count		= contentsTemp.size();
 			llc_necs(llc::savePOD(tableFiles, fileLocation));
@@ -270,21 +270,21 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 	return 0;
 }
 
-::llc::error_t			llc::folderPackToDisk		(const ::llc::vcst_t nameFileDst,	const ::llc::vcst_t nameFolderSrc)		{
+::llc::error_t			llc::folderPackToDisk		(::llc::vcst_t nameFileDst,	::llc::vcst_t nameFolderSrc)		{
 	::llc::SFolderPackage		folderPackage;
 	llc_necall(llc::folderPack(folderPackage, nameFolderSrc), "Failed to pack folder: %s.", nameFolderSrc.begin());
 	llc_necall(llc::folderToDisk(folderPackage, nameFileDst), "Failed to pack folder: %s.", nameFolderSrc.begin());
 	return 0;
 }
 
-::llc::error_t			llc::folderUnpackToDisk		(const ::llc::vcst_t namePathDst, const ::llc::vcst_t nameFileSrc)		{
+::llc::error_t			llc::folderUnpackToDisk		(::llc::vcst_t namePathDst, ::llc::vcst_t nameFileSrc)		{
 	::llc::SFolderInMemory		virtualFolder				= {};
 	llc_necall(llc::folderUnpack(virtualFolder, nameFileSrc), "Failed to unpack file: %s.", nameFileSrc);
 	llc_necall(llc::folderToDisk(virtualFolder, namePathDst), "Failed to write folder to disk. Disk full or insufficient permissions. File name: %s. Destionation Path: %s.", nameFileSrc, namePathDst);
 	return 0;
 }
 
-::llc::error_t			llc::inflateToMemory  		(::llc::au0_t & tempCache, ::llc::vcsc_c & fileName, ::llc::au0_t & output) {
+::llc::error_t			llc::inflateToMemory  		(::llc::au0_t & tempCache, ::llc::vcst_t fileName, ::llc::au0_t & output) {
 	llc_necs(llc::fileToMemory(fileName, tempCache));
 	info_printf("File size: %u.", tempCache.size());
 
@@ -293,7 +293,7 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 	return 0; 
 }
 
-::llc::error_t			llc::deflateFromMemory		(::llc::au0_t & tempCache, ::llc::vcsc_c & fileName, vcu0_c & input) {
+::llc::error_t			llc::deflateFromMemory		(::llc::au0_t & tempCache, ::llc::vcst_t fileName, vcu0_t input) {
 	info_printf("Input size: %u.", input.size());
 	llc_necs(llc::arrayDeflate(input, tempCache));
 
@@ -301,40 +301,40 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 	return ::llc::fileFromMemory(fileName, tempCache);
 }
 
-::llc::error_t			llc::fileFromMemorySecure	(::llc::SLoadCache & recycle, ::llc::vcsc_c & fileName, vcu0_c & key, const bool deflate, vcu0_c & blockBytes) {
+::llc::error_t			llc::fileFromMemorySecure	(::llc::SLoadCache & recycle, ::llc::vcst_t fileName, vcu0_t key, b8_t deflate, vcu0_t blockBytes) {
 	if(false == deflate && 0 == key.size())
 		recycle.Encrypted		= blockBytes;
 	else {
 		if(false == deflate)
-			llc_necall(llc::aesEncode(blockBytes, key, ::llc::AES_LEVEL_256, recycle.Encrypted), "Failed to encrypt file: %s.", ::llc::toString(fileName).begin());
-		else if(0 == key.size())
-			llc_necall(llc::arrayDeflate(blockBytes, recycle.Encrypted), "Failed to deflate file: %s.", ::llc::toString(fileName).begin());
+			llc_necall(llc::aesEncode(blockBytes, key, ::llc::AES_LEVEL_256, recycle.Encrypted), "Failed to encrypt file: %.*s.", fileName.size(), fileName.begin());
+		else if(0 == key.size()) {
+			if_fail_fef(llc::arrayDeflate(blockBytes, recycle.Encrypted), "Failed to deflate file: %.*s.", fileName.size(), fileName.begin());
+		}
 		else {
-			llc_necall(llc::arrayDeflate(blockBytes, recycle.Deflated), "Failed to deflate file: %s.", ::llc::toString(fileName).begin());
-			llc_necall(llc::aesEncode(recycle.Deflated, key, ::llc::AES_LEVEL_256, recycle.Encrypted), "Failed to encrypt file: %s.", ::llc::toString(fileName).begin());
+			if_fail_fef(llc::arrayDeflate(blockBytes, recycle.Deflated), "Failed to deflate file: %.*s.", fileName.size(), fileName.begin());
+			if_fail_fef(llc::aesEncode(recycle.Deflated, key, ::llc::AES_LEVEL_256, recycle.Encrypted), "Failed to encrypt file: %.*s.", fileName.size(), fileName.begin());
 		}
 	}
-	llc_necall(llc::crcGenerateAndAppend(recycle.Encrypted), "%s", "CRC Check failed!");
-	llc_necall(llc::fileFromMemory(fileName, recycle.Encrypted), "Failed to save file: %s.", ::llc::toString(fileName).begin());
+	if_fail_fe(llc::crcGenerateAndAppend(recycle.Encrypted));
+	llc_necall(llc::fileFromMemory(fileName, recycle.Encrypted), "Failed to save file: %.*s.", fileName.size(), fileName.begin());
 	return 0;
 }
 
-::llc::error_t			llc::fileToMemorySecure		(::llc::SLoadCache & recycle, ::llc::vcsc_c & fileName, vcu0_c & key, const bool deflate, ::llc::au0_t & loadedBytes)								{
-	::llc::vcst_t					strFilename					= {fileName.begin(), fileName.size()};
+::llc::error_t			llc::fileToMemorySecure		(::llc::SLoadCache & recycle, ::llc::vcst_t fileName, vcu0_t key, const b8_t deflate, ::llc::au0_t & loadedBytes)								{
 	if(false == deflate && 0 == key.size()) {
-		llc_necall(llc::fileToMemory(strFilename, loadedBytes), "Failed to read file: %s.", ::llc::toString(fileName).begin());
+		llc_necall(llc::fileToMemory(fileName, loadedBytes), "Failed to read file: %.*s.", fileName.size(), fileName.begin());
 		llc_necs(llc::crcVerifyAndRemove(loadedBytes));
 	}
 	else {
-		llc_necall(llc::fileToMemory(strFilename, recycle.Encrypted), "Failed to read file: %s.", ::llc::toString(fileName).begin());
-		llc_necall(llc::crcVerifyAndRemove(recycle.Encrypted), "%s", "CRC Check failed!");
+		llc_necall(llc::fileToMemory(fileName, recycle.Encrypted), "Failed to read file: %.*s.", fileName.size(), fileName.begin());
+		if_fail_fe(llc::crcVerifyAndRemove(recycle.Encrypted));
 		if(false == deflate)
-			llc_necall(llc::aesDecode(recycle.Encrypted, key, ::llc::AES_LEVEL_256, loadedBytes), "Failed to decrypt file: %s.", ::llc::toString(fileName).begin());
+			llc_necall(llc::aesDecode(recycle.Encrypted, key, ::llc::AES_LEVEL_256, loadedBytes), "Failed to decrypt file: %.*s.", fileName.size(), fileName.begin());
 		else if(0 == key.size())
-			llc_necall(llc::arrayInflate(recycle.Encrypted, loadedBytes), "Failed to inflate file: %s.", ::llc::toString(fileName).begin());
+			llc_necall(llc::arrayInflate(recycle.Encrypted, loadedBytes), "Failed to inflate file: %.*s.", fileName.size(), fileName.begin());
 		else {
-			llc_necall(llc::aesDecode(recycle.Encrypted, key, ::llc::AES_LEVEL_256, recycle.Deflated), "Failed to decrypt file: %s.", ::llc::toString(fileName).begin());
-			llc_necall(llc::arrayInflate(recycle.Deflated, loadedBytes), "Failed to inflate file: %s.", ::llc::toString(fileName).begin());
+			llc_necall(llc::aesDecode(recycle.Encrypted, key, ::llc::AES_LEVEL_256, recycle.Deflated), "Failed to decrypt file: %.*s.", fileName.size(), fileName.begin());
+			llc_necall(llc::arrayInflate(recycle.Deflated, loadedBytes), "Failed to inflate file: %.*s.", fileName.size(), fileName.begin());
 		}
 	}
 	return 0;

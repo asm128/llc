@@ -306,8 +306,6 @@ namespace llc
 	stin	vs		str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
 	stin	vcst_t	str		(asc_c & arg)	{ rtrn {arg.begin(), arg.size()}; }
 
-	asc_t		toString	(::llc::vcsc_c & strToLog);
-	err_t		camelCase	(::llc::vcsc_t input, ::llc::asc_t & camelCased);
 	err_t		join		(::llc::asc_t & output, sc_t separator, ::llc::view<cnst ::llc::vcst_t> fields);
 } // namespace
 
