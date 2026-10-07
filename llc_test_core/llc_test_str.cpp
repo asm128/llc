@@ -1,5 +1,7 @@
 #include "llc_array_pod.h"
 #include "llc_array_static.h"
+#include "llc_stdstring.h"
+#include "llc_string.h"
 
 #include "llc_test_core.h"
 
@@ -28,6 +30,13 @@ GDEFINE_ENUM_VALUED(STR_TEST_RESULT, BOOL_TEXT					, 18, "str() did not expose t
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_RESULT_TYPE		, 19, "Numeric str() returned an unexpected storage type.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_TEXT				, 20, "Numeric str() produced unexpected text.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_TERMINATION		, 21, "Numeric str() did not terminate its text within its static storage.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CHARACTER_UPPERCASE		, 22, "toupper(char&) did not mutate only lowercase ASCII characters.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CHARACTER_LOWERCASE		, 23, "tolower(char&) did not mutate only uppercase ASCII characters.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, VIEW_UPPERCASE			, 24, "toupper(view<char>) did not transform the complete counted range.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, VIEW_LOWERCASE			, 25, "tolower(view<char>) did not transform the complete counted range.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_CASE_VIEW			, 26, "Character-case transformation rejected an empty view.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, STRING_TO_UINT			, 27, "stoull() did not parse a counted decimal string.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CAMEL_CASE				, 28, "camelCase() produced unexpected text.");
 
 tplt<tpnm TString>
 sttc bool stringMismatch(cnst TString & value, ::llc::vcst_t expected) {
@@ -107,6 +116,90 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(       1.125), LLC_CXS("1.125000"))));
 	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(       -2.25), LLC_CXS("-2.250000"))));
 	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(123456789.125), LLC_CXS("123456789.125000"))));
+	rtrn 0;
+}
+
+sttc ::llc::err_t testCharacterCase(ATestError & errors) {
+	::llc::sc_t		lowerCharacter		= 'a';
+	::llc::sc_t		upperCharacter		= 'Z';
+	::llc::sc_t		digitCharacter		= '7';
+	::llc::toupper(lowerCharacter);
+	::llc::toupper(upperCharacter);
+	::llc::toupper(digitCharacter);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_UPPERCASE, 'A' != lowerCharacter || 'Z' != upperCharacter || '7' != digitCharacter
+		, "Character results: lowercase:%c, uppercase:%c, digit:%c."
+		, lowerCharacter, upperCharacter, digitCharacter
+		);
+
+	lowerCharacter		= 'a';
+	upperCharacter		= 'Z';
+	digitCharacter		= '7';
+	::llc::tolower(lowerCharacter);
+	::llc::tolower(upperCharacter);
+	::llc::tolower(digitCharacter);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_LOWERCASE, 'a' != lowerCharacter || 'z' != upperCharacter || '7' != digitCharacter
+		, "Character results: lowercase:%c, uppercase:%c, digit:%c."
+		, lowerCharacter, upperCharacter, digitCharacter
+		);
+
+	::llc::sc_t		upperStorage[]		= {'a', 'Z', 0, 'm', '-', '7'};
+	cnst ::llc::err_t upperResult		= ::llc::toupper({upperStorage});
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_VIEW_UPPERCASE
+		, upperResult || 'A' != upperStorage[0] || 'Z' != upperStorage[1] || 0 != upperStorage[2] || 'M' != upperStorage[3] || '-' != upperStorage[4] || '7' != upperStorage[5]
+		, "Result:%i. Characters:%i/%i/%i/%i/%i/%i."
+		, upperResult, upperStorage[0], upperStorage[1], upperStorage[2], upperStorage[3], upperStorage[4], upperStorage[5]
+		);
+
+	::llc::sc_t		lowerStorage[]		= {'A', 'z', 0, 'M', '_', '7'};
+	cnst ::llc::err_t lowerResult		= ::llc::tolower({lowerStorage});
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_VIEW_LOWERCASE
+		, lowerResult || 'a' != lowerStorage[0] || 'z' != lowerStorage[1] || 0 != lowerStorage[2] || 'm' != lowerStorage[3] || '_' != lowerStorage[4] || '7' != lowerStorage[5]
+		, "Result:%i. Characters:%i/%i/%i/%i/%i/%i."
+		, lowerResult, lowerStorage[0], lowerStorage[1], lowerStorage[2], lowerStorage[3], lowerStorage[4], lowerStorage[5]
+		);
+
+	::llc::view<::llc::sc_t> emptyView = {};
+	cnst ::llc::err_t emptyUpperResult = ::llc::toupper(emptyView);
+	cnst ::llc::err_t emptyLowerResult = ::llc::tolower(emptyView);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_CASE_VIEW, emptyUpperResult || emptyLowerResult
+		, "Upper result:%i, lower result:%i."
+		, emptyUpperResult, emptyLowerResult
+		);
+	rtrn 0;
+}
+
+sttc ::llc::err_t testStringFunctions(ATestError & errors) {
+	::llc::sc_c		digits[]			= {'4', '2', '9', 'x'};
+	::llc::u3_t		parsedValue		= {};
+	cnst ::llc::err_t parsedCount		= ::llc::stoull({digits}, parsedValue);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STRING_TO_UINT, 3 != parsedCount || 429 != parsedValue
+		, "Parsed count:%i, value:%" LLC_FMT_U3 "."
+		, parsedCount, parsedValue
+		);
+
+	stct SCamelCase {
+		::llc::vcst_t	Input		= {};
+		::llc::vcst_t	Expected	= {};
+	};
+	cnst SCamelCase cases[] =
+		{ {LLC_CXS("")                         , LLC_CXS("")}
+		, {LLC_CXS("snake_case")               , LLC_CXS("SnakeCase")}
+		, {LLC_CXS("kebab-case")               , LLC_CXS("KebabCase")}
+		, {LLC_CXS("-multiple__separators-")   , LLC_CXS("MultipleSeparators")}
+		, {LLC_CXS("alreadyCase")              , LLC_CXS("AlreadyCase")}
+		, {LLC_CXS("UPPER_CASE")               , LLC_CXS("UPPERCASE")}
+		};
+	for(::llc::u2_t iCase = 0; iCase < ::llc::size(cases); ++iCase) {
+		::llc::string actual = {};
+		cnst ::llc::err_t result = ::llc::camelCase(cases[iCase].Input, actual);
+		LLC_TEST_CHECK(errors, STR_TEST_RESULT_CAMEL_CASE, ::llc::failed(result) || stringMismatch(actual, cases[iCase].Expected)
+			, "Case:%u, result:%i, input:'%.*s', actual:'%.*s', expected:'%.*s'."
+			, iCase, result
+			, (int)cases[iCase].Input.size(), cases[iCase].Input.begin()
+			, (int)actual.size(), actual.begin()
+			, (int)cases[iCase].Expected.size(), cases[iCase].Expected.begin()
+			);
+	}
 	rtrn 0;
 }
 
@@ -236,5 +329,7 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 		, (int)trueText.size(), trueText.begin(), (int)falseText.size(), falseText.begin()
 		);
 	if_fail_fe(testNumericStr(errors));
+	if_fail_fe(testCharacterCase(errors));
+	if_fail_fe(testStringFunctions(errors));
 	rtrn 0;
 }

@@ -323,10 +323,10 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	::llc::err_t				result						= 0;
 #ifdef LLC_WINDOWS
 	char						sPath[LLC_MAX_PATH]			= {};
-	if_fail_fef(snprintf(sPath, ::llc::size(sPath) - 2, "%.*s/*.*", (int)pathToList.size(), pathToList.begin()), "Path too long: '%s'.", pathToList.begin());
+	if_fail_fef(snprintf(sPath, ::llc::size(sPath) - 2, "%.*s/*.*", (int)pathToList.size(), pathToList.begin()), "Path too long: '%.*s'.", pathToList.size(), pathToList.begin());
 	WIN32_FIND_DATAA			fdFile						= {};
 	HANDLE						hFind						= FindFirstFile(sPath, &fdFile);
-	ree_if(hFind == INVALID_HANDLE_VALUE, "Path not found: [%s].", pathToList.begin());
+	ree_if(hFind == INVALID_HANDLE_VALUE, "Path not found: [%.*s].", pathToList.size(), pathToList.begin());
 	do {
 		cnst ::llc::vcst_t		entryName						= {fdFile.cFileName, (::llc::u2_t)-1};
 		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, 0 != (fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)), "'%s'", entryName.begin());
@@ -335,11 +335,11 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	FindClose(hFind);
 #elif defined(LLC_ANDROID) || defined(LLC_LINUX)
 	DIR							* dir							= opendir(pathToList.begin());
-	ree_if(0 == dir, "Path not found: [%s].", pathToList.begin());
+	ree_if(0 == dir, "Path not found: [%.*s].", pathToList.size(), pathToList.begin());
 	struct dirent				* drnt						= nullptr;
 	while((drnt = readdir(dir))) {
 		cnst ::llc::vcst_t		entryName						= {drnt->d_name, (::llc::u2_t)-1};
-		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, drnt->d_type == DT_DIR), "'%s'", entryName.begin());
+		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, drnt->d_type == DT_DIR), "'%.*s'", entryName.size(), entryName.begin());
 	}
 	closedir(dir);
 #else
