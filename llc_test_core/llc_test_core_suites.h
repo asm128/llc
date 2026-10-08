@@ -9,6 +9,7 @@
 ::llc::err_t testArgs			(ATestError & errors);
 ::llc::err_t testBase64			(ATestError & errors);
 ::llc::err_t testBitField		(ATestError & errors);
+::llc::err_t testBlockContainer	(ATestError & errors);
 ::llc::err_t testPackedUInt		(ATestError & errors);
 ::llc::err_t testCPow			(ATestError & errors);
 ::llc::err_t testCTTIParser		(ATestError & errors);
