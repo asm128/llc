@@ -17,6 +17,8 @@ namespace llc
 		usng	array_base<T>		::Data					;
 		usng	array_base<T>		::Size					;
 		usng	array_base<T>		::alloc_with_reserve	;
+		usng	array_base<T>		::find					;
+		usng	array_base<T>		::rfind					;
 
 		inln					~array_obj			()			{ for(u2_t i = 0; i < Count; ++i) Data[i].~T(); }	// dtor
 
@@ -298,37 +300,36 @@ namespace llc
 	tdcs	avcs1_t	avcs1_c;
 	tdcs	avcs2_t	avcs2_c;
 	tdcs	avcs3_t	avcs3_c;
-		tplt<tpnm T, tpnm TSeparator, tpnm TView>
-		err_t							split					(cnst ::llc::view<cnst T> & target, cnst ::llc::view<cnst TSeparator> & separators, ::llc::aobj<TView> & output)	{
-		u2_t									lastOffset				= 0;
-		for(u2_t iChar = 0; iChar < target.size(); ++iChar) {
-			bool								separatorFound			= false;
-			for(u2_t iSeparator = 0; iSeparator < separators.size(); ++iSeparator)
-				if(target[iChar] == separators[iSeparator]) {
-					separatorFound						= true;
-					break;
-				}
-			if(false == separatorFound)
-				continue;
-			if(lastOffset < iChar)
-				llc_necs(output.push_back(TView{&target[lastOffset], iChar - lastOffset}));
-			lastOffset							= iChar + 1;
+
+
+	tplT	err_t	split			(view<cnst T> target, cnst T & separator, aobj<view<cnst T>> & output) {
+		for(u2_t begin = 0; begin < target.size();) {
+			err_t			end				= target.find(separator, begin);
+			if(0 > end)
+				end				= target.size();
+			if(begin < (u2_t)end)
+				llc_necs(output.push_back({&target[begin], (u2_t)end - begin}));
+			begin				= (u2_t)end + 1;
 		}
-		if(lastOffset < target.size())
-			llc_necs(output.push_back(TView{&target[lastOffset], target.size() - lastOffset}));
-		rtrn (s2_t)output.size();
+		rtrn output.size();
 	}
 
-	tplT	err_t							split					(cnst ::llc::view<cnst T> & target, cnst T & separator, ::llc::aobj<::llc::view<cnst T>> & output)	{
-		rtrn ::llc::split<T, T, ::llc::view<cnst T>>(target, {&separator, 1}, output);
+	tplT	err_t	split			(view<cnst T> target, view<cnst T> separator, aobj<view<cnst T>> & output) {
+		if_zero_fe(separator.size());
+		for(u2_t begin = 0; begin < target.size();) {
+			err_t			end				= target.find(separator, begin);
+			if(0 > end)
+				end				= target.size();
+			if(begin < (u2_t)end)
+				llc_necs(output.push_back({&target[begin], (u2_t)end - begin}));
+			begin				= (u2_t)end + separator.size();
+		}
+		rtrn output.size();
 	}
 
-	tplT	err_t							split					(cnst ::llc::vcst_t & target, cnst T & separator, ::llc::aobj<::llc::vcst_t> & split)	{
-		rtrn ::llc::split<::llc::sc_t, T, ::llc::vcst_t>(target, {&separator, 1}, split);
-	}
 	
-	err_t			filterPrefix			(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
-	err_t			filterPostfix			(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
+	err_t			filterPrefix	(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
+	err_t			filterPostfix	(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
 
 
 

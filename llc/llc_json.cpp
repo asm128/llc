@@ -7,6 +7,7 @@
 #include "llc_file.h"
 #include "llc_parse.h"
 #include "llc_math.h"
+#include "llc_cstring.h"
 
 LLC_USING_TYPEINT();
 
@@ -55,8 +56,8 @@ llc::err_t			llc::jsonFieldsToMap
 }
 
 llc::err_t			llc::jsonFileRead			(llc::SJSONFile & file, llc::vcst_t filename) {
-	json_info_printf("Loading json file: %.*s.", filename.size(), filename.begin());
-	if_fail_fef(llc::fileToMemory(filename, file.Bytes), "Failed to load file: '%.*s'", filename.size(), filename.begin());
+	json_info_printf("Loading json file: %.*s.", (int)filename.size(), filename.begin());
+	if_fail_fef(llc::fileToMemory(filename, file.Bytes), "Failed to load file: '%.*s'", (int)filename.size(), filename.begin());
 	rtrn llc::jsonParse(file.Reader, file.Bytes);
 }
 
@@ -86,7 +87,7 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, llc::view<cnst vcst_t
 	switch(node->Token->Type) {
 	case llc::JSON_TYPE_INTEGER		: {
 		sc_t					temp[64]					= {};
-		snprintf(temp, llc::size(temp) - 2, "%" LLC_FMT_S3, (s3_t)node->Token->Value);
+		if_fail_fe(::llc::sprintf_s(temp, "%" LLC_FMT_S3, (s3_t)node->Token->Value));
 		if_fail_fe(output.append_string(temp));
 	}
 		break;
@@ -94,11 +95,11 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, llc::view<cnst vcst_t
 		f3_t					f							= 0;
 		memcpy(&f, &node->Token->Value, szof(f3_t));
 		sc_t					temp[64]					= {};
-		u2_t					lenNum						= snprintf(temp, llc::size(temp) - 2, "%.16f", f);
-		while(lenNum > 0 && (temp[lenNum] == 0 || temp[lenNum] == '0')) {
-			temp[lenNum] = 0;
-			--lenNum;
-		}
+		err_t					lenNum						= ::llc::sprintf_s(temp, "%.16f", f);
+		if_fail_fe(lenNum);
+		if_true_fef(lenNum >= (err_t)::llc::size(temp), "JSON decimal exceeds the formatting buffer: %.16f.", f);
+		while(lenNum > 0 && (0 == temp[lenNum] || '0' == temp[lenNum]))
+			temp[lenNum--]					= 0;
 		if_fail_fe(output.append_string(temp));
 	}
 		break;
@@ -141,10 +142,8 @@ sttc	llc::err_t	jsonCloseElement			(llc::SJSONReaderState & stateReader, llc::ap
 	llc::SJSONToken			* closing					= 0;
 	closing					= stateReader.CurrentElement; //&object[stateReader.IndexCurrentElement];
 	closing->Span.End		= (u2_t)indexChar + 1;
-	llc::vcsc_c			labelType				= llc::get_value_label(closing->Type);
-	const sc_t					* labelText				= labelType.begin();
-	(void)labelText;
-	json_info_printf("%s closed. Index %.2i. Level: %" LLC_FMT_S2 ". Parent index: %" LLC_FMT_S2 ". Node type: %" LLC_FMT_S2 ". Begin: %" LLC_FMT_S2 ". End: %" LLC_FMT_S2 ".", labelText, stateReader.IndexCurrentElement, stateReader.NestLevel, closing->ParentIndex, closing->Type, closing->Span.Begin, closing->Span.End);
+	llc::vcst_t			labelType				= llc::get_value_label(closing->Type);
+	json_info_printf("%.*s closed. Index %.2i. Level: %" LLC_FMT_S2 ". Parent index: %" LLC_FMT_S2 ". Node type: %" LLC_FMT_S2 ". Begin: %" LLC_FMT_S2 ". End: %" LLC_FMT_S2 ".", (int)labelType.size(), labelType.begin(), stateReader.IndexCurrentElement, stateReader.NestLevel, closing->ParentIndex, closing->Type, closing->Span.Begin, closing->Span.End);
 	stateReader.IndexCurrentElement					= closing->ParentIndex;
 	--stateReader.NestLevel;
 	stateReader.CurrentElement						= ((u2_t)stateReader.IndexCurrentElement < tokens.size()) ? &tokens[stateReader.IndexCurrentElement] : 0;
@@ -155,7 +154,9 @@ sttc	llc::err_t	jsonCloseElement			(llc::SJSONReaderState & stateReader, llc::ap
 
 sttc	llc::err_t	jsonCloseElement			(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & object, u2_t indexChar, llc::JSON_TYPE jsonType) {
 	cnst llc::SJSONToken		* open						= stateReader.CurrentElement; //&object[stateReader.IndexCurrentElement];
-	ree_if(jsonType != open->Type, "Invalid object type: open: %" LLC_FMT_U2 " (%s). closing: %" LLC_FMT_U2 " (%s).", open->Type, llc::get_value_label(open->Type).begin(), jsonType, llc::get_value_label(jsonType).begin());
+	cnst llc::vcst_t			labelOpen					= llc::get_value_label(open->Type);
+	cnst llc::vcst_t			labelClose				= llc::get_value_label(jsonType);
+	ree_if(jsonType != open->Type, "Invalid object type: open: %" LLC_FMT_U2 " (%.*s). closing: %" LLC_FMT_U2 " (%.*s).", open->Type, (int)labelOpen.size(), labelOpen.begin(), jsonType, (int)labelClose.size(), labelClose.begin());
 	rtrn ::jsonCloseElement(stateReader, object, indexChar);
 }
 
@@ -182,8 +183,9 @@ sttc	llc::err_t	jsonTestAndCloseKey			(llc::SJSONReaderState & stateReader, llc:
 
 sttc	llc::err_t	jsonCloseOrDiscardEmptyKOrV	(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::JSON_TYPE containerType) {
 	llc::err_t				errVal						= 0;
+	cnst llc::vcst_t			labelType				= llc::get_value_label(containerType);
 	if(tokens[tokens.size() - 1].Type == containerType) {
-		json_info_printf("Discarding empty container element at index %" LLC_FMT_S2 " (%s). Level: %" LLC_FMT_S2 "", tokens.size() - 1, llc::get_value_label(containerType).begin(), stateReader.NestLevel);
+		json_info_printf("Discarding empty container element at index %" LLC_FMT_S2 " (%.*s). Level: %" LLC_FMT_S2 "", tokens.size() - 1, (int)labelType.size(), labelType.begin(), stateReader.NestLevel);
 		stateReader.IndexCurrentElement	= tokens[tokens.size() - 1].ParentIndex;
 		if_fail_fe(tokens.pop_back());
 		--stateReader.NestLevel;
@@ -191,7 +193,7 @@ sttc	llc::err_t	jsonCloseOrDiscardEmptyKOrV	(llc::SJSONReaderState & stateReader
 			stateReader.CurrentElement	= &tokens[stateReader.IndexCurrentElement];
 	}
 	else {
-		json_info_printf("Closing container at index %" LLC_FMT_S2 " (%s).", tokens.size() - 1, llc::get_value_label(containerType).begin());
+		json_info_printf("Closing container at index %" LLC_FMT_S2 " (%.*s).", tokens.size() - 1, (int)labelType.size(), labelType.begin());
 			 if(llc::JSON_TYPE_VALUE	== containerType) errVal = ::jsonTestAndCloseValue	(stateReader, tokens);
 		else if(llc::JSON_TYPE_KEY		== containerType) errVal = ::jsonTestAndCloseKey	(stateReader, tokens);
 	}
@@ -231,7 +233,7 @@ sttc	llc::err_t	jsonParseStringCharacter	(llc::SJSONReaderState & stateReader, l
 		if(false == stateReader.Escaping)
 			break;
 		stateReader.IndexCurrentChar	+= 1;	// skip the u to get the next 4 digits.
-		seterr_break_if(jsonAsString.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. JSON length: %.*s. Current index: %" LLC_FMT_U2 ".", jsonAsString.size() - stateReader.IndexCurrentChar, &jsonAsString[stateReader.IndexCurrentChar], stateReader.IndexCurrentChar);
+		seterr_break_if(jsonAsString.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. JSON length: %.*s. Current index: %" LLC_FMT_U2 ".", (int)(jsonAsString.size() - stateReader.IndexCurrentChar), &jsonAsString[stateReader.IndexCurrentChar], stateReader.IndexCurrentChar);
 		json_info_printf("Unicode code point found: %4.4s", &jsonAsString[stateReader.IndexCurrentChar]);
 		currentElement		= {stateReader.IndexCurrentElement, llc::JSON_TYPE_CODEPOINT, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}, {}};
 		seterr_if_failed(tokens.push_back(currentElement), "token count: %" LLC_FMT_S2 "", tokens.size());
@@ -407,7 +409,8 @@ sttc	llc::err_t	parseJsonNumber				(llc::SJSONReaderState & stateReader, llc::ap
 
 sttc	llc::err_t	jsonCloseContainer			(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::JSON_TYPE containerType) {
 	llc::err_t				errVal						= 0;
-	llc_necall(::jsonCloseOrDiscardEmptyKOrV(stateReader, tokens, (llc::JSON_TYPE_ARRAY == containerType) ? llc::JSON_TYPE_VALUE : llc::JSON_TYPE_KEY), "Failed to close container at index %" LLC_FMT_S2 " (%s).", stateReader.IndexCurrentElement, llc::get_value_label(containerType).begin());
+	cnst llc::vcst_t			labelType				= llc::get_value_label(containerType);
+	llc_necall(::jsonCloseOrDiscardEmptyKOrV(stateReader, tokens, (llc::JSON_TYPE_ARRAY == containerType) ? llc::JSON_TYPE_VALUE : llc::JSON_TYPE_KEY), "Failed to close container at index %" LLC_FMT_S2 " (%.*s).", stateReader.IndexCurrentElement, (int)labelType.size(), labelType.begin());
 	errVal					= ::jsonCloseElement(stateReader, tokens, stateReader.IndexCurrentChar, containerType);
 	(void)errVal;
 	stateReader.ExpectingSeparator	= false;
@@ -420,10 +423,9 @@ sttc	llc::err_t	jsonOpenElement				(llc::SJSONReaderState & stateReader, llc::ap
 	llc::SJSONToken			currentElement				= {stateReader.IndexCurrentElement, jsonType, {indexChar, indexChar}, {}};
 	if_fail_fe(stateReader.IndexCurrentElement = tokens.push_back(currentElement));
 	stateReader.CurrentElement	= &tokens[stateReader.IndexCurrentElement];
-	llc::vcsc_c				labelType					= llc::get_value_label(currentElement.Type);
-	(void)labelType;
+	llc::vcst_t				labelType					= llc::get_value_label(currentElement.Type);
 	++stateReader.NestLevel;
-	json_info_printf("%s open. Index %.2i. Level: %" LLC_FMT_S2 ". Parent index: %" LLC_FMT_S2 ". Node type: %" LLC_FMT_S2 ". Begin: %" LLC_FMT_S2 ".", labelType.begin(), stateReader.IndexCurrentElement, stateReader.NestLevel, currentElement.ParentIndex, currentElement.Type, currentElement.Span.Begin);
+	json_info_printf("%.*s open. Index %.2i. Level: %" LLC_FMT_S2 ". Parent index: %" LLC_FMT_S2 ". Node type: %" LLC_FMT_S2 ". Begin: %" LLC_FMT_S2 ".", (int)labelType.size(), labelType.begin(), stateReader.IndexCurrentElement, stateReader.NestLevel, currentElement.ParentIndex, currentElement.Type, currentElement.Span.Begin);
 	rtrn 0;
 }
 
@@ -591,11 +593,13 @@ llc::err_t			llc::jsonParse				(llc::SJSONReader & reader, llc::vcst_t jsonAsStr
 }
 
 llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, llc::view<cnst vcst_t> views, llc::as2_t & indices, llc::aobj<vcst_t> & keys)	{
-	ree_if(llc::JSON_TYPE_OBJECT != node_object.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%s). Only objects are allowed to be accessed by key.", node_object.Token->Type, llc::get_value_label(node_object.Token->Type).begin());
+	cnst llc::vcst_t		objectTypeName			= llc::get_value_label(node_object.Token->Type);
+	ree_if(llc::JSON_TYPE_OBJECT != node_object.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%.*s). Only objects are allowed to be accessed by key.", node_object.Token->Type, (int)objectTypeName.size(), objectTypeName.begin());
 	for(u2_t iNode = 0, countNodes = node_object.Children.size(); iNode < countNodes; iNode += 2) {
 		cnst llc::SJSONNode		* node					= node_object.Children[iNode];
-		ree_if(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, llc::get_value_label(node->Token->Type).begin(), llc::JSON_TYPE_STRING);
-		llc::vcsc_c			& view					= views[node->ObjectIndex];
+		cnst llc::vcst_t		nodeTypeName				= llc::get_value_label(node->Token->Type);
+		ree_if(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%.*s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, (int)nodeTypeName.size(), nodeTypeName.begin(), llc::JSON_TYPE_STRING);
+		llc::vcst_c			& view					= views[node->ObjectIndex];
 		if_fail_fe(indices.push_back(node->ObjectIndex));
 		if_fail_fe(keys	.push_back(view));
 	}
@@ -603,33 +607,39 @@ llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, llc::vi
 }
 
 llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, llc::as2_t & indices)	{
-	ree_if(llc::JSON_TYPE_OBJECT != node_object.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%s). Only objects are allowed to be accessed by key.", node_object.Token->Type, llc::get_value_label(node_object.Token->Type).begin());
+	cnst llc::vcst_t		objectTypeName			= llc::get_value_label(node_object.Token->Type);
+	ree_if(llc::JSON_TYPE_OBJECT != node_object.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%.*s). Only objects are allowed to be accessed by key.", node_object.Token->Type, (int)objectTypeName.size(), objectTypeName.begin());
 	for(u2_t iNode = 0, countNodes = node_object.Children.size(); iNode < countNodes; iNode += 2) {
 		cnst llc::SJSONNode		* node						= node_object.Children[iNode];
-		ree_if(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, llc::get_value_label(node->Token->Type).begin(), llc::JSON_TYPE_STRING);
+		cnst llc::vcst_t		nodeTypeName				= llc::get_value_label(node->Token->Type);
+		ree_if(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%.*s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, (int)nodeTypeName.size(), nodeTypeName.begin(), llc::JSON_TYPE_STRING);
 		if_fail_fe(indices.push_back(node->ObjectIndex));
 	}
 	rtrn indices.size();
 }
 
 llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, llc::view<cnst vcst_t> views, llc::aobj<vcst_t> & keys)	{
-	ree_if(llc::JSON_TYPE_OBJECT != node_object.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%s). Only objects are allowed to be accessed by key.", node_object.Token->Type, llc::get_value_label(node_object.Token->Type).begin());
+	cnst llc::vcst_t		objectTypeName			= llc::get_value_label(node_object.Token->Type);
+	ree_if(llc::JSON_TYPE_OBJECT != node_object.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%.*s). Only objects are allowed to be accessed by key.", node_object.Token->Type, (int)objectTypeName.size(), objectTypeName.begin());
 	for(u2_t iNode = 0, countNodes = node_object.Children.size(); iNode < countNodes; iNode += 2) {
 		cnst llc::SJSONNode		* node						= node_object.Children[iNode];
-		ree_if(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, llc::get_value_label(node->Token->Type).begin(), llc::JSON_TYPE_STRING);
-		llc::vcsc_c			& view						= views[node->ObjectIndex];
+		cnst llc::vcst_t		nodeTypeName				= llc::get_value_label(node->Token->Type);
+		ree_if(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%.*s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, (int)nodeTypeName.size(), nodeTypeName.begin(), llc::JSON_TYPE_STRING);
+		llc::vcst_c			& view						= views[node->ObjectIndex];
 		if_fail_fe(keys.push_back(view));
 	}
 	rtrn keys.size();
 }
 
 llc::err_t			llc::jsonObjectValueGet		(cnst llc::SJSONNode & node_object, llc::view<cnst vcst_t> views, llc::vcst_t key)	{
-	ree_if(llc::JSON_TYPE_OBJECT != node_object.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%s). Only objects are allowed to be accessed by key (\"%.*s\").", node_object.Token->Type, llc::get_value_label(node_object.Token->Type).begin(), key.size(), key.begin());
+	cnst llc::vcst_t		objectTypeName			= llc::get_value_label(node_object.Token->Type);
+	ree_if(llc::JSON_TYPE_OBJECT != node_object.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%.*s). Only objects are allowed to be accessed by key (\"%.*s\").", node_object.Token->Type, (int)objectTypeName.size(), objectTypeName.begin(), (int)key.size(), key.begin());
 	for(u2_t iNode = 0, countNodes = node_object.Children.size(); iNode < countNodes; iNode += 2) {
 		cnst llc::SJSONNode		* node						= node_object.Children[iNode];
-		ree_if(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, llc::get_value_label(node->Token->Type).begin(), llc::JSON_TYPE_STRING);
+		cnst llc::vcst_t		nodeTypeName				= llc::get_value_label(node->Token->Type);
+		ree_if(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%.*s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, (int)nodeTypeName.size(), nodeTypeName.begin(), llc::JSON_TYPE_STRING);
 
-		llc::vcsc_c			& view						= views[node->ObjectIndex];
+		llc::vcst_c			& view						= views[node->ObjectIndex];
 		if(key == view)
 			rtrn (llc::err_t)node->ObjectIndex + 2; // one for value and other for the actual element
 	}
@@ -637,7 +647,8 @@ llc::err_t			llc::jsonObjectValueGet		(cnst llc::SJSONNode & node_object, llc::v
 }
 
 llc::err_t			llc::jsonArrayValueGet		(cnst llc::SJSONNode & tree, u2_t index)				{
-	ree_if(llc::JSON_TYPE_ARRAY != tree.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%s). Only arrays are allowed to be accessed by index.", tree.Token->Type, llc::get_value_label(tree.Token->Type).begin());
+	cnst llc::vcst_t		treeTypeName				= llc::get_value_label(tree.Token->Type);
+	ree_if(llc::JSON_TYPE_ARRAY != tree.Token->Type, "Invalid node type: %" LLC_FMT_S2 " (%.*s). Only arrays are allowed to be accessed by index.", tree.Token->Type, (int)treeTypeName.size(), treeTypeName.begin());
 	ree_if(index >= tree.Children.size(), "Index out of range: %" LLC_FMT_S2 ". Max index: %" LLC_FMT_S2 ".", index, tree.Children.size() - 1);
 	cnst llc::SJSONNode		* node;;	// Get the
 	if_null_fe(node = tree.Children[index]); // Nodes cannot be null, so check for it and log the error and propagate it.

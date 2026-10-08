@@ -155,7 +155,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 		cnst ::llc::u2_t		segmentStart			= iChar;
 		while(iChar < path.size() && false == ::pathSeparator(path[iChar]))
 			++iChar;
-		::llc::vcsc_c			segment					= {path.begin() + segmentStart, iChar - segmentStart};
+		::llc::vcst_c			segment					= {path.begin() + segmentStart, iChar - segmentStart};
 		if(segment == LLC_CXS(".")) {}
 		else if(segment == LLC_CXS("..")) {
 			if(segments.size() > protectedSegments && segments[segments.size() - 1] != LLC_CXS("..")) {
@@ -172,7 +172,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 	}
 	if_true_fef(isUNC && segments.size() < 2, "Incomplete UNC root: '%.*s'.", (int)path.size(), path.begin());
 
-	::llc::asc_t			normalized;
+	::llc::string			normalized					= {};
 	if(hasDrive)
 		if_fail_fe(normalized.append(path.begin(), 2));
 	if(isUNC) {
@@ -205,7 +205,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 	try {
 		cnst ::std::string		input					= {path.begin(), path.size()};
 		cnst ::std::string		absolute				= ::std::filesystem::absolute(input).generic_string();
-		::llc::vcsc_c			absoluteView			= {absolute.data(), (::llc::u2_t)absolute.size()};
+		::llc::vcst_c			absoluteView			= {absolute.data(), (::llc::u2_t)absolute.size()};
 		rtrn ::llc::pathNormalize(absoluteView, output, separator);
 	}
 	catch(cnst ::std::filesystem::filesystem_error & exception) {
@@ -234,19 +234,23 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 			if('/' != out_composed[out_composed.size() - 1] && fileOffset < fileName.size())
 				if_fail_fef(out_composed.push_back('/'), "out_composed.size()=%" LLC_FMT_U2 ".", out_composed.size());
 		}
-		::llc::vcsc_c			fileToAppend				= {fileName.begin() + fileOffset, fileName.size() - fileOffset};
+		::llc::vcst_c			fileToAppend				= {fileName.begin() + fileOffset, fileName.size() - fileOffset};
 		if_fail_fe(::appendPathNormalized(fileToAppend, out_composed));
 	}
 	rtrn out_composed.size();
 }
 
 ::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::aobj<vcst_t> & output, ::llc::vcst_c extension)					{
-	llc_path_debug("extension=\"%s\"", extension.begin());
+	llc_path_debug("extension=\"%.*s\"", (int)extension.size(), extension.begin());
 	for(uint32_t iFile = 0; iFile < input.Files.size(); ++iFile) {
-		::llc::vcsc_c			& fileName					= input.Files[iFile];
-		b8_t 					extensionMatch 				= 0 == strncmp(fileName.end() - extension.size(), extension.begin(), ::llc::min(extension.size(), fileName.size()));
-		if(0 == extension.size() || (extension.size() < fileName.size() && extensionMatch)) {
-			llc_path_debug("fileName=\"%s\"", fileName.begin());
+		::llc::vcst_c			& fileName					= input.Files[iFile];
+		if(extension.size() && extension.size() >= fileName.size())
+			continue;
+		::llc::vcst_t			fileExtension				= {};
+		if(extension.size())
+			if_fail_fe(fileName.slice(fileExtension, fileName.size() - extension.size()));
+		if(0 == extension.size() || fileExtension == extension) {
+			llc_path_debug("fileName=\"%.*s\"", (int)fileName.size(), fileName.begin());
 			llc_necs(output.push_back(fileName));
 		}
 	}
@@ -256,19 +260,23 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 }
 
 ::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::aobj<string> & output, ::llc::vcst_c extension)					{
-	llc_path_debug("extension=\"%s\"", extension.begin());
+	llc_path_debug("extension=\"%.*s\"", (int)extension.size(), extension.begin());
 	for(uint32_t iFile = 0; iFile < input.Files.size(); ++iFile) {
-		::llc::vcsc_c			& fileName					= input.Files[iFile];
-		llc_path_debug("fileName=\"%s\"", fileName.begin());
-		b8_t 					extensionMatch 				= 0 == strncmp(fileName.end() - extension.size(), extension.begin(), ::llc::min(extension.size(), fileName.size()));
-		if(0 == extension.size() || (extension.size() < fileName.size() && extensionMatch)) {
-			llc_path_debug("fileName=\"%s\"", fileName.begin());
-			if_fail_fef(output.push_back(fileName), "fileName=%s, output.size()=%" LLC_FMT_U2, fileName.begin(), output.size());
+		::llc::vcst_c			& fileName					= input.Files[iFile];
+		llc_path_debug("fileName=\"%.*s\"", (int)fileName.size(), fileName.begin());
+		if(extension.size() && extension.size() >= fileName.size())
+			continue;
+		::llc::vcst_t			fileExtension				= {};
+		if(extension.size())
+			if_fail_fe(fileName.slice(fileExtension, fileName.size() - extension.size()));
+		if(0 == extension.size() || fileExtension == extension) {
+			llc_path_debug("fileName=\"%.*s\"", (int)fileName.size(), fileName.begin());
+			if_fail_fef(output.push_back(fileName), "fileName=%.*s, output.size()=%" LLC_FMT_U2, (int)fileName.size(), fileName.begin(), output.size());
 		}
 	}
 	for(uint32_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder	) {
 		const ::llc::SPathContents	& childPath	= input.Folders[iFolder];
-		if_fail_fef(llc::pathList(childPath, output, extension), "output=%s, extension=%s", output.begin(), extension.begin());
+		if_fail_fef(llc::pathList(childPath, output, extension), "output.size()=%" LLC_FMT_U2 ", extension=%.*s", output.size(), (int)extension.size(), extension.begin());
 	}
 	return 0;
 }
@@ -297,24 +305,30 @@ stxp	const char		parDir	[]					= "..";
 sttc ::llc::err_t		pathListEntry			(::llc::vcst_t pathToList, ::llc::SPathContents & pathContents, const ::llc::function<::llc::err_t(bool, ::llc::vcst_c&)> & onItem, ::llc::vcst_c extension, ::llc::vcst_t entryName, bool isFolder) {
 	if(0 == strcmp(entryName.begin(), curDir) || 0 == strcmp(entryName.begin(), parDir))
 		rtrn 0;
-	char						bufferFormat[36]			= {};
-	snprintf(bufferFormat, ::llc::size(bufferFormat) - 2, "%%.%" LLC_FMT_U2 "s/%%s", pathToList.size());
-	char						sPath[LLC_MAX_PATH]			= {};
-	int32_t						lenPath						= snprintf(sPath, ::llc::size(sPath) - 2, bufferFormat, pathToList.begin(), entryName.begin());
+	::llc::string				sPath						= {};
+	if_fail_fe(::llc::pathNameCompose(pathToList, entryName, sPath));
+	if(false == isFolder && extension.size()) {
+		::llc::vcst_t			fileExtension				= {};
+		if(extension.size() >= sPath.size())
+			rtrn 0;
+		if_fail_fe(sPath.slice(fileExtension, sPath.size() - extension.size()));
+		if(fileExtension != extension)
+			rtrn 0;
+	}
 	::llc::err_t				action						= 0;
-	if_fail_fef(action = onItem(isFolder, sPath), "'%s'", sPath);
+	if_fail_fef(action = onItem(isFolder, sPath), "'%s'", sPath.begin());
 	if(action & 1)
 		rtrn 0;
 	if(isFolder) {
 		::llc::err_t				newFolderIndex				= pathContents.Folders.push_back({});
 		llc_necs(newFolderIndex);
-		llc_necall(llc::pathList(sPath, pathContents.Folders[newFolderIndex], onItem, extension), "'%s'", sPath);
-		verbose_printf("Directory: %s.", sPath);
+		llc_necall(llc::pathList(sPath, pathContents.Folders[newFolderIndex], onItem, extension), "'%s'", sPath.begin());
+		verbose_printf("Directory: %s.", sPath.begin());
 	}
 	else {
 		int32_t						indexFile;
-		llc_necall(indexFile = pathContents.Files.push_back(::llc::vcst_t{sPath, (uint32_t)lenPath}), "%s", "Failed to push path to output list");
-		verbose_printf("File %" LLC_FMT_U2 ": %s.", indexFile, sPath);
+		llc_necall(indexFile = pathContents.Files.push_back(sPath), "%s", "Failed to push path to output list");
+		verbose_printf("File %" LLC_FMT_U2 ": %s.", indexFile, sPath.begin());
 	}
 	rtrn 0;
 }
@@ -322,24 +336,24 @@ sttc ::llc::err_t		pathListEntry			(::llc::vcst_t pathToList, ::llc::SPathConten
 sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathContents & pathContents, const ::llc::function<::llc::err_t(bool, ::llc::vcst_c&)> & onItem, ::llc::vcst_c extension) {
 	::llc::err_t				result						= 0;
 #ifdef LLC_WINDOWS
-	char						sPath[LLC_MAX_PATH]			= {};
-	if_fail_fef(snprintf(sPath, ::llc::size(sPath) - 2, "%.*s/*.*", (int)pathToList.size(), pathToList.begin()), "Path too long: '%.*s'.", pathToList.size(), pathToList.begin());
+	::llc::string				sPath						= {};
+	if_fail_fef(::llc::pathNameCompose(pathToList, LLC_CXS("*.*"), sPath), "Invalid path: '%.*s'.", (int)pathToList.size(), pathToList.begin());
 	WIN32_FIND_DATAA			fdFile						= {};
-	HANDLE						hFind						= FindFirstFile(sPath, &fdFile);
-	ree_if(hFind == INVALID_HANDLE_VALUE, "Path not found: [%.*s].", pathToList.size(), pathToList.begin());
+	HANDLE						hFind						= FindFirstFile(sPath.begin(), &fdFile);
+	ree_if(hFind == INVALID_HANDLE_VALUE, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());
 	do {
 		cnst ::llc::vcst_t		entryName						= {fdFile.cFileName, (::llc::u2_t)-1};
-		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, 0 != (fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)), "'%s'", entryName.begin());
+		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, 0 != (fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)), "'%.*s'", (int)entryName.size(), entryName.begin());
 	}
 	while(FindNextFile(hFind, &fdFile));
 	FindClose(hFind);
 #elif defined(LLC_ANDROID) || defined(LLC_LINUX)
 	DIR							* dir							= opendir(pathToList.begin());
-	ree_if(0 == dir, "Path not found: [%.*s].", pathToList.size(), pathToList.begin());
+	ree_if(0 == dir, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());
 	struct dirent				* drnt						= nullptr;
 	while((drnt = readdir(dir))) {
 		cnst ::llc::vcst_t		entryName						= {drnt->d_name, (::llc::u2_t)-1};
-		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, drnt->d_type == DT_DIR), "'%.*s'", entryName.size(), entryName.begin());
+		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, drnt->d_type == DT_DIR), "'%.*s'", (int)entryName.size(), entryName.begin());
 	}
 	closedir(dir);
 #else
@@ -351,54 +365,6 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	if_fail_fe(result);
 	rtrn 0;
 }
-
-::llc::err_t			llc::pathList				(::llc::vcst_t pathToList, ::llc::aobj<string> & output, bool listFolders, ::llc::vcst_c extension)	{
-	::llc::asc_t				withoutTrailingSlash		= (pathToList.size() - 1 > (uint32_t)::llc::findLastSlash(pathToList)) ? pathToList : ::llc::vcst_t{pathToList.begin(), pathToList.size() - 1};
-	char						bufferFormat[16]			=  {};
-	snprintf(bufferFormat, ::llc::size(bufferFormat) - 2, "%%.%" LLC_FMT_U2 "s/*.*", withoutTrailingSlash.size());
-	char						sPath	[LLC_MAX_PATH]		= {};
-	llc_necall(snprintf(sPath, ::llc::size(sPath) - 2, bufferFormat, withoutTrailingSlash.begin()), "bufferFormat: '%s'. withoutTrailingSlash: '%s'", bufferFormat, withoutTrailingSlash.begin());
-
-#ifdef LLC_WINDOWS
-	WIN32_FIND_DATAA			fdFile						= {};
-	HANDLE						hFind						= NULL;
-	hFind					= FindFirstFile(sPath, &fdFile);
-	ree_if(hFind == INVALID_HANDLE_VALUE, "Path not found: [%s].", withoutTrailingSlash.begin());
-	do if(	0 != strcmp(fdFile.cFileName, curDir)
-		 &&	0 != strcmp(fdFile.cFileName, parDir)
-		) {
-		snprintf(bufferFormat, ::llc::size(bufferFormat) - 2, "%%.%" LLC_FMT_U2 "s/%%s", withoutTrailingSlash.size());
-		int32_t						lenPath						= snprintf(sPath, ::llc::size(sPath) - 2, bufferFormat, withoutTrailingSlash.begin(), fdFile.cFileName);
-		if((fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && false == listFolders)
-			continue;
-
-		::llc::vcst_c				viewPath					= sPath;
-		if(0 == extension.size() || (extension.size() < viewPath.size() && 0 == strncmp(viewPath.end() - extension.size(), extension.begin(), ::llc::min(extension.size(), viewPath.size())))) {
-			verbose_printf("Path: %s.", sPath);
-			llc_necall(output.push_back(::llc::vcst_t{sPath, (uint32_t)lenPath}), "%s", "Failed to push path to output list.");
-		}
-		//output.push_back(0)
-	}
-	while(FindNextFile(hFind, &fdFile));
-	FindClose(hFind);
-#elif defined(LLC_ANDROID) || defined(LLC_LINUX)
-	DIR							* dir						= 0;
-	dirent						* drnt						= 0;
-	dir						= opendir(withoutTrailingSlash.begin());
-	while ((drnt = readdir(dir)) != NULL) {
-		::llc::asc_t				name						= ::llc::vcst_t{drnt->d_name, (uint32_t)-1};
-		if (name != curDir && name != parDir) {
-			if(drnt->d_type == DT_DIR && false == listFolders)
-				continue;
-			int32_t						lenPath						= snprintf(sPath, ::llc::size(sPath) - 2, "%s/%s", withoutTrailingSlash.begin(), drnt->d_name);
-			info_printf("Path: %s.", sPath);
-			llc_necall(output.push_back(::llc::vcst_t{sPath, (uint32_t)lenPath}), "%s", "Failed to push path to output list.");
-		}
-	}
-#endif
-	return 0;
-}
-
 
 ::llc::err_t			llc::pathList				(::llc::vcst_t pathToList, ::llc::SPathContents & pathContents, ::llc::vcst_c extension)						{
 	rtrn ::llc::pathList(pathToList, pathContents, [](::llc::b8_t, ::llc::vcst_c &) { rtrn 0; }, extension);

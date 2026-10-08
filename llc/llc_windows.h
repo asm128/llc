@@ -1,4 +1,5 @@
 #include "llc_array.h"
+#include "llc_string.h"
 
 #ifndef LLC_WINDOWS_H
 #define LLC_WINDOWS_H
@@ -6,9 +7,9 @@
 namespace llc
 {
 #ifdef LLC_WINDOWS
-	::llc::apod<char>	getWindowsErrorAsString	(const int32_t lastError); // Get the error message, if any.
-	::llc::error_t		wcstombs				(::llc::apod<char> & output, const ::llc::view<wchar_t> input);
-	::llc::error_t		mbstowcs				(::llc::apod<wchar_t> & output, ::llc::vcsc_c input);
+	string		getWindowsErrorAsString	(cnst s2_t lastError); // Get the error message, if any.
+	error_t		wcstombs				(string & output, const view<wchar_t> input);
+	error_t		mbstowcs				(apod<wchar_t> & output, vcst_t input);
 #endif
 } // namespace
 

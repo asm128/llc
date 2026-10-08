@@ -20,8 +20,8 @@ llc::err_t			llc::token_split		(char valueSeparator, vcst_t input_string, TKeyVa
 
 llc::err_t			llc::keyvalNumeric		(vcst_t key, cnst view<cnst TKeyValConstString> keyVals, uint64_t & outputNumber)	{
 	llc::err_t				indexKey;
-	if_fail_fwf(indexKey = find(key, keyVals), "key:\"%.*s\"", key.size(), key.begin());
-	if_fail_vef(-2, parseIntegerDecimal(keyVals[indexKey].Val, outputNumber), "%.*s", keyVals[indexKey].Val.size(), keyVals[indexKey].Val.begin());
+	if_fail_fwf(indexKey = find(key, keyVals), "key:\"%.*s\"", (int)key.size(), key.begin());
+	if_fail_vef(-2, parseIntegerDecimal(keyVals[indexKey].Val, outputNumber), "%.*s", (int)keyVals[indexKey].Val.size(), keyVals[indexKey].Val.begin());
 	return indexKey;
 }
 
@@ -38,7 +38,7 @@ llc::err_t			llc::keyValConstStringSerialize		(view<cnst TKeyValConstString> key
 	for(uint32_t iKey = 0; iKey < keyVals.size(); ++iKey) {
 		for(uint32_t iRef = 0; iRef < keysToSave.size(); ++iRef) {
 			cnst TKeyValConstString	& kvToCheck						= keyVals[iKey];
-			vcsc_c				& keyToSave						= keysToSave[iRef];
+			vcst_c				& keyToSave						= keysToSave[iRef];
 			if(kvToCheck.Key == keyToSave)
 				keyValsToSave.push_back(kvToCheck);
 		}

@@ -77,10 +77,10 @@ sttc ::llc::u2_t drawBase64FontLetter(cnst SBase64FontFixture & font, ::llc::vcu
 
 stct SBase64Vector {
 	::llc::vcsc_t	Binary;
-	::llc::vcsc_t	Encoded;
+	::llc::vcst_t	Encoded;
 };
 
-stxp ::llc::vcsc_t			BASE64_REVERSED_SYMBOLS	= LLC_CXS("/+9876543210zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA");
+stxp ::llc::vcst_t			BASE64_REVERSED_SYMBOLS	= LLC_CXS("/+9876543210zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA");
 stxp ::llc::SBase64SymbolMap	BASE64_REVERSED_MAP		= ::llc::base64SymbolMap(BASE64_REVERSED_SYMBOLS, '*');
 stxp ::llc::SBase64SymbolMap	BASE64_SHORT_MAP			= ::llc::base64SymbolMap(LLC_CXS("ABC"));
 stxp ::llc::SBase64SymbolMap	BASE64_PAD_CONFLICT_MAP	= ::llc::base64SymbolMap(::llc::b64Symbols, 'A');
@@ -243,8 +243,8 @@ sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
 	cnst ::llc::vcsc_t binaryC = {binaryChars};
 	cnst ::llc::vcu0_t encodedU = {encodedBytes};
 	cnst ::llc::vcs0_t encodedS = {encodedSigned};
-	cnst ::llc::vcsc_t encodedC = {encodedChars};
-	auto testEncode = [&](auto input, auto & output, ::llc::vcsc_c & name) -> ::llc::err_t {
+	cnst ::llc::vcst_t encodedC = {encodedChars};
+	auto testEncode = [&](auto input, auto & output, ::llc::vcst_t name) -> ::llc::err_t {
 		cnst ::llc::err_t result = fileSafe ? ::llc::base64EncodeFS(input, output) : ::llc::base64Encode(input, output);
 		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_OVERLOAD_ENCODE, ::llc::failed(result) || bytesMismatch(byteView(output), encodedU)
 			, "%s encode overload mismatch. overload:%.*s, result:%i, actual:%u, expected:%u."
@@ -252,7 +252,7 @@ sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
 			);
 		rtrn 0;
 	};
-	auto testDecode = [&](auto input, auto & output, ::llc::vcsc_c & name) -> ::llc::err_t {
+	auto testDecode = [&](auto input, auto & output, ::llc::vcst_t name) -> ::llc::err_t {
 		cnst ::llc::err_t result = fileSafe ? ::llc::base64DecodeFS(input, output) : ::llc::base64Decode(input, output);
 		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_OVERLOAD_DECODE, ::llc::failed(result) || bytesMismatch(byteView(output), binaryU)
 			, "%s decode overload mismatch. overload:%.*s, result:%i, actual:%u, expected:%u."
@@ -277,11 +277,14 @@ sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
 		output.clear(); if_fail_fe(testDecode(encodedS, output, LLC_CXS("vcs0_t -> as0_t")));
 	}
 	{
+		::llc::string output;
+		if_fail_fe(testEncode(binaryU, output, LLC_CXS("vcu0_t -> string")));
+		output.clear(); if_fail_fe(testEncode(binaryC, output, LLC_CXS("vcsc_t -> string")));
+	}
+	{
 		::llc::asc_t output;
-		if_fail_fe(testEncode(binaryU, output, LLC_CXS("vcu0_t -> asc_t")));
-		output.clear(); if_fail_fe(testEncode(binaryC, output, LLC_CXS("vcsc_t -> asc_t")));
-		output.clear(); if_fail_fe(testDecode(encodedU, output, LLC_CXS("vcu0_t -> asc_t")));
-		output.clear(); if_fail_fe(testDecode(encodedC, output, LLC_CXS("vcsc_t -> asc_t")));
+		if_fail_fe(testDecode(encodedU, output, LLC_CXS("vcu0_t -> asc_t")));
+		output.clear(); if_fail_fe(testDecode(encodedC, output, LLC_CXS("vcst_t -> asc_t")));
 	}
 	rtrn 0;
 }
@@ -297,7 +300,7 @@ sttc ::llc::err_t testBase64CountedTerminator(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64DecodeRejected(ATestError & errors, ::llc::vcu0_c & input, BASE64_TEST_RESULT rejection, ::llc::vcsc_c & name) {
+sttc ::llc::err_t testBase64DecodeRejected(ATestError & errors, ::llc::vcu0_c & input, BASE64_TEST_RESULT rejection, ::llc::vcst_t name) {
 	::llc::au0_t output = {0xA5, 0x5A, 0xC3};
 	if_fail_fe(output.reserve(64));
 	cnst ::llc::u0_t expected[] = {0xA5, 0x5A, 0xC3};
@@ -346,7 +349,7 @@ sttc ::llc::err_t testBase64InvalidInput(ATestError & errors) {
 	rtrn testBase64DecodeRejected(errors, byteView(LLC_CXS("TWF=")), BASE64_TEST_RESULT_NONCANONICAL_PADDING, LLC_CXS("nonzero two pad bits"));
 }
 
-sttc ::llc::err_t testBase64AlphabetRejected(ATestError & errors, ::llc::vcsc_c & alphabet, char pad, ::llc::vcsc_c & name) {
+sttc ::llc::err_t testBase64AlphabetRejected(ATestError & errors, ::llc::vcst_t alphabet, char pad, ::llc::vcst_t name) {
 	for(::llc::u0_t iOperation = 0; iOperation < 2; ++iOperation) {
 		::llc::au0_t output = {0xA5, 0x5A};
 		if_fail_fe(output.reserve(64));
@@ -377,12 +380,12 @@ sttc ::llc::err_t testBase64AlphabetRejected(ATestError & errors, ::llc::vcsc_c 
 }
 
 sttc ::llc::err_t testBase64InvalidAlphabet(ATestError & errors) {
-	stxp ::llc::vcsc_t alphabets[] =
+	stxp ::llc::vcst_t alphabets[] =
 		{ LLC_CXS("ABC")
 		, LLC_CXS("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+A")
 		, LLC_CXS("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/A")
 		};
-	stxp ::llc::vcsc_t names[] =
+	stxp ::llc::vcst_t names[] =
 		{ LLC_CXS("short")
 		, LLC_CXS("duplicate")
 		, LLC_CXS("long")

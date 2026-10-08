@@ -1,4 +1,5 @@
 #include "llc_array_pod.h"
+#include "llc_string.h"
 
 #include "llc_test_core.h"
 
@@ -70,6 +71,8 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ALIAS_ASSIGNMENT			, 61, "array_pod<>
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_EMPTY					, 62, "join() changed its output or reported characters for an empty field list.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_SINGLE					, 63, "join() added a separator around a single field or reported the wrong character count.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_MULTIPLE				, 64, "join() did not preserve empty fields, separator placement or its appended character count.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, FIND_SEQUENCE				, 65, "array_pod<>::find() did not find the requested element sequence or honor its offset.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, RFIND_SEQUENCE				, 66, "array_pod<>::rfind() did not find the last requested element sequence or honor its offset.");
 
 tplt<tpnm TCall>
 sttc ::llc::err_t podExpectedFailure(TCall call) {
@@ -323,6 +326,17 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 		, "chained append terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, chained.size(), (::llc::s3_t)chained.begin()[chained.size()]
 		);
+
+		T joinLeft[] = {T(1), T(2)};
+		T joinRight[] = {T(3)};
+		cnst ::llc::view<cnst T> joinFields[] = {{joinLeft}, {joinRight}};
+		::llc::apod<T> joined;
+		result = ::llc::join(joined, T(0), ::llc::view<cnst ::llc::view<cnst T>>{joinFields});
+		T expectedJoin[] = {T(1), T(2), T(0), T(3)};
+		LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, result != 4 || podMismatch(joined, expectedJoin)
+			, "Generic join mismatch. result:%i, size:%u, expected written:4/size:4."
+			, result, joined.size()
+			);
 	rtrn 0;
 }
 
@@ -374,22 +388,22 @@ sttc ::llc::err_t testPodStringAppend(ATestError & errors) {
 		, result, text.size()
 		);
 
-	::llc::asc_t joined = {'s', 'e', 'e', 'd', ':'};
-	result = ::llc::join(joined, '|', {});
+	::llc::string joined = LLC_CXS("seed:");
+	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{});
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, result || podStringMismatch(joined, "seed:")
 		, "Empty join mismatch. result:%i, size:%u, expected written:0/text:'seed:'."
 		, result, joined.size()
 		);
 
 	cnst ::llc::vcst_t single[] = {LLC_CXS("one")};
-	result = ::llc::join(joined, '|', single);
+	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{single});
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_SINGLE, result != 3 || podStringMismatch(joined, "seed:one")
 		, "Single join mismatch. result:%i, size:%u, expected written:3/text:'seed:one'."
 		, result, joined.size()
 		);
 
 	cnst ::llc::vcst_t multiple[] = {LLC_CXS(""), LLC_CXS("two"), LLC_CXS("")};
-	result = ::llc::join(joined, '|', multiple);
+	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{multiple});
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, result != 5 || podStringMismatch(joined, "seed:one|two|")
 		, "Multiple join mismatch. result:%i, size:%u, expected written:5/text:'seed:one|two|'."
 		, result, joined.size()
@@ -764,6 +778,22 @@ sttc ::llc::err_t testPodClear(ATestError & errors) {
 }
 
 tplt<tpnm T>
+sttc ::llc::err_t testPodFind(ATestError & errors) {
+	::llc::apod<T> values = {T(1), T(2), T(1), T(2)};
+	T sequenceData[] = {T(1), T(2)};
+	cnst ::llc::view<cnst T> sequence{sequenceData};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_FIND_SEQUENCE, values.find(sequence) || values.find(sequence, 1) != 2
+		, "sequence find mismatch. first:%i, offset:%i; expected:0/2."
+		, values.find(sequence), values.find(sequence, 1)
+		);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RFIND_SEQUENCE, values.rfind(sequence) != 2 || values.rfind(sequence, 1)
+		, "sequence rfind mismatch. last:%i, offset:%i; expected:2/0."
+		, values.rfind(sequence), values.rfind(sequence, 1)
+		);
+	rtrn 0;
+}
+
+tplt<tpnm T>
 sttc ::llc::err_t testPodType(ATestError & errors) {
 	if_fail_fe(testPodConstruction<T>(errors));
 	if_fail_fe(testPodAssignment<T>(errors));
@@ -774,6 +804,7 @@ sttc ::llc::err_t testPodType(ATestError & errors) {
 	if_fail_fe(testPodRemove<T>(errors));
 	if_fail_fe(testPodFailures<T>(errors));
 	if_fail_fe(testPodAliasing<T>(errors));
+	if_fail_fe(testPodFind<T>(errors));
 	rtrn testPodClear<T>(errors);
 }
 

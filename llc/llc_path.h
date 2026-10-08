@@ -12,7 +12,6 @@ namespace llc
 	};
 
 	err_t						pathCreate				(vcst_t folderName, sc_c separator = '/');	// Recursive
-	err_t						pathList				(vcst_t pathToList, aobj<string> & output, bool listFolders, vcst_t extension = {});		// Not recursive
 	err_t						pathList				(const SPathContents & input, aobj<string> & output, vcst_t extension = {});	// recursively walk over a pathcontents hierarchy and store all the file names into "output"
 	err_t						pathList				(const SPathContents & input, aobj<vcst_t> & output, vcst_t extension = {});	// recursively walk over a pathcontents hierarchy and store all the file names into "output"
 	err_t						pathList				(vcst_t pathToList, SPathContents & output, vcst_t extension = {});		// Recursive

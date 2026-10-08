@@ -31,7 +31,7 @@ static_assert(requires {
 	}, "XML operations must preserve their string-view contracts.");
 
 sttc ::llc::err_t testXMLDocument
-	(ATestError & errors, ::llc::vcsc_t input, XML_READER_TEST_RESULT parseTest = XML_READER_TEST_RESULT_PARSE) {
+	(ATestError & errors, ::llc::vcst_t input, XML_READER_TEST_RESULT parseTest = XML_READER_TEST_RESULT_PARSE) {
 	::llc::SXMLReader reader;
 	cnst ::llc::err_t parseResult = ::llc::xmlParse(reader, input);
 	LLC_TEST_REQUIRE(errors, parseTest, ::llc::failed(parseResult)
@@ -64,7 +64,7 @@ sttc ::llc::err_t testXMLDocument
 
 sttc ::llc::err_t testXMLDocuments(ATestError & errors) {
 	cnst ::llc::sc_t countedInput[] = {'<', 'A', '/', '>'};
-	cnst ::llc::vcsc_t documents[] =
+	cnst ::llc::vcst_t documents[] =
 		{ LLC_CXS("<Root/>")
 		, LLC_CXS("<?xml version=\"1.0\"?><Root attribute=\"value\"><Child>text</Child><Child/></Root>")
 		, LLC_CXS("<Root single='quoted'><!--comment--><![CDATA[<raw>]]></Root>")

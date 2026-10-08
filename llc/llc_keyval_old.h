@@ -5,7 +5,7 @@
 
 namespace llc
 {
-	tydf	keyval<vcsc_t, vcsc_t>	TKeyValConstChar, TKeyValConstString;
+	tydf	keyval<vcst_t, vcst_t>	TKeyValConstChar, TKeyValConstString;
 
 			error_t					token_split			(char valueSeparator, vcst_t input_string, TKeyValConstChar & output_views);
 	inln	error_t					keyval_split		(vcst_t input_string, TKeyValConstString & out_keyval) { return token_split('=', input_string, out_keyval); }

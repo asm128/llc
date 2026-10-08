@@ -53,11 +53,11 @@ static_assert(requires {
 	static_cast<TJSONArraySplit>(&::llc::jsonArraySplit);
 	}, "JSON serialization must preserve const view collections.");
 
-sttc bool jsonTextMismatch(::llc::vcsc_c & actual, ::llc::vcsc_c & expected) {
+sttc bool jsonTextMismatch(::llc::vcst_t actual, ::llc::vcst_t expected) {
 	rtrn actual.size() != expected.size() || (actual.size() && 0 != memcmp(actual.begin(), expected.begin(), actual.size()));
 }
 
-sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader & reader, ::llc::vcsc_c & input) {
+sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader & reader, ::llc::vcst_t input) {
 	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_STORAGE_COUNTS
 		, reader.Token.size() != reader.View.size() || reader.Token.size() != reader.Tree.size()
 		, "Storage count mismatch. tokens:%u, views:%u, tree:%u."
@@ -65,7 +65,7 @@ sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader
 		);
 	for(::llc::u2_t iToken = 0; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SJSONToken & token = reader.Token[iToken];
-		cnst ::llc::vcsc_t & tokenView = reader.View[iToken];
+		cnst ::llc::vcst_t & tokenView = reader.View[iToken];
 		cnst ::llc::pobj<::llc::SJSONNode> & node = reader.Tree[iToken];
 		cnst bool nodeMissing = 0 == node.get_ref();
 		cnst bool hasParent = token.ParentIndex >= 0 && (::llc::u2_t)token.ParentIndex < reader.Tree.size();
@@ -87,7 +87,7 @@ sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader
 }
 
 sttc ::llc::err_t testJSONDocument
-	(ATestError & errors, ::llc::vcsc_c & input, ::llc::vcsc_c & expected, ::llc::JSON_TYPE expectedType, JSON_READER_TEST_RESULT parseResult = JSON_READER_TEST_RESULT_PARSE) {
+	(ATestError & errors, ::llc::vcst_t input, ::llc::vcst_t expected, ::llc::JSON_TYPE expectedType, JSON_READER_TEST_RESULT parseResult = JSON_READER_TEST_RESULT_PARSE) {
 	::llc::SJSONReader reader;
 	cnst ::llc::err_t result = ::llc::jsonParse(reader, input);
 	LLC_TEST_REQUIRE(errors, parseResult, ::llc::failed(result)
@@ -159,7 +159,7 @@ sttc ::llc::err_t testJSONReset(ATestError & errors) {
 		, reader.StateRead.IndexCurrentChar, reader.StateRead.IndexCurrentElement, reader.StateRead.NestLevel
 		);
 
-	::llc::vcsc_c & input = LLC_CXS("{\"value\":-2}");
+	::llc::vcst_t input = LLC_CXS("{\"value\":-2}");
 	if_fail_fe(::llc::jsonParse(reader, input));
 	if_fail_fe(testJSONStructure(errors, reader, input));
 	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_REUSE

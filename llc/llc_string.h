@@ -1,5 +1,4 @@
 #include "llc_array_pod.h"
-#include "llc_std_cstring.h"
 #ifdef LLC_ARDUINO
 #   include <IPAddress.h>
 #endif // LLC_ARDUINO
@@ -22,7 +21,7 @@ namespace llc
         inline  string      (vsc_c & other)                 : asc_t(other)                                          { initialize(); }
         inline  string      (asc_c & other)                 : asc_t(other)                                          { initialize(); }
         inline  string      (vcst_t other)                  : asc_t(other)                                          { initialize(); }
-        inline  string      (sc_c * unsafe)                 : asc_t(tovcc(unsafe))                                  { initialize(); }
+        inline  string      (sc_c * unsafe)                 : asc_t(vcst_t{unsafe, (u2_t)-1})                       { initialize(); }
 #ifdef LLC_ARDUINO
         inline  string      (const String & other)          : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    { initialize(); }
         inline  string      (const IPAddress & other)       : string(other.toString())                              { initialize(); }
@@ -49,7 +48,7 @@ namespace llc
     ndsi string  str (const IPAddress & s)   { return s.toString(); }
 #endif
 
-	err_t		camelCase	(::llc::vcst_t input, ::llc::string & camelCased);
+	err_t		camelCase	(vcst_t input, string & camelCased);
 
 } // namespace
 

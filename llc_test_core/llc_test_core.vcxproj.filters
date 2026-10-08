@@ -48,6 +48,9 @@
 		<ClCompile Include="llc_test_keyval.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_label.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_msbuild_xml.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>

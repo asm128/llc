@@ -7,7 +7,7 @@ struct SBase64FontFixture {
     ::llc::u2_t        DecodedCount;
     ::llc::u2_t        DecodedHash;
     ::llc::u2_t        LetterHash;
-    ::llc::vcsc_t      Encoded;
+    ::llc::vcst_t      Encoded;
 };
 
 stxp SBase64FontFixture BASE64_FONT_FIXTURES[] =

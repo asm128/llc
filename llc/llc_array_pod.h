@@ -18,6 +18,7 @@ namespace llc
 		usng array_base<T>	::Size					;
 		usng array_base<T>	::alloc_with_reserve	;
 		usng array_base<T>	::find					;
+		usng array_base<T>	::rfind					;
 
 	private:
 		err_t				source_offset		(cnst T * source, u2_t count, u2_t & offset)cnst noexcept	{
@@ -37,6 +38,26 @@ namespace llc
 		}
 
 	public:
+		err_t				find				(cnst view<TCnst> sequence, u2_t offset = 0) cnst {
+			if(sequence.size() > Count || offset > Count - sequence.size())
+				rtrn -1;
+			if(0 == sequence.size())
+				rtrn offset;
+			for(u2_t iOffset = offset, offsetStop = Count - sequence.size() + 1; iOffset < offsetStop; ++iOffset)
+				if(0 == memcmp(sequence.begin(), &Data[iOffset], sequence.byte_count()))
+					rtrn iOffset;
+			rtrn -1;
+		}
+		err_t				rfind				(cnst view<TCnst> sequence, u2_t offset = 0) cnst {
+			if(sequence.size() > Count || offset > Count - sequence.size())
+				rtrn -1;
+			if(0 == sequence.size())
+				rtrn Count - offset;
+			for(u2_t iOffset = Count - sequence.size() - offset; iOffset < Count; --iOffset)
+				if(0 == memcmp(sequence.begin(), &Data[iOffset], sequence.byte_count()))
+					rtrn iOffset;
+			rtrn -1;
+		}
 
 		inxp				array_pod			()										noexcept	= default;
 							array_pod			(::std::initializer_list<T> init)					{
@@ -108,24 +129,24 @@ namespace llc
 		}
 		inln		err_t	append_string		(cnst llc::function<err_t(TArray&)> & funcAppend)	noexcept	{ return funcAppend ? funcAppend(*this) : 0; }
 		
-		tplN2uinln	err_t	append_string		(cnst T (&newChain)[N])								noexcept	{ return append_string(::llc::vcst_t{newChain}); }
-		inln		err_t	append_string		(cnst ::llc::vcst_t & newChain)						noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
+		tplN2uinln	err_t	append_string		(cnst T (&newChain)[N])								noexcept	{ return append_string(vcst_t{newChain}); }
+		inln		err_t	append_string		(cnst vcst_t & newChain)						noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
 		inln		err_t	append_string		(cnst T & element)									noexcept	{ llc_necs(push_back(element)); return 1; }
-		inln		err_t	append_strings		(cnst ::llc::view<cnst ::llc::vcst_t> & newChains)	noexcept	{ 
+		inln		err_t	append_strings		(cnst view<cnst vcst_t> & newChains)	noexcept	{ 
 			s2_t					appended				= 0;
 			for(u2_t i = 0, stop = newChains.size(); i < stop; ++i) {
-				cnst ::llc::vcst_t & newChain = newChains[i];
+				cnst vcst_t & newChain = newChains[i];
 				llc_necs(append(newChain));
 				appended += newChain.size();
 			}
 			return appended;
 		}
 		tplN2uinln	err_t	append				(cnst T (&newChain)[N])										noexcept	{ return append(newChain, (u2_t)N); }
-		inln		err_t	append				(cnst ::llc::view<cnst T> & newChain)						noexcept	{ return append(newChain.begin(), newChain.size());	}
-		inln		err_t	append				(cnst ::llc::view<cnst ::llc::view<cnst T>> & newChains)	noexcept	{ 
+		inln		err_t	append				(cnst view<cnst T> & newChain)						noexcept	{ return append(newChain.begin(), newChain.size());	}
+		inln		err_t	append				(cnst view<cnst view<cnst T>> & newChains)	noexcept	{ 
 			s2_t					count				= 0;
 			for(u2_t i = 0, stop = newChains.size(); i < stop; ++i) {
-				cnst ::llc::view<cnst T> & newChain		= newChains[i];
+				cnst view<cnst T> & newChain		= newChains[i];
 				llc_necs(append(newChain));
 				count					+= newChain.size();
 			}
@@ -160,7 +181,7 @@ namespace llc
 				T							* oldData			= Data;
 				Data					= newData;
 				Size					= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			return Size;
 		}
@@ -204,7 +225,7 @@ namespace llc
 				T							* oldData			= Data;
 				Data					= newData;
 				Size					= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			else {
 				for(s2_t i = (int)Count - 1; i >= (int)index; --i)
@@ -237,7 +258,7 @@ namespace llc
 				T							* oldData			= Data;
 				Data					= newData;
 				Size					= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			else {	// no need to reallocate and copy, just shift rightmost elements and insert in-place
 				memmove(&Data[index + chainLength], &Data[index], (Count - index) * szof(T));
@@ -259,7 +280,7 @@ namespace llc
 		}
 		tplt<size_t _chainLength>
 		inln	err_t		insert				(u2_t index, cnst T (&chainToInsert)[_chainLength])		noexcept	{ return insert(index, chainToInsert, (u2_t)_chainLength); }
-		inln	err_t		insert				(u2_t index, ::llc::view<cnst T> chainToInsert)			noexcept	{ return insert(index, chainToInsert.begin(), chainToInsert.size()); }
+		inln	err_t		insert				(u2_t index, view<cnst T> chainToInsert)			noexcept	{ return insert(index, chainToInsert.begin(), chainToInsert.size()); }
 		// Returns the new size of the list or -1 if the array pointer is not initialized.
 		err_t				remove_unordered	(u2_t index)											noexcept	{
 			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
@@ -286,8 +307,8 @@ namespace llc
 		}
 	}; // array_pod
 
-	tplTusng	apod		= ::llc::array_pod<T>;
-	tplTusng	ap			= ::llc::apod	<T>;
+	tplTusng	apod		= array_pod<T>;
+	tplTusng	ap			= apod	<T>;
 
 	tydf		apod<b8_t>	ab8_t;	tdcs	ab8_t	ab8_c;
 	tydf		apod<uc_t>	auc_t;	tdcs	auc_t	auc_c;
@@ -306,7 +327,20 @@ namespace llc
 	stin	vs		str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
 	stin	vcst_t	str		(asc_c & arg)	{ rtrn {arg.begin(), arg.size()}; }
 
-	err_t		join		(::llc::asc_t & output, sc_t separator, ::llc::view<cnst ::llc::vcst_t> fields);
+	tplt<tpnm T, tpnm TView>
+	err_t	join		(array_pod<T> & output, cnst T & separator, view<cnst TView> fields) {
+		err_t			appended		= 0;
+		for(u2_t iField = 0; iField < fields.size(); ++iField) {
+			if(iField) {
+				if_fail_fef(output.push_back(separator), "Failed to append separator before field:%" LLC_FMT_U2 ".", iField);
+				++appended;
+			}
+			cnst TView		& field			= fields[iField];
+			if_fail_fef(output.append({field.begin(), field.size()}), "Failed to append field:%" LLC_FMT_U2 ".", iField);
+			appended			+= field.size();
+		}
+		rtrn appended;
+	}
 } // namespace
 
 #define LLC_USING_APOD()				\

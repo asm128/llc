@@ -53,12 +53,12 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, BEGIN_RETURN				, 43, "pathBegin() did not
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, DIRECTORY_TEXT				, 44, "pathDirectory() produced an unexpected directory slice.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, FILENAME_TEXT				, 45, "pathFilename() produced an unexpected filename slice.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, STEM_TEXT					, 46, "pathStem() produced an unexpected stem slice.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_EXTENSION_FILTER		, 47, "Recursive pathList() ignored its extension filter.");
 
 tydf ::llc::err_t (*TFileToString)(::llc::vcst_t, ::llc::string &, uint32_t, uint64_t);
 tydf ::llc::err_t (*TFileFromBytes)(::llc::vcst_t, ::llc::vcs0_t, bool);
 tydf ::llc::err_t (*TFileFromString)(::llc::vcst_t, ::llc::vcst_t, bool);
 tydf ::llc::err_t (*TPathCreate)(::llc::vcst_t, ::llc::sc_c);
-tydf ::llc::err_t (*TPathListFlat)(::llc::vcst_t, ::llc::aobj<::llc::string> &, bool, ::llc::vcst_t);
 tydf ::llc::err_t (*TPathListOwned)(cnst ::llc::SPathContents &, ::llc::aobj<::llc::string> &, ::llc::vcst_t);
 tydf ::llc::err_t (*TPathListViews)(cnst ::llc::SPathContents &, ::llc::aobj<::llc::vcst_t> &, ::llc::vcst_t);
 tydf ::llc::err_t (*TPathListTree)(::llc::vcst_t, ::llc::SPathContents &, ::llc::vcst_t);
@@ -77,7 +77,6 @@ static_assert(requires {
 	}, "File memory operations must preserve their string and const-view contracts.");
 static_assert(requires {
 	static_cast<TPathCreate>(&::llc::pathCreate);
-	static_cast<TPathListFlat>(&::llc::pathList);
 	static_cast<TPathListOwned>(&::llc::pathList);
 	static_cast<TPathListViews>(&::llc::pathList);
 	static_cast<TPathListTree>(&::llc::pathList);
@@ -446,41 +445,49 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 	cnst ::llc::err_t	callbackResult	= ::llc::pathList(rootPath, callbackTree
 		, [&](::llc::b8_t isFolder, ::llc::vcst_c & path) -> ::llc::err_t {
 			isFolder ? ++callbackFolders : ++callbackFiles;
-			cnst ::llc::err_t iDeepFile = ::llc::rfind_sequence_pod(deepFileName, path);
+			cnst ::llc::err_t iDeepFile = path.rfind(deepFileName);
 			deepFileSeen		|= false == isFolder && 0 <= iDeepFile && (::llc::u2_t)iDeepFile + deepFileName.size() == path.size();
 			rtrn 0;
 		}
 		, {}
 		);
 	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_LIST_CALLBACK_RESULT, ::llc::failed(callbackResult)
-		, "Root:'%s' returned:%" LLC_FMT_S2 "."
-		, rootPath.begin(), callbackResult
+		, "Root:'%.*s' returned:%" LLC_FMT_S2 "."
+		, (int)rootPath.size(), rootPath.begin(), callbackResult
 		);
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_RECURSIVE, false == deepFileSeen
-		, "Root:'%s' did not report the grandchild file. Callback files:%u, folders:%u."
-		, rootPath.begin(), callbackFiles, callbackFolders
+		, "Root:'%.*s' did not report the grandchild file. Callback files:%u, folders:%u."
+		, (int)rootPath.size(), rootPath.begin(), callbackFiles, callbackFolders
 		);
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_COUNTS, 3 != callbackFiles || 2 != callbackFolders
-		, "Root:'%s' reported files:%u/3, folders:%u/2."
-		, rootPath.begin(), callbackFiles, callbackFolders
+		, "Root:'%.*s' reported files:%u/3, folders:%u/2."
+		, (int)rootPath.size(), rootPath.begin(), callbackFiles, callbackFolders
 		);
 
 	cnst SPathListCounts	callbackCounts	= ::pathListCounts(callbackTree);
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE, 3 != callbackCounts.Files || 2 != callbackCounts.Folders
-		, "Root:'%s' callback tree contains files:%u/3, folders:%u/2."
-		, rootPath.begin(), callbackCounts.Files, callbackCounts.Folders
+		, "Root:'%.*s' callback tree contains files:%u/3, folders:%u/2."
+		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Files, callbackCounts.Folders
 		);
 
 	::llc::SPathContents	plainTree;
 	cnst ::llc::err_t	plainResult		= ::llc::pathList(rootPath, plainTree, {});
 	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_LIST_TREE_EQUIVALENT, ::llc::failed(plainResult)
-		, "Root:'%s' non-callback traversal returned:%" LLC_FMT_S2 "."
-		, rootPath.begin(), plainResult
+		, "Root:'%.*s' non-callback traversal returned:%" LLC_FMT_S2 "."
+		, (int)rootPath.size(), rootPath.begin(), plainResult
 		);
 	cnst SPathListCounts	plainCounts		= ::pathListCounts(plainTree);
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_TREE_EQUIVALENT, callbackCounts.Files != plainCounts.Files || callbackCounts.Folders != plainCounts.Folders
-		, "Root:'%s' callback tree files/folders:%u/%u, plain tree:%u/%u."
-		, rootPath.begin(), callbackCounts.Files, callbackCounts.Folders, plainCounts.Files, plainCounts.Folders
+		, "Root:'%.*s' callback tree files/folders:%u/%u, plain tree:%u/%u."
+		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Files, callbackCounts.Folders, plainCounts.Files, plainCounts.Folders
+		);
+
+	::llc::SPathContents	filteredTree;
+	if_fail_fe(::llc::pathList(rootPath, filteredTree, LLC_CXS(".txt")));
+	cnst SPathListCounts	filteredCounts	= ::pathListCounts(filteredTree);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_EXTENSION_FILTER, filteredCounts.Files || 2 != filteredCounts.Folders
+		, "Root:'%.*s' filtered tree contains files:%u/0, folders:%u/2."
+		, (int)rootPath.size(), rootPath.begin(), filteredCounts.Files, filteredCounts.Folders
 		);
 	rtrn 0;
 }

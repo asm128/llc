@@ -17,7 +17,7 @@ static	::llc::err_t	base64SymbolMapValidate						(cnst ::llc::SBase64SymbolMap &
 }
 
 
-static	::llc::error_t	base64EncodeTriplet							(::llc::vcsc_c & base64Symbols, ::llc::vu8 inputTriplet, ::llc::vu8 out_base64) {
+static	::llc::error_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::llc::vu8 inputTriplet, ::llc::vu8 out_base64) {
 	for(uint32_t iSingleIn = 0; iSingleIn < 3; ++iSingleIn) { // reverse bits of each input byte
 		::llc::view_bit<uint8_t>									inputBits												= {&inputTriplet[iSingleIn], 8};
 		::llc::reverse_bits(inputBits);
@@ -44,7 +44,7 @@ static	::llc::error_t	base64EncodeTriplet							(::llc::vcsc_c & base64Symbols, 
 
 ::llc::error_t			llc::base64Encode								(cnst SBase64SymbolMap & symbolMap, vcu0_c & inputBytes, ::llc::au0_t & out_base64) {
 	if_fail_fe(::base64SymbolMapValidate(symbolMap));
-	cnst ::llc::vcsc_t	& base64Symbols									= symbolMap.Symbols;
+	cnst ::llc::vcst_t	& base64Symbols									= symbolMap.Symbols;
 	cnst char				base64PadSymbol									= symbolMap.Pad;
 	rni_if(0 == inputBytes.size(), "%s", "Empty input stream.");
 	u2_c						packsNeeded												= inputBytes.size() / 3 + one_if(inputBytes.size() % 3);

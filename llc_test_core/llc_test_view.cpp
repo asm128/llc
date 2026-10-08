@@ -86,14 +86,16 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_AT_SEQUENCE		, 78, "splitAt() did no
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_SEQUENCE_IN_PLACE	, 79, "The in-place sequence split did not preserve its left and right ranges.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_COLLECTION			, 80, "The scalar split collector did not discard empty fields and delimiters.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_COLLECTION_APPEND	, 81, "The scalar split collector did not append to the existing output.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_COLLECTION_SET		, 82, "The delimiter-set split collector did not discard empty fields and delimiters.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_COLLECTION_SEQUENCE	, 82, "The delimiter-sequence split collector did not preserve exact sequence semantics.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_STRING_COLLECTION	, 83, "The string split collector did not discard empty fields and delimiters.");
-GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_HETEROGENEOUS		, 84, "The split collector narrowed a comparable separator before testing equality.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SLICE_CONST_OUTPUT		, 85, "A mutable view did not produce the requested const slice.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_VALUE_CONST_OUTPUT	, 86, "split() did not project a mutable scalar-split source into const output views.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_AT_VALUE_CONST_OUTPUT, 87, "splitAt() did not project a mutable scalar-split source into const output views.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_SEQUENCE_CONST_OUTPUT, 88, "split() did not project a mutable sequence-split source into const output views.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, SPLIT_AT_SEQUENCE_CONST_OUTPUT, 89, "splitAt() did not project a mutable sequence-split source into const output views.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, FIND_SEQUENCE			, 90, "Sequence find() did not use element equality or honor its starting offset.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, RFIND_VALUE				, 91, "Value rfind() did not return the last matching index or honor its offset.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, RFIND_SEQUENCE			, 92, "Sequence rfind() did not use element equality or honor its offset.");
 
 tplt<tpnm T>
 sttc ::llc::err_t testRepresentation(ATestError & errors) {
@@ -776,6 +778,24 @@ sttc ::llc::err_t testFind(ATestError & errors) {
 		, "empty find mismatch. predicate:%i, value:%i, past-end:%i, visited:%u."
 		, emptyPredicateResult, emptyValueResult, pastEndResult, visited
 		);
+
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_RFIND_VALUE, constView.rfind(T(2)) != 4 || constView.rfind(T(2), 1) != 2 || constView.rfind(T(9)) != -1 || constEmpty.rfind(T(0)) != -1
+		, "value rfind mismatch. last:%i, offset:%i, missing:%i, empty:%i; expected:4/2/-1/-1."
+		, constView.rfind(T(2)), constView.rfind(T(2), 1), constView.rfind(T(9)), constEmpty.rfind(T(0))
+		);
+
+	T sequenceTargetData[6] = {T(0), T(1), T(2), T(3), T(2), T(3)};
+	T sequenceData[2] = {T(2), T(3)};
+	cnst ::llc::view<T> sequenceTarget{sequenceTargetData};
+	cnst ::llc::view<T> sequence{sequenceData};
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_FIND_SEQUENCE, sequenceTarget.find(sequence) != 2 || sequenceTarget.find(sequence, 3) != 4 || sequenceTarget.find(constEmpty) != 0
+		, "sequence find mismatch. first:%i, offset:%i, empty:%i; expected:2/4/0."
+		, sequenceTarget.find(sequence), sequenceTarget.find(sequence, 3), sequenceTarget.find(constEmpty)
+		);
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_RFIND_SEQUENCE, sequenceTarget.rfind(sequence) != 4 || sequenceTarget.rfind(sequence, 1) != 2 || sequenceTarget.rfind(constEmpty) != 6
+		, "sequence rfind mismatch. last:%i, offset:%i, empty:%i; expected:4/2/6."
+		, sequenceTarget.rfind(sequence), sequenceTarget.rfind(sequence, 1), sequenceTarget.rfind(constEmpty)
+		);
 	return 0;
 }
 
@@ -1020,12 +1040,12 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 			);
 	}
 	{
-		T values[6] = {T(0), T(1), T(3), T(0), T(2), T(3)};
+		T values[11] = {T(0), T(3), T(1), T(0), T(2), T(3), T(0), T(3), T(4), T(0), T(3)};
 		T separators[2] = {T(0), T(3)};
 		::llc::aobj<::llc::view<cnst T>> output;
 		cnst ::llc::err_t result = ::llc::split(::llc::view<cnst T>{values}, ::llc::view<cnst T>{separators}, output);
-		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION_SET, result != 2 || output.size() != 2 || !splitRangeIs(output[0], &values[1], 1) || !splitRangeIs(output[1], &values[4], 1)
-			, "delimiter-set collection mismatch. result:%i, output size:%u, expected:2."
+		LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_COLLECTION_SEQUENCE, result != 2 || output.size() != 2 || !splitRangeIs(output[0], &values[2], 4) || !splitRangeIs(output[1], &values[8], 1)
+			, "delimiter-sequence collection mismatch. result:%i, output size:%u, expected:2."
 			, result, output.size()
 			);
 	}
@@ -1033,19 +1053,13 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 }
 
 sttc ::llc::err_t testStringSplitCollection(ATestError & errors) {
-	::llc::aobj<::llc::vcst_t> output;
+	::llc::aobj<::llc::view<cnst ::llc::sc_t>> output;
 	cnst ::llc::err_t result = ::llc::split(LLC_CXS(",a,,b,"), ',', output);
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, result != 2 || output.size() != 2 || output[0] != LLC_CXS("a") || output[1] != LLC_CXS("b")
 		, "string collection mismatch. result:%i, output size:%u, expected:2."
 		, result, output.size()
 		);
 
-	::llc::aobj<::llc::vcst_t> heterogeneousOutput;
-	cnst ::llc::err_t heterogeneousResult = ::llc::split(LLC_CXS("a,b"), ::llc::u1_t(300), heterogeneousOutput);
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_SPLIT_HETEROGENEOUS, heterogeneousResult != 1 || heterogeneousOutput.size() != 1 || heterogeneousOutput[0] != LLC_CXS("a,b")
-		, "heterogeneous separator mismatch. result:%i, output size:%u, expected:1."
-		, heterogeneousResult, heterogeneousOutput.size()
-		);
 	rtrn 0;
 }
 

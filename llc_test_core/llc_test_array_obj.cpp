@@ -27,6 +27,8 @@ GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, REMOVE_UNORDERED	, 17, "array_obj<>::
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, ERASE				, 18, "array_obj<>::erase() did not remove the addressed element.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, CLEAR				, 19, "array_obj<>::clear() did not destroy its elements while retaining its allocation.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, CLEAR_POINTER		, 20, "array_obj<>::clear_pointer() did not destroy its elements and release its allocation.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, FIND_SEQUENCE		, 21, "array_obj<>::find() did not compare sequence elements by value.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, RFIND_SEQUENCE		, 22, "array_obj<>::rfind() did not compare sequence elements by value.");
 
 stct SArrayObjTestValue {
 	sttc ::llc::u2_t	LiveCount;
@@ -297,6 +299,29 @@ sttc ::llc::err_t testArrayObjRemoveClear(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testArrayObjFind(ATestError & errors) {
+	::llc::sc_t targetA0[] = {'a'};
+	::llc::sc_t targetB0[] = {'b'};
+	::llc::sc_t targetA1[] = {'a'};
+	::llc::sc_t targetB1[] = {'b'};
+	cnst ::llc::vcst_t targetData[] = {{targetA0}, {targetB0}, {targetA1}, {targetB1}};
+	cnst ::llc::aobj<::llc::vcst_t> target{targetData};
+
+	::llc::sc_t sequenceA[] = {'a'};
+	::llc::sc_t sequenceB[] = {'b'};
+	cnst ::llc::vcst_t sequenceData[] = {{sequenceA}, {sequenceB}};
+	cnst ::llc::view<cnst ::llc::vcst_t> sequence{sequenceData};
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_FIND_SEQUENCE, target.find(sequence) || target.find(sequence, 1) != 2
+		, "semantic sequence find mismatch. first:%i, offset:%i; expected:0/2."
+		, target.find(sequence), target.find(sequence, 1)
+		);
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_RFIND_SEQUENCE, target.rfind(sequence) != 2 || target.rfind(sequence, 1)
+		, "semantic sequence rfind mismatch. last:%i, offset:%i; expected:2/0."
+		, target.rfind(sequence), target.rfind(sequence, 1)
+		);
+	rtrn 0;
+}
+
 ::llc::err_t testArrayObj(ATestError & errors) {
 	SArrayObjTestValue::LiveCount			= {};
 	SArrayObjTestValue::ConstructorCount	= {};
@@ -307,6 +332,7 @@ sttc ::llc::err_t testArrayObjRemoveClear(ATestError & errors) {
 	if_fail_fe(::testArrayObjReserveResize(errors));
 	if_fail_fe(::testArrayObjAppendInsert(errors));
 	if_fail_fe(::testArrayObjRemoveClear(errors));
+	if_fail_fe(::testArrayObjFind(errors));
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_EMPLACE_LIFETIME
 		, SArrayObjTestValue::LiveCount || SArrayObjTestValue::DestructorCount != SArrayObjTestValue::ConstructorCount + SArrayObjTestValue::CopyCount
 		, "Live:%u, constructors:%u, copies:%u, destructors:%u."

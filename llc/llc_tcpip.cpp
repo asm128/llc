@@ -1,6 +1,7 @@
 #include "llc_tcpip.h"
 #include "llc_parse.h"
 #include "llc_json.h"
+#include "llc_cstring.h"
 #ifdef LLC_WINDOWS
 #	include "llc_windows.h"
 #endif
@@ -18,7 +19,7 @@
 
 ::llc::error_t			jsonTcpipAddress		(llc::vcst_t strIP, uint32_t & ipv4) {
 	::llc::SJSONReader			reader					= {};
-	if_fail_fef(llc::jsonParse(reader, strIP), "Failed to parse ip from string: '%.*s'.", strIP.size(), strIP.begin());
+	if_fail_fef(llc::jsonParse(reader, strIP), "Failed to parse ip from string: '%.*s'.", (int)strIP.size(), strIP.begin());
 	ipv4					= 0;
 	{ int32_t iToken; llc_necs(iToken = ::llc::jsonArrayValueGet(reader, 0, 0)); ipv4 |= ::llc::byte_to<uint32_t>((uint8_t)reader[iToken]->Token->Value, 0); }
 	{ int32_t iToken; llc_necs(iToken = ::llc::jsonArrayValueGet(reader, 0, 1)); ipv4 |= ::llc::byte_to<uint32_t>((uint8_t)reader[iToken]->Token->Value, 1); }
@@ -169,7 +170,7 @@
 ::llc::error_t			llc::tcpipAddress	(uint16_t portRequested, uint32_t adapterIndex, TRANSPORT_PROTOCOL mode, uint8_t * a1, uint8_t * a2, uint8_t * a3, uint8_t * a4)										{
 	char						host_name[257]								= {};
 #if defined(LLC_ESP8266)
-	sprintf(host_name, "%s", wifi_station_get_hostname());
+	if_fail_fe(::llc::sprintf_s(host_name, "%s", wifi_station_get_hostname()));
 #else	
 	gethostname(host_name, 256);
 #endif
@@ -179,7 +180,7 @@
 ::llc::error_t			llc::tcpipAddress	(uint16_t portRequested, uint32_t adapterIndex, TRANSPORT_PROTOCOL mode, uint32_t & address)										{
 	char						host_name[257]								= {};
 #if defined(LLC_ESP8266)
-	sprintf(host_name, "%s", wifi_station_get_hostname());
+	if_fail_fe(::llc::sprintf_s(host_name, "%s", wifi_station_get_hostname()));
 #else	
 	gethostname(host_name, 256);
 #endif
@@ -203,7 +204,7 @@
 
 ::llc::error_t			llc::tcpipAddress	(const char* szHostName, uint16_t portRequested, uint32_t adapterIndex, TRANSPORT_PROTOCOL mode, uint32_t & address, uint16_t & port) {
 	char						portString			[6]					= {};
-	snprintf(portString, ::llc::size(portString), "%u", portRequested);
+	if_fail_fe(::llc::sprintf_s(portString, "%u", portRequested));
 
 	// Setup the hints address info structure which is passed to the getaddrinfo() function
 	::addrinfo					hints											= {};

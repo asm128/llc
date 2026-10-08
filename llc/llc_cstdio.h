@@ -29,14 +29,14 @@ namespace llc
 #endif
 	ndsi err_t		fopen_s		(FILE* & out_fp, vcst_t filename, vcst_t mode, uint64_t offset = 0)	{
 		rees_if(0 == filename.size());
-		ree_if(0 == mode.size()		, "'%s'", filename.begin());
+		ree_if(0 == mode.size()		, "'%.*s'", (int)filename.size(), filename.begin());
 #ifndef LLC_WINDOWS
-		if_null_vef(-(errno), out_fp = fopen(filename, mode), "['%.*s','%.*s'].", filename.size(), filename.begin(), mode.size(), mode.begin());
+		if_null_vef(-(errno), out_fp = fopen(filename, mode), "['%.*s','%.*s'].", (int)filename.size(), filename.begin(), (int)mode.size(), mode.begin());
 #else
-		::llc::ERRNO	result;
-		if_true_vef(-result, result = (::llc::ERRNO)abs(::fopen_s(&out_fp, filename, mode)), "%X:%u:%i:'%s'<-['%.*s','%.*s'].", LLCREP2(result), get_value_namep(result), get_value_descp(result), filename.size(), filename.begin(), mode.size(), mode.begin());
+		ERRNO	result;
+		if_true_vef(-result, result = (ERRNO)abs(::fopen_s(&out_fp, filename, mode)), "%X:%u:%i:'%s'<-['%.*s','%.*s'].", LLCREP2(result), get_value_namep(result), get_value_descp(result), (int)filename.size(), filename.begin(), (int)mode.size(), mode.begin());
 #endif
-		return 0 == offset ? 0 : ::llc::fseek(out_fp, offset, FSEEK_SET);
+		return 0 == offset ? 0 : fseek(out_fp, offset, FSEEK_SET);
 	}
 } // namespace
 

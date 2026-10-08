@@ -32,7 +32,7 @@ namespace llc
 			rtrn -1;
 		::llc::auto_free		formattedOwner;
 		formattedOwner.Handle							= formatted;
-		cnst err_t		formatLength					= snprintf(formatted, bufferSize - 2U, format, printf_arg(args)...);
+		cnst err_t		formatLength					= ::llc::sprintf_s(formatted, bufferSize - 1U, format, printf_arg(args)...);
 		if(0 > formatLength)
 			rtrn formatLength;
 		u2_t			outputLength					= min(u2_t(formatLength), bufferSize - 2U);

@@ -42,7 +42,7 @@ namespace llc
 		
 		u3_t						size			()					{
 			if(0 == File) {
-				if_true_fef(fopen_s(File, Name, "rb"), "%s", Name.begin());
+				if_true_fef(fopen_s(File, Name, "rb"), "%.*s", (int)Name.size(), Name.begin());
 				Offset = 0;
 			}
 			if_true_fef(llc::fseek(File, 0, SEEK_END), "Failed to seek to end of file. %s.", "why?");

@@ -1,4 +1,5 @@
 #include "llc_array.h"
+#include "llc_string.h"
 #include "llc_stdstring.h"
 
 #ifndef LLC_ENCODING_H_23627
@@ -6,11 +7,11 @@
 
 namespace llc
 {
-	err_t			hexEncode				(vcu0_c & inputBinary, asc_t  & out_hexed	);
+	err_t			hexEncode				(vcu0_c & inputBinary, string & out_hexed	);
 
-	err_t			hexDecode				(const vcsc_t  & in_hexed   , au0_t & outputBinary	);
-	err_t			hexDecode				(const vcsc_t  & in_hexed   , as0_t & outputBinary	);
-	stin	err_t	hexEncode				(const vcs0_t & inputBinary, asc_t  & out_hexed	)			{ return hexEncode(vcu0_t{(const u0_t*)inputBinary.begin(), inputBinary.size()}, out_hexed); }
+	err_t			hexDecode				(vcst_t in_hexed, au0_t & outputBinary	);
+	err_t			hexDecode				(vcst_t in_hexed, as0_t & outputBinary	);
+	stin	err_t	hexEncode				(const vcs0_t & inputBinary, string & out_hexed	)			{ return hexEncode(vcu0_t{(const u0_t*)inputBinary.begin(), inputBinary.size()}, out_hexed); }
 
 	// Based on Gary Ardell's code for VB.
 	err_t			ardellEncode			(as2_t & cache, vcu0_c & input, u3_t key, bool salt, au0_t & output);
@@ -64,10 +65,10 @@ namespace llc
 	}
 
 	// Description at http://en.wikipedia.org/wiki/UTF-8
-	err_t			utf8FromCodePoint	(u2_t codePoint, asc_t & hexDigits);
+	err_t			utf8FromCodePoint	(u2_t codePoint, string & output);
 	err_t			digest				(vcu0_c & input, au2_t & digest);
-	err_t			digest				(vcu0_c & input, asc_t & digest);
-	stin	err_t	digest				(const vcsc_t & input, asc_t & digest) { return ::llc::digest(*(vcu0_c*)&input, digest); }
+	err_t			digest				(vcu0_c & input, string & digest);
+	stin	err_t	digest				(const vcsc_t & input, string & digest) { return ::llc::digest(*(vcu0_c*)&input, digest); }
 }
 
 #endif // LLC_ENCODING_H_23627

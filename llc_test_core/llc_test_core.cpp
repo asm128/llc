@@ -8,11 +8,11 @@
 tplt<tpnm TFunction>
 stct STestSuite {
 	TFunction		& Function;
-	::llc::vcsc_t	Name;
+	::llc::vcst_t	Name;
 };
 
 tplt<tpnm TFunction>
-sinx	STestSuite<TFunction>	testSuite			(TFunction & function, ::llc::vcsc_t name) nxpt { rtrn {function, name}; }
+sinx	STestSuite<TFunction>	testSuite			(TFunction & function, ::llc::vcst_t name) nxpt { rtrn {function, name}; }
 
 tplt<tpnm TFunction>
 sttc	::llc::err_t	testSuiteRun				(ATestError & results, cnst STestSuite<TFunction> & testSuite) {
@@ -62,6 +62,7 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 		, LLC_TEST_SUITE(testBase64       )
 		, LLC_TEST_SUITE(testJSONReader    )
 		, LLC_TEST_SUITE(testKeyVal        )
+		, LLC_TEST_SUITE(testLabel         )
 		, LLC_TEST_SUITE(testXMLReader     )
 		, LLC_TEST_SUITE(testMSBuildXML    )
 		, LLC_TEST_SUITE(testPath          )

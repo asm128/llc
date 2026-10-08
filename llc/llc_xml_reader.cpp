@@ -113,7 +113,7 @@ sttc ::llc::err_t xmlSpecialParse(::llc::SXMLReader & reader, ::llc::vcst_t xmlD
 		offset						+= 9;
 	else
 		rtrn -1;
-	cnst ::llc::err_t iEnd			= ::llc::find_sequence_pod(terminator, xmlDoc, offset);
+	cnst ::llc::err_t iEnd			= xmlDoc.find(terminator, offset);
 	if_fail_fef(iEnd, "Unclosed XML special token at offset:%u.", iBegin);
 	offset						= (::llc::u2_t)iEnd + terminator.size();
 	rtrn ::xmlTokenAdd(reader, type, iBegin, offset - iBegin, (::llc::s2_t)iParent) < 0 ? -1 : 0;

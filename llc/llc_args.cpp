@@ -21,8 +21,8 @@ llc::err_t			llc::viewsFromArgv(llc::aobj<vcst_t> & outputViews, u2_t argc, char
 llc::err_t			llc::argsOptionValue	(const SCommandLineArgs & input, vcst_t key, vcst_t & output)	{
 	output							= {};
 	err_c					optionIndex			= argsOptionIndex(input, key);
-	if_fail_fwf(optionIndex, "Option not found:'%.*s'.", key.size(), key.begin());
-	if_true_vef(-2, 0 <= argsOptionIndex(input, key, (u2_t)optionIndex + 1), "Option has multiple values:'%.*s'.", key.size(), key.begin());
+	if_fail_fwf(optionIndex, "Option not found:'%.*s'.", (int)key.size(), key.begin());
+	if_true_vef(-2, 0 <= argsOptionIndex(input, key, (u2_t)optionIndex + 1), "Option has multiple values:'%.*s'.", (int)key.size(), key.begin());
 	output							= input.Options[optionIndex].Val;
 	rtrn optionIndex;
 }
@@ -44,7 +44,7 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 		continue;
 
 	if_fail_fe(argument.slice(option.Key, prefixLen, iChar - prefixLen));
-	if_zero_fef(option.Key.size(), "Option has no name:'%.*s'.", argument.size(), argument.begin());
+	if_zero_fef(option.Key.size(), "Option has no name:'%.*s'.", (int)argument.size(), argument.begin());
 
 	llc::b8_c				hasValue			= iChar < argument.size(); // If we found an '=' character, then the option has a value.
 	if(hasValue)
@@ -77,7 +77,7 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 			if_fail_fe(output.Positionals.push_back(argument));
 			continue;
 		}
-		if(argument == vcsc_t{"--", 2}) {
+		if(argument == LLC_CXS("--")) {
 			if(option.Key.size() && false == hasOptionValues) {
 				if_fail_fe(output.Options.push_back(option));
 			}

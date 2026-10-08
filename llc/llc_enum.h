@@ -36,7 +36,7 @@ namespace llc
 			enum_definition<T>&				instanceHere			= get();
 
 			if( instanceHere.Name != enumName || (instanceHere.Values.size() && (instanceHere.Values[0] != INVALID_VALUE)) )
-				verbose_printf("Initializing enumeration type: '%.*s'.", enumName.size(), enumName.begin());
+				verbose_printf("Initializing enumeration type: '%.*s'.", (int)enumName.size(), enumName.begin());
 
 			if(instanceHere.Name.size() != enumName.size())
 				instanceHere.Name			= enumName;
@@ -49,7 +49,7 @@ namespace llc
 					value				= Values[i];
 					return 0;
 				}
-			enum_printf("Enumeration value not found! Name: %.*s.", name.size(), name.begin());
+			enum_printf("Enumeration value not found! Name: %.*s.", (int)name.size(), name.begin());
 			value				= INVALID_VALUE;
 			return -1;
 		}
@@ -68,7 +68,7 @@ namespace llc
 				if(name == Names[i])
 					return Values[i];
 			}
-			enum_printf("Enumeration value not found! Name: %.*s.", name.size(), name.begin());
+			enum_printf("Enumeration value not found! Name: %.*s.", (int)name.size(), name.begin());
 			return INVALID_VALUE;
 		}
 		err_t				get_value_by_index		(uint32_t index, T & value)					const			{
@@ -105,7 +105,7 @@ namespace llc
 					index				= (int32_t)i;
 					return index;
 				}
-			enum_printf("Enumeration value not found! Name: %.*s.", name.size(), name.begin());
+			enum_printf("Enumeration value not found! Name: %.*s.", (int)name.size(), name.begin());
 			return index				= -1;
 		}
 		int32_t				get_value_index			(vcst_t name)					const			{
@@ -113,7 +113,7 @@ namespace llc
 				if(name == Names[i])
 					return (int32_t)i;
 			}
-			enum_printf("Enumeration value not found! Name: %.*s.", name.size(), name.begin());
+			enum_printf("Enumeration value not found! Name: %.*s.", (int)name.size(), name.begin());
 			return -1;
 		}
 		err_t				get_value_index			(const T & value, int32_t & index)		const			{
@@ -172,11 +172,11 @@ namespace llc
 		err_t				add_value				(const T & value, vcst_t name, vcst_t title, vcst_t description)	{
 			for(uint32_t i=0, count = Values.size(); i < count; ++i)
 				if(Values[i] == value) {
-					rww_if(name != Names[i], "Enumeration value already defined! Type: '%s'. Value: 0x%llX. Previous name: %s. New name: %s. Second definition ignored..."
-				, Name		.begin()
+					rww_if(name != Names[i], "Enumeration value already defined! Type: '%.*s'. Value: 0x%llX. Previous name: %.*s. New name: %.*s. Second definition ignored..."
+				, (int)Name		.size(), Name		.begin()
 				, (uint64_t)value
-				, Names[i]	.begin()
-				, name		.begin()
+				, (int)Names[i]	.size(), Names[i]	.begin()
+				, (int)name		.size(), name		.begin()
 				);
 					return 0;	// Found same name and value combination. This is normal when values are defined as static const.
 				}
@@ -185,21 +185,21 @@ namespace llc
 			llc_necs(Names.push_back(name));
 			llc_necs(Titles.push_back(title));
 			llc_necs(Descriptions.push_back(description));
-			verbose_printf("Added new value to enumeration definition. Enum name: %s. Index: %.02u, Value: 0x%llX. Value name: %s."
-				, Name.begin()
+			verbose_printf("Added new value to enumeration definition. Enum name: %.*s. Index: %.02u, Value: 0x%llX. Value name: %.*s."
+				, (int)Name.size(), Name.begin()
 				, (uint32_t)newIndex
 				, (uint64_t)value
-				, name.begin()
+				, (int)name.size(), name.begin()
 				);
 			return newIndex;
 		}
 		err_t				add_value_auto			(vcst_t name, vcst_t title, vcst_t description)	{
 			for(uint32_t i=0, count = Names.size(); i < count; ++i) {
-				ree_if(name == Names[i], "Enumeration value already defined! Type: '%s'. Value: 0x%llX. Previous name: %s. New name: %s. Second definition ignored..."
-					, Name		.begin()
+				ree_if(name == Names[i], "Enumeration value already defined! Type: '%.*s'. Value: 0x%llX. Previous name: %.*s. New name: %.*s. Second definition ignored..."
+					, (int)Name		.size(), Name		.begin()
 					, (uint64_t)Values[i]
-					, Names[i]	.begin()
-					, name		.begin()
+					, (int)Names[i]	.size(), Names[i]	.begin()
+					, (int)name		.size(), name		.begin()
 					);
 			}
 			const T					value					= (T)Values.size();
@@ -208,7 +208,7 @@ namespace llc
 			llc_necs(Names.push_back(name));
 			llc_necs(Titles.push_back(title));
 			llc_necs(Descriptions.push_back(description));
-			verbose_printf("Added new value to enumeration definition. Enum name: %s. Index: %.02u, Value: 0x%llX. Value name: %s.", Name.begin(), (uint32_t)newIndex, (uint64_t)value, name.begin());
+			verbose_printf("Added new value to enumeration definition. Enum name: %.*s. Index: %.02u, Value: 0x%llX. Value name: %.*s.", (int)Name.size(), Name.begin(), (uint32_t)newIndex, (uint64_t)value, (int)name.size(), name.begin());
 			return newIndex;
 		}
 	};

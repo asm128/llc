@@ -1,4 +1,5 @@
 #include "llc_encoding.h"
+#include "llc_cstring.h"
 #include "llc_view_bit.h"
 #include "llc_noise.h"
 #include "llc_chrono.h"
@@ -53,17 +54,15 @@ static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
 	return 0;
 }
 
-::llc::error_t			llc::hexEncode					(vcu0_c & in_binary, ::llc::asc_t & out_hexed	)	{
+::llc::error_t			llc::hexEncode					(vcu0_c & in_binary, ::llc::string & out_hexed	)	{
 	uint32_t					offset							= out_hexed.size();
 	llc_necs(out_hexed.resize(offset + in_binary.size() * 2));
-	char						* pHexed						= out_hexed.begin();
-	const uint8_t				* pBinary						= in_binary.begin();
 	for(uint32_t iByte = 0; iByte < in_binary.size(); ++iByte)
-		hexFromByte(pBinary[iByte], &pHexed[offset + iByte * 2]);
+		hexFromByte(in_binary[iByte], &out_hexed[offset + iByte * 2]);
 	return 0;
 }
 
-::llc::error_t			llc::hexDecode					(::llc::vcsc_c & in_hexed	, ::llc::au0_t & out_binary)	{
+::llc::error_t			llc::hexDecode					(::llc::vcst_t in_hexed	, ::llc::au0_t & out_binary)	{
 	uint32_t					offset							= out_binary.size();
 	uint32_t					binarySize						= in_hexed.size() >> 1;
 	llc_necs(out_binary.resize(offset + binarySize));
@@ -74,7 +73,7 @@ static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
 	return 0;
 }
 
-::llc::error_t			llc::hexDecode					(::llc::vcsc_c & in_hexed	, ::llc::as0_t & out_binary)	{
+::llc::error_t			llc::hexDecode					(::llc::vcst_t in_hexed	, ::llc::as0_t & out_binary)	{
 	uint32_t					offset							= out_binary.size();
 	uint32_t					binarySize						= in_hexed.size() >> 1;
 	llc_necs(out_binary.resize(offset + binarySize));
@@ -157,27 +156,27 @@ static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
 	return 0;
 }
 
-::llc::error_t			llc::utf8FromCodePoint			(uint32_t codePoint, ::llc::asc_t & hexDigits) {
-	u2_c				offset							= hexDigits.size();
+::llc::error_t			llc::utf8FromCodePoint			(uint32_t codePoint, ::llc::string & output) {
+	u2_c				offset							= output.size();
 	if (codePoint <= 0x7f) {
-		hexDigits.resize(offset + 1);
-		hexDigits[offset + 0]	= static_cast<char>(codePoint);
+		output.resize(offset + 1);
+		output[offset + 0]	= static_cast<char>(codePoint);
 	} else {
 		if (codePoint <= 0x7FF) {
-			hexDigits.resize(offset + 2);
-			hexDigits[offset + 1]	= static_cast<char>(0x80 | (0x3f & codePoint));
-			hexDigits[offset + 0]	= static_cast<char>(0xC0 | (0x1f & (codePoint >> 6)));
+			output.resize(offset + 2);
+			output[offset + 1]	= static_cast<char>(0x80 | (0x3f & codePoint));
+			output[offset + 0]	= static_cast<char>(0xC0 | (0x1f & (codePoint >> 6)));
 		} else if (codePoint <= 0xFFFF) {
-			hexDigits.resize(offset + 3);
-			hexDigits[offset + 2]	= static_cast<char>(0x80 | (0x3f &  codePoint));
-			hexDigits[offset + 1]	= static_cast<char>(0x80 | (0x3f & (codePoint >> 6)));
-			hexDigits[offset + 0]	= static_cast<char>(0xE0 | (0x0f & (codePoint >> 12)));
+			output.resize(offset + 3);
+			output[offset + 2]	= static_cast<char>(0x80 | (0x3f &  codePoint));
+			output[offset + 1]	= static_cast<char>(0x80 | (0x3f & (codePoint >> 6)));
+			output[offset + 0]	= static_cast<char>(0xE0 | (0x0f & (codePoint >> 12)));
 		} else if (codePoint <= 0x10FFFF) {
-			hexDigits.resize(offset + 4);
-			hexDigits[offset + 3]	= static_cast<char>(0x80 | (0x3f &  codePoint));
-			hexDigits[offset + 2]	= static_cast<char>(0x80 | (0x3f & (codePoint >> 6)));
-			hexDigits[offset + 1]	= static_cast<char>(0x80 | (0x3f & (codePoint >> 12)));
-			hexDigits[offset + 0]	= static_cast<char>(0xF0 | (0x07 & (codePoint >> 18)));
+			output.resize(offset + 4);
+			output[offset + 3]	= static_cast<char>(0x80 | (0x3f &  codePoint));
+			output[offset + 2]	= static_cast<char>(0x80 | (0x3f & (codePoint >> 6)));
+			output[offset + 1]	= static_cast<char>(0x80 | (0x3f & (codePoint >> 12)));
+			output[offset + 0]	= static_cast<char>(0xF0 | (0x07 & (codePoint >> 18)));
 		}
 	}
 	return 0;
@@ -218,7 +217,7 @@ static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
 	return 0;
 }
 
-::llc::error_t			llc::digest						(vcu0_c & input, ::llc::asc_t & digest)		{
+::llc::error_t			llc::digest						(vcu0_c & input, ::llc::string & digest)		{
 	u2_t						x								= 0;
 	::llc::au2_t				filtered						= {};
 	for(uint32_t i = 0; i < input.size() - 8; ++i) {
@@ -251,7 +250,7 @@ static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
 	}
 	char						temp		[32]				= {};
 	for(uint32_t i = 0; i < ::llc::min(filtered.size(), (uint32_t)8U); ++i) {
-		snprintf(temp, ::llc::size(temp) - 2, "%" LLC_FMT_U2, filtered[i]);
+		::llc::sprintf_s(temp, "%" LLC_FMT_U2, filtered[i]);
 		llc_necs(digest.append_string(temp));
 	}
 	return 0;

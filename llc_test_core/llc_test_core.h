@@ -15,7 +15,7 @@ struct STestError {
 tydf ::llc::aobj<STestError> ATestError;
 
 tplt<tpnm TEnum>			::llc::err_t testResultRecord(ATestError & errors, TEnum value, bool failed) {
-	cnst ::llc::vcsc_t & enumName = ::llc::get_enum_namev(value);
+	cnst ::llc::vcst_t enumName = ::llc::get_enum_namev(value);
 	for(::llc::u2_t iError = 0; iError < errors.size(); ++iError)
 		if(errors[iError].Value == (::llc::s3_t)value && errors[iError].EnumName == enumName) {
 			failed ? ++errors[iError].Count : ++errors[iError].SuccessCount;

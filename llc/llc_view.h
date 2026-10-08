@@ -113,6 +113,48 @@ namespace llc
 		err_t					find			(cnst FBool<T&>		& funcForEach	, u2_t offset = 0)											{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
 		err_t					find			(cnst FBool<TCnst&>	& funcForEach	, u2_t offset = 0)									cnst	{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
 		err_t					find			(cnst T				& value			, u2_t offset = 0)									cnst	{ for(; offset < Count; ++offset) if(Data[offset] == value) rtrn (err_t)offset; rtrn -1; }
+		err_t					find			(TCstV sequence, u2_t offset = 0)										cnst	{
+			if(sequence.size() > Count || offset > Count - sequence.size())
+				rtrn -1;
+			if(0 == sequence.size())
+				rtrn offset;
+			for(u2_t iOffset = offset, offsetStop = Count - sequence.size() + 1; iOffset < offsetStop; ++iOffset) {
+				bool					equal			= true;
+				for(u2_t iSequence = 0; iSequence < sequence.size(); ++iSequence)
+					if(sequence[iSequence] != Data[iOffset + iSequence]) {
+						equal					= false;
+						break;
+					}
+				if(equal)
+					rtrn iOffset;
+			}
+			rtrn -1;
+		}
+		err_t					rfind			(cnst T & value, u2_t offset = 0)										cnst	{
+			if(offset >= Count)
+				rtrn -1;
+			for(u2_t iOffset = Count - 1 - offset; iOffset < Count; --iOffset)
+				if(Data[iOffset] == value)
+					rtrn iOffset;
+			rtrn -1;
+		}
+		err_t					rfind			(TCstV sequence, u2_t offset = 0)										cnst	{
+			if(sequence.size() > Count || offset > Count - sequence.size())
+				rtrn -1;
+			if(0 == sequence.size())
+				rtrn Count - offset;
+			for(u2_t iOffset = Count - sequence.size() - offset; iOffset < Count; --iOffset) {
+				bool					equal			= true;
+				for(u2_t iSequence = 0; iSequence < sequence.size(); ++iSequence)
+					if(sequence[iSequence] != Data[iOffset + iSequence]) {
+						equal					= false;
+						break;
+					}
+				if(equal)
+					rtrn iOffset;
+			}
+			rtrn -1;
+		}
 
 		tplt<tpnm _tMax> err_t	max				(_tMax & maxFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{
 			if_true_fef(offset >= Count, LLC_FMT_GE_U2, offset, Count);
@@ -208,8 +250,6 @@ namespace llc
 	tdcs	 vcs3_t vcs3_c;
 	tdcs	 vcf2_t vcf2_c;
 	tdcs	 vcf3_t vcf3_c;
-// Use this to initialize a constexpr vcs from a string literal
-#define LLC_CXS(constexpr_string_literal) ::llc::vcsc_t{szof(constexpr_string_literal) - 1U, constexpr_string_literal}
 	tydf	view<vuc_t>	vvuc_t;
 	tydf	view<vsc_t>	vvsc_t;
 	tydf	view<vu0_t>	vvu0_t;
@@ -259,17 +299,6 @@ namespace llc
 	tdcs	vcvf2_t	vcvf2_c;
 	tdcs	vcvf3_t	vcvf3_c;
 
-	stxp	vcsc_t	VCC_NULL		= {4, "null"};
-	stxp	vcsc_t	VCC_TRUE		= {4, "true"};
-	stxp	vcsc_t	VCC_FALSE		= {5, "false"};
-
-	nsix	vcsc_t	bool2vcc		(bool b)							{ rtrn b ? ::llc::VCC_TRUE : ::llc::VCC_FALSE; }
-	nsix	sc_c*	bool2char		(bool b)							{ rtrn b ? ::llc::VCC_TRUE.begin() : ::llc::VCC_FALSE.begin(); }
-	nsix	u0_t	bool2u8			(bool b)							{ rtrn b ? 1 : 0; }
-	nsix	u0_t	bool2i8			(bool b)							{ rtrn b ? 1 : 0; }
-	stin	sc_c*	bool2char		(bool b, ::llc::vcsc_t & output)	{ rtrn (output = b ? ::llc::VCC_TRUE : ::llc::VCC_FALSE).begin(); }
-	stin	bool	vcc2bool		(::llc::vcsc_t b)					{ rtrn b.size() && b != VCC_FALSE; }
-
 	struct view_string : view<sc_t> {
 		inxp			view_string				()											= dflt;
 		inxp			view_string				(vsc_c & other)						nxpt	: view(other)							{}
@@ -287,6 +316,7 @@ namespace llc
 	struct view_const_string : view<sc_c> {
 		inxp			view_const_string		()											: view(0, "") 							{}
 		inxp			view_const_string		(vcsc_c & other)					nxpt	: view(other)							{}
+		tplN2u	inxp	view_const_string		(u2_t length, sc_c (&storage)[N])			: view(length, storage)					{}
 		tplN2u			view_const_string		(sc_c (&storage)[N])				nxpt	: view(storage)							{ Count = (u2_t)strnlen(storage, (u2_t)N);							}
 		tplN2u			view_const_string		(sc_c (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
 						view_const_string		(sc_c * storage, u2_t length)				: view(storage ? storage : "", length)	{ if(length == (u2_t)-1) Count = (u2_t)strlen(begin());					}
@@ -301,24 +331,38 @@ namespace llc
 	tdcs	vstr_t				vstr_c;
 	tdcs	vcst_t				vcst_c;
 	tplt<tpnm _tVal>						using kvvcst_t	= kv<vcst_t, _tVal>;
+	// Use this to initialize a constexpr string view from a string literal.
+#define LLC_CXS(constexpr_string_literal) ::llc::vcst_t{szof(constexpr_string_literal) - 1U, constexpr_string_literal}
 
-	stin			llc::vs		str				(llc::vs & arg)			{ rtrn arg; }
-	stin			llc::vcst_t	str				(cnst llc::vs & arg)		{ rtrn arg.cc(); }
-	stin			llc::vcst_t	str				(cnst llc::vcst_t & arg)	{ rtrn arg; }
-	stin			llc::vs		str				(llc::vsc_t arg)			{ rtrn arg; }
-	stin			llc::vcst_t	str				(llc::vcsc_t arg)			{ rtrn arg; }
-	tplN2usinx		llc::vs		str				(llc::sc_t (&arg)[N])		{ rtrn arg; }
-	tplN2usinx		llc::vcst_t	str				(llc::sc_c (&arg)[N])		{ rtrn arg; }
-	sinx			llc::vcst_t	str				(cnst bool arg)				{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
+	stxp	vcst_t	VCC_NULL		= LLC_CXS("null");
+	stxp	vcst_t	VCC_TRUE		= LLC_CXS("true");
+	stxp	vcst_t	VCC_FALSE		= LLC_CXS("false");
+
+	nsix	vcst_t	bool2vcc		(bool b)							{ rtrn b ? VCC_TRUE : VCC_FALSE; }
+	nsix	sc_c*	bool2char		(bool b)							{ rtrn b ? VCC_TRUE.begin() : VCC_FALSE.begin(); }
+	nsix	u0_t	bool2u8			(bool b)							{ rtrn b ? 1 : 0; }
+	nsix	u0_t	bool2i8			(bool b)							{ rtrn b ? 1 : 0; }
+	stin	sc_c*	bool2char		(bool b, vcst_t & output)			{ rtrn (output = b ? VCC_TRUE : VCC_FALSE).begin(); }
+	stin	bool	vcc2bool		(vcst_t b)							{ rtrn b.size() && b != VCC_FALSE; }
+
+	stin			vs		str	(vs & arg)								{ rtrn arg; }
+	stin			vcst_t	str	(cnst vs & arg)							{ rtrn arg.cc(); }
+	stin			vcst_t	str	(cnst vcst_t & arg)						{ rtrn arg; }
+	stin			vs		str	(vsc_t arg)								{ rtrn arg; }
+	stin			vcst_t	str	(vcsc_t arg)							{ rtrn arg; }
+	tplN2usinx		vs		str	(sc_t (&arg)[N])						{ rtrn arg; }
+	tplN2usinx		vcst_t	str	(sc_c (&arg)[N])						{ rtrn arg; }
+	sinx			vcst_t	str	(cnst bool arg)							{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
 	//
-	tplTnsix		::llc::vcst_t	get_type_namev	()									nxpt	{ rtrn LLC_CXS("unknown"); }
-	tplTnsix		sc_c*			get_type_namep	()									nxpt	{ rtrn get_type_namev<T>().begin(); }
+	tplTnsix		vcst_t	get_type_namev	()					nxpt	{ rtrn LLC_CXS("unknown"); }
+	tplTnsix		sc_c*	get_type_namep	()					nxpt	{ rtrn get_type_namev<T>().begin(); }
 
 #define GDEFINE_TYPE_NAME_STR(typeIdentifier)																										\
 			nsix	::llc::vcst_t	get_type_namev					(typeIdentifier &)	nxpt	{ rtrn LLC_CXS(#typeIdentifier); }					\
 	tplt<>	ndix	::llc::vcst_t	get_type_namev<typeIdentifier>	()					nxpt	{ rtrn LLC_CXS(#typeIdentifier); }					\
 			nsix	::llc::sc_c*	get_type_namep					(typeIdentifier &)	nxpt	{ rtrn get_type_namev<typeIdentifier>().begin(); }	\
 	tplt<>	ndix	::llc::sc_c*	get_type_namep<typeIdentifier>	()					nxpt	{ rtrn get_type_namev<typeIdentifier>().begin(); }
+
 	GDEFINE_TYPE_NAME_STR(b8_t);
 	GDEFINE_TYPE_NAME_STR(sc_t);
 	GDEFINE_TYPE_NAME_STR(u0_t);
@@ -344,26 +388,29 @@ namespace llc
 	GDEFINE_TYPE_NAME_STR(f2_c);
 	GDEFINE_TYPE_NAME_STR(f3_c);
 	//
-	tydf	view<::llc::vs		>	vvs;
-	tydf	view<::llc::vcst_t		>	vvcs;
-	tydf	view<cnst ::llc::vs	>	vcvs;
-	tydf	view<cnst ::llc::vcst_t	>	vcvcs;
+	tydf	view<vs		>	vvs;
+	tydf	view<vcst_t		>	vvcs;
+	tydf	view<cnst vs	>	vcvs;
+	tydf	view<cnst vcst_t	>	vcvcs;
 
-	stxp	::llc::vcsc_t		TRIM_CHARACTERS		= " \t\b\n\r";
+	stxp	vcst_t		TRIM_CHARACTERS		= LLC_CXS(" \t\b\n\r");
 
-	err_t			rtrim				(::llc::vcsc_t & trimmed, cnst ::llc::vcsc_t & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS);
-	err_t			ltrim				(::llc::vcsc_t & trimmed, cnst ::llc::vcsc_t & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS);
-	err_t			trim				(::llc::vcsc_t & trimmed, cnst ::llc::vcsc_t & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS);
-	stin	err_t	rtrim				(::llc::vcsc_t & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
-	stin	err_t	ltrim				(::llc::vcsc_t & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
-	stin	err_t	trim				(::llc::vcsc_t & trimmed) 	{ rtrn trim(trimmed, trimmed); }
+	err_t			rtrim				(vcsc_t & trimmed, cnst vcsc_t & original, cnst vcsc_t & characters = TRIM_CHARACTERS);
+	err_t			ltrim				(vcsc_t & trimmed, cnst vcsc_t & original, cnst vcsc_t & characters = TRIM_CHARACTERS);
+	err_t			trim				(vcsc_t & trimmed, cnst vcsc_t & original, cnst vcsc_t & characters = TRIM_CHARACTERS);
+	stin	err_t	rtrim				(vcst_t & trimmed, vcst_t original, vcst_t characters = TRIM_CHARACTERS)	{ vcsc_t result = {}; cnst err_t count = rtrim(result, original, characters); trimmed = {result.begin(), result.size()}; rtrn count; }
+	stin	err_t	ltrim				(vcst_t & trimmed, vcst_t original, vcst_t characters = TRIM_CHARACTERS)	{ vcsc_t result = {}; cnst err_t count = ltrim(result, original, characters); trimmed = {result.begin(), result.size()}; rtrn count; }
+	stin	err_t	trim				(vcst_t & trimmed, vcst_t original, vcst_t characters = TRIM_CHARACTERS)	{ vcsc_t result = {}; cnst err_t count = trim(result, original, characters); trimmed = {result.begin(), result.size()}; rtrn count; }
+	stin	err_t	rtrim				(vcst_t & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
+	stin	err_t	ltrim				(vcst_t & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
+	stin	err_t	trim				(vcst_t & trimmed) 	{ rtrn trim(trimmed, trimmed); }
 
-	stin	err_t	rtrim				(::llc::vc & trimmed, cnst ::llc::vc & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS)	{ rtrn rtrim	(*(::llc::vcsc_t*)&trimmed, *(cnst ::llc::vcsc_t*)&original, characters); }
-	stin	err_t	ltrim				(::llc::vc & trimmed, cnst ::llc::vc & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS)	{ rtrn ltrim	(*(::llc::vcsc_t*)&trimmed, *(cnst ::llc::vcsc_t*)&original, characters); }
-	stin	err_t	trim				(::llc::vc & trimmed, cnst ::llc::vc & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS)	{ rtrn trim	(*(::llc::vcsc_t*)&trimmed, *(cnst ::llc::vcsc_t*)&original, characters); }
-	stin	err_t	rtrim				(::llc::vc & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
-	stin	err_t	ltrim				(::llc::vc & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
-	stin	err_t	trim				(::llc::vc & trimmed) 	{ rtrn trim(trimmed, trimmed); }
+	stin	err_t	rtrim				(vc & trimmed, cnst vc & original, vcst_t characters = TRIM_CHARACTERS)	{ rtrn rtrim	(*(vcsc_t*)&trimmed, *(cnst vcsc_t*)&original, characters); }
+	stin	err_t	ltrim				(vc & trimmed, cnst vc & original, vcst_t characters = TRIM_CHARACTERS)	{ rtrn ltrim	(*(vcsc_t*)&trimmed, *(cnst vcsc_t*)&original, characters); }
+	stin	err_t	trim				(vc & trimmed, cnst vc & original, vcst_t characters = TRIM_CHARACTERS)	{ rtrn trim	(*(vcsc_t*)&trimmed, *(cnst vcsc_t*)&original, characters); }
+	stin	err_t	rtrim				(vc & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
+	stin	err_t	ltrim				(vc & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
+	stin	err_t	trim				(vc & trimmed) 	{ rtrn trim(trimmed, trimmed); }
 
 	tplT	err_t	reverse				(view<T> elements)													{
 		u2_c				lastElement			= elements.size() - 1;
@@ -375,19 +422,9 @@ namespace llc
 		rtrn 0;
 	}
 
-	tplT	err_t	find					(cnst T & valueToFind, cnst ::llc::view<cnst T> & target, u2_t offset = 0)		{
-		for(u2_t iOffset = offset, offsetStop = target.size(); iOffset < offsetStop; ++iOffset)
-			if(valueToFind == target[iOffset])
-				rtrn (s2_t)iOffset;
-		rtrn -1;
-	}
+	tplT	err_t	find					(cnst T & valueToFind, view<cnst T> target, u2_t offset = 0)		{ rtrn target.find(valueToFind, offset); }
 
-	tplT	err_t	rfind					(cnst T & valueToFind, cnst ::llc::view<cnst T> & target, s2_t offset = 0)		{
-		for(u2_t iOffset = target.size() - 1 - offset; iOffset < target.size(); --iOffset)
-			if(valueToFind == target[iOffset])
-				rtrn iOffset;
-		rtrn -1;
-	}
+	tplT	err_t	rfind					(cnst T & valueToFind, cnst view<cnst T> & target, u2_t offset = 0)		{ rtrn target.rfind(valueToFind, offset); }
 	tplt<tpnm _tKey, tpnm _tVal>
 	err_t	find	(cnst llc_rmcnst(_tKey) & keyToFind, view<cnst keyval<_tKey, _tVal>> keyvals) {
 		for(u2_t iKeyVal = 0; iKeyVal < keyvals.size(); ++iKeyVal)
@@ -397,65 +434,21 @@ namespace llc
 	}
 	tplt<tpnm _tKey, tpnm _tVal>
 	err_t	find	(cnst llc_rmcnst(_tKey) & keyToFind, view<cnst keyval<_tKey, _tVal>> keyvals, llc_rmcnst(_tVal) & out_val) {
-		cnst err_t	index	= ::llc::find(keyToFind, keyvals);
+		cnst err_t	index	= find(keyToFind, keyvals);
 		out_val				= 0 > index ? llc_rmcnst(_tVal){} : keyvals[index].Val;
 		rtrn index;
 	}
-	tplT	err_t	find_sequence_obj		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T> & target, u2_t offset = 0)	{
-		for(s2_t iOffset = (s2_t)offset, offsetStop = ((s2_t)target.size() - sequence.size()) + 1; iOffset < offsetStop; ++iOffset) {
-			bool								equal					= true;
-			for(u2_t iSequenceElement = 0; iSequenceElement < sequence.size(); ++iSequenceElement) {
-				if(sequence[iSequenceElement] != target[iOffset + iSequenceElement]) {
-					equal							= false;
-					break;
-				}
-			}
-			if(equal)
-				rtrn iOffset;
-		}
-		rtrn -1;
+	stin	err_t					find_string				(vcst_t toFind, vcst_t target, u2_t offset = 0) { rtrn target.find(toFind, offset); }
+	stin	err_t					rfind_string			(vcst_t toFind, vcst_t target, u2_t offset = 0) { rtrn target.rfind(toFind, offset); }
+
+	tplT	err_t					split					(tpnm view<T>::TCnst & valueToFind, view<T> & input) {
+		cnst err_t							iValue					= find<llc_rmcnst(T)>(valueToFind, input);
+		rtrn input.slice(input, 0, (u2_t)iValue);
 	}
 
-	tplT	err_t					rfind_sequence_obj		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T> & target, u2_t offset = 0)	{
-		for(s2_t iOffset = (s2_t)(target.size() - sequence.size() - offset); iOffset >= 0; --iOffset) {
-			bool								equal					= true;
-			for(u2_t iSequenceElement = 0; iSequenceElement < sequence.size(); ++iSequenceElement) {
-				if(sequence[iSequenceElement] != target[iOffset + iSequenceElement]) {
-					equal							= false;
-					break;
-				}
-			}
-			if(equal)
-				rtrn iOffset;
-		}
-		rtrn -1;
-	}
-
-	tplT	err_t					find_sequence_pod		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T> & target, u2_t offset = 0)	{
-		for(s2_t iOffset = (s2_t)offset, offsetStop = ((s2_t)target.size() - sequence.size()) + 1; iOffset < offsetStop; ++iOffset)
-			if(0 == memcmp(sequence.begin(), &target[iOffset], sequence.size() * sizeof(T)))
-				rtrn iOffset;
-		rtrn -1;
-	}
-
-	tplT	err_t					rfind_sequence_pod		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T>& target, u2_t offset = 0)	{
-		for(s2_t iOffset = (s2_t)(target.size() - sequence.size() - offset); iOffset >= 0; --iOffset)
-			if(0 == memcmp(sequence.begin(), &target[iOffset], sequence.size() * sizeof(T)))
-				rtrn iOffset;
-		rtrn -1;
-	}
-
-	stin	err_t					find_string				(cnst ::llc::vcst_t & toFind, cnst ::llc::vcsc_t & target, u2_t offset = 0) { rtrn ::llc::find_sequence_pod (toFind, target, offset); }
-	stin	err_t					rfind_string			(cnst ::llc::vcst_t & toFind, cnst ::llc::vcsc_t & target, u2_t offset = 0) { rtrn ::llc::rfind_sequence_pod(toFind, target, offset); }
-
-	tplT	err_t					split					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> & input) {
-		cnst err_t							iValue					= ::llc::find<llc_rmcnst(T)>(valueToFind, input);
-		rtrn input.slice(input, 0, (::llc::u2_t)iValue);
-	}
-
-	tplT	err_t					split					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> original, ::llc::view<T> & left, ::llc::view<T> & right) {
+	tplT	err_t					split					(tpnm view<T>::TCnst & valueToFind, view<T> original, view<T> & left, view<T> & right) {
 		left							= original;
-		if_fail_fe(::llc::split(valueToFind, left));
+		if_fail_fe(split(valueToFind, left));
 		if(left.size() == original.size()) {
 			right							= {};
 			rtrn -1;
@@ -464,13 +457,13 @@ namespace llc
 		rtrn left.size();
 	}
 
-	tplT requires(false == ::llc::is_cnst<T>::Value)
-	err_t						split					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> original, tpnm ::llc::view<T>::TConstView & left, tpnm ::llc::view<T>::TConstView & right) {
-		tpnm ::llc::view<T>::TConstView	constOriginal			= original;
-		rtrn ::llc::split(valueToFind, constOriginal, left, right);
+	tplT requires(false == is_cnst<T>::Value)
+	err_t						split					(tpnm view<T>::TCnst & valueToFind, view<T> original, tpnm view<T>::TConstView & left, tpnm view<T>::TConstView & right) {
+		tpnm view<T>::TConstView	constOriginal			= original;
+		rtrn split(valueToFind, constOriginal, left, right);
 	}
 
-	tplT	err_t					splitAt					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> original, ::llc::view<T> & left, ::llc::view<T> & right) {
+	tplT	err_t					splitAt					(tpnm view<T>::TCnst & valueToFind, view<T> original, view<T> & left, view<T> & right) {
 		cnst err_t				iValue					= original.find(valueToFind);
 		if(0 > iValue) { // Read until the end unless fragment is found.
 			left							= original;
@@ -483,15 +476,15 @@ namespace llc
 		rtrn iValue;
 	}
 
-	tplT requires(false == ::llc::is_cnst<T>::Value)
-	err_t						splitAt					(tpnm ::llc::view<T>::TCnst & valueToFind, ::llc::view<T> original, tpnm ::llc::view<T>::TConstView & left, tpnm ::llc::view<T>::TConstView & right) {
-		tpnm ::llc::view<T>::TConstView	constOriginal			= original;
-		rtrn ::llc::splitAt(valueToFind, constOriginal, left, right);
+	tplT requires(false == is_cnst<T>::Value)
+	err_t						splitAt					(tpnm view<T>::TCnst & valueToFind, view<T> original, tpnm view<T>::TConstView & left, tpnm view<T>::TConstView & right) {
+		tpnm view<T>::TConstView	constOriginal			= original;
+		rtrn splitAt(valueToFind, constOriginal, left, right);
 	}
 
 	// Returns the index of the start of the sequence if the latter found.
-	tplT	err_t					split					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> original, ::llc::view<T> & left, ::llc::view<T> & right) {
-		cnst err_t				iValue					= ::llc::find_sequence_pod(sequenceToFind, original);
+	tplT	err_t					split					(cnst view<T> & sequenceToFind, view<T> original, view<T> & left, view<T> & right) {
+		cnst err_t				iValue					= original.find(sequenceToFind);
 		if(0 > iValue) {
 			left							= original;
 			right							= {};
@@ -503,20 +496,20 @@ namespace llc
 		rtrn iValue;
 	}
 
-	tplT requires(false == ::llc::is_cnst<T>::Value)
-	err_t						split					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> original, tpnm ::llc::view<T>::TConstView & left, tpnm ::llc::view<T>::TConstView & right) {
-		tpnm ::llc::view<T>::TConstView	constSequence			= sequenceToFind;
-		tpnm ::llc::view<T>::TConstView	constOriginal			= original;
-		rtrn ::llc::split(constSequence, constOriginal, left, right);
+	tplT requires(false == is_cnst<T>::Value)
+	err_t						split					(cnst view<T> & sequenceToFind, view<T> original, tpnm view<T>::TConstView & left, tpnm view<T>::TConstView & right) {
+		tpnm view<T>::TConstView	constSequence			= sequenceToFind;
+		tpnm view<T>::TConstView	constOriginal			= original;
+		rtrn split(constSequence, constOriginal, left, right);
 	}
 
 	tplt<tpnm T>
-	inln	err_t			split					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> & inputOrLeft, ::llc::view<T> & right) {
-		rtrn ::llc::split(sequenceToFind, inputOrLeft, inputOrLeft, right);
+	inln	err_t			split					(cnst view<T> & sequenceToFind, view<T> & inputOrLeft, view<T> & right) {
+		rtrn split(sequenceToFind, inputOrLeft, inputOrLeft, right);
 	}
 
-	tplT	err_t					splitAt					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> original, ::llc::view<T> & left, ::llc::view<T> & right) {
-		cnst err_t				iValue					= ::llc::find_sequence_pod(sequenceToFind, original);
+	tplT	err_t					splitAt					(cnst view<T> & sequenceToFind, view<T> original, view<T> & left, view<T> & right) {
+		cnst err_t				iValue					= original.find(sequenceToFind);
 		if(0 > iValue) { // Read until the end unless fragment is found.
 			left							= original;
 			right							= {};
@@ -528,11 +521,11 @@ namespace llc
 		rtrn iValue;
 	}
 
-	tplT requires(false == ::llc::is_cnst<T>::Value)
-	err_t						splitAt					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> original, tpnm ::llc::view<T>::TConstView & left, tpnm ::llc::view<T>::TConstView & right) {
-		tpnm ::llc::view<T>::TConstView	constSequence			= sequenceToFind;
-		tpnm ::llc::view<T>::TConstView	constOriginal			= original;
-		rtrn ::llc::splitAt(constSequence, constOriginal, left, right);
+	tplT requires(false == is_cnst<T>::Value)
+	err_t						splitAt					(cnst view<T> & sequenceToFind, view<T> original, tpnm view<T>::TConstView & left, tpnm view<T>::TConstView & right) {
+		tpnm view<T>::TConstView	constSequence			= sequenceToFind;
+		tpnm view<T>::TConstView	constOriginal			= original;
+		rtrn splitAt(constSequence, constOriginal, left, right);
 	}
 
 	tplT	err_t		max						(view<T> input, T ** result) {
@@ -563,10 +556,10 @@ namespace llc
 		rtrn iMin;
 	}
 
-	tplT		T&	max		(view<T> elements)		{ T * rmax	{}; if_fail_e(::llc::max(elements, &rmax));	rtrn *rmax; }
-	tplT		T&	min		(view<T> elements)		{ T * rmin	{}; if_fail_e(::llc::min(elements, &rmin));	rtrn *rmin; }
+	tplT		T&	max		(view<T> elements)		{ T * rmax	{}; if_fail_e(max(elements, &rmax));	rtrn *rmax; }
+	tplT		T&	min		(view<T> elements)		{ T * rmin	{}; if_fail_e(min(elements, &rmin));	rtrn *rmin; }
 	tplT		T	sum		(view<cnst T> elements)	{ T result	{}; for(T element : elements) result += element; rtrn result; }
-	tplTstin	T&	be2le	(T & number)			{ ::llc::reverse<i0u_t>({(i0u_t*)&number, sizeof(T)}); rtrn number; }
+	tplTstin	T&	be2le	(T & number)			{ reverse<i0u_t>({(i0u_t*)&number, sizeof(T)}); rtrn number; }
 
 #define LLC_USING_VIEW()												\
 	usng	::llc::vb8_t, ::llc::vb8_c, ::llc::vcb8_t, ::llc::vcb8_c	\
