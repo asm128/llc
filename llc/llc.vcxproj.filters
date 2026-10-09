@@ -399,6 +399,12 @@
     <ClInclude Include="llc_matrix.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="llc_matrix2.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_matrix3.h">
+      <Filter>math</Filter>
+    </ClInclude>
     <ClInclude Include="llc_member_registry.h">
       <Filter>type</Filter>
     </ClInclude>
@@ -670,12 +676,6 @@
       <Filter>aliases</Filter>
     </ClInclude>
     <ClInclude Include="llc_slice_n2.h">
-      <Filter>aliases</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_gauge_n3.h">
-      <Filter>aliases</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_gauge_n2.h">
       <Filter>aliases</Filter>
     </ClInclude>
     <ClInclude Include="llc_queue_async.h">

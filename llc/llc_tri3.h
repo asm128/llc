@@ -2,123 +2,108 @@
 #include "llc_n3.h"
 #include "llc_minmax.h"
 
-#ifndef GPK_TRI3_H_23627
-#define GPK_TRI3_H_23627
+#ifndef LLC_TRI3_H_23627
+#define LLC_TRI3_H_23627
 
-namespace llc 
+namespace llc
 {
 #pragma pack(push, 1)
-	tplt<tpnm _tDimension>	struct tri3 : public tri<::llc::n3<_tDimension>>		{
-		tydf	_tDimension		T;
-		tydf	::llc::n3<T>	TVertex;
+	tpl_t struct tri3 : public tri<n3<_t>> {
+		tydf	_t			T;
+		tydf	n3<T>		TVertex;
 
 		using	tri<TVertex>	::A;
 		using	tri<TVertex>	::B;
 		using	tri<TVertex>	::C;
 		using	tri<TVertex>	::tri;
 
-		inxp	tri3<float>		f32			()		const	noexcept	{ return {A.f32(), B.f32(), C.f32()}; }
-		inxp	tri3<double>	f64			()		const	noexcept	{ return {A.f64(), B.f64(), C.f64()}; }
-		inxp	tri3<uint8_t>	i8			()		const	noexcept	{ return {A.i8 (), B.i8 (), C.i8 ()}; }
-		inxp	tri3<uint16_t>	i16			()		const	noexcept	{ return {A.i16(), B.i16(), C.i16()}; }
-		inxp	tri3<uint32_t>	i32			()		const	noexcept	{ return {A.i32(), B.i32(), C.i32()}; }
-		inxp	tri3<uint64_t>	i64			()		const	noexcept	{ return {A.i64(), B.i64(), C.i64()}; }
-		inxp	tri3<int8_t>	u8			()		const	noexcept	{ return {A.u8 (), B.u8 (), C.u8 ()}; }
-		inxp	tri3<int16_t>	u16			()		const	noexcept	{ return {A.u16(), B.u16(), C.u16()}; }
-		inxp	tri3<int32_t>	u32			()		const	noexcept	{ return {A.u32(), B.u32(), C.u32()}; }
-		inxp	tri3<int64_t>	u64			()		const	noexcept	{ return {A.u64(), B.u64(), C.u64()}; }
+		inxp	tri3<uc_t>		uc		()	csnx	{ return {A.uc(), B.uc(), C.uc()}; }
+		inxp	tri3<sc_t>		sc		()	csnx	{ return {A.sc(), B.sc(), C.sc()}; }
+		inxp	tri3<u0_t>		u0		()	csnx	{ return {A.u0(), B.u0(), C.u0()}; }
+		inxp	tri3<u1_t>		u1		()	csnx	{ return {A.u1(), B.u1(), C.u1()}; }
+		inxp	tri3<u2_t>		u2		()	csnx	{ return {A.u2(), B.u2(), C.u2()}; }
+		inxp	tri3<u3_t>		u3		()	csnx	{ return {A.u3(), B.u3(), C.u3()}; }
+		inxp	tri3<s0_t>		s0		()	csnx	{ return {A.s0(), B.s0(), C.s0()}; }
+		inxp	tri3<s1_t>		s1		()	csnx	{ return {A.s1(), B.s1(), C.s1()}; }
+		inxp	tri3<s2_t>		s2		()	csnx	{ return {A.s2(), B.s2(), C.s2()}; }
+		inxp	tri3<s3_t>		s3		()	csnx	{ return {A.s3(), B.s3(), C.s3()}; }
+		inxp	tri3<f2_t>		f2		()	csnx	{ return {A.f2(), B.f2(), C.f2()}; }
+		inxp	tri3<f3_t>		f3		()	csnx	{ return {A.f3(), B.f3(), C.f3()}; }
 
-		tplt<tpnm _tOther>
-		tri3<_tOther>			Cast		()		const	noexcept		{
+		tpl_t2 tri3<_t2>	Cast	()	csnx	{
 			return
-				{ A.tplt Cast<_tOther>()
-				, B.tplt Cast<_tOther>()
-				, C.tplt Cast<_tOther>()
+				{ A.tplt Cast<_t2>()
+				, B.tplt Cast<_t2>()
+				, C.tplt Cast<_t2>()
 				};
 		}
-		bool					CulledX		(const ::llc::minmax<T>& minMax)	const	noexcept		{
-			return ((A.x  < minMax.Min) && (B.x  < minMax.Min) && (C.x  < minMax.Min))
-				|| ((A.x >= minMax.Max) && (B.x >= minMax.Max) && (C.x >= minMax.Max))
+		cxpr	bool			CulledX			(cnst minmax<T> & limits)	csnx	{
+			return ((A.x  < limits.Min) && (B.x  < limits.Min) && (C.x  < limits.Min))
+				|| ((A.x >= limits.Max) && (B.x >= limits.Max) && (C.x >= limits.Max))
 				;
 		}
-		bool					CulledY		(const ::llc::minmax<T>& minMax)	const	noexcept		{
-			return ((A.y  < minMax.Min) && (B.y  < minMax.Min) && (C.y  < minMax.Min))
-				|| ((A.y >= minMax.Max) && (B.y >= minMax.Max) && (C.y >= minMax.Max))
+		cxpr	bool			CulledY			(cnst minmax<T> & limits)	csnx	{
+			return ((A.y  < limits.Min) && (B.y  < limits.Min) && (C.y  < limits.Min))
+				|| ((A.y >= limits.Max) && (B.y >= limits.Max) && (C.y >= limits.Max))
 				;
 		}
-		bool					CulledZ		(const ::llc::minmax<T>& minMax)	const	noexcept		{
-			return ((A.z  < minMax.Min) && (B.z  < minMax.Min) && (C.z  < minMax.Min))
-				|| ((A.z >= minMax.Max) && (B.z >= minMax.Max) && (C.z >= minMax.Max))
+		cxpr	bool			CulledZ			(cnst minmax<T> & limits)	csnx	{
+			return ((A.z  < limits.Min) && (B.z  < limits.Min) && (C.z  < limits.Min))
+				|| ((A.z >= limits.Max) && (B.z >= limits.Max) && (C.z >= limits.Max))
 				;
 		}
-		bool					CulledZSpecial	(const ::llc::minmax<T>& minMax)	const	noexcept		{
-			return ((A.z <= minMax.Min) || (B.z <= minMax.Min) || (C.z <= minMax.Min))
-				|| ((A.z >= minMax.Max) && (B.z >= minMax.Max) && (C.z >= minMax.Max))
+		cxpr	bool			CulledZSpecial	(cnst minmax<T> & limits)	csnx	{
+			return ((A.z <= limits.Min) || (B.z <= limits.Min) || (C.z <= limits.Min))
+				|| ((A.z >= limits.Max) && (B.z >= limits.Max) && (C.z >= limits.Max))
 				;
 		}
-		bool					ClipZ		()									const	noexcept		{
-			if(A.z < 0 || A.z >= 1) return true;
-			if(B.z < 0 || B.z >= 1) return true;
-			if(C.z < 0 || C.z >= 1) return true;
-			return false;
+		cxpr	bool			ClipZ			()								csnx	{
+			return A.z < 0 || A.z >= 1 || B.z < 0 || B.z >= 1 || C.z < 0 || C.z >= 1;
 		}
-		tri3<T>&				Scale					(const TVertex & scale)				noexcept		{
+		tri3<T> &			Scale			(cnst TVertex & scale)			nxpt	{
 			A.Scale(scale);
 			B.Scale(scale);
 			C.Scale(scale);
 			return *this;
 		}
-		tri3<T>&				Translate				(const TVertex & translation)		noexcept		{
-			A						+= translation;
-			B						+= translation;
-			C						+= translation;
+		tri3<T> &			Translate		(cnst TVertex & translation)	nxpt	{
+			A += translation;
+			B += translation;
+			C += translation;
 			return *this;
 		}
 	};
-	tydf	tri3<char>		tri3char;
-	tydf	tri3<uchar_t>	tri3uchar;
-	tydf	tri3<float>		tri3f32;
-	tydf	tri3<double>	tri3f64;
-	tydf	tri3<uint8_t>	tri3u8;
-	tydf	tri3<uint16_t>	tri3u16;
-	tydf	tri3<uint32_t>	tri3u32;
-	tydf	tri3<uint64_t>	tri3u64;
-	tydf	tri3<int8_t>	tri3i8;
-	tydf	tri3<int16_t>	tri3i16;
-	tydf	tri3<int32_t>	tri3i32;
-	tydf	tri3<int64_t>	tri3i64;
 
-	tydf	minmax<tri3char>	minmaxtri3char;
-	tydf	minmax<tri3uchar>	minmaxtri3uchar;
-	tydf	minmax<tri3f32>		minmaxtri3f32;
-	tydf	minmax<tri3f64>		minmaxtri3f64;
-	tydf	minmax<tri3u8 >		minmaxtri3u8;
-	tydf	minmax<tri3u16>		minmaxtri3u16;
-	tydf	minmax<tri3u32>		minmaxtri3u32;
-	tydf	minmax<tri3u64>		minmaxtri3u64;
-	tydf	minmax<tri3i8 >		minmaxtri3i8;
-	tydf	minmax<tri3i16>		minmaxtri3i16;
-	tydf	minmax<tri3i32>		minmaxtri3i32;
-	tydf	minmax<tri3i64>		minmaxtri3i64;
+	tydf	tri3<uc_t>	tri3uc_t;	tdcs tri3uc_t	tri3uc_c;
+	tydf	tri3<sc_t>	tri3sc_t;	tdcs tri3sc_t	tri3sc_c;
+	tydf	tri3<u0_t>	tri3u0_t;	tdcs tri3u0_t	tri3u0_c;
+	tydf	tri3<u1_t>	tri3u1_t;	tdcs tri3u1_t	tri3u1_c;
+	tydf	tri3<u2_t>	tri3u2_t;	tdcs tri3u2_t	tri3u2_c;
+	tydf	tri3<u3_t>	tri3u3_t;	tdcs tri3u3_t	tri3u3_c;
+	tydf	tri3<s0_t>	tri3s0_t;	tdcs tri3s0_t	tri3s0_c;
+	tydf	tri3<s1_t>	tri3s1_t;	tdcs tri3s1_t	tri3s1_c;
+	tydf	tri3<s2_t>	tri3s2_t;	tdcs tri3s2_t	tri3s2_c;
+	tydf	tri3<s3_t>	tri3s3_t;	tdcs tri3s3_t	tri3s3_c;
+	tydf	tri3<f2_t>	tri3f2_t;	tdcs tri3f2_t	tri3f2_c;
+	tydf	tri3<f3_t>	tri3f3_t;	tdcs tri3f3_t	tri3f3_c;
+
+	tydf	minmax<tri3uc_t>	minmaxtri3uc_t;	tdcs minmaxtri3uc_t	minmaxtri3uc_c;
+	tydf	minmax<tri3sc_t>	minmaxtri3sc_t;	tdcs minmaxtri3sc_t	minmaxtri3sc_c;
+	tydf	minmax<tri3u0_t>	minmaxtri3u0_t;	tdcs minmaxtri3u0_t	minmaxtri3u0_c;
+	tydf	minmax<tri3u1_t>	minmaxtri3u1_t;	tdcs minmaxtri3u1_t	minmaxtri3u1_c;
+	tydf	minmax<tri3u2_t>	minmaxtri3u2_t;	tdcs minmaxtri3u2_t	minmaxtri3u2_c;
+	tydf	minmax<tri3u3_t>	minmaxtri3u3_t;	tdcs minmaxtri3u3_t	minmaxtri3u3_c;
+	tydf	minmax<tri3s0_t>	minmaxtri3s0_t;	tdcs minmaxtri3s0_t	minmaxtri3s0_c;
+	tydf	minmax<tri3s1_t>	minmaxtri3s1_t;	tdcs minmaxtri3s1_t	minmaxtri3s1_c;
+	tydf	minmax<tri3s2_t>	minmaxtri3s2_t;	tdcs minmaxtri3s2_t	minmaxtri3s2_c;
+	tydf	minmax<tri3s3_t>	minmaxtri3s3_t;	tdcs minmaxtri3s3_t	minmaxtri3s3_c;
+	tydf	minmax<tri3f2_t>	minmaxtri3f2_t;	tdcs minmaxtri3f2_t	minmaxtri3f2_c;
+	tydf	minmax<tri3f3_t>	minmaxtri3f3_t;	tdcs minmaxtri3f3_t	minmaxtri3f3_c;
 #pragma pack(pop)
 
-	tplt<tpnm T>
-	tri3<T>&		translate			(::llc::tri3<T> & triangle, const ::llc::n3<T> & translation)	{
-		triangle.A		+= translation;
-		triangle.B		+= translation;
-		triangle.C		+= translation;
-		return triangle;
-	}
-	tplt<tpnm T>
-	tri3<T>&		scale				(::llc::tri3<T> & triangle, const ::llc::n3<T> & scale)			{
-		triangle.A.Scale(scale);
-		triangle.B.Scale(scale);
-		triangle.C.Scale(scale);
-		return triangle;
-	}
+	tplT tri3<T> &	translate		(tri3<T> & triangle, cnst n3<T> & translation)	nxpt	{ return triangle.Translate(translation); }
+	tplT tri3<T> &	scale			(tri3<T> & triangle, cnst n3<T> & scaling)		nxpt	{ return triangle.Scale(scaling); }
+	tplT n3<T>		triangleWeight	(cnst tri<T> & weights, cnst tri3<T> & values)	nxpt	{ return values.A * weights.A + values.B * weights.B + values.C * weights.C; }
+}
 
-	tplt<tpnm T>
-	::llc::n3<T>	triangleWeight		(const ::llc::tri<T> & weights, const ::llc::tri3<T> & values)	{ return values.A * weights.A + values.B * weights.B + values.C * weights.C; }
-} // namespace 
-
-#endif // GPK_TRI3_H_23627
+#endif // LLC_TRI3_H_23627

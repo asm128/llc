@@ -13,11 +13,11 @@ The former root has no descendant `AGENTS.md`. The independent repository is gov
 
 ## Bounded comparison
 
-- Former source files inspected by inventory: 306 C/C++ headers and implementations.
-- Independent production files inspected by inventory: 165 C/C++ headers and implementations.
-- After normalizing only the `gpk_` to `llc_` prefix, 146 former files have current counterparts and 160 do not. Those 146 entries map to 145 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
-- The independent [`llc.vcxproj`](llc.vcxproj) still names 153 files absent from disk: 112 header entries and 41 compilation entries. All 41 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 21 focused suites, including independent block-container and label suites.
+- Former tracked source files inspected by inventory: 306 C/C++ headers and implementations.
+- Independent production files inspected by inventory: 186 C/C++ headers and implementations.
+- After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
+- The independent [`llc.vcxproj`](llc.vcxproj) still names 132 files absent from disk: 91 header entries and 41 compilation entries. All 41 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
+- The shared current test runner registers 24 focused suites, including independent geometry, block-container and label suites.
 
 ## Major findings
 
@@ -30,9 +30,10 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 ### Partial replacements
 
 - The former generic `block_container<T, size>` and its null-terminated-string specialization now have current owners and independent focused tests across all LLC integer widths.
+- The scalar/vector geometry foundation now has current owners for vectors, lines, triangles, quads, rectangles, ranges, slices, min/max bounds, gauges, spheres, quaternions and matrices. `m3<T>` owns only storage; `m3a2` and `m3a3` separate 2D affine from 3D linear operations, while `m2` and `m4` also distinguish mathematical convention from physical layout. The aliases use LLC width names (`u0` through `u3`, `s0` through `s3`, `f2` and `f3`) and the focused geometry suite instantiates every scalar width.
 - The former owning `array_bit` is absent; current `view_bit` covers non-owning bit access and has a focused suite, but it does not replace owning resize and storage behavior.
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
-- Some former shape and view wrapper families are represented by current generic `n2`, `n3`, range, slice, triangle, array and view facilities. They require contract-by-contract comparison rather than filename restoration.
+- `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
 
 ### Genuine consumer-backed gaps
 
@@ -49,7 +50,7 @@ The former directory also contains GUI controls, dialogs, windows, D3D, scene, c
 
 ## Suggested integration order
 
-1. Reconcile the migration ledger: classify the 154 absent project entries and choose owners; do not restore them wholesale.
+1. Reconcile the migration ledger: classify the 132 absent project entries and choose owners; do not restore them wholesale.
 2. Continue the small foundational contracts after the completed generic block storage: recover consumer-proven linear-map behavior with focused current-style tests.
 3. Add environment-block composition to the current argument/runtime ownership only for a proven consumer, including an explicit `WinMain` population policy; recover dynamic-module primitives separately.
 4. Design a typed expression-result contract and preservation tests before adapting the historical parser and interpolator.
@@ -93,6 +94,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_array_static.h` -> `llc_array_static.h`
 - [x] `gpk_astatic_serialize.h` -> `llc_astatic_serialize.h`
 - [x] `gpk_auto_handler.h` -> `llc_auto_handler.h`
+- [x] `gpk_align.h` -> `llc_align.h`
 - [x] `gpk_axis.h` -> `llc_axis.h`
 - [x] `gpk_base64.{h,cpp}` -> `llc_base64.{h,cpp}`
 - [x] `gpk_bit.h` -> `llc_bit.h`
@@ -102,6 +104,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_chrono.{h,cpp}` -> `llc_chrono.{h,cpp}`
 - [x] `gpk_circle.h` -> `llc_circle.h`
 - [x] `gpk_color.h` -> `llc_color.h`
+- [x] `gpk_coord.h` -> `llc_coord.h`
 - [x] `gpk_cpow.h` -> `llc_cpow.h`
 - [x] `gpk_cstdio.h` -> `llc_cstdio.h`
 - [x] `gpk_cstring.h` -> `llc_cstring.h`
@@ -119,6 +122,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_file.{h,cpp}` -> `llc_file.{h,cpp}`
 - [x] `gpk_frameinfo.h` -> `llc_frameinfo.h`
 - [x] `gpk_functional.h` -> `llc_functional.h`
+- [x] `gpk_gauge.h` -> `llc_gauge.h`
 - [x] `gpk_geometry2.h` -> `llc_geometry2.h`
 - [x] `gpk_i2c.{h,cpp}` -> `llc_i2c.{h,cpp}`
 - [x] `gpk_json.{h,cpp}` -> `llc_json.{h,cpp}`
@@ -126,13 +130,18 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_keyval_old.{h,cpp}` -> `llc_keyval_old.{h,cpp}`
 - [x] `gpk_label.{h,cpp}` -> `llc_label.{h,cpp}`
 - [x] `gpk_label_manager.h` -> `llc_label_manager.h`
+- [x] `gpk_line.h` -> `llc_line.h`
+- [x] `gpk_line2.h` -> `llc_line2.h`
+- [x] `gpk_line3.h` -> `llc_line3.h`
 - [x] `gpk_log.{h,cpp}` -> `llc_log.{h,cpp}`
 - [x] `gpk_log_core.h` -> `llc_log_core.h`
 - [x] `gpk_log_level.h` -> `llc_log_level.h`
 - [x] `gpk_math.h` -> `llc_math.h`
+- [x] `gpk_matrix.h` -> `llc_matrix.h`
 - [x] `gpk_memory.h` -> `llc_memory.h`
 - [x] `gpk_minmax.h` -> `llc_minmax.h`
 - [x] `gpk_minmax_n2.h` -> `llc_minmax_n2.h`
+- [x] `gpk_minmax_n3.h` -> `llc_minmax_n3.h`
 - [x] `gpk_n2.h` -> `llc_n2.h`
 - [x] `gpk_n3.h` -> `llc_n3.h`
 - [x] `gpk_noise.{h,cpp}` -> `llc_noise.{h,cpp}`
@@ -144,15 +153,26 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_ptr_nco.h` -> `llc_ptr_nco.h`
 - [x] `gpk_ptr_obj.h` -> `llc_ptr_obj.h`
 - [x] `gpk_ptr_pod.h` -> `llc_ptr_pod.h`
+- [x] `gpk_quad.h` -> `llc_quad.h`
+- [x] `gpk_quad2.h` -> `llc_quad2.h`
+- [x] `gpk_quad3.h` -> `llc_quad3.h`
+- [x] `gpk_quat.h` -> `llc_quat.h`
 - [x] `gpk_queue_async.h` -> `llc_queue_async.h`
 - [x] `gpk_queue_event.h` -> `llc_queue_event.h`
 - [x] `gpk_range.h` -> `llc_range.h`
+- [x] `gpk_range_n2.h` -> `llc_range_n2.h`
+- [x] `gpk_range_n3.h` -> `llc_range_n3.h`
+- [x] `gpk_rect.h` -> `llc_rect.h`
 - [x] `gpk_rect2.h` -> `llc_rect2.h`
+- [x] `gpk_rect3.h` -> `llc_rect3.h`
 - [x] `gpk_ref.h` -> `llc_ref.h`
 - [x] `gpk_runtime.h` -> `llc_runtime.h`
 - [x] `gpk_safe.h` -> `llc_safe.h`
 - [x] `gpk_size.h` -> `llc_size.h`
 - [x] `gpk_slice.h` -> `llc_slice.h`
+- [x] `gpk_slice_n2.h` -> `llc_slice_n2.h`
+- [x] `gpk_slice_n3.h` -> `llc_slice_n3.h`
+- [x] `gpk_sphere.h` -> `llc_sphere.h`
 - [x] `gpk_spi.{h,cpp}` -> `llc_spi.{h,cpp}`
 - [x] `gpk_std_cstring.h` -> `llc_std_cstring.h`
 - [x] `gpk_std_initializer_list.h` -> `llc_std_initializer_list.h`
@@ -177,10 +197,13 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_xml_reader.{h,cpp}` -> `llc_xml_reader.{h,cpp}`
 - [x] `llc_runtime.h` -> `llc_runtime.h`
 
+### Rejected deliberately
+
+- [x] `gpk_gauge_n2.h` and `gpk_gauge_n3.h` -> invalid wrappers around the removed historical `gauge<>`; generic gauge owners retained in `llc_gauge.h`
+
 ### Pending disposition/no current counterpart
 
 - [ ] `gpk_adam7.{h,cpp}`
-- [ ] `gpk_align.h`
 - [ ] `gpk_apod_gauge.h`
 - [ ] `gpk_apod_minmax.h`
 - [ ] `gpk_app_impl.h`
@@ -206,16 +229,12 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_complus.h`
 - [ ] `gpk_component_scene.{h,cpp}`
 - [ ] `gpk_component_scene_draw.cpp`
-- [ ] `gpk_coord.h`
 - [ ] `gpk_d3d.{h,cpp}`
 - [ ] `gpk_dialog.{h,cpp}`
 - [ ] `gpk_dialog_controls.h`
 - [ ] `gpk_expression.{h,cpp}`
 - [ ] `gpk_font.{h,cpp}`
 - [ ] `gpk_framework.{h,cpp}`
-- [ ] `gpk_gauge.h`
-- [ ] `gpk_gauge_n2.h`
-- [ ] `gpk_gauge_n3.h`
 - [ ] `gpk_geometry.{h,cpp}`
 - [ ] `gpk_geometry_buffers.h`
 - [ ] `gpk_geometry_draw.{h,cpp}`
@@ -247,15 +266,10 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_io.h`
 - [ ] `gpk_json_expression.{h,cpp}`
 - [ ] `gpk_keyed_bit_array.h`
-- [ ] `gpk_line.h`
-- [ ] `gpk_line2.h`
-- [ ] `gpk_line3.h`
 - [ ] `gpk_linear_map_pobj.h`
 - [ ] `gpk_linear_map_pod.h`
 - [ ] `gpk_mapblock.cpp`
-- [ ] `gpk_matrix.h`
 - [ ] `gpk_member_registry.h`
-- [ ] `gpk_minmax_n3.h`
 - [ ] `gpk_model.h`
 - [ ] `gpk_module.h`
 - [ ] `gpk_particle.{h,cpp}`
@@ -264,23 +278,12 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_png_write.cpp`
 - [ ] `gpk_pod_definition.h`
 - [ ] `gpk_process.{h,cpp}`
-- [ ] `gpk_quad.h`
-- [ ] `gpk_quad2.h`
-- [ ] `gpk_quad3.h`
-- [ ] `gpk_quat.h`
-- [ ] `gpk_range_n2.h`
-- [ ] `gpk_range_n3.h`
 - [ ] `gpk_raster_lh.{h,cpp}`
-- [ ] `gpk_rect.h`
 - [ ] `gpk_rect_align.h`
-- [ ] `gpk_rect3.h`
 - [ ] `gpk_rsa.{h,cpp}`
 - [ ] `gpk_runtime_module.{h,cpp}`
 - [ ] `gpk_scene.{h,cpp}`
 - [ ] `gpk_serial.h`
-- [ ] `gpk_slice_n2.h`
-- [ ] `gpk_slice_n3.h`
-- [ ] `gpk_sphere.h`
 - [ ] `gpk_stl.{h,cpp}`
 - [ ] `gpk_string_helper.{h,cpp}`
 - [ ] `gpk_swap.h`
@@ -306,5 +309,5 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize implementation of a pending item. The generic block-container and label changes represented here were subsequently built and exercised by Pablo, who reported the complete test run passing. No build, test or Git mutation was performed as part of this ledger refresh, and unrelated working-tree changes were preserved.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize implementation of a pending item. The generic block-container and label changes represented here were subsequently built and exercised by Pablo, who reported the complete test run passing. The geometry migration was source-reviewed and registered in the project and test suite on 2026-10-09; it has not been built or executed. No build, test or Git mutation was performed as part of this ledger refresh, and unrelated working-tree changes were preserved.
 

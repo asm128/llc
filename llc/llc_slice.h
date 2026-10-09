@@ -1,4 +1,4 @@
-#include "llc_n3.h"
+#include "llc_typeint.h"
 
 #ifndef LLC_SLICE_H
 #define LLC_SLICE_H
@@ -41,32 +41,6 @@ namespace llc
 	tydf	slice<s3_t>		slices3_t;	tdcs slices3_t	slices3_c;
 	tydf	slice<f2_t>		slicef2_t;	tdcs slicef2_t	slicef2_c;
 	tydf	slice<f3_t>		slicef3_t;	tdcs slicef3_t	slicef3_c;
-	//		_____<___>		_________;	____ _________	__________;
-	tydf	slice<n2uc_t>	slice2uc_t;	tdcs slice2uc_t	slice2uc_c;
-	tydf	slice<n2sc_t>	slice2sc_t;	tdcs slice2sc_t	slice2sc_c;
-	tydf	slice<n2u0_t>	slice2u0_t;	tdcs slice2u0_t	slice2u0_c;
-	tydf	slice<n2u1_t>	slice2u1_t;	tdcs slice2u1_t	slice2u1_c;
-	tydf	slice<n2u2_t>	slice2u2_t;	tdcs slice2u2_t	slice2u2_c;
-	tydf	slice<n2u3_t>	slice2u3_t;	tdcs slice2u3_t	slice2u3_c;
-	tydf	slice<n2s0_t>	slice2s0_t;	tdcs slice2s0_t	slice2s0_c;
-	tydf	slice<n2s1_t>	slice2s1_t;	tdcs slice2s1_t	slice2s1_c;
-	tydf	slice<n2s2_t>	slice2s2_t;	tdcs slice2s2_t	slice2s2_c;
-	tydf	slice<n2s3_t>	slice2s3_t;	tdcs slice2s3_t	slice2s3_c;
-	tydf	slice<n2f2_t>	slice2f2_t;	tdcs slice2f2_t	slice2f2_c;
-	tydf	slice<n2f3_t>	slice2f3_t;	tdcs slice2f3_t	slice2f3_c;
-	//		_____<___>		_________;	____ _________	__________;
-	tydf	slice<n3uc_t>	slice3uc_t;	tdcs slice3uc_t	slice3uc_c;
-	tydf	slice<n3sc_t>	slice3sc_t;	tdcs slice3sc_t	slice3sc_c;
-	tydf	slice<n3u0_t>	slice3u0_t;	tdcs slice3u0_t	slice3u0_c;
-	tydf	slice<n3u1_t>	slice3u1_t;	tdcs slice3u1_t	slice3u1_c;
-	tydf	slice<n3u2_t>	slice3u2_t;	tdcs slice3u2_t	slice3u2_c;
-	tydf	slice<n3u3_t>	slice3u3_t;	tdcs slice3u3_t	slice3u3_c;
-	tydf	slice<n3s0_t>	slice3s0_t;	tdcs slice3s0_t	slice3s0_c;
-	tydf	slice<n3s1_t>	slice3s1_t;	tdcs slice3s1_t	slice3s1_c;
-	tydf	slice<n3s2_t>	slice3s2_t;	tdcs slice3s2_t	slice3s2_c;
-	tydf	slice<n3s3_t>	slice3s3_t;	tdcs slice3s3_t	slice3s3_c;
-	tydf	slice<n3f2_t>	slice3f2_t;	tdcs slice3f2_t	slice3f2_c;
-	tydf	slice<n3f3_t>	slice3f3_t;	tdcs slice3f3_t	slice3f3_c;
 }
 
 #endif // LLC_SLICE_H

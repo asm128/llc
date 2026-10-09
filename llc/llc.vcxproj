@@ -102,8 +102,6 @@
     <ClInclude Include="llc_event_input.h" />
     <ClInclude Include="llc_event_screen.h" />
     <ClInclude Include="llc_gauge.h" />
-    <ClInclude Include="llc_gauge_n2.h" />
-    <ClInclude Include="llc_gauge_n3.h" />
     <ClInclude Include="llc_geometry_buffers.h" />
     <ClInclude Include="llc_geometry_draw.h" />
     <ClInclude Include="llc_font.h" />
@@ -204,6 +202,8 @@
     <ClInclude Include="llc_log.h" />
     <ClInclude Include="llc_math.h" />
     <ClInclude Include="llc_matrix.h" />
+    <ClInclude Include="llc_matrix2.h" />
+    <ClInclude Include="llc_matrix3.h" />
     <ClInclude Include="llc_member_registry.h" />
     <ClInclude Include="llc_memory.h" />
     <ClInclude Include="llc_model.h" />
