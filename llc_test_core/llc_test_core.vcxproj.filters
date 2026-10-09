@@ -42,6 +42,9 @@
 		<ClCompile Include="llc_test_ctti.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_enum.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_geometry.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>

@@ -170,15 +170,12 @@ namespace llc
 			return UNRESOLVED_ENUM_LABEL_STR;
 		}
 		err_t				add_value				(const T & value, vcst_t name, vcst_t title, vcst_t description)	{
-			for(uint32_t i=0, count = Values.size(); i < count; ++i)
-				if(Values[i] == value) {
-					rww_if(name != Names[i], "Enumeration value already defined! Type: '%.*s'. Value: 0x%llX. Previous name: %.*s. New name: %.*s. Second definition ignored..."
-				, (int)Name		.size(), Name		.begin()
-				, (uint64_t)value
-				, (int)Names[i]	.size(), Names[i]	.begin()
-				, (int)name		.size(), name		.begin()
-				);
-					return 0;	// Found same name and value combination. This is normal when values are defined as static const.
+			for(uint32_t i=0, count = Names.size(); i < count; ++i)
+				if(Names[i] == name) {
+					ree_if(Values[i] != value, "Enumeration name already has another value! Type:'%.*s'. Name:'%.*s'. Previous:0x%llX. New:0x%llX."
+						, (int)Name.size(), Name.begin(), (int)name.size(), name.begin(), (uint64_t)Values[i], (uint64_t)value
+						);
+					return -1;
 				}
 			uint32_t				newIndex				= Values.push_back(value);
 			llc_necs(newIndex);
@@ -202,7 +199,10 @@ namespace llc
 					, (int)name		.size(), name		.begin()
 					);
 			}
-			const T					value					= (T)Values.size();
+			uint32_t				valueCount				= {};
+			for(uint32_t i=0; i < Values.size(); ++i)
+				valueCount += get_value_index(Values[i]) == (int32_t)i;
+			const T					value					= (T)valueCount;
 			uint32_t				newIndex				= Values.push_back(value);
 			llc_necs(newIndex);
 			llc_necs(Names.push_back(name));
