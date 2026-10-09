@@ -59,9 +59,17 @@ sttc ::llc::err_t testPOD(ATestError & errors) {
 		, "%u-bit savePOD() result mismatch. result:%i, expected:%u."
 		, bcof(T), saveResult, ::llc::u2_t(szof(T))
 		);
-	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_POD_SIZE, serialized.size() != ::llc::size(PRECEDING_FIELD) + szof(T) || 0 != memcmp(serialized.begin(), PRECEDING_FIELD, ::llc::size(PRECEDING_FIELD)) || 0 != memcmp(&serialized[::llc::size(PRECEDING_FIELD)], &source, szof(T))
-		, "%u-bit savePOD() append mismatch. size:%u, expected:%u."
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_POD_SIZE, serialized.size() != ::llc::size(PRECEDING_FIELD) + szof(T)
+		, "%u-bit savePOD() size mismatch. size:%u, expected:%u."
 		, bcof(T), serialized.size(), ::llc::u2_t(::llc::size(PRECEDING_FIELD) + szof(T))
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_POD_SIZE, 0 != memcmp(serialized.begin(), PRECEDING_FIELD, ::llc::size(PRECEDING_FIELD))
+		, "%u-bit savePOD() modified its preceding field."
+		, bcof(T)
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_POD_SIZE, 0 != memcmp(&serialized[::llc::size(PRECEDING_FIELD)], &source, szof(T))
+		, "%u-bit savePOD() payload differs from the source."
+		, bcof(T)
 		);
 	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_POD_SIZE, 0 > serialized.append(FOLLOWING_FIELD)
 		, "%u-bit savePOD() test could not append its following field."
@@ -90,9 +98,17 @@ sttc ::llc::err_t testPOD(ATestError & errors) {
 		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t truncatedResult = ::llc::loadPOD(truncated, unchanged);
 		::llc::setupDefaultLogCallbacks();
-		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_POD, 0 <= truncatedResult || unchanged != sentinel || truncated != originalInput
-			, "%u-bit loadPOD() truncation mismatch. supplied:%u, required:%u, result:%i, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ", remaining:%u."
-			, bcof(T), byteCount, ::llc::u2_t(szof(T)), truncatedResult, ::llc::u3_t(unchanged), ::llc::u3_t(sentinel), truncated.size()
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_POD, 0 <= truncatedResult
+			, "%u-bit loadPOD() accepted truncated input. supplied:%u, required:%u, result:%i."
+			, bcof(T), byteCount, ::llc::u2_t(szof(T)), truncatedResult
+			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_POD, unchanged != sentinel
+			, "%u-bit loadPOD() modified output on truncated input. supplied:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
+			, bcof(T), byteCount, ::llc::u3_t(unchanged), ::llc::u3_t(sentinel)
+			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_POD, truncated != originalInput
+			, "%u-bit loadPOD() moved cursor on truncated input. supplied:%u, remaining:%u, expected:%u."
+			, bcof(T), byteCount, truncated.size(), originalInput.size()
 			);
 	}
 	return 0;
@@ -113,9 +129,13 @@ sttc ::llc::err_t testUIntValue(ATestError & errors, ::llc::u3_c source) {
 		, "%u-bit saveUInt() result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u."
 		, bcof(T), source, saveResult, expectedWidth
 		);
-	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, serialized.size() != ::llc::size(PRECEDING_FIELD) + expectedWidth || 0 != memcmp(serialized.begin(), PRECEDING_FIELD, ::llc::size(PRECEDING_FIELD))
-		, "%u-bit saveUInt() append mismatch for value:%" LLC_FMT_U3 ". size:%u, expected:%u, prefix bytes:%u."
-		, bcof(T), source, serialized.size(), ::llc::u2_t(::llc::size(PRECEDING_FIELD) + expectedWidth), ::llc::u2_t(::llc::size(PRECEDING_FIELD))
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, serialized.size() != ::llc::size(PRECEDING_FIELD) + expectedWidth
+		, "%u-bit saveUInt() size mismatch for value:%" LLC_FMT_U3 ". size:%u, expected:%u."
+		, bcof(T), source, serialized.size(), ::llc::u2_t(::llc::size(PRECEDING_FIELD) + expectedWidth)
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, 0 != memcmp(serialized.begin(), PRECEDING_FIELD, ::llc::size(PRECEDING_FIELD))
+		, "%u-bit saveUInt() modified its preceding field for value:%" LLC_FMT_U3 "."
+		, bcof(T), source
 		);
 	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_UINT_SIZE, 0 > serialized.append(FOLLOWING_FIELD)
 		, "%u-bit saveUInt() test could not append its following field for value:%" LLC_FMT_U3 "."
@@ -198,9 +218,17 @@ sttc ::llc::err_t testTruncatedUInt(ATestError & errors) {
 		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
 		::llc::setupDefaultLogCallbacks();
-		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, 0 <= loadResult || loaded != sentinel || input != originalInput
-			, "%u-bit loadUInt() truncation mismatch. supplied:%u, required:%u, result:%i, loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ", remaining:%u."
-			, bcof(T), byteCount, bytes.size(), loadResult, ::llc::u3_t(loaded), ::llc::u3_t(sentinel), input.size()
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, 0 <= loadResult
+			, "%u-bit loadUInt() accepted truncated input. supplied:%u, required:%u, result:%i."
+			, bcof(T), byteCount, bytes.size(), loadResult
+			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, loaded != sentinel
+			, "%u-bit loadUInt() modified output on truncated input. supplied:%u, loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
+			, bcof(T), byteCount, ::llc::u3_t(loaded), ::llc::u3_t(sentinel)
+			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, input != originalInput
+			, "%u-bit loadUInt() moved cursor on truncated input. supplied:%u, remaining:%u, expected:%u."
+			, bcof(T), byteCount, input.size(), originalInput.size()
 			);
 	}
 	return 0;
@@ -251,9 +279,13 @@ sttc ::llc::err_t testViewCount(ATestError & errors, ::llc::u2_c elementCount) {
 		? ::llc::vcu0_t{&serialized[::llc::size(PRECEDING_FIELD) + headerWidth], expected.byte_count()}
 		: ::llc::vcu0_t{}
 		;
-	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_POSITION, readView.size() != elementCount || readView.cu8().begin() != expectedReadBytes.begin()
-		, "%u-bit viewRead() position mismatch for %u elements. count:%u, begin:%p, expected begin:%p."
-		, bcof(T), elementCount, readView.size(), readView.begin(), expectedReadBytes.begin()
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_POSITION, readView.size() != elementCount
+		, "%u-bit viewRead() count mismatch. count:%u, expected:%u."
+		, bcof(T), readView.size(), elementCount
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_POSITION, readView.cu8().begin() != expectedReadBytes.begin()
+		, "%u-bit viewRead() alias position mismatch for %u elements. begin:%p, expected:%p."
+		, bcof(T), elementCount, readView.begin(), expectedReadBytes.begin()
 		);
 	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_VALUE, readView != expected
 		, "%u-bit viewRead() value mismatch for %u elements."
@@ -275,9 +307,17 @@ sttc ::llc::err_t testViewCount(ATestError & errors, ::llc::u2_c elementCount) {
 		, "%u-bit non-owning loadView() failed for %u elements. result:%i."
 		, bcof(T), elementCount, viewLoadResult
 		);
-	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, loadedView.cu8().begin() != expectedLoadBytes.begin() || loadedView.size() != elementCount || !isFollowingField(viewInput)
-		, "%u-bit non-owning loadView() position mismatch for %u elements. count:%u, begin:%p, expected begin:%p, remaining:%u."
-		, bcof(T), elementCount, loadedView.size(), loadedView.begin(), expectedLoadBytes.begin(), viewInput.size()
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, loadedView.cu8().begin() != expectedLoadBytes.begin()
+		, "%u-bit non-owning loadView() alias position mismatch for %u elements. begin:%p, expected:%p."
+		, bcof(T), elementCount, loadedView.begin(), expectedLoadBytes.begin()
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, loadedView.size() != elementCount
+		, "%u-bit non-owning loadView() count mismatch. count:%u, expected:%u."
+		, bcof(T), loadedView.size(), elementCount
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, !isFollowingField(viewInput)
+		, "%u-bit non-owning loadView() cursor mismatch for %u elements. remaining:%u, expected:%u."
+		, bcof(T), elementCount, viewInput.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD))
 		);
 	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_VALUE, loadedView != expected
 		, "%u-bit non-owning loadView() value mismatch for %u elements."
@@ -296,10 +336,16 @@ sttc ::llc::err_t testViewCount(ATestError & errors, ::llc::u2_c elementCount) {
 		, bcof(T), elementCount, ownedInput.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD))
 		);
 	cnst ::llc::view<cnst T> loadedValues = loadedArray;
-	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_VALUE, loadedValues != expected || (elementCount && loadedValues.begin() == expected.begin())
-		, "%u-bit owned loadView() value/ownership mismatch for %u elements. loaded count:%u, loaded begin:%p, source begin:%p."
-		, bcof(T), elementCount, loadedValues.size(), loadedValues.begin(), expected.begin()
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_VALUE, loadedValues != expected
+		, "%u-bit owned loadView() value mismatch for %u elements. loaded count:%u."
+		, bcof(T), elementCount, loadedValues.size()
 		);
+	if(elementCount) {
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_APOD_LOAD_VALUE, loadedValues.begin() == expected.begin()
+			, "%u-bit owned loadView() aliases its source for %u elements. loaded begin:%p, source begin:%p."
+			, bcof(T), elementCount, loadedValues.begin(), expected.begin()
+			);
+	}
 	return 0;
 }
 
@@ -353,9 +399,21 @@ sttc ::llc::err_t testTruncatedView(ATestError & errors) {
 		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t loadResult = ::llc::loadView(input, loaded);
 		::llc::setupDefaultLogCallbacks();
-		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, 0 <= loadResult || input != originalInput || loaded.size() != 1 || loaded.begin() != &sentinel
-			, "%u-bit loadView() truncation mismatch. supplied:%u, required:%u, header:%u, result:%i, remaining:%u, loaded count:%u, loaded begin:%p."
-			, bcof(T), byteCount, serialized.size(), headerWidth, loadResult, input.size(), loaded.size(), loaded.begin()
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, 0 <= loadResult
+			, "%u-bit loadView() accepted truncated input. supplied:%u, required:%u, header:%u, result:%i."
+			, bcof(T), byteCount, serialized.size(), headerWidth, loadResult
+			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, input != originalInput
+			, "%u-bit loadView() moved cursor on truncated input. supplied:%u, remaining:%u, expected:%u."
+			, bcof(T), byteCount, input.size(), originalInput.size()
+			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, loaded.size() != 1
+			, "%u-bit loadView() changed output count on truncated input. supplied:%u, count:%u, expected:1."
+			, bcof(T), byteCount, loaded.size()
+			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, loaded.begin() != &sentinel
+			, "%u-bit loadView() changed output alias on truncated input. supplied:%u, begin:%p, expected:%p."
+			, bcof(T), byteCount, loaded.begin(), &sentinel
 			);
 		::llc::vcu0_t ownedInput{serialized.begin(), byteCount};
 		cnst ::llc::vcu0_t originalOwnedInput = ownedInput;
@@ -363,10 +421,24 @@ sttc ::llc::err_t testTruncatedView(ATestError & errors) {
 		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t ownedResult = ::llc::loadView(ownedInput, owned);
 		::llc::setupDefaultLogCallbacks();
-		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_OWNED_VIEW, 0 <= ownedResult || ownedInput != originalOwnedInput || owned.size() != 1 || owned[0] != sentinel
-			, "%u-bit owned loadView() truncation mismatch. supplied:%u, required:%u, header:%u, result:%i, remaining:%u, loaded count:%u, loaded value:%" LLC_FMT_U3 "."
-			, bcof(T), byteCount, serialized.size(), headerWidth, ownedResult, ownedInput.size(), owned.size(), owned.size() ? ::llc::u3_t(owned[0]) : 0ULL
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_OWNED_VIEW, 0 <= ownedResult
+			, "%u-bit owned loadView() accepted truncated input. supplied:%u, required:%u, header:%u, result:%i."
+			, bcof(T), byteCount, serialized.size(), headerWidth, ownedResult
 			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_OWNED_VIEW, ownedInput != originalOwnedInput
+			, "%u-bit owned loadView() moved cursor on truncated input. supplied:%u, remaining:%u, expected:%u."
+			, bcof(T), byteCount, ownedInput.size(), originalOwnedInput.size()
+			);
+		LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_OWNED_VIEW, owned.size() != 1
+			, "%u-bit owned loadView() changed output count on truncated input. supplied:%u, count:%u, expected:1."
+			, bcof(T), byteCount, owned.size()
+			);
+		if(owned.size()) {
+			LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_OWNED_VIEW, owned[0] != sentinel
+				, "%u-bit owned loadView() changed output value on truncated input. supplied:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
+				, bcof(T), byteCount, ::llc::u3_t(owned[0]), ::llc::u3_t(sentinel)
+				);
+		}
 	}
 	return 0;
 }
@@ -378,9 +450,13 @@ sttc ::llc::err_t testMalformedViewCount(ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_COUNT = 0x20000000U;
 	::llc::au0_t serialized;
 	cnst ::llc::err_t saveResult = ::llc::saveUInt(serialized, ELEMENT_COUNT);
-	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, saveResult <= 0 || serialized.size() != (::llc::u2_t)saveResult
-		, "%u-bit malformed-count test could not serialize count:%u. result:%i, size:%u."
-		, bcof(T), ELEMENT_COUNT, saveResult, serialized.size()
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, saveResult <= 0
+		, "%u-bit malformed-count test could not serialize count:%u. result:%i."
+		, bcof(T), ELEMENT_COUNT, saveResult
+		);
+	LLC_TEST_REQUIRE(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, serialized.size() != (::llc::u2_t)saveResult
+		, "%u-bit malformed-count serialized size mismatch. count:%u, size:%u, expected:%u."
+		, bcof(T), ELEMENT_COUNT, serialized.size(), ::llc::u2_t(saveResult)
 		);
 	::llc::vcu0_t input = serialized;
 	cnst ::llc::vcu0_t originalInput = input;
@@ -389,9 +465,21 @@ sttc ::llc::err_t testMalformedViewCount(ATestError & errors) {
 	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t loadResult = ::llc::loadView(input, loaded);
 	::llc::setupDefaultLogCallbacks();
-	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, 0 <= loadResult || input != originalInput || loaded.begin() != &sentinel || loaded.size() != 1
-		, "%u-bit loadView() overflow case. declared elements:%u, supplied bytes:%u, result:%i, remaining:%u, loaded count:%u, loaded begin:%p."
-		, bcof(T), ELEMENT_COUNT, serialized.size(), loadResult, input.size(), loaded.size(), loaded.begin()
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, 0 <= loadResult
+		, "%u-bit loadView() accepted overflowing count. declared elements:%u, supplied bytes:%u, result:%i."
+		, bcof(T), ELEMENT_COUNT, serialized.size(), loadResult
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, input != originalInput
+		, "%u-bit loadView() moved cursor for overflowing count. remaining:%u, expected:%u."
+		, bcof(T), input.size(), originalInput.size()
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, loaded.begin() != &sentinel
+		, "%u-bit loadView() changed output alias for overflowing count. begin:%p, expected:%p."
+		, bcof(T), loaded.begin(), &sentinel
+		);
+	LLC_TEST_CHECK(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, loaded.size() != 1
+		, "%u-bit loadView() changed output count for overflowing count. count:%u, expected:1."
+		, bcof(T), loaded.size()
 		);
 	return 0;
 }

@@ -47,15 +47,25 @@ sttc ::llc::err_t testPartialWidth(ATestError & errors) {
 	auto				end			= bits.end();
 	{
 		::llc::u2_t count = 0;
-		for(; it != end; ++it, ++count)
-			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_ITERATOR_POSITION, it.Index() != count || it.Limit() != bitCount
-				, "%u-bit iterator position mismatch. index:%u, expected:%u, limit:%u, expected limit:%u."
-				, bcof(T), it.Index(), count, it.Limit(), bitCount
-				);
-		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_END_POSITION, count != bitCount || end.Index() != bitCount || end.Element != &data[1] || end.Offset != 3 || end.End != data + 2
-			, "%u-bit end position mismatch. count:%u, index:%u, element:%p, expected element:%p, offset:%u, storage end:%p, expected storage end:%p."
-			, bcof(T), count, end.Index(), end.Element, &data[1], ::llc::u2_t(end.Offset), end.End, data + 2
-			);
+		for(; count < bitCount && it != end; ++it, ++count) {
+			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_ITERATOR_POSITION, it.Index() != count
+				, "%u-bit iterator index:%u, expected:%u.", bcof(T), it.Index(), count);
+			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_ITERATOR_POSITION, it.Limit() != bitCount
+				, "%u-bit iterator limit:%u, expected:%u.", bcof(T), it.Limit(), bitCount);
+		}
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_END_POSITION, count != bitCount
+			, "%u-bit visited bit count:%u, expected:%u.", bcof(T), count, bitCount);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_END_POSITION, it != end
+			, "%u-bit iterator did not reach the end after %u bits; current index:%u, end index:%u."
+			, bcof(T), bitCount, it.Index(), end.Index());
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_END_POSITION, end.Index() != bitCount
+			, "%u-bit end index:%u, expected:%u.", bcof(T), end.Index(), bitCount);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_END_POSITION, end.Element != &data[1]
+			, "%u-bit end element:%p, expected:%p.", bcof(T), end.Element, &data[1]);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_END_POSITION, end.Offset != 3
+			, "%u-bit end offset:%u, expected:3.", bcof(T), ::llc::u2_t(end.Offset));
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_END_POSITION, end.End != data + 2
+			, "%u-bit storage end:%p, expected:%p.", bcof(T), end.End, data + 2);
 	}
 	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_WIDTH_DECREMENT, (--end).Index() != bitCount - 1
 		, "%u-bit end decrement mismatch. index:%u, expected:%u."
@@ -77,18 +87,28 @@ sttc ::llc::err_t testPartial(ATestError & errors, _dataValues (&data)[_dataSize
 	auto end = partial.end();
 	{
 		::llc::u2_t count = 0;
-		for(; it != end; ++it, ++count)
-			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_ITERATOR_POSITION, it.Index() != count || it.Limit() != BIT_COUNT
-				, "%u-bit backing type, 10-bit iterator position mismatch. index:%u, expected:%u, limit:%u, expected limit:%u."
-				, ELEMENT_BITS, it.Index(), count, it.Limit(), BIT_COUNT
-				);
-		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_END_POSITION
-			, count != BIT_COUNT || end.Index() != BIT_COUNT || end.Element != &data[BIT_COUNT / ELEMENT_BITS]
-			|| end.Offset != expectedOffset || end.End != data + (BIT_COUNT + ELEMENT_BITS - 1) / ELEMENT_BITS
-			, "%u-bit backing type, 10-bit end position mismatch. count:%u, index:%u, element:%p, expected element:%p, offset:%u, expected offset:%u, storage end:%p, expected storage end:%p."
-			, ELEMENT_BITS, count, end.Index(), end.Element, &data[BIT_COUNT / ELEMENT_BITS], ::llc::u2_t(end.Offset), expectedOffset
-			, end.End, data + (BIT_COUNT + ELEMENT_BITS - 1) / ELEMENT_BITS
-			);
+		for(; count < BIT_COUNT && it != end; ++it, ++count) {
+			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_ITERATOR_POSITION, it.Index() != count
+				, "%u-bit backing type, 10-bit iterator index:%u, expected:%u.", ELEMENT_BITS, it.Index(), count);
+			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_ITERATOR_POSITION, it.Limit() != BIT_COUNT
+				, "%u-bit backing type, iterator limit:%u, expected:%u.", ELEMENT_BITS, it.Limit(), BIT_COUNT);
+		}
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_END_POSITION, count != BIT_COUNT
+			, "%u-bit backing type, 10-bit visited count:%u, expected:%u.", ELEMENT_BITS, count, BIT_COUNT);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_END_POSITION, it != end
+			, "%u-bit backing type, iterator did not reach the end after 10 bits; current index:%u, end index:%u."
+			, ELEMENT_BITS, it.Index(), end.Index());
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_END_POSITION, end.Index() != BIT_COUNT
+			, "%u-bit backing type, 10-bit end index:%u, expected:%u.", ELEMENT_BITS, end.Index(), BIT_COUNT);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_END_POSITION, end.Element != &data[BIT_COUNT / ELEMENT_BITS]
+			, "%u-bit backing type, 10-bit end element:%p, expected:%p."
+			, ELEMENT_BITS, end.Element, &data[BIT_COUNT / ELEMENT_BITS]);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_END_POSITION, end.Offset != expectedOffset
+			, "%u-bit backing type, 10-bit end offset:%u, expected:%u."
+			, ELEMENT_BITS, ::llc::u2_t(end.Offset), expectedOffset);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_END_POSITION, end.End != data + (BIT_COUNT + ELEMENT_BITS - 1) / ELEMENT_BITS
+			, "%u-bit backing type, 10-bit storage end:%p, expected:%p."
+			, ELEMENT_BITS, end.End, data + (BIT_COUNT + ELEMENT_BITS - 1) / ELEMENT_BITS);
 	}
 	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_PARTIAL_DECREMENT, (--end).Index() != BIT_COUNT - 1
 		, "%u-bit backing type, 10-bit end decrement mismatch. index:%u, expected:%u."
@@ -104,11 +124,20 @@ sttc ::llc::err_t testSixBits(ATestError & errors, _dataValues (&data)[_dataSize
 	auto it = sixBits.begin();
 	auto end = sixBits.end();
 	::llc::u2_t count = 0;
-	for(; it != end; ++it, ++count) {}
-	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_SIX_BIT_END_POSITION, count != 6 || end.Index() != 6 || end.Element != data || end.Offset != 6 || end.End != data + 1
-		, "%u-bit backing type, 6-bit end position mismatch. count:%u, index:%u, element:%p, expected element:%p, offset:%u, storage end:%p, expected storage end:%p."
-		, ELEMENT_BITS, count, end.Index(), end.Element, data, ::llc::u2_t(end.Offset), end.End, data + 1
-		);
+	for(; count < 6 && it != end; ++it, ++count) {}
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_SIX_BIT_END_POSITION, count != 6
+		, "%u-bit backing type, 6-bit visited count:%u, expected:6.", ELEMENT_BITS, count);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_SIX_BIT_END_POSITION, it != end
+		, "%u-bit backing type, iterator did not reach the end after 6 bits; current index:%u, end index:%u."
+		, ELEMENT_BITS, it.Index(), end.Index());
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_SIX_BIT_END_POSITION, end.Index() != 6
+		, "%u-bit backing type, 6-bit end index:%u, expected:6.", ELEMENT_BITS, end.Index());
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_SIX_BIT_END_POSITION, end.Element != data
+		, "%u-bit backing type, 6-bit end element:%p, expected:%p.", ELEMENT_BITS, end.Element, data);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_SIX_BIT_END_POSITION, end.Offset != 6
+		, "%u-bit backing type, 6-bit end offset:%u, expected:6.", ELEMENT_BITS, ::llc::u2_t(end.Offset));
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_SIX_BIT_END_POSITION, end.End != data + 1
+		, "%u-bit backing type, 6-bit storage end:%p, expected:%p.", ELEMENT_BITS, end.End, data + 1);
 	return 0;
 }
 
@@ -118,19 +147,29 @@ sttc ::llc::err_t testEmpty(ATestError & errors, _dataValues (&data)[_dataSize])
 		::llc::view_bit<_dataValues> empty;
 		cnst auto begin = empty.begin();
 		cnst auto end = empty.end();
-		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_EMPTY_DEFAULT_POSITION, begin != end || begin.Begin || end.End
-			, "%u-bit backing type, default empty view is not represented by equal null iterators. begin element:%p, end element:%p, begin base:%p, storage end:%p."
-			, ::llc::u2_t(szof(_dataValues) * 8), begin.Element, end.Element, begin.Begin, end.End
-			);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_EMPTY_DEFAULT_POSITION, begin != end
+			, "%u-bit backing type, default empty iterators differ. begin element:%p, end element:%p."
+			, bcof(_dataValues), begin.Element, end.Element);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_EMPTY_DEFAULT_POSITION, begin.Begin
+			, "%u-bit backing type, default empty begin base:%p, expected:null."
+			, bcof(_dataValues), begin.Begin);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_EMPTY_DEFAULT_POSITION, end.End
+			, "%u-bit backing type, default empty storage end:%p, expected:null."
+			, bcof(_dataValues), end.End);
 	}
 	{
 		::llc::view_bit<_dataValues> empty{data, 0};
 		cnst auto begin = empty.begin();
 		cnst auto end = empty.end();
-		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_EMPTY_DATA_POSITION, begin != end || begin.Begin || end.End
-			, "%u-bit backing type, data-backed empty view is not represented by equal null iterators. begin element:%p, end element:%p, begin base:%p, storage end:%p."
-			, ::llc::u2_t(szof(_dataValues) * 8), begin.Element, end.Element, begin.Begin, end.End
-			);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_EMPTY_DATA_POSITION, begin != end
+			, "%u-bit backing type, data-backed empty iterators differ. begin element:%p, end element:%p."
+			, bcof(_dataValues), begin.Element, end.Element);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_EMPTY_DATA_POSITION, begin.Begin
+			, "%u-bit backing type, data-backed empty begin base:%p, expected:null."
+			, bcof(_dataValues), begin.Begin);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_EMPTY_DATA_POSITION, end.End
+			, "%u-bit backing type, data-backed empty storage end:%p, expected:null."
+			, bcof(_dataValues), end.End);
 	}
 	return 0;
 }
@@ -183,33 +222,48 @@ sttc ::llc::err_t testRandom(ATestError & errors) {
 		auto iterator = bits.begin();
 		auto end = bits.end();
 		::llc::u2_t iBit = 0;
-		for(; iterator != end; ++iterator, ++iBit) {
+		for(; iBit < bitCount && iterator != end; ++iterator, ++iBit) {
 			cnst bool expected = 0 != (data[iBit / ELEMENT_BITS] & (T(1) << (iBit % ELEMENT_BITS)));
-			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_POSITION, iterator.Index() != iBit || iterator.Limit() != bitCount
-				, "%u-bit randomized iterator position mismatch. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, index:%u, expected:%u, limit:%u."
-				, ELEMENT_BITS, BIT_RANDOM_SEED, iRandom, bitCount, iterator.Index(), iBit, iterator.Limit()
-				);
+			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_POSITION, iterator.Index() != iBit
+				, "%u-bit randomized iterator index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u."
+				, ELEMENT_BITS, iterator.Index(), iBit, BIT_RANDOM_SEED, iRandom, bitCount);
+			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_POSITION, iterator.Limit() != bitCount
+				, "%u-bit randomized iterator limit:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit index:%u."
+				, ELEMENT_BITS, iterator.Limit(), bitCount, BIT_RANDOM_SEED, iRandom, iBit);
 			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_VALUE, bool(*iterator) != expected
 				, "%u-bit randomized iterator value mismatch. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, index:%u, value:%u, expected:%u."
 				, ELEMENT_BITS, BIT_RANDOM_SEED, iRandom, bitCount, iBit, ::llc::u2_t(bool(*iterator)), ::llc::u2_t(expected)
 				);
 		}
-		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION
-			, iBit != bitCount || end.Index() != bitCount || end.Element != (bitCount ? data + bitCount / ELEMENT_BITS : 0)
-			|| end.Offset != bitCount % ELEMENT_BITS || end.End != (bitCount ? data + (bitCount + ELEMENT_BITS - 1) / ELEMENT_BITS : 0)
-			, "%u-bit randomized end mismatch. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, visited:%u, index:%u, element:%p, expected element:%p, offset:%u, end:%p, expected end:%p."
-			, ELEMENT_BITS, BIT_RANDOM_SEED, iRandom, bitCount, iBit, end.Index(), end.Element, bitCount ? data + bitCount / ELEMENT_BITS : 0
-			, ::llc::u2_t(end.Offset), end.End, bitCount ? data + (bitCount + ELEMENT_BITS - 1) / ELEMENT_BITS : 0
-			);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, iBit != bitCount
+			, "%u-bit randomized visited count:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u."
+			, ELEMENT_BITS, iBit, bitCount, BIT_RANDOM_SEED, iRandom);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, iterator != end
+			, "%u-bit randomized iterator did not reach the end after %u bits. seed:%" LLC_FMT_U3 ", iteration:%u, current index:%u, end index:%u."
+			, ELEMENT_BITS, bitCount, BIT_RANDOM_SEED, iRandom, iterator.Index(), end.Index());
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Index() != bitCount
+			, "%u-bit randomized end index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u."
+			, ELEMENT_BITS, end.Index(), bitCount, BIT_RANDOM_SEED, iRandom);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Element != (bitCount ? data + bitCount / ELEMENT_BITS : 0)
+			, "%u-bit randomized end element:%p, expected:%p. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u."
+			, ELEMENT_BITS, end.Element, bitCount ? data + bitCount / ELEMENT_BITS : 0, BIT_RANDOM_SEED, iRandom, bitCount);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Offset != bitCount % ELEMENT_BITS
+			, "%u-bit randomized end offset:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u."
+			, ELEMENT_BITS, ::llc::u2_t(end.Offset), bitCount % ELEMENT_BITS, BIT_RANDOM_SEED, iRandom, bitCount);
+		LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.End != (bitCount ? data + (bitCount + ELEMENT_BITS - 1) / ELEMENT_BITS : 0)
+			, "%u-bit randomized storage end:%p, expected:%p. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u."
+			, ELEMENT_BITS, end.End, bitCount ? data + (bitCount + ELEMENT_BITS - 1) / ELEMENT_BITS : 0, BIT_RANDOM_SEED, iRandom, bitCount);
 		if(bitCount) {
 			auto last = end;
 			--last;
 			cnst ::llc::u2_t lastIndex = bitCount - 1;
 			cnst bool expected = 0 != (data[lastIndex / ELEMENT_BITS] & (T(1) << (lastIndex % ELEMENT_BITS)));
-			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_DECREMENT, last.Index() != lastIndex || bool(*last) != expected
-				, "%u-bit randomized decrement mismatch. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, index:%u, expected index:%u, value:%u, expected value:%u."
-				, ELEMENT_BITS, BIT_RANDOM_SEED, iRandom, bitCount, last.Index(), lastIndex, ::llc::u2_t(bool(*last)), ::llc::u2_t(expected)
-				);
+			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_DECREMENT, last.Index() != lastIndex
+				, "%u-bit randomized decremented index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u."
+				, ELEMENT_BITS, last.Index(), lastIndex, BIT_RANDOM_SEED, iRandom, bitCount);
+			LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_RANDOM_DECREMENT, bool(*last) != expected
+				, "%u-bit randomized decremented value:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, bit index:%u."
+				, ELEMENT_BITS, ::llc::u2_t(bool(*last)), ::llc::u2_t(expected), BIT_RANDOM_SEED, iRandom, bitCount, lastIndex);
 			cnst ::llc::u2_t writeIndex = ::llc::u2_t(random.Next() % bitCount);
 			cnst bool previous = bits[writeIndex];
 			bits[writeIndex] = !previous;
@@ -256,10 +310,10 @@ sttc ::llc::err_t testReverseBits(ATestError & errors) {
 	cnst ::llc::err_t emptyResult = ::llc::reverse_bits(empty);
 	::llc::view_bit<T> single{&unchanged, 1};
 	cnst ::llc::err_t singleResult = ::llc::reverse_bits(single);
-	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_RESULT, emptyResult || singleResult
-		, "%u-bit empty/single reverse result mismatch. empty:%i, single:%i."
-		, ELEMENT_BITS, emptyResult, singleResult
-		);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_RESULT, emptyResult
+		, "%u-bit empty reverse result:%i, expected:0.", ELEMENT_BITS, emptyResult);
+	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_RESULT, singleResult
+		, "%u-bit single-bit reverse result:%i, expected:0.", ELEMENT_BITS, singleResult);
 	LLC_TEST_CHECK(errors, BIT_VIEW_TEST_RESULT_REVERSE_OUTSIDE, unchanged != expectedUnchanged
 		, "%u-bit empty or single-bit reverse modified its backing value. value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
 		, ELEMENT_BITS, ::llc::u3_t(unchanged), ::llc::u3_t(expectedUnchanged)

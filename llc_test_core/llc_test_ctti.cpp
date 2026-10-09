@@ -61,65 +61,99 @@ static_assert(CTTI_ALL_TYPES.Success() && 13 == CTTI_ALL_TYPES.Count, "Every ini
 		, "All-types member count mismatch. actual:%u, expected:13."
 		, CTTI_ALL_TYPES.Count
 		);
-	for(::llc::u2_t iMember = 0; iMember < CTTI_ALL_TYPES.Count; ++iMember)
+	for(::llc::u2_t iMember = 0; iMember < CTTI_ALL_TYPES.Count && iMember < ::llc::size(expectedTypes); ++iMember)
 		LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MEMBER_TYPE, expectedTypes[iMember] != CTTI_ALL_TYPES.Members[iMember].Type
 			, "Member %u type mismatch. actual:%u, expected:%u."
 			, iMember, (::llc::u2_t)CTTI_ALL_TYPES.Members[iMember].Type, (::llc::u2_t)expectedTypes[iMember]
 			);
 
 	stxp auto qualified = ::llc::cttiParseStruct("qualified", "::llc::u0_t A; llc::s2_t B; ::llc::f3_t C;");
-	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_QUALIFIED_TYPE
-		, false == qualified.Success() || 3 != qualified.Count || ::llc::CTTI_TYPE_U0 != qualified.Members[0].Type || ::llc::CTTI_TYPE_S2 != qualified.Members[1].Type || ::llc::CTTI_TYPE_F3 != qualified.Members[2].Type
-		, "Qualified parse mismatch. error:%u, count:%u, types:%u/%u/%u."
-		, (::llc::u2_t)qualified.Error, qualified.Count, (::llc::u2_t)qualified.Members[0].Type, (::llc::u2_t)qualified.Members[1].Type, (::llc::u2_t)qualified.Members[2].Type
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_QUALIFIED_TYPE, false == qualified.Success()
+		, "Qualified parse error:%u, expected success.", (::llc::u2_t)qualified.Error
 		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_QUALIFIED_TYPE, 3 != qualified.Count
+		, "Qualified member count:%u, expected:3.", qualified.Count
+		);
+	stxp auto qualifiedTypes[] = {::llc::CTTI_TYPE_U0, ::llc::CTTI_TYPE_S2, ::llc::CTTI_TYPE_F3};
+	for(::llc::u2_t iMember = 0; iMember < qualified.Count && iMember < ::llc::size(qualifiedTypes); ++iMember) {
+		LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_QUALIFIED_TYPE, qualified.Members[iMember].Type != qualifiedTypes[iMember]
+			, "Qualified member:%u type:%u, expected:%u."
+			, iMember, (::llc::u2_t)qualified.Members[iMember].Type, (::llc::u2_t)qualifiedTypes[iMember]
+			);
+	}
 
 	stxp auto whitespace = ::llc::cttiParseStruct("spaced", "\n\tu1_t\t First ,\nSecond ;\r\n s3_t Last ; \t");
-	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_WHITESPACE
-		, false == whitespace.Success() || 3 != whitespace.Count || false == ::llc::cttiSpanEquals(whitespace.MemberText, whitespace.Members[1].Name, "Second")
-		, "Whitespace parse mismatch. error:%u, count:%u, second span:%u/%u."
-		, (::llc::u2_t)whitespace.Error, whitespace.Count, whitespace.Members[1].Name.Offset, whitespace.Members[1].Name.Count
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_WHITESPACE, false == whitespace.Success()
+		, "Whitespace parse error:%u, expected success.", (::llc::u2_t)whitespace.Error
 		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_WHITESPACE, 3 != whitespace.Count
+		, "Whitespace member count:%u, expected:3.", whitespace.Count
+		);
+	if(1 < whitespace.Count) {
+		LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_WHITESPACE, false == ::llc::cttiSpanEquals(whitespace.MemberText, whitespace.Members[1].Name, "Second")
+			, "Whitespace second-name span:%u/%u, expected:'Second'."
+			, whitespace.Members[1].Name.Offset, whitespace.Members[1].Name.Count
+			);
+	}
 
 	stxp auto empty = ::llc::cttiParseStruct("empty", " \t\r\n");
-	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_EMPTY, false == empty.Success() || empty.Count
-		, "Empty parse mismatch. error:%u, count:%u."
-		, (::llc::u2_t)empty.Error, empty.Count
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_EMPTY, false == empty.Success()
+		, "Empty parse error:%u, expected success.", (::llc::u2_t)empty.Error
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_EMPTY, empty.Count
+		, "Empty member count:%u, expected:0.", empty.Count
 		);
 
 	stxp auto invalidStruct = ::llc::cttiParseStruct("bad-name", "u0_t X;");
-	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_INVALID_STRUCT_NAME
-		, ::llc::CTTI_PARSE_ERROR_INVALID_STRUCT_NAME != invalidStruct.Error || ::llc::CTTI_PARSE_STATE_STRUCT_NAME != invalidStruct.State || 3 != invalidStruct.ErrorOffset
-		, "Invalid structure diagnostic mismatch. error:%u, state:%u, offset:%u."
-		, (::llc::u2_t)invalidStruct.Error, (::llc::u2_t)invalidStruct.State, invalidStruct.ErrorOffset
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_INVALID_STRUCT_NAME, ::llc::CTTI_PARSE_ERROR_INVALID_STRUCT_NAME != invalidStruct.Error
+		, "Invalid structure error:%u, expected invalid name.", (::llc::u2_t)invalidStruct.Error
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_INVALID_STRUCT_NAME, ::llc::CTTI_PARSE_STATE_STRUCT_NAME != invalidStruct.State
+		, "Invalid structure state:%u, expected structure name.", (::llc::u2_t)invalidStruct.State
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_INVALID_STRUCT_NAME, 3 != invalidStruct.ErrorOffset
+		, "Invalid structure offset:%u, expected:3.", invalidStruct.ErrorOffset
 		);
 
 	stxp auto unsupported = ::llc::cttiParseStruct("native", "int X;");
-	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_UNSUPPORTED_TYPE
-		, ::llc::CTTI_PARSE_ERROR_UNSUPPORTED_TYPE != unsupported.Error || ::llc::CTTI_PARSE_STATE_TYPE != unsupported.State || unsupported.ErrorOffset
-		, "Unsupported type diagnostic mismatch. error:%u, state:%u, offset:%u."
-		, (::llc::u2_t)unsupported.Error, (::llc::u2_t)unsupported.State, unsupported.ErrorOffset
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_UNSUPPORTED_TYPE, ::llc::CTTI_PARSE_ERROR_UNSUPPORTED_TYPE != unsupported.Error
+		, "Unsupported type error:%u, expected unsupported type.", (::llc::u2_t)unsupported.Error
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_UNSUPPORTED_TYPE, ::llc::CTTI_PARSE_STATE_TYPE != unsupported.State
+		, "Unsupported type state:%u, expected type.", (::llc::u2_t)unsupported.State
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_UNSUPPORTED_TYPE, unsupported.ErrorOffset
+		, "Unsupported type offset:%u, expected:0.", unsupported.ErrorOffset
 		);
 
 	stxp auto invalidMember = ::llc::cttiParseStruct("invalid_member", "u0_t 2x;");
-	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_INVALID_MEMBER_NAME
-		, ::llc::CTTI_PARSE_ERROR_INVALID_MEMBER_NAME != invalidMember.Error || ::llc::CTTI_PARSE_STATE_MEMBER_NAME != invalidMember.State || 5 != invalidMember.ErrorOffset
-		, "Invalid member diagnostic mismatch. error:%u, state:%u, offset:%u."
-		, (::llc::u2_t)invalidMember.Error, (::llc::u2_t)invalidMember.State, invalidMember.ErrorOffset
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_INVALID_MEMBER_NAME, ::llc::CTTI_PARSE_ERROR_INVALID_MEMBER_NAME != invalidMember.Error
+		, "Invalid member error:%u, expected invalid name.", (::llc::u2_t)invalidMember.Error
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_INVALID_MEMBER_NAME, ::llc::CTTI_PARSE_STATE_MEMBER_NAME != invalidMember.State
+		, "Invalid member state:%u, expected member name.", (::llc::u2_t)invalidMember.State
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_INVALID_MEMBER_NAME, 5 != invalidMember.ErrorOffset
+		, "Invalid member offset:%u, expected:5.", invalidMember.ErrorOffset
 		);
 
 	stxp auto missingMember = ::llc::cttiParseStruct("missing_member", "u0_t X, ;");
-	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MISSING_MEMBER
-		, ::llc::CTTI_PARSE_ERROR_EXPECTED_MEMBER_NAME != missingMember.Error || ::llc::CTTI_PARSE_STATE_MEMBER_NAME != missingMember.State
-		, "Missing member diagnostic mismatch. error:%u, state:%u, offset:%u."
-		, (::llc::u2_t)missingMember.Error, (::llc::u2_t)missingMember.State, missingMember.ErrorOffset
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MISSING_MEMBER, ::llc::CTTI_PARSE_ERROR_EXPECTED_MEMBER_NAME != missingMember.Error
+		, "Missing member error:%u, expected member name.", (::llc::u2_t)missingMember.Error
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MISSING_MEMBER, ::llc::CTTI_PARSE_STATE_MEMBER_NAME != missingMember.State
+		, "Missing member state:%u, expected member name.", (::llc::u2_t)missingMember.State
 		);
 
 	stxp auto missingSemicolon = ::llc::cttiParseStruct("missing_semicolon", "u0_t X");
-	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MISSING_SEMICOLON
-		, ::llc::CTTI_PARSE_ERROR_EXPECTED_SEMICOLON != missingSemicolon.Error || ::llc::CTTI_PARSE_STATE_MEMBER_NAME != missingSemicolon.State || 6 != missingSemicolon.ErrorOffset
-		, "Missing semicolon diagnostic mismatch. error:%u, state:%u, offset:%u."
-		, (::llc::u2_t)missingSemicolon.Error, (::llc::u2_t)missingSemicolon.State, missingSemicolon.ErrorOffset
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MISSING_SEMICOLON, ::llc::CTTI_PARSE_ERROR_EXPECTED_SEMICOLON != missingSemicolon.Error
+		, "Missing semicolon error:%u, expected semicolon.", (::llc::u2_t)missingSemicolon.Error
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MISSING_SEMICOLON, ::llc::CTTI_PARSE_STATE_MEMBER_NAME != missingSemicolon.State
+		, "Missing semicolon state:%u, expected member name.", (::llc::u2_t)missingSemicolon.State
+		);
+	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_MISSING_SEMICOLON, 6 != missingSemicolon.ErrorOffset
+		, "Missing semicolon offset:%u, expected:6.", missingSemicolon.ErrorOffset
 		);
 	rtrn 0;
 }

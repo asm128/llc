@@ -103,29 +103,46 @@ sttc ::llc::err_t testDigitType(ATestError & errors) {
 	if_fail_fe(testCPowFractionalType<::llc::f2s_t>(errors));
 	if_fail_fe(testCPowFractionalType<::llc::f3s_t>(errors));
 
-	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL, ::llc::digit_ascii(0) != '0' || ::llc::digit_ascii(9) != '9'
-		, "Decimal digit mapping mismatch. zero:'%c', nine:'%c'."
-		, ::llc::digit_ascii(0), ::llc::digit_ascii(9)
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL, ::llc::digit_ascii(0) != '0'
+		, "Decimal digit 0:'%c', expected:'0'.", ::llc::digit_ascii(0)
 		);
-	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER
-		, ::llc::digit_ascii(10) != 'A' || ::llc::digit_ascii(35) != 'Z' || ::llc::digit_ascii(36) != 'a' || ::llc::digit_ascii(61) != 'z'
-		, "Alphabetic digit mapping mismatch. 10:'%c', 35:'%c', 36:'%c', 61:'%c'."
-		, ::llc::digit_ascii(10), ::llc::digit_ascii(35), ::llc::digit_ascii(36), ::llc::digit_ascii(61)
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL, ::llc::digit_ascii(9) != '9'
+		, "Decimal digit 9:'%c', expected:'9'.", ::llc::digit_ascii(9)
 		);
-	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_BASE
-		, ::llc::digit_ascii(255, 16) != 'F' || ::llc::digit_ascii(61, ::llc::ASCII_DIGIT_COUNT) != 'z'
-		, "Base digit mapping mismatch. 255 base 16:'%c', 61 base %u:'%c'."
-		, ::llc::digit_ascii(255, 16), ::llc::ASCII_DIGIT_COUNT, ::llc::digit_ascii(61, ::llc::ASCII_DIGIT_COUNT)
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER, ::llc::digit_ascii(10) != 'A'
+		, "Alphabetic digit 10:'%c', expected:'A'.", ::llc::digit_ascii(10)
+		);
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER, ::llc::digit_ascii(35) != 'Z'
+		, "Alphabetic digit 35:'%c', expected:'Z'.", ::llc::digit_ascii(35)
+		);
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER, ::llc::digit_ascii(36) != 'a'
+		, "Alphabetic digit 36:'%c', expected:'a'.", ::llc::digit_ascii(36)
+		);
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER, ::llc::digit_ascii(61) != 'z'
+		, "Alphabetic digit 61:'%c', expected:'z'.", ::llc::digit_ascii(61)
+		);
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_BASE, ::llc::digit_ascii(255, 16) != 'F'
+		, "Digit 255 in base 16:'%c', expected:'F'.", ::llc::digit_ascii(255, 16)
+		);
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_ASCII_BASE, ::llc::digit_ascii(61, ::llc::ASCII_DIGIT_COUNT) != 'z'
+		, "Digit 61 in base %u:'%c', expected:'z'.", ::llc::ASCII_DIGIT_COUNT, ::llc::digit_ascii(61, ::llc::ASCII_DIGIT_COUNT)
 		);
 
 	if_fail_fe(testDigitType<::llc::i0u_t>(errors));
 	if_fail_fe(testDigitType<::llc::i1u_t>(errors));
 	if_fail_fe(testDigitType<::llc::i2u_t>(errors));
 	if_fail_fe(testDigitType<::llc::i3u_t>(errors));
-	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_POSITION
-		, ::llc::digit<0>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'F' || ::llc::digit<1>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'E' || ::llc::digit<2>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'E' || ::llc::digit<3>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'B'
-		, "Hex digit extraction mismatch. digits:'%c%c%c%c', expected:'BEEF'."
-		, ::llc::digit<3>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)), ::llc::digit<2>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)), ::llc::digit<1>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)), ::llc::digit<0>(::llc::u2_t(0xBEEF), ::llc::u2_t(16))
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_POSITION, ::llc::digit<0>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'F'
+		, "Hex digit position 0:'%c', expected:'F'.", ::llc::digit<0>(::llc::u2_t(0xBEEF), ::llc::u2_t(16))
+		);
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_POSITION, ::llc::digit<1>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'E'
+		, "Hex digit position 1:'%c', expected:'E'.", ::llc::digit<1>(::llc::u2_t(0xBEEF), ::llc::u2_t(16))
+		);
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_POSITION, ::llc::digit<2>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'E'
+		, "Hex digit position 2:'%c', expected:'E'.", ::llc::digit<2>(::llc::u2_t(0xBEEF), ::llc::u2_t(16))
+		);
+	LLC_TEST_CHECK(errors, CPOW_TEST_RESULT_DIGIT_POSITION, ::llc::digit<3>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'B'
+		, "Hex digit position 3:'%c', expected:'B'.", ::llc::digit<3>(::llc::u2_t(0xBEEF), ::llc::u2_t(16))
 		);
 	rtrn 0;
 }

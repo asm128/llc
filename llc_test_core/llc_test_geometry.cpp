@@ -41,12 +41,34 @@ sttc bool geometryDiffers(::llc::f3_t left, ::llc::f3_t right, ::llc::f3_t toler
 	rtrn false == (::llc::abs(left - right) <= tolerance);
 }
 
-sttc bool geometryDiffers(::llc::n2f2_t left, ::llc::n2f2_t right) {
-	rtrn geometryDiffers(left.x, right.x) || geometryDiffers(left.y, right.y);
+tplt<tpnm T>
+sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n2<T> & actual, cnst ::llc::n2<T> & expected, ::llc::vcst_t operation) {
+	LLC_TEST_CHECK(errors, result, actual.x != expected.x
+		, "%.*s x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.x, (::llc::s3_t)expected.x
+		);
+	LLC_TEST_CHECK(errors, result, actual.y != expected.y
+		, "%.*s y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.y, (::llc::s3_t)expected.y
+		);
+	rtrn 0;
 }
 
-sttc bool geometryDiffers(::llc::n3f2_t left, ::llc::n3f2_t right) {
-	rtrn geometryDiffers(left.x, right.x) || geometryDiffers(left.y, right.y) || geometryDiffers(left.z, right.z);
+tplt<tpnm T>
+sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n3<T> & actual, cnst ::llc::n3<T> & expected, ::llc::vcst_t operation) {
+	LLC_TEST_CHECK(errors, result, actual.x != expected.x
+		, "%.*s x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.x, (::llc::s3_t)expected.x
+		);
+	LLC_TEST_CHECK(errors, result, actual.y != expected.y
+		, "%.*s y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.y, (::llc::s3_t)expected.y
+		);
+	LLC_TEST_CHECK(errors, result, actual.z != expected.z
+		, "%.*s z:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.z, (::llc::s3_t)expected.z
+		);
+	rtrn 0;
 }
 
 tplt<tpnm T, tpnm = void>
@@ -154,8 +176,7 @@ sttc ::llc::err_t testGeometryVectorsAndLines(ATestError & errors) {
 	cnst ::llc::n3s2_t expectedCross = {-3, 6, -3};
 	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_VECTOR, leftVector.Dot(rightVector) != 32
 		, "n3::Dot, expected:32, actual:%g.", leftVector.Dot(rightVector));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_VECTOR, crossProduct != expectedCross
-		, "n3::Cross, expected:" N3_S2 ", actual:" N3_S2 ".", llc_xyz(expectedCross), llc_xyz(crossProduct));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_VECTOR, crossProduct, expectedCross, LLC_CXS("n3::Cross")));
 
 	cnst ::llc::line2s2_t segment2 = {{1, 2}, {4, 8}};
 	cnst ::llc::line3s2_t segment3 = {{1, 2, 9}, {4, 8, 10}};
@@ -178,12 +199,9 @@ sttc ::llc::err_t testGeometryTrianglesAndRegions(ATestError & errors) {
 	cnst ::llc::n3s2_t expectedA = {4, 12, 24};
 	cnst ::llc::n3s2_t expectedC = {16, 30, 48};
 	cnst ::llc::n3s3_t expectedB = {10, 21, 36};
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.A != expectedA
-		, "tri3::Translate/Scale A, expected:" N3_S2 ", actual:" N3_S2 ".", llc_xyz(expectedA), llc_xyz(triangle.A));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.s3().B != expectedB
-		, "tri3::s3 B, expected:" N3_S3 ", actual:" N3_S3 ".", llc_xyz(expectedB), llc_xyz(triangle.s3().B));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.C != expectedC
-		, "tri3::Translate/Scale C, expected:" N3_S2 ", actual:" N3_S2 ".", llc_xyz(expectedC), llc_xyz(triangle.C));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.A, expectedA, LLC_CXS("tri3::Translate/Scale A")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.s3().B, expectedB, LLC_CXS("tri3::s3 B")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.C, expectedC, LLC_CXS("tri3::Translate/Scale C")));
 
 	cnst ::llc::rects2_t bounds = {2, 3, 12, 23};
 	cnst ::llc::rect2s2_t offsetSize = {{2, 3}, {10, 20}};
@@ -201,20 +219,13 @@ sttc ::llc::err_t testGeometryTrianglesAndRegions(ATestError & errors) {
 	cnst ::llc::n3s2_t expectedEnd = {4, 5, 6};
 	cnst ::llc::n3s2_t expectedRight = {0, 0, 1};
 	cnst ::llc::n2s2_t expectedAligned = {6, 2};
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_REGION, dimensions != expectedDimensions
-		, "rect::Dimensions, expected:" N2_S2 ", actual:" N2_S2 ".", llc_xy(expectedDimensions), llc_xy(dimensions));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_REGION, offsetSize.Limit() != expectedLimit2
-		, "rect2::Limit, expected:" N2_S2 ", actual:" N2_S2 ".", llc_xy(expectedLimit2), llc_xy(offsetSize.Limit()));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_REGION, volumeBounds.Limit() != expectedLimit3
-		, "rect3::Limit, expected:" N3_S2 ", actual:" N3_S2 ".", llc_xyz(expectedLimit3), llc_xyz(volumeBounds.Limit()));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_REGION, range.Count != expectedCount
-		, "range2::Count, expected:" N2_S2 ", actual:" N2_S2 ".", llc_xy(expectedCount), llc_xy(range.Count));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_REGION, slice.End != expectedEnd
-		, "slice3::End, expected:" N3_S2 ", actual:" N3_S2 ".", llc_xyz(expectedEnd), llc_xyz(slice.End));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_REGION, origin.Right != expectedRight
-		, "SOrigin::Right, expected:" N3_S2 ", actual:" N3_S2 ".", llc_xyz(expectedRight), llc_xyz(origin.Right));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_REGION, aligned != expectedAligned
-		, "realignCoord CENTER_TOP, expected:" N2_S2 ", actual:" N2_S2 ".", llc_xy(expectedAligned), llc_xy(aligned));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, dimensions, expectedDimensions, LLC_CXS("rect::Dimensions")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, offsetSize.Limit(), expectedLimit2, LLC_CXS("rect2::Limit")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, volumeBounds.Limit(), expectedLimit3, LLC_CXS("rect3::Limit")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, range.Count, expectedCount, LLC_CXS("range2::Count")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, slice.End, expectedEnd, LLC_CXS("slice3::End")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, origin.Right, expectedRight, LLC_CXS("SOrigin::Right")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, aligned, expectedAligned, LLC_CXS("realignCoord CENTER_TOP")));
 	rtrn 0;
 }
 
@@ -251,8 +262,12 @@ sttc ::llc::err_t testGeometryQuaternion(ATestError & errors) {
 	cnst ::llc::n3f2_t rotated = quarterTurn.RotateVector({1, 0, 0});
 	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(quarterTurn.Length(), 1)
 		, "quat::Normalize, expected length:1, actual:%g.", quarterTurn.Length());
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotated, ::llc::n3f2_t{0, 1, 0})
-		, "quat::RotateVector quarter turn, expected:{0, 1, 0}, actual:" N3_F2 ".", llc_xyz(rotated));
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotated.x, 0)
+		, "quat::RotateVector quarter turn x:%g, expected:0.", (::llc::f3_t)rotated.x);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotated.y, 1)
+		, "quat::RotateVector quarter turn y:%g, expected:1.", (::llc::f3_t)rotated.y);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotated.z, 0)
+		, "quat::RotateVector quarter turn z:%g, expected:0.", (::llc::f3_t)rotated.z);
 
 	::llc::quatf2_t midpoint = {};
 	midpoint.SLERP(identity, quarterTurn, .5);
@@ -260,20 +275,32 @@ sttc ::llc::err_t testGeometryQuaternion(ATestError & errors) {
 	cnst ::llc::f3_t halfRoot = ::sqrt(.5);
 	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(midpoint.Length(), 1)
 		, "quat::SLERP midpoint, expected length:1, actual:%g.", midpoint.Length());
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotatedHalf, ::llc::n3f2_t{(::llc::f2_t)halfRoot, (::llc::f2_t)halfRoot, 0})
-		, "quat::SLERP midpoint rotation, expected:{%g, %g, 0}, actual:" N3_F2 "."
-		, halfRoot, halfRoot, llc_xyz(rotatedHalf));
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotatedHalf.x, (::llc::f2_t)halfRoot)
+		, "quat::SLERP midpoint rotation x:%g, expected:%g.", (::llc::f3_t)rotatedHalf.x, halfRoot);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotatedHalf.y, (::llc::f2_t)halfRoot)
+		, "quat::SLERP midpoint rotation y:%g, expected:%g.", (::llc::f3_t)rotatedHalf.y, halfRoot);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotatedHalf.z, 0)
+		, "quat::SLERP midpoint rotation z:%g, expected:0.", (::llc::f3_t)rotatedHalf.z);
 
 	::llc::quatf2_t shortest = {};
 	shortest.SLERP(identity, -quarterTurn, .5);
 	cnst ::llc::n3f2_t rotatedShortest = shortest.RotateVector({1, 0, 0});
 	::llc::quatf2_t unchanged = {};
 	unchanged.SLERP(identity, identity, .5);
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotatedShortest, ::llc::n3f2_t{(::llc::f2_t)halfRoot, (::llc::f2_t)halfRoot, 0})
-		, "quat::SLERP shortest path, expected:{%g, %g, 0}, actual:" N3_F2 "."
-		, halfRoot, halfRoot, llc_xyz(rotatedShortest));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, unchanged != identity
-		, "quat::SLERP identical endpoints, expected:" QUAT_F2 ", actual:" QUAT_F2 ".", llc_xyzw(identity), llc_xyzw(unchanged));
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotatedShortest.x, (::llc::f2_t)halfRoot)
+		, "quat::SLERP shortest path x:%g, expected:%g.", (::llc::f3_t)rotatedShortest.x, halfRoot);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotatedShortest.y, (::llc::f2_t)halfRoot)
+		, "quat::SLERP shortest path y:%g, expected:%g.", (::llc::f3_t)rotatedShortest.y, halfRoot);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, geometryDiffers(rotatedShortest.z, 0)
+		, "quat::SLERP shortest path z:%g, expected:0.", (::llc::f3_t)rotatedShortest.z);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, unchanged.x != identity.x
+		, "quat::SLERP identical endpoints x:%g, expected:%g.", (::llc::f3_t)unchanged.x, (::llc::f3_t)identity.x);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, unchanged.y != identity.y
+		, "quat::SLERP identical endpoints y:%g, expected:%g.", (::llc::f3_t)unchanged.y, (::llc::f3_t)identity.y);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, unchanged.z != identity.z
+		, "quat::SLERP identical endpoints z:%g, expected:%g.", (::llc::f3_t)unchanged.z, (::llc::f3_t)identity.z);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_QUATERNION, unchanged.w != identity.w
+		, "quat::SLERP identical endpoints w:%g, expected:%g.", (::llc::f3_t)unchanged.w, (::llc::f3_t)identity.w);
 	rtrn 0;
 }
 
@@ -314,42 +341,90 @@ sttc ::llc::err_t testGeometryMatrixPolicy(ATestError & errors) {
 	cnst ::llc::n3f2_t expectedPoint3 = {9, 17, 27};
 	cnst ::llc::n3f2_t expectedDirection3 = {8, 15, 24};
 
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(rotated2, ::llc::n2f2_t{0, 1})
-		, "m2::Rotation, math:%u, layout:%u, expected:{0, 1}, actual:" N2_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xy(rotated2));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restored2, ::llc::n2f2_t{1, 0})
-		, "m2::TransformInverse, math:%u, layout:%u, expected:{1, 0}, actual:" N2_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xy(restored2));
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(rotated2.x, 0)
+		, "m2::Rotation x:%g, expected:0, math:%u, layout:%u."
+		, (::llc::f3_t)rotated2.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(rotated2.y, 1)
+		, "m2::Rotation y:%g, expected:1, math:%u, layout:%u."
+		, (::llc::f3_t)rotated2.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restored2.x, 1)
+		, "m2::TransformInverse x:%g, expected:1, math:%u, layout:%u."
+		, (::llc::f3_t)restored2.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restored2.y, 0)
+		, "m2::TransformInverse y:%g, expected:0, math:%u, layout:%u."
+		, (::llc::f3_t)restored2.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
 
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedPoint2 != expectedPoint2
-		, "m3a2::TransformPoint, math:%u, layout:%u, expected:" N2_F2 ", actual:" N2_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xy(expectedPoint2), llc_xy(transformedPoint2));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedDirection2 != expectedDirection2
-		, "m3a2::TransformDirection, math:%u, layout:%u, expected:" N2_F2 ", actual:" N2_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xy(expectedDirection2), llc_xy(transformedDirection2));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restoredPoint2, ::llc::n2f2_t{4, 5})
-		, "m3a2::GetInverse/TransformPoint, math:%u, layout:%u, expected:{4, 5}, actual:" N2_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xy(restoredPoint2));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, dividedPoint2 != expectedDividedPoint2
-		, "m3a2::TransformPoint homogeneous divide, math:%u, layout:%u, expected:" N2_F2 ", actual:" N2_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xy(expectedDividedPoint2), llc_xy(dividedPoint2));
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedPoint2.x != expectedPoint2.x
+		, "m3a2::TransformPoint x:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedPoint2.x, (::llc::f3_t)expectedPoint2.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedPoint2.y != expectedPoint2.y
+		, "m3a2::TransformPoint y:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedPoint2.y, (::llc::f3_t)expectedPoint2.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedDirection2.x != expectedDirection2.x
+		, "m3a2::TransformDirection x:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedDirection2.x, (::llc::f3_t)expectedDirection2.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedDirection2.y != expectedDirection2.y
+		, "m3a2::TransformDirection y:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedDirection2.y, (::llc::f3_t)expectedDirection2.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restoredPoint2.x, 4)
+		, "m3a2::GetInverse/TransformPoint x:%g, expected:4, math:%u, layout:%u."
+		, (::llc::f3_t)restoredPoint2.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restoredPoint2.y, 5)
+		, "m3a2::GetInverse/TransformPoint y:%g, expected:5, math:%u, layout:%u."
+		, (::llc::f3_t)restoredPoint2.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, dividedPoint2.x != expectedDividedPoint2.x
+		, "m3a2::TransformPoint homogeneous divide x:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)dividedPoint2.x, (::llc::f3_t)expectedDividedPoint2.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, dividedPoint2.y != expectedDividedPoint2.y
+		, "m3a2::TransformPoint homogeneous divide y:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)dividedPoint2.y, (::llc::f3_t)expectedDividedPoint2.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
 
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(rotated3, ::llc::n3f2_t{0, 1, 0})
-		, "m3a3::RotationZ, math:%u, layout:%u, expected:{0, 1, 0}, actual:" N3_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xyz(rotated3));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restored3, ::llc::n3f2_t{1, 0, 0})
-		, "m3a3::TransformInverse, math:%u, layout:%u, expected:{1, 0, 0}, actual:" N3_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xyz(restored3));
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(rotated3.x, 0)
+		, "m3a3::RotationZ x:%g, expected:0, math:%u, layout:%u."
+		, (::llc::f3_t)rotated3.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(rotated3.y, 1)
+		, "m3a3::RotationZ y:%g, expected:1, math:%u, layout:%u."
+		, (::llc::f3_t)rotated3.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(rotated3.z, 0)
+		, "m3a3::RotationZ z:%g, expected:0, math:%u, layout:%u."
+		, (::llc::f3_t)rotated3.z, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restored3.x, 1)
+		, "m3a3::TransformInverse x:%g, expected:1, math:%u, layout:%u."
+		, (::llc::f3_t)restored3.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restored3.y, 0)
+		, "m3a3::TransformInverse y:%g, expected:0, math:%u, layout:%u."
+		, (::llc::f3_t)restored3.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restored3.z, 0)
+		, "m3a3::TransformInverse z:%g, expected:0, math:%u, layout:%u."
+		, (::llc::f3_t)restored3.z, (::llc::u2_t)_math, (::llc::u2_t)_layout);
 
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedPoint3 != expectedPoint3
-		, "m4::Transform, math:%u, layout:%u, expected:" N3_F2 ", actual:" N3_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xyz(expectedPoint3), llc_xyz(transformedPoint3));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedDirection3 != expectedDirection3
-		, "m4::TransformDirection, math:%u, layout:%u, expected:" N3_F2 ", actual:" N3_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xyz(expectedDirection3), llc_xyz(transformedDirection3));
-	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restoredPoint3, ::llc::n3f2_t{4, 5, 6})
-		, "m4::GetInverse/Transform, math:%u, layout:%u, expected:{4, 5, 6}, actual:" N3_F2 "."
-		, (::llc::u2_t)_math, (::llc::u2_t)_layout, llc_xyz(restoredPoint3));
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedPoint3.x != expectedPoint3.x
+		, "m4::Transform x:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedPoint3.x, (::llc::f3_t)expectedPoint3.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedPoint3.y != expectedPoint3.y
+		, "m4::Transform y:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedPoint3.y, (::llc::f3_t)expectedPoint3.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedPoint3.z != expectedPoint3.z
+		, "m4::Transform z:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedPoint3.z, (::llc::f3_t)expectedPoint3.z, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedDirection3.x != expectedDirection3.x
+		, "m4::TransformDirection x:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedDirection3.x, (::llc::f3_t)expectedDirection3.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedDirection3.y != expectedDirection3.y
+		, "m4::TransformDirection y:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedDirection3.y, (::llc::f3_t)expectedDirection3.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, transformedDirection3.z != expectedDirection3.z
+		, "m4::TransformDirection z:%g, expected:%g, math:%u, layout:%u."
+		, (::llc::f3_t)transformedDirection3.z, (::llc::f3_t)expectedDirection3.z, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restoredPoint3.x, 4)
+		, "m4::GetInverse/Transform x:%g, expected:4, math:%u, layout:%u."
+		, (::llc::f3_t)restoredPoint3.x, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restoredPoint3.y, 5)
+		, "m4::GetInverse/Transform y:%g, expected:5, math:%u, layout:%u."
+		, (::llc::f3_t)restoredPoint3.y, (::llc::u2_t)_math, (::llc::u2_t)_layout);
+	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_MATRIX, geometryDiffers(restoredPoint3.z, 6)
+		, "m4::GetInverse/Transform z:%g, expected:6, math:%u, layout:%u."
+		, (::llc::f3_t)restoredPoint3.z, (::llc::u2_t)_math, (::llc::u2_t)_layout);
 	rtrn 0;
 }
 

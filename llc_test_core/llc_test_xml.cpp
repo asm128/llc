@@ -40,24 +40,54 @@ sttc ::llc::err_t testXMLDocument
 		);
 	for(::llc::u2_t iToken = 0; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SXMLToken & token = reader.Token[iToken];
-		LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_TOKEN_RANGE, token.Range.Offset > input.size() || token.Range.Count > input.size() - token.Range.Offset
-			, "Token %u escaped input. type:%i, offset:%u, count:%u, input:%u, document:'%.*s'."
-			, iToken, (::llc::s2_t)token.Type, token.Range.Offset, token.Range.Count, input.size()
-			, (int)input.size(), input.begin()
+		LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_TOKEN_RANGE, token.Range.Offset > input.size()
+			, "Token:%u offset:%u exceeds input:%u. Document:'%.*s'."
+			, iToken, token.Range.Offset, input.size(), (int)input.size(), input.begin()
 			);
-		LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_TOKEN_PARENT
-			, (0 == iToken) ? -1 != token.Parent : token.Parent < 0 || (::llc::u2_t)token.Parent >= iToken
-			, "Token %u has invalid parent:%i. type:%i, document:'%.*s'."
-			, iToken, token.Parent, (::llc::s2_t)token.Type, (int)input.size(), input.begin()
-			);
+		if(token.Range.Offset <= input.size()) {
+			LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_TOKEN_RANGE, token.Range.Count > input.size() - token.Range.Offset
+				, "Token:%u count:%u exceeds remaining input:%u. Document:'%.*s'."
+				, iToken, token.Range.Count, input.size() - token.Range.Offset, (int)input.size(), input.begin()
+				);
+		}
+		if(0 == iToken) {
+			LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_TOKEN_PARENT, -1 != token.Parent
+				, "Root token parent:%i, expected:-1. Document:'%.*s'."
+				, token.Parent, (int)input.size(), input.begin()
+				);
+		}
+		else {
+			LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_TOKEN_PARENT, token.Parent < 0
+				, "Token:%u parent:%i, expected nonnegative. Document:'%.*s'."
+				, iToken, token.Parent, (int)input.size(), input.begin()
+				);
+			if(0 <= token.Parent) {
+				LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_TOKEN_PARENT, (::llc::u2_t)token.Parent >= iToken
+					, "Token:%u parent:%i is not earlier. Document:'%.*s'."
+					, iToken, token.Parent, (int)input.size(), input.begin()
+					);
+			}
+		}
 	}
-	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_READER_STATE
-		, reader.StateRead.IndexCurrentChar != input.size() || reader.StateRead.IndexCurrentElement != -1
-		|| reader.StateRead.CurrentElement || reader.StateRead.NestLevel || reader.StateRead.CharCurrent
-		, "Reader final state mismatch. position:%u/%u, element:%i, current:%p, level:%u, character:%i, document:'%.*s'."
-		, reader.StateRead.IndexCurrentChar, input.size(), reader.StateRead.IndexCurrentElement
-		, reader.StateRead.CurrentElement, reader.StateRead.NestLevel, reader.StateRead.CharCurrent
-		, (int)input.size(), input.begin()
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.IndexCurrentChar != input.size()
+		, "Final position:%u, expected:%u. Document:'%.*s'."
+		, reader.StateRead.IndexCurrentChar, input.size(), (int)input.size(), input.begin()
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.IndexCurrentElement != -1
+		, "Final element index:%i, expected:-1. Document:'%.*s'."
+		, reader.StateRead.IndexCurrentElement, (int)input.size(), input.begin()
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.CurrentElement
+		, "Final current element:%p, expected:null. Document:'%.*s'."
+		, reader.StateRead.CurrentElement, (int)input.size(), input.begin()
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.NestLevel
+		, "Final nesting level:%u, expected:0. Document:'%.*s'."
+		, reader.StateRead.NestLevel, (int)input.size(), input.begin()
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.CharCurrent
+		, "Final character:%i, expected:0. Document:'%.*s'."
+		, reader.StateRead.CharCurrent, (int)input.size(), input.begin()
 		);
 	rtrn 0;
 }
@@ -89,10 +119,23 @@ sttc ::llc::err_t testXMLStorage(ATestError & errors) {
 	cnst ::llc::view<const ::llc::SXMLToken> storage = {reader.Token.begin(), reader.Token.size()};
 	cnst ::llc::err_t resetResult = reader.Reset();
 	cnst ::llc::err_t parseResult = ::llc::xmlParse(reader, {countedInput});
-	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_RESET_REUSE
-		, resetResult || ::llc::failed(parseResult) || reader.Token.begin() != storage.begin() || reader.StateRead.IndexCurrentElement != -1 || reader.StateRead.CurrentElement || reader.StateRead.NestLevel
-		, "Reader reuse mismatch. reset:%i, parse:%i, storage:%p/%p, index:%i, current:%p, level:%u."
-		, resetResult, parseResult, reader.Token.begin(), storage.begin(), reader.StateRead.IndexCurrentElement, reader.StateRead.CurrentElement, reader.StateRead.NestLevel
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_RESET_REUSE, resetResult
+		, "Reader reset result:%i, expected:0.", resetResult
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_RESET_REUSE, ::llc::failed(parseResult)
+		, "Reader reuse parse result:%i, expected success.", parseResult
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.Token.begin() != storage.begin()
+		, "Reader reuse storage:%p, expected:%p.", reader.Token.begin(), storage.begin()
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.StateRead.IndexCurrentElement != -1
+		, "Reader reuse element index:%i, expected:-1.", reader.StateRead.IndexCurrentElement
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.StateRead.CurrentElement
+		, "Reader reuse current element:%p, expected:null.", reader.StateRead.CurrentElement
+		);
+	LLC_TEST_CHECK(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.StateRead.NestLevel
+		, "Reader reuse nesting level:%u, expected:0.", reader.StateRead.NestLevel
 		);
 	rtrn 0;
 }
