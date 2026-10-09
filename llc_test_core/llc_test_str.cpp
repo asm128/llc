@@ -37,6 +37,36 @@ GDEFINE_ENUM_VALUED(STR_TEST_RESULT, VIEW_LOWERCASE			, 25, "tolower(view<char>)
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_CASE_VIEW			, 26, "Character-case transformation rejected an empty view.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, STRING_TO_UINT			, 27, "stoull() did not parse a counted decimal string.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CAMEL_CASE				, 28, "camelCase() produced unexpected text.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_RANGE			, 29, "Numeric str() returned a view of the wrong storage.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_CAPACITY		, 30, "Numeric str() filled its storage without room for a terminator.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_LOWER_CASE_VIEW	, 31, "tolower() rejected an empty view.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, STRING_TO_UINT_VALUE	, 32, "stoull() returned the wrong parsed value.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CAMEL_CASE_RESULT		, 33, "camelCase() failed on a valid input.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_ARRAY_RANGE		, 34, "str() did not expose the const character-array range.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_ARRAY_BEGIN	, 35, "str() changed the mutable array's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_ARRAY_BEGIN		, 36, "str() changed the const array's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, COUNTED_VIEW_BEGIN	, 37, "str() changed a counted mutable view's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_COUNTED_VIEW_SIZE, 38, "str() changed a counted const view's size.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_COUNTED_VIEW_BEGIN, 39, "str() changed a counted const view's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_DYNAMIC_POINTER, 40, "str() returned a null pointer for empty POD storage.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_DYNAMIC_TERMINATOR, 41, "str() did not terminate empty POD storage.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_ARRAY_SIZE	, 42, "str() returned a nonempty view of an empty character array.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_ARRAY_POINTER	, 43, "str() returned a null pointer for an empty character array.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_ARRAY_TERMINATOR, 44, "str() did not terminate an empty character array.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, FALSE_TEXT			, 45, "str(false) returned unexpected text.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_MUTABLE_STRING_TYPE, 46, "str() did not preserve const access to a mutable string view.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STRING_TYPE		, 47, "str() did not preserve const string-view access.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_STRING_SIZE	, 48, "str() changed a mutable string-view size.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_MUTABLE_STRING_BEGIN, 49, "str() changed a const mutable string-view start.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_MUTABLE_STRING_SIZE, 50, "str() changed a const mutable string-view size.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STRING_BEGIN	, 51, "str() changed a const string-view start.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STRING_SIZE	, 52, "str() changed a const string-view size.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_STATIC_BEGIN	, 53, "str() changed a mutable static array's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STATIC_TEXT	, 54, "str() changed const static array text.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STATIC_BEGIN	, 55, "str() changed a const static array's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_POD_BEGIN	, 56, "str() changed mutable POD storage's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_POD_TEXT		, 57, "str() changed const POD text.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_POD_BEGIN		, 58, "str() changed const POD storage's starting address.");
 
 tplt<tpnm TString>
 sttc bool stringMismatch(cnst TString & value, ::llc::vcst_t expected) {
@@ -51,14 +81,15 @@ sttc ::llc::err_t testNumericStrValue(ATestError & errors, T value, ::llc::vcst_
 		, "result type mismatch. capacity:%u, expected:%u."
 		, storage.size(), N
 		);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_NUMERIC_TEXT, stringMismatch(text, expected) || text.begin() != storage.begin()
-		, "text mismatch. actual:'%.*s'/%u at:%p, expected:'%.*s'/%u at:%p."
-		, (int)text.size(), text.begin(), text.size(), text.begin(), (int)expected.size(), expected.begin(), expected.size(), storage.begin()
-		);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_NUMERIC_TERMINATION, text.size() >= storage.size() || storage.Storage[text.size()]
-		, "termination mismatch. text size:%u, capacity:%u, terminator:%i."
-		, text.size(), storage.size(), text.size() < storage.size() ? storage.Storage[text.size()] : -1
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_NUMERIC_TEXT, stringMismatch(text, expected)
+		, "actual:'%.*s'/%u, expected:'%.*s'/%u."
+		, (int)text.size(), text.begin(), text.size(), (int)expected.size(), expected.begin(), expected.size());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_NUMERIC_RANGE, text.begin() != storage.begin()
+		, "numeric text begin:%p, expected:%p.", text.begin(), storage.begin());
+	LLC_TEST_REQUIRE(errors, STR_TEST_RESULT_NUMERIC_CAPACITY, text.size() >= storage.size()
+		, "numeric text size:%u, capacity:%u.", text.size(), storage.size());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_NUMERIC_TERMINATION, storage.Storage[text.size()]
+		, "numeric terminator:%i, expected:0.", storage.Storage[text.size()]);
 	rtrn 0;
 }
 
@@ -126,10 +157,12 @@ sttc ::llc::err_t testCharacterCase(ATestError & errors) {
 	::llc::toupper(lowerCharacter);
 	::llc::toupper(upperCharacter);
 	::llc::toupper(digitCharacter);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_UPPERCASE, 'A' != lowerCharacter || 'Z' != upperCharacter || '7' != digitCharacter
-		, "Character results: lowercase:%c, uppercase:%c, digit:%c."
-		, lowerCharacter, upperCharacter, digitCharacter
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_UPPERCASE, 'A' != lowerCharacter
+		, "toupper('a'):%c, expected:A.", lowerCharacter);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_UPPERCASE, 'Z' != upperCharacter
+		, "toupper('Z'):%c, expected:Z.", upperCharacter);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_UPPERCASE, '7' != digitCharacter
+		, "toupper('7'):%c, expected:7.", digitCharacter);
 
 	lowerCharacter		= 'a';
 	upperCharacter		= 'Z';
@@ -137,34 +170,42 @@ sttc ::llc::err_t testCharacterCase(ATestError & errors) {
 	::llc::tolower(lowerCharacter);
 	::llc::tolower(upperCharacter);
 	::llc::tolower(digitCharacter);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_LOWERCASE, 'a' != lowerCharacter || 'z' != upperCharacter || '7' != digitCharacter
-		, "Character results: lowercase:%c, uppercase:%c, digit:%c."
-		, lowerCharacter, upperCharacter, digitCharacter
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_LOWERCASE, 'a' != lowerCharacter
+		, "tolower('a'):%c, expected:a.", lowerCharacter);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_LOWERCASE, 'z' != upperCharacter
+		, "tolower('Z'):%c, expected:z.", upperCharacter);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CHARACTER_LOWERCASE, '7' != digitCharacter
+		, "tolower('7'):%c, expected:7.", digitCharacter);
 
 	::llc::sc_t		upperStorage[]		= {'a', 'Z', 0, 'm', '-', '7'};
 	cnst ::llc::err_t upperResult		= ::llc::toupper({upperStorage});
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_VIEW_UPPERCASE
-		, upperResult || 'A' != upperStorage[0] || 'Z' != upperStorage[1] || 0 != upperStorage[2] || 'M' != upperStorage[3] || '-' != upperStorage[4] || '7' != upperStorage[5]
-		, "Result:%i. Characters:%i/%i/%i/%i/%i/%i."
-		, upperResult, upperStorage[0], upperStorage[1], upperStorage[2], upperStorage[3], upperStorage[4], upperStorage[5]
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_VIEW_UPPERCASE, upperResult
+		, "Uppercase view result:%i.", upperResult);
+	::llc::sc_c expectedUpper[] = {'A', 'Z', 0, 'M', '-', '7'};
+	for(::llc::u2_t iCharacter = 0; iCharacter < ::llc::size(expectedUpper); ++iCharacter) {
+		LLC_TEST_CHECK(errors, STR_TEST_RESULT_VIEW_UPPERCASE, upperStorage[iCharacter] != expectedUpper[iCharacter]
+			, "Uppercase view[%u]:%i, expected:%i."
+			, iCharacter, upperStorage[iCharacter], expectedUpper[iCharacter]);
+	}
 
 	::llc::sc_t		lowerStorage[]		= {'A', 'z', 0, 'M', '_', '7'};
 	cnst ::llc::err_t lowerResult		= ::llc::tolower({lowerStorage});
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_VIEW_LOWERCASE
-		, lowerResult || 'a' != lowerStorage[0] || 'z' != lowerStorage[1] || 0 != lowerStorage[2] || 'm' != lowerStorage[3] || '_' != lowerStorage[4] || '7' != lowerStorage[5]
-		, "Result:%i. Characters:%i/%i/%i/%i/%i/%i."
-		, lowerResult, lowerStorage[0], lowerStorage[1], lowerStorage[2], lowerStorage[3], lowerStorage[4], lowerStorage[5]
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_VIEW_LOWERCASE, lowerResult
+		, "Lowercase view result:%i.", lowerResult);
+	::llc::sc_c expectedLower[] = {'a', 'z', 0, 'm', '_', '7'};
+	for(::llc::u2_t iCharacter = 0; iCharacter < ::llc::size(expectedLower); ++iCharacter) {
+		LLC_TEST_CHECK(errors, STR_TEST_RESULT_VIEW_LOWERCASE, lowerStorage[iCharacter] != expectedLower[iCharacter]
+			, "Lowercase view[%u]:%i, expected:%i."
+			, iCharacter, lowerStorage[iCharacter], expectedLower[iCharacter]);
+	}
 
 	::llc::view<::llc::sc_t> emptyView = {};
 	cnst ::llc::err_t emptyUpperResult = ::llc::toupper(emptyView);
 	cnst ::llc::err_t emptyLowerResult = ::llc::tolower(emptyView);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_CASE_VIEW, emptyUpperResult || emptyLowerResult
-		, "Upper result:%i, lower result:%i."
-		, emptyUpperResult, emptyLowerResult
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_CASE_VIEW, emptyUpperResult
+		, "Empty uppercase view result:%i.", emptyUpperResult);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_LOWER_CASE_VIEW, emptyLowerResult
+		, "Empty lowercase view result:%i.", emptyLowerResult);
 	rtrn 0;
 }
 
@@ -172,10 +213,10 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 	::llc::sc_c		digits[]			= {'4', '2', '9', 'x'};
 	::llc::u3_t		parsedValue		= {};
 	cnst ::llc::err_t parsedCount		= ::llc::stoull({digits}, parsedValue);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STRING_TO_UINT, 3 != parsedCount || 429 != parsedValue
-		, "Parsed count:%i, value:%" LLC_FMT_U3 "."
-		, parsedCount, parsedValue
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STRING_TO_UINT, 3 != parsedCount
+		, "Parsed count:%i, expected:3.", parsedCount);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STRING_TO_UINT_VALUE, 429 != parsedValue
+		, "Parsed value:%" LLC_FMT_U3 ", expected:429.", parsedValue);
 
 	stct SCamelCase {
 		::llc::vcst_t	Input		= {};
@@ -192,9 +233,12 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 	for(::llc::u2_t iCase = 0; iCase < ::llc::size(cases); ++iCase) {
 		::llc::string actual = {};
 		cnst ::llc::err_t result = ::llc::camelCase(cases[iCase].Input, actual);
-		LLC_TEST_CHECK(errors, STR_TEST_RESULT_CAMEL_CASE, ::llc::failed(result) || stringMismatch(actual, cases[iCase].Expected)
-			, "Case:%u, result:%i, input:'%.*s', actual:'%.*s', expected:'%.*s'."
-			, iCase, result
+		LLC_TEST_CHECK(errors, STR_TEST_RESULT_CAMEL_CASE_RESULT, ::llc::failed(result)
+			, "Case:%u, result:%i, input:'%.*s'."
+			, iCase, result, (int)cases[iCase].Input.size(), cases[iCase].Input.begin());
+		LLC_TEST_CHECK(errors, STR_TEST_RESULT_CAMEL_CASE, stringMismatch(actual, cases[iCase].Expected)
+			, "Case:%u, input:'%.*s', actual:'%.*s', expected:'%.*s'."
+			, iCase
 			, (int)cases[iCase].Input.size(), cases[iCase].Input.begin()
 			, (int)actual.size(), actual.begin()
 			, (int)cases[iCase].Expected.size(), cases[iCase].Expected.begin()
@@ -216,14 +260,14 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 		, "Const array result type mismatch. size:%u."
 		, constArrayText.size()
 		);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_RANGE, stringMismatch(mutableArrayText, LLC_CXS("alpha")) || mutableArrayText.begin() != mutableArray
-		, "Mutable array range mismatch. size:%u, expected:5, begin:%p, expected begin:%p."
-		, mutableArrayText.size(), mutableArrayText.begin(), mutableArray
-		);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_RANGE, stringMismatch(constArrayText, LLC_CXS("beta")) || constArrayText.begin() != constArray
-		, "Const array range mismatch. size:%u, expected:4, begin:%p, expected begin:%p."
-		, constArrayText.size(), constArrayText.begin(), constArray
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_RANGE, stringMismatch(mutableArrayText, LLC_CXS("alpha"))
+		, "Mutable array text:'%.*s', expected:'alpha'.", (int)mutableArrayText.size(), mutableArrayText.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_MUTABLE_ARRAY_BEGIN, mutableArrayText.begin() != mutableArray
+		, "Mutable array begin:%p, expected:%p.", mutableArrayText.begin(), mutableArray);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_ARRAY_RANGE, stringMismatch(constArrayText, LLC_CXS("beta"))
+		, "Const array text:'%.*s', expected:'beta'.", (int)constArrayText.size(), constArrayText.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_ARRAY_BEGIN, constArrayText.begin() != constArray
+		, "Const array begin:%p, expected:%p.", constArrayText.begin(), constArray);
 	mutableArrayText[0] = 'A';
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_MUTATION, mutableArray[0] != 'A'
 		, "Mutable array source was not updated. source[0]:%c, expected:A."
@@ -243,11 +287,14 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 		, "Const view result type mismatch. size:%u."
 		, countedConstText.size()
 		);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_COUNTED_VIEW_RANGE
-		, countedText.size() != ::llc::size(countedStorage) || countedText.begin() != countedStorage || countedConstText.size() != ::llc::size(countedStorage) || countedConstText.begin() != countedStorage
-		, "Counted range mismatch. mutable size:%u, const size:%u, expected:%u, mutable begin:%p, const begin:%p, expected begin:%p."
-		, countedText.size(), countedConstText.size(), (::llc::u2_t)::llc::size(countedStorage), countedText.begin(), countedConstText.begin(), countedStorage
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_COUNTED_VIEW_RANGE, countedText.size() != ::llc::size(countedStorage)
+		, "Counted mutable size:%u, expected:%u.", countedText.size(), (::llc::u2_t)::llc::size(countedStorage));
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_COUNTED_VIEW_BEGIN, countedText.begin() != countedStorage
+		, "Counted mutable begin:%p, expected:%p.", countedText.begin(), countedStorage);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_COUNTED_VIEW_SIZE, countedConstText.size() != ::llc::size(countedStorage)
+		, "Counted const size:%u, expected:%u.", countedConstText.size(), (::llc::u2_t)::llc::size(countedStorage));
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_COUNTED_VIEW_BEGIN, countedConstText.begin() != countedStorage
+		, "Counted const begin:%p, expected:%p.", countedConstText.begin(), countedStorage);
 	countedText[3] = 'U';
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_MUTATION, countedStorage[3] != 'U'
 		, "Counted mutable source was not updated. source[3]:%c, expected:U."
@@ -261,15 +308,26 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 	auto				constMutableText	= ::llc::str(constMutableString);
 	auto				constStringText		= ::llc::str(constString);
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STRING_VIEW_TYPE
-		, false == (::std::is_same_v<decltype(mutableStringText), ::llc::vs>) || false == (::std::is_same_v<decltype(constMutableText), ::llc::vcst_t>) || false == (::std::is_same_v<decltype(constStringText), ::llc::vcst_t>)
-		, "String-view result type mismatch. mutable size:%u, const mutable size:%u, const size:%u."
-		, mutableStringText.size(), constMutableText.size(), constStringText.size()
-		);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STRING_VIEW_RANGE
-		, mutableStringText.begin() != mutableString.begin() || mutableStringText.size() != mutableString.size() || constMutableText.begin() != mutableString.begin() || constMutableText.size() != mutableString.size() || constStringText.begin() != constString.begin() || constStringText.size() != constString.size()
-		, "String-view range mismatch. mutable:%p/%u, const mutable:%p/%u, const:%p/%u."
-		, mutableStringText.begin(), mutableStringText.size(), constMutableText.begin(), constMutableText.size(), constStringText.begin(), constStringText.size()
-		);
+		, false == (::std::is_same_v<decltype(mutableStringText), ::llc::vs>)
+		, "Mutable string-view type mismatch.");
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_MUTABLE_STRING_TYPE
+		, false == (::std::is_same_v<decltype(constMutableText), ::llc::vcst_t>)
+		, "Const mutable string-view type mismatch.");
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_STRING_TYPE
+		, false == (::std::is_same_v<decltype(constStringText), ::llc::vcst_t>)
+		, "Const string-view type mismatch.");
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STRING_VIEW_RANGE, mutableStringText.begin() != mutableString.begin()
+		, "Mutable string begin:%p, expected:%p.", mutableStringText.begin(), mutableString.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_MUTABLE_STRING_SIZE, mutableStringText.size() != mutableString.size()
+		, "Mutable string size:%u, expected:%u.", mutableStringText.size(), mutableString.size());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_MUTABLE_STRING_BEGIN, constMutableText.begin() != mutableString.begin()
+		, "Const mutable string begin:%p, expected:%p.", constMutableText.begin(), mutableString.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_MUTABLE_STRING_SIZE, constMutableText.size() != mutableString.size()
+		, "Const mutable string size:%u, expected:%u.", constMutableText.size(), mutableString.size());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_STRING_BEGIN, constStringText.begin() != constString.begin()
+		, "Const string begin:%p, expected:%p.", constStringText.begin(), constString.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_STRING_SIZE, constStringText.size() != constString.size()
+		, "Const string size:%u, expected:%u.", constStringText.size(), constString.size());
 
 	::llc::astchar<8>	staticText		= {'s', 't', 'a', 't', 'i', 'c', 0};
 	cnst ::llc::astchar<8> & constStaticText	= staticText;
@@ -283,11 +341,14 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 		, "Const static result type mismatch. size:%u."
 		, constStaticView.size()
 		);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STATIC_RANGE
-		, stringMismatch(mutableStaticView, LLC_CXS("static")) || mutableStaticView.begin() != staticText.begin() || stringMismatch(constStaticView, LLC_CXS("static")) || constStaticView.begin() != staticText.begin()
-		, "Static range mismatch. mutable:%p/%u, const:%p/%u, expected begin:%p."
-		, mutableStaticView.begin(), mutableStaticView.size(), constStaticView.begin(), constStaticView.size(), staticText.begin()
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_STATIC_RANGE, stringMismatch(mutableStaticView, LLC_CXS("static"))
+		, "Mutable static text:'%.*s'.", (int)mutableStaticView.size(), mutableStaticView.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_MUTABLE_STATIC_BEGIN, mutableStaticView.begin() != staticText.begin()
+		, "Mutable static begin:%p, expected:%p.", mutableStaticView.begin(), staticText.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_STATIC_TEXT, stringMismatch(constStaticView, LLC_CXS("static"))
+		, "Const static text:'%.*s'.", (int)constStaticView.size(), constStaticView.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_STATIC_BEGIN, constStaticView.begin() != staticText.begin()
+		, "Const static begin:%p, expected:%p.", constStaticView.begin(), staticText.begin());
 
 	::llc::asc_t	dynamicText		= {'p', 'o', 'd'};
 	cnst ::llc::asc_t & constDynamicText	= dynamicText;
@@ -301,11 +362,14 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 		, "Const POD result type mismatch. size:%u."
 		, constDynamicView.size()
 		);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_POD_RANGE
-		, stringMismatch(mutableDynamicView, LLC_CXS("pod")) || mutableDynamicView.begin() != dynamicText.begin() || stringMismatch(constDynamicView, LLC_CXS("pod")) || constDynamicView.begin() != dynamicText.begin()
-		, "POD range mismatch. mutable:%p/%u, const:%p/%u, expected begin:%p."
-		, mutableDynamicView.begin(), mutableDynamicView.size(), constDynamicView.begin(), constDynamicView.size(), dynamicText.begin()
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_POD_RANGE, stringMismatch(mutableDynamicView, LLC_CXS("pod"))
+		, "Mutable POD text:'%.*s'.", (int)mutableDynamicView.size(), mutableDynamicView.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_MUTABLE_POD_BEGIN, mutableDynamicView.begin() != dynamicText.begin()
+		, "Mutable POD begin:%p, expected:%p.", mutableDynamicView.begin(), dynamicText.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_POD_TEXT, stringMismatch(constDynamicView, LLC_CXS("pod"))
+		, "Const POD text:'%.*s'.", (int)constDynamicView.size(), constDynamicView.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_CONST_POD_BEGIN, constDynamicView.begin() != dynamicText.begin()
+		, "Const POD begin:%p, expected:%p.", constDynamicView.begin(), dynamicText.begin());
 	mutableDynamicView[0] = 'P';
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_POD_MUTATION, dynamicText[0] != 'P'
 		, "Mutable POD source was not updated. source[0]:%c, expected:P."
@@ -316,18 +380,25 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 	::llc::sc_t			emptyArray[] = "";
 	auto					emptyDynamicText	= ::llc::str(emptyDynamic);
 	auto					emptyArrayText		= ::llc::str(emptyArray);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_STRING
-		, emptyDynamicText.size() || 0 == emptyDynamicText.begin() || emptyDynamicText.begin()[0] || emptyArrayText.size() || 0 == emptyArrayText.begin() || emptyArrayText.begin()[0]
-		, "Empty string mismatch. POD:%p/%u/'%c', array:%p/%u/'%c'."
-		, emptyDynamicText.begin(), emptyDynamicText.size(), emptyDynamicText.begin()[0], emptyArrayText.begin(), emptyArrayText.size(), emptyArrayText.begin()[0]
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_STRING, emptyDynamicText.size()
+		, "Empty POD string size:%u.", emptyDynamicText.size());
+	LLC_TEST_REQUIRE(errors, STR_TEST_RESULT_EMPTY_DYNAMIC_POINTER, 0 == emptyDynamicText.begin()
+		, "Empty POD string begin:%p.", emptyDynamicText.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_DYNAMIC_TERMINATOR, emptyDynamicText.begin()[0]
+		, "Empty POD string terminator:%i.", emptyDynamicText.begin()[0]);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_ARRAY_SIZE, emptyArrayText.size()
+		, "Empty array string size:%u.", emptyArrayText.size());
+	LLC_TEST_REQUIRE(errors, STR_TEST_RESULT_EMPTY_ARRAY_POINTER, 0 == emptyArrayText.begin()
+		, "Empty array string begin:%p.", emptyArrayText.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_ARRAY_TERMINATOR, emptyArrayText.begin()[0]
+		, "Empty array string terminator:%i.", emptyArrayText.begin()[0]);
 
 	auto trueText	= ::llc::str(true);
 	auto falseText	= ::llc::str(false);
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_BOOL_TEXT, stringMismatch(trueText, LLC_CXS("true")) || stringMismatch(falseText, LLC_CXS("false"))
-		, "Boolean text mismatch. true:'%.*s', false:'%.*s'."
-		, (int)trueText.size(), trueText.begin(), (int)falseText.size(), falseText.begin()
-		);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_BOOL_TEXT, stringMismatch(trueText, LLC_CXS("true"))
+		, "True text:'%.*s'.", (int)trueText.size(), trueText.begin());
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_FALSE_TEXT, stringMismatch(falseText, LLC_CXS("false"))
+		, "False text:'%.*s'.", (int)falseText.size(), falseText.begin());
 	if_fail_fe(testNumericStr(errors));
 	if_fail_fe(testCharacterCase(errors));
 	if_fail_fe(testStringFunctions(errors));

@@ -28,13 +28,34 @@ GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, INVALID_SYMBOL			, 17, "base64Decode() a
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, INVALID_PADDING			, 18, "base64Decode() accepted padding outside the final legal positions.");
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, NONCANONICAL_PADDING		, 19, "base64Decode() accepted nonzero unused bits in a padded final quartet.");
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, INVALID_ALPHABET			, 20, "A Base64 operation accepted an alphabet that was not exactly 64 unique symbols excluding its pad.");
-GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FAILURE_PRESERVATION		, 21, "A rejected Base64 operation changed the output allocation, count, contents or terminator.");
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, STATIC_SYMBOL_MAP			, 22, "A constexpr Base64 symbol map produced the wrong encoded or decoded value.");
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FONT_DECODE				, 23, "A field-tested CP437 font failed to decode.");
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FONT_SIZE					, 24, "A decoded CP437 font produced the wrong storage size.");
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FONT_CONTENT				, 25, "A decoded CP437 font did not preserve its known bitmap contents.");
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FONT_ROUND_TRIP			, 26, "A decoded CP437 font did not encode back to its original Base64 text.");
 GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FONT_ASCII_DRAW			, 27, "The CP437 font bits did not draw the known ASCII letters correctly.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, ENCODE_APPEND_RESULT		, 28, "base64Encode() failed while appending.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, DECODE_APPEND_RESULT		, 29, "base64Decode() failed while appending.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FILESYSTEM_ENCODE_RESULT	, 30, "Filesystem-safe Base64 encoding failed.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FILESYSTEM_DECODE_RESULT	, 31, "Filesystem-safe Base64 decoding failed.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FILESYSTEM_DECODE_VALUE	, 32, "Filesystem-safe Base64 decoding returned the wrong value.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, CUSTOM_ENCODE_RESULT	, 33, "Custom-alphabet Base64 encoding failed.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, CUSTOM_DECODE_RESULT	, 34, "Custom-alphabet Base64 decoding failed.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, CUSTOM_DECODE_VALUE	, 35, "Custom-alphabet Base64 decoding returned the wrong value.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, STATIC_ENCODE_RESULT	, 36, "Static-map Base64 encoding failed.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, STATIC_DECODE_RESULT	, 37, "Static-map Base64 decoding failed.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, STATIC_DECODE_VALUE	, 38, "Static-map Base64 decoding returned the wrong value.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, OVERLOAD_ENCODE_RESULT	, 39, "A base64Encode() container overload failed.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, OVERLOAD_DECODE_RESULT	, 40, "A base64Decode() container overload failed.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, COUNTED_TERMINATOR_RESULT, 41, "base64Decode() failed on one counted null terminator.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, REJECT_THROW			, 42, "A rejected Base64 operation threw.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, PRESERVE_ADDRESS		, 43, "A rejected Base64 operation changed the output address.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, PRESERVE_COUNT			, 44, "A rejected Base64 operation changed the output count.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, PRESERVE_CAPACITY		, 45, "A rejected Base64 operation changed the output capacity.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, PRESERVE_CONTENT		, 46, "A rejected Base64 operation changed the output contents.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, PRESERVE_TERMINATOR		, 47, "A rejected Base64 operation changed the hidden terminator.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FONT_LOGICAL_SIZE		, 48, "The decoded CP437 font is smaller than its logical bitmap size.");
+GDEFINE_ENUM_VALUED(BASE64_TEST_RESULT, FONT_ENCODE_RESULT		, 49, "Encoding a decoded CP437 font failed.");
 
 tplt<tpnm T>
 stin ::llc::vcu0_t byteView(cnst T & value) { rtrn value.cu8(); }
@@ -151,10 +172,10 @@ sttc ::llc::err_t testBase64Append(ATestError & errors) {
 	::llc::au0_t encoded = {'p', 'r', 'e', ':'};
 	cnst ::llc::u0_t expectedEncoded[] = {'p', 'r', 'e', ':', 'T', 'Q', '=', '='};
 	cnst ::llc::err_t encodeResult = ::llc::base64Encode(LLC_CXS("M"), encoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_ENCODE_APPEND, ::llc::failed(encodeResult) || bytesMismatch(encoded, {expectedEncoded})
-		, "Encode append mismatch. result:%i, actual:%u, expected:%u."
-		, encodeResult, encoded.size(), ::llc::size(expectedEncoded)
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_ENCODE_APPEND_RESULT, ::llc::failed(encodeResult)
+		, "Encode append result:%i.", encodeResult);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_ENCODE_APPEND, bytesMismatch(encoded, {expectedEncoded})
+		, "Encode append actual:%u, expected:%u.", encoded.size(), ::llc::size(expectedEncoded));
 	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_TERMINATOR, encoded.begin()[encoded.size()]
 		, "Encode append terminator mismatch. size:%u, terminator:0x%02X."
 		, encoded.size(), encoded.begin()[encoded.size()]
@@ -163,10 +184,10 @@ sttc ::llc::err_t testBase64Append(ATestError & errors) {
 	::llc::au0_t decoded = {0xA5, 0x5A};
 	cnst ::llc::u0_t expectedDecoded[] = {0xA5, 0x5A, 'M'};
 	cnst ::llc::err_t decodeResult = ::llc::base64Decode(LLC_CXS("TQ=="), decoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_DECODE_APPEND, ::llc::failed(decodeResult) || bytesMismatch(decoded, {expectedDecoded})
-		, "Decode append mismatch. result:%i, actual:%u, expected:%u."
-		, decodeResult, decoded.size(), ::llc::size(expectedDecoded)
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_DECODE_APPEND_RESULT, ::llc::failed(decodeResult)
+		, "Decode append result:%i.", decodeResult);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_DECODE_APPEND, bytesMismatch(decoded, {expectedDecoded})
+		, "Decode append actual:%u, expected:%u.", decoded.size(), ::llc::size(expectedDecoded));
 	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_TERMINATOR, decoded.begin()[decoded.size()]
 		, "Decode append terminator mismatch. size:%u, terminator:0x%02X."
 		, decoded.size(), decoded.begin()[decoded.size()]
@@ -191,43 +212,43 @@ sttc ::llc::err_t testBase64Alphabets(ATestError & errors) {
 	cnst ::llc::u0_t binary[] = {0xFB, 0xFF};
 	::llc::au0_t encoded;
 	cnst ::llc::err_t encodeResult = ::llc::base64EncodeFS({binary}, encoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FILESYSTEM_ALPHABET, ::llc::failed(encodeResult) || bytesMismatch(encoded, byteView(LLC_CXS("-_8=")))
-		, "Filesystem-safe encode mismatch. result:%i, actual:'%.*s', expected:'-_8='."
-		, encodeResult, (int)encoded.size(), encoded.begin()
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FILESYSTEM_ENCODE_RESULT, ::llc::failed(encodeResult)
+		, "Filesystem-safe encode result:%i.", encodeResult);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FILESYSTEM_ALPHABET, bytesMismatch(encoded, byteView(LLC_CXS("-_8=")))
+		, "Filesystem-safe encoded:'%.*s', expected:'-_8='.", (int)encoded.size(), encoded.begin());
 	::llc::au0_t decoded;
 	cnst ::llc::err_t decodeResult = ::llc::base64DecodeFS(encoded, decoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FILESYSTEM_ALPHABET, ::llc::failed(decodeResult) || bytesMismatch(decoded, {binary})
-		, "Filesystem-safe decode mismatch. result:%i, actual:%u bytes, expected:%u bytes."
-		, decodeResult, decoded.size(), ::llc::size(binary)
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FILESYSTEM_DECODE_RESULT, ::llc::failed(decodeResult)
+		, "Filesystem-safe decode result:%i.", decodeResult);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FILESYSTEM_DECODE_VALUE, bytesMismatch(decoded, {binary})
+		, "Filesystem-safe decoded bytes:%u, expected:%u.", decoded.size(), ::llc::size(binary));
 
 	cnst ::llc::u0_t zero[] = {0};
 	encoded.clear();
 	cnst ::llc::err_t customEncode = ::llc::base64Encode(BASE64_REVERSED_SYMBOLS, '*', {zero}, encoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_CUSTOM_ALPHABET, ::llc::failed(customEncode) || bytesMismatch(encoded, byteView(LLC_CXS("//**")))
-		, "Custom encode mismatch. result:%i, actual:'%.*s', expected:'//**'."
-		, customEncode, (int)encoded.size(), encoded.begin()
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_CUSTOM_ENCODE_RESULT, ::llc::failed(customEncode)
+		, "Custom encode result:%i.", customEncode);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_CUSTOM_ALPHABET, bytesMismatch(encoded, byteView(LLC_CXS("//**")))
+		, "Custom encoded:'%.*s', expected:'//**'.", (int)encoded.size(), encoded.begin());
 	decoded.clear();
 	cnst ::llc::err_t customDecode = ::llc::base64Decode(BASE64_REVERSED_SYMBOLS, '*', encoded, decoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_CUSTOM_ALPHABET, ::llc::failed(customDecode) || bytesMismatch(decoded, {zero})
-		, "Custom decode mismatch. result:%i, actual:%u bytes, expected one zero byte."
-		, customDecode, decoded.size()
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_CUSTOM_DECODE_RESULT, ::llc::failed(customDecode)
+		, "Custom decode result:%i.", customDecode);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_CUSTOM_DECODE_VALUE, bytesMismatch(decoded, {zero})
+		, "Custom decoded bytes:%u, expected:1.", decoded.size());
 
 	encoded.clear();
 	cnst ::llc::err_t staticEncode = ::llc::base64Encode(BASE64_REVERSED_MAP, {zero}, encoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_STATIC_SYMBOL_MAP, ::llc::failed(staticEncode) || bytesMismatch(encoded, byteView(LLC_CXS("//**")))
-		, "Static-map encode mismatch. result:%i, actual:'%.*s', expected:'//**'."
-		, staticEncode, (int)encoded.size(), encoded.begin()
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_STATIC_ENCODE_RESULT, ::llc::failed(staticEncode)
+		, "Static-map encode result:%i.", staticEncode);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_STATIC_SYMBOL_MAP, bytesMismatch(encoded, byteView(LLC_CXS("//**")))
+		, "Static-map encoded:'%.*s', expected:'//**'.", (int)encoded.size(), encoded.begin());
 	decoded.clear();
 	cnst ::llc::err_t staticDecode = ::llc::base64Decode(BASE64_REVERSED_MAP, encoded, decoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_STATIC_SYMBOL_MAP, ::llc::failed(staticDecode) || bytesMismatch(decoded, {zero})
-		, "Static-map decode mismatch. result:%i, actual:%u bytes, expected one zero byte."
-		, staticDecode, decoded.size()
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_STATIC_DECODE_RESULT, ::llc::failed(staticDecode)
+		, "Static-map decode result:%i.", staticDecode);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_STATIC_DECODE_VALUE, bytesMismatch(decoded, {zero})
+		, "Static-map decoded bytes:%u, expected:1.", decoded.size());
 	rtrn 0;
 }
 
@@ -246,18 +267,22 @@ sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
 	cnst ::llc::vcst_t encodedC = {encodedChars};
 	auto testEncode = [&](auto input, auto & output, ::llc::vcst_t name) -> ::llc::err_t {
 		cnst ::llc::err_t result = fileSafe ? ::llc::base64EncodeFS(input, output) : ::llc::base64Encode(input, output);
-		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_OVERLOAD_ENCODE, ::llc::failed(result) || bytesMismatch(byteView(output), encodedU)
-			, "%s encode overload mismatch. overload:%.*s, result:%i, actual:%u, expected:%u."
-			, fileSafe ? "Filesystem-safe" : "Standard", (int)name.size(), name.begin(), result, output.size(), encodedU.size()
-			);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_OVERLOAD_ENCODE_RESULT, ::llc::failed(result)
+			, "%s encode overload:%.*s, result:%i."
+			, fileSafe ? "Filesystem-safe" : "Standard", (int)name.size(), name.begin(), result);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_OVERLOAD_ENCODE, bytesMismatch(byteView(output), encodedU)
+			, "%s encode overload:%.*s, actual:%u, expected:%u."
+			, fileSafe ? "Filesystem-safe" : "Standard", (int)name.size(), name.begin(), output.size(), encodedU.size());
 		rtrn 0;
 	};
 	auto testDecode = [&](auto input, auto & output, ::llc::vcst_t name) -> ::llc::err_t {
 		cnst ::llc::err_t result = fileSafe ? ::llc::base64DecodeFS(input, output) : ::llc::base64Decode(input, output);
-		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_OVERLOAD_DECODE, ::llc::failed(result) || bytesMismatch(byteView(output), binaryU)
-			, "%s decode overload mismatch. overload:%.*s, result:%i, actual:%u, expected:%u."
-			, fileSafe ? "Filesystem-safe" : "Standard", (int)name.size(), name.begin(), result, output.size(), binaryU.size()
-			);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_OVERLOAD_DECODE_RESULT, ::llc::failed(result)
+			, "%s decode overload:%.*s, result:%i."
+			, fileSafe ? "Filesystem-safe" : "Standard", (int)name.size(), name.begin(), result);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_OVERLOAD_DECODE, bytesMismatch(byteView(output), binaryU)
+			, "%s decode overload:%.*s, actual:%u, expected:%u."
+			, fileSafe ? "Filesystem-safe" : "Standard", (int)name.size(), name.begin(), output.size(), binaryU.size());
 		rtrn 0;
 	};
 	{
@@ -293,10 +318,10 @@ sttc ::llc::err_t testBase64CountedTerminator(ATestError & errors) {
 	cnst ::llc::u0_t counted[] = {'T', 'Q', '=', '=', 0};
 	::llc::au0_t decoded;
 	cnst ::llc::err_t result = ::llc::base64Decode({counted}, decoded);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_COUNTED_TERMINATOR, ::llc::failed(result) || bytesMismatch(decoded, byteView(LLC_CXS("M")))
-		, "Counted terminator decode mismatch. result:%i, input:%u, output:%u."
-		, result, ::llc::size(counted), decoded.size()
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_COUNTED_TERMINATOR_RESULT, ::llc::failed(result)
+		, "Counted terminator decode result:%i, input:%u.", result, ::llc::size(counted));
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_COUNTED_TERMINATOR, bytesMismatch(decoded, byteView(LLC_CXS("M")))
+		, "Counted terminator output:%u bytes, expected:1.", decoded.size());
 	rtrn 0;
 }
 
@@ -308,17 +333,30 @@ sttc ::llc::err_t testBase64DecodeRejected(ATestError & errors, ::llc::vcu0_c & 
 	cnst ::llc::u2_t capacityBefore = output.Size;
 	::llc::err_t decodeResult = 0;
 	cnst bool threw = testThrows([&]() { decodeResult = ::llc::base64Decode(input, output); });
-	LLC_TEST_CHECK(errors, rejection, threw || false == ::llc::failed(decodeResult)
-		, "Invalid decode was not rejected safely. case:%.*s, input:%u, result:%i, threw:%u."
-		, (int)name.size(), name.begin(), input.size(), decodeResult, (::llc::u2_t)threw
-		);
-	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FAILURE_PRESERVATION
-		, output.begin() != outputBefore.begin() || output.size() != outputBefore.size() || output.Size != capacityBefore
-		|| bytesMismatch(output, {expected}) || output.begin()[output.size()]
-		, "Rejected decode changed output. case:%.*s, address:%p/%p, count:%u/%u, capacity:%u/%u, terminator:0x%02X."
-		, (int)name.size(), name.begin(), output.begin(), outputBefore.begin()
-		, output.size(), outputBefore.size(), output.Size, capacityBefore, output.begin()[output.size()]
-		);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_REJECT_THROW, threw
+		, "Invalid decode threw. case:%.*s, input:%u."
+		, (int)name.size(), name.begin(), input.size());
+	LLC_TEST_CHECK(errors, rejection, false == ::llc::failed(decodeResult)
+		, "Invalid decode returned success. case:%.*s, input:%u, result:%i."
+		, (int)name.size(), name.begin(), input.size(), decodeResult);
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_ADDRESS, output.begin() != outputBefore.begin()
+		, "Rejected decode address. case:%.*s, actual:%p, expected:%p."
+		, (int)name.size(), name.begin(), output.begin(), outputBefore.begin());
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_COUNT, output.size() != outputBefore.size()
+		, "Rejected decode count. case:%.*s, actual:%u, expected:%u."
+		, (int)name.size(), name.begin(), output.size(), outputBefore.size());
+	LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_CAPACITY, output.Size != capacityBefore
+		, "Rejected decode capacity. case:%.*s, actual:%u, expected:%u."
+		, (int)name.size(), name.begin(), output.Size, capacityBefore);
+	if(output.begin() == outputBefore.begin()) {
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_CONTENT, bytesMismatch(output, {expected})
+			, "Rejected decode content. case:%.*s, actual:%u bytes."
+			, (int)name.size(), name.begin(), output.size());
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_TERMINATOR
+			, output.size() > capacityBefore || output.begin()[output.size()]
+			, "Rejected decode terminator. case:%.*s, address:%p, count:%u, capacity:%u."
+			, (int)name.size(), name.begin(), output.begin(), output.size(), capacityBefore);
+	}
 	rtrn 0;
 }
 
@@ -364,17 +402,30 @@ sttc ::llc::err_t testBase64AlphabetRejected(ATestError & errors, ::llc::vcst_t 
 				: ::llc::base64Encode(alphabet, pad, byteView(LLC_CXS("M"   )), output)
 				;
 			});
-		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_INVALID_ALPHABET, threw || false == ::llc::failed(result)
-			, "Invalid alphabet %s was not rejected safely. case:%.*s, symbols:%u, result:%i, threw:%u."
-			, decode ? "decode" : "encode", (int)name.size(), name.begin(), alphabet.size(), result, (::llc::u2_t)threw
-			);
-		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FAILURE_PRESERVATION
-			, output.begin() != outputBefore.begin() || output.size() != outputBefore.size() || output.Size != capacityBefore
-			|| bytesMismatch(output, {expected}) || output.begin()[output.size()]
-			, "Rejected alphabet %s changed output. case:%.*s, address:%p/%p, count:%u/%u, capacity:%u/%u."
-			, decode ? "decode" : "encode", (int)name.size(), name.begin(), output.begin(), outputBefore.begin()
-			, output.size(), outputBefore.size(), output.Size, capacityBefore
-			);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_REJECT_THROW, threw
+			, "Invalid alphabet %s threw. case:%.*s."
+			, decode ? "decode" : "encode", (int)name.size(), name.begin());
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_INVALID_ALPHABET, false == ::llc::failed(result)
+			, "Invalid alphabet %s returned success. case:%.*s, result:%i."
+			, decode ? "decode" : "encode", (int)name.size(), name.begin(), result);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_ADDRESS, output.begin() != outputBefore.begin()
+			, "Rejected alphabet %s address. case:%.*s, actual:%p, expected:%p."
+			, decode ? "decode" : "encode", (int)name.size(), name.begin(), output.begin(), outputBefore.begin());
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_COUNT, output.size() != outputBefore.size()
+			, "Rejected alphabet %s count. case:%.*s, actual:%u, expected:%u."
+			, decode ? "decode" : "encode", (int)name.size(), name.begin(), output.size(), outputBefore.size());
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_CAPACITY, output.Size != capacityBefore
+			, "Rejected alphabet %s capacity. case:%.*s, actual:%u, expected:%u."
+			, decode ? "decode" : "encode", (int)name.size(), name.begin(), output.Size, capacityBefore);
+		if(output.begin() == outputBefore.begin()) {
+			LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_CONTENT, bytesMismatch(output, {expected})
+				, "Rejected alphabet %s content. case:%.*s, actual:%u bytes."
+				, decode ? "decode" : "encode", (int)name.size(), name.begin(), output.size());
+			LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_PRESERVE_TERMINATOR
+				, output.size() > capacityBefore || output.begin()[output.size()]
+				, "Rejected alphabet %s terminator. case:%.*s, address:%p, count:%u, capacity:%u."
+				, decode ? "decode" : "encode", (int)name.size(), name.begin(), output.begin(), output.size(), capacityBefore);
+		}
 	}
 	rtrn 0;
 }
@@ -407,10 +458,12 @@ sttc ::llc::err_t testBase64Fonts(ATestError & errors) {
 			, iFont, font.Width, font.Height, font.Encoded.size(), decodeResult
 			);
 		::llc::u2_c logicalByteCount = font.Width * font.Height * 256U / 8U;
-		LLC_TEST_REQUIRE(errors, BASE64_TEST_RESULT_FONT_SIZE, decoded.size() != font.DecodedCount || logicalByteCount > decoded.size()
-			, "CP437 font decoded size mismatch. font:%u, size:%ux%u, actual:%u, expected:%u, logical:%u."
-			, iFont, font.Width, font.Height, decoded.size(), font.DecodedCount, logicalByteCount
-			);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FONT_SIZE, decoded.size() != font.DecodedCount
+			, "CP437 font:%u decoded bytes:%u, expected:%u."
+			, iFont, decoded.size(), font.DecodedCount);
+		LLC_TEST_REQUIRE(errors, BASE64_TEST_RESULT_FONT_LOGICAL_SIZE, logicalByteCount > decoded.size()
+			, "CP437 font:%u logical bytes:%u, available:%u."
+			, iFont, logicalByteCount, decoded.size());
 		cnst ::llc::u2_t decodedHash = hashBytes(decoded);
 		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FONT_CONTENT, decodedHash != font.DecodedHash
 			, "CP437 font bitmap mismatch. font:%u, size:%ux%u, actual:0x%08X, expected:0x%08X."
@@ -419,11 +472,11 @@ sttc ::llc::err_t testBase64Fonts(ATestError & errors) {
 
 		::llc::au0_t encoded;
 		cnst ::llc::err_t encodeResult = ::llc::base64Encode(decoded, encoded);
-		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FONT_ROUND_TRIP
-			, ::llc::failed(encodeResult) || bytesMismatch(encoded, byteView(font.Encoded))
-			, "CP437 font round trip mismatch. font:%u, size:%ux%u, result:%i, actual:%u, expected:%u."
-			, iFont, font.Width, font.Height, encodeResult, encoded.size(), font.Encoded.size()
-			);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FONT_ENCODE_RESULT, ::llc::failed(encodeResult)
+			, "CP437 font:%u encode result:%i.", iFont, encodeResult);
+		LLC_TEST_CHECK(errors, BASE64_TEST_RESULT_FONT_ROUND_TRIP, bytesMismatch(encoded, byteView(font.Encoded))
+			, "CP437 font:%u encoded bytes:%u, expected:%u."
+			, iFont, encoded.size(), font.Encoded.size());
 
 		::llc::u2_t letterHash = 2166136261U;
 		for(::llc::u2_t iRange = 0; iRange < ::llc::size(LETTER_RANGES); ++iRange)

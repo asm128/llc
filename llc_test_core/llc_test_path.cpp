@@ -47,13 +47,23 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_RESULT		, 37, "Recursive pat
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_RECURSIVE	, 38, "Recursive pathList() did not forward its callback to nested folders.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_COUNTS		, 39, "Recursive pathList() callback reported unexpected file or folder counts.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_TREE		, 40, "Recursive pathList() with a callback produced an unexpected tree.");
-GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_EQUIVALENT		, 41, "Callback and non-callback pathList() produced different tree counts.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_PLAIN_RESULT			, 41, "Non-callback pathList() traversal failed.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, BEGIN_TEXT					, 42, "pathBegin() produced an unexpected protected prefix.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, BEGIN_RETURN				, 43, "pathBegin() did not return the protected prefix size.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, DIRECTORY_TEXT				, 44, "pathDirectory() produced an unexpected directory slice.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, FILENAME_TEXT				, 45, "pathFilename() produced an unexpected filename slice.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, STEM_TEXT					, 46, "pathStem() produced an unexpected stem slice.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_EXTENSION_FILTER		, 47, "Recursive pathList() ignored its extension filter.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_CURRENT_PATH		, 48, "pathAbsolute() did not produce an absolute current-directory path.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_RELATIVE_RETURN	, 49, "pathAbsolute() returned the wrong relative-path result size.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_IDEMPOTENT_RETURN, 50, "pathAbsolute() returned the wrong absolute-path result size.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_RELATIVE_TERMINATOR, 51, "pathAbsolute() omitted the relative-path output terminator.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, ABSOLUTE_IDEMPOTENT_TERMINATOR, 52, "pathAbsolute() omitted the absolute-path output terminator.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_FOLDER_COUNT, 53, "Recursive pathList() callback reported the wrong folder count.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_CALLBACK_TREE_FOLDER_COUNT, 54, "Recursive callback pathList() tree contained the wrong folder count.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_FILE_EQUIVALENT, 55, "Callback and non-callback pathList() trees disagreed on file count.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_FOLDER_EQUIVALENT, 56, "Callback and non-callback pathList() trees disagreed on folder count.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_EXTENSION_FOLDER_COUNT, 57, "Extension-filtered pathList() tree contained the wrong folder count.");
 
 tydf ::llc::err_t (*TFileToString)(::llc::vcst_t, ::llc::string &, uint32_t, uint64_t);
 tydf ::llc::err_t (*TFileFromBytes)(::llc::vcst_t, ::llc::vcs0_t, bool);
@@ -360,9 +370,13 @@ sttc bool pathIsAbsolute(::llc::vcst_t path) {
 sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 	::llc::string		current;
 	cnst ::llc::err_t currentResult	= ::llc::pathAbsolute(LLC_CXS("."), current);
-	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT, ::llc::failed(currentResult) || false == ::pathIsAbsolute(current)
+	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT, ::llc::failed(currentResult)
 		, "Current directory resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u."
 		, currentResult, (int)current.size(), current.begin(), current.size()
+		);
+	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT_PATH, false == ::pathIsAbsolute(current)
+		, "Current directory resolution produced:'%.*s'/%u, expected an absolute path."
+		, (int)current.size(), current.begin(), current.size()
 		);
 
 	::llc::string		expected;
@@ -384,13 +398,29 @@ sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 		, "Absolute input:'%.*s'/%u produced:'%.*s'/%u."
 		, (int)current.size(), current.begin(), current.size(), (int)idempotent.size(), idempotent.begin(), idempotent.size()
 		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RETURN, currentResult != (::llc::err_t)current.size() || resolvedResult != (::llc::err_t)resolved.size() || idempotentResult != (::llc::err_t)idempotent.size()
-		, "Return mismatch. current:%" LLC_FMT_S2 "/%u, resolved:%" LLC_FMT_S2 "/%u, idempotent:%" LLC_FMT_S2 "/%u."
-		, currentResult, current.size(), resolvedResult, resolved.size(), idempotentResult, idempotent.size()
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RETURN, currentResult != (::llc::err_t)current.size()
+		, "Current path returned:%" LLC_FMT_S2 ", output size:%u."
+		, currentResult, current.size()
 		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_TERMINATOR, (current.size() && current.begin()[current.size()]) || (resolved.size() && resolved.begin()[resolved.size()]) || (idempotent.size() && idempotent.begin()[idempotent.size()])
-		, "Terminator mismatch. current:%i, resolved:%i, idempotent:%i."
-		, current.size() ? current.begin()[current.size()] : 0, resolved.size() ? resolved.begin()[resolved.size()] : 0, idempotent.size() ? idempotent.begin()[idempotent.size()] : 0
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE_RETURN, resolvedResult != (::llc::err_t)resolved.size()
+		, "Resolved path returned:%" LLC_FMT_S2 ", output size:%u."
+		, resolvedResult, resolved.size()
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT_RETURN, idempotentResult != (::llc::err_t)idempotent.size()
+		, "Idempotent path returned:%" LLC_FMT_S2 ", output size:%u."
+		, idempotentResult, idempotent.size()
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_TERMINATOR, current.size() && current.begin()[current.size()]
+		, "Current path terminator:%i, expected:0."
+		, current.size() ? current.begin()[current.size()] : 0
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE_TERMINATOR, resolved.size() && resolved.begin()[resolved.size()]
+		, "Resolved path terminator:%i, expected:0."
+		, resolved.size() ? resolved.begin()[resolved.size()] : 0
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT_TERMINATOR, idempotent.size() && idempotent.begin()[idempotent.size()]
+		, "Idempotent path terminator:%i, expected:0."
+		, idempotent.size() ? idempotent.begin()[idempotent.size()] : 0
 		);
 
 	::llc::string		backslash;
@@ -459,35 +489,51 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 		, "Root:'%.*s' did not report the grandchild file. Callback files:%u, folders:%u."
 		, (int)rootPath.size(), rootPath.begin(), callbackFiles, callbackFolders
 		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_COUNTS, 3 != callbackFiles || 2 != callbackFolders
-		, "Root:'%.*s' reported files:%u/3, folders:%u/2."
-		, (int)rootPath.size(), rootPath.begin(), callbackFiles, callbackFolders
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_COUNTS, 3 != callbackFiles
+		, "Root:'%.*s' callback files:%u, expected:3."
+		, (int)rootPath.size(), rootPath.begin(), callbackFiles
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_FOLDER_COUNT, 2 != callbackFolders
+		, "Root:'%.*s' callback folders:%u, expected:2."
+		, (int)rootPath.size(), rootPath.begin(), callbackFolders
 		);
 
 	cnst SPathListCounts	callbackCounts	= ::pathListCounts(callbackTree);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE, 3 != callbackCounts.Files || 2 != callbackCounts.Folders
-		, "Root:'%.*s' callback tree contains files:%u/3, folders:%u/2."
-		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Files, callbackCounts.Folders
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE, 3 != callbackCounts.Files
+		, "Root:'%.*s' callback tree files:%u, expected:3."
+		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Files
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE_FOLDER_COUNT, 2 != callbackCounts.Folders
+		, "Root:'%.*s' callback tree folders:%u, expected:2."
+		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Folders
 		);
 
 	::llc::SPathContents	plainTree;
 	cnst ::llc::err_t	plainResult		= ::llc::pathList(rootPath, plainTree, {});
-	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_LIST_TREE_EQUIVALENT, ::llc::failed(plainResult)
+	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_LIST_PLAIN_RESULT, ::llc::failed(plainResult)
 		, "Root:'%.*s' non-callback traversal returned:%" LLC_FMT_S2 "."
 		, (int)rootPath.size(), rootPath.begin(), plainResult
 		);
 	cnst SPathListCounts	plainCounts		= ::pathListCounts(plainTree);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_TREE_EQUIVALENT, callbackCounts.Files != plainCounts.Files || callbackCounts.Folders != plainCounts.Folders
-		, "Root:'%.*s' callback tree files/folders:%u/%u, plain tree:%u/%u."
-		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Files, callbackCounts.Folders, plainCounts.Files, plainCounts.Folders
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_TREE_FILE_EQUIVALENT, callbackCounts.Files != plainCounts.Files
+		, "Root:'%.*s' callback files:%u, plain files:%u."
+		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Files, plainCounts.Files
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_TREE_FOLDER_EQUIVALENT, callbackCounts.Folders != plainCounts.Folders
+		, "Root:'%.*s' callback folders:%u, plain folders:%u."
+		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Folders, plainCounts.Folders
 		);
 
 	::llc::SPathContents	filteredTree;
 	if_fail_fe(::llc::pathList(rootPath, filteredTree, LLC_CXS(".txt")));
 	cnst SPathListCounts	filteredCounts	= ::pathListCounts(filteredTree);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_EXTENSION_FILTER, filteredCounts.Files || 2 != filteredCounts.Folders
-		, "Root:'%.*s' filtered tree contains files:%u/0, folders:%u/2."
-		, (int)rootPath.size(), rootPath.begin(), filteredCounts.Files, filteredCounts.Folders
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_EXTENSION_FILTER, filteredCounts.Files
+		, "Root:'%.*s' filtered files:%u, expected:0."
+		, (int)rootPath.size(), rootPath.begin(), filteredCounts.Files
+		);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_EXTENSION_FOLDER_COUNT, 2 != filteredCounts.Folders
+		, "Root:'%.*s' filtered folders:%u, expected:2."
+		, (int)rootPath.size(), rootPath.begin(), filteredCounts.Folders
 		);
 	rtrn 0;
 }
