@@ -148,7 +148,6 @@ sttc ::llc::err_t testBlockContainerType(ATestError & errors) {
 			, iElement, (::llc::s3_t)secondStorage[iElement], (::llc::s3_t)secondExpected[iElement]
 			);
 	}
-		);
 	::llc::vcu0_t input = serialized;
 	::llc::block_container<T, 4> loaded = {};
 	LLC_TEST_REQUIRE(errors, BLOCK_CONTAINER_TEST_RESULT_SERIALIZATION, ::llc::failed(loaded.Load(input))

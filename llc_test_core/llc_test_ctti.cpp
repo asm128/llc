@@ -74,7 +74,7 @@ static_assert(CTTI_ALL_TYPES.Success() && 13 == CTTI_ALL_TYPES.Count, "Every ini
 	LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_QUALIFIED_TYPE, 3 != qualified.Count
 		, "Qualified member count:%u, expected:3.", qualified.Count
 		);
-	stxp auto qualifiedTypes[] = {::llc::CTTI_TYPE_U0, ::llc::CTTI_TYPE_S2, ::llc::CTTI_TYPE_F3};
+	stxp ::llc::CTTI_TYPE qualifiedTypes[] = {::llc::CTTI_TYPE_U0, ::llc::CTTI_TYPE_S2, ::llc::CTTI_TYPE_F3};
 	for(::llc::u2_t iMember = 0; iMember < qualified.Count && iMember < ::llc::size(qualifiedTypes); ++iMember) {
 		LLC_TEST_CHECK(errors, CTTI_TEST_RESULT_QUALIFIED_TYPE, qualified.Members[iMember].Type != qualifiedTypes[iMember]
 			, "Qualified member:%u type:%u, expected:%u."

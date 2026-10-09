@@ -36,14 +36,11 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, CLEAR_POINTER			, 26, "array_pod<>::c
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, TERMINATOR				, 27, "array_pod<> did not preserve its zero-value terminator.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, POP_BACK					, 28, "array_pod<>::pop_back() did not remove its final element.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, POP_BACK_VALUE			, 29, "array_pod<>::pop_back(value) did not return and remove its final element.");
-GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_VALUE				, 30, "array_pod<>::insert(value) did not insert at the requested position.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_VALUE_REALLOCATE	, 31, "array_pod<>::insert(value) failed while growing its allocation.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_POINTER			, 32, "array_pod<>::insert(pointer, count) did not insert its source range.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_ARRAY				, 33, "array_pod<>::insert(array) did not insert its source range.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_VIEW				, 34, "array_pod<>::insert(view) did not insert its source range.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_CHAIN_REALLOCATE	, 35, "array_pod<>::insert(pointer, count) failed while growing its allocation.");
-GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE						, 36, "array_pod<>::remove() did not erase the requested element in order.");
-GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_UNORDERED			, 37, "array_pod<>::remove_unordered() did not replace the removed element with the last one.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE						, 38, "array_pod<>::erase() did not erase the addressed element.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_CHAINS				, 39, "array_pod<>::append(view of views) did not append every source range and report the written count.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_ARRAY		, 40, "array_pod<>::append_string(array) did not append text and report the written count.");
@@ -56,7 +53,6 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, POP_BACK_EMPTY				, 46, "An empty arr
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_INVALID_INDEX		, 47, "array_pod<>::insert() accepted an index beyond its logical range or changed state on failure.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_INVALID_INDEX		, 48, "array_pod<>::remove() accepted an index beyond its logical range or changed state on failure.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_UNORDERED_INVALID	, 49, "array_pod<>::remove_unordered() accepted an index beyond its logical range or changed state on failure.");
-GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE_INVALID_POINTER		, 50, "array_pod<>::erase() accepted a pointer outside its logical range or changed state on failure.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, RESERVE_INVALID_COUNT		, 51, "array_pod<>::reserve() accepted a count beyond its supported range or changed state on failure.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, RESIZE_INVALID_COUNT		, 52, "array_pod<>::resize() accepted a count beyond its supported range or changed state on failure.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_NULL_SOURCE			, 53, "array_pod<>::append() accepted a null non-empty source or changed state on failure.");
@@ -73,6 +69,21 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_SINGLE					, 63, "join() added a
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_MULTIPLE				, 64, "join() did not preserve empty fields, separator placement or its appended character count.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, FIND_SEQUENCE				, 65, "array_pod<>::find() did not find the requested element sequence or honor its offset.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, RFIND_SEQUENCE				, 66, "array_pod<>::rfind() did not find the last requested element sequence or honor its offset.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, JOIN_GENERIC_MULTIPLE		, 67, "Generic join() did not preserve both POD fields and their separator.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_FRONT_VALUE			, 68, "array_pod<> did not insert a value at the front.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_MIDDLE_VALUE		, 69, "array_pod<> did not insert a value in the middle.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_END_VALUE			, 70, "array_pod<> did not insert a value at the end.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_FRONT				, 71, "array_pod<> did not remove the front element in order.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_MIDDLE			, 72, "array_pod<> did not remove the middle element in order.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_END				, 73, "array_pod<> did not remove the final element in order.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_UNORDERED_MIDDLE	, 74, "array_pod<> did not remove a middle element without preserving order.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, REMOVE_UNORDERED_END		, 75, "array_pod<> did not remove the final element without preserving order.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, POP_BACK_EMPTY_VALUE		, 76, "Empty array_pod<>::pop_back(value) did not fail and preserve output.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE_ONE_PAST			, 77, "array_pod<>::erase() accepted the one-past-end address.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE_NULL				, 78, "array_pod<>::erase() accepted a null address.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE_UNRELATED			, 79, "array_pod<>::erase() accepted unrelated storage.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE_MISALIGNED			, 80, "array_pod<>::erase() accepted a misaligned element address.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, RESIZE_INVALID_FILLED_COUNT, 81, "array_pod<>::resize(count, value) accepted an unsupported count.");
 
 tplt<tpnm TCall>
 sttc ::llc::err_t podExpectedFailure(TCall call) {
@@ -83,31 +94,31 @@ sttc ::llc::err_t podExpectedFailure(TCall call) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t podCheck(ATestError & errors, ARRAY_POD_TEST_RESULT result, cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected, ::llc::vcst_t operation) {
+sttc ::llc::err_t podCheck(ATestError & errors, ARRAY_POD_TEST_RESULT result, cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected) {
 	LLC_TEST_CHECK(errors, result, actual.size() != expected.size()
-		, "%.*s count:%u, expected:%u."
-		, (int)operation.size(), operation.begin(), actual.size(), expected.size()
+		, "Count:%u, expected:%u."
+		, actual.size(), expected.size()
 		);
 	for(::llc::u2_t iValue = 0; iValue < actual.size() && iValue < expected.size(); ++iValue) {
 		LLC_TEST_CHECK(errors, result, actual[iValue] != expected[iValue]
-			, "%.*s element:%u value:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
-			, (int)operation.size(), operation.begin(), iValue, (::llc::s3_t)actual[iValue], (::llc::s3_t)expected[iValue]
+			, "Element:%u value:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+			, iValue, (::llc::s3_t)actual[iValue], (::llc::s3_t)expected[iValue]
 			);
 	}
 	rtrn 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t podFailureCheck(ATestError & errors, ARRAY_POD_TEST_RESULT result, ::llc::err_t callResult, cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected, ::llc::view<cnst T> originalStorage, ::llc::vcst_t operation) {
+sttc ::llc::err_t podFailureCheck(ATestError & errors, ARRAY_POD_TEST_RESULT result, ::llc::err_t callResult, cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected, ::llc::view<cnst T> originalStorage) {
 	LLC_TEST_CHECK(errors, result, false == ::llc::failed(callResult)
-		, "%.*s result:%i, expected failure."
-		, (int)operation.size(), operation.begin(), callResult
+		, "Result:%i, expected failure."
+		, callResult
 		);
 	LLC_TEST_CHECK(errors, result, actual.begin() != originalStorage.begin()
-		, "%.*s moved storage. begin:%p, expected:%p."
-		, (int)operation.size(), operation.begin(), actual.begin(), originalStorage.begin()
+		, "Moved storage. begin:%p, expected:%p."
+		, actual.begin(), originalStorage.begin()
 		);
-	rtrn podCheck(errors, result, actual, expected, operation);
+	rtrn podCheck(errors, result, actual, expected);
 }
 
 tplt<tpnm T>
@@ -130,26 +141,26 @@ sttc ::llc::err_t testPodConstruction(ATestError & errors) {
 
 	T expected[] = {T(1), T(2), T(3)};
 	::llc::apod<T> initialized = {T(1), T(2), T(3)};
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INITIALIZER_CONSTRUCTION, initialized, {expected}, LLC_CXS("Initializer construction")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INITIALIZER_CONSTRUCTION, initialized, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(initialized)
 		, "initializer terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, initialized.size(), (::llc::s3_t)initialized.begin()[initialized.size()]
 		);
 
 	::llc::apod<T> fromArray{expected};
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ARRAY_CONSTRUCTION, fromArray, {expected}, LLC_CXS("Array construction")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ARRAY_CONSTRUCTION, fromArray, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ARRAY_CONSTRUCTION, fromArray.begin() == expected
 		, "Array construction aliases source. source:%p, copy:%p.", expected, fromArray.begin()
 		);
 	::llc::view<cnst T> sourceView{expected};
 	::llc::apod<T> fromView{sourceView};
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_VIEW_CONSTRUCTION, fromView, {expected}, LLC_CXS("View construction")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_VIEW_CONSTRUCTION, fromView, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_VIEW_CONSTRUCTION, fromView.begin() == expected
 		, "View construction aliases source. source:%p, copy:%p.", sourceView.begin(), fromView.begin()
 		);
 
 	::llc::apod<T> copied{initialized};
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_COPY_CONSTRUCTION, copied, {expected}, LLC_CXS("Copy construction")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_COPY_CONSTRUCTION, copied, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_COPY_CONSTRUCTION, copied.begin() == initialized.begin()
 		, "Copy construction aliases source. source:%p, copy:%p.", initialized.begin(), copied.begin()
 		);
@@ -163,7 +174,7 @@ sttc ::llc::err_t testPodConstruction(ATestError & errors) {
 
 	cnst ::llc::view<T> movedStorage = initialized;
 	::llc::apod<T> moved{::std::move(initialized)};
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_MOVE_CONSTRUCTION, moved, {expected}, LLC_CXS("Move construction")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_MOVE_CONSTRUCTION, moved, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_MOVE_CONSTRUCTION, moved.begin() != movedStorage.begin()
 		, "Move did not transfer storage. old:%p, moved:%p.", movedStorage.begin(), moved.begin()
 		);
@@ -195,7 +206,7 @@ sttc ::llc::err_t testPodAssignment(ATestError & errors) {
 	::llc::apod<T> source{firstExpected};
 	::llc::apod<T> target{T(9)};
 	target = source;
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_COPY_ASSIGNMENT, target, {firstExpected}, LLC_CXS("Copy assignment")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_COPY_ASSIGNMENT, target, {firstExpected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_COPY_ASSIGNMENT, target.begin() == source.begin()
 		, "Copy assignment aliases source. source:%p, target:%p.", source.begin(), target.begin()
 		);
@@ -209,11 +220,11 @@ sttc ::llc::err_t testPodAssignment(ATestError & errors) {
 
 	::llc::view<cnst T> secondView{secondExpected};
 	target = secondView;
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_VIEW_ASSIGNMENT, target, {secondExpected}, LLC_CXS("View assignment")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_VIEW_ASSIGNMENT, target, {secondExpected}));
 	target = firstExpected;
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ARRAY_ASSIGNMENT, target, {firstExpected}, LLC_CXS("Array assignment")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ARRAY_ASSIGNMENT, target, {firstExpected}));
 	target = target;
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_SELF_ASSIGNMENT, target, {firstExpected}, LLC_CXS("Self-assignment")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_SELF_ASSIGNMENT, target, {firstExpected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(target)
 		, "assignment terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, target.size(), (::llc::s3_t)target.begin()[target.size()]
@@ -230,7 +241,7 @@ sttc ::llc::err_t testPodReserveResize(ATestError & errors) {
 		, "reserve capacity mismatch. actual:%i, requested:32."
 		, capacity
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_RESERVE_PRESERVE, values, {expected}, LLC_CXS("Reserve")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_RESERVE_PRESERVE, values, {expected}));
 	cnst ::llc::view<T> reservedStorage = values;
 	cnst ::llc::err_t stableCapacity = values.reserve(16);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_RESERVE_STABLE, stableCapacity != capacity
@@ -267,7 +278,7 @@ sttc ::llc::err_t testPodReserveResize(ATestError & errors) {
 		, "Shrinking resize count:%u, expected:2.", values.size()
 		);
 	T expectedShrink[] = {T(1), T(2)};
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_RESIZE_PRESERVE, values, {expectedShrink}, LLC_CXS("Shrinking resize")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_RESIZE_PRESERVE, values, {expectedShrink}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
 		, "resize terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, values.size(), (::llc::s3_t)values.begin()[values.size()]
@@ -314,7 +325,7 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_PUSH_BACK, result != 2
 		, "Push-back index:%i, expected:2.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_PUSH_BACK, values, {expectedPush}, LLC_CXS("Push back")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_PUSH_BACK, values, {expectedPush}));
 
 	T pointerTail[] = {T(4), T(5)};
 	result = values.append(pointerTail, 2);
@@ -322,7 +333,7 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_POINTER, result != 3
 		, "Pointer append index:%i, expected:3.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_POINTER, values, {expectedPointer}, LLC_CXS("Pointer append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_POINTER, values, {expectedPointer}));
 
 	T arrayTail[] = {T(6), T(7)};
 	result = values.append(arrayTail);
@@ -330,7 +341,7 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_ARRAY, result != 5
 		, "Array append index:%i, expected:5.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_ARRAY, values, {expectedArray}, LLC_CXS("Array append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_ARRAY, values, {expectedArray}));
 
 	T viewTail[] = {T(8), T(9)};
 	::llc::view<cnst T> tailView{viewTail};
@@ -339,7 +350,7 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_VIEW, result != 7
 		, "View append index:%i, expected:7.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_VIEW, values, {expectedView}, LLC_CXS("View append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_VIEW, values, {expectedView}));
 	cnst ::llc::view<T> storageBeforeEmpty = values;
 	result = values.append(nullptr, 0);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_EMPTY, result != 9
@@ -365,7 +376,7 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_CHAINS, result != 5
 		, "Chained append written:%i, expected:5.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_CHAINS, chained, {expectedChains}, LLC_CXS("Chained append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_CHAINS, chained, {expectedChains}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(chained)
 		, "chained append terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, chained.size(), (::llc::s3_t)chained.begin()[chained.size()]
@@ -377,10 +388,10 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 		::llc::apod<T> joined;
 		result = ::llc::join(joined, T(0), ::llc::view<cnst ::llc::view<cnst T>>{joinFields});
 		T expectedJoin[] = {T(1), T(2), T(0), T(3)};
-		LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, result != 4
+		LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_GENERIC_MULTIPLE, result != 4
 			, "Generic join written:%i, expected:4.", result
 			);
-		if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, joined, {expectedJoin}, LLC_CXS("Generic join")));
+		if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_GENERIC_MULTIPLE, joined, {expectedJoin}));
 	rtrn 0;
 }
 
@@ -390,19 +401,19 @@ sttc ::llc::err_t testPodStringAppend(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, result != 2
 		, "Array string append written:%i, expected:2.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, text, {LLC_CXS("seedab")}, LLC_CXS("Array string append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, text, {LLC_CXS("seedab")}));
 
 	result = text.append_string(::llc::vcst_t{"xyz"});
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, result != 3
 		, "View string append written:%i, expected:3.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, text, {LLC_CXS("seedabxyz")}, LLC_CXS("View string append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, text, {LLC_CXS("seedabxyz")}));
 
 	result = text.append_string('!');
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, result != 1
 		, "Element string append written:%i, expected:1.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, text, {LLC_CXS("seedabxyz!")}, LLC_CXS("Element string append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, text, {LLC_CXS("seedabxyz!")}));
 
 	::llc::function<::llc::err_t(::llc::asc_t&)> formatter = [](::llc::asc_t & output) {
 		if_fail_fe(output.append_string("ok"));
@@ -412,42 +423,42 @@ sttc ::llc::err_t testPodStringAppend(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_FUNCTION, result != 2
 		, "Function string append written:%i, expected:2.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_FUNCTION, text, {LLC_CXS("seedabxyz!ok")}, LLC_CXS("Function string append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_FUNCTION, text, {LLC_CXS("seedabxyz!ok")}));
 
 	::llc::function<::llc::err_t(::llc::asc_t&)> emptyFormatter;
 	result = text.append_string(emptyFormatter);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_EMPTY_FUNCTION, result
 		, "Empty function string append written:%i, expected:0.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_EMPTY_FUNCTION, text, {LLC_CXS("seedabxyz!ok")}, LLC_CXS("Empty function string append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_EMPTY_FUNCTION, text, {LLC_CXS("seedabxyz!ok")}));
 
 	::llc::vcst_t strings[] = {"12", "", "345"};
 	result = text.append_strings(::llc::view<cnst ::llc::vcst_t>{strings});
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_APPEND_STRINGS, result != 5
 		, "Multiple string append written:%i, expected:5.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRINGS, text, {LLC_CXS("seedabxyz!ok12345")}, LLC_CXS("Multiple string append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRINGS, text, {LLC_CXS("seedabxyz!ok12345")}));
 
 	::llc::string joined = LLC_CXS("seed:");
 	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{});
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, result
 		, "Empty join written:%i, expected:0.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, joined, {LLC_CXS("seed:")}, LLC_CXS("Empty join")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, joined, {LLC_CXS("seed:")}));
 
 	cnst ::llc::vcst_t single[] = {LLC_CXS("one")};
 	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{single});
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_SINGLE, result != 3
 		, "Single join written:%i, expected:3.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_SINGLE, joined, {LLC_CXS("seed:one")}, LLC_CXS("Single join")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_SINGLE, joined, {LLC_CXS("seed:one")}));
 
 	cnst ::llc::vcst_t multiple[] = {LLC_CXS(""), LLC_CXS("two"), LLC_CXS("")};
 	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{multiple});
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, result != 5
 		, "Multiple join written:%i, expected:5.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, joined, {LLC_CXS("seed:one|two|")}, LLC_CXS("Multiple join")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, joined, {LLC_CXS("seed:one|two|")}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(text)
 		, "String append terminator:%i, expected:0.", text.begin()[text.size()]
 		);
@@ -469,7 +480,7 @@ sttc ::llc::err_t testPodPopBack(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_POP_BACK_VALUE, removed != T(3)
 		, "Pop-back removed:%" LLC_FMT_S3 ", expected:3.", (::llc::s3_t)removed
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_POP_BACK_VALUE, values, {expectedValue}, LLC_CXS("Pop back with value")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_POP_BACK_VALUE, values, {expectedValue}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
 		, "pop_back(value) terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, values.size(), (::llc::s3_t)values.begin()[values.size()]
@@ -480,7 +491,7 @@ sttc ::llc::err_t testPodPopBack(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_POP_BACK, result != 1
 		, "Pop-back result:%i, expected:1.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_POP_BACK, values, {expected}, LLC_CXS("Pop back")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_POP_BACK, values, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
 		, "pop_back terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, values.size(), (::llc::s3_t)values.begin()[values.size()]
@@ -495,31 +506,31 @@ sttc ::llc::err_t testPodInsert(ATestError & errors) {
 	cnst ::llc::view<T> reservedStorage = values;
 	::llc::err_t result = values.insert(0, T(1));
 	T expectedFront[] = {T(1), T(2), T(4)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 3
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_FRONT_VALUE, result != 3
 		, "Front insertion result:%i, expected:3.", result
 		);
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, values.begin() != reservedStorage.begin()
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_FRONT_VALUE, values.begin() != reservedStorage.begin()
 		, "Front insertion moved storage. begin:%p, expected:%p.", values.begin(), reservedStorage.begin()
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, values, {expectedFront}, LLC_CXS("Front insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_FRONT_VALUE, values, {expectedFront}));
 	result = values.insert(2, T(3));
 	T expectedMiddle[] = {T(1), T(2), T(3), T(4)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 4
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_MIDDLE_VALUE, result != 4
 		, "Middle insertion result:%i, expected:4.", result
 		);
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, values.begin() != reservedStorage.begin()
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_MIDDLE_VALUE, values.begin() != reservedStorage.begin()
 		, "Middle insertion moved storage. begin:%p, expected:%p.", values.begin(), reservedStorage.begin()
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, values, {expectedMiddle}, LLC_CXS("Middle insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_MIDDLE_VALUE, values, {expectedMiddle}));
 	result = values.insert(values.size(), T(5));
 	T expectedEnd[] = {T(1), T(2), T(3), T(4), T(5)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, result != 5
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_END_VALUE, result != 5
 		, "End insertion result:%i, expected:5.", result
 		);
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, values.begin() != reservedStorage.begin()
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_END_VALUE, values.begin() != reservedStorage.begin()
 		, "End insertion moved storage. begin:%p, expected:%p.", values.begin(), reservedStorage.begin()
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_VALUE, values, {expectedEnd}, LLC_CXS("End insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_END_VALUE, values, {expectedEnd}));
 
 	::llc::apod<T> reallocated = {T(1), T(3)};
 	cnst ::llc::u2_t capacity = reallocated.reserve(reallocated.size());
@@ -555,21 +566,21 @@ sttc ::llc::err_t testPodInsert(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_POINTER, result != 5
 		, "Pointer insertion result:%i, expected:5.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_POINTER, chains, {expectedPointer}, LLC_CXS("Pointer insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_POINTER, chains, {expectedPointer}));
 	T arrayValues[] = {T(5), T(6)};
 	result = chains.insert(4, arrayValues);
 	T expectedArray[] = {T(1), T(2), T(3), T(4), T(5), T(6), T(8)};
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_ARRAY, result != 7
 		, "Array insertion result:%i, expected:7.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_ARRAY, chains, {expectedArray}, LLC_CXS("Array insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_ARRAY, chains, {expectedArray}));
 	T viewValues[] = {T(7)};
 	result = chains.insert(chains.size() - 1, ::llc::view<cnst T>{viewValues});
 	T expectedView[] = {T(1), T(2), T(3), T(4), T(5), T(6), T(7), T(8)};
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_VIEW, result != 8
 		, "View insertion result:%i, expected:8.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_VIEW, chains, {expectedView}, LLC_CXS("View insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_VIEW, chains, {expectedView}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(chains)
 		, "chain insertion terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, chains.size(), (::llc::s3_t)chains.begin()[chains.size()]
@@ -609,22 +620,22 @@ sttc ::llc::err_t testPodRemove(ATestError & errors) {
 	::llc::apod<T> ordered = {T(1), T(2), T(3), T(4), T(5)};
 	::llc::err_t result = ordered.remove(0);
 	T expectedFront[] = {T(2), T(3), T(4), T(5)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE, result != 4
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_FRONT, result != 4
 		, "Ordered front removal result:%i, expected:4.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE, ordered, {expectedFront}, LLC_CXS("Ordered front removal")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_FRONT, ordered, {expectedFront}));
 	result = ordered.remove(1);
 	T expectedMiddle[] = {T(2), T(4), T(5)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE, result != 3
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_MIDDLE, result != 3
 		, "Ordered middle removal result:%i, expected:3.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE, ordered, {expectedMiddle}, LLC_CXS("Ordered middle removal")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_MIDDLE, ordered, {expectedMiddle}));
 	result = ordered.remove(ordered.size() - 1);
 	T expectedEnd[] = {T(2), T(4)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE, result != 2
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_END, result != 2
 		, "Ordered end removal result:%i, expected:2.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE, ordered, {expectedEnd}, LLC_CXS("Ordered end removal")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_END, ordered, {expectedEnd}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(ordered)
 		, "ordered removal terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, ordered.size(), (::llc::s3_t)ordered.begin()[ordered.size()]
@@ -633,16 +644,16 @@ sttc ::llc::err_t testPodRemove(ATestError & errors) {
 	::llc::apod<T> unordered = {T(1), T(2), T(3), T(4)};
 	result = unordered.remove_unordered(1);
 	T expectedUnordered[] = {T(1), T(4), T(3)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED, result != 3
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED_MIDDLE, result != 3
 		, "Unordered middle removal result:%i, expected:3.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED, unordered, {expectedUnordered}, LLC_CXS("Unordered middle removal")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED_MIDDLE, unordered, {expectedUnordered}));
 	result = unordered.remove_unordered(unordered.size() - 1);
 	T expectedUnorderedEnd[] = {T(1), T(4)};
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED, result != 2
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED_END, result != 2
 		, "Unordered end removal result:%i, expected:2.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED, unordered, {expectedUnorderedEnd}, LLC_CXS("Unordered end removal")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED_END, unordered, {expectedUnorderedEnd}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(unordered)
 		, "unordered removal terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, unordered.size(), (::llc::s3_t)unordered.begin()[unordered.size()]
@@ -654,7 +665,7 @@ sttc ::llc::err_t testPodRemove(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ERASE, result != 3
 		, "Addressed removal result:%i, expected:3.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ERASE, erased, {expectedErased}, LLC_CXS("Addressed removal")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ERASE, erased, {expectedErased}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(erased)
 		, "addressed removal terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, erased.size(), (::llc::s3_t)erased.begin()[erased.size()]
@@ -667,29 +678,29 @@ sttc ::llc::err_t testPodFailures(ATestError & errors) {
 	::llc::apod<T> empty;
 	T removed = T(7);
 	::llc::err_t result = podExpectedFailure([&empty]() { rtrn empty.pop_back(); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_POP_BACK_EMPTY, result, empty, ::llc::view<cnst T>{}, {}, LLC_CXS("Empty pop back")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_POP_BACK_EMPTY, result, empty, ::llc::view<cnst T>{}, {}));
 	result = podExpectedFailure([&empty, &removed]() { rtrn empty.pop_back(removed); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_POP_BACK_EMPTY, result, empty, ::llc::view<cnst T>{}, {}, LLC_CXS("Empty pop back with value")));
-	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_POP_BACK_EMPTY, removed != T(7)
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_POP_BACK_EMPTY_VALUE, result, empty, ::llc::view<cnst T>{}, {}));
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_POP_BACK_EMPTY_VALUE, removed != T(7)
 		, "Empty pop-back output:%" LLC_FMT_S3 ", expected:7.", (::llc::s3_t)removed
 		);
 
 	T expected[] = {T(1), T(2), T(3)};
 	::llc::apod<T> values{expected};
-	cnst ::llc::view<T> originalStorage = values;
+	cnst ::llc::view<cnst T> originalStorage = values;
 	result = podExpectedFailure([&values]() { rtrn values.insert(values.size() + 1, T(9)); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_INVALID_INDEX, result, values, {expected}, originalStorage, LLC_CXS("Invalid insertion")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_INVALID_INDEX, result, values, {expected}, originalStorage));
 	result = podExpectedFailure([&values]() { rtrn values.remove(values.size()); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_INVALID_INDEX, result, values, {expected}, originalStorage, LLC_CXS("Invalid ordered removal")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_INVALID_INDEX, result, values, {expected}, originalStorage));
 	result = podExpectedFailure([&values]() { rtrn values.remove_unordered(values.size()); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED_INVALID, result, values, {expected}, originalStorage, LLC_CXS("Invalid unordered removal")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_REMOVE_UNORDERED_INVALID, result, values, {expected}, originalStorage));
 	result = podExpectedFailure([&values]() { rtrn values.erase(values.end()); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, result, values, {expected}, originalStorage, LLC_CXS("One-past erase")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_ERASE_ONE_PAST, result, values, {expected}, originalStorage));
 	result = podExpectedFailure([&values]() { rtrn values.erase(0); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, result, values, {expected}, originalStorage, LLC_CXS("Null erase")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_ERASE_NULL, result, values, {expected}, originalStorage));
 	T unrelated = T(9);
 	result = podExpectedFailure([&values, &unrelated]() { rtrn values.erase(&unrelated); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, result, values, {expected}, originalStorage, LLC_CXS("Unrelated-pointer erase")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_ERASE_UNRELATED, result, values, {expected}, originalStorage));
 	if constexpr(szof(T) > 1) {
 		// erase() accepts an element pointer; this deliberately malformed pointer proves its boundary validation.
 		cnst T * misaligned = (cnst T*)((cnst ::llc::u0_t*)values.begin() + 1);
@@ -697,19 +708,19 @@ sttc ::llc::err_t testPodFailures(ATestError & errors) {
 	}
 	else
 		result = -1;
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_ERASE_INVALID_POINTER, result, values, {expected}, originalStorage, LLC_CXS("Misaligned-pointer erase")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_ERASE_MISALIGNED, result, values, {expected}, originalStorage));
 
 	result = podExpectedFailure([&values]() { rtrn values.reserve(0x40000000U); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_RESERVE_INVALID_COUNT, result, values, {expected}, originalStorage, LLC_CXS("Oversized reserve")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_RESERVE_INVALID_COUNT, result, values, {expected}, originalStorage));
 	result = podExpectedFailure([&values]() { rtrn values.resize(0x40000000U); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_RESIZE_INVALID_COUNT, result, values, {expected}, originalStorage, LLC_CXS("Oversized resize")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_RESIZE_INVALID_COUNT, result, values, {expected}, originalStorage));
 	result = podExpectedFailure([&values]() { rtrn values.resize(0x40000000U, T(9)); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_RESIZE_INVALID_COUNT, result, values, {expected}, originalStorage, LLC_CXS("Oversized filled resize")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_RESIZE_INVALID_FILLED_COUNT, result, values, {expected}, originalStorage));
 
 	result = podExpectedFailure([&values]() { rtrn values.append(nullptr, 1); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_NULL_SOURCE, result, values, {expected}, originalStorage, LLC_CXS("Null append")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_NULL_SOURCE, result, values, {expected}, originalStorage));
 	result = podExpectedFailure([&values]() { rtrn values.insert(1, nullptr, 1); });
-	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_NULL_SOURCE, result, values, {expected}, originalStorage, LLC_CXS("Null insertion")));
+	if_fail_fe(podFailureCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_NULL_SOURCE, result, values, {expected}, originalStorage));
 	result = values.insert(1, nullptr, 0);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_EMPTY_SOURCE, result != 3
 		, "Empty insertion result:%i, expected:3.", result
@@ -717,7 +728,7 @@ sttc ::llc::err_t testPodFailures(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_INSERT_EMPTY_SOURCE, values.begin() != originalStorage.begin()
 		, "Empty insertion moved storage. begin:%p, expected:%p.", values.begin(), originalStorage.begin()
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_EMPTY_SOURCE, values, {expected}, LLC_CXS("Empty insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_INSERT_EMPTY_SOURCE, values, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(values)
 		, "failed-operation terminator mismatch. size:%u, terminator:%" LLC_FMT_S3 "."
 		, values.size(), (::llc::s3_t)values.begin()[values.size()]
@@ -768,7 +779,7 @@ sttc ::llc::err_t testPodAliasing(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ALIAS_APPEND, result != 3
 		, "Aliased append index:%i, expected:3.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ALIAS_APPEND, appended, {expectedAppend}, LLC_CXS("Aliased append")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ALIAS_APPEND, appended, {expectedAppend}));
 
 	::llc::apod<T> insertedValue = {T(1), T(2), T(3)};
 	insertedValue.reserve(16);
@@ -777,7 +788,7 @@ sttc ::llc::err_t testPodAliasing(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ALIAS_INSERT_VALUE, result != 4
 		, "Aliased value insertion result:%i, expected:4.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ALIAS_INSERT_VALUE, insertedValue, {expectedValue}, LLC_CXS("Aliased value insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ALIAS_INSERT_VALUE, insertedValue, {expectedValue}));
 
 	::llc::apod<T> insertedChain = {T(1), T(2), T(3), T(4)};
 	insertedChain.reserve(16);
@@ -787,13 +798,13 @@ sttc ::llc::err_t testPodAliasing(ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_ALIAS_INSERT_CHAIN, result != 6
 		, "Aliased chain insertion result:%i, expected:6.", result
 		);
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ALIAS_INSERT_CHAIN, insertedChain, {expectedChain}, LLC_CXS("Aliased chain insertion")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ALIAS_INSERT_CHAIN, insertedChain, {expectedChain}));
 
 	::llc::apod<T> assigned = {T(1), T(2), T(3), T(4)};
 	::llc::view<cnst T> assignedSource{&assigned[1], 3};
 	assigned = assignedSource;
 	T expectedAssignment[] = {T(2), T(3), T(4)};
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ALIAS_ASSIGNMENT, assigned, {expectedAssignment}, LLC_CXS("Aliased view assignment")));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_ALIAS_ASSIGNMENT, assigned, {expectedAssignment}));
 
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(pushed)
 		, "Aliased push-back lost its zero-value terminator."

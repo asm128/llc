@@ -12,7 +12,6 @@ GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, EMPLACE_GROW		, 3, "array_obj<>::empl
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, EMPLACE_LIFETIME	, 4, "array_obj<>::emplace_back() did not preserve object lifetime balance.");
 
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, DEFAULT_STATE		, 5, "A default array_obj<> was not an empty null range.");
-GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, CONSTRUCTION		, 6, "array_obj<> did not copy its source values during construction.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, COPY_CONSTRUCTION	, 7, "array_obj<> copy construction did not produce independent equal storage.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, MOVE_CONSTRUCTION	, 8, "array_obj<> move construction did not transfer its allocation and clear the source.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, COPY_ASSIGNMENT	, 9, "array_obj<> copy assignment did not produce independent equal storage.");
@@ -29,6 +28,16 @@ GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, CLEAR				, 19, "array_obj<>::clear() 
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, CLEAR_POINTER		, 20, "array_obj<>::clear_pointer() did not destroy its elements and release its allocation.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, FIND_SEQUENCE		, 21, "array_obj<>::find() did not compare sequence elements by value.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, RFIND_SEQUENCE		, 22, "array_obj<>::rfind() did not compare sequence elements by value.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, ARRAY_CONSTRUCTION	, 23, "array_obj<> did not copy its source array.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, VIEW_CONSTRUCTION	, 24, "array_obj<> did not copy its source view.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, SELF_ASSIGNMENT		, 25, "array_obj<> changed during self-assignment.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, FILLED_RESIZE		, 26, "array_obj<> did not construct the expected fill values.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, VARIADIC_RESIZE	, 27, "array_obj<> did not construct the expected variadic values.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, SHRINK_RESIZE		, 28, "array_obj<> did not preserve expected values while shrinking.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, DEFAULT_RESIZE		, 29, "array_obj<> did not default-construct the expected values.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, ARRAY_APPEND		, 30, "array_obj<> did not append its source array.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, VIEW_APPEND		, 31, "array_obj<> did not append its source view.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, EMPTY_APPEND		, 32, "array_obj<> changed while appending an empty range.");
 
 stct SArrayObjTestValue {
 	sttc ::llc::u2_t	LiveCount;
@@ -52,19 +61,19 @@ stct SArrayObjTestValue {
 ::llc::u2_t SArrayObjTestValue::CopyCount			= {};
 ::llc::u2_t SArrayObjTestValue::DestructorCount		= {};
 
-sttc ::llc::err_t arrayObjCheck(ATestError & errors, ARRAY_OBJ_TEST_RESULT result, cnst ::llc::aobj<SArrayObjTestValue> & actual, ::llc::view<cnst ::llc::u2_t> expected, ::llc::vcst_t operation) {
+sttc ::llc::err_t arrayObjCheck(ATestError & errors, ARRAY_OBJ_TEST_RESULT result, cnst ::llc::aobj<SArrayObjTestValue> & actual, ::llc::view<cnst ::llc::u2_t> expected) {
 	LLC_TEST_CHECK(errors, result, actual.size() != expected.size()
-		, "%.*s count:%u, expected:%u."
-		, (int)operation.size(), operation.begin(), actual.size(), expected.size()
+		, "Count:%u, expected:%u."
+		, actual.size(), expected.size()
 		);
 	for(::llc::u2_t iValue = 0; iValue < actual.size() && iValue < expected.size(); ++iValue) {
 		LLC_TEST_CHECK(errors, result, actual[iValue].Index != expected[iValue]
-			, "%.*s element:%u index:%u, expected:%u."
-			, (int)operation.size(), operation.begin(), iValue, actual[iValue].Index, expected[iValue]
+			, "Element:%u index:%u, expected:%u."
+			, iValue, actual[iValue].Index, expected[iValue]
 			);
 		LLC_TEST_CHECK(errors, result, actual[iValue].Value != (::llc::u3_t)expected[iValue] * 10
-			, "%.*s element:%u value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
-			, (int)operation.size(), operation.begin(), iValue, actual[iValue].Value, (::llc::u3_t)expected[iValue] * 10
+			, "Element:%u value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
+			, iValue, actual[iValue].Value, (::llc::u3_t)expected[iValue] * 10
 			);
 	}
 	rtrn 0;
@@ -157,18 +166,18 @@ sttc ::llc::err_t testArrayObjConstruction(ATestError & errors) {
 	::llc::aobj<SArrayObjTestValue> fromArray{source};
 	::llc::view<cnst SArrayObjTestValue> sourceView = {source};
 	::llc::aobj<SArrayObjTestValue> fromView{sourceView};
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_CONSTRUCTION, fromArray, {expected}, LLC_CXS("Array construction")));
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_CONSTRUCTION, fromView, {expected}, LLC_CXS("View construction")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_ARRAY_CONSTRUCTION, fromArray, {expected}));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_VIEW_CONSTRUCTION, fromView, {expected}));
 
 	::llc::aobj<SArrayObjTestValue> copied{fromArray};
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_COPY_CONSTRUCTION, copied, {expected}, LLC_CXS("Copy construction")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_COPY_CONSTRUCTION, copied, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_COPY_CONSTRUCTION, copied.begin() == fromArray.begin()
 		, "Copy aliases source. source:%p, copy:%p."
 		, fromArray.begin(), copied.begin()
 		);
 	cnst ::llc::view<SArrayObjTestValue> movedStorage = copied;
 	::llc::aobj<SArrayObjTestValue> moved{::std::move(copied)};
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_MOVE_CONSTRUCTION, moved, {expected}, LLC_CXS("Move construction")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_MOVE_CONSTRUCTION, moved, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_MOVE_CONSTRUCTION, moved.begin() != movedStorage.begin()
 		, "Move did not transfer storage. moved:%p, source storage:%p."
 		, moved.begin(), movedStorage.begin()
@@ -184,13 +193,13 @@ sttc ::llc::err_t testArrayObjConstruction(ATestError & errors) {
 
 	::llc::aobj<SArrayObjTestValue> assigned = {SArrayObjTestValue{9}};
 	assigned = fromArray;
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_COPY_ASSIGNMENT, assigned, {expected}, LLC_CXS("Copy assignment")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_COPY_ASSIGNMENT, assigned, {expected}));
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_COPY_ASSIGNMENT, assigned.begin() == fromArray.begin()
 		, "Assignment aliases source. source:%p, target:%p."
 		, fromArray.begin(), assigned.begin()
 		);
 	assigned = assigned;
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_COPY_ASSIGNMENT, assigned, {expected}, LLC_CXS("Self-assignment")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_SELF_ASSIGNMENT, assigned, {expected}));
 	rtrn 0;
 }
 
@@ -203,7 +212,7 @@ sttc ::llc::err_t testArrayObjReserveResize(ATestError & errors) {
 		, "Reserve capacity:%i, expected at least:32."
 		, capacity
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_RESERVE, values, {expectedInitial}, LLC_CXS("Reserve")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_RESERVE, values, {expectedInitial}));
 	cnst ::llc::view<SArrayObjTestValue> reservedStorage = values;
 	cnst ::llc::err_t stableCapacity = values.reserve(16);
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_RESERVE, stableCapacity != capacity
@@ -222,28 +231,28 @@ sttc ::llc::err_t testArrayObjReserveResize(ATestError & errors) {
 		, "Filled resize result:%i, expected:4."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_RESIZE, values, {expectedFill}, LLC_CXS("Filled resize")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_FILLED_RESIZE, values, {expectedFill}));
 	result = values.resize(6, ::llc::u2_t{7}, ::llc::u3_t{70});
 	cnst ::llc::u2_t expectedVariadic[] = {1, 2, 9, 9, 7, 7};
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_RESIZE, result != 6
 		, "Variadic resize result:%i, expected:6."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_RESIZE, values, {expectedVariadic}, LLC_CXS("Variadic resize")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_VARIADIC_RESIZE, values, {expectedVariadic}));
 	result = values.resize(3);
 	cnst ::llc::u2_t expectedShrink[] = {1, 2, 9};
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_RESIZE, result != 3
 		, "Shrink result:%i, expected:3."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_RESIZE, values, {expectedShrink}, LLC_CXS("Shrink resize")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_SHRINK_RESIZE, values, {expectedShrink}));
 	result = values.resize(5);
 	cnst ::llc::u2_t expectedDefault[] = {1, 2, 9, 0, 0};
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_RESIZE, result != 5
 		, "Default resize result:%i, expected:5."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_RESIZE, values, {expectedDefault}, LLC_CXS("Default resize")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_DEFAULT_RESIZE, values, {expectedDefault}));
 	rtrn 0;
 }
 
@@ -256,7 +265,7 @@ sttc ::llc::err_t testArrayObjAppendInsert(ATestError & errors) {
 		, "Push result:%i, expected index:2."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_PUSH_BACK, values, {expectedPush}, LLC_CXS("Push back")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_PUSH_BACK, values, {expectedPush}));
 
 	SArrayObjTestValue arrayTail[] = {SArrayObjTestValue{4}, SArrayObjTestValue{5}};
 	result = values.append(arrayTail);
@@ -265,7 +274,7 @@ sttc ::llc::err_t testArrayObjAppendInsert(ATestError & errors) {
 		, "Array append result:%i, expected index:3."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_APPEND, values, {expectedArray}, LLC_CXS("Array append")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_ARRAY_APPEND, values, {expectedArray}));
 	SArrayObjTestValue viewTail[] = {SArrayObjTestValue{6}, SArrayObjTestValue{7}};
 	result = values.append(::llc::view<cnst SArrayObjTestValue>{viewTail});
 	cnst ::llc::u2_t expectedView[] = {1, 2, 3, 4, 5, 6, 7};
@@ -273,13 +282,13 @@ sttc ::llc::err_t testArrayObjAppendInsert(ATestError & errors) {
 		, "View append result:%i, expected index:5."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_APPEND, values, {expectedView}, LLC_CXS("View append")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_VIEW_APPEND, values, {expectedView}));
 	result = values.append(::llc::view<cnst SArrayObjTestValue>{});
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_APPEND, result != 7
 		, "Empty append result:%i, expected index:7."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_APPEND, values, {expectedView}, LLC_CXS("Empty append")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_EMPTY_APPEND, values, {expectedView}));
 
 	::llc::aobj<SArrayObjTestValue> inserted = {SArrayObjTestValue{2}, SArrayObjTestValue{5}};
 	if_fail_fe(inserted.reserve(32));
@@ -302,7 +311,7 @@ sttc ::llc::err_t testArrayObjAppendInsert(ATestError & errors) {
 		, "End insertion result:%i, expected:6."
 		, insertEnd
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_INSERT, inserted, {expectedInsert}, LLC_CXS("Insert")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_INSERT, inserted, {expectedInsert}));
 
 	::llc::aobj<SArrayObjTestValue> reallocated = {SArrayObjTestValue{1}, SArrayObjTestValue{3}};
 	cnst ::llc::err_t reallocatedCapacity = reallocated.reserve(reallocated.size());
@@ -367,14 +376,14 @@ sttc ::llc::err_t testArrayObjRemoveClear(ATestError & errors) {
 		, "Pop result:%i, expected:3."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_POP_BACK, values, {expectedPop}, LLC_CXS("Pop back")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_POP_BACK, values, {expectedPop}));
 	result = values.remove(1);
 	cnst ::llc::u2_t expectedRemove[] = {1, 3};
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_REMOVE, result != 2
 		, "Ordered removal result:%i, expected:2."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_REMOVE, values, {expectedRemove}, LLC_CXS("Ordered removal")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_REMOVE, values, {expectedRemove}));
 
 	::llc::aobj<SArrayObjTestValue> unordered = {SArrayObjTestValue{1}, SArrayObjTestValue{2}, SArrayObjTestValue{3}, SArrayObjTestValue{4}};
 	result = unordered.remove_unordered(1);
@@ -383,7 +392,7 @@ sttc ::llc::err_t testArrayObjRemoveClear(ATestError & errors) {
 		, "Unordered removal result:%i, expected:3."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_REMOVE_UNORDERED, unordered, {expectedUnordered}, LLC_CXS("Unordered removal")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_REMOVE_UNORDERED, unordered, {expectedUnordered}));
 
 	::llc::aobj<SArrayObjTestValue> erased = {SArrayObjTestValue{1}, SArrayObjTestValue{2}, SArrayObjTestValue{3}};
 	result = erased.erase(&erased[1]);
@@ -392,7 +401,7 @@ sttc ::llc::err_t testArrayObjRemoveClear(ATestError & errors) {
 		, "Erase result:%i, expected:2."
 		, result
 		);
-	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_ERASE, erased, {expectedErase}, LLC_CXS("Erase")));
+	if_fail_fe(arrayObjCheck(errors, ARRAY_OBJ_TEST_RESULT_ERASE, erased, {expectedErase}));
 
 	::llc::aobj<SArrayObjTestValue> cleared = {SArrayObjTestValue{1}, SArrayObjTestValue{2}, SArrayObjTestValue{3}};
 	cnst ::llc::view<SArrayObjTestValue> allocatedStorage = cleared;

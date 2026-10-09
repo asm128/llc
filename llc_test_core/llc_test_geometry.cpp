@@ -30,43 +30,52 @@ GDEFINE_ENUM_TYPE(GEOMETRY_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, TYPE_FAMILY	, 0, "A geometry family did not preserve its scalar type or current-width alias.");
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, VECTOR		, 1, "A vector operation produced the wrong result.");
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, LINE			, 2, "A line operation produced the wrong result.");
-GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, TRIANGLE		, 3, "A triangle operation produced the wrong result.");
-GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, REGION		, 4, "A quad, rectangle, range, slice or origin lost its represented values.");
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, GAUGE			, 5, "A gauge did not preserve its limits, value or weight.");
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, SPHERE		, 6, "A sphere size or overlap operation produced the wrong result.");
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, QUATERNION	, 7, "A quaternion operation produced the wrong result.");
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, MATRIX		, 8, "A matrix operation produced the wrong result.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, VECTOR_CROSS	, 9, "n3::Cross() produced the wrong vector.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, TRIANGLE_A	, 10, "tri3 translation or scaling changed vertex A incorrectly.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, TRIANGLE_B	, 11, "tri3::s3() changed vertex B incorrectly.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, TRIANGLE_C	, 12, "tri3 translation or scaling changed vertex C incorrectly.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_DIMENSIONS	, 13, "rect::Dimensions() produced the wrong size.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT2_LIMIT	, 14, "rect2::Limit() produced the wrong point.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT3_LIMIT	, 15, "rect3::Limit() produced the wrong point.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RANGE2_COUNT	, 16, "range2::Count() produced the wrong size.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, SLICE3_END	, 17, "slice3::End() produced the wrong point.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, ORIGIN_RIGHT	, 18, "SOrigin::Right changed the wrong coordinate.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, ALIGN_CENTER_TOP	, 19, "CENTER_TOP realignment produced the wrong coordinate.");
 
 sttc bool geometryDiffers(::llc::f3_t left, ::llc::f3_t right, ::llc::f3_t tolerance = 0.00001) {
 	rtrn false == (::llc::abs(left - right) <= tolerance);
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n2<T> & actual, cnst ::llc::n2<T> & expected, ::llc::vcst_t operation) {
+sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n2<T> & actual, cnst ::llc::n2<T> & expected) {
 	LLC_TEST_CHECK(errors, result, actual.x != expected.x
-		, "%.*s x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
-		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.x, (::llc::s3_t)expected.x
+		, "x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (::llc::s3_t)actual.x, (::llc::s3_t)expected.x
 		);
 	LLC_TEST_CHECK(errors, result, actual.y != expected.y
-		, "%.*s y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
-		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.y, (::llc::s3_t)expected.y
+		, "y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (::llc::s3_t)actual.y, (::llc::s3_t)expected.y
 		);
 	rtrn 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n3<T> & actual, cnst ::llc::n3<T> & expected, ::llc::vcst_t operation) {
+sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n3<T> & actual, cnst ::llc::n3<T> & expected) {
 	LLC_TEST_CHECK(errors, result, actual.x != expected.x
-		, "%.*s x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
-		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.x, (::llc::s3_t)expected.x
+		, "x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (::llc::s3_t)actual.x, (::llc::s3_t)expected.x
 		);
 	LLC_TEST_CHECK(errors, result, actual.y != expected.y
-		, "%.*s y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
-		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.y, (::llc::s3_t)expected.y
+		, "y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (::llc::s3_t)actual.y, (::llc::s3_t)expected.y
 		);
 	LLC_TEST_CHECK(errors, result, actual.z != expected.z
-		, "%.*s z:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
-		, (int)operation.size(), operation.begin(), (::llc::s3_t)actual.z, (::llc::s3_t)expected.z
+		, "z:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "."
+		, (::llc::s3_t)actual.z, (::llc::s3_t)expected.z
 		);
 	rtrn 0;
 }
@@ -176,7 +185,7 @@ sttc ::llc::err_t testGeometryVectorsAndLines(ATestError & errors) {
 	cnst ::llc::n3s2_t expectedCross = {-3, 6, -3};
 	LLC_TEST_CHECK(errors, GEOMETRY_TEST_RESULT_VECTOR, leftVector.Dot(rightVector) != 32
 		, "n3::Dot, expected:32, actual:%g.", leftVector.Dot(rightVector));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_VECTOR, crossProduct, expectedCross, LLC_CXS("n3::Cross")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_VECTOR_CROSS, crossProduct, expectedCross));
 
 	cnst ::llc::line2s2_t segment2 = {{1, 2}, {4, 8}};
 	cnst ::llc::line3s2_t segment3 = {{1, 2, 9}, {4, 8, 10}};
@@ -199,9 +208,9 @@ sttc ::llc::err_t testGeometryTrianglesAndRegions(ATestError & errors) {
 	cnst ::llc::n3s2_t expectedA = {4, 12, 24};
 	cnst ::llc::n3s2_t expectedC = {16, 30, 48};
 	cnst ::llc::n3s3_t expectedB = {10, 21, 36};
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.A, expectedA, LLC_CXS("tri3::Translate/Scale A")));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.s3().B, expectedB, LLC_CXS("tri3::s3 B")));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE, triangle.C, expectedC, LLC_CXS("tri3::Translate/Scale C")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE_A, triangle.A, expectedA));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE_B, triangle.s3().B, expectedB));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_TRIANGLE_C, triangle.C, expectedC));
 
 	cnst ::llc::rects2_t bounds = {2, 3, 12, 23};
 	cnst ::llc::rect2s2_t offsetSize = {{2, 3}, {10, 20}};
@@ -219,13 +228,13 @@ sttc ::llc::err_t testGeometryTrianglesAndRegions(ATestError & errors) {
 	cnst ::llc::n3s2_t expectedEnd = {4, 5, 6};
 	cnst ::llc::n3s2_t expectedRight = {0, 0, 1};
 	cnst ::llc::n2s2_t expectedAligned = {6, 2};
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, dimensions, expectedDimensions, LLC_CXS("rect::Dimensions")));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, offsetSize.Limit(), expectedLimit2, LLC_CXS("rect2::Limit")));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, volumeBounds.Limit(), expectedLimit3, LLC_CXS("rect3::Limit")));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, range.Count, expectedCount, LLC_CXS("range2::Count")));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, slice.End, expectedEnd, LLC_CXS("slice3::End")));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, origin.Right, expectedRight, LLC_CXS("SOrigin::Right")));
-	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_REGION, aligned, expectedAligned, LLC_CXS("realignCoord CENTER_TOP")));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_RECT_DIMENSIONS, dimensions, expectedDimensions));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_RECT2_LIMIT, offsetSize.Limit(), expectedLimit2));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_RECT3_LIMIT, volumeBounds.Limit(), expectedLimit3));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_RANGE2_COUNT, range.Count, expectedCount));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_SLICE3_END, slice.End, expectedEnd));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_ORIGIN_RIGHT, origin.Right, expectedRight));
+	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_ALIGN_CENTER_TOP, aligned, expectedAligned));
 	rtrn 0;
 }
 
