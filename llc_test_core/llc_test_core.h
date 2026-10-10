@@ -57,19 +57,21 @@ bool testThrows(TCall call) {
 }
 #endif
 
-#define LLC_TEST_CHECK_BASE(errors, result, condition, block, ...) do {														\
-	if_true_block_logf(error_printf, (condition), block																		\
-		, "%.*s::%.*s(%" LLC_FMT_S3 "):\"%.*s\" " __VA_ARGS__													\
-		, (int)::llc::get_enum_namev(result).size(), ::llc::get_enum_namev(result).begin()									\
-		, (int)::llc::get_value_namev(result).size(), ::llc::get_value_namev(result).begin(), (::llc::s3_t)(result)			\
-		, (int)::llc::get_value_descv(result).size(), ::llc::get_value_descv(result).begin()								\
-		)																															\
-	else {																														\
-		if_fail_fe(testSuccessRecord((errors), (result)));																		\
-	}																															\
+#define LLC_TEST_CHECK_BASE(errors, result, condition, statement, format, ...) do {																		\
+	::llc::err_t recordResult;																															\
+	if_true_block_logf(error_printf, (condition)																										\
+		, { if_fail_fef(recordResult = testErrorRecord((errors), (result)),  "0x%X, %" LLC_FMT_S2 ", %" LLC_FMT_U2, LLCREP2(recordResult)); statement }	\
+		, "%.*s::%.*s(%" LLC_FMT_S3 "):\"%.*s\"::!" format																								\
+		, ::llc::get_enum_namep(result), ::llc::get_value_namep(result), ::llc::s3_t(result), ::llc::get_value_descp(result), __VA_ARGS__ )				\
+	else {																																				\
+		if_fail_fef(recordResult = testSuccessRecord((errors), (result)), "0x%X, %" LLC_FMT_S2 ", %" LLC_FMT_U2, LLCREP2(recordResult));				\
+	}																																					\
 } while(0)
 
-#define LLC_TEST_CHECK(errors, result, condition, ...)		LLC_TEST_CHECK_BASE(errors, result, (condition), { if_fail_fe(testErrorRecord((errors), (result))); }, __VA_ARGS__)
-#define LLC_TEST_REQUIRE(errors, result, condition, ...)	LLC_TEST_CHECK_BASE(errors, result, (condition), { if_fail_fe(testErrorRecord((errors), (result))); return 0; }, __VA_ARGS__)
+#define LLC_TEST_CHECKF(errors, result, condition, format, ...)		LLC_TEST_CHECK_BASE(errors, result, (condition), , format, __VA_ARGS__ )
+#define LLC_TEST_REQUIREF(errors, result, condition, format, ...)	LLC_TEST_CHECK_BASE(errors, result, (condition), return 0;, format, __VA_ARGS__ )
+
+#define LLC_TEST_CHECK(errors, result, condition)					LLC_TEST_CHECKF		(errors, result, (condition), "%s", "")
+#define LLC_TEST_REQUIRE(errors, result, condition)					LLC_TEST_REQUIREF	(errors, result, (condition), "%s", "")
 
 #endif // LLC_TEST_CORE_H

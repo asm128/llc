@@ -18,37 +18,19 @@ GDEFINE_ENUM_VALUED(PRNG_TEST_RESULT, SEED		, 4, "Different SPRNG seeds produced
 	::llc::SPRNG random = {0};
 	for(::llc::u2_t iValue = 0; iValue < ::llc::size(EXPECTED); ++iValue) {
 		cnst ::llc::u3_t value = random.Next();
-		LLC_TEST_CHECK(errors, PRNG_TEST_RESULT_SEQUENCE, value != EXPECTED[iValue]
-			, "SplitMix64 sequence mismatch. seed:%" LLC_FMT_U3 ", position:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
-			, random.Seed, iValue + 1, value, EXPECTED[iValue]
-			);
-		LLC_TEST_CHECK(errors, PRNG_TEST_RESULT_STATE, random.Position != iValue + 1
-			, "SPRNG position:%" LLC_FMT_U3 ", expected:%u.", random.Position, iValue + 1
-			);
-		LLC_TEST_CHECK(errors, PRNG_TEST_RESULT_STATE, random.Value != value
-			, "SPRNG stored value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", random.Value, value
-			);
+		LLC_TEST_CHECKF(errors, PRNG_TEST_RESULT_SEQUENCE, value != EXPECTED[iValue] , "SplitMix64 sequence mismatch. seed:%" LLC_FMT_U3 ", position:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "." , random.Seed, iValue + 1, value, EXPECTED[iValue] );
+		LLC_TEST_CHECKF(errors, PRNG_TEST_RESULT_STATE, random.Position != iValue + 1 , "SPRNG position:%" LLC_FMT_U3 ", expected:%u.", random.Position, iValue + 1 );
+		LLC_TEST_CHECKF(errors, PRNG_TEST_RESULT_STATE, random.Value != value , "SPRNG stored value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", random.Value, value );
 	}
 	random.Reset();
-	LLC_TEST_CHECK(errors, PRNG_TEST_RESULT_RESET, random.Seed
-		, "SPRNG reset seed:%" LLC_FMT_U3 ", expected:0.", random.Seed
-		);
-	LLC_TEST_CHECK(errors, PRNG_TEST_RESULT_RESET, random.Position
-		, "SPRNG reset position:%" LLC_FMT_U3 ", expected:0.", random.Position
-		);
-	LLC_TEST_CHECK(errors, PRNG_TEST_RESULT_RESET, random.Value
-		, "SPRNG reset value:%" LLC_FMT_U3 ", expected:0.", random.Value
-		);
+	LLC_TEST_CHECKF(errors, PRNG_TEST_RESULT_RESET, random.Seed , "SPRNG reset seed:%" LLC_FMT_U3 ", expected:0.", random.Seed );
+	LLC_TEST_CHECKF(errors, PRNG_TEST_RESULT_RESET, random.Position , "SPRNG reset position:%" LLC_FMT_U3 ", expected:0.", random.Position );
+	LLC_TEST_CHECKF(errors, PRNG_TEST_RESULT_RESET, random.Value , "SPRNG reset value:%" LLC_FMT_U3 ", expected:0.", random.Value );
 	cnst ::llc::u3_t resetValue = random.Next();
-	LLC_TEST_CHECK(errors, PRNG_TEST_RESULT_RESET, resetValue != EXPECTED[0]
-		, "SPRNG first value after reset:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", resetValue, EXPECTED[0]
-		);
+	LLC_TEST_CHECKF(errors, PRNG_TEST_RESULT_RESET, resetValue != EXPECTED[0] , "SPRNG first value after reset:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", resetValue, EXPECTED[0] );
 	random.Reset(1);
 	cnst ::llc::u3_t seededValue = random.Next();
 	random.Reset(0);
-	LLC_TEST_CHECK(errors, PRNG_TEST_RESULT_SEED, seededValue == random.Next()
-		, "SPRNG seed did not affect its first value. seed 1 value:%" LLC_FMT_U3 ", seed 0 value:%" LLC_FMT_U3 "."
-		, seededValue, random.Value
-		);
+	LLC_TEST_CHECKF(errors, PRNG_TEST_RESULT_SEED, seededValue == random.Next() , "SPRNG seed did not affect its first value. seed 1 value:%" LLC_FMT_U3 ", seed 0 value:%" LLC_FMT_U3 "." , seededValue, random.Value );
 	return 0;
 }

@@ -67,18 +67,18 @@ namespace llc
 	};
 #pragma pack(pop)
 
-	tydf grid<sc_t>	gc, gchar;
-	tydf grid<uc_t>	guc, guchar;
-	tydf grid<u0_t>	gub, gu8;
-	tydf grid<s0_t>	gb, gi8;
-	tydf grid<u1_t>	gu16;
-	tydf grid<u2_t>	gu32;
-	tydf grid<u3_t>	gu64;
-	tydf grid<s1_t>	gi16;
-	tydf grid<s2_t>	gi32;
-	tydf grid<s3_t>	gi64;
-	tydf grid<f2_t>	gf32;
-	tydf grid<f3_t>	gf64;
+	tydf grid<sc_t>	gsc_t;
+	tydf grid<uc_t>	guc_t;
+	tydf grid<u0_t>	gu0_t;
+	tydf grid<u1_t>	gu1_t;
+	tydf grid<u2_t>	gu2_t;
+	tydf grid<u3_t>	gu3_t;
+	tydf grid<s0_t>	gs0_t;
+	tydf grid<s1_t>	gs1_t;
+	tydf grid<s2_t>	gs2_t;
+	tydf grid<s3_t>	gs3_t;
+	tydf grid<f2_t>	gf2_t;
+	tydf grid<f3_t>	gf3_t;
 } // namespace llc
 
 #endif // LLC_GRID_H_23627

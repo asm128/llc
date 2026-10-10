@@ -18,8 +18,8 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Former tracked source files inspected by inventory: 306 C/C++ headers and implementations.
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
-- The independent [`llc.vcxproj`](llc.vcxproj) still names 132 files absent from disk: 91 header entries and 41 compilation entries. All 41 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 24 focused suites, including independent geometry, block-container and label suites.
+- The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
+- The shared current test runner registers 28 focused suites, including independent Adam7, PNG, geometry, block-container and label suites.
 
 ## Major findings
 
@@ -33,6 +33,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 
 - The former generic `block_container<T, size>` and its null-terminated-string specialization now have current owners and independent focused tests across all LLC integer widths.
 - The scalar/vector geometry foundation now has current owners for vectors, lines, triangles, quads, rectangles, ranges, slices, min/max bounds, gauges, spheres, quaternions and matrices. `m3<T>` owns only storage; `m3a2` and `m3a3` separate 2D affine from 3D linear operations, while `m2` and `m4` also distinguish mathematical convention from physical layout. The aliases use LLC width names (`u0` through `u3`, `s0` through `s3`, `f2` and `f3`) and the focused geometry suite instantiates every scalar width.
+- PNG loading and Adam7 reconstruction now have current source owners. Grid and image scalar aliases follow the LLC width vocabulary (`gu2_t`, `imgu2_t` and their signed, unsigned and floating-point families), while color aliases retain channel-precision names such as `img8bgra`. PNG loading owns the CRC implementation it requires; PNG writing remains excluded from the build. The focused suites check every Adam7 pass, small-image coverage, reconstructed cells, malformed signatures and all 15 interlaced/non-interlaced PNGSuite basic format pairs.
 - The former owning `array_bit` is absent; current `view_bit` covers non-owning bit access and has a focused suite, but it does not replace owning resize and storage behavior.
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
 - `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
@@ -43,7 +44,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 2. **Environment-block composition and dynamic-module support.** `SCommandLineArgs::Environment` replaces the former environment-view collection for entry points that receive `envp`; the missing environment behavior is serialization back to the native double-null block and coverage for entry paths that do not populate `Environment`. Former module types and the runtime loader still have no independent source counterpart.
 3. **HTTP/HTTPS and CGI.** Former request/response structures, URL decoding, client operations and CGI runtime adapters are absent; current LLC stops at TCP/IP and serialization helpers. Blitter is a concrete consumer.
 4. **Block-addressed records, maps and registries.** Generic block-container storage is now incorporated. Former block-addressed record helpers, linear maps and registries remain absent. [`gpk_engine`](../../../bundle_galaxy_hell/gpk/gpk_engine) still consumes `gpk_linear_map_pod.h`, proving that the map family is not merely unused debris.
-5. **Selected media and interchange formats.** PNG/Adam7, font and image serialization, STL and VOX are absent. `gpk_engine` and the focused PNG and VOX samples still consume them. Their low-level parsing may be reusable, but image, raster and engine ownership must be separated before integration.
+5. **Selected media and interchange formats.** Font and image serialization, STL and VOX are absent. `gpk_engine` and the focused VOX samples still consume them. Their low-level parsing may be reusable, but image, raster and engine ownership must be separated before integration.
 6. **RSA/GPC helpers.** These are absent while AES, Base64 and deflate remain. The former custom crypto surface should be treated as a security-review candidate, not copied merely for parity.
 
 ### Higher layer, not independent-LLC gaps
@@ -57,7 +58,7 @@ The former directory also contains GUI controls, dialogs, windows, D3D, scene, c
 3. Add environment-block composition to the current argument/runtime ownership only for a proven consumer, including an explicit `WinMain` population policy; recover dynamic-module primitives separately.
 4. Design a typed expression-result contract and preservation tests before adapting the historical parser and interpolator.
 5. Layer HTTP and CGI over current TCP/IP, JSON, runtime and argument facilities, preserving transport versus application ownership.
-6. Move codecs and formats only when a real consumer is selected; split byte parsing from engine and image types.
+6. Continue codecs and formats only when a real consumer is selected; split byte parsing from engine and image types.
 7. Keep GUI, rendering, window and scene systems in the higher layer. Treat former RSA/GPC code as audit material unless a concrete requirement justifies a supported cryptographic contract.
 
 ## File ledger
@@ -67,6 +68,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 ### Incorporated/current counterpart present
 
 - [x] `gpk_aes.{h,cpp}` -> `llc_aes.{h,cpp}`
+- [x] `gpk_adam7.{h,cpp}` -> `llc_adam7.{h,cpp}`
 - [x] `gpk_aobj_pobj.h` -> `llc_aobj_pobj.h`
 - [x] `gpk_aobj_ppod.h` -> `llc_aobj_ppod.h`
 - [x] `gpk_apod_color.h` -> `llc_apod_color.h`
@@ -106,6 +108,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_chrono.{h,cpp}` -> `llc_chrono.{h,cpp}`
 - [x] `gpk_circle.h` -> `llc_circle.h`
 - [x] `gpk_color.h` -> `llc_color.h`
+- [x] `gpk_color_type.h` -> `llc_color_type.h`
 - [x] `gpk_coord.h` -> `llc_coord.h`
 - [x] `gpk_cpow.h` -> `llc_cpow.h`
 - [x] `gpk_cstdio.h` -> `llc_cstdio.h`
@@ -156,6 +159,8 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_path.{h,cpp}` -> `llc_path.{h,cpp}`
 - [x] `gpk_platform_error.h` -> `llc_platform_error.h`
 - [x] `gpk_platform_globals.h` -> `llc_platform_globals.h`
+- [x] `gpk_png.{h,cpp}` -> `llc_png.{h,cpp}`
+- [x] `gpk_png_write.cpp` -> `llc_png_write.cpp` (present but excluded from the build pending writer tests)
 - [x] `gpk_ptr_nco.h` -> `llc_ptr_nco.h`
 - [x] `gpk_ptr_obj.h` -> `llc_ptr_obj.h`
 - [x] `gpk_ptr_pod.h` -> `llc_ptr_pod.h`
@@ -209,7 +214,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ### Pending disposition/no current counterpart
 
-- [ ] `gpk_adam7.{h,cpp}`
 - [ ] `gpk_apod_gauge.h`
 - [ ] `gpk_apod_minmax.h`
 - [ ] `gpk_app_impl.h`
@@ -231,7 +235,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_cgi_module.{h,cpp}`
 - [ ] `gpk_cgi_runtime.{h,cpp}`
 - [ ] `gpk_collision.h`
-- [ ] `gpk_color_type.h`
 - [ ] `gpk_complus.h`
 - [ ] `gpk_component_scene.{h,cpp}`
 - [ ] `gpk_component_scene_draw.cpp`
@@ -276,8 +279,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_module.h`
 - [ ] `gpk_particle.{h,cpp}`
 - [ ] `gpk_platform_error.cpp`
-- [ ] `gpk_png.{h,cpp}`
-- [ ] `gpk_png_write.cpp`
 - [ ] `gpk_pod_definition.h`
 - [ ] `gpk_process.{h,cpp}`
 - [ ] `gpk_raster_lh.{h,cpp}`

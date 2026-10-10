@@ -30,61 +30,30 @@ GDEFINE_ENUM_VALUED(ENUM_TEST_RESULT, WIFI_AUTH_ALIAS	, 17, "WIFI_AUTH_WPA2_ENTE
 	::llc::enum_definition<ENUM_ALIAS_SAMPLE> definition = {};
 	definition.Name = LLC_CXS("ENUM_ALIAS_SAMPLE");
 	cnst ::llc::err_t primaryIndex = definition.add_value(sampleValue, LLC_CXS("PRIMARY"), LLC_CXS("PRIMARY"), LLC_CXS("PRIMARY"));
-	LLC_TEST_REQUIRE(errors, ENUM_TEST_RESULT_PRIMARY_REGISTER, primaryIndex != 0, "PRIMARY index:%i, expected:0.", primaryIndex);
+	LLC_TEST_REQUIREF(errors, ENUM_TEST_RESULT_PRIMARY_REGISTER, primaryIndex != 0, "PRIMARY index:%i, expected:0.", primaryIndex);
 	cnst ::llc::err_t aliasIndex = definition.add_value(sampleValue, LLC_CXS("ALIAS"), LLC_CXS("ALIAS"), LLC_CXS("Alternative name."));
-	LLC_TEST_REQUIRE(errors, ENUM_TEST_RESULT_ALIAS_REGISTER, aliasIndex != 1, "ALIAS index:%i, expected:1.", aliasIndex);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_PRIMARY_LOOKUP
-		, definition.get_value(LLC_CXS("PRIMARY")) != sampleValue, "PRIMARY lookup failed."
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIAS_LOOKUP
-		, definition.get_value(LLC_CXS("ALIAS")) != sampleValue, "ALIAS lookup failed."
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIAS_INDEX
-		, definition.get_value_index(LLC_CXS("ALIAS")) != 1, "ALIAS index was not one."
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIAS_COUNT
-		, definition.Values.size() != 2, "Entry count:%u, expected:2.", definition.Values.size()
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_CANONICAL_NAME
-		, definition.get_value_label(sampleValue) != LLC_CXS("PRIMARY"), "The canonical name changed."
-		);
+	LLC_TEST_REQUIREF(errors, ENUM_TEST_RESULT_ALIAS_REGISTER, aliasIndex != 1, "ALIAS index:%i, expected:1.", aliasIndex);
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_PRIMARY_LOOKUP , definition.get_value(LLC_CXS("PRIMARY")) != sampleValue);
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIAS_LOOKUP , definition.get_value(LLC_CXS("ALIAS")) != sampleValue);
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIAS_INDEX , definition.get_value_index(LLC_CXS("ALIAS")) != 1);
+	LLC_TEST_CHECKF(errors, ENUM_TEST_RESULT_ALIAS_COUNT , definition.Values.size() != 2, "Entry count:%u, expected:2.", definition.Values.size() );
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_CANONICAL_NAME , definition.get_value_label(sampleValue) != LLC_CXS("PRIMARY"));
 
 	cnst ::llc::u2_t entryCount = definition.Values.size();
 	cnst ::llc::err_t repeatResult = definition.add_value(sampleValue, LLC_CXS("ALIAS"), LLC_CXS("ALIAS"), LLC_CXS("Alternative name."));
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_REPEAT_RESULT, false == ::llc::failed(repeatResult), "Repeat result:%i.", repeatResult);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_REPEAT_COUNT
-		, entryCount != definition.Values.size()
-		, "Entry count:%u, expected:%u.", definition.Values.size(), entryCount
-		);
+	LLC_TEST_CHECKF(errors, ENUM_TEST_RESULT_REPEAT_RESULT, false == ::llc::failed(repeatResult), "Repeat result:%i.", repeatResult);
+	LLC_TEST_CHECKF(errors, ENUM_TEST_RESULT_REPEAT_COUNT , entryCount != definition.Values.size() , "Entry count:%u, expected:%u.", definition.Values.size(), entryCount );
 	cnst ::llc::err_t conflictResult = definition.add_value((ENUM_ALIAS_SAMPLE)8, LLC_CXS("ALIAS"), LLC_CXS("ALIAS"), LLC_CXS("Conflicting value."));
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_CONFLICT_RESULT, false == ::llc::failed(conflictResult), "Conflict result:%i.", conflictResult);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_CONFLICT_COUNT
-		, entryCount != definition.Values.size()
-		, "Entry count:%u, expected:%u.", definition.Values.size(), entryCount
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_CONFLICT_VALUE
-		, definition.get_value(LLC_CXS("ALIAS")) != sampleValue, "ALIAS mapping changed."
-		);
+	LLC_TEST_CHECKF(errors, ENUM_TEST_RESULT_CONFLICT_RESULT, false == ::llc::failed(conflictResult), "Conflict result:%i.", conflictResult);
+	LLC_TEST_CHECKF(errors, ENUM_TEST_RESULT_CONFLICT_COUNT , entryCount != definition.Values.size() , "Entry count:%u, expected:%u.", definition.Values.size(), entryCount );
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_CONFLICT_VALUE , definition.get_value(LLC_CXS("ALIAS")) != sampleValue);
 	cnst ::llc::err_t automaticResult = definition.add_value_auto(LLC_CXS("NEXT"), LLC_CXS("NEXT"), LLC_CXS("NEXT"));
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_AUTO_INDEX
-		, automaticResult != 2
-		, "NEXT index:%i, expected:2.", automaticResult
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_AUTO_VALUE
-		, definition.get_value(LLC_CXS("NEXT")) != (ENUM_ALIAS_SAMPLE)1, "NEXT value was not one."
-		);
+	LLC_TEST_CHECKF(errors, ENUM_TEST_RESULT_AUTO_INDEX , automaticResult != 2 , "NEXT index:%i, expected:2.", automaticResult );
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_AUTO_VALUE , definition.get_value(LLC_CXS("NEXT")) != (ENUM_ALIAS_SAMPLE)1);
 
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIGN_X_ALIAS
-		, ::llc::get_enum<::llc::ALIGN>().get_value(LLC_CXS("XCENTER")) != ::llc::ALIGN_HCENTER, "XCENTER lookup failed."
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIGN_Y_ALIAS
-		, ::llc::get_enum<::llc::ALIGN>().get_value(LLC_CXS("YCENTER")) != ::llc::ALIGN_VCENTER, "YCENTER lookup failed."
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIGN_Z_ALIAS
-		, ::llc::get_enum<::llc::ALIGN>().get_value(LLC_CXS("ZCENTER")) != ::llc::ALIGN_DCENTER, "ZCENTER lookup failed."
-		);
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_WIFI_AUTH_ALIAS
-		, ::llc::get_enum<::llc::WIFI_AUTH>().get_value(LLC_CXS("WPA2_ENTERPRISE")) != ::llc::WIFI_AUTH_ENTERPRISE, "WPA2_ENTERPRISE lookup failed."
-		);
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIGN_X_ALIAS , ::llc::get_enum<::llc::ALIGN>().get_value(LLC_CXS("XCENTER")) != ::llc::ALIGN_HCENTER);
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIGN_Y_ALIAS , ::llc::get_enum<::llc::ALIGN>().get_value(LLC_CXS("YCENTER")) != ::llc::ALIGN_VCENTER);
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIGN_Z_ALIAS , ::llc::get_enum<::llc::ALIGN>().get_value(LLC_CXS("ZCENTER")) != ::llc::ALIGN_DCENTER);
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_WIFI_AUTH_ALIAS , ::llc::get_enum<::llc::WIFI_AUTH>().get_value(LLC_CXS("WPA2_ENTERPRISE")) != ::llc::WIFI_AUTH_ENTERPRISE);
 	rtrn 0;
 }

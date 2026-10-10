@@ -332,8 +332,8 @@ namespace llc
 	tdcs	vcst_t				vcst_c;
 	tplt<tpnm _tVal>						using kvvcst_t	= kv<vcst_t, _tVal>;
 	// Use this to initialize a constexpr string view from a string literal.
-#define LLC_CXS(constexpr_string_literal) ::llc::vcst_t{szof(constexpr_string_literal) - 1U, constexpr_string_literal}
-
+#define LLC_CXS(constexpr_string_literal) ::llc::vcst_t{::llc::size(constexpr_string_literal) - 1U, constexpr_string_literal}
+#define LLC_VIEW_ARGS(view) (int)view.size(), view.begin() // Parenthesizing the argument does not merely tolerate expressions—it legitimizes and conceals them. Without those parentheses, the macro enforces its intended use.
 	stxp	vcst_t	VCC_NULL		= LLC_CXS("null");
 	stxp	vcst_t	VCC_TRUE		= LLC_CXS("true");
 	stxp	vcst_t	VCC_FALSE		= LLC_CXS("false");

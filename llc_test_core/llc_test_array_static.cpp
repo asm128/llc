@@ -91,55 +91,29 @@ tplt<tpnm T>
 sttc ::llc::err_t testStaticStructure(ATestError & errors) {
 	::llc::array_static<T, 5> data = {T(1), T(2), T(3), T(4), T(5)};
 	cnst ::llc::array_static<T, 5> & constData = data;
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_EXTENT, data.N != 5
-		, "extent mismatch. N:%u, expected:5."
-		, data.N
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_STORAGE_LAYOUT, szof(data) != szof(T) * 5U
-		, "object bytes:%u, expected:%u.", (::llc::u2_t)szof(data), (::llc::u2_t)(szof(T) * 5U));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_STORAGE_BEGIN, data.Storage != data.begin()
-		, "storage:%p, begin:%p.", data.Storage, data.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MEMBER_SIZE, data.size() != 5
-		, "mutable size:%u, expected:5.", data.size());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_MEMBER_SIZE, constData.size() != 5
-		, "const size:%u, expected:5.", constData.size());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_FREE_SIZE, ::llc::size(data) != 5
-		, "free size mismatch. actual:%u, expected:5."
-		, ::llc::size(data)
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_BYTE_COUNT, data.byte_count() != szof(T) * 5U
-		, "member byte count:%u, expected:%u.", data.byte_count(), (::llc::u2_t)(szof(T) * 5U));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_FREE_BYTE_COUNT, ::llc::byte_count(data) != szof(T) * 5U
-		, "free byte count:%u, expected:%u.", ::llc::byte_count(data), (::llc::u2_t)(szof(T) * 5U));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_BIT_COUNT, data.bit_count() != szof(T) * 5U * 8U
-		, "bit count mismatch. actual:%u, expected:%u."
-		, data.bit_count(), (::llc::u2_t)(szof(T) * 5U * 8U)
-		);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_EXTENT, data.N != 5 , "extent mismatch. N:%u, expected:5." , data.N );
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_STORAGE_LAYOUT, szof(data) != szof(T) * 5U , "object bytes:%u, expected:%u.", (::llc::u2_t)szof(data), (::llc::u2_t)(szof(T) * 5U));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_STORAGE_BEGIN, data.Storage != data.begin() , "storage:%p, begin:%p.", data.Storage, data.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_MEMBER_SIZE, data.size() != 5 , "mutable size:%u, expected:5.", data.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_MEMBER_SIZE, constData.size() != 5 , "const size:%u, expected:5.", constData.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FREE_SIZE, ::llc::size(data) != 5 , "free size mismatch. actual:%u, expected:5." , ::llc::size(data) );
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_BYTE_COUNT, data.byte_count() != szof(T) * 5U , "member byte count:%u, expected:%u.", data.byte_count(), (::llc::u2_t)(szof(T) * 5U));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FREE_BYTE_COUNT, ::llc::byte_count(data) != szof(T) * 5U , "free byte count:%u, expected:%u.", ::llc::byte_count(data), (::llc::u2_t)(szof(T) * 5U));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_BIT_COUNT, data.bit_count() != szof(T) * 5U * 8U , "bit count mismatch. actual:%u, expected:%u." , data.bit_count(), (::llc::u2_t)(szof(T) * 5U * 8U) );
 	// The one-past expression is the expected boundary under test for array_static::end().
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_BOUNDARIES, data.begin() != data.Storage
-		, "mutable begin:%p, expected:%p.", data.begin(), data.Storage);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_END_BOUNDARY, data.end() != data.Storage + 5
-		, "mutable end:%p, expected:%p.", data.end(), data.Storage + 5);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BEGIN_BOUNDARY, constData.begin() != data.Storage
-		, "const begin:%p, expected:%p.", constData.begin(), data.Storage);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_END_BOUNDARY, constData.end() != data.Storage + 5
-		, "const end:%p, expected:%p.", constData.end(), data.Storage + 5);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_BOUNDARIES, data.begin() != data.Storage , "mutable begin:%p, expected:%p.", data.begin(), data.Storage);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_END_BOUNDARY, data.end() != data.Storage + 5 , "mutable end:%p, expected:%p.", data.end(), data.Storage + 5);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_BEGIN_BOUNDARY, constData.begin() != data.Storage , "const begin:%p, expected:%p.", constData.begin(), data.Storage);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_END_BOUNDARY, constData.end() != data.Storage + 5 , "const end:%p, expected:%p.", constData.end(), data.Storage + 5);
 
 	::llc::view<T> mutableView = data;
 	::llc::view<cnst T> constView = constData;
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_VIEW, mutableView.begin() != data.begin()
-		, "mutable view begin:%p, expected:%p.", mutableView.begin(), data.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_VIEW_SIZE, mutableView.size() != data.size()
-		, "mutable view size:%u, expected:%u.", mutableView.size(), data.size());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_VIEW, constView.begin() != constData.begin()
-		, "const view begin:%p, expected:%p.", constView.begin(), constData.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_VIEW_SIZE, constView.size() != constData.size()
-		, "const view size:%u, expected:%u.", constView.size(), constData.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_VIEW, mutableView.begin() != data.begin() , "mutable view begin:%p, expected:%p.", mutableView.begin(), data.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_VIEW_SIZE, mutableView.size() != data.size() , "mutable view size:%u, expected:%u.", mutableView.size(), data.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_VIEW, constView.begin() != constData.begin() , "const view begin:%p, expected:%p.", constView.begin(), constData.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_VIEW_SIZE, constView.size() != constData.size() , "const view size:%u, expected:%u.", constView.size(), constData.size());
 	mutableView[1] = T(7);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_VIEW, data.Storage[1] != T(7)
-		, "mutable view write mismatch. actual:%" LLC_FMT_S3 ", expected:7."
-		, (::llc::s3_t)data.Storage[1]
-		);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_VIEW, data.Storage[1] != T(7) , "mutable view write mismatch. actual:%" LLC_FMT_S3 ", expected:7." , (::llc::s3_t)data.Storage[1] );
 	rtrn 0;
 }
 
@@ -147,22 +121,13 @@ tplt<tpnm T>
 sttc ::llc::err_t testStaticSubscript(ATestError & errors) {
 	::llc::array_static<T, 5> data = {T(1), T(2), T(3), T(4), T(5)};
 	cnst ::llc::array_static<T, 5> & constData = data;
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SUBSCRIPT_READ, data[2] != T(3)
-		, "mutable[2]:%" LLC_FMT_S3 ", expected:3.", (::llc::s3_t)data[2]);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_SUBSCRIPT_READ, constData[3] != T(4)
-		, "const[3]:%" LLC_FMT_S3 ", expected:4.", (::llc::s3_t)constData[3]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SUBSCRIPT_READ, data[2] != T(3) , "mutable[2]:%" LLC_FMT_S3 ", expected:3.", (::llc::s3_t)data[2]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_SUBSCRIPT_READ, constData[3] != T(4) , "const[3]:%" LLC_FMT_S3 ", expected:4.", (::llc::s3_t)constData[3]);
 	data[2] = T(9);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SUBSCRIPT_WRITE, data.Storage[2] != T(9)
-		, "subscript write mismatch. storage[2]:%" LLC_FMT_S3 ", expected:9."
-		, (::llc::s3_t)data.Storage[2]
-		);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SUBSCRIPT_WRITE, data.Storage[2] != T(9) , "subscript write mismatch. storage[2]:%" LLC_FMT_S3 ", expected:9." , (::llc::s3_t)data.Storage[2] );
 #ifdef LLC_WINDOWS
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)data[5]; })
-		, "mutable subscript accepted index 5 for extent 5."
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)constData[5]; })
-		, "const subscript accepted index 5 for extent 5."
-		);
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)data[5]; }));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)constData[5]; }));
 #endif
 	rtrn 0;
 }
@@ -172,11 +137,11 @@ sttc ::llc::err_t testStaticEquality(ATestError & errors) {
 	::llc::array_static<T, 5> first		= {T(1), T(2), T(3), T(4), T(5)};
 	::llc::array_static<T, 5> equal		= {T(1), T(2), T(3), T(4), T(5)};
 	::llc::array_static<T, 5> different	= {T(1), T(2), T(3), T(4), T(6)};
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REFLEXIVE_EQUALITY, !(first == first), "array did not equal itself.");
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_EQUALITY, !(first == equal), "equal arrays compared unequal.");
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_EQUAL_INEQUALITY, first != equal, "equal arrays compared different.");
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INEQUALITY, first == different, "different arrays compared equal.");
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_DIFFERENT_INEQUALITY, !(first != different), "different arrays compared equal with !=.");
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REFLEXIVE_EQUALITY, !(first == first));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_EQUALITY, !(first == equal));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_EQUAL_INEQUALITY, first != equal);
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INEQUALITY, first == different);
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_DIFFERENT_INEQUALITY, !(first != different));
 	rtrn 0;
 }
 
@@ -189,58 +154,27 @@ sttc ::llc::err_t testStaticRepresentations(ATestError & errors) {
 	auto constBytes		= constData.u8();
 	auto constByteAlias	= constData.cu8();
 	auto constChars		= constData.cc();
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_TYPE
-		, false == (::std::is_same_v<decltype(mutableBytes), ::llc::view<::llc::u0_t>>)
-		, "mutable byte view type mismatch."
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_TYPE
-		, false == (::std::is_same_v<decltype(mutableChars), ::llc::view<::llc::sc_t>>)
-		, "mutable character view type mismatch."
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_TYPE
-		, false == (::std::is_same_v<decltype(constBytes), ::llc::view<::llc::u0_c>>)
-		, "const byte view type mismatch."
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_ALIAS_TYPE
-		, false == (::std::is_same_v<decltype(constByteAlias), ::llc::view<::llc::u0_c>>)
-		, "const byte alias type mismatch."
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_TYPE
-		, false == (::std::is_same_v<decltype(constChars), ::llc::view<::llc::sc_c>>)
-		, "const character view type mismatch."
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_BYTE_VIEW, (::llc::uP_t)mutableBytes.begin() != (::llc::uP_t)data.begin()
-		, "mutable byte begin:%p, expected:%p.", mutableBytes.begin(), data.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_BYTE_SIZE, mutableBytes.size() != data.byte_count()
-		, "mutable byte size:%u, expected:%u.", mutableBytes.size(), data.byte_count());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_VIEW, (::llc::uP_t)constBytes.begin() != (::llc::uP_t)constData.begin()
-		, "const byte begin:%p, expected:%p.", constBytes.begin(), constData.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_SIZE, constBytes.size() != constData.byte_count()
-		, "const byte size:%u, expected:%u.", constBytes.size(), constData.byte_count());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_ALIAS, constByteAlias.begin() != constBytes.begin()
-		, "const byte alias begin:%p, expected:%p.", constByteAlias.begin(), constBytes.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_ALIAS_SIZE, constByteAlias.size() != constBytes.size()
-		, "const byte alias size:%u, expected:%u.", constByteAlias.size(), constBytes.size());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_VIEW, (::llc::uP_t)mutableChars.begin() != (::llc::uP_t)data.begin()
-		, "mutable character begin:%p, expected:%p.", mutableChars.begin(), data.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_SIZE, mutableChars.size() != data.byte_count()
-		, "mutable character size:%u, expected:%u.", mutableChars.size(), data.byte_count());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_VIEW, (::llc::uP_t)constChars.begin() != (::llc::uP_t)constData.begin()
-		, "const character begin:%p, expected:%p.", constChars.begin(), constData.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_SIZE, constChars.size() != constData.byte_count()
-		, "const character size:%u, expected:%u.", constChars.size(), constData.byte_count());
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_TYPE , false == (::std::is_same_v<decltype(mutableBytes), ::llc::view<::llc::u0_t>>));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_TYPE , false == (::std::is_same_v<decltype(mutableChars), ::llc::view<::llc::sc_t>>));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_TYPE , false == (::std::is_same_v<decltype(constBytes), ::llc::view<::llc::u0_c>>));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_ALIAS_TYPE , false == (::std::is_same_v<decltype(constByteAlias), ::llc::view<::llc::u0_c>>));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_TYPE , false == (::std::is_same_v<decltype(constChars), ::llc::view<::llc::sc_c>>));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_BYTE_VIEW, (::llc::uP_t)mutableBytes.begin() != (::llc::uP_t)data.begin() , "mutable byte begin:%p, expected:%p.", mutableBytes.begin(), data.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_BYTE_SIZE, mutableBytes.size() != data.byte_count() , "mutable byte size:%u, expected:%u.", mutableBytes.size(), data.byte_count());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_VIEW, (::llc::uP_t)constBytes.begin() != (::llc::uP_t)constData.begin() , "const byte begin:%p, expected:%p.", constBytes.begin(), constData.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_SIZE, constBytes.size() != constData.byte_count() , "const byte size:%u, expected:%u.", constBytes.size(), constData.byte_count());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_ALIAS, constByteAlias.begin() != constBytes.begin() , "const byte alias begin:%p, expected:%p.", constByteAlias.begin(), constBytes.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_ALIAS_SIZE, constByteAlias.size() != constBytes.size() , "const byte alias size:%u, expected:%u.", constByteAlias.size(), constBytes.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_VIEW, (::llc::uP_t)mutableChars.begin() != (::llc::uP_t)data.begin() , "mutable character begin:%p, expected:%p.", mutableChars.begin(), data.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_SIZE, mutableChars.size() != data.byte_count() , "mutable character size:%u, expected:%u.", mutableChars.size(), data.byte_count());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_VIEW, (::llc::uP_t)constChars.begin() != (::llc::uP_t)constData.begin() , "const character begin:%p, expected:%p.", constChars.begin(), constData.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_SIZE, constChars.size() != constData.byte_count() , "const character size:%u, expected:%u.", constChars.size(), constData.byte_count());
 	cnst ::llc::u0_t replacement = (::llc::u0_t)(mutableBytes[0] ^ 0x5AU);
 	mutableBytes[0] = replacement;
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_WRITE, constData.cu8()[0] != replacement
-		, "byte representation write mismatch. storage byte:%u, expected:%u."
-		, constData.cu8()[0], replacement
-		);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_WRITE, constData.cu8()[0] != replacement , "byte representation write mismatch. storage byte:%u, expected:%u." , constData.cu8()[0], replacement );
 	cnst ::llc::sc_t charReplacement = (::llc::sc_t)(mutableChars[1] ^ 0x35);
 	mutableChars[1] = charReplacement;
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CHAR_REPRESENTATION_WRITE, constData.cc()[1] != charReplacement
-		, "character representation write mismatch. storage byte:%i, expected:%i."
-		, constData.cc()[1], charReplacement
-		);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CHAR_REPRESENTATION_WRITE, constData.cc()[1] != charReplacement , "character representation write mismatch. storage byte:%i, expected:%i." , constData.cc()[1], charReplacement );
 	rtrn 0;
 }
 
@@ -249,95 +183,62 @@ sttc ::llc::err_t testStaticSlice(ATestError & errors) {
 	::llc::array_static<T, 5> data = {T(1), T(2), T(3), T(4), T(5)};
 	::llc::view<T> output;
 	::llc::err_t result = data.slice(output, 0);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FULL, result != 5, "full slice result:%i, expected:5.", result);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FULL_BEGIN, output.begin() != data.begin()
-		, "full slice begin:%p, expected:%p.", output.begin(), data.begin());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FULL_END, output.end() != data.end()
-		, "full slice end:%p, expected:%p.", output.end(), data.end());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FULL, result != 5, "full slice result:%i, expected:5.", result);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FULL_BEGIN, output.begin() != data.begin() , "full slice begin:%p, expected:%p.", output.begin(), data.begin());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FULL_END, output.end() != data.end() , "full slice end:%p, expected:%p.", output.end(), data.end());
 	result = data.slice(output, 2);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_REMAINDER, result != 3, "remainder slice result:%i, expected:3.", result);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_REMAINDER_BEGIN, output.begin() != &data[2]
-		, "remainder slice begin:%p, expected:%p.", output.begin(), &data[2]);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_REMAINDER_END, output.end() != data.end()
-		, "remainder slice end:%p, expected:%p.", output.end(), data.end());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_REMAINDER, result != 3, "remainder slice result:%i, expected:3.", result);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_REMAINDER_BEGIN, output.begin() != &data[2] , "remainder slice begin:%p, expected:%p.", output.begin(), &data[2]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_REMAINDER_END, output.end() != data.end() , "remainder slice end:%p, expected:%p.", output.end(), data.end());
 	result = data.slice(output, 1, 2);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_COUNT, result != 2, "counted slice result:%i, expected:2.", result);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_COUNT_BEGIN, output.begin() != &data[1]
-		, "counted slice begin:%p, expected:%p.", output.begin(), &data[1]);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_COUNT_END, output.end() != &data[3]
-		, "counted slice end:%p, expected:%p.", output.end(), &data[3]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_COUNT, result != 2, "counted slice result:%i, expected:2.", result);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_COUNT_BEGIN, output.begin() != &data[1] , "counted slice begin:%p, expected:%p.", output.begin(), &data[1]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_COUNT_END, output.end() != &data[3] , "counted slice end:%p, expected:%p.", output.end(), &data[3]);
 	result = data.slice(output, 5);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END, result, "end slice result:%i, expected:0.", result);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END_SIZE, output.size(), "end slice size:%u, expected:0.", output.size());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END_BEGIN, output.begin() != data.end()
-		, "end slice begin:%p, expected:%p.", output.begin(), data.end());
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END_END, output.end() != data.end()
-		, "end slice end:%p, expected:%p.", output.end(), data.end());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END, result, "end slice result:%i, expected:0.", result);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END_SIZE, output.size(), "end slice size:%u, expected:0.", output.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END_BEGIN, output.begin() != data.end() , "end slice begin:%p, expected:%p.", output.begin(), data.end());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_END_END, output.end() != data.end() , "end slice end:%p, expected:%p.", output.end(), data.end());
 	::llc::view<T> self = data;
 	result = data.slice(self, 2, 2);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_SELF, result != 2, "self slice result:%i, expected:2.", result);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_SELF_BEGIN, self.begin() != &data[2]
-		, "self slice begin:%p, expected:%p.", self.begin(), &data[2]);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_SELF_END, self.end() != &data[4]
-		, "self slice end:%p, expected:%p.", self.end(), &data[4]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_SELF, result != 2, "self slice result:%i, expected:2.", result);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_SELF_BEGIN, self.begin() != &data[2] , "self slice begin:%p, expected:%p.", self.begin(), &data[2]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_SELF_END, self.end() != &data[4] , "self slice end:%p, expected:%p.", self.end(), &data[4]);
 
 	cnst ::llc::array_static<T, 5> & constData = data;
 	::llc::view<cnst T> constOutput;
 	result = constData.slice(constOutput, 1, 3);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_SLICE, result != 3, "const slice result:%i, expected:3.", result);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_SLICE_BEGIN, constOutput.begin() != &constData[1]
-		, "const slice begin:%p, expected:%p.", constOutput.begin(), &constData[1]);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_SLICE_END, constOutput.end() != &constData[4]
-		, "const slice end:%p, expected:%p.", constOutput.end(), &constData[4]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_SLICE, result != 3, "const slice result:%i, expected:3.", result);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_SLICE_BEGIN, constOutput.begin() != &constData[1] , "const slice begin:%p, expected:%p.", constOutput.begin(), &constData[1]);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_SLICE_END, constOutput.end() != &constData[4] , "const slice end:%p, expected:%p.", constOutput.end(), &constData[4]);
 
 	T guard[] = {T(8), T(9)};
 	output = {guard, 2};
 	result = staticSliceExpectedFailure(data, output, 6);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_INVALID_OFFSET, false == ::llc::failed(result)
-		, "slice accepted offset 6 for extent 5. result:%i."
-		, result
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_STATE, output.begin() != guard
-		, "failed offset slice begin:%p, expected:%p.", output.begin(), guard);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_SIZE, output.size() != 2
-		, "failed offset slice size:%u, expected:2.", output.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_INVALID_OFFSET, false == ::llc::failed(result) , "slice accepted offset 6 for extent 5. result:%i." , result );
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_STATE, output.begin() != guard , "failed offset slice begin:%p, expected:%p.", output.begin(), guard);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_SIZE, output.size() != 2 , "failed offset slice size:%u, expected:2.", output.size());
 	result = staticSliceExpectedFailure(data, output, 4, 2);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_INVALID_COUNT, false == ::llc::failed(result)
-		, "slice accepted count 2 after offset 4. result:%i."
-		, result
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_STATE, output.begin() != guard
-		, "failed count slice begin:%p, expected:%p.", output.begin(), guard);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_SIZE, output.size() != 2
-		, "failed count slice size:%u, expected:2.", output.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_INVALID_COUNT, false == ::llc::failed(result) , "slice accepted count 2 after offset 4. result:%i." , result );
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_STATE, output.begin() != guard , "failed count slice begin:%p, expected:%p.", output.begin(), guard);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_SIZE, output.size() != 2 , "failed count slice size:%u, expected:2.", output.size());
 	constOutput = {guard, 2};
 	result = staticSliceExpectedFailure(constData, constOutput, 6);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_INVALID_OFFSET, false == ::llc::failed(result)
-		, "const slice accepted offset 6 for extent 5. result:%i."
-		, result
-		);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_STATE, constOutput.begin() != guard
-		, "failed const slice begin:%p, expected:%p.", constOutput.begin(), guard);
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_SIZE, constOutput.size() != 2
-		, "failed const slice size:%u, expected:2.", constOutput.size());
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_INVALID_OFFSET, false == ::llc::failed(result) , "const slice accepted offset 6 for extent 5. result:%i." , result );
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_STATE, constOutput.begin() != guard , "failed const slice begin:%p, expected:%p.", constOutput.begin(), guard);
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SLICE_FAILURE_SIZE, constOutput.size() != 2 , "failed const slice size:%u, expected:2.", constOutput.size());
 	rtrn 0;
 }
 
 tplt<tpnm T>
 sttc ::llc::err_t testStaticFind(ATestError & errors) {
 	cnst ::llc::array_static<T, 5> data = {T(2), T(3), T(2), T(4), T(2)};
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_FIND_FIRST, ::llc::find(T(2), data) != 0
-		, "first value 2 index:%i, expected:0.", ::llc::find(T(2), data));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_FIND_THREE, ::llc::find(T(3), data) != 1
-		, "first value 3 index:%i, expected:1.", ::llc::find(T(3), data));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_FIND_OFFSET, ::llc::find(T(2), data, 1) != 2
-		, "value 2 from offset 1:%i, expected:2.", ::llc::find(T(2), data, 1));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_FIND_OFFSET_THREE, ::llc::find(T(2), data, 3) != 4
-		, "value 2 from offset 3:%i, expected:4.", ::llc::find(T(2), data, 3));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_FIND_NOT_FOUND, ::llc::find(T(9), data) != -1
-		, "absent value 9 index:%i, expected:-1.", ::llc::find(T(9), data));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_FIND_END_OFFSET, ::llc::find(T(2), data, 5) != -1
-		, "value 2 from end offset:%i, expected:-1.", ::llc::find(T(2), data, 5));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FIND_FIRST, ::llc::find(T(2), data) != 0 , "first value 2 index:%i, expected:0.", ::llc::find(T(2), data));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FIND_THREE, ::llc::find(T(3), data) != 1 , "first value 3 index:%i, expected:1.", ::llc::find(T(3), data));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FIND_OFFSET, ::llc::find(T(2), data, 1) != 2 , "value 2 from offset 1:%i, expected:2.", ::llc::find(T(2), data, 1));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FIND_OFFSET_THREE, ::llc::find(T(2), data, 3) != 4 , "value 2 from offset 3:%i, expected:4.", ::llc::find(T(2), data, 3));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FIND_NOT_FOUND, ::llc::find(T(9), data) != -1 , "absent value 9 index:%i, expected:-1.", ::llc::find(T(9), data));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FIND_END_OFFSET, ::llc::find(T(2), data, 5) != -1 , "value 2 from end offset:%i, expected:-1.", ::llc::find(T(2), data, 5));
 	rtrn 0;
 }
 

@@ -257,9 +257,7 @@
   <ItemGroup>
     <ClCompile Include="llc_ccsds.cpp" />
     <ClCompile Include="llc_circuit.cpp" />
-    <ClCompile Include="llc_adam7.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_adam7.cpp" />
     <ClCompile Include="llc_aes.cpp" />
     <ClCompile Include="llc_append_tcpip.cpp" />
     <ClCompile Include="llc_append_css.cpp" />
@@ -406,9 +404,7 @@
     </ClCompile>
     <ClCompile Include="llc_noise.cpp" />
     <ClCompile Include="llc_parse.cpp" />
-    <ClCompile Include="llc_png.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_png.cpp" />
     <ClCompile Include="llc_png_write.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>

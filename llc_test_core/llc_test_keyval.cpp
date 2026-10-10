@@ -28,32 +28,14 @@ sttc ::llc::err_t testKeyValCombination
 	cnst ::llc::view<cnst ::llc::keyval<TKey, TVal>> keyvals = {values};
 	llc_rmcnst(TVal) output = {};
 	cnst ::llc::err_t first = ::llc::find(firstKey, keyvals, output);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_FIRST_MATCH, first
-		, "First lookup index:%i, expected:0. Key bytes:%u, value bytes:%u."
-		, first, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal)
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_FIRST_MATCH, false == (output == firstValue)
-		, "First lookup returned the wrong value. Key bytes:%u, value bytes:%u."
-		, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal)
-		);
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_FIRST_MATCH, first , "First lookup index:%i, expected:0. Key bytes:%u, value bytes:%u." , first, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal) );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_FIRST_MATCH, false == (output == firstValue) , "First lookup returned the wrong value. Key bytes:%u, value bytes:%u." , (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal) );
 	cnst ::llc::err_t second = ::llc::find(secondKey, keyvals, output);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_SECOND_MATCH, second != 1
-		, "Second lookup index:%i, expected:1. Key bytes:%u, value bytes:%u."
-		, second, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal)
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_SECOND_MATCH, false == (output == secondValue)
-		, "Second lookup returned the wrong value. Key bytes:%u, value bytes:%u."
-		, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal)
-		);
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_SECOND_MATCH, second != 1 , "Second lookup index:%i, expected:1. Key bytes:%u, value bytes:%u." , second, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal) );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_SECOND_MATCH, false == (output == secondValue) , "Second lookup returned the wrong value. Key bytes:%u, value bytes:%u." , (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal) );
 	cnst ::llc::err_t missing = ::llc::find(missingKey, keyvals, output);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_MISSING_KEY, missing != -1
-		, "Missing lookup index:%i, expected:-1. Key bytes:%u, value bytes:%u."
-		, missing, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal)
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_MISSING_KEY, false == (output == TVal{})
-		, "Missing lookup did not reset its value. Key bytes:%u, value bytes:%u."
-		, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal)
-		);
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_MISSING_KEY, missing != -1 , "Missing lookup index:%i, expected:-1. Key bytes:%u, value bytes:%u." , missing, (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal) );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_MISSING_KEY, false == (output == TVal{}) , "Missing lookup did not reset its value. Key bytes:%u, value bytes:%u." , (::llc::u2_t)sizeof(TKey), (::llc::u2_t)sizeof(TVal) );
 	rtrn 0;
 }
 
@@ -84,37 +66,21 @@ sttc ::llc::err_t testKeyValViewConstness(ATestError & errors) {
 	cnst ::llc::err_t mutableFound = ::llc::find(::llc::view<cnst ::llc::u1_t>{keyData}, ::llc::view<cnst TMutableViewKeyVal>{mutableValue}, mutableOutput);
 	if(0 <= mutableFound && 1 < mutableOutput.size())
 		mutableOutput[1] = 0x55;
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_SHALLOW_CONST_VIEW, mutableFound
-		, "Shallow-const lookup index:%i, expected:0.", mutableFound
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_SHALLOW_CONST_VIEW, mutableOutput.begin() != mutableData
-		, "Shallow-const output:%p, expected:%p.", mutableOutput.begin(), mutableData
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_SHALLOW_CONST_VIEW, mutableOutput.size() != ::llc::size(mutableData)
-		, "Shallow-const count:%u, expected:%u.", mutableOutput.size(), ::llc::u2_t(::llc::size(mutableData))
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_SHALLOW_CONST_VIEW, mutableData[1] != 0x55
-		, "Shallow-const source element 1:%u, expected:85.", mutableData[1]
-		);
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_SHALLOW_CONST_VIEW, mutableFound , "Shallow-const lookup index:%i, expected:0.", mutableFound );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_SHALLOW_CONST_VIEW, mutableOutput.begin() != mutableData , "Shallow-const output:%p, expected:%p.", mutableOutput.begin(), mutableData );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_SHALLOW_CONST_VIEW, mutableOutput.size() != ::llc::size(mutableData) , "Shallow-const count:%u, expected:%u.", mutableOutput.size(), ::llc::u2_t(::llc::size(mutableData)) );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_SHALLOW_CONST_VIEW, mutableData[1] != 0x55 , "Shallow-const source element 1:%u, expected:85.", mutableData[1] );
 
 	cnst ::llc::u1_t constData[] = {7, 8, 9};
 	tydf ::llc::keyval<cnst ::llc::view<cnst ::llc::u1_t>, ::llc::view<cnst ::llc::u1_t>> TConstViewKeyVal;
 	cnst TConstViewKeyVal constValue[] = {{{keyData}, {constData}}};
 	::llc::view<cnst ::llc::u1_t> constOutput = {};
 	cnst ::llc::err_t constFound = ::llc::find(::llc::view<cnst ::llc::u1_t>{keyData}, ::llc::view<cnst TConstViewKeyVal>{constValue}, constOutput);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_DEEP_CONST_VIEW, constFound
-		, "Deep-const lookup index:%i, expected:0.", constFound
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_DEEP_CONST_VIEW, constOutput.begin() != constData
-		, "Deep-const output:%p, expected:%p.", constOutput.begin(), constData
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_DEEP_CONST_VIEW, constOutput.size() != ::llc::size(constData)
-		, "Deep-const count:%u, expected:%u.", constOutput.size(), ::llc::u2_t(::llc::size(constData))
-		);
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_DEEP_CONST_VIEW, constFound , "Deep-const lookup index:%i, expected:0.", constFound );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_DEEP_CONST_VIEW, constOutput.begin() != constData , "Deep-const output:%p, expected:%p.", constOutput.begin(), constData );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_DEEP_CONST_VIEW, constOutput.size() != ::llc::size(constData) , "Deep-const count:%u, expected:%u.", constOutput.size(), ::llc::u2_t(::llc::size(constData)) );
 	if(2 < constOutput.size()) {
-		LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_DEEP_CONST_VIEW, constOutput[2] != 9
-			, "Deep-const element 2:%u, expected:9.", constOutput[2]
-			);
+		LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_DEEP_CONST_VIEW, constOutput[2] != 9 , "Deep-const element 2:%u, expected:9.", constOutput[2] );
 	}
 	rtrn 0;
 }
@@ -123,22 +89,14 @@ sttc ::llc::err_t testKeyValBoundaries(ATestError & errors) {
 	cnst ::llc::view<cnst ::llc::keyval<::llc::u2_t, ::llc::u3_t>> empty = {};
 	::llc::u3_t output = 1;
 	cnst ::llc::err_t emptyResult = ::llc::find(::llc::u2_t{0}, empty, output);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_EMPTY_VIEW, emptyResult != -1
-		, "Empty lookup index:%i, expected:-1.", emptyResult
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_EMPTY_VIEW, output
-		, "Empty lookup output:%" LLC_FMT_U3 ", expected:0.", output
-		);
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_EMPTY_VIEW, emptyResult != -1 , "Empty lookup index:%i, expected:-1.", emptyResult );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_EMPTY_VIEW, output , "Empty lookup output:%" LLC_FMT_U3 ", expected:0.", output );
 	::llc::keyval<::llc::u2_t, ::llc::u3_t> values[513] = {};
 	for(::llc::u2_t iValue = 0; iValue < ::llc::size(values); ++iValue)
 		values[iValue] = {iValue, (::llc::u3_t)iValue * iValue};
 	cnst ::llc::err_t found = ::llc::find(::llc::u2_t{512}, ::llc::view<cnst ::llc::keyval<::llc::u2_t, ::llc::u3_t>>{values}, output);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_LARGE_VIEW, found != 512
-		, "Large lookup index:%i, expected:512.", found
-		);
-	LLC_TEST_CHECK(errors, KEYVAL_TEST_RESULT_LARGE_VIEW, output != 512ULL * 512
-		, "Large lookup output:%" LLC_FMT_U3 ", expected:262144.", output
-		);
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_LARGE_VIEW, found != 512 , "Large lookup index:%i, expected:512.", found );
+	LLC_TEST_CHECKF(errors, KEYVAL_TEST_RESULT_LARGE_VIEW, output != 512ULL * 512 , "Large lookup output:%" LLC_FMT_U3 ", expected:262144.", output );
 	rtrn 0;
 }
 

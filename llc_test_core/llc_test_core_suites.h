@@ -4,6 +4,7 @@
 #define LLC_TEST_CORE_SUITES_H
 
 ::llc::err_t testArrayStatic		(ATestError & errors);
+::llc::err_t testAdam7			(ATestError & errors);
 ::llc::err_t testArrayObj		(ATestError & errors);
 ::llc::err_t testArrayPod		(ATestError & errors);
 ::llc::err_t testArgs			(ATestError & errors);
@@ -23,6 +24,7 @@
 ::llc::err_t testXMLReader		(ATestError & errors);
 ::llc::err_t testPath			(ATestError & errors);
 ::llc::err_t testPointers		(ATestError & errors);
+::llc::err_t testPNG			(ATestError & errors);
 ::llc::err_t testSPRNG			(ATestError & errors);
 ::llc::err_t testStr			(ATestError & errors);
 ::llc::err_t testView			(ATestError & errors);

@@ -101,51 +101,21 @@ sttc bool jsonTextMismatch(::llc::vcst_t actual, ::llc::vcst_t expected) {
 }
 
 sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader & reader, ::llc::vcst_t input) {
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_STORAGE_VIEW_COUNT, reader.Token.size() != reader.View.size()
-		, "Tokens:%u, views:%u."
-		, reader.Token.size(), reader.View.size()
-		);
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_STORAGE_TREE_COUNT, reader.Token.size() != reader.Tree.size()
-		, "Tokens:%u, tree nodes:%u."
-		, reader.Token.size(), reader.Tree.size()
-		);
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_STORAGE_VIEW_COUNT, reader.Token.size() != reader.View.size() , "Tokens:%u, views:%u." , reader.Token.size(), reader.View.size() );
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_STORAGE_TREE_COUNT, reader.Token.size() != reader.Tree.size() , "Tokens:%u, tree nodes:%u." , reader.Token.size(), reader.Tree.size() );
 	for(::llc::u2_t iToken = 0; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SJSONToken & token = reader.Token[iToken];
 		cnst ::llc::vcst_t & tokenView = reader.View[iToken];
 		cnst ::llc::pobj<::llc::SJSONNode> & node = reader.Tree[iToken];
 		cnst bool hasParent = token.ParentIndex >= 0 && (::llc::u2_t)token.ParentIndex < reader.Tree.size();
-		LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_TOKEN_SPAN_ORDER, token.Span.Begin > token.Span.End
-			, "Token:%u span:%u..%u."
-			, iToken, token.Span.Begin, token.Span.End
-			);
-		LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_TOKEN_SPAN_BOUNDS, token.Span.End > input.size()
-			, "Token:%u end:%u, input size:%u."
-			, iToken, token.Span.End, input.size()
-			);
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TOKEN_VIEW_SIZE, tokenView.size() != token.Span.End - token.Span.Begin
-			, "Token:%u view size:%u, span size:%u."
-			, iToken, tokenView.size(), token.Span.End - token.Span.Begin
-			);
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TOKEN_VIEW_BEGIN, tokenView.begin() != (token.Span.Begin < input.size() ? &input[token.Span.Begin] : input.end())
-			, "Token:%u view begin:%p, expected:%p."
-			, iToken, tokenView.begin(), token.Span.Begin < input.size() ? &input[token.Span.Begin] : input.end()
-			);
-		LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_TREE_NODE_PRESENT, 0 == node.get_ref()
-			, "Token:%u node:%p, expected non-null."
-			, iToken, node.get_ref()
-			);
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_NODE_TOKEN, node->Token != &reader.Token[iToken]
-			, "Node:%u token:%p, expected:%p."
-			, iToken, node->Token, &reader.Token[iToken]
-			);
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_NODE_INDEX, node->ObjectIndex != (::llc::json_id_t)iToken
-			, "Node:%u object index:%i."
-			, iToken, node->ObjectIndex
-			);
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_NODE_PARENT, node->Parent != (hasParent ? reader.Tree[token.ParentIndex].operator->() : 0)
-			, "Node:%u parent:%p, expected:%p."
-			, iToken, node->Parent, hasParent ? reader.Tree[token.ParentIndex].operator->() : 0
-			);
+		LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_TOKEN_SPAN_ORDER, token.Span.Begin > token.Span.End , "Token:%u span:%u..%u." , iToken, token.Span.Begin, token.Span.End );
+		LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_TOKEN_SPAN_BOUNDS, token.Span.End > input.size() , "Token:%u end:%u, input size:%u." , iToken, token.Span.End, input.size() );
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_TOKEN_VIEW_SIZE, tokenView.size() != token.Span.End - token.Span.Begin , "Token:%u view size:%u, span size:%u." , iToken, tokenView.size(), token.Span.End - token.Span.Begin );
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_TOKEN_VIEW_BEGIN, tokenView.begin() != (token.Span.Begin < input.size() ? &input[token.Span.Begin] : input.end()) , "Token:%u view begin:%p, expected:%p." , iToken, tokenView.begin(), token.Span.Begin < input.size() ? &input[token.Span.Begin] : input.end() );
+		LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_TREE_NODE_PRESENT, 0 == node.get_ref() , "Token:%u node:%p, expected non-null." , iToken, node.get_ref() );
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_TREE_NODE_TOKEN, node->Token != &reader.Token[iToken] , "Node:%u token:%p, expected:%p." , iToken, node->Token, &reader.Token[iToken] );
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_TREE_NODE_INDEX, node->ObjectIndex != (::llc::json_id_t)iToken , "Node:%u object index:%i." , iToken, node->ObjectIndex );
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_TREE_NODE_PARENT, node->Parent != (hasParent ? reader.Tree[token.ParentIndex].operator->() : 0) , "Node:%u parent:%p, expected:%p." , iToken, node->Parent, hasParent ? reader.Tree[token.ParentIndex].operator->() : 0 );
 	}
 	rtrn 0;
 }
@@ -154,58 +124,25 @@ sttc ::llc::err_t testJSONDocument
 	(ATestError & errors, ::llc::vcst_t input, ::llc::vcst_t expected, ::llc::JSON_TYPE expectedType, JSON_READER_TEST_RESULT parseResult = JSON_READER_TEST_RESULT_PARSE) {
 	::llc::SJSONReader reader;
 	cnst ::llc::err_t result = ::llc::jsonParse(reader, input);
-	LLC_TEST_REQUIRE(errors, parseResult, ::llc::failed(result)
-		, "Valid JSON parse failed. result:%i, input:'%.*s'."
-		, result, (int)input.size(), input.begin()
-		);
+	LLC_TEST_REQUIREF(errors, parseResult, ::llc::failed(result) , "Valid JSON parse failed. result:%i, input:'%.*s'." , result, (int)input.size(), input.begin() );
 	cnst ::llc::u2_t structureFailures = testErrorCount(errors);
 	if_fail_fe(testJSONStructure(errors, reader, input));
 	if(structureFailures != testErrorCount(errors))
 		rtrn 0;
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_READER_DONE, false == reader.StateRead.DoneReading
-		, "Done reading:%u, expected:1."
-		, (::llc::u2_t)reader.StateRead.DoneReading
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_READER_NEST_LEVEL, reader.StateRead.NestLevel
-		, "Nest level:%i, expected:0."
-		, reader.StateRead.NestLevel
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_READER_ELEMENT_INDEX, reader.StateRead.IndexCurrentElement != -1
-		, "Current element index:%i, expected:-1."
-		, reader.StateRead.IndexCurrentElement
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_READER_CURRENT_ELEMENT, reader.StateRead.CurrentElement
-		, "Current element:%p, expected:null."
-		, reader.StateRead.CurrentElement
-		);
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_ROOT_PRESENT, 0 == reader.Tree.size()
-		, "Missing JSON root. tree nodes:%u."
-		, reader.Tree.size()
-		);
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_ROOT_REFERENCE, 0 == reader.Tree[0].get_ref()
-		, "Root reference:%p, expected non-null."
-		, reader.Tree[0].get_ref()
-		);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_READER_DONE, false == reader.StateRead.DoneReading , "Done reading:%u, expected:1." , (::llc::u2_t)reader.StateRead.DoneReading );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_READER_NEST_LEVEL, reader.StateRead.NestLevel , "Nest level:%i, expected:0." , reader.StateRead.NestLevel );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_READER_ELEMENT_INDEX, reader.StateRead.IndexCurrentElement != -1 , "Current element index:%i, expected:-1." , reader.StateRead.IndexCurrentElement );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_READER_CURRENT_ELEMENT, reader.StateRead.CurrentElement , "Current element:%p, expected:null." , reader.StateRead.CurrentElement );
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_ROOT_PRESENT, 0 == reader.Tree.size() , "Missing JSON root. tree nodes:%u." , reader.Tree.size() );
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_ROOT_REFERENCE, 0 == reader.Tree[0].get_ref() , "Root reference:%p, expected non-null." , reader.Tree[0].get_ref() );
 	cnst ::llc::pobj<::llc::SJSONNode> & treeRoot = reader.Tree[0];
 	cnst ::llc::pobj<::llc::SJSONNode> & root = treeRoot->Token->Type == ::llc::JSON_TYPE_VALUE && treeRoot->Children.size() ? treeRoot->Children[0] : treeRoot;
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_ROOT_VALUE_REFERENCE, 0 == root.get_ref()
-		, "Semantic root reference:%p, expected non-null."
-		, root.get_ref()
-		);
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_ROOT_TYPE, root->Token->Type != expectedType
-		, "Root type mismatch. actual:%i, expected:%i, tree nodes:%u."
-		, (::llc::s2_t)root->Token->Type, (::llc::s2_t)expectedType, reader.Tree.size()
-		);
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_ROOT_VALUE_REFERENCE, 0 == root.get_ref() , "Semantic root reference:%p, expected non-null." , root.get_ref() );
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_ROOT_TYPE, root->Token->Type != expectedType , "Root type mismatch. actual:%i, expected:%i, tree nodes:%u." , (::llc::s2_t)root->Token->Type, (::llc::s2_t)expectedType, reader.Tree.size() );
 	::llc::string output;
 	cnst ::llc::err_t writeResult = ::llc::jsonWrite(reader.Tree[0], reader.View, output);
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_WRITE, ::llc::failed(writeResult)
-		, "JSON write failed. result:%i, root type:%i."
-		, writeResult, (::llc::s2_t)root->Token->Type
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_ROUND_TRIP, jsonTextMismatch(output, expected)
-		, "Round-trip mismatch. input:'%.*s', actual:'%.*s', expected:'%.*s'."
-		, (int)input.size(), input.begin(), (int)output.size(), output.begin(), (int)expected.size(), expected.begin()
-		);
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_WRITE, ::llc::failed(writeResult) , "JSON write failed. result:%i, root type:%i." , writeResult, (::llc::s2_t)root->Token->Type );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_ROUND_TRIP, jsonTextMismatch(output, expected) , "Round-trip mismatch. input:'%.*s', actual:'%.*s', expected:'%.*s'." , (int)input.size(), input.begin(), (int)output.size(), output.begin(), (int)expected.size(), expected.begin() );
 	rtrn 0;
 }
 
@@ -227,82 +164,34 @@ sttc ::llc::err_t testJSONValidDocuments(ATestError & errors) {
 sttc ::llc::err_t testJSONReset(ATestError & errors) {
 	::llc::SJSONReader reader;
 	if_fail_fe(::llc::jsonParse(reader, LLC_CXS("{\"values\":[1,2,3],\"flag\":true}")));
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_RESET_ROOT_PRESENT, 0 == reader.Tree.size()
-		, "Cached tree nodes:%u, expected at least one."
-		, reader.Tree.size()
-		);
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_RESET_ROOT_REFERENCE, 0 == reader.Tree[0].get_ref()
-		, "Cached root reference:%p, expected non-null."
-		, reader.Tree[0].get_ref()
-		);
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_RESET_ROOT_PRESENT, 0 == reader.Tree.size() , "Cached tree nodes:%u, expected at least one." , reader.Tree.size() );
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_RESET_ROOT_REFERENCE, 0 == reader.Tree[0].get_ref() , "Cached root reference:%p, expected non-null." , reader.Tree[0].get_ref() );
 	::llc::u2_c treeSize = reader.Tree.size();
 	cnst ::llc::view<const ::llc::pobj<::llc::SJSONNode>> treeStorage = {reader.Tree.begin(), reader.Tree.size()};
 	cnst ::llc::view<const ::llc::gref<::llc::SJSONNode>> rootReference = {reader.Tree[0].get_ref(), 1};
 	cnst ::llc::view<const ::llc::pobj<::llc::SJSONNode>> childStorage = {reader.Tree[0]->Children.begin(), reader.Tree[0]->Children.size()};
 	cnst ::llc::err_t result = reader.Reset();
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_RESULT, ::llc::failed(result), "Reset result:%i.", result);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_TOKENS, reader.Token.size(), "Tokens after reset:%u.", reader.Token.size());
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_VIEWS, reader.View.size(), "Views after reset:%u.", reader.View.size());
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_TREE_COUNT, reader.Tree.size() != treeSize
-		, "Tree nodes after reset:%u, expected:%u."
-		, reader.Tree.size(), treeSize
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_TREE_STORAGE, reader.Tree.begin() != treeStorage.begin()
-		, "Tree storage after reset:%p, expected:%p."
-		, reader.Tree.begin(), treeStorage.begin()
-		);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_RESULT, ::llc::failed(result), "Reset result:%i.", result);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_TOKENS, reader.Token.size(), "Tokens after reset:%u.", reader.Token.size());
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_VIEWS, reader.View.size(), "Views after reset:%u.", reader.View.size());
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_TREE_COUNT, reader.Tree.size() != treeSize , "Tree nodes after reset:%u, expected:%u." , reader.Tree.size(), treeSize );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_TREE_STORAGE, reader.Tree.begin() != treeStorage.begin() , "Tree storage after reset:%p, expected:%p." , reader.Tree.begin(), treeStorage.begin() );
 	if(reader.Tree.size()) {
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_ROOT_REFERENCE_AFTER, 0 == reader.Tree[0].get_ref()
-			, "Root reference after reset:%p, expected non-null."
-			, reader.Tree[0].get_ref()
-			);
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_ROOT_STORAGE, reader.Tree[0].get_ref() != rootReference.begin()
-			, "Root reference after reset:%p, expected:%p."
-			, reader.Tree[0].get_ref(), rootReference.begin()
-			);
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_ROOT_REFERENCE_AFTER, 0 == reader.Tree[0].get_ref() , "Root reference after reset:%p, expected non-null." , reader.Tree[0].get_ref() );
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_ROOT_STORAGE, reader.Tree[0].get_ref() != rootReference.begin() , "Root reference after reset:%p, expected:%p." , reader.Tree[0].get_ref(), rootReference.begin() );
 		if(reader.Tree[0].get_ref()) {
-			LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_CHILD_STORAGE, reader.Tree[0]->Children.begin() != childStorage.begin()
-				, "Child storage after reset:%p, expected:%p."
-				, reader.Tree[0]->Children.begin(), childStorage.begin()
-				);
+			LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_CHILD_STORAGE, reader.Tree[0]->Children.begin() != childStorage.begin() , "Child storage after reset:%p, expected:%p." , reader.Tree[0]->Children.begin(), childStorage.begin() );
 		}
 	}
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_CHAR_INDEX, reader.StateRead.IndexCurrentChar
-		, "Character index after reset:%u."
-		, reader.StateRead.IndexCurrentChar
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_ELEMENT_INDEX, reader.StateRead.IndexCurrentElement != -1
-		, "Element index after reset:%i."
-		, reader.StateRead.IndexCurrentElement
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_ELEMENT, reader.StateRead.CurrentElement
-		, "Current element after reset:%p."
-		, reader.StateRead.CurrentElement
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_NEST_LEVEL, reader.StateRead.NestLevel
-		, "Nest level after reset:%i."
-		, reader.StateRead.NestLevel
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_CHARACTER, reader.StateRead.CharCurrent
-		, "Current character after reset:%i."
-		, reader.StateRead.CharCurrent
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_ESCAPING, reader.StateRead.Escaping
-		, "Escaping after reset:%u."
-		, (::llc::u2_t)reader.StateRead.Escaping
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_INSIDE_STRING, reader.StateRead.InsideString
-		, "Inside string after reset:%u."
-		, (::llc::u2_t)reader.StateRead.InsideString
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_SEPARATOR, reader.StateRead.ExpectingSeparator
-		, "Expecting separator after reset:%u."
-		, (::llc::u2_t)reader.StateRead.ExpectingSeparator
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_RESET_DONE, reader.StateRead.DoneReading
-		, "Done reading after reset:%u."
-		, (::llc::u2_t)reader.StateRead.DoneReading
-		);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_CHAR_INDEX, reader.StateRead.IndexCurrentChar , "Character index after reset:%u." , reader.StateRead.IndexCurrentChar );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_ELEMENT_INDEX, reader.StateRead.IndexCurrentElement != -1 , "Element index after reset:%i." , reader.StateRead.IndexCurrentElement );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_ELEMENT, reader.StateRead.CurrentElement , "Current element after reset:%p." , reader.StateRead.CurrentElement );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_NEST_LEVEL, reader.StateRead.NestLevel , "Nest level after reset:%i." , reader.StateRead.NestLevel );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_CHARACTER, reader.StateRead.CharCurrent , "Current character after reset:%i." , reader.StateRead.CharCurrent );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_ESCAPING, reader.StateRead.Escaping , "Escaping after reset:%u." , (::llc::u2_t)reader.StateRead.Escaping );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_INSIDE_STRING, reader.StateRead.InsideString , "Inside string after reset:%u." , (::llc::u2_t)reader.StateRead.InsideString );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_SEPARATOR, reader.StateRead.ExpectingSeparator , "Expecting separator after reset:%u." , (::llc::u2_t)reader.StateRead.ExpectingSeparator );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_DONE, reader.StateRead.DoneReading , "Done reading after reset:%u." , (::llc::u2_t)reader.StateRead.DoneReading );
 
 	::llc::vcst_t input = LLC_CXS("{\"value\":-2}");
 	if_fail_fe(::llc::jsonParse(reader, input));
@@ -310,48 +199,24 @@ sttc ::llc::err_t testJSONReset(ATestError & errors) {
 	if_fail_fe(testJSONStructure(errors, reader, input));
 	if(structureFailures != testErrorCount(errors))
 		rtrn 0;
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_REUSE_TREE_STORAGE, reader.Tree.begin() != treeStorage.begin()
-		, "Tree storage after rebuild:%p, expected:%p."
-		, reader.Tree.begin(), treeStorage.begin()
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_REUSE_ROOT_STORAGE, reader.Tree[0].get_ref() != rootReference.begin()
-		, "Root reference after rebuild:%p, expected:%p."
-		, reader.Tree[0].get_ref(), rootReference.begin()
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_REUSE_CHILD_STORAGE, reader.Tree[0]->Children.begin() != childStorage.begin()
-		, "Child storage after rebuild:%p, expected:%p."
-		, reader.Tree[0]->Children.begin(), childStorage.begin()
-		);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_REUSE_TREE_STORAGE, reader.Tree.begin() != treeStorage.begin() , "Tree storage after rebuild:%p, expected:%p." , reader.Tree.begin(), treeStorage.begin() );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_REUSE_ROOT_STORAGE, reader.Tree[0].get_ref() != rootReference.begin() , "Root reference after rebuild:%p, expected:%p." , reader.Tree[0].get_ref(), rootReference.begin() );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_REUSE_CHILD_STORAGE, reader.Tree[0]->Children.begin() != childStorage.begin() , "Child storage after rebuild:%p, expected:%p." , reader.Tree[0]->Children.begin(), childStorage.begin() );
 	rtrn 0;
 }
 
 sttc ::llc::err_t testJSONSignedInteger(ATestError & errors) {
 	::llc::SJSONReader reader;
 	if_fail_fe(::llc::jsonParse(reader, LLC_CXS("-42")));
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_INTEGER_ROOT_PRESENT, 0 == reader.Tree.size()
-		, "Missing signed-integer root. tree nodes:%u."
-		, reader.Tree.size()
-		);
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_INTEGER_ROOT_REFERENCE, 0 == reader.Tree[0].get_ref()
-		, "Signed-integer root reference:%p, expected non-null."
-		, reader.Tree[0].get_ref()
-		);
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_INTEGER_ROOT_PRESENT, 0 == reader.Tree.size() , "Missing signed-integer root. tree nodes:%u." , reader.Tree.size() );
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_INTEGER_ROOT_REFERENCE, 0 == reader.Tree[0].get_ref() , "Signed-integer root reference:%p, expected non-null." , reader.Tree[0].get_ref() );
 	cnst ::llc::pobj<::llc::SJSONNode> & treeRoot = reader.Tree[0];
 	cnst ::llc::pobj<::llc::SJSONNode> & root = treeRoot->Token->Type == ::llc::JSON_TYPE_VALUE && treeRoot->Children.size() ? treeRoot->Children[0] : treeRoot;
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_ROOT_VALUE_REFERENCE, 0 == root.get_ref()
-		, "Signed-integer semantic root reference:%p, expected non-null."
-		, root.get_ref()
-		);
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_ROOT_VALUE_REFERENCE, 0 == root.get_ref() , "Signed-integer semantic root reference:%p, expected non-null." , root.get_ref() );
 	::llc::s3_t value = {};
 	cnst ::llc::err_t result = ::llc::jsonObjectGetInteger(reader, root->ObjectIndex, value);
-	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_INTEGER_GET_RESULT, ::llc::failed(result)
-		, "Signed integer getter result:%i, expected success."
-		, result
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_INTEGER_GET_VALUE, value != -42
-		, "Signed integer value:%" LLC_FMT_S3 ", expected:-42."
-		, value
-		);
+	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_INTEGER_GET_RESULT, ::llc::failed(result) , "Signed integer getter result:%i, expected success." , result );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_INTEGER_GET_VALUE, value != -42 , "Signed integer value:%" LLC_FMT_S3 ", expected:-42." , value );
 	rtrn 0;
 }
 
@@ -365,69 +230,30 @@ sttc ::llc::err_t testJSONOptions(ATestError & errors) {
 	::llc::u1_t combined = {};
 	for(::llc::u2_t iOption = 0; iOption < ::llc::size(individual); ++iOption) {
 		cnst ::llc::u1_t value = individual[iOption];
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_NONZERO, 0 == value
-			, "Option:%u value:0x%04X, expected nonzero."
-			, iOption, value
-			);
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_SINGLE_BIT, value & (value - 1)
-			, "Option:%u value:0x%04X, expected one bit."
-			, iOption, value
-			);
-		LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_DISTINCT_BIT, combined & value
-			, "Option:%u value:0x%04X overlaps previous:0x%04X."
-			, iOption, value, combined
-			);
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_NONZERO, 0 == value , "Option:%u value:0x%04X, expected nonzero." , iOption, value );
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_SINGLE_BIT, value & (value - 1) , "Option:%u value:0x%04X, expected one bit." , iOption, value );
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_DISTINCT_BIT, combined & value , "Option:%u value:0x%04X overlaps previous:0x%04X." , iOption, value, combined );
 		combined |= value;
 	}
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_COMBINED, combined != 0x0FFFU
-		, "Combined option mask:0x%04X, expected:0x0FFF."
-		, combined
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_NONE, ::llc::JSON_PARSE_OPTION_NONE
-		, "NONE option mask:0x%04X, expected:0."
-		, (::llc::u1_t)::llc::JSON_PARSE_OPTION_NONE
-		);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_COMBINED, combined != 0x0FFFU , "Combined option mask:0x%04X, expected:0x0FFF." , combined );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_NONE, ::llc::JSON_PARSE_OPTION_NONE , "NONE option mask:0x%04X, expected:0." , (::llc::u1_t)::llc::JSON_PARSE_OPTION_NONE );
 
 	cnst ::llc::JSON_PARSE_OPTION strictExpected = ::llc::JSON_PARSE_OPTION_BUILD_TREE | ::llc::JSON_PARSE_OPTION_BUILD_VIEWS | ::llc::JSON_PARSE_OPTION_FINAL_INPUT;
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_PRESETS, (::llc::JSON_PARSE_OPTION)::llc::JSON_PARSE_STRICT != strictExpected
-		, "Strict preset mismatch. actual:0x%04X, expected:0x%04X."
-		, (::llc::u1_t)::llc::JSON_PARSE_STRICT, (::llc::u1_t)strictExpected
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_PRESETS, (::llc::JSON_PARSE_OPTION)::llc::JSON_PARSE_LEGACY_ROOT != (strictExpected | ::llc::JSON_PARSE_OPTION_CONTAINER_ROOT_ONLY)
-		, "Legacy-root preset mismatch. actual:0x%04X."
-		, (::llc::u1_t)::llc::JSON_PARSE_LEGACY_ROOT
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_PRESETS, (::llc::u1_t)::llc::JSON_PARSE_LLC != (::llc::u1_t)(combined & ~::llc::JSON_PARSE_OPTION_CONTAINER_ROOT_ONLY)
-		, "LLC preset mismatch. actual:0x%04X, expected:0x%04X."
-		, (::llc::u1_t)::llc::JSON_PARSE_LLC, (::llc::u1_t)(combined & ~::llc::JSON_PARSE_OPTION_CONTAINER_ROOT_ONLY)
-		);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_PRESETS, (::llc::JSON_PARSE_OPTION)::llc::JSON_PARSE_STRICT != strictExpected , "Strict preset mismatch. actual:0x%04X, expected:0x%04X." , (::llc::u1_t)::llc::JSON_PARSE_STRICT, (::llc::u1_t)strictExpected );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_PRESETS, (::llc::JSON_PARSE_OPTION)::llc::JSON_PARSE_LEGACY_ROOT != (strictExpected | ::llc::JSON_PARSE_OPTION_CONTAINER_ROOT_ONLY) , "Legacy-root preset mismatch. actual:0x%04X." , (::llc::u1_t)::llc::JSON_PARSE_LEGACY_ROOT );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_PRESETS, (::llc::u1_t)::llc::JSON_PARSE_LLC != (::llc::u1_t)(combined & ~::llc::JSON_PARSE_OPTION_CONTAINER_ROOT_ONLY) , "LLC preset mismatch. actual:0x%04X, expected:0x%04X." , (::llc::u1_t)::llc::JSON_PARSE_LLC, (::llc::u1_t)(combined & ~::llc::JSON_PARSE_OPTION_CONTAINER_ROOT_ONLY) );
 
 	::llc::SJSONParseOptions options = ::llc::JSON_PARSE_OPTION_NONE;
 	options.Set(::llc::JSON_PARSE_OPTION_BUILD_TREE).Set(::llc::JSON_PARSE_OPTION_FINAL_INPUT).Clear(::llc::JSON_PARSE_OPTION_BUILD_TREE);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_BUILD_TREE_CLEAR, options.Any(::llc::JSON_PARSE_OPTION_BUILD_TREE)
-		, "BUILD_TREE remained set. options:0x%04X."
-		, (::llc::u1_t)options
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_FINAL_INPUT_SET, false == options.All(::llc::JSON_PARSE_OPTION_FINAL_INPUT)
-		, "FINAL_INPUT was cleared. options:0x%04X."
-		, (::llc::u1_t)options
-		);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_BUILD_TREE_CLEAR, options.Any(::llc::JSON_PARSE_OPTION_BUILD_TREE) , "BUILD_TREE remained set. options:0x%04X." , (::llc::u1_t)options );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_FINAL_INPUT_SET, false == options.All(::llc::JSON_PARSE_OPTION_FINAL_INPUT) , "FINAL_INPUT was cleared. options:0x%04X." , (::llc::u1_t)options );
 
 	::llc::SJSONReader reader;
 	cnst ::llc::SJSONParseOptions noOutputs = ::llc::JSON_PARSE_OPTION_FINAL_INPUT;
 	cnst ::llc::err_t parseResult = ::llc::jsonParse(reader, LLC_CXS("{}"), noOutputs);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_PARSE, ::llc::failed(parseResult)
-		, "No-output parse result:%i."
-		, parseResult
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_VIEW, reader.View.size() != 1
-		, "No-output view count:%u, expected:1."
-		, reader.View.size()
-		);
-	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_TREE, reader.Tree.size()
-		, "No-output tree count:%u, expected:0."
-		, reader.Tree.size()
-		);
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_PARSE, ::llc::failed(parseResult) , "No-output parse result:%i." , parseResult );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_VIEW, reader.View.size() != 1 , "No-output view count:%u, expected:1." , reader.View.size() );
+	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_TREE, reader.Tree.size() , "No-output tree count:%u, expected:0." , reader.Tree.size() );
 	rtrn 0;
 }
 

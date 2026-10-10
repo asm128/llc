@@ -74,16 +74,16 @@ namespace llc
 		}
 	};
 
-	tydf img<s0_t>	imgi8;
-	tydf img<s1_t>	imgi16;
-	tydf img<s2_t>	imgi32;
-	tydf img<s3_t>	imgi64;
-	tydf img<u0_t>	imgu8;
-	tydf img<u1_t>	imgu16;
-	tydf img<u2_t>	imgu32;
-	tydf img<u3_t>	imgu64;
-	tydf img<f2_t>	imgf32;
-	tydf img<f3_t>	imgf64;
+	tydf img<u0_t>	imgu0_t;
+	tydf img<u1_t>	imgu1_t;
+	tydf img<u2_t>	imgu2_t;
+	tydf img<u3_t>	imgu3_t;
+	tydf img<s0_t>	imgs0_t;
+	tydf img<s1_t>	imgs1_t;
+	tydf img<s2_t>	imgs2_t;
+	tydf img<s3_t>	imgs3_t;
+	tydf img<f2_t>	imgf2_t;
+	tydf img<f3_t>	imgf3_t;
 } // namespace llc
 
 #endif // LLC_IMAGE_H_23627

@@ -27,14 +27,10 @@ stxp ::llc::u2_t PACKED_RANDOM_COUNT	= 256;
 tplt<tpnm T>
 sttc ::llc::err_t testDefault(ATestError & errors) {
 	cnst ::llc::packed_uint<T> packed{};
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.TailWidth
-		, "%u-bit default tail width:%u, expected:0.", bcof(T), ::llc::u2_t(packed.TailWidth));
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.Multiplier
-		, "%u-bit default multiplier:%u, expected:0.", bcof(T), ::llc::u2_t(packed.Multiplier));
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.ValueWidth() != 1
-		, "%u-bit default value width:%u, expected:1.", bcof(T), ::llc::u2_t(packed.ValueWidth()));
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.Value()
-		, "%u-bit default value:%" LLC_FMT_U3 ", expected:0.", bcof(T), ::llc::u3_t(packed.Value()));
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.TailWidth , "%u-bit default tail width:%u, expected:0.", bcof(T), ::llc::u2_t(packed.TailWidth));
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.Multiplier , "%u-bit default multiplier:%u, expected:0.", bcof(T), ::llc::u2_t(packed.Multiplier));
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.ValueWidth() != 1 , "%u-bit default value width:%u, expected:1.", bcof(T), ::llc::u2_t(packed.ValueWidth()));
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.Value() , "%u-bit default value:%" LLC_FMT_U3 ", expected:0.", bcof(T), ::llc::u3_t(packed.Value()));
 	return 0;
 }
 
@@ -44,10 +40,7 @@ sttc ::llc::err_t testInvalidValue(ATestError & errors) {
 	stxp ::llc::u0_t WIDTH_FIELD = ::llc::uint_width_field_size<T>();
 	cnst T maximum = T(-1) >> WIDTH_FIELD;
 	cnst T invalid = maximum + 1;
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_INVALID_VALUE, !testThrows([&]() { cnst ::llc::packed_uint<T> packed{invalid}; (void)packed; })
-		, "%u-bit packed_uint<> accepted value:%" LLC_FMT_U3 " above maximum:%" LLC_FMT_U3 "."
-		, ::llc::u2_t(szof(T) * 8), ::llc::u3_t(invalid), ::llc::u3_t(maximum)
-		);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_INVALID_VALUE, !testThrows([&]() { cnst ::llc::packed_uint<T> packed{invalid}; (void)packed; }) , "%u-bit packed_uint<> accepted value:%" LLC_FMT_U3 " above maximum:%" LLC_FMT_U3 "." , ::llc::u2_t(szof(T) * 8), ::llc::u3_t(invalid), ::llc::u3_t(maximum) );
 #else
 	(void)errors;
 #endif
@@ -63,60 +56,26 @@ sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c
 	::llc::u0_c expectedValueWidth = 1 + expectedTailWidth;
 	::llc::u2_c typeBits = szof(T) * 8;
 
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_TAIL_WIDTH, packed.TailWidth != expectedTailWidth
-		, "%u-bit packed tail width:%u, expected:%u for value:%" LLC_FMT_U3 "."
-		, typeBits, ::llc::u2_t(packed.TailWidth), ::llc::u2_t(expectedTailWidth), source);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_TAIL_WIDTH, ::llc::uint_tail_width(value) != expectedTailWidth
-		, "%u-bit helper tail width:%u, expected:%u for value:%" LLC_FMT_U3 "."
-		, typeBits, ::llc::u2_t(::llc::uint_tail_width(value)), ::llc::u2_t(expectedTailWidth), source);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_VALUE_WIDTH, packed.ValueWidth() != expectedValueWidth
-		, "%u-bit packed value width:%u, expected:%u for value:%" LLC_FMT_U3 "."
-		, typeBits, ::llc::u2_t(packed.ValueWidth()), ::llc::u2_t(expectedValueWidth), source);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_VALUE_WIDTH, ::llc::uint_value_width(value) != expectedValueWidth
-		, "%u-bit helper value width:%u, expected:%u for value:%" LLC_FMT_U3 "."
-		, typeBits, ::llc::u2_t(::llc::uint_value_width(value)), ::llc::u2_t(expectedValueWidth), source);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_MULTIPLIER, ::llc::u3_t(packed.Multiplier) != expectedMultiplier
-		, "%u-bit packed multiplier:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 " for value:%" LLC_FMT_U3 "."
-		, typeBits, ::llc::u3_t(packed.Multiplier), expectedMultiplier, source);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_MULTIPLIER, ::llc::u3_t(::llc::uint_tail_multiplier(value)) != expectedMultiplier
-		, "%u-bit helper multiplier:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 " for value:%" LLC_FMT_U3 "."
-		, typeBits, ::llc::u3_t(::llc::uint_tail_multiplier(value)), expectedMultiplier, source);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_TAIL_BASE, ::llc::u3_t(::llc::uint_tail_base(value)) != expectedTail
-		, "%u-bit tail mismatch for value:%" LLC_FMT_U3 ". helper:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "."
-		, typeBits, source, ::llc::u3_t(::llc::uint_tail_base(value)), expectedTail
-		);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_VALUE_ROUND_TRIP, ::llc::u3_t(packed.Value()) != source
-		, "%u-bit round-trip mismatch. source:%" LLC_FMT_U3 ", unpacked:%" LLC_FMT_U3 "."
-		, typeBits, source, ::llc::u3_t(packed.Value())
-		);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_TAIL_WIDTH, packed.TailWidth != expectedTailWidth , "%u-bit packed tail width:%u, expected:%u for value:%" LLC_FMT_U3 "." , typeBits, ::llc::u2_t(packed.TailWidth), ::llc::u2_t(expectedTailWidth), source);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_TAIL_WIDTH, ::llc::uint_tail_width(value) != expectedTailWidth , "%u-bit helper tail width:%u, expected:%u for value:%" LLC_FMT_U3 "." , typeBits, ::llc::u2_t(::llc::uint_tail_width(value)), ::llc::u2_t(expectedTailWidth), source);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_VALUE_WIDTH, packed.ValueWidth() != expectedValueWidth , "%u-bit packed value width:%u, expected:%u for value:%" LLC_FMT_U3 "." , typeBits, ::llc::u2_t(packed.ValueWidth()), ::llc::u2_t(expectedValueWidth), source);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_VALUE_WIDTH, ::llc::uint_value_width(value) != expectedValueWidth , "%u-bit helper value width:%u, expected:%u for value:%" LLC_FMT_U3 "." , typeBits, ::llc::u2_t(::llc::uint_value_width(value)), ::llc::u2_t(expectedValueWidth), source);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_MULTIPLIER, ::llc::u3_t(packed.Multiplier) != expectedMultiplier , "%u-bit packed multiplier:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 " for value:%" LLC_FMT_U3 "." , typeBits, ::llc::u3_t(packed.Multiplier), expectedMultiplier, source);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_MULTIPLIER, ::llc::u3_t(::llc::uint_tail_multiplier(value)) != expectedMultiplier , "%u-bit helper multiplier:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 " for value:%" LLC_FMT_U3 "." , typeBits, ::llc::u3_t(::llc::uint_tail_multiplier(value)), expectedMultiplier, source);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_TAIL_BASE, ::llc::u3_t(::llc::uint_tail_base(value)) != expectedTail , "%u-bit tail mismatch for value:%" LLC_FMT_U3 ". helper:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "." , typeBits, source, ::llc::u3_t(::llc::uint_tail_base(value)), expectedTail );
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_VALUE_ROUND_TRIP, ::llc::u3_t(packed.Value()) != source , "%u-bit round-trip mismatch. source:%" LLC_FMT_U3 ", unpacked:%" LLC_FMT_U3 "." , typeBits, source, ::llc::u3_t(packed.Value()) );
 
 	cnst ::llc::vcu0_t bytes = packed.tplt cu8<::llc::vcu0_t>();
-	LLC_TEST_REQUIRE(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, (::llc::uP_t)bytes.begin() != (::llc::uP_t)&packed
-		, "%u-bit byte view began at:%p, expected:%p for value:%" LLC_FMT_U3 "."
-		, typeBits, bytes.begin(), &packed, source);
-	LLC_TEST_REQUIRE(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.size() > szof(packed)
-		, "%u-bit byte view size:%u exceeds packed storage:%u for value:%" LLC_FMT_U3 "."
-		, typeBits, bytes.size(), ::llc::u2_t(szof(packed)), source);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.size() != expectedValueWidth
-		, "%u-bit byte-view mismatch for value:%" LLC_FMT_U3 ". begin:%p, expected begin:%p, size:%u, expected size:%u."
-		, typeBits, source, bytes.begin(), &packed, bytes.size(), ::llc::u2_t(expectedValueWidth)
-		);
+	LLC_TEST_REQUIREF(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, (::llc::uP_t)bytes.begin() != (::llc::uP_t)&packed , "%u-bit byte view began at:%p, expected:%p for value:%" LLC_FMT_U3 "." , typeBits, bytes.begin(), &packed, source);
+	LLC_TEST_REQUIREF(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.size() > szof(packed) , "%u-bit byte view size:%u exceeds packed storage:%u for value:%" LLC_FMT_U3 "." , typeBits, bytes.size(), ::llc::u2_t(szof(packed)), source);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_BYTE_VIEW, bytes.size() != expectedValueWidth , "%u-bit byte-view mismatch for value:%" LLC_FMT_U3 ". begin:%p, expected begin:%p, size:%u, expected size:%u." , typeBits, source, bytes.begin(), &packed, bytes.size(), ::llc::u2_t(expectedValueWidth) );
 
 	::llc::vcu0_t input = bytes;
 	T loaded = {};
 	cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_LOAD_RESULT, loadResult != expectedValueWidth
-		, "%u-bit load result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u."
-		, typeBits, source, loadResult, ::llc::u2_t(expectedValueWidth)
-		);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_LOAD_VALUE, ::llc::u3_t(loaded) != source
-		, "%u-bit loaded-value mismatch. source:%" LLC_FMT_U3 ", loaded:%" LLC_FMT_U3 "."
-		, typeBits, source, ::llc::u3_t(loaded)
-		);
-	LLC_TEST_CHECK(errors, PACKED_UINT_TEST_RESULT_LOAD_CONSUMPTION, input.size()
-		, "%u-bit load left bytes behind for value:%" LLC_FMT_U3 ". remaining:%u, expected:0."
-		, typeBits, source, input.size()
-		);
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_LOAD_RESULT, loadResult != expectedValueWidth , "%u-bit load result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u." , typeBits, source, loadResult, ::llc::u2_t(expectedValueWidth) );
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_LOAD_VALUE, ::llc::u3_t(loaded) != source , "%u-bit loaded-value mismatch. source:%" LLC_FMT_U3 ", loaded:%" LLC_FMT_U3 "." , typeBits, source, ::llc::u3_t(loaded) );
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_LOAD_CONSUMPTION, input.size() , "%u-bit load left bytes behind for value:%" LLC_FMT_U3 ". remaining:%u, expected:0." , typeBits, source, input.size() );
 	return 0;
 }
 

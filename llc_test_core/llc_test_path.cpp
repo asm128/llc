@@ -173,10 +173,7 @@ sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 		};
 	for(cnst SPathSlashCase & testCase : cases) {
 		cnst ::llc::err_t actual = ::llc::findLastSlash(testCase.Path);
-		LLC_TEST_CHECK(errors, testCase.Result, actual != testCase.Expected
-			, "Path:'%.*s' returned:%" LLC_FMT_S2 ", expected:%" LLC_FMT_S2 "."
-			, (int)testCase.Path.size(), testCase.Path.begin(), actual, testCase.Expected
-			);
+		LLC_TEST_CHECKF(errors, testCase.Result, actual != testCase.Expected , "Path:'%.*s' returned:%" LLC_FMT_S2 ", expected:%" LLC_FMT_S2 "." , (int)testCase.Path.size(), testCase.Path.begin(), actual, testCase.Expected );
 	}
 	cnst SPathPartsCase partCases[] =
 		{ {LLC_CXS("file.txt")					, LLC_CXS("")			, LLC_CXS("file.txt")			, LLC_CXS("file")}
@@ -193,9 +190,9 @@ sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 		if_fail_fe(::llc::pathDirectory(testCase.Path, directory));
 		if_fail_fe(::llc::pathFilename(testCase.Path, filename));
 		if_fail_fe(::llc::pathStem(testCase.Path, stem));
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_DIRECTORY_TEXT, pathTextMismatch(directory, testCase.Directory), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_FILENAME_TEXT , pathTextMismatch(filename , testCase.Filename ), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_STEM_TEXT     , pathTextMismatch(stem     , testCase.Stem     ), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_DIRECTORY_TEXT, pathTextMismatch(directory, testCase.Directory), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_FILENAME_TEXT , pathTextMismatch(filename , testCase.Filename ), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_STEM_TEXT     , pathTextMismatch(stem     , testCase.Stem     ), "Path:'%.*s'.", (int)testCase.Path.size(), testCase.Path.begin());
 	}
 	rtrn 0;
 }
@@ -222,14 +219,8 @@ sttc ::llc::err_t testPathBegin(ATestError & errors) {
 	for(cnst SPathBeginCase & testCase : cases) {
 		::llc::vcst_t		actual;
 		cnst ::llc::err_t result = ::llc::pathBegin(testCase.Path, actual);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_BEGIN_TEXT, pathTextMismatch(actual, testCase.Expected)
-			, "Path:'%.*s' produced prefix:'%.*s'/%u, expected:'%.*s'/%u."
-			, (int)testCase.Path.size(), testCase.Path.begin(), (int)actual.size(), actual.begin(), actual.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size()
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_BEGIN_RETURN, result != (::llc::err_t)actual.size()
-			, "Path:'%.*s' returned:%" LLC_FMT_S2 ", prefix size:%u."
-			, (int)testCase.Path.size(), testCase.Path.begin(), result, actual.size()
-			);
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_BEGIN_TEXT, pathTextMismatch(actual, testCase.Expected) , "Path:'%.*s' produced prefix:'%.*s'/%u, expected:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), (int)actual.size(), actual.begin(), actual.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size() );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_BEGIN_RETURN, result != (::llc::err_t)actual.size() , "Path:'%.*s' returned:%" LLC_FMT_S2 ", prefix size:%u." , (int)testCase.Path.size(), testCase.Path.begin(), result, actual.size() );
 	}
 	rtrn 0;
 }
@@ -252,19 +243,9 @@ sttc ::llc::err_t testPathNameCompose(ATestError & errors) {
 	for(cnst SPathComposeCase & testCase : cases) {
 		::llc::string		output		= testCase.Prefix;
 		cnst ::llc::err_t result		= ::llc::pathNameCompose(testCase.Path, testCase.FileName, output);
-		LLC_TEST_CHECK(errors, testCase.Result, pathTextMismatch(output, testCase.Expected)
-			, "Prefix:'%.*s', path:'%.*s', file:'%.*s' produced:'%.*s'/%u, expected:'%.*s'/%u."
-			, (int)testCase.Prefix.size(), testCase.Prefix.begin(), (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin()
-			, (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size()
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_COMPOSE_RETURN, result != (::llc::err_t)output.size()
-			, "Prefix:'%.*s', path:'%.*s', file:'%.*s' returned:%" LLC_FMT_S2 ", output size:%u."
-			, (int)testCase.Prefix.size(), testCase.Prefix.begin(), (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin(), result, output.size()
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_COMPOSE_TERMINATOR, output.size() && output.begin()[output.size()]
-			, "Prefix:'%.*s', path:'%.*s', file:'%.*s' output size:%u, terminator:%i."
-			, (int)testCase.Prefix.size(), testCase.Prefix.begin(), (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin(), output.size(), output.size() ? output.begin()[output.size()] : 0
-			);
+		LLC_TEST_CHECKF(errors, testCase.Result, pathTextMismatch(output, testCase.Expected) , "Prefix:'%.*s', path:'%.*s', file:'%.*s' produced:'%.*s'/%u, expected:'%.*s'/%u." , (int)testCase.Prefix.size(), testCase.Prefix.begin(), (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin() , (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size() );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_COMPOSE_RETURN, result != (::llc::err_t)output.size() , "Prefix:'%.*s', path:'%.*s', file:'%.*s' returned:%" LLC_FMT_S2 ", output size:%u." , (int)testCase.Prefix.size(), testCase.Prefix.begin(), (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin(), result, output.size() );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_COMPOSE_TERMINATOR, output.size() && output.begin()[output.size()] , "Prefix:'%.*s', path:'%.*s', file:'%.*s' output size:%u, terminator:%i." , (int)testCase.Prefix.size(), testCase.Prefix.begin(), (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin(), output.size(), output.size() ? output.begin()[output.size()] : 0 );
 	}
 	rtrn 0;
 }
@@ -280,15 +261,8 @@ sttc ::llc::err_t testPathNameComposeInvalid(ATestError & errors) {
 	for(cnst SPathComposeCase & testCase : cases) {
 		::llc::string		output		= testCase.Prefix;
 		cnst ::llc::err_t result		= ::llc::pathNameCompose(testCase.Path, testCase.FileName, output);
-		LLC_TEST_CHECK(errors, testCase.Result, false == ::llc::failed(result)
-			, "Path:'%.*s', file:'%.*s' returned:%" LLC_FMT_S2 ", expected failure."
-			, (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin(), result
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_COMPOSE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected)
-			, "Path:'%.*s', file:'%.*s' changed output to:'%.*s'/%u, expected:'%.*s'/%u."
-			, (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin()
-			, (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size()
-			);
+		LLC_TEST_CHECKF(errors, testCase.Result, false == ::llc::failed(result) , "Path:'%.*s', file:'%.*s' returned:%" LLC_FMT_S2 ", expected failure." , (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin(), result );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_COMPOSE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', file:'%.*s' changed output to:'%.*s'/%u, expected:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin() , (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size() );
 	}
 	rtrn 0;
 }
@@ -318,22 +292,10 @@ sttc ::llc::err_t testPathNormalize(ATestError & errors) {
 	for(cnst SPathNormalizeCase & testCase : cases) {
 		::llc::string		output		= LLC_CXS("stale");
 		cnst ::llc::err_t result		= ::llc::pathNormalize(testCase.Path, output, testCase.Separator);
-		LLC_TEST_CHECK(errors, testCase.Result, pathTextMismatch(output, testCase.Expected)
-			, "Path:'%.*s', separator:'%c' produced:'%.*s'/%u, expected:'%.*s'/%u."
-			, (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size()
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_NORMALIZE_REPLACE, output.size() >= 5 && 0 == memcmp(output.begin(), "stale", 5)
-			, "Path:'%.*s' retained stale output:'%.*s'/%u."
-			, (int)testCase.Path.size(), testCase.Path.begin(), (int)output.size(), output.begin(), output.size()
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_NORMALIZE_RETURN, result != (::llc::err_t)output.size()
-			, "Path:'%.*s' returned:%" LLC_FMT_S2 ", output size:%u."
-			, (int)testCase.Path.size(), testCase.Path.begin(), result, output.size()
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_NORMALIZE_TERMINATOR, output.size() && output.begin()[output.size()]
-			, "Path:'%.*s' output size:%u, terminator:%i."
-			, (int)testCase.Path.size(), testCase.Path.begin(), output.size(), output.size() ? output.begin()[output.size()] : 0
-			);
+		LLC_TEST_CHECKF(errors, testCase.Result, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', separator:'%c' produced:'%.*s'/%u, expected:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size() );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_NORMALIZE_REPLACE, output.size() >= 5 && 0 == memcmp(output.begin(), "stale", 5) , "Path:'%.*s' retained stale output:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), (int)output.size(), output.begin(), output.size() );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_NORMALIZE_RETURN, result != (::llc::err_t)output.size() , "Path:'%.*s' returned:%" LLC_FMT_S2 ", output size:%u." , (int)testCase.Path.size(), testCase.Path.begin(), result, output.size() );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_NORMALIZE_TERMINATOR, output.size() && output.begin()[output.size()] , "Path:'%.*s' output size:%u, terminator:%i." , (int)testCase.Path.size(), testCase.Path.begin(), output.size(), output.size() ? output.begin()[output.size()] : 0 );
 	}
 	rtrn 0;
 }
@@ -351,14 +313,8 @@ sttc ::llc::err_t testPathNormalizeInvalid(ATestError & errors) {
 	for(cnst SPathNormalizeCase & testCase : cases) {
 		::llc::string		output		= testCase.Expected;
 		cnst ::llc::err_t result		= ::llc::pathNormalize(testCase.Path, output, testCase.Separator);
-		LLC_TEST_CHECK(errors, testCase.Result, false == ::llc::failed(result)
-			, "Path:'%.*s', separator:'%c' returned:%" LLC_FMT_S2 ", expected failure."
-			, (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, result
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_NORMALIZE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected)
-			, "Path:'%.*s', separator:'%c' changed output to:'%.*s'/%u."
-			, (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size()
-			);
+		LLC_TEST_CHECKF(errors, testCase.Result, false == ::llc::failed(result) , "Path:'%.*s', separator:'%c' returned:%" LLC_FMT_S2 ", expected failure." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, result );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_NORMALIZE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', separator:'%c' changed output to:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size() );
 	}
 	rtrn 0;
 }
@@ -370,67 +326,31 @@ sttc bool pathIsAbsolute(::llc::vcst_t path) {
 sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 	::llc::string		current;
 	cnst ::llc::err_t currentResult	= ::llc::pathAbsolute(LLC_CXS("."), current);
-	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT, ::llc::failed(currentResult)
-		, "Current directory resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u."
-		, currentResult, (int)current.size(), current.begin(), current.size()
-		);
-	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT_PATH, false == ::pathIsAbsolute(current)
-		, "Current directory resolution produced:'%.*s'/%u, expected an absolute path."
-		, (int)current.size(), current.begin(), current.size()
-		);
+	LLC_TEST_REQUIREF(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT, ::llc::failed(currentResult) , "Current directory resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u." , currentResult, (int)current.size(), current.begin(), current.size() );
+	LLC_TEST_REQUIREF(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT_PATH, false == ::pathIsAbsolute(current) , "Current directory resolution produced:'%.*s'/%u, expected an absolute path." , (int)current.size(), current.begin(), current.size() );
 
 	::llc::string		expected;
 	if_fail_fe(::llc::pathNameCompose(current, LLC_CXS("llc_test_path_nonexistent"), expected));
 	::llc::string		resolved;
 	cnst ::llc::err_t resolvedResult = ::llc::pathAbsolute(LLC_CXS("./llc/../llc_test_path_nonexistent"), resolved);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE, pathTextMismatch(resolved, expected)
-		, "Relative resolution produced:'%.*s'/%u, expected:'%.*s'/%u."
-		, (int)resolved.size(), resolved.begin(), resolved.size(), (int)expected.size(), expected.begin(), expected.size()
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_NONEXISTENT, ::llc::failed(resolvedResult)
-		, "Nonexistent target resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u."
-		, resolvedResult, (int)resolved.size(), resolved.begin(), resolved.size()
-		);
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE, pathTextMismatch(resolved, expected) , "Relative resolution produced:'%.*s'/%u, expected:'%.*s'/%u." , (int)resolved.size(), resolved.begin(), resolved.size(), (int)expected.size(), expected.begin(), expected.size() );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_NONEXISTENT, ::llc::failed(resolvedResult) , "Nonexistent target resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u." , resolvedResult, (int)resolved.size(), resolved.begin(), resolved.size() );
 
 	::llc::string		idempotent;
 	cnst ::llc::err_t idempotentResult = ::llc::pathAbsolute(current, idempotent);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT, pathTextMismatch(idempotent, current)
-		, "Absolute input:'%.*s'/%u produced:'%.*s'/%u."
-		, (int)current.size(), current.begin(), current.size(), (int)idempotent.size(), idempotent.begin(), idempotent.size()
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RETURN, currentResult != (::llc::err_t)current.size()
-		, "Current path returned:%" LLC_FMT_S2 ", output size:%u."
-		, currentResult, current.size()
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE_RETURN, resolvedResult != (::llc::err_t)resolved.size()
-		, "Resolved path returned:%" LLC_FMT_S2 ", output size:%u."
-		, resolvedResult, resolved.size()
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT_RETURN, idempotentResult != (::llc::err_t)idempotent.size()
-		, "Idempotent path returned:%" LLC_FMT_S2 ", output size:%u."
-		, idempotentResult, idempotent.size()
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_TERMINATOR, current.size() && current.begin()[current.size()]
-		, "Current path terminator:%i, expected:0."
-		, current.size() ? current.begin()[current.size()] : 0
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE_TERMINATOR, resolved.size() && resolved.begin()[resolved.size()]
-		, "Resolved path terminator:%i, expected:0."
-		, resolved.size() ? resolved.begin()[resolved.size()] : 0
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT_TERMINATOR, idempotent.size() && idempotent.begin()[idempotent.size()]
-		, "Idempotent path terminator:%i, expected:0."
-		, idempotent.size() ? idempotent.begin()[idempotent.size()] : 0
-		);
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT, pathTextMismatch(idempotent, current) , "Absolute input:'%.*s'/%u produced:'%.*s'/%u." , (int)current.size(), current.begin(), current.size(), (int)idempotent.size(), idempotent.begin(), idempotent.size() );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_RETURN, currentResult != (::llc::err_t)current.size() , "Current path returned:%" LLC_FMT_S2 ", output size:%u." , currentResult, current.size() );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE_RETURN, resolvedResult != (::llc::err_t)resolved.size() , "Resolved path returned:%" LLC_FMT_S2 ", output size:%u." , resolvedResult, resolved.size() );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT_RETURN, idempotentResult != (::llc::err_t)idempotent.size() , "Idempotent path returned:%" LLC_FMT_S2 ", output size:%u." , idempotentResult, idempotent.size() );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_TERMINATOR, current.size() && current.begin()[current.size()] , "Current path terminator:%i, expected:0." , current.size() ? current.begin()[current.size()] : 0 );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE_TERMINATOR, resolved.size() && resolved.begin()[resolved.size()] , "Resolved path terminator:%i, expected:0." , resolved.size() ? resolved.begin()[resolved.size()] : 0 );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT_TERMINATOR, idempotent.size() && idempotent.begin()[idempotent.size()] , "Idempotent path terminator:%i, expected:0." , idempotent.size() ? idempotent.begin()[idempotent.size()] : 0 );
 
 	::llc::string		backslash;
 	if_fail_fe(::llc::pathAbsolute(LLC_CXS("."), backslash, '\\'));
 	::llc::string		backslashAsSlash;
 	if_fail_fe(::llc::pathNormalize(backslash, backslashAsSlash));
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_SEPARATOR, pathTextMismatch(backslashAsSlash, current)
-		, "Backslash path:'%.*s' normalized to:'%.*s', expected:'%.*s'."
-		, (int)backslash.size(), backslash.begin(), (int)backslashAsSlash.size(), backslashAsSlash.begin(), (int)current.size(), current.begin()
-		);
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_SEPARATOR, pathTextMismatch(backslashAsSlash, current) , "Backslash path:'%.*s' normalized to:'%.*s', expected:'%.*s'." , (int)backslash.size(), backslash.begin(), (int)backslashAsSlash.size(), backslashAsSlash.begin(), (int)current.size(), current.begin() );
 	rtrn 0;
 }
 
@@ -443,14 +363,8 @@ sttc ::llc::err_t testPathAbsoluteInvalid(ATestError & errors) {
 	for(cnst SPathNormalizeCase & testCase : cases) {
 		::llc::string		output		= testCase.Expected;
 		cnst ::llc::err_t result		= ::llc::pathAbsolute(testCase.Path, output, testCase.Separator);
-		LLC_TEST_CHECK(errors, testCase.Result, false == ::llc::failed(result)
-			, "Path:'%.*s', separator:'%c' returned:%" LLC_FMT_S2 ", expected failure."
-			, (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, result
-			);
-		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_ABSOLUTE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected)
-			, "Path:'%.*s', separator:'%c' changed output to:'%.*s'/%u."
-			, (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size()
-			);
+		LLC_TEST_CHECKF(errors, testCase.Result, false == ::llc::failed(result) , "Path:'%.*s', separator:'%c' returned:%" LLC_FMT_S2 ", expected failure." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, result );
+		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', separator:'%c' changed output to:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size() );
 	}
 	rtrn 0;
 }
@@ -481,60 +395,27 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 		}
 		, {}
 		);
-	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_LIST_CALLBACK_RESULT, ::llc::failed(callbackResult)
-		, "Root:'%.*s' returned:%" LLC_FMT_S2 "."
-		, (int)rootPath.size(), rootPath.begin(), callbackResult
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_RECURSIVE, false == deepFileSeen
-		, "Root:'%.*s' did not report the grandchild file. Callback files:%u, folders:%u."
-		, (int)rootPath.size(), rootPath.begin(), callbackFiles, callbackFolders
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_COUNTS, 3 != callbackFiles
-		, "Root:'%.*s' callback files:%u, expected:3."
-		, (int)rootPath.size(), rootPath.begin(), callbackFiles
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_FOLDER_COUNT, 2 != callbackFolders
-		, "Root:'%.*s' callback folders:%u, expected:2."
-		, (int)rootPath.size(), rootPath.begin(), callbackFolders
-		);
+	LLC_TEST_REQUIREF(errors, PATH_TEST_RESULT_LIST_CALLBACK_RESULT, ::llc::failed(callbackResult) , "Root:'%.*s' returned:%" LLC_FMT_S2 "." , (int)rootPath.size(), rootPath.begin(), callbackResult );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_CALLBACK_RECURSIVE, false == deepFileSeen , "Root:'%.*s' did not report the grandchild file. Callback files:%u, folders:%u." , (int)rootPath.size(), rootPath.begin(), callbackFiles, callbackFolders );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_CALLBACK_COUNTS, 3 != callbackFiles , "Root:'%.*s' callback files:%u, expected:3." , (int)rootPath.size(), rootPath.begin(), callbackFiles );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_CALLBACK_FOLDER_COUNT, 2 != callbackFolders , "Root:'%.*s' callback folders:%u, expected:2." , (int)rootPath.size(), rootPath.begin(), callbackFolders );
 
 	cnst SPathListCounts	callbackCounts	= ::pathListCounts(callbackTree);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE, 3 != callbackCounts.Files
-		, "Root:'%.*s' callback tree files:%u, expected:3."
-		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Files
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE_FOLDER_COUNT, 2 != callbackCounts.Folders
-		, "Root:'%.*s' callback tree folders:%u, expected:2."
-		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Folders
-		);
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE, 3 != callbackCounts.Files , "Root:'%.*s' callback tree files:%u, expected:3." , (int)rootPath.size(), rootPath.begin(), callbackCounts.Files );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_CALLBACK_TREE_FOLDER_COUNT, 2 != callbackCounts.Folders , "Root:'%.*s' callback tree folders:%u, expected:2." , (int)rootPath.size(), rootPath.begin(), callbackCounts.Folders );
 
 	::llc::SPathContents	plainTree;
 	cnst ::llc::err_t	plainResult		= ::llc::pathList(rootPath, plainTree, {});
-	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_LIST_PLAIN_RESULT, ::llc::failed(plainResult)
-		, "Root:'%.*s' non-callback traversal returned:%" LLC_FMT_S2 "."
-		, (int)rootPath.size(), rootPath.begin(), plainResult
-		);
+	LLC_TEST_REQUIREF(errors, PATH_TEST_RESULT_LIST_PLAIN_RESULT, ::llc::failed(plainResult) , "Root:'%.*s' non-callback traversal returned:%" LLC_FMT_S2 "." , (int)rootPath.size(), rootPath.begin(), plainResult );
 	cnst SPathListCounts	plainCounts		= ::pathListCounts(plainTree);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_TREE_FILE_EQUIVALENT, callbackCounts.Files != plainCounts.Files
-		, "Root:'%.*s' callback files:%u, plain files:%u."
-		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Files, plainCounts.Files
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_TREE_FOLDER_EQUIVALENT, callbackCounts.Folders != plainCounts.Folders
-		, "Root:'%.*s' callback folders:%u, plain folders:%u."
-		, (int)rootPath.size(), rootPath.begin(), callbackCounts.Folders, plainCounts.Folders
-		);
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_TREE_FILE_EQUIVALENT, callbackCounts.Files != plainCounts.Files , "Root:'%.*s' callback files:%u, plain files:%u." , (int)rootPath.size(), rootPath.begin(), callbackCounts.Files, plainCounts.Files );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_TREE_FOLDER_EQUIVALENT, callbackCounts.Folders != plainCounts.Folders , "Root:'%.*s' callback folders:%u, plain folders:%u." , (int)rootPath.size(), rootPath.begin(), callbackCounts.Folders, plainCounts.Folders );
 
 	::llc::SPathContents	filteredTree;
 	if_fail_fe(::llc::pathList(rootPath, filteredTree, LLC_CXS(".txt")));
 	cnst SPathListCounts	filteredCounts	= ::pathListCounts(filteredTree);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_EXTENSION_FILTER, filteredCounts.Files
-		, "Root:'%.*s' filtered files:%u, expected:0."
-		, (int)rootPath.size(), rootPath.begin(), filteredCounts.Files
-		);
-	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_LIST_EXTENSION_FOLDER_COUNT, 2 != filteredCounts.Folders
-		, "Root:'%.*s' filtered folders:%u, expected:2."
-		, (int)rootPath.size(), rootPath.begin(), filteredCounts.Folders
-		);
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_EXTENSION_FILTER, filteredCounts.Files , "Root:'%.*s' filtered files:%u, expected:0." , (int)rootPath.size(), rootPath.begin(), filteredCounts.Files );
+	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_EXTENSION_FOLDER_COUNT, 2 != filteredCounts.Folders , "Root:'%.*s' filtered folders:%u, expected:2." , (int)rootPath.size(), rootPath.begin(), filteredCounts.Folders );
 	rtrn 0;
 }
 

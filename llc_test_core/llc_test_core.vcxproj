@@ -179,6 +179,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="llc_test_adam7.cpp" />
     <ClCompile Include="llc_test_array_pod.cpp" />
     <ClCompile Include="llc_test_array_obj.cpp" />
     <ClCompile Include="llc_test_array_static.cpp" />
@@ -199,6 +200,7 @@
     <ClCompile Include="llc_test_xml.cpp" />
     <ClCompile Include="llc_test_noise.cpp" />
     <ClCompile Include="llc_test_path.cpp" />
+    <ClCompile Include="llc_test_png.cpp" />
     <ClCompile Include="llc_test_packed_int.cpp" />
     <ClCompile Include="llc_test_ptr.cpp" />
     <ClCompile Include="llc_test_str.cpp" />
