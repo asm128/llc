@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="llc_arduino.h" />
     <ClInclude Include="llc_arduino_stream.h" />
+    <ClInclude Include="llc_astatic_n2.h" />
     <ClInclude Include="llc_bus_manager.h" />
     <ClInclude Include="llc_ccsds.h" />
     <ClInclude Include="llc_cerrno.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="llc_path.h" />
     <ClInclude Include="llc_platform_error.h" />
     <ClInclude Include="llc_pod_definition.h" />
+    <ClInclude Include="llc_process.h" />
     <ClInclude Include="llc_quad3.h" />
     <ClInclude Include="llc_queue_event.h" />
     <ClInclude Include="llc_range.h" />
@@ -226,6 +228,7 @@
     <ClInclude Include="llc_file.h" />
     <ClInclude Include="llc_cstring.h" />
     <ClInclude Include="llc_string_helper.h" />
+    <ClInclude Include="llc_swap.h" />
     <ClInclude Include="llc_sync.h" />
     <ClInclude Include="llc_tcpip.h" />
     <ClInclude Include="llc_timer.h" />
@@ -334,6 +337,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_path.cpp" />
+    <ClCompile Include="llc_process.cpp" />
     <ClCompile Include="llc_typeint.cpp" />
     <ClCompile Include="llc_spi.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -371,9 +375,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_encoding.cpp" />
-    <ClCompile Include="llc_expression.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_expression.cpp" />
     <ClCompile Include="llc_scene.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -415,9 +417,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_stdstring.cpp" />
-    <ClCompile Include="llc_stl.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_stl.cpp" />
     <ClCompile Include="llc_file.cpp" />
     <ClCompile Include="llc_tcpip.cpp" />
     <ClCompile Include="llc_timer.cpp" />

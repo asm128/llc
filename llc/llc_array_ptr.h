@@ -7,34 +7,34 @@
 
 namespace llc
 {
-	tplt<tpnm T> using papod	= ::llc::pobj<::llc::apod<T>>;
-	tplt<tpnm T> using apapod	= ::llc::aobj<::llc::papod<T>>;
+	tplt<tpnm T> usng		papod		= pobj<apod<T>>;
+	tplt<tpnm T> usng		apapod		= aobj<papod<T>>;
 
-	tydf	::llc::papod<uc_t	>	pauchar;
-	tydf	::llc::papod<char		>	pachar;
-	tydf	::llc::papod<float		>	paf32;
-	tydf	::llc::papod<double		>	paf64;
-	tydf	::llc::papod<uint8_t	>	pau8;
-	tydf	::llc::papod<uint16_t	>	pau16;
-	tydf	::llc::papod<uint32_t	>	pau32;
-	tydf	::llc::papod<uint64_t	>	pau64;
-	tydf	::llc::papod<int8_t		>	pai8;
-	tydf	::llc::papod<int16_t	>	pai16;
-	tydf	::llc::papod<int32_t	>	pai32;
-	tydf	::llc::papod<int64_t	>	pai64;
+	tydf	papod<uc_t>		pauc_t;
+	tydf	papod<sc_t>		pasc_t;
+	tydf	papod<u0_t>		pau0_t;
+	tydf	papod<u1_t>		pau1_t;
+	tydf	papod<u2_t>		pau2_t;
+	tydf	papod<u3_t>		pau3_t;
+	tydf	papod<s0_t>		pas0_t;
+	tydf	papod<s1_t>		pas1_t;
+	tydf	papod<s2_t>		pas2_t;
+	tydf	papod<s3_t>		pas3_t;
+	tydf	papod<f2_t>		paf2_t;
+	tydf	papod<f3_t>		paf3_t;
 
-	tydf	::llc::aobj<::llc::pauchar	>	apauchar;
-	tydf	::llc::aobj<::llc::pachar	>	apachar;
-	tydf	::llc::aobj<::llc::paf32	>	apaf32;
-	tydf	::llc::aobj<::llc::paf64	>	apaf64;
-	tydf	::llc::aobj<::llc::pau8		>	apau8;
-	tydf	::llc::aobj<::llc::pau16	>	apau16;
-	tydf	::llc::aobj<::llc::pau32	>	apau32;
-	tydf	::llc::aobj<::llc::pau64	>	apau64;
-	tydf	::llc::aobj<::llc::pai8		>	apai8;
-	tydf	::llc::aobj<::llc::pai16	>	apai16;
-	tydf	::llc::aobj<::llc::pai32	>	apai32;
-	tydf	::llc::aobj<::llc::pai64	>	apai64;
+	tydf	aobj<pauc_t>	apauc_t;
+	tydf	aobj<pasc_t>	apasc_t;
+	tydf	aobj<pau0_t>	apau0_t;
+	tydf	aobj<pau1_t>	apau1_t;
+	tydf	aobj<pau2_t>	apau2_t;
+	tydf	aobj<pau3_t>	apau3_t;
+	tydf	aobj<pas0_t>	apas0_t;
+	tydf	aobj<pas1_t>	apas1_t;
+	tydf	aobj<pas2_t>	apas2_t;
+	tydf	aobj<pas3_t>	apas3_t;
+	tydf	aobj<paf2_t>	apaf2_t;
+	tydf	aobj<paf3_t>	apaf3_t;
 } // namespace
 
 #endif // LLC_ARRAY_PTR_H_23627

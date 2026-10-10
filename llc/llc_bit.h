@@ -86,8 +86,8 @@ namespace llc
 		inxp	bool			oper!=			(cnst bit_field & other)		cnst	nxpt	{ rtrn Value != other.Value; }
 	};
 #ifdef LLC_DEBUG_ENABLED
-	tplT 		T		bit_make		(u0_t bitIndex)	nxpt	{
-		rve_if((T)-1LL, bitIndex >= (szof(T) * BYTE_SIZE), "Invalid bit index: %i", bitIndex);
+	tplT 		T		bit_make		(u0_t bitIndex)		{
+		if_true_tef(bitIndex >= (szof(T) * BYTE_SIZE), "bit index: %i", bitIndex);
 #else // !LLC_DEBUG_ENABLED
 	tplT ndxp	T		bit_make		(u0_t bitIndex)	nxpt	{
 #endif // LLC_DEBUG_ENABLED

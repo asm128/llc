@@ -34,6 +34,19 @@ GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_POD_POSITION		, 27, "loadPO
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, TRUNCATED_POD			, 28, "loadPOD() accepted truncated input or modified its output/cursor.");
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, TRUNCATED_OWNED_VIEW	, 29, "Owned loadView() accepted truncated input or modified its output/cursor.");
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, MALFORMED_VIEW_COUNT	, 30, "loadView() accepted a count whose payload byte size overflowed.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MUTABLE_RESULT	, 31, "Mutable viewPascal() reported the wrong consumed byte count.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MUTABLE_ALIAS	, 32, "Mutable viewPascal() returned the wrong count or alias.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MUTABLE_VALUE	, 33, "Mutable viewPascal() returned different values.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MUTABLE_WRITE	, 34, "Mutable viewPascal() did not expose writable source storage.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_CONST_RESULT		, 35, "Const viewPascal() reported the wrong consumed byte count.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_CONST_ALIAS		, 36, "Const viewPascal() returned the wrong count or alias.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_CONST_VALUE		, 37, "Const viewPascal() returned different values.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_TRUNCATED_MUTABLE_RESULT, 38, "Mutable viewPascal() accepted truncated input.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_TRUNCATED_MUTABLE_OUTPUT, 39, "Mutable viewPascal() modified its output after rejecting truncated input.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_TRUNCATED_CONST_RESULT	, 40, "Const viewPascal() accepted truncated input.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_TRUNCATED_CONST_OUTPUT	, 41, "Const viewPascal() modified its output after rejecting truncated input.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MALFORMED_COUNT_RESULT	, 42, "viewPascal() accepted a count larger than the available payload.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MALFORMED_COUNT_OUTPUT	, 43, "viewPascal() modified its output after rejecting a malformed count.");
 
 stxp ::llc::u0_t PRECEDING_FIELD[] = {0x91U, 0xE4U, 0x2BU};
 stxp ::llc::u0_t FOLLOWING_FIELD[] = {0xC3U, 0x5AU, 0x7EU, 0x19U};
@@ -41,6 +54,15 @@ stxp ::llc::u3_t SERIALIZE_UINT_RANDOM_SEED	= 0x53455249414C495AULL;
 stxp ::llc::u3_t SERIALIZE_VIEW_RANDOM_SEED	= 0x56494557434F554EULL;
 stxp ::llc::u2_t SERIALIZE_UINT_RANDOM_COUNT	= 256;
 stxp ::llc::u2_t SERIALIZE_VIEW_RANDOM_COUNT	= 32;
+
+tplt<tpnm TOutput, tpnm TInput>
+concept canViewReadLegacy = requires(TOutput & output, TInput input) { ::llc::viewPascal(output, input); };
+
+static_assert( canViewReadLegacy<::llc::view<::llc::u2_t>, ::llc::vu0_t>);
+static_assert( canViewReadLegacy<::llc::view<cnst ::llc::u2_t>, ::llc::vcu0_t>);
+static_assert( canViewReadLegacy<::llc::view<cnst ::llc::u2_t>, ::llc::vu0_t>);
+static_assert(false == canViewReadLegacy<::llc::view<::llc::u2_t>, ::llc::vcu0_t>);
+static_assert(false == canViewReadLegacy<::llc::view<::llc::u2_t>, ::llc::vcst_t>);
 
 sttc bool isFollowingField(cnst ::llc::vcu0_t & input) {
 	return input.size() == ::llc::size(FOLLOWING_FIELD) && 0 == memcmp(input.begin(), FOLLOWING_FIELD, ::llc::size(FOLLOWING_FIELD));
@@ -299,13 +321,82 @@ sttc ::llc::err_t testMalformedViewCount(ATestError & errors) {
 }
 
 tplt<tpnm T>
+sttc ::llc::err_t testLegacyView(ATestError & errors) {
+	T source[] = {T(0x11U), T(0x22U), T(0x33U), T(0x44U)};
+	cnst ::llc::u2_t elementCount = ::llc::size(source);
+	::llc::au0_t serialized = {};
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, ::llc::savePOD(serialized, elementCount) != szof(elementCount), "%u-bit legacy test could not serialize its element count.", bcof(T));
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, 0 > serialized.append(::llc::view<cnst T>{source}.cu8()), "%u-bit legacy test could not serialize its elements.", bcof(T));
+	cnst ::llc::u2_t expectedSize = szof(elementCount) + szof(source);
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, serialized.size() != expectedSize, "%u-bit legacy serialized size:%u, expected:%u.", bcof(T), serialized.size(), expectedSize);
+
+	::llc::view<T> mutableView = {};
+	cnst ::llc::err_t mutableResult = ::llc::viewPascal(mutableView, (::llc::vu0_t)serialized);
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, mutableResult != expectedSize, "%u-bit mutable result:%i, expected:%u.", bcof(T), mutableResult, expectedSize);
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_ALIAS, mutableView.size() != elementCount, "%u-bit mutable count:%u, expected:%u.", bcof(T), mutableView.size(), elementCount);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_ALIAS, mutableView.cu8().begin() != &serialized[szof(elementCount)], "%u-bit mutable begin:%p, expected:%p.", bcof(T), mutableView.begin(), &serialized[szof(elementCount)]);
+	for(::llc::u2_t iElement = 0; iElement < elementCount; ++iElement)
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_VALUE, mutableView[iElement] != source[iElement], "%u-bit mutable element:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", bcof(T), iElement, ::llc::u3_t(mutableView[iElement]), ::llc::u3_t(source[iElement]));
+	mutableView[2] = T(0x5AU);
+	T storedValue = {};
+	memcpy(&storedValue, &serialized[szof(elementCount) + 2 * szof(T)], szof(T));
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_WRITE, mutableView[2] != storedValue, "%u-bit mutable write:%" LLC_FMT_U3 ", source:%" LLC_FMT_U3 ".", bcof(T), ::llc::u3_t(mutableView[2]), ::llc::u3_t(storedValue));
+
+	::llc::view<cnst T> constView = {};
+	cnst ::llc::err_t constResult = ::llc::viewPascal(constView, (::llc::vcu0_t)serialized);
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_RESULT, constResult != expectedSize, "%u-bit const result:%i, expected:%u.", bcof(T), constResult, expectedSize);
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_ALIAS, constView.size() != elementCount, "%u-bit const count:%u, expected:%u.", bcof(T), constView.size(), elementCount);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_ALIAS, constView.cu8().begin() != &serialized[szof(elementCount)], "%u-bit const begin:%p, expected:%p.", bcof(T), constView.begin(), &serialized[szof(elementCount)]);
+	for(::llc::u2_t iElement = 0; iElement < elementCount; ++iElement)
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_VALUE, constView[iElement] != mutableView[iElement], "%u-bit const element:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", bcof(T), iElement, ::llc::u3_t(constView[iElement]), ::llc::u3_t(mutableView[iElement]));
+	::llc::view<cnst T> constFromMutableView = {};
+	cnst ::llc::err_t constFromMutableResult = ::llc::viewPascal(constFromMutableView, (::llc::vu0_t)serialized);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_RESULT, constFromMutableResult != expectedSize, "%u-bit const-from-mutable result:%i, expected:%u.", bcof(T), constFromMutableResult, expectedSize);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_ALIAS, constFromMutableView.begin() != constView.begin(), "%u-bit const-from-mutable begin:%p, expected:%p.", bcof(T), constFromMutableView.begin(), constView.begin());
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_ALIAS, constFromMutableView.size() != constView.size(), "%u-bit const-from-mutable count:%u, expected:%u.", bcof(T), constFromMutableView.size(), constView.size());
+
+	T mutableSentinel = T(0x6BU);
+	cnst T sentinel = mutableSentinel;
+	for(::llc::u2_t byteCount = 0; byteCount < expectedSize; ++byteCount) {
+		::llc::view<T> preservedMutable = {&mutableSentinel, 1};
+		::llc::setupLogCallbacks(0, 0);
+		cnst ::llc::err_t truncatedMutableResult = ::llc::viewPascal(preservedMutable, ::llc::vu0_t{serialized.begin(), byteCount});
+		::llc::setupDefaultLogCallbacks();
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_MUTABLE_RESULT, 0 <= truncatedMutableResult, "%u-bit mutable legacy read accepted %u/%u bytes. result:%i.", bcof(T), byteCount, expectedSize, truncatedMutableResult);
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_MUTABLE_OUTPUT, preservedMutable.begin() != &mutableSentinel, "%u-bit mutable legacy read changed output begin at byte:%u. begin:%p, expected:%p.", bcof(T), byteCount, preservedMutable.begin(), &mutableSentinel);
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_MUTABLE_OUTPUT, preservedMutable.size() != 1, "%u-bit mutable legacy read changed output count at byte:%u. count:%u.", bcof(T), byteCount, preservedMutable.size());
+
+		::llc::view<cnst T> preservedConst = {&sentinel, 1};
+		::llc::setupLogCallbacks(0, 0);
+		cnst ::llc::err_t truncatedConstResult = ::llc::viewPascal(preservedConst, ::llc::vcu0_t{serialized.begin(), byteCount});
+		::llc::setupDefaultLogCallbacks();
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_CONST_RESULT, 0 <= truncatedConstResult, "%u-bit const legacy read accepted %u/%u bytes. result:%i.", bcof(T), byteCount, expectedSize, truncatedConstResult);
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_CONST_OUTPUT, preservedConst.begin() != &sentinel, "%u-bit const legacy read changed output begin at byte:%u. begin:%p, expected:%p.", bcof(T), byteCount, preservedConst.begin(), &sentinel);
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_CONST_OUTPUT, preservedConst.size() != 1, "%u-bit const legacy read changed output count at byte:%u. count:%u.", bcof(T), byteCount, preservedConst.size());
+	}
+
+	::llc::u0_t malformed[szof(::llc::u2_t)] = {};
+	cnst ::llc::u2_t impossibleCount = (::llc::u2_t)-1;
+	memcpy(malformed, &impossibleCount, szof(impossibleCount));
+	::llc::view<cnst T> preserved = {&sentinel, 1};
+	::llc::setupLogCallbacks(0, 0);
+	cnst ::llc::err_t malformedResult = ::llc::viewPascal(preserved, ::llc::vcu0_t{malformed});
+	::llc::setupDefaultLogCallbacks();
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MALFORMED_COUNT_RESULT, 0 <= malformedResult, "%u-bit legacy read accepted count:%u without a payload. result:%i.", bcof(T), impossibleCount, malformedResult);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MALFORMED_COUNT_OUTPUT, preserved.begin() != &sentinel, "%u-bit malformed legacy read changed output begin to:%p, expected:%p.", bcof(T), preserved.begin(), &sentinel);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MALFORMED_COUNT_OUTPUT, preserved.size() != 1, "%u-bit malformed legacy read changed output count to:%u.", bcof(T), preserved.size());
+	return 0;
+}
+
+tplt<tpnm T>
 sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testPOD<T>			(errors));
 	if_fail_fe(testUIntType<T>		(errors));
 	if_fail_fe(testTruncatedUInt<T>	(errors));
 	if_fail_fe(testViewType<T>		(errors));
 	if_fail_fe(testTruncatedView<T>	(errors));
-	return testMalformedViewCount<T>(errors);
+	if_fail_fe(testMalformedViewCount<T>(errors));
+	return testLegacyView<T>(errors);
 }
 
 tplt<tpnm T>

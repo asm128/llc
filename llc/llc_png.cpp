@@ -1181,7 +1181,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 	return 0;
 }
 
-::llc::err_t			llc::pngFileLoad			(::llc::SPNGData & pngData, const ::llc::vcs & filename	)	{
+::llc::err_t			llc::pngFileLoad			(::llc::SPNGData & pngData, const ::llc::vcst_t & filename	)	{
 	::llc::au0_t					fileInMemory				= {};
 	llc_necs(llc::fileToMemory(filename, fileInMemory));
 	return ::llc::pngFileLoad(pngData, fileInMemory);
@@ -1192,7 +1192,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 	return ::llc::pngDecode(pngData, out_Data); 
 }
 
-::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcs  & filename, ::llc::au0_t & out_Data) {
+::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcst_t  & filename, ::llc::au0_t & out_Data) {
 	::llc::au0_t					fileInMemory				= {};
 	llc_necs(llc::fileToMemory(filename, fileInMemory));
 	return ::llc::pngFileLoad(pngData, fileInMemory.cu8(), out_Data);
@@ -1203,7 +1203,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 	return ::llc::pngDecode(pngData, out_Data, out_View); 
 }
 
-::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcs  & filename, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) {
+::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcst_t  & filename, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) {
 	::llc::au0_t					fileInMemory				= {};
 	llc_necs(llc::fileToMemory(filename, fileInMemory));
 	return ::llc::pngFileLoad(pngData, fileInMemory.cu8(), out_Data, out_View);
@@ -1215,7 +1215,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 	return ::llc::pngDecode(pngData, out_Texture.View);
 }
 
-::llc::err_t			llc::pngFileLoad	(::llc::SPNGData & pngData, const ::llc::vcs & filename, ::llc::img8bgra & out_Texture)	{
+::llc::err_t			llc::pngFileLoad	(::llc::SPNGData & pngData, const ::llc::vcst_t & filename, ::llc::img8bgra & out_Texture)	{
 	llc_necall(llc::pngFileLoad(pngData, filename), "%s", ::llc::string(filename).begin());
 	llc_necs(out_Texture.resize(pngData.Header.Size));
 	return ::llc::pngDecode(pngData, out_Texture.View);

@@ -1,6 +1,6 @@
 # LLC migration overview
 
-This document compares the [former monolithic LLC source](../../../bundle_galaxy_hell/gpk/llc) with the current independent LLC source in this directory. It distinguishes incorporated files from missing counterparts, partial replacements, higher-layer responsibilities and stale project metadata. It is the living migration ledger, not authorization to restore files wholesale.
+This document compares the [former monolithic LLC source](../../../bundle_galaxy_hell/gpk/llc) with the current independent LLC source in this directory. It distinguishes incorporated files from missing counterparts, partial replacements, destination responsibilities and stale project metadata. It is the living ledger for extracting everything owned by the former tree until that tree can be removed without losing behavior. This objective does not authorize blind copying: every facility still needs a current contract, owner and proof.
 
 ## Comparison scope
 
@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 28 focused suites, including independent Adam7, PNG, geometry, block-container and label suites.
+- The shared current test runner registers 34 focused suites, including independent expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel suites.
 
 ## Major findings
 
@@ -40,26 +40,26 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 
 ### Genuine consumer-backed gaps
 
-1. **Expression parsing and JSON expression/interpolation.** The former `gpk_expression.*` and `gpk_json_expression.*` are used extensively by [Blitter](../../../blitter) configuration and query code. Current `llc_eval.h` contains arithmetic, minimum and maximum helpers, not an expression evaluator.
+1. **JSON expression/interpolation.** The base `gpk_expression.*` parser now has an independent counterpart and focused tests. The former `gpk_json_expression.*` layer remains absent and is used extensively by [Blitter](../../../blitter) configuration and query code.
 2. **Environment-block composition and dynamic-module support.** `SCommandLineArgs::Environment` replaces the former environment-view collection for entry points that receive `envp`; the missing environment behavior is serialization back to the native double-null block and coverage for entry paths that do not populate `Environment`. Former module types and the runtime loader still have no independent source counterpart.
 3. **HTTP/HTTPS and CGI.** Former request/response structures, URL decoding, client operations and CGI runtime adapters are absent; current LLC stops at TCP/IP and serialization helpers. Blitter is a concrete consumer.
-4. **Block-addressed records, maps and registries.** Generic block-container storage is now incorporated. Former block-addressed record helpers, linear maps and registries remain absent. [`gpk_engine`](../../../bundle_galaxy_hell/gpk/gpk_engine) still consumes `gpk_linear_map_pod.h`, proving that the map family is not merely unused debris.
-5. **Selected media and interchange formats.** Font and image serialization, STL and VOX are absent. `gpk_engine` and the focused VOX samples still consume them. Their low-level parsing may be reusable, but image, raster and engine ownership must be separated before integration.
+4. **Block-addressed records and registries.** Generic block-container storage and both linear-map families are now incorporated with focused tests. Former block-addressed record helpers and registries remain absent.
+5. **Selected media and interchange formats.** Image serialization, STL and VOX now have independent counterparts and focused tests. Font remains absent, while voxel geometry still needs its image, raster and engine ownership separated before integration.
 6. **RSA/GPC helpers.** These are absent while AES, Base64 and deflate remain. The former custom crypto surface should be treated as a security-review candidate, not copied merely for parity.
 
-### Higher layer, not independent-LLC gaps
+### Higher-layer facilities still inside the extraction scope
 
-The former directory also contains GUI controls, dialogs, windows, D3D, scene, camera, model, raster, particle, geometry and voxel-rendering systems. Current LLC instructions define the likely long-term split as foundational LLC plus `gpk_engine`; current `gpk_engine` still composes GUI, geometry, PNG, font and raster facilities. These systems are migration work for the higher layer, not evidence that foundational LLC must absorb the former monolith.
+The former directory also contains GUI controls, dialogs, windows, D3D, scene, camera, model, raster, particle, geometry and voxel-rendering systems. Current LLC instructions define the likely long-term split as foundational LLC plus `gpk_engine`; current `gpk_engine` still composes GUI, geometry, PNG, font and raster facilities. Their final owner remains an architectural decision, but they cannot be ignored: complete extraction requires migrating or deliberately replacing every behavior still owned by the former `gpk/llc` tree before that tree is removed.
 
 ## Suggested integration order
 
 1. Reconcile the migration ledger: classify the 132 absent project entries and choose owners; do not restore them wholesale.
-2. Continue the small foundational contracts after the completed generic block storage: recover consumer-proven linear-map behavior with focused current-style tests.
+2. Continue the small foundational contracts after the completed generic block storage and linear maps: recover the remaining block-addressed records and registries only with consumer-backed tests.
 3. Add environment-block composition to the current argument/runtime ownership only for a proven consumer, including an explicit `WinMain` population policy; recover dynamic-module primitives separately.
-4. Design a typed expression-result contract and preservation tests before adapting the historical parser and interpolator.
+4. Build the JSON expression/interpolation layer on the now-incorporated typed expression parser and preserve its consumer-backed behavior.
 5. Layer HTTP and CGI over current TCP/IP, JSON, runtime and argument facilities, preserving transport versus application ownership.
 6. Continue codecs and formats only when a real consumer is selected; split byte parsing from engine and image types.
-7. Keep GUI, rendering, window and scene systems in the higher layer. Treat former RSA/GPC code as audit material unless a concrete requirement justifies a supported cryptographic contract.
+7. Migrate or rehome GUI, rendering, window and scene systems deliberately rather than forcing them into foundational headers; they remain part of complete extraction even when their destination is the higher layer. Treat former RSA/GPC code as audit material unless a concrete requirement justifies a supported cryptographic contract.
 
 ## File ledger
 
@@ -96,6 +96,8 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_array_pod.h` -> `llc_array_pod.h`
 - [x] `gpk_array_ptr.h` -> `llc_array_ptr.h`
 - [x] `gpk_array_static.h` -> `llc_array_static.h`
+- [x] `gpk_astatic_color.h` -> `llc_astatic_color.h`
+- [x] `gpk_astatic_n2.h` -> `llc_astatic_n2.h`
 - [x] `gpk_astatic_serialize.h` -> `llc_astatic_serialize.h`
 - [x] `gpk_auto_handler.h` -> `llc_auto_handler.h`
 - [x] `gpk_align.h` -> `llc_align.h`
@@ -124,6 +126,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_event_input.h` -> `llc_event_input.h`
 - [x] `gpk_event_raster.h` -> `llc_event_raster.h`
 - [x] `gpk_event_screen.h` -> `llc_event_screen.h`
+- [x] `gpk_expression.{h,cpp}` -> `llc_expression.{h,cpp}`
 - [x] `gpk_file.{h,cpp}` -> `llc_file.{h,cpp}`
 - [x] `gpk_frameinfo.h` -> `llc_frameinfo.h`
 - [x] `gpk_functional.h` -> `llc_functional.h`
@@ -131,9 +134,13 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_geometry2.h` -> `llc_geometry2.h`
 - [x] `gpk_grid.h` -> `llc_grid.h` (grid type and scalar aliases; drawing and vector-grid aliases remain separate)
 - [x] `gpk_grid_color.h` -> `llc_grid_color.h`
+- [x] `gpk_grid_copy.h` -> `llc_grid_copy.h`
+- [x] `gpk_grid_scale.h` -> `llc_grid_scale.h`
+- [x] `gpk_grid_static.h` -> `llc_grid_static.h`
 - [x] `gpk_i2c.{h,cpp}` -> `llc_i2c.{h,cpp}`
 - [x] `gpk_image.h` -> `llc_image.h` (`img<>` only; `imgmono<>`, render targets and update helpers remain pending)
 - [x] `gpk_img_color.h` -> `llc_img_color.h` (image aliases only; render-target and pointer aliases remain pending)
+- [x] `gpk_img_serialize.h` -> `llc_img_serialize.h`
 - [x] `gpk_json.{h,cpp}` -> `llc_json.{h,cpp}`
 - [x] `gpk_keyval.h` -> `llc_keyval.h`
 - [x] `gpk_keyval_old.{h,cpp}` -> `llc_keyval_old.{h,cpp}`
@@ -142,6 +149,8 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_line.h` -> `llc_line.h`
 - [x] `gpk_line2.h` -> `llc_line2.h`
 - [x] `gpk_line3.h` -> `llc_line3.h`
+- [x] `gpk_linear_map_pobj.h` -> `llc_linear_map_pobj.h`
+- [x] `gpk_linear_map_pod.h` -> `llc_linear_map_pod.h`
 - [x] `gpk_log.{h,cpp}` -> `llc_log.{h,cpp}`
 - [x] `gpk_log_core.h` -> `llc_log_core.h`
 - [x] `gpk_log_level.h` -> `llc_log_level.h`
@@ -161,6 +170,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_platform_globals.h` -> `llc_platform_globals.h`
 - [x] `gpk_png.{h,cpp}` -> `llc_png.{h,cpp}`
 - [x] `gpk_png_write.cpp` -> `llc_png_write.cpp` (present but excluded from the build pending writer tests)
+- [x] `gpk_process.{h,cpp}` -> `llc_process.{h,cpp}`
 - [x] `gpk_ptr_nco.h` -> `llc_ptr_nco.h`
 - [x] `gpk_ptr_obj.h` -> `llc_ptr_obj.h`
 - [x] `gpk_ptr_pod.h` -> `llc_ptr_pod.h`
@@ -190,9 +200,11 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_std_string.h` -> `llc_std_string.h`
 - [x] `gpk_stdsocket.h` -> `llc_stdsocket.h`
 - [x] `gpk_stdstring.{h,cpp}` -> `llc_stdstring.{h,cpp}`
+- [x] `gpk_stl.{h,cpp}` -> `llc_stl.{h,cpp}`
 - [x] `gpk_string.h` -> `llc_string.h`
 - [x] `gpk_string_compose.{h,cpp}` -> `llc_string_compose.{h,cpp}`
 - [x] `gpk_sync.h` -> `llc_sync.h`
+- [x] `gpk_swap.h` -> `llc_swap.h`
 - [x] `gpk_system_event.h` -> `llc_system_event.h`
 - [x] `gpk_tcpip.{h,cpp}` -> `llc_tcpip.{h,cpp}`
 - [x] `gpk_timer.{h,cpp}` -> `llc_timer.{h,cpp}`
@@ -204,6 +216,8 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_view_bit.h` -> `llc_view_bit.h`
 - [x] `gpk_view_color.{h,cpp}` -> `llc_view_color.{h,cpp}`
 - [x] `gpk_view_serialize.h` -> `llc_view_serialize.h`
+- [x] `gpk_vox.h` -> `llc_vox.h`
+- [x] `gpk_voxel.h` -> `llc_voxel.h`
 - [x] `gpk_windows.{h,cpp}` -> `llc_windows.{h,cpp}`
 - [x] `gpk_xml_reader.{h,cpp}` -> `llc_xml_reader.{h,cpp}`
 - [x] `llc_runtime.h` -> `llc_runtime.h`
@@ -220,8 +234,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_array_bit.h`
 - [ ] `gpk_ascii_color.h`
 - [ ] `gpk_ascii_target.{h,cpp}`
-- [ ] `gpk_astatic_color.h`
-- [ ] `gpk_astatic_n2.h`
 - [ ] `gpk_axis (2).h`
 - [ ] `gpk_bitmap_target.h`
 - [ ] `gpk_block.{h,cpp}`
@@ -241,7 +253,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_d3d.{h,cpp}`
 - [ ] `gpk_dialog.{h,cpp}`
 - [ ] `gpk_dialog_controls.h`
-- [ ] `gpk_expression.{h,cpp}`
 - [ ] `gpk_font.{h,cpp}`
 - [ ] `gpk_framework.{h,cpp}`
 - [ ] `gpk_geometry.{h,cpp}`
@@ -250,9 +261,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_geometry_lh.{h,cpp}`
 - [ ] `gpk_gltf.{h,cpp}`
 - [ ] `gpk_gpio.h`
-- [ ] `gpk_grid_copy.h`
-- [ ] `gpk_grid_scale.h`
-- [ ] `gpk_grid_static.h`
 - [ ] `gpk_gtl_command.h`
 - [ ] `gpk_gui.{h,cpp}`
 - [ ] `gpk_gui_control.h`
@@ -266,13 +274,10 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_http.h`
 - [ ] `gpk_http_client.{h,cpp}`
 - [ ] `gpk_https_client.cpp`
-- [ ] `gpk_img_serialize.h`
 - [ ] `gpk_input.h`
 - [ ] `gpk_io.h`
 - [ ] `gpk_json_expression.{h,cpp}`
 - [ ] `gpk_keyed_bit_array.h`
-- [ ] `gpk_linear_map_pobj.h`
-- [ ] `gpk_linear_map_pod.h`
 - [ ] `gpk_mapblock.cpp`
 - [ ] `gpk_member_registry.h`
 - [ ] `gpk_model.h`
@@ -280,16 +285,13 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_particle.{h,cpp}`
 - [ ] `gpk_platform_error.cpp`
 - [ ] `gpk_pod_definition.h`
-- [ ] `gpk_process.{h,cpp}`
 - [ ] `gpk_raster_lh.{h,cpp}`
 - [ ] `gpk_rect_align.h`
 - [ ] `gpk_rsa.{h,cpp}`
 - [ ] `gpk_runtime_module.{h,cpp}`
 - [ ] `gpk_scene.{h,cpp}`
 - [ ] `gpk_serial.h`
-- [ ] `gpk_stl.{h,cpp}`
 - [ ] `gpk_string_helper.{h,cpp}`
-- [ ] `gpk_swap.h`
 - [ ] `gpk_system_key.h`
 - [ ] `gpk_type_identifier.h`
 - [ ] `gpk_type_registry.h`
@@ -304,13 +306,11 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_view_tri2.h`
 - [ ] `gpk_view_tri3.h`
 - [ ] `gpk_virtual_keyboard.{h,cpp}`
-- [ ] `gpk_vox.h`
-- [ ] `gpk_voxel.h`
 - [ ] `gpk_voxel_geometry.{h,cpp}`
 - [ ] `gpk_window.{h,cpp}`
 - [ ] `llc_header_checkingg.cpp`
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize implementation of a pending item. The generic block-container and label changes represented here were subsequently built and exercised by Pablo, who reported the complete test run passing. The geometry migration was source-reviewed and registered in the project and test suite on 2026-10-09; it has not been built or executed. No build, test or Git mutation was performed as part of this ledger refresh, and unrelated working-tree changes were preserved.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-10 Debug x64 migration checkpoint passed all 278,423 checks across 1,147 result groups in 3,407,031 microseconds, verifying all 34 registered suites, including the incorporated expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 

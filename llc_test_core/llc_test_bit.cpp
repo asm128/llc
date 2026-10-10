@@ -60,6 +60,7 @@ GDEFINE_ENUM_VALUED(BIT_FIELD_TEST_RESULT, ENUM_ALL			, 54, "Generated enum flag
 GDEFINE_ENUM_VALUED(BIT_FIELD_TEST_RESULT, ENUM_SECOND_CLEAR	, 55, "Generated enum flags included an unset bit.");
 GDEFINE_ENUM_VALUED(BIT_FIELD_TEST_RESULT, ENUM_MUTATION_ALL	, 56, "Generated enum flag mutation lost set bits.");
 GDEFINE_ENUM_VALUED(BIT_FIELD_TEST_RESULT, ENUM_MUTATION_CLEAR, 57, "Generated enum flag mutation retained a cleared bit.");
+GDEFINE_ENUM_VALUED(BIT_FIELD_TEST_RESULT, BIT_MAKE_RANGE		, 58, "bit_make() accepted an index outside the requested type.");
 
 GDEFINE_FLAG_TYPE(BIT_FIELD_TEST_FLAG, ::llc::u0_t);
 GDEFINE_FLAG_VALUE(BIT_FIELD_TEST_FLAG, FIRST	, 0x01U);
@@ -110,6 +111,9 @@ sttc ::llc::err_t testBitType(ATestError & errors) {
 		state = ::llc::bit_clear(state, bit);
 		LLC_TEST_CHECKF(errors, BIT_FIELD_TEST_RESULT_SET_CLEAR, state , "%u-bit clear mismatch at bit %u. state:%" LLC_FMT_U3 "." , typeBits, iBit, (::llc::u3_t)state );
 	}
+#if defined(LLC_DEBUG_ENABLED) && defined(LLC_WINDOWS)
+	LLC_TEST_CHECKF(errors, BIT_FIELD_TEST_RESULT_BIT_MAKE_RANGE, false == testThrows([typeBits]() { (void)::llc::bit_make<T>((::llc::u0_t)typeBits); }) , "%u-bit type accepted index:%u." , typeBits, typeBits );
+#endif
 
 	cnst T mask = T(0x55U);
 	cnst T requested = T(0x0FU);

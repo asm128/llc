@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -612,6 +612,9 @@
     <ClInclude Include="llc_stl.h">
       <Filter>models</Filter>
     </ClInclude>
+    <ClInclude Include="llc_swap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="llc_scene.h">
       <Filter>scene</Filter>
     </ClInclude>
@@ -819,6 +822,12 @@
     <ClInclude Include="llc_keyval_old.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_process.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_astatic_n2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -992,9 +1001,6 @@
     <ClCompile Include="llc_xml_reader.cpp">
       <Filter>xml</Filter>
     </ClCompile>
-    <ClCompile Include="llc_header_checkingg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_gltf.cpp">
       <Filter>models</Filter>
     </ClCompile>
@@ -1054,6 +1060,9 @@
     </ClCompile>
     <ClCompile Include="llc_view_color.cpp">
       <Filter>view</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_process.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

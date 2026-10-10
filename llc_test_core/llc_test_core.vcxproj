@@ -191,11 +191,14 @@
     <ClCompile Include="llc_test_cpow.cpp" />
     <ClCompile Include="llc_test_ctti.cpp" />
     <ClCompile Include="llc_test_enum.cpp" />
+    <ClCompile Include="llc_test_expression.cpp" />
     <ClCompile Include="llc_test_geometry.cpp" />
     <ClCompile Include="llc_test_grid_image.cpp" />
+    <ClCompile Include="llc_test_grid_operations.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
     <ClCompile Include="llc_test_keyval.cpp" />
     <ClCompile Include="llc_test_label.cpp" />
+    <ClCompile Include="llc_test_linear_map.cpp" />
     <ClCompile Include="llc_test_msbuild_xml.cpp" />
     <ClCompile Include="llc_test_xml.cpp" />
     <ClCompile Include="llc_test_noise.cpp" />
@@ -203,10 +206,14 @@
     <ClCompile Include="llc_test_png.cpp" />
     <ClCompile Include="llc_test_packed_int.cpp" />
     <ClCompile Include="llc_test_ptr.cpp" />
+    <ClCompile Include="llc_test_process.cpp" />
     <ClCompile Include="llc_test_str.cpp" />
+    <ClCompile Include="llc_test_stl.cpp" />
     <ClCompile Include="llc_test_view.cpp" />
     <ClCompile Include="llc_test_view_bit.cpp" />
     <ClCompile Include="llc_test_view_serialize.cpp" />
+    <ClCompile Include="llc_test_vox.cpp" />
+    <ClCompile Include="llc_test_voxel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="llc_test_base64_font_data.h" />

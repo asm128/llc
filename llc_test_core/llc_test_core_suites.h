@@ -15,20 +15,27 @@
 ::llc::err_t testCPow			(ATestError & errors);
 ::llc::err_t testCTTIParser		(ATestError & errors);
 ::llc::err_t testEnum			(ATestError & errors);
+::llc::err_t testExpression		(ATestError & errors);
 ::llc::err_t testGeometry		(ATestError & errors);
 ::llc::err_t testGridImage		(ATestError & errors);
+::llc::err_t testGridOperations	(ATestError & errors);
 ::llc::err_t testJSONReader		(ATestError & errors);
 ::llc::err_t testKeyVal			(ATestError & errors);
 ::llc::err_t testLabel			(ATestError & errors);
+::llc::err_t testLinearMap		(ATestError & errors);
 ::llc::err_t testMSBuildXML		(ATestError & errors);
 ::llc::err_t testXMLReader		(ATestError & errors);
 ::llc::err_t testPath			(ATestError & errors);
 ::llc::err_t testPointers		(ATestError & errors);
 ::llc::err_t testPNG			(ATestError & errors);
+::llc::err_t testProcess		(ATestError & errors);
 ::llc::err_t testSPRNG			(ATestError & errors);
+::llc::err_t testSTL			(ATestError & errors);
 ::llc::err_t testStr			(ATestError & errors);
 ::llc::err_t testView			(ATestError & errors);
 ::llc::err_t testViewBit		(ATestError & errors);
 ::llc::err_t testViewSerialize	(ATestError & errors);
+::llc::err_t testVOX			(ATestError & errors);
+::llc::err_t testVoxel			(ATestError & errors);
 
 #endif // LLC_TEST_CORE_SUITES_H

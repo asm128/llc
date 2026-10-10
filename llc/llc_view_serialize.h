@@ -59,21 +59,24 @@ namespace llc
 	tplTstin	err_t	loadView	(vcs0_t & input, view<T> & output) { rtrn loadView(*(vcu0_t*)& input, output); }
 	tplTstin	err_t	loadView	(vcsc_t & input, view<T> & output) { rtrn loadView(*(vcu0_t*)& input, output); }
 	//
-	tplTInTOut	err_t	viewReadLegacy	(view<TOut> & headerToRead, view<TIn> input)	{
+	tplTInTOut requires(szof(TIn) == 1 && (false == is_cnst<TIn>::Value || is_cnst<TOut>::Value))
+	err_t				viewPascal	(view<TOut> & headerToRead, view<TIn> input)	{
 		stxp		u2_c		counterWidth	= szof(u2_t);
 		if_true_fef(input.size() < counterWidth, "Invalid input size: %" LLC_FMT_U2 "", input.size());
-		u2_c					elementCount	= *(u2_c*)input.begin();
+		u2_t					elementCount	= {};
+		memcpy(&elementCount, input.begin(), counterWidth);
+		if_true_fef(elementCount > (input.size() - counterWidth) / szof(TOut), "Invalid input size: %" LLC_FMT_U2 ". Element count: %" LLC_FMT_U2 "", input.size(), elementCount);
 		u2_c					dataSize		= elementCount * szof(TOut);
-		if_true_fef(dataSize > (input.size() - counterWidth), "Invalid input size: %" LLC_FMT_U2 ". Expected: %" LLC_FMT_U2 "", input.size(), dataSize);
-		headerToRead	= {(input.size() > counterWidth) ? (TOut*)&input[counterWidth] : 0, elementCount};
+		headerToRead	= {elementCount ? reinterpret_cast<TOut*>(&input[counterWidth]) : 0, elementCount};
 		rtrn counterWidth + dataSize;
 	}
-	tplTstin	err_t	viewReadLegacy	(view<cnst T> & headerToRead, vcu0_c & input)	{ rtrn viewReadLegacy<cnst T, u0_c>(headerToRead, input); }
-	tplTstin	err_t	viewReadLegacy	(view<cnst T> & headerToRead, vcs0_c & input)	{ rtrn viewReadLegacy<cnst T, s0_c>(headerToRead, input); }
-	tplTstin	err_t	viewReadLegacy	(view<cnst T> & headerToRead, vcsc_c & input)	{ rtrn viewReadLegacy<cnst T, sc_c>(headerToRead, input); }
-	tplTstin	err_t	viewReadLegacy	(view<T> & headerToRead, vu0_t input)			{ rtrn viewReadLegacy<T, u0_t>(headerToRead, input); }
-	tplTstin	err_t	viewReadLegacy	(view<T> & headerToRead, vs0_t input)			{ rtrn viewReadLegacy<T, s0_t>(headerToRead, input); }
-	tplTstin	err_t	viewReadLegacy	(view<T> & headerToRead, vsc_t input)			{ rtrn viewReadLegacy<T, sc_t>(headerToRead, input); }
+	tplTstin	err_t	viewPascal	(view<cnst T> & headerToRead, vcu0_c input)	{ rtrn viewPascal<u0_c, cnst T>(headerToRead, input); }
+	tplTstin	err_t	viewPascal	(view<cnst T> & headerToRead, vcs0_c input)	{ rtrn viewPascal<s0_c, cnst T>(headerToRead, input); }
+	tplTstin	err_t	viewPascal	(view<cnst T> & headerToRead, vcsc_t input)	{ rtrn viewPascal<sc_c, cnst T>(headerToRead, input); }
+	tplTstin	err_t	viewPascal	(view<cnst T> & headerToRead, vcst_t input)	{ rtrn viewPascal<sc_c, cnst T>(headerToRead, input); }
+	tplTstin	err_t	viewPascal	(view<T> & headerToRead, vu0_t input)		{ rtrn viewPascal<u0_t, T>(headerToRead, input); }
+	tplTstin	err_t	viewPascal	(view<T> & headerToRead, vs0_t input)		{ rtrn viewPascal<s0_t, T>(headerToRead, input); }
+	tplTstin	err_t	viewPascal	(view<T> & headerToRead, vsc_t input)		{ rtrn viewPascal<sc_t, T>(headerToRead, input); }
 } // namespace
 
 #endif // LLC_VIEW_SERIALIZE_H_23627

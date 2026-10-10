@@ -136,6 +136,7 @@ This file is operational memory for future work in this repository. Read it befo
 - Each suite keeps a private result enum whose name, numeric value and description explain the contract. Generic records aggregate successes and failures without discarding suite-specific meaning.
 - `LLC_TEST_CHECK` records a failure and continues whenever continued execution is safe. Multiple failures can illuminate the first defect.
 - `LLC_TEST_REQUIRE` records and returns only when continuing would make the test invalid or unsafe.
+- Use `LLC_TEST_CHECKF` or `LLC_TEST_REQUIREF` when the failure needs runtime values beyond the meaning already owned by the result enum. The suffix selects contextual formatting; `CHECK` versus `REQUIRE` independently selects continue versus return. All four forms share one implementation.
 - A suite's `err_t` is for test-machinery failure. Logical contract failures belong in the shared result collection.
 - Production logging macros already provide file, line, function and formatted values. Test checks should add the counterexample: type width, index/count, expected/actual value, seed and iteration where relevant.
 - Keep stable diagnostic context at the caller that owns it. A typed caller should report its type once after the group; do not thread an unchanging type-name pointer through every helper and check.
@@ -186,10 +187,10 @@ This file is operational memory for future work in this repository. Read it befo
 
 ## Measured reference point
 
-- Dated reference run: 2026-10-02, Debug x64.
-- Result: all **150,822 executed checks** passed across **308 named result groups** in **441,909 microseconds**.
-- The system reached this scale in roughly one concentrated day by combining reusable invariants, type templates, deterministic generation and existing diagnostics; it was not produced by writing 150,822 individual test cases.
-- Current suites cover `SPRNG`, `bit_field<>`, `cpow()`, the CTTI parser, `str()`, `array_static<>`, `array_pod<>`, the JSON reader, `view<>`, `view_bit<>`, `packed_uint<>` and view serialization.
+- Dated reference run: 2026-10-10, Debug x64 migration checkpoint.
+- Result: all **278,423 executed checks** passed across **1,147 named result groups** in **3,407,031 microseconds**.
+- The earlier 2026-10-02 reference was 150,822 checks across 308 groups. The increase comes from making independent observations visible and extending the same reusable contracts across newly incorporated facilities, not from writing hundreds of thousands of individual test functions.
+- The 34 registered suites now also cover expressions, grid operations, image serialization, linear maps, processes, STL, VOX and voxel contracts in addition to arguments, enums, geometry, labels, block containers, Base64, JSON, XML, paths, Adam7, PNG and the original container, view, bit, serialization, compile-time and deterministic-generation coverage.
 - Treat these numbers as historical evidence, not a hard-coded expectation. Update this section and `../../profile/when-library-diagnostics-become-a-test-framework.md` when the suite composition or measured totals change materially.
 
 ## Review workflow

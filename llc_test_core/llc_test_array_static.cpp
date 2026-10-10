@@ -78,6 +78,9 @@ GDEFINE_ENUM_VALUED(ARRAY_STATIC_TEST_RESULT, SLICE_FAILURE_SIZE	, 69, "A failed
 GDEFINE_ENUM_VALUED(ARRAY_STATIC_TEST_RESULT, FIND_THREE			, 70, "array_static<> find() returned the wrong index for value 3.");
 GDEFINE_ENUM_VALUED(ARRAY_STATIC_TEST_RESULT, FIND_OFFSET_THREE	, 71, "array_static<> find() returned the wrong index from offset 3.");
 GDEFINE_ENUM_VALUED(ARRAY_STATIC_TEST_RESULT, FIND_END_OFFSET		, 72, "array_static<> find() accepted a search starting at its end.");
+GDEFINE_ENUM_VALUED(ARRAY_STATIC_TEST_RESULT, ARRAY_OUTER_SIZE		, 73, "size() returned the flattened element count of a multidimensional array.");
+GDEFINE_ENUM_VALUED(ARRAY_STATIC_TEST_RESULT, ARRAY_INNER_SIZE		, 74, "size() returned the wrong inner extent of a multidimensional array.");
+GDEFINE_ENUM_VALUED(ARRAY_STATIC_TEST_RESULT, ARRAY_BYTE_COUNT		, 75, "byte_count() returned the wrong byte count for a multidimensional array.");
 
 tplt<tpnm TSource, tpnm TOutput>
 sttc ::llc::err_t staticSliceExpectedFailure(TSource & source, TOutput & output, ::llc::u2_t offset, ::llc::u2_t count = (::llc::u2_t)-1) {
@@ -100,6 +103,10 @@ sttc ::llc::err_t testStaticStructure(ATestError & errors) {
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_BYTE_COUNT, data.byte_count() != szof(T) * 5U , "member byte count:%u, expected:%u.", data.byte_count(), (::llc::u2_t)(szof(T) * 5U));
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FREE_BYTE_COUNT, ::llc::byte_count(data) != szof(T) * 5U , "free byte count:%u, expected:%u.", ::llc::byte_count(data), (::llc::u2_t)(szof(T) * 5U));
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_BIT_COUNT, data.bit_count() != szof(T) * 5U * 8U , "bit count mismatch. actual:%u, expected:%u." , data.bit_count(), (::llc::u2_t)(szof(T) * 5U * 8U) );
+	T matrix[2][3] = {};
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_ARRAY_OUTER_SIZE, ::llc::size(matrix) != 2, "outer size:%u, expected:2.", ::llc::size(matrix));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_ARRAY_INNER_SIZE, ::llc::size(matrix[0]) != 3, "inner size:%u, expected:3.", ::llc::size(matrix[0]));
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_ARRAY_BYTE_COUNT, ::llc::byte_count(matrix) != szof(T) * 6U, "byte count:%u, expected:%u.", ::llc::byte_count(matrix), (::llc::u2_t)(szof(T) * 6U));
 	// The one-past expression is the expected boundary under test for array_static::end().
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_BOUNDARIES, data.begin() != data.Storage , "mutable begin:%p, expected:%p.", data.begin(), data.Storage);
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_END_BOUNDARY, data.end() != data.Storage + 5 , "mutable end:%p, expected:%p.", data.end(), data.Storage + 5);
