@@ -423,9 +423,6 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_file.cpp" />
-    <ClCompile Include="llc_string_helper.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_tcpip.cpp" />
     <ClCompile Include="llc_timer.cpp" />
     <ClCompile Include="llc_view.cpp" />

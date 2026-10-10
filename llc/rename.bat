@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-for /r %%F in (llc_*.cpp llc_*.h) do (
+for /r %%F in (gpk_*.cpp gpk_*.h) do (
     set "name=%%~nxF"
-    ren "%%F" "gpk_!name:~4!"
+    ren "%%F" "llc_!name:~4!"
 )

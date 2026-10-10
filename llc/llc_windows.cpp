@@ -60,10 +60,10 @@
 // `d:\dev_extras\gpftw_expert`
 // `d:\dev_extras\gpftw_master`
 // `d:\dev_extras\gpftw_professional`
-// `d:\dev_extras\gpk`
-// `d:\dev_extras\gpk_data`
-// `d:\dev_extras\gpk_games`
-// `d:\dev_extras\gpk_samples`
+// `d:\dev_extras\llc`
+// `d:\dev_extras\llc_data`
+// `d:\dev_extras\llc_games`
+// `d:\dev_extras\llc_samples`
 // `d:\dev_extras\kitsurpg`
 // `d:\dev_extras\lilia`
 // `d:\dev_extras\llc`

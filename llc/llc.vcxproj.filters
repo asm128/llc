@@ -1007,9 +1007,6 @@
     <ClCompile Include="llc_string_compose.cpp">
       <Filter>string</Filter>
     </ClCompile>
-    <ClCompile Include="llc_string_helper.cpp">
-      <Filter>string</Filter>
-    </ClCompile>
     <ClCompile Include="llc_append_css.cpp">
       <Filter>string</Filter>
     </ClCompile>

@@ -13,6 +13,8 @@ The former root has no descendant `AGENTS.md`. The independent repository is gov
 
 ## Bounded comparison
 
+The counts below are the 2026-10-08 inventory snapshot; the file ledger is updated as later migration stages land.
+
 - Former tracked source files inspected by inventory: 306 C/C++ headers and implementations.
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
@@ -124,7 +126,11 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_functional.h` -> `llc_functional.h`
 - [x] `gpk_gauge.h` -> `llc_gauge.h`
 - [x] `gpk_geometry2.h` -> `llc_geometry2.h`
+- [x] `gpk_grid.h` -> `llc_grid.h` (grid type and scalar aliases; drawing and vector-grid aliases remain separate)
+- [x] `gpk_grid_color.h` -> `llc_grid_color.h`
 - [x] `gpk_i2c.{h,cpp}` -> `llc_i2c.{h,cpp}`
+- [x] `gpk_image.h` -> `llc_image.h` (`img<>` only; `imgmono<>`, render targets and update helpers remain pending)
+- [x] `gpk_img_color.h` -> `llc_img_color.h` (image aliases only; render-target and pointer aliases remain pending)
 - [x] `gpk_json.{h,cpp}` -> `llc_json.{h,cpp}`
 - [x] `gpk_keyval.h` -> `llc_keyval.h`
 - [x] `gpk_keyval_old.{h,cpp}` -> `llc_keyval_old.{h,cpp}`
@@ -241,8 +247,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_geometry_lh.{h,cpp}`
 - [ ] `gpk_gltf.{h,cpp}`
 - [ ] `gpk_gpio.h`
-- [ ] `gpk_grid.h`
-- [ ] `gpk_grid_color.h`
 - [ ] `gpk_grid_copy.h`
 - [ ] `gpk_grid_scale.h`
 - [ ] `gpk_grid_static.h`
@@ -259,8 +263,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_http.h`
 - [ ] `gpk_http_client.{h,cpp}`
 - [ ] `gpk_https_client.cpp`
-- [ ] `gpk_image.h`
-- [ ] `gpk_img_color.h`
 - [ ] `gpk_img_serialize.h`
 - [ ] `gpk_input.h`
 - [ ] `gpk_io.h`

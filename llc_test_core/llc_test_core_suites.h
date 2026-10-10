@@ -15,6 +15,7 @@
 ::llc::err_t testCTTIParser		(ATestError & errors);
 ::llc::err_t testEnum			(ATestError & errors);
 ::llc::err_t testGeometry		(ATestError & errors);
+::llc::err_t testGridImage		(ATestError & errors);
 ::llc::err_t testJSONReader		(ATestError & errors);
 ::llc::err_t testKeyVal			(ATestError & errors);
 ::llc::err_t testLabel			(ATestError & errors);

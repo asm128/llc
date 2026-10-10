@@ -48,6 +48,9 @@
 		<ClCompile Include="llc_test_geometry.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_grid_image.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_json.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>

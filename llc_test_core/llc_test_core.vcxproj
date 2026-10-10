@@ -191,6 +191,7 @@
     <ClCompile Include="llc_test_ctti.cpp" />
     <ClCompile Include="llc_test_enum.cpp" />
     <ClCompile Include="llc_test_geometry.cpp" />
+    <ClCompile Include="llc_test_grid_image.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
     <ClCompile Include="llc_test_keyval.cpp" />
     <ClCompile Include="llc_test_label.cpp" />
