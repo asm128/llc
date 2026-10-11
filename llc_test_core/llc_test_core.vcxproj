@@ -181,6 +181,7 @@
   <ItemGroup>
     <ClCompile Include="llc_test_adam7.cpp" />
 	<ClCompile Include="llc_test_app.cpp" />
+	<ClCompile Include="llc_test_ascii_color.cpp" />
     <ClCompile Include="llc_test_array_bit.cpp" />
     <ClCompile Include="llc_test_apod_minmax.cpp" />
     <ClCompile Include="llc_test_array_pod.cpp" />

@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 44 focused suites, including independent block-address, owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel suites.
+- The shared current test runner registers 46 focused suites, including independent ASCII-color, block-address, camera, owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel suites.
 
 ## Major findings
 
@@ -32,6 +32,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 ### Partial replacements
 
 - The former generic `block_container<T, size>` and its null-terminated-string specialization now have current owners and independent focused tests across all LLC integer widths.
+- The former ASCII-color contract now has a current owner for the sixteen 32-bit console-palette values, their opaque LLC palette equivalents, the sixteen 16-bit console attributes and foreground/background nibble inversion. GPFTW Advanced establishes the palette-versus-attribute storage split, later GPFTW stages preserve it, and the early CP437 renderer demonstrates the character-plane plus attribute-plane use case. KLIB's unused `STextColorASCII` bitfield wrapper is not restored; its real targets also store raw 16-bit attributes. The focused suite checks both exact scalar widths, every named value and all 256 foreground/background combinations independently.
 - The pure record-address portion of the former block system now has a current owner. `SRecordMap` stores two unsigned 32-bit coordinates; `blockRecordId()` and `blockRecordIndices()` preserve complete 64-bit identifiers, reject zero block sizes and unrepresentable coordinates, and leave outputs untouched on failure. The historical 52-bit decode mask belonged to a removed 12-bit container field and was rejected rather than preserving an accidental alias. Path composition, JSON configuration, encryption, compression, caches and map allocation remain outside this foundation.
 - The scalar/vector geometry foundation now has current owners for vectors, lines, triangles, quads, rectangles, ranges, slices, min/max bounds, gauges, spheres, quaternions and matrices. `m3<T>` owns only storage; `m3a2` and `m3a3` separate 2D affine from 3D linear operations, while `m2` and `m4` also distinguish mathematical convention from physical layout. The aliases use LLC width names (`u0` through `u3`, `s0` through `s3`, `f2` and `f3`) and the focused geometry suite instantiates every scalar width.
 - PNG loading and Adam7 reconstruction now have current source owners. Grid and image scalar aliases follow the LLC width vocabulary (`gu2_t`, `imgu2_t` and their signed, unsigned and floating-point families), while color aliases retain channel-precision names such as `img8bgra`. PNG loading owns the CRC implementation it requires; PNG writing remains excluded from the build. The focused suites check every Adam7 pass, small-image coverage, reconstructed cells, malformed signatures and all 15 interlaced/non-interlaced PNGSuite basic format pairs.
@@ -94,6 +95,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_append_xml.{h,cpp}` -> `llc_append_xml.{h,cpp}`
 - [x] `gpk_arduino_string.h` -> `llc_arduino_string.h`
 - [x] `gpk_args.{h,cpp}` -> `llc_args.{h,cpp}`
+- [x] `gpk_ascii_color.h` -> `llc_ascii_color.h` (32-bit palette values and opaque equivalents; 16-bit foreground/background attributes)
 - [x] `gpk_array.{h,cpp}` -> `llc_array.{h,cpp}`
 - [x] `gpk_array_base.h` -> `llc_array_base.h`
 - [x] `gpk_array_bit.h` -> `llc_array_bit.h`
@@ -243,7 +245,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 ### Pending disposition/no current counterpart
 
 - [ ] `gpk_app_impl.h`
-- [ ] `gpk_ascii_color.h`
 - [ ] `gpk_ascii_target.{h,cpp}`
 - [ ] `gpk_axis (2).h`
 - [ ] `gpk_bitmap_target.h`
@@ -316,5 +317,5 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-11 Debug x64 migration checkpoint passed all 301,710 checks across 1,696 result groups in 4,449,799 microseconds, verifying all 40 registered suites, including the incorporated owning-bit-array, expression, geometry and rectangle-alignment, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-11 Debug x64 migration checkpoint passed all 3,123,978 checks across 2,169 result groups in 23,062,705 microseconds, verifying all 46 registered suites, including the incorporated ASCII-color, block-address, camera, owning-bit-array, expression, geometry and rectangle-alignment, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 
