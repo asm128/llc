@@ -395,9 +395,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_json.cpp" />
-    <ClCompile Include="llc_json_expression.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_json_expression.cpp" />
     <ClCompile Include="llc_keyval_old.cpp" />
     <ClCompile Include="llc_label.cpp" />
     <ClCompile Include="llc_log.cpp" />

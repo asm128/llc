@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 34 focused suites, including independent expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel suites.
+- The shared current test runner registers 35 focused suites, including independent expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel suites.
 
 ## Major findings
 
@@ -34,18 +34,18 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 - The former generic `block_container<T, size>` and its null-terminated-string specialization now have current owners and independent focused tests across all LLC integer widths.
 - The scalar/vector geometry foundation now has current owners for vectors, lines, triangles, quads, rectangles, ranges, slices, min/max bounds, gauges, spheres, quaternions and matrices. `m3<T>` owns only storage; `m3a2` and `m3a3` separate 2D affine from 3D linear operations, while `m2` and `m4` also distinguish mathematical convention from physical layout. The aliases use LLC width names (`u0` through `u3`, `s0` through `s3`, `f2` and `f3`) and the focused geometry suite instantiates every scalar width.
 - PNG loading and Adam7 reconstruction now have current source owners. Grid and image scalar aliases follow the LLC width vocabulary (`gu2_t`, `imgu2_t` and their signed, unsigned and floating-point families), while color aliases retain channel-precision names such as `img8bgra`. PNG loading owns the CRC implementation it requires; PNG writing remains excluded from the build. The focused suites check every Adam7 pass, small-image coverage, reconstructed cells, malformed signatures and all 15 interlaced/non-interlaced PNGSuite basic format pairs.
+- JSON expression resolution and string interpolation now build on the independent typed expression and JSON readers. The current owner preserves direct and nested paths, array and string indexing, parenthesized and indirect dynamic keys, boolean and conditional evaluation, leading and adjacent interpolation tokens, and caller state on failed evaluation. Blitter remains the concrete integration consumer. The focused suite retains all 179 historical expressions with independent resolution and value results.
 - The former owning `array_bit` is absent; current `view_bit` covers non-owning bit access and has a focused suite, but it does not replace owning resize and storage behavior.
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
 - `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
 
 ### Genuine consumer-backed gaps
 
-1. **JSON expression/interpolation.** The base `gpk_expression.*` parser now has an independent counterpart and focused tests. The former `gpk_json_expression.*` layer remains absent and is used extensively by [Blitter](../../../blitter) configuration and query code.
-2. **Environment-block composition and dynamic-module support.** `SCommandLineArgs::Environment` replaces the former environment-view collection for entry points that receive `envp`; the missing environment behavior is serialization back to the native double-null block and coverage for entry paths that do not populate `Environment`. Former module types and the runtime loader still have no independent source counterpart.
-3. **HTTP/HTTPS and CGI.** Former request/response structures, URL decoding, client operations and CGI runtime adapters are absent; current LLC stops at TCP/IP and serialization helpers. Blitter is a concrete consumer.
-4. **Block-addressed records and registries.** Generic block-container storage and both linear-map families are now incorporated with focused tests. Former block-addressed record helpers and registries remain absent.
-5. **Selected media and interchange formats.** Image serialization, STL and VOX now have independent counterparts and focused tests. Font remains absent, while voxel geometry still needs its image, raster and engine ownership separated before integration.
-6. **RSA/GPC helpers.** These are absent while AES, Base64 and deflate remain. The former custom crypto surface should be treated as a security-review candidate, not copied merely for parity.
+1. **Environment-block composition and dynamic-module support.** `SCommandLineArgs::Environment` replaces the former environment-view collection for entry points that receive `envp`; the missing environment behavior is serialization back to the native double-null block and coverage for entry paths that do not populate `Environment`. Former module types and the runtime loader still have no independent source counterpart.
+2. **HTTP/HTTPS and CGI.** Former request/response structures, URL decoding, client operations and CGI runtime adapters are absent; current LLC stops at TCP/IP and serialization helpers. Blitter is a concrete consumer.
+3. **Block-addressed records and registries.** Generic block-container storage and both linear-map families are now incorporated with focused tests. Former block-addressed record helpers and registries remain absent.
+4. **Selected media and interchange formats.** Image serialization, STL and VOX now have independent counterparts and focused tests. Font remains absent, while voxel geometry still needs its image, raster and engine ownership separated before integration.
+5. **RSA/GPC helpers.** These are absent while AES, Base64 and deflate remain. The former custom crypto surface should be treated as a security-review candidate, not copied merely for parity.
 
 ### Higher-layer facilities still inside the extraction scope
 
@@ -56,10 +56,9 @@ The former directory also contains GUI controls, dialogs, windows, D3D, scene, c
 1. Reconcile the migration ledger: classify the 132 absent project entries and choose owners; do not restore them wholesale.
 2. Continue the small foundational contracts after the completed generic block storage and linear maps: recover the remaining block-addressed records and registries only with consumer-backed tests.
 3. Add environment-block composition to the current argument/runtime ownership only for a proven consumer, including an explicit `WinMain` population policy; recover dynamic-module primitives separately.
-4. Build the JSON expression/interpolation layer on the now-incorporated typed expression parser and preserve its consumer-backed behavior.
-5. Layer HTTP and CGI over current TCP/IP, JSON, runtime and argument facilities, preserving transport versus application ownership.
-6. Continue codecs and formats only when a real consumer is selected; split byte parsing from engine and image types.
-7. Migrate or rehome GUI, rendering, window and scene systems deliberately rather than forcing them into foundational headers; they remain part of complete extraction even when their destination is the higher layer. Treat former RSA/GPC code as audit material unless a concrete requirement justifies a supported cryptographic contract.
+4. Layer HTTP and CGI over current TCP/IP, JSON, runtime and argument facilities, preserving transport versus application ownership.
+5. Continue codecs and formats only when a real consumer is selected; split byte parsing from engine and image types.
+6. Migrate or rehome GUI, rendering, window and scene systems deliberately rather than forcing them into foundational headers; they remain part of complete extraction even when their destination is the higher layer. Treat former RSA/GPC code as audit material unless a concrete requirement justifies a supported cryptographic contract.
 
 ## File ledger
 
@@ -142,6 +141,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_img_color.h` -> `llc_img_color.h` (image aliases only; render-target and pointer aliases remain pending)
 - [x] `gpk_img_serialize.h` -> `llc_img_serialize.h`
 - [x] `gpk_json.{h,cpp}` -> `llc_json.{h,cpp}`
+- [x] `gpk_json_expression.{h,cpp}` -> `llc_json_expression.{h,cpp}`
 - [x] `gpk_keyval.h` -> `llc_keyval.h`
 - [x] `gpk_keyval_old.{h,cpp}` -> `llc_keyval_old.{h,cpp}`
 - [x] `gpk_label.{h,cpp}` -> `llc_label.{h,cpp}`
@@ -276,7 +276,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_https_client.cpp`
 - [ ] `gpk_input.h`
 - [ ] `gpk_io.h`
-- [ ] `gpk_json_expression.{h,cpp}`
 - [ ] `gpk_keyed_bit_array.h`
 - [ ] `gpk_mapblock.cpp`
 - [ ] `gpk_member_registry.h`
@@ -312,5 +311,5 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-10 Debug x64 migration checkpoint passed all 278,423 checks across 1,147 result groups in 3,407,031 microseconds, verifying all 34 registered suites, including the incorporated expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-11 Debug x64 migration checkpoint passed all 278,825 checks across 1,549 result groups in 3,837,978 microseconds, verifying all 35 registered suites, including the incorporated expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 

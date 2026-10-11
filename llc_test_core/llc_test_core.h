@@ -61,7 +61,7 @@ bool testThrows(TCall call) {
 	::llc::err_t recordResult;																															\
 	if_true_block_logf(error_printf, (condition)																										\
 		, { if_fail_fef(recordResult = testErrorRecord((errors), (result)),  "0x%X, %" LLC_FMT_S2 ", %" LLC_FMT_U2, LLCREP2(recordResult)); statement }	\
-		, "%.*s::%.*s(%" LLC_FMT_S3 "):\"%.*s\"::!" format																								\
+		, "%s::%s(%" LLC_FMT_S3 "):\"%s\"::!" format																											\
 		, ::llc::get_enum_namep(result), ::llc::get_value_namep(result), ::llc::s3_t(result), ::llc::get_value_descp(result), __VA_ARGS__ )				\
 	else {																																				\
 		if_fail_fef(recordResult = testSuccessRecord((errors), (result)), "0x%X, %" LLC_FMT_S2 ", %" LLC_FMT_U2, LLCREP2(recordResult));				\

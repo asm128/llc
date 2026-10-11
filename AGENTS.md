@@ -187,10 +187,10 @@ This file is operational memory for future work in this repository. Read it befo
 
 ## Measured reference point
 
-- Dated reference run: 2026-10-10, Debug x64 migration checkpoint.
-- Result: all **278,423 executed checks** passed across **1,147 named result groups** in **3,407,031 microseconds**.
+- Dated reference run: 2026-10-11, Debug x64 migration checkpoint.
+- Result: all **278,825 executed checks** passed across **1,549 named result groups** in **3,837,978 microseconds**.
 - The earlier 2026-10-02 reference was 150,822 checks across 308 groups. The increase comes from making independent observations visible and extending the same reusable contracts across newly incorporated facilities, not from writing hundreds of thousands of individual test functions.
-- The 34 registered suites now also cover expressions, grid operations, image serialization, linear maps, processes, STL, VOX and voxel contracts in addition to arguments, enums, geometry, labels, block containers, Base64, JSON, XML, paths, Adam7, PNG and the original container, view, bit, serialization, compile-time and deterministic-generation coverage.
+- The 35 registered suites now also cover expressions, JSON expressions, grid operations, image serialization, linear maps, processes, STL, VOX and voxel contracts in addition to arguments, enums, geometry, labels, block containers, Base64, JSON, XML, paths, Adam7, PNG and the original container, view, bit, serialization, compile-time and deterministic-generation coverage.
 - Treat these numbers as historical evidence, not a hard-coded expectation. Update this section and `../../profile/when-library-diagnostics-become-a-test-framework.md` when the suite composition or measured totals change materially.
 
 ## Review workflow

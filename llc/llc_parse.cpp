@@ -78,6 +78,7 @@ llc::err_t			stripLiteralsParseToken			(::llc::SStripLiteralState & work_state, 
 		work_state.InsideToken						= false;
 		if_fail_fe(work_state.IndexCurrentElement = out_types.push_back({-1, ::llc::STRIP_LITERAL_TYPE_LITERAL, {work_state.IndexCurrentChar + 1, work_state.IndexCurrentChar + 1}}));
 		work_state.CurrentElement					= &out_types[work_state.IndexCurrentElement];
+		break;
 	case '\\'	:
 		if(false == work_state.Escaping) {
 			work_state.Escaping							= true;
