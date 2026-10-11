@@ -270,9 +270,7 @@
     <ClCompile Include="llc_append_xml.cpp" />
     <ClCompile Include="llc_args.cpp" />
     <ClCompile Include="llc_array.cpp" />
-    <ClCompile Include="llc_ascii_target.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_ascii_target.cpp" />
     <ClCompile Include="llc_base64.cpp" />
     <ClCompile Include="llc_block.cpp" />
     <ClCompile Include="llc_cgi.cpp">
