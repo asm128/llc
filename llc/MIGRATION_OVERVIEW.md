@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 36 focused suites, including independent owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel suites.
+- The shared current test runner registers 38 focused suites, including independent owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, VOX and voxel suites.
 
 ## Major findings
 
@@ -37,6 +37,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 - JSON expression resolution and string interpolation now build on the independent typed expression and JSON readers. The current owner preserves direct and nested paths, array and string indexing, parenthesized and indirect dynamic keys, boolean and conditional evaluation, leading and adjacent interpolation tokens, and caller state on failed evaluation. Blitter remains the concrete integration consumer. The focused suite retains all 179 historical expressions with independent resolution and value results.
 - The former owning `array_bit` now has a current owner over `array_pod<>` and `view_bit<>`. Construction and assignment copy the backing element range instead of treating a bit iterator as element storage; resize preserves the logical bit count independently from rounded physical storage. Its focused suite checks construction, assignment, copy independence, self-view assignment, boundaries and retained bits across all four unsigned LLC widths.
 - The former `aminmax<>` owner now composes `apod<minmax<T>>` without adding another range abstraction. Its public aliases use the current LLC scalar vocabulary, and the focused suite checks every `minmax<>` operation plus owned-array storage, copy value and copy independence across all twelve scalar types.
+- The former vector, triangle and smart-pointer view aliases now have independent current owners. Every scalar alias follows the LLC width vocabulary, mutable and const-element views remain distinct, top-level const aliases are explicit, and `llc_aobj_pobj.h` reuses `llc_view_pobj.h` instead of declaring the same aliases again. The focused alias suite records all four type/constness contracts for every scalar family.
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
 - `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
 
@@ -297,14 +298,14 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_type_registry.h`
 - [ ] `gpk_view_layered.h`
 - [ ] `gpk_view_manager.h`
-- [ ] `gpk_view_n2.h`
-- [ ] `gpk_view_n3.h`
-- [ ] `gpk_view_pobj.h`
-- [ ] `gpk_view_ppod.h`
+- [x] `gpk_view_n2.h` -> `llc_view_n2.h`
+- [x] `gpk_view_n3.h` -> `llc_view_n3.h`
+- [x] `gpk_view_pobj.h` -> `llc_view_pobj.h`
+- [x] `gpk_view_ppod.h` -> `llc_view_ppod.h`
 - [ ] `gpk_view_stream.h`
-- [ ] `gpk_view_tri.h`
-- [ ] `gpk_view_tri2.h`
-- [ ] `gpk_view_tri3.h`
+- [x] `gpk_view_tri.h` -> `llc_view_tri.h`
+- [x] `gpk_view_tri2.h` -> `llc_view_tri2.h`
+- [x] `gpk_view_tri3.h` -> `llc_view_tri3.h`
 - [ ] `gpk_virtual_keyboard.{h,cpp}`
 - [ ] `gpk_voxel_geometry.{h,cpp}`
 - [ ] `gpk_window.{h,cpp}`

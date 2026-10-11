@@ -126,6 +126,9 @@
     <ClCompile Include="llc_test_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="llc_test_view_aliases.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="llc_test_view_bit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

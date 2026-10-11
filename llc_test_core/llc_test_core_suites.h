@@ -36,6 +36,7 @@
 ::llc::err_t testSTL			(ATestError & errors);
 ::llc::err_t testStr			(ATestError & errors);
 ::llc::err_t testView			(ATestError & errors);
+::llc::err_t testViewAliases	(ATestError & errors);
 ::llc::err_t testViewBit		(ATestError & errors);
 ::llc::err_t testViewSerialize	(ATestError & errors);
 ::llc::err_t testVOX			(ATestError & errors);

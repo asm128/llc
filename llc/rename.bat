@@ -3,5 +3,6 @@ setlocal enabledelayedexpansion
 
 for /r %%F in (gpk_*.cpp gpk_*.h) do (
     set "name=%%~nxF"
+    echo name
     ren "%%F" "llc_!name:~4!"
 )
