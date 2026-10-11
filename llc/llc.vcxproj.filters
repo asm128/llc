@@ -1064,6 +1064,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="llc_module_exports.def">
+      <Filter>module</Filter>
+    </None>
     <None Include="Makefile" />
     <None Include="character_codes.json" />
     <None Include="copy_llc_config.bat">

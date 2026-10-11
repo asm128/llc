@@ -14,6 +14,13 @@
 
 namespace llc
 {
+	enum APPLICATION_STATE : u0_t
+		{ APPLICATION_STATE_NORMAL	= 0
+		, APPLICATION_STATE_EXIT	= 1
+		, APPLICATION_STATE_BUSY	= 2
+		, APPLICATION_STATE_STAY	= 3
+		};
+
 	struct SRuntimeValuesDetail {
 #ifdef LLC_ANDROID
 		ANativeActivity					* Activity			= nullptr;
@@ -33,15 +40,24 @@ namespace llc
 	};
 } // namespace
 
-#ifdef LLC_WINDOWS
-#	define LLC_SYSTEM_OS_DEBUG_INIT_FLAGS()	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_ALWAYS_DF);
-#else
-#	define LLC_SYSTEM_OS_DEBUG_INIT_FLAGS() do {} while(0)
+#ifndef LLC_PLATFORM_DEBUG_INIT
+#	ifdef LLC_SYSTEM_OS_DEBUG_INIT_FLAGS
+#		define LLC_PLATFORM_DEBUG_INIT()	LLC_SYSTEM_OS_DEBUG_INIT_FLAGS()
+#	elif defined(LLC_WINDOWS) && defined(LLC_DEBUG_ENABLED)
+#		define LLC_PLATFORM_DEBUG_INIT()	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_ALWAYS_DF)
+#	else
+#		define LLC_PLATFORM_DEBUG_INIT()	do {} while(0)
+#	endif
+#endif
+
+#ifndef LLC_SYSTEM_OS_DEBUG_INIT_FLAGS
+#	define LLC_SYSTEM_OS_DEBUG_INIT_FLAGS()	LLC_PLATFORM_DEBUG_INIT()
 #endif
 
 #ifndef LLC_WINDOWS
 #	define LLC_SYSTEM_OS_ENTRY_POINT_NOENVP(llc_app_entry_point)									\
 	int						main				(int argc, char *argv[])	{						\
+		LLC_PLATFORM_DEBUG_INIT();															\
 		if_true_fef(65535 < argc, "Invalid parameter count: %" LLC_FMT_U2 ".", argc);				\
 		::llc::SRuntimeValues		runtimeValues					= {};							\
 		if_fail_fe(::llc::argsParse(runtimeValues.EntryPointArgs, argc, argv, 0));					\
@@ -49,6 +65,7 @@ namespace llc
 	}
 #	define LLC_SYSTEM_OS_ENTRY_POINT(llc_app_entry_point)											\
 	int						main				(int argc, char *argv[], char *envp[])	{			\
+		LLC_PLATFORM_DEBUG_INIT();															\
 		if_true_fef(65535 < argc, "Invalid parameter count: %" LLC_FMT_U2 ".", argc);				\
 		::llc::SRuntimeValues		runtimeValues					= {};							\
 		if_fail_fe(::llc::argsParse(runtimeValues.EntryPointArgs, argc, argv, envp));				\
@@ -64,6 +81,7 @@ namespace llc
 
 #	define LLC_SYSTEM_OS_ENTRY_POINT(llc_app_entry_point)														\
 	int						main				(int argc, char *argv[], char *envp[])	{						\
+		LLC_PLATFORM_DEBUG_INIT();																	\
 		if_true_fef(65535 < (llc::u2_t)argc, "Invalid parameter count: %" LLC_FMT_U2 ".", (llc::u2_t)argc);		\
 		LLC_RO_INIT_MULTITHREADED();																			\
 		::llc::SRuntimeValues		runtimeValues		= {};													\
@@ -78,6 +96,7 @@ namespace llc
 		,	_In_		::INT			nShowCmd																\
 		)																										\
 	{																											\
+		LLC_PLATFORM_DEBUG_INIT();																	\
 		if_true_fef(65535 < (llc::u2_t)__argc, "Invalid parameter count: %" LLC_FMT_U2 ".", (llc::u2_t)__argc);	\
 		LLC_RO_INIT_MULTITHREADED();																			\
 		::llc::SRuntimeValues		runtimeValues		= {};													\

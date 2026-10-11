@@ -410,9 +410,7 @@
     <ClCompile Include="llc_rsa.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="llc_runtime_module.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_runtime_module.cpp" />
     <ClCompile Include="llc_stdstring.cpp" />
     <ClCompile Include="llc_stl.cpp" />
     <ClCompile Include="llc_file.cpp" />
@@ -435,6 +433,7 @@
     <None Include="copy_llc_config.bat" />
     <None Include="country_coords.json" />
     <None Include="cpp.hint" />
+    <None Include="llc_module_exports.def" />
     <None Include="Makefile" />
     <None Include="README.md" />
   </ItemGroup>
