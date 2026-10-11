@@ -198,6 +198,11 @@
     <ClCompile Include="llc_test_geometry.cpp" />
     <ClCompile Include="llc_test_grid_image.cpp" />
     <ClCompile Include="llc_test_grid_operations.cpp" />
+    <ClCompile Include="llc_test_gui.cpp" />
+    <ClCompile Include="llc_test_gui_control.cpp" />
+    <ClCompile Include="llc_test_gui_layout.cpp" />
+    <ClCompile Include="llc_test_gui_model.cpp" />
+    <ClCompile Include="llc_test_gui_render.cpp" />
     <ClCompile Include="llc_test_json_expression.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
     <ClCompile Include="llc_test_keyval.cpp" />

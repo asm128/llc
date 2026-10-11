@@ -339,6 +339,9 @@
     <ClInclude Include="llc_gui_control_state.h">
       <Filter>gui</Filter>
     </ClInclude>
+	<ClInclude Include="llc_gui_render.h">
+	  <Filter>gui</Filter>
+	</ClInclude>
     <ClInclude Include="llc_gui_desktop.h">
       <Filter>dialog</Filter>
     </ClInclude>
@@ -906,6 +909,18 @@
       <Filter>geometry</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+	<ClCompile Include="llc_gui_control.cpp">
+	  <Filter>gui</Filter>
+	</ClCompile>
+    <ClCompile Include="llc_gui_layout.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_model.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_render.cpp">
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui_control_list.cpp">

@@ -69,6 +69,21 @@
 		<ClCompile Include="llc_test_grid_operations.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_gui.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_gui_control.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_gui_layout.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_gui_model.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_gui_render.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_json_expression.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
