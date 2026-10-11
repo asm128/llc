@@ -212,6 +212,7 @@
     <ClCompile Include="llc_test_process.cpp" />
     <ClCompile Include="llc_test_str.cpp" />
     <ClCompile Include="llc_test_stl.cpp" />
+    <ClCompile Include="llc_test_type_metadata.cpp" />
     <ClCompile Include="llc_test_view.cpp" />
     <ClCompile Include="llc_test_view_aliases.cpp" />
     <ClCompile Include="llc_test_view_bit.cpp" />

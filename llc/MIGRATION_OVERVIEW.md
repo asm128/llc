@@ -280,12 +280,12 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_io.h`
 - [ ] `gpk_keyed_bit_array.h`
 - [ ] `gpk_mapblock.cpp`
-- [ ] `gpk_member_registry.h`
+- [x] `gpk_member_registry.h` -> `llc_member_registry.h`
 - [ ] `gpk_model.h`
 - [ ] `gpk_module.h`
 - [ ] `gpk_particle.{h,cpp}`
 - [ ] `gpk_platform_error.cpp`
-- [ ] `gpk_pod_definition.h`
+- [x] `gpk_pod_definition.h` -> `llc_pod_definition.h`
 - [ ] `gpk_raster_lh.{h,cpp}`
 - [ ] `gpk_rect_align.h`
 - [ ] `gpk_rsa.{h,cpp}`
@@ -294,7 +294,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_serial.h`
 - [ ] `gpk_string_helper.{h,cpp}`
 - [ ] `gpk_system_key.h`
-- [ ] `gpk_type_identifier.h`
+- [x] `gpk_type_identifier.h` -> `llc_type_identifier.h`
 - [ ] `gpk_type_registry.h`
 - [ ] `gpk_view_layered.h`
 - [ ] `gpk_view_manager.h`
