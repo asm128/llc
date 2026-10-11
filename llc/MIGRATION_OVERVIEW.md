@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 35 focused suites, including independent expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel suites.
+- The shared current test runner registers 36 focused suites, including independent owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel suites.
 
 ## Major findings
 
@@ -35,7 +35,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 - The scalar/vector geometry foundation now has current owners for vectors, lines, triangles, quads, rectangles, ranges, slices, min/max bounds, gauges, spheres, quaternions and matrices. `m3<T>` owns only storage; `m3a2` and `m3a3` separate 2D affine from 3D linear operations, while `m2` and `m4` also distinguish mathematical convention from physical layout. The aliases use LLC width names (`u0` through `u3`, `s0` through `s3`, `f2` and `f3`) and the focused geometry suite instantiates every scalar width.
 - PNG loading and Adam7 reconstruction now have current source owners. Grid and image scalar aliases follow the LLC width vocabulary (`gu2_t`, `imgu2_t` and their signed, unsigned and floating-point families), while color aliases retain channel-precision names such as `img8bgra`. PNG loading owns the CRC implementation it requires; PNG writing remains excluded from the build. The focused suites check every Adam7 pass, small-image coverage, reconstructed cells, malformed signatures and all 15 interlaced/non-interlaced PNGSuite basic format pairs.
 - JSON expression resolution and string interpolation now build on the independent typed expression and JSON readers. The current owner preserves direct and nested paths, array and string indexing, parenthesized and indirect dynamic keys, boolean and conditional evaluation, leading and adjacent interpolation tokens, and caller state on failed evaluation. Blitter remains the concrete integration consumer. The focused suite retains all 179 historical expressions with independent resolution and value results.
-- The former owning `array_bit` is absent; current `view_bit` covers non-owning bit access and has a focused suite, but it does not replace owning resize and storage behavior.
+- The former owning `array_bit` now has a current owner over `array_pod<>` and `view_bit<>`. Construction and assignment copy the backing element range instead of treating a bit iterator as element storage; resize preserves the logical bit count independently from rounded physical storage. Its focused suite checks construction, assignment, copy independence, self-view assignment, boundaries and retained bits across all four unsigned LLC widths.
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
 - `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
 
@@ -90,6 +90,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_args.{h,cpp}` -> `llc_args.{h,cpp}`
 - [x] `gpk_array.{h,cpp}` -> `llc_array.{h,cpp}`
 - [x] `gpk_array_base.h` -> `llc_array_base.h`
+- [x] `gpk_array_bit.h` -> `llc_array_bit.h`
 - [x] `gpk_array_circular.h` -> `llc_array_circular.h`
 - [x] `gpk_array_obj.h` -> `llc_array_obj.h`
 - [x] `gpk_array_pod.h` -> `llc_array_pod.h`
@@ -231,7 +232,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_apod_gauge.h`
 - [ ] `gpk_apod_minmax.h`
 - [ ] `gpk_app_impl.h`
-- [ ] `gpk_array_bit.h`
 - [ ] `gpk_ascii_color.h`
 - [ ] `gpk_ascii_target.{h,cpp}`
 - [ ] `gpk_axis (2).h`
@@ -311,5 +311,5 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-11 Debug x64 migration checkpoint passed all 278,825 checks across 1,549 result groups in 3,837,978 microseconds, verifying all 35 registered suites, including the incorporated expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-11 Debug x64 migration checkpoint passed all 280,601 checks across 1,571 result groups in 3,629,422 microseconds, verifying all 36 registered suites, including the incorporated owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 
