@@ -113,6 +113,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_block.{h,cpp}` -> `llc_block.{h,cpp}` (pure record-address contract; the historical storage stack remains separately pending)
 - [x] `gpk_block_container.h` -> `llc_block_container.h`
 - [x] `gpk_block_container_nts.h` -> `llc_block_container_nts.h`
+- [x] `gpk_camera.h` -> `llc_camera.h` (GOD -> GODS -> nwol -> GPK camera value records; composed camera, matrices, rendering and resources remain engine-owned)
 - [x] `gpk_cerrno.h` -> `llc_cerrno.h`
 - [x] `gpk_chrono.{h,cpp}` -> `llc_chrono.{h,cpp}`
 - [x] `gpk_circle.h` -> `llc_circle.h`
@@ -236,6 +237,8 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 - [x] `gpk_gauge_n2.h` and `gpk_gauge_n3.h` -> invalid wrappers around the removed historical `gauge<>`; generic gauge owners retained in `llc_gauge.h`
 - [x] `gpk_apod_gauge.h` -> stale aliases for the same removed historical `gauge<>`; no current consumers and no replacement aliases required
+- [x] `gpk_broker.{h,cpp}` -> unused 2025 sketch containing only nested packet arrays, no operations and no located consumers; no contract exists to preserve
+- [x] `gpk_cdn.h` -> unused packed-bitfield sketch with implementation-defined layout, no serialization contract and no located consumers
 
 ### Pending disposition/no current counterpart
 
@@ -244,9 +247,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_ascii_target.{h,cpp}`
 - [ ] `gpk_axis (2).h`
 - [ ] `gpk_bitmap_target.h`
-- [ ] `gpk_broker.{h,cpp}`
-- [ ] `gpk_camera.h`
-- [ ] `gpk_cdn.h`
 - [ ] `gpk_cgi.{h,cpp}`
 - [ ] `gpk_cgi_app_impl.h`
 - [ ] `gpk_cgi_app_impl_v2.h`

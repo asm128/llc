@@ -105,6 +105,9 @@
 		<ClCompile Include="llc_test_block.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_camera.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_msbuild_xml.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>

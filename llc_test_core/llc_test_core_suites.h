@@ -15,6 +15,7 @@
 ::llc::err_t testBitField		(ATestError & errors);
 ::llc::err_t testBlock			(ATestError & errors);
 ::llc::err_t testBlockContainer	(ATestError & errors);
+::llc::err_t testCamera			(ATestError & errors);
 ::llc::err_t testPackedUInt		(ATestError & errors);
 ::llc::err_t testCPow			(ATestError & errors);
 ::llc::err_t testCTTIParser		(ATestError & errors);
