@@ -6,6 +6,7 @@
 ::llc::err_t testArrayStatic		(ATestError & errors);
 ::llc::err_t testAdam7			(ATestError & errors);
 ::llc::err_t testArrayBit		(ATestError & errors);
+::llc::err_t testArrayMinMax		(ATestError & errors);
 ::llc::err_t testArrayObj		(ATestError & errors);
 ::llc::err_t testArrayPod		(ATestError & errors);
 ::llc::err_t testArgs			(ATestError & errors);

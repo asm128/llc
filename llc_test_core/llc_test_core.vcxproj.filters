@@ -21,6 +21,9 @@
 		<ClCompile Include="llc_test_array_bit.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_apod_minmax.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_array_obj.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>

@@ -36,6 +36,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 - PNG loading and Adam7 reconstruction now have current source owners. Grid and image scalar aliases follow the LLC width vocabulary (`gu2_t`, `imgu2_t` and their signed, unsigned and floating-point families), while color aliases retain channel-precision names such as `img8bgra`. PNG loading owns the CRC implementation it requires; PNG writing remains excluded from the build. The focused suites check every Adam7 pass, small-image coverage, reconstructed cells, malformed signatures and all 15 interlaced/non-interlaced PNGSuite basic format pairs.
 - JSON expression resolution and string interpolation now build on the independent typed expression and JSON readers. The current owner preserves direct and nested paths, array and string indexing, parenthesized and indirect dynamic keys, boolean and conditional evaluation, leading and adjacent interpolation tokens, and caller state on failed evaluation. Blitter remains the concrete integration consumer. The focused suite retains all 179 historical expressions with independent resolution and value results.
 - The former owning `array_bit` now has a current owner over `array_pod<>` and `view_bit<>`. Construction and assignment copy the backing element range instead of treating a bit iterator as element storage; resize preserves the logical bit count independently from rounded physical storage. Its focused suite checks construction, assignment, copy independence, self-view assignment, boundaries and retained bits across all four unsigned LLC widths.
+- The former `aminmax<>` owner now composes `apod<minmax<T>>` without adding another range abstraction. Its public aliases use the current LLC scalar vocabulary, and the focused suite checks every `minmax<>` operation plus owned-array storage, copy value and copy independence across all twelve scalar types.
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
 - `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
 
@@ -71,6 +72,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_aobj_pobj.h` -> `llc_aobj_pobj.h`
 - [x] `gpk_aobj_ppod.h` -> `llc_aobj_ppod.h`
 - [x] `gpk_apod_color.h` -> `llc_apod_color.h`
+- [x] `gpk_apod_minmax.h` -> `llc_apod_minmax.h`
 - [x] `gpk_apod_n2.h` -> `llc_apod_n2.h`
 - [x] `gpk_apod_n3.h` -> `llc_apod_n3.h`
 - [x] `gpk_apod_range.h` -> `llc_apod_range.h`
@@ -230,7 +232,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 ### Pending disposition/no current counterpart
 
 - [ ] `gpk_apod_gauge.h`
-- [ ] `gpk_apod_minmax.h`
 - [ ] `gpk_app_impl.h`
 - [ ] `gpk_ascii_color.h`
 - [ ] `gpk_ascii_target.{h,cpp}`
