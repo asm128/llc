@@ -40,6 +40,7 @@
 ::llc::err_t testViewAliases	(ATestError & errors);
 ::llc::err_t testViewBit		(ATestError & errors);
 ::llc::err_t testViewSerialize	(ATestError & errors);
+::llc::err_t testViewStream		(ATestError & errors);
 ::llc::err_t testVOX			(ATestError & errors);
 ::llc::err_t testVoxel			(ATestError & errors);
 

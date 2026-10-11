@@ -13,6 +13,7 @@
 #include "llc_range_n2.h"
 #include "llc_range_n3.h"
 #include "llc_rect.h"
+#include "llc_rect_align.h"
 #include "llc_rect2.h"
 #include "llc_rect3.h"
 #include "llc_slice_n2.h"
@@ -45,6 +46,16 @@ GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RANGE2_COUNT	, 16, "range2::Count() pr
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, SLICE3_END	, 17, "slice3::End() produced the wrong point.");
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, ORIGIN_RIGHT	, 18, "SOrigin::Right changed the wrong coordinate.");
 GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, ALIGN_CENTER_TOP	, 19, "CENTER_TOP realignment produced the wrong coordinate.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_TOP_LEFT		, 20, "TOP_LEFT rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_TOP_RIGHT		, 21, "TOP_RIGHT rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_BOTTOM_LEFT	, 22, "BOTTOM_LEFT rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_BOTTOM_RIGHT	, 23, "BOTTOM_RIGHT rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_CENTER_TOP		, 24, "CENTER_TOP rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_CENTER_BOTTOM	, 25, "CENTER_BOTTOM rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_CENTER_LEFT	, 26, "CENTER_LEFT rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_CENTER_RIGHT	, 27, "CENTER_RIGHT rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_CENTER			, 28, "CENTER rectangle realignment produced the wrong rectangle.");
+GDEFINE_ENUM_VALUED(GEOMETRY_TEST_RESULT, RECT_ALIGN_OUTPUT			, 29, "realignRectangle() did not return its output rectangle.");
 
 sttc bool geometryDiffers(::llc::f3_t left, ::llc::f3_t right, ::llc::f3_t tolerance = 0.00001) {
 	rtrn false == (::llc::abs(left - right) <= tolerance);
@@ -62,6 +73,15 @@ sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result
 	LLC_TEST_CHECKF(errors, result, actual.x != expected.x , "x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.x, (::llc::s3_t)expected.x );
 	LLC_TEST_CHECKF(errors, result, actual.y != expected.y , "y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.y, (::llc::s3_t)expected.y );
 	LLC_TEST_CHECKF(errors, result, actual.z != expected.z , "z:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.z, (::llc::s3_t)expected.z );
+	rtrn 0;
+}
+
+tplt<tpnm T>
+sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::rect2<T> & actual, cnst ::llc::rect2<T> & expected) {
+	LLC_TEST_CHECKF(errors, result, actual.Offset.x != expected.Offset.x , "Offset.x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Offset.x, (::llc::s3_t)expected.Offset.x );
+	LLC_TEST_CHECKF(errors, result, actual.Offset.y != expected.Offset.y , "Offset.y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Offset.y, (::llc::s3_t)expected.Offset.y );
+	LLC_TEST_CHECKF(errors, result, actual.Size.x != expected.Size.x , "Size.x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Size.x, (::llc::s3_t)expected.Size.x );
+	LLC_TEST_CHECKF(errors, result, actual.Size.y != expected.Size.y , "Size.y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Size.y, (::llc::s3_t)expected.Size.y );
 	rtrn 0;
 }
 
@@ -208,6 +228,34 @@ sttc ::llc::err_t testGeometryTrianglesAndRegions(ATestError & errors) {
 	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_SLICE3_END, slice.End, expectedEnd));
 	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_ORIGIN_RIGHT, origin.Right, expectedRight));
 	if_fail_fe(geometryCheck(errors, GEOMETRY_TEST_RESULT_ALIGN_CENTER_TOP, aligned, expectedAligned));
+	rtrn 0;
+}
+
+sttc ::llc::err_t testGeometryRectangleAlignment(ATestError & errors) {
+	stct SRectangleAlignmentCase {
+		::llc::ALIGN				Align;
+		::llc::rect2s2_t		Expected;
+		GEOMETRY_TEST_RESULT	Result;
+	};
+	stxp SRectangleAlignmentCase CASES[] =
+		{ {::llc::ALIGN_TOP_LEFT		, {{ 7, 11}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_TOP_LEFT		}
+		, {::llc::ALIGN_TOP_RIGHT		, {{73, 11}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_TOP_RIGHT		}
+		, {::llc::ALIGN_BOTTOM_LEFT		, {{ 7, 55}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_BOTTOM_LEFT	}
+		, {::llc::ALIGN_BOTTOM_RIGHT	, {{73, 55}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_BOTTOM_RIGHT	}
+		, {::llc::ALIGN_CENTER_TOP		, {{47, 11}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_CENTER_TOP		}
+		, {::llc::ALIGN_CENTER_BOTTOM	, {{47, 55}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_CENTER_BOTTOM	}
+		, {::llc::ALIGN_CENTER_LEFT		, {{ 7, 44}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_CENTER_LEFT	}
+		, {::llc::ALIGN_CENTER_RIGHT	, {{73, 44}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_CENTER_RIGHT	}
+		, {::llc::ALIGN_CENTER			, {{47, 44}, {20, 14}}, GEOMETRY_TEST_RESULT_RECT_ALIGN_CENTER			}
+		};
+	cnst ::llc::n2u2_t targetSize = {100, 80};
+	cnst ::llc::rect2s2_t source = {{7, 11}, {20, 14}};
+	for(cnst SRectangleAlignmentCase & testCase : CASES) {
+		::llc::rect2s2_t actual = {};
+		::llc::rect2s2_t & returned = ::llc::realignRectangle(targetSize, source, actual, testCase.Align);
+		LLC_TEST_CHECKF(errors, GEOMETRY_TEST_RESULT_RECT_ALIGN_OUTPUT, &returned != &actual , "Alignment:%u returned:%p, expected:%p." , (::llc::u2_t)testCase.Align, &returned, &actual );
+		if_fail_fe(geometryCheck(errors, testCase.Result, actual, testCase.Expected));
+	}
 	rtrn 0;
 }
 
@@ -416,6 +464,7 @@ sttc ::llc::err_t testGeometryMatrix(ATestError & errors) {
 	if_fail_fe(::testGeometryTypeFamily(errors));
 	if_fail_fe(::testGeometryVectorsAndLines(errors));
 	if_fail_fe(::testGeometryTrianglesAndRegions(errors));
+	if_fail_fe(::testGeometryRectangleAlignment(errors));
 	if_fail_fe(::testGeometryGaugeAndSphere(errors));
 	if_fail_fe(::testGeometryQuaternion(errors));
 	rtrn ::testGeometryMatrix(errors);

@@ -87,6 +87,7 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 		, LLC_TEST_SUITE(testViewBit       )
 		, LLC_TEST_SUITE(testPackedUInt    )
 		, LLC_TEST_SUITE(testViewSerialize )
+		, LLC_TEST_SUITE(testViewStream    )
 		, LLC_TEST_SUITE(testVOX           )
 		, LLC_TEST_SUITE(testVoxel         )
 		);

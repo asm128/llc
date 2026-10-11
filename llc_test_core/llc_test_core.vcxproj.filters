@@ -99,6 +99,9 @@
     <ClCompile Include="llc_test_view_serialize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="llc_test_view_stream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="llc_test_voxel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

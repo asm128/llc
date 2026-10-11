@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 38 focused suites, including independent owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, VOX and voxel suites.
+- The shared current test runner registers 40 focused suites, including independent owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel suites.
 
 ## Major findings
 
@@ -38,6 +38,8 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 - The former owning `array_bit` now has a current owner over `array_pod<>` and `view_bit<>`. Construction and assignment copy the backing element range instead of treating a bit iterator as element storage; resize preserves the logical bit count independently from rounded physical storage. Its focused suite checks construction, assignment, copy independence, self-view assignment, boundaries and retained bits across all four unsigned LLC widths.
 - The former `aminmax<>` owner now composes `apod<minmax<T>>` without adding another range abstraction. Its public aliases use the current LLC scalar vocabulary, and the focused suite checks every `minmax<>` operation plus owned-array storage, copy value and copy independence across all twelve scalar types.
 - The former vector, triangle and smart-pointer view aliases now have independent current owners. Every scalar alias follows the LLC width vocabulary, mutable and const-element views remain distinct, top-level const aliases are explicit, and `llc_aobj_pobj.h` reuses `llc_view_pobj.h` instead of declaring the same aliases again. The focused alias suite records all four type/constness contracts for every scalar family.
+- The former `view_stream<>` is now a bounded byte cursor over an LLC view. Every successful read or write reports bytes, exact-boundary operations are valid, failures preserve cursor and storage/output, `remaining()` saturates at zero for an invalid cursor and const storage cannot be written. Bulk operations accept views rather than naked pointer/count pairs; the unused historical object operations were rejected because they performed unaligned byte reinterpretation without lifetime or cursor guarantees. The focused suite checks scalar, array, empty and truncated operations across all ten LLC integer and floating-point widths.
+- The consumer-backed `realignRectangle()` operation now has a current owner in `llc_rect_align.h`. Its nine horizontal/vertical flag combinations preserve size and apply the source offset as the left/top position, right/bottom margin or center displacement. The focused geometry cases observe both coordinates and dimensions independently. The historical `dockRectangle()` remains pending because it has no located consumer and its horizontal-center branch has been disabled since the function's first revision.
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
 - `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
 
@@ -188,6 +190,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_range_n2.h` -> `llc_range_n2.h`
 - [x] `gpk_range_n3.h` -> `llc_range_n3.h`
 - [x] `gpk_rect.h` -> `llc_rect.h`
+- [x] `gpk_rect_align.h` -> `llc_rect_align.h` (`realignRectangle()` incorporated; unused ambiguous `dockRectangle()` remains pending)
 - [x] `gpk_rect2.h` -> `llc_rect2.h`
 - [x] `gpk_rect3.h` -> `llc_rect3.h`
 - [x] `gpk_ref.h` -> `llc_ref.h`
@@ -220,6 +223,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_view_bit.h` -> `llc_view_bit.h`
 - [x] `gpk_view_color.{h,cpp}` -> `llc_view_color.{h,cpp}`
 - [x] `gpk_view_serialize.h` -> `llc_view_serialize.h`
+- [x] `gpk_view_stream.h` -> `llc_view_stream.h`
 - [x] `gpk_vox.h` -> `llc_vox.h`
 - [x] `gpk_voxel.h` -> `llc_voxel.h`
 - [x] `gpk_windows.{h,cpp}` -> `llc_windows.{h,cpp}`
@@ -287,7 +291,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_platform_error.cpp`
 - [x] `gpk_pod_definition.h` -> `llc_pod_definition.h`
 - [ ] `gpk_raster_lh.{h,cpp}`
-- [ ] `gpk_rect_align.h`
 - [ ] `gpk_rsa.{h,cpp}`
 - [ ] `gpk_runtime_module.{h,cpp}`
 - [ ] `gpk_scene.{h,cpp}`
@@ -302,7 +305,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_view_n3.h` -> `llc_view_n3.h`
 - [x] `gpk_view_pobj.h` -> `llc_view_pobj.h`
 - [x] `gpk_view_ppod.h` -> `llc_view_ppod.h`
-- [ ] `gpk_view_stream.h`
 - [x] `gpk_view_tri.h` -> `llc_view_tri.h`
 - [x] `gpk_view_tri2.h` -> `llc_view_tri2.h`
 - [x] `gpk_view_tri3.h` -> `llc_view_tri3.h`
@@ -313,5 +315,5 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-11 Debug x64 migration checkpoint passed all 280,601 checks across 1,571 result groups in 3,629,422 microseconds, verifying all 36 registered suites, including the incorporated owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-11 Debug x64 migration checkpoint passed all 301,710 checks across 1,696 result groups in 4,449,799 microseconds, verifying all 40 registered suites, including the incorporated owning-bit-array, expression, geometry and rectangle-alignment, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 
