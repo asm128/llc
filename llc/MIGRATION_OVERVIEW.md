@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 40 focused suites, including independent owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel suites.
+- The shared current test runner registers 44 focused suites, including independent block-address, owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel suites.
 
 ## Major findings
 
@@ -32,6 +32,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 ### Partial replacements
 
 - The former generic `block_container<T, size>` and its null-terminated-string specialization now have current owners and independent focused tests across all LLC integer widths.
+- The pure record-address portion of the former block system now has a current owner. `SRecordMap` stores two unsigned 32-bit coordinates; `blockRecordId()` and `blockRecordIndices()` preserve complete 64-bit identifiers, reject zero block sizes and unrepresentable coordinates, and leave outputs untouched on failure. The historical 52-bit decode mask belonged to a removed 12-bit container field and was rejected rather than preserving an accidental alias. Path composition, JSON configuration, encryption, compression, caches and map allocation remain outside this foundation.
 - The scalar/vector geometry foundation now has current owners for vectors, lines, triangles, quads, rectangles, ranges, slices, min/max bounds, gauges, spheres, quaternions and matrices. `m3<T>` owns only storage; `m3a2` and `m3a3` separate 2D affine from 3D linear operations, while `m2` and `m4` also distinguish mathematical convention from physical layout. The aliases use LLC width names (`u0` through `u3`, `s0` through `s3`, `f2` and `f3`) and the focused geometry suite instantiates every scalar width.
 - PNG loading and Adam7 reconstruction now have current source owners. Grid and image scalar aliases follow the LLC width vocabulary (`gu2_t`, `imgu2_t` and their signed, unsigned and floating-point families), while color aliases retain channel-precision names such as `img8bgra`. PNG loading owns the CRC implementation it requires; PNG writing remains excluded from the build. The focused suites check every Adam7 pass, small-image coverage, reconstructed cells, malformed signatures and all 15 interlaced/non-interlaced PNGSuite basic format pairs.
 - JSON expression resolution and string interpolation now build on the independent typed expression and JSON readers. The current owner preserves direct and nested paths, array and string indexing, parenthesized and indirect dynamic keys, boolean and conditional evaluation, leading and adjacent interpolation tokens, and caller state on failed evaluation. Blitter remains the concrete integration consumer. The focused suite retains all 179 historical expressions with independent resolution and value results.
@@ -47,7 +48,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 
 1. **Environment-block composition and dynamic-module support.** `SCommandLineArgs::Environment` replaces the former environment-view collection for entry points that receive `envp`; the missing environment behavior is serialization back to the native double-null block and coverage for entry paths that do not populate `Environment`. Former module types and the runtime loader still have no independent source counterpart.
 2. **HTTP/HTTPS and CGI.** Former request/response structures, URL decoding, client operations and CGI runtime adapters are absent; current LLC stops at TCP/IP and serialization helpers. Blitter is a concrete consumer.
-3. **Block-addressed records and registries.** Generic block-container storage and both linear-map families are now incorporated with focused tests. Former block-addressed record helpers and registries remain absent.
+3. **Block-backed registries.** Generic block-container storage, both linear-map families and the pure block-record address mapping are now incorporated with focused tests. The former file-backed registry, cache and map-allocation behavior remains absent and needs a current owner before integration.
 4. **Selected media and interchange formats.** Image serialization, STL and VOX now have independent counterparts and focused tests. Font remains absent, while voxel geometry still needs its image, raster and engine ownership separated before integration.
 5. **RSA/GPC helpers.** These are absent while AES, Base64 and deflate remain. The former custom crypto surface should be treated as a security-review candidate, not copied merely for parity.
 
@@ -58,7 +59,7 @@ The former directory also contains GUI controls, dialogs, windows, D3D, scene, c
 ## Suggested integration order
 
 1. Reconcile the migration ledger: classify the 132 absent project entries and choose owners; do not restore them wholesale.
-2. Continue the small foundational contracts after the completed generic block storage and linear maps: recover the remaining block-addressed records and registries only with consumer-backed tests.
+2. Continue the small foundational contracts after the completed generic block storage, linear maps and record-address mapping: recover the remaining block-backed registries only with consumer-backed tests.
 3. Add environment-block composition to the current argument/runtime ownership only for a proven consumer, including an explicit `WinMain` population policy; recover dynamic-module primitives separately.
 4. Layer HTTP and CGI over current TCP/IP, JSON, runtime and argument facilities, preserving transport versus application ownership.
 5. Continue codecs and formats only when a real consumer is selected; split byte parsing from engine and image types.
@@ -109,6 +110,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_axis.h` -> `llc_axis.h`
 - [x] `gpk_base64.{h,cpp}` -> `llc_base64.{h,cpp}`
 - [x] `gpk_bit.h` -> `llc_bit.h`
+- [x] `gpk_block.{h,cpp}` -> `llc_block.{h,cpp}` (pure record-address contract; the historical storage stack remains separately pending)
 - [x] `gpk_block_container.h` -> `llc_block_container.h`
 - [x] `gpk_block_container_nts.h` -> `llc_block_container_nts.h`
 - [x] `gpk_cerrno.h` -> `llc_cerrno.h`
@@ -242,7 +244,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_ascii_target.{h,cpp}`
 - [ ] `gpk_axis (2).h`
 - [ ] `gpk_bitmap_target.h`
-- [ ] `gpk_block.{h,cpp}`
 - [ ] `gpk_broker.{h,cpp}`
 - [ ] `gpk_camera.h`
 - [ ] `gpk_cdn.h`

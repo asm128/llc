@@ -274,9 +274,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_base64.cpp" />
-    <ClCompile Include="llc_block.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_block.cpp" />
     <ClCompile Include="llc_cgi.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
