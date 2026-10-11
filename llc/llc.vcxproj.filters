@@ -642,9 +642,6 @@
     <ClInclude Include="llc_apod_slice.h">
       <Filter>aliases</Filter>
     </ClInclude>
-    <ClInclude Include="llc_apod_gauge.h">
-      <Filter>aliases</Filter>
-    </ClInclude>
     <ClInclude Include="llc_apod_minmax.h">
       <Filter>aliases</Filter>
     </ClInclude>

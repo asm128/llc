@@ -228,10 +228,10 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 ### Rejected deliberately
 
 - [x] `gpk_gauge_n2.h` and `gpk_gauge_n3.h` -> invalid wrappers around the removed historical `gauge<>`; generic gauge owners retained in `llc_gauge.h`
+- [x] `gpk_apod_gauge.h` -> stale aliases for the same removed historical `gauge<>`; no current consumers and no replacement aliases required
 
 ### Pending disposition/no current counterpart
 
-- [ ] `gpk_apod_gauge.h`
 - [ ] `gpk_app_impl.h`
 - [ ] `gpk_ascii_color.h`
 - [ ] `gpk_ascii_target.{h,cpp}`

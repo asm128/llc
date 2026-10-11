@@ -32,7 +32,6 @@
     <ClInclude Include="llc_adam7.h" />
     <ClInclude Include="llc_aes.h" />
     <ClInclude Include="llc_align.h" />
-    <ClInclude Include="llc_apod_gauge.h" />
     <ClInclude Include="llc_apod_minmax.h" />
     <ClInclude Include="llc_apod_range.h" />
     <ClInclude Include="llc_apod_serialize.h" />
