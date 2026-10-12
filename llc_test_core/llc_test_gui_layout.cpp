@@ -98,13 +98,13 @@ sttc ::llc::err_t testGUILayoutTriangle(ATestError & errors, GUI_LAYOUT_TEST_RES
 	if_fail_fe(::testGUILayoutRectangle(errors, GUI_LAYOUT_TEST_RESULT_RECTANGLE_RIGHT, "Rectangles.Right", area.Rectangles[::llc::GUI_CONTROL_AREA_OLD_BORDER_RIGHT], {{210, 60}, {10, 240}}));
 	if_fail_fe(::testGUILayoutRectangle(errors, GUI_LAYOUT_TEST_RESULT_RECTANGLE_BOTTOM, "Rectangles.Bottom", area.Rectangles[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM], {{20, 279}, {200, 21}}));
 
-	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_0, GUI_LAYOUT_TEST_RESULT_WINDING_0, 0, area.Triangles[0], {{20, 60}, {24, 69}, {24, 60}}));
-	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_1, GUI_LAYOUT_TEST_RESULT_WINDING_1, 1, area.Triangles[1], {{20, 60}, {20, 69}, {24, 69}}));
-	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_2, GUI_LAYOUT_TEST_RESULT_WINDING_2, 2, area.Triangles[2], {{210, 60}, {210, 69}, {220, 60}}));
-	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_3, GUI_LAYOUT_TEST_RESULT_WINDING_3, 3, area.Triangles[3], {{220, 60}, {210, 69}, {220, 69}}));
-	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_4, GUI_LAYOUT_TEST_RESULT_WINDING_4, 4, area.Triangles[4], {{20, 279}, {20, 300}, {24, 279}}));
-	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_5, GUI_LAYOUT_TEST_RESULT_WINDING_5, 5, area.Triangles[5], {{24, 279}, {20, 300}, {24, 300}}));
-	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_6, GUI_LAYOUT_TEST_RESULT_WINDING_6, 6, area.Triangles[6], {{210, 279}, {220, 300}, {220, 279}}));
-	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_7, GUI_LAYOUT_TEST_RESULT_WINDING_7, 7, area.Triangles[7], {{210, 279}, {210, 300}, {220, 300}}));
+	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_0, GUI_LAYOUT_TEST_RESULT_WINDING_0, 0, area.Triangles[0], {{20, 60}, {23, 68}, {23, 60}}));
+	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_1, GUI_LAYOUT_TEST_RESULT_WINDING_1, 1, area.Triangles[1], {{20, 60}, {20, 68}, {23, 68}}));
+	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_2, GUI_LAYOUT_TEST_RESULT_WINDING_2, 2, area.Triangles[2], {{210, 60}, {210, 68}, {219, 60}}));
+	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_3, GUI_LAYOUT_TEST_RESULT_WINDING_3, 3, area.Triangles[3], {{219, 60}, {210, 68}, {219, 68}}));
+	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_4, GUI_LAYOUT_TEST_RESULT_WINDING_4, 4, area.Triangles[4], {{20, 279}, {20, 299}, {23, 279}}));
+	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_5, GUI_LAYOUT_TEST_RESULT_WINDING_5, 5, area.Triangles[5], {{23, 279}, {20, 299}, {23, 299}}));
+	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_6, GUI_LAYOUT_TEST_RESULT_WINDING_6, 6, area.Triangles[6], {{210, 279}, {219, 299}, {219, 279}}));
+	if_fail_fe(::testGUILayoutTriangle(errors, GUI_LAYOUT_TEST_RESULT_TRIANGLE_7, GUI_LAYOUT_TEST_RESULT_WINDING_7, 7, area.Triangles[7], {{210, 279}, {210, 299}, {219, 299}}));
 	rtrn 0;
 }

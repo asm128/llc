@@ -127,7 +127,10 @@ sttc ::llc::err_t testGUIRenderDirect(ATestError & errors) {
 	if_fail_fe(::testGUIRenderPixel(errors, GUI_RENDER_TEST_RESULT_DIRECT_PIXEL, LLC_CXS("top"), target[1][3], topColor, 3, 1));
 	if_fail_fe(::testGUIRenderPixel(errors, GUI_RENDER_TEST_RESULT_DIRECT_PIXEL, LLC_CXS("right"), target[3][5], rightColor, 5, 3));
 	if_fail_fe(::testGUIRenderPixel(errors, GUI_RENDER_TEST_RESULT_DIRECT_PIXEL, LLC_CXS("bottom"), target[5][3], bottomColor, 3, 5));
-	if_fail_fe(::testGUIRenderPixel(errors, GUI_RENDER_TEST_RESULT_OUTSIDE_PIXEL, LLC_CXS("outside"), target[0][0], clearColor, 0, 0));
+	if_fail_fe(::testGUIRenderPixel(errors, GUI_RENDER_TEST_RESULT_OUTSIDE_PIXEL, LLC_CXS("outside top left"), target[0][0], clearColor, 0, 0));
+	if_fail_fe(::testGUIRenderPixel(errors, GUI_RENDER_TEST_RESULT_OUTSIDE_PIXEL, LLC_CXS("outside right"), target[1][6], clearColor, 6, 1));
+	if_fail_fe(::testGUIRenderPixel(errors, GUI_RENDER_TEST_RESULT_OUTSIDE_PIXEL, LLC_CXS("outside bottom"), target[6][1], clearColor, 1, 6));
+	if_fail_fe(::testGUIRenderPixel(errors, GUI_RENDER_TEST_RESULT_OUTSIDE_PIXEL, LLC_CXS("outside bottom right"), target[6][6], clearColor, 6, 6));
 	draw.NoBorder = true;
 	target.fill(clearColor);
 	LLC_TEST_REQUIREF(errors, GUI_RENDER_TEST_RESULT_DRAW_RESULT, 0 > ::llc::guiRenderEvents(gui, events, target.metrics().u1()), "%s", "Border-disabled event generation failed.");

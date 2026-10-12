@@ -41,14 +41,24 @@ sttc ::llc::err_t controlGeometryBuild(cnst ::llc::SControlPlacement & placement
 	rectangles[::llc::GUI_CONTROL_AREA_OLD_BORDER_RIGHT ] = {total.Offset + ::llc::n2s1_t{::llc::s1_t(total.Size.x - border.Right), 0}, {border.Right, total.Size.y}};
 	rectangles[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM] = {total.Offset + ::llc::n2s1_t{0, ::llc::s1_t(total.Size.y - border.Bottom)}, {total.Size.x, border.Bottom}};
 
+	cnst ::llc::rects1_t borderLast =
+		{ (::llc::s1_t)(border.Left   ? border.Left   - 1 : 0)
+		, (::llc::s1_t)(border.Top    ? border.Top    - 1 : 0)
+		, (::llc::s1_t)(border.Right  ? border.Right  - 1 : 0)
+		, (::llc::s1_t)(border.Bottom ? border.Bottom - 1 : 0)
+		};
+	cnst ::llc::n2s1_t totalLast =
+		{ (::llc::s1_t)(total.Size.x ? total.Size.x - 1 : 0)
+		, (::llc::s1_t)(total.Size.y ? total.Size.y - 1 : 0)
+		};
 	cnst ::llc::n2s1_t outerLeftTop     = total.Offset;
-	cnst ::llc::n2s1_t innerLeftTop     = outerLeftTop + ::llc::n2s1_t{border.Left, border.Top};
-	cnst ::llc::n2s1_t outerRightTop    = total.Offset + ::llc::n2s1_t{total.Size.x, 0};
-	cnst ::llc::n2s1_t innerRightTop    = outerRightTop - ::llc::n2s1_t{border.Right, -border.Top};
-	cnst ::llc::n2s1_t outerLeftBottom  = total.Offset + ::llc::n2s1_t{0, total.Size.y};
-	cnst ::llc::n2s1_t innerLeftBottom  = outerLeftBottom + ::llc::n2s1_t{border.Left, -border.Bottom};
-	cnst ::llc::n2s1_t outerRightBottom = total.Offset + total.Size;
-	cnst ::llc::n2s1_t innerRightBottom = outerRightBottom - ::llc::n2s1_t{border.Right, border.Bottom};
+	cnst ::llc::n2s1_t innerLeftTop     = outerLeftTop + ::llc::n2s1_t{borderLast.Left, borderLast.Top};
+	cnst ::llc::n2s1_t outerRightTop    = total.Offset + ::llc::n2s1_t{totalLast.x, 0};
+	cnst ::llc::n2s1_t innerRightTop    = outerRightTop - ::llc::n2s1_t{borderLast.Right, -borderLast.Top};
+	cnst ::llc::n2s1_t outerLeftBottom  = total.Offset + ::llc::n2s1_t{0, totalLast.y};
+	cnst ::llc::n2s1_t innerLeftBottom  = outerLeftBottom + ::llc::n2s1_t{borderLast.Left, -borderLast.Bottom};
+	cnst ::llc::n2s1_t outerRightBottom = total.Offset + totalLast;
+	cnst ::llc::n2s1_t innerRightBottom = outerRightBottom - ::llc::n2s1_t{borderLast.Right, borderLast.Bottom};
 
 	triangles[0] = {outerLeftTop, innerLeftTop, {innerLeftTop.x, outerLeftTop.y}};
 	triangles[1] = {outerLeftTop, {outerLeftTop.x, innerLeftTop.y}, innerLeftTop};
