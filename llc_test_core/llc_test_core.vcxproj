@@ -30,27 +30,23 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -180,9 +176,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="llc_test_adam7.cpp" />
-	<ClCompile Include="llc_test_app.cpp" />
-	<ClCompile Include="llc_test_ascii_color.cpp" />
-	<ClCompile Include="llc_test_ascii_target.cpp" />
+    <ClCompile Include="llc_test_app.cpp" />
+    <ClCompile Include="llc_test_ascii_color.cpp" />
+    <ClCompile Include="llc_test_ascii_target.cpp" />
     <ClCompile Include="llc_test_array_bit.cpp" />
     <ClCompile Include="llc_test_apod_minmax.cpp" />
     <ClCompile Include="llc_test_array_pod.cpp" />
@@ -191,16 +187,16 @@
     <ClCompile Include="llc_test_args.cpp" />
     <ClCompile Include="llc_test_base64.cpp" />
     <ClCompile Include="llc_test_bit.cpp" />
-	<ClCompile Include="llc_test_bitmap_target.cpp" />
+    <ClCompile Include="llc_test_bitmap_target.cpp" />
     <ClCompile Include="llc_test_block.cpp" />
     <ClCompile Include="llc_test_block_container.cpp" />
-	<ClCompile Include="llc_test_camera.cpp" />
-	<ClCompile Include="llc_test_collision.cpp" />
-	<ClCompile Include="llc_test_complus.cpp" />
+    <ClCompile Include="llc_test_camera.cpp" />
+    <ClCompile Include="llc_test_collision.cpp" />
+    <ClCompile Include="llc_test_complus.cpp" />
     <ClCompile Include="llc_test_core.cpp" />
     <ClCompile Include="llc_test_cpow.cpp" />
     <ClCompile Include="llc_test_ctti.cpp" />
-	<ClCompile Include="llc_test_dialog.cpp" />
+    <ClCompile Include="llc_test_dialog.cpp" />
     <ClCompile Include="llc_test_enum.cpp" />
     <ClCompile Include="llc_test_expression.cpp" />
     <ClCompile Include="llc_test_geometry.cpp" />
@@ -208,15 +204,15 @@
     <ClCompile Include="llc_test_grid_operations.cpp" />
     <ClCompile Include="llc_test_gui.cpp" />
     <ClCompile Include="llc_test_gui_control.cpp" />
-	<ClCompile Include="llc_test_gui_input.cpp" />
+    <ClCompile Include="llc_test_gui_input.cpp" />
     <ClCompile Include="llc_test_gui_inputbox.cpp" />
     <ClCompile Include="llc_test_gui_layout.cpp" />
     <ClCompile Include="llc_test_gui_model.cpp" />
     <ClCompile Include="llc_test_gui_render.cpp" />
-	<ClCompile Include="llc_test_gui_text.cpp" />
-	<ClCompile Include="llc_test_gui_viewport.cpp" />
-	<ClCompile Include="llc_test_input.cpp" />
-	<ClCompile Include="llc_test_virtual_keyboard.cpp" />
+    <ClCompile Include="llc_test_gui_text.cpp" />
+    <ClCompile Include="llc_test_gui_viewport.cpp" />
+    <ClCompile Include="llc_test_input.cpp" />
+    <ClCompile Include="llc_test_virtual_keyboard.cpp" />
     <ClCompile Include="llc_test_json_expression.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
     <ClCompile Include="llc_test_keyval.cpp" />
@@ -230,10 +226,10 @@
     <ClCompile Include="llc_test_packed_int.cpp" />
     <ClCompile Include="llc_test_ptr.cpp" />
     <ClCompile Include="llc_test_process.cpp" />
-	<ClCompile Include="llc_test_runtime_module.cpp" />
+    <ClCompile Include="llc_test_runtime_module.cpp" />
     <ClCompile Include="llc_test_str.cpp" />
     <ClCompile Include="llc_test_stl.cpp" />
-	<ClCompile Include="llc_test_system_key.cpp" />
+    <ClCompile Include="llc_test_system_key.cpp" />
     <ClCompile Include="llc_test_type_metadata.cpp" />
     <ClCompile Include="llc_test_view.cpp" />
     <ClCompile Include="llc_test_view_aliases.cpp" />
