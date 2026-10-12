@@ -24,6 +24,7 @@
 ::llc::err_t testPackedUInt		(ATestError & errors);
 ::llc::err_t testCPow			(ATestError & errors);
 ::llc::err_t testCTTIParser		(ATestError & errors);
+::llc::err_t testDialog			(ATestError & errors);
 ::llc::err_t testEnum			(ATestError & errors);
 ::llc::err_t testExpression		(ATestError & errors);
 ::llc::err_t testGeometry		(ATestError & errors);

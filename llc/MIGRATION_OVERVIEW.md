@@ -268,7 +268,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_component_scene.{h,cpp}`
 - [ ] `gpk_component_scene_draw.cpp`
 - [ ] `gpk_d3d.{h,cpp}`
-- [ ] `gpk_dialog.{h,cpp}`
+- [x] `gpk_dialog.{h,cpp}` -> `llc_dialog.{h,cpp}` as a resource-free form root with generation-safe control references, hierarchy membership, explicit focus/selection history and GUI-event synchronization; renderer resources and concrete dialog controls remain outside this contract
 - [ ] `gpk_dialog_controls.h`
 - [ ] `gpk_font.{h,cpp}`
 - [ ] `gpk_framework.{h,cpp}`
@@ -324,5 +324,5 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-12 Debug x64 migration checkpoint passed all 3,165,025 checks across 2,709 result groups in 80,592,692 microseconds, verifying all 57 registered suites, including the incorporated ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, geometry and rectangle-alignment, GUI input-box, fixed-cell text raster and viewport-window contracts, input, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, virtual-keyboard, VOX and voxel contracts. The viewport suite contributes 10,501 checks covering allocation holes, hierarchy, boundary geometry, folding, dragging, locks, scaling and external resize propagation. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-12 Debug x64 migration checkpoint passed all 3,177,366 checks across 2,759 result groups in 140,348,347 microseconds, verifying all 58 registered suites, including the incorporated ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, dialog/form, owning-bit-array, expression, geometry and rectangle-alignment, GUI input-box, fixed-cell text raster and viewport-window contracts, input, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, virtual-keyboard, VOX and voxel contracts. The viewport suite contributes 10,501 checks covering allocation holes, hierarchy, boundary geometry, folding, dragging, locks, scaling and external resize propagation. The dialog suite contributes 12,341 checks covering rejected construction, allocation-hole reuse, hierarchy membership, focus and selection history, event synchronization, malformed-event transactionality, generation-safe slot reuse, viewport/input-box composition and recursive deletion. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 

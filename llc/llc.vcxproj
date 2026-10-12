@@ -299,9 +299,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_deflate.cpp" />
-    <ClCompile Include="llc_dialog.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_dialog.cpp" />
     <ClCompile Include="llc_geometry.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
