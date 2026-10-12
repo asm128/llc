@@ -1,6 +1,7 @@
 #include "llc_grid_color.h"
 #include "llc_img_color.h"
 #include "llc_img_serialize.h"
+#include "llc_font.h"
 #include "llc_test_core.h"
 
 #include <type_traits>
@@ -29,6 +30,28 @@ GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, IMAGE_TRUNCATED_OUTPUT		, 19, "loadI
 GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, IMAGE_METRIC_COUNT_RESULT	, 20, "loadImage() accepted metrics that disagree with the texel count.");
 GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, IMAGE_METRIC_COUNT_CURSOR	, 21, "loadImage() moved the input cursor after rejecting inconsistent metrics.");
 GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, IMAGE_METRIC_COUNT_OUTPUT	, 22, "loadImage() modified its output after rejecting inconsistent metrics.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_RESIZE_RESULT			, 23, "imgmono<>::resize() reported the wrong result.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_RESIZE_WIDTH			, 24, "imgmono<>::resize() stored the wrong width.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_RESIZE_HEIGHT			, 25, "imgmono<>::resize() stored the wrong height.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_RESIZE_BITS			, 26, "imgmono<>::resize() stored the wrong bit count.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_RESIZE_CELLS			, 27, "imgmono<>::resize() allocated the wrong cell count.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_RESIZE_BYTES			, 28, "imgmono<>::resize() allocated the wrong byte count.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_VIEW_OWNERSHIP		, 29, "imgmono<> view does not point into its owned cells.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_BIT_VALUE				, 30, "imgmono<> returned the wrong bit value.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_COPY_SIZE				, 31, "imgmono<> copy lost its dimensions or bit count.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_COPY_OWNERSHIP		, 32, "imgmono<> copy aliases another image's cells.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, MONO_COPY_VALUE			, 33, "imgmono<> copy lost or shared a bit value.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_RESULT		, 34, "rasterFontDefaults() reported failure.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_COUNT		, 35, "rasterFontDefaults() loaded the wrong font count.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_POINTER		, 36, "rasterFontDefaults() left a null font entry.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_CHAR_WIDTH	, 37, "A built-in font has no character width.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_CHAR_HEIGHT	, 38, "A built-in font has no character height.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_IMAGE_WIDTH	, 39, "A built-in font texture has the wrong width.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_IMAGE_HEIGHT	, 40, "A built-in font texture has the wrong height.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_BIT_COUNT	, 41, "A built-in font texture has the wrong bit count.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_CELL_COUNT	, 42, "A built-in font texture has the wrong cell count.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_OWNERSHIP	, 43, "A built-in font texture view does not point into its owned cells.");
+GDEFINE_ENUM_VALUED(GRID_IMAGE_TEST_RESULT, FONT_DEFAULT_CONTENT		, 44, "A built-in font texture contains no set bits.");
 
 stxp ::llc::u0_t IMAGE_SERIALIZE_PREFIX[] = {0x53U, 0xA7U, 0x19U};
 stxp ::llc::u0_t IMAGE_SERIALIZE_SUFFIX[] = {0xE1U, 0x26U, 0xBCU, 0x48U};
@@ -119,6 +142,74 @@ sttc ::llc::err_t testImage(ATestError & errors) {
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_COPY, assigned.Texels.begin() != assigned.View.begin(), "%s", "Copy-assigned view does not point into owned texels.");
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_COPY, 1 != assigned.metrics().y, "Copy-assigned height:%u, expected:1.", assigned.metrics().y);
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_COPY, 12 != assigned[0][0], "Copy-assigned first cell:%u, expected:12.", assigned[0][0]);
+	rtrn 0;
+}
+
+sttc ::llc::err_t testMonochromeImage(ATestError & errors) {
+	::llc::imgmonou3_t image = {};
+	cnst ::llc::err_t resizeResult = image.resize(9, 9);
+	LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_RESULT, ::llc::failed(resizeResult), "Resize result:%i.", resizeResult);
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_WIDTH, 9 != image.metrics().x, "Width:%u, expected:9.", image.metrics().x);
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_HEIGHT, 9 != image.metrics().y, "Height:%u, expected:9.", image.metrics().y);
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_BITS, 81 != image.size(), "Bit count:%u, expected:81.", image.size());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_CELLS, 2 != image.Texels.size(), "Cell count:%u, expected:2.", image.Texels.size());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_BYTES, 16 != image.byte_count(), "Byte count:%u, expected:16.", image.byte_count());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_VIEW_OWNERSHIP, image.View.begin().Begin != image.Texels.begin(), "View begin:%p, owned begin:%p.", image.View.begin().Begin, image.Texels.begin());
+	image.View[0] = true;
+	image.View[63] = true;
+	image.View[64] = true;
+	image.View[80] = true;
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_BIT_VALUE, false == image.View[0]);
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_BIT_VALUE, false == image.View[63]);
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_BIT_VALUE, false == image.View[64]);
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_BIT_VALUE, false == image.View[80]);
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_BIT_VALUE, true == image.View[1]);
+
+	::llc::imgmonou3_t copied = image;
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_SIZE, copied.metrics() != image.metrics(), "Copied metrics:%u x %u, expected:%u x %u.", copied.metrics().x, copied.metrics().y, image.metrics().x, image.metrics().y);
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_SIZE, copied.size() != image.size(), "Copied bit count:%u, expected:%u.", copied.size(), image.size());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_OWNERSHIP, copied.Texels.begin() == image.Texels.begin(), "Copied cells alias source at:%p.", copied.Texels.begin());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_OWNERSHIP, copied.View.begin().Begin != copied.Texels.begin(), "Copied view begin:%p, owned begin:%p.", copied.View.begin().Begin, copied.Texels.begin());
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_VALUE, false == copied.View[80]);
+	copied.View[80] = false;
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_VALUE, false == image.View[80]);
+
+	::llc::imgmonou3_t assigned = {};
+	assigned = image;
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_SIZE, assigned.metrics() != image.metrics(), "Assigned metrics:%u x %u, expected:%u x %u.", assigned.metrics().x, assigned.metrics().y, image.metrics().x, image.metrics().y);
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_SIZE, assigned.size() != image.size(), "Assigned bit count:%u, expected:%u.", assigned.size(), image.size());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_OWNERSHIP, assigned.Texels.begin() == image.Texels.begin(), "Assigned cells alias source at:%p.", assigned.Texels.begin());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_OWNERSHIP, assigned.View.begin().Begin != assigned.Texels.begin(), "Assigned view begin:%p, owned begin:%p.", assigned.View.begin().Begin, assigned.Texels.begin());
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_VALUE, false == assigned.View[64]);
+	assigned.View[64] = false;
+	LLC_TEST_CHECK(errors, GRID_IMAGE_TEST_RESULT_MONO_COPY_VALUE, false == image.View[64]);
+
+	LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_RESULT, 0 > image.resize(8, 8), "%s", "Exact-cell resize failed.");
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_CELLS, 1 != image.Texels.size(), "Exact-cell allocation:%u, expected:1.", image.Texels.size());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_MONO_RESIZE_BYTES, 8 != image.byte_count(), "Exact-cell byte count:%u, expected:8.", image.byte_count());
+	rtrn 0;
+}
+
+sttc ::llc::err_t testDefaultFonts(ATestError & errors) {
+	::llc::SRasterFontManager manager = {};
+	cnst ::llc::err_t defaultsResult = ::llc::rasterFontDefaults(manager);
+	LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_RESULT, ::llc::failed(defaultsResult), "Default font result:%i.", defaultsResult);
+	LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_COUNT, 13 != manager.Fonts.size(), "Font count:%u, expected:13.", manager.Fonts.size());
+	for(::llc::u2_t iFont = 0; iFont < manager.Fonts.size(); ++iFont) {
+		LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_POINTER, 0 == manager.Fonts[iFont], "Null font index:%u.", iFont);
+		cnst ::llc::SRasterFont & font = *manager.Fonts[iFont];
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_CHAR_WIDTH, 0 == font.CharSize.x, "Font:%u, character width:%u.", iFont, font.CharSize.x);
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_CHAR_HEIGHT, 0 == font.CharSize.y, "Font:%u, character height:%u.", iFont, font.CharSize.y);
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_IMAGE_WIDTH, font.Texture.metrics().x != font.CharSize.x, "Font:%u, texture width:%u, expected:%u.", iFont, font.Texture.metrics().x, font.CharSize.x);
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_IMAGE_HEIGHT, font.Texture.metrics().y != font.CharSize.y * 256U, "Font:%u, texture height:%u, expected:%u.", iFont, font.Texture.metrics().y, font.CharSize.y * 256U);
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_BIT_COUNT, font.Texture.size() != ::llc::u2_t(font.CharSize.x) * font.CharSize.y * 256U, "Font:%u, bit count:%u, expected:%u.", iFont, font.Texture.size(), ::llc::u2_t(font.CharSize.x) * font.CharSize.y * 256U);
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_CELL_COUNT, font.Texture.Texels.size() != font.Texture.size() / 64U + one_if(font.Texture.size() % 64U), "Font:%u, cell count:%u, expected:%u.", iFont, font.Texture.Texels.size(), font.Texture.size() / 64U + one_if(font.Texture.size() % 64U));
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_OWNERSHIP, font.Texture.View.begin().Begin != font.Texture.Texels.begin(), "Font:%u, view begin:%p, owned begin:%p.", iFont, font.Texture.View.begin().Begin, font.Texture.Texels.begin());
+		bool anyBit = false;
+		for(::llc::u2_t iCell = 0; iCell < font.Texture.Texels.size(); ++iCell)
+			anyBit |= 0 != font.Texture.Texels[iCell];
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_CONTENT, false == anyBit, "Font:%u has no set bits.", iFont);
+	}
 	rtrn 0;
 }
 
@@ -227,6 +318,8 @@ sttc ::llc::err_t testImageSerialization(ATestError & errors) {
 	static_assert(::std::is_same_v<decltype(::std::declval<cnst ::llc::img8bgra &>()[0]), ::llc::view<cnst ::llc::bgra>>);
 	if_fail_fe(::testGrid(errors));
 	if_fail_fe(::testImage(errors));
+	if_fail_fe(::testMonochromeImage(errors));
+	if_fail_fe(::testDefaultFonts(errors));
 	if_fail_fe(::testImageSerialization<::llc::u0_t>(errors));
 	if_fail_fe(::testImageSerialization<::llc::u1_t>(errors));
 	if_fail_fe(::testImageSerialization<::llc::u2_t>(errors));

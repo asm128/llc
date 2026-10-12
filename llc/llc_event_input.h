@@ -28,7 +28,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(EVENT_MOUSE, Down		, 2);
 	GDEFINE_ENUM_VALUE(EVENT_MOUSE, DoubleClick	, 3);
 	GDEFINE_ENUM_VALUE(EVENT_MOUSE, Wheel		, 4);
-	stin	::llc::error_t	eventEnqueueMousePosition	(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2i16 coord)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Mouse, ::llc::EVENT_MOUSE_Position		, coord ); }
+	stin	::llc::error_t	eventEnqueueMousePosition	(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2s1_t coord)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Mouse, ::llc::EVENT_MOUSE_Position		, coord ); }
 	stin	::llc::error_t	eventEnqueueMouseUp			(::llc::apobj<::llc::SEventSystem> & queue, uint8_t button)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Mouse, ::llc::EVENT_MOUSE_Up			, button); }
 	stin	::llc::error_t	eventEnqueueMouseDown		(::llc::apobj<::llc::SEventSystem> & queue, uint8_t button)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Mouse, ::llc::EVENT_MOUSE_Down			, button); }
 	stin	::llc::error_t	eventEnqueueMouseDoubleClick(::llc::apobj<::llc::SEventSystem> & queue, uint8_t button)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Mouse, ::llc::EVENT_MOUSE_DoubleClick	, button); }
@@ -49,7 +49,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(EVENT_JOYPAD, Button_up	, 1);
 	GDEFINE_ENUM_VALUE(EVENT_JOYPAD, Button_down, 2);
 	GDEFINE_ENUM_VALUE(EVENT_JOYPAD, ZMove		, 3);
-	stin	::llc::error_t	eventEnqueueJoyPadMove		(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2i16 coord)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Joypad, ::llc::EVENT_JOYPAD_Move		, coord ); }
+	stin	::llc::error_t	eventEnqueueJoyPadMove		(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2s1_t coord)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Joypad, ::llc::EVENT_JOYPAD_Move		, coord ); }
 	stin	::llc::error_t	eventEnqueueJoyPadZMove		(::llc::apobj<::llc::SEventSystem> & queue, uint16_t value)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Joypad, ::llc::EVENT_JOYPAD_ZMove		, value ); }
 	stin	::llc::error_t	eventEnqueueJoyPadUp		(::llc::apobj<::llc::SEventSystem> & queue, uint8_t button)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Joypad, ::llc::EVENT_JOYPAD_Button_up	, button); }
 	stin	::llc::error_t	eventEnqueueJoyPadDown		(::llc::apobj<::llc::SEventSystem> & queue, uint8_t button)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Joypad, ::llc::EVENT_JOYPAD_Button_down, button); }

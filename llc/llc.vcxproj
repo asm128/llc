@@ -315,12 +315,8 @@
 	<ClCompile Include="llc_gui_layout.cpp" />
 	<ClCompile Include="llc_gui_model.cpp" />
 	<ClCompile Include="llc_gui_render.cpp" />
-    <ClCompile Include="llc_gui_inputbox.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gui_viewport.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_gui_inputbox.cpp" />
+    <ClCompile Include="llc_gui_viewport.cpp" />
     <ClCompile Include="llc_i2c.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -352,9 +348,7 @@
     </ClCompile>
     <ClCompile Include="llc_string_compose.cpp" />
     <ClCompile Include="llc_view_color.cpp" />
-    <ClCompile Include="llc_virtual_keyboard.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_virtual_keyboard.cpp" />
     <ClCompile Include="llc_voxel_geometry.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>

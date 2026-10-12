@@ -285,9 +285,9 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_gui_control_state.h`
 - [ ] `gpk_gui_desktop.{h,cpp}`
 - [ ] `gpk_gui_draw.cpp`
-- [ ] `gpk_gui_inputbox.{h,cpp}`
-- [ ] `gpk_gui_text.h`
-- [ ] `gpk_gui_viewport.{h,cpp}`
+- [x] `gpk_gui_inputbox.{h,cpp}` -> `llc_gui_inputbox.{h,cpp}` with resource-free key geometry, explicit control mappings and existing system text/keyboard events
+- [x] `gpk_gui_text.h` -> `llc_gui_text.h` with complete byte-font atlas validation, colored and monochrome raster paths and glyph-boundary clipping
+- [x] `gpk_gui_viewport.{h,cpp}` -> `llc_gui_viewport.{h,cpp}` with a resource-free root/title/client window shell, control-owned geometry, click folding, scaled title dragging and displacement locks; renderer resources and the older unfinished close/minimize/maximize/scrollbar/resize-handle surfaces remain outside this contract
 - [ ] `gpk_http.h`
 - [ ] `gpk_http_client.{h,cpp}`
 - [ ] `gpk_https_client.cpp`
@@ -317,12 +317,12 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_view_tri.h` -> `llc_view_tri.h`
 - [x] `gpk_view_tri2.h` -> `llc_view_tri2.h`
 - [x] `gpk_view_tri3.h` -> `llc_view_tri3.h`
-- [ ] `gpk_virtual_keyboard.{h,cpp}`
+- [x] `gpk_virtual_keyboard.{h,cpp}` -> `llc_virtual_keyboard.{h,cpp}` with explicit control mappings that emit the existing text and keyboard system events
 - [ ] `gpk_voxel_geometry.{h,cpp}`
 - [ ] `gpk_window.{h,cpp}`
 - [ ] `llc_header_checkingg.cpp`
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-12 Debug x64 migration checkpoint passed all 3,152,722 checks across 2,491 result groups in 30,895,561 microseconds, verifying all 52 registered suites, including the incorporated ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, geometry and rectangle-alignment, input, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-12 Debug x64 migration checkpoint passed all 3,165,025 checks across 2,709 result groups in 80,592,692 microseconds, verifying all 57 registered suites, including the incorporated ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, geometry and rectangle-alignment, GUI input-box, fixed-cell text raster and viewport-window contracts, input, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, virtual-keyboard, VOX and voxel contracts. The viewport suite contributes 10,501 checks covering allocation holes, hierarchy, boundary geometry, folding, dragging, locks, scaling and external resize propagation. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 

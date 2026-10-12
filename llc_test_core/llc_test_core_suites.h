@@ -30,7 +30,11 @@
 ::llc::err_t testGridImage		(ATestError & errors);
 ::llc::err_t testGridOperations	(ATestError & errors);
 ::llc::err_t testGUI			(ATestError & errors);
+::llc::err_t testGUIInputBox	(ATestError & errors);
+::llc::err_t testGUIText		(ATestError & errors);
+::llc::err_t testGUIViewport	(ATestError & errors);
 ::llc::err_t testInput			(ATestError & errors);
+::llc::err_t testVirtualKeyboard(ATestError & errors);
 ::llc::err_t testJSONExpression	(ATestError & errors);
 ::llc::err_t testJSONReader		(ATestError & errors);
 ::llc::err_t testKeyVal			(ATestError & errors);
