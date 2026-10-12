@@ -210,6 +210,7 @@
     <ClCompile Include="llc_test_gui_layout.cpp" />
     <ClCompile Include="llc_test_gui_model.cpp" />
     <ClCompile Include="llc_test_gui_render.cpp" />
+	<ClCompile Include="llc_test_input.cpp" />
     <ClCompile Include="llc_test_json_expression.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
     <ClCompile Include="llc_test_keyval.cpp" />

@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 51 focused suites, including independent ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, VOX and voxel suites.
+- The shared current test runner registers 52 focused suites, including independent ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, input, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, VOX and voxel suites.
 
 ## Major findings
 
@@ -49,6 +49,7 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
 - The former `gpk_io.h` contains only the old `fopen_s()` wrapper and is fully replaced by `llc_cstdio.h`. The current owner accepts counted filename and mode views, supports an optional initial offset through the 64-bit seek wrapper and preserves platform error diagnostics. The old GPK consumers exercise only file opening; no separate LLC I/O header or second implementation is required.
 - The former system-key enumeration remains the platform-neutral byte contract used by current GUI and input consumers. Its 193 registered names preserve all declared numeric codes and three legitimate aliases: Hangul/Kana, Hanja/Kanji and OEM_FJ_jisho/OEM_NEC_equal. The focused suite checks the exact byte type, registry count, every constant, every ordered registry value/name, every name lookup and each canonical alias independently.
+- The former input records now have a current platform-neutral snapshot owner. Keyboard, mouse and joystick states retain their current/previous split, timing, strength and historical storage without absorbing platform messages or rendering resources. `inputNextFrame()` advances every device snapshot, preserves the completed-frame mouse and joystick deltas and clears only the current per-frame deltas; mouse edge queries reject indices outside their 32-button storage. Platform adapters continue to emit `SEventSystem` transitions separately while updating this snapshot. The focused suite records exact scalar and packed-layout contracts, every keyboard and mouse transition, every invalid mouse index, full frame advancement and preservation of history and timestamps in 5,414 independent checks.
 - `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
 
 ### Genuine consumer-backed gaps
@@ -290,7 +291,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_http.h`
 - [ ] `gpk_http_client.{h,cpp}`
 - [ ] `gpk_https_client.cpp`
-- [ ] `gpk_input.h`
+- [x] `gpk_input.h` -> `llc_input.h`
 - [ ] `gpk_keyed_bit_array.h`
 - [ ] `gpk_mapblock.cpp`
 - [x] `gpk_member_registry.h` -> `llc_member_registry.h`
@@ -323,5 +324,5 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-12 Debug x64 migration checkpoint passed all 3,147,308 checks across 2,432 result groups in 29,608,854 microseconds, verifying all 51 registered suites, including the incorporated ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, geometry and rectangle-alignment, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-12 Debug x64 migration checkpoint passed all 3,152,722 checks across 2,491 result groups in 30,895,561 microseconds, verifying all 52 registered suites, including the incorporated ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, geometry and rectangle-alignment, input, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 
