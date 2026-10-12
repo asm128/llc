@@ -15,9 +15,12 @@
 ::llc::err_t testArgs			(ATestError & errors);
 ::llc::err_t testBase64			(ATestError & errors);
 ::llc::err_t testBitField		(ATestError & errors);
+::llc::err_t testBitmapTarget	(ATestError & errors);
 ::llc::err_t testBlock			(ATestError & errors);
 ::llc::err_t testBlockContainer	(ATestError & errors);
 ::llc::err_t testCamera			(ATestError & errors);
+::llc::err_t testCollision		(ATestError & errors);
+::llc::err_t testCOMPlus		(ATestError & errors);
 ::llc::err_t testPackedUInt		(ATestError & errors);
 ::llc::err_t testCPow			(ATestError & errors);
 ::llc::err_t testCTTIParser		(ATestError & errors);
@@ -42,6 +45,7 @@
 ::llc::err_t testSPRNG			(ATestError & errors);
 ::llc::err_t testSTL			(ATestError & errors);
 ::llc::err_t testStr			(ATestError & errors);
+::llc::err_t testSystemKey		(ATestError & errors);
 ::llc::err_t testTypeMetadata	(ATestError & errors);
 ::llc::err_t testView			(ATestError & errors);
 ::llc::err_t testViewAliases	(ATestError & errors);

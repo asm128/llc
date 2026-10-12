@@ -19,7 +19,7 @@ The counts below are the 2026-10-08 inventory snapshot; the file ledger is updat
 - Independent production files inspected by inventory: 186 C/C++ headers and implementations.
 - After normalizing only the `gpk_` to `llc_` prefix, 165 former files have current counterparts and 141 do not. Those 165 entries map to 164 current files because the former tree contains both `gpk_runtime.h` and `llc_runtime.h`. Twenty-two current production files have no normalized former namesake. Filename survival is lineage evidence, not behavioral equivalence.
 - The independent [`llc.vcxproj`](llc.vcxproj) still names 120 files absent from disk: 83 header entries and 37 compilation entries. All 37 absent compilation entries are explicitly `ExcludedFromBuild`; this is migration residue, not an implementation.
-- The shared current test runner registers 47 focused suites, including independent ASCII-color, ASCII-target, block-address, camera, owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel suites.
+- The shared current test runner registers 51 focused suites, including independent ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, VOX and voxel suites.
 
 ## Major findings
 
@@ -34,6 +34,9 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 - The former generic `block_container<T, size>` and its null-terminated-string specialization now have current owners and independent focused tests across all LLC integer widths.
 - The former ASCII-color contract now has a current owner for the sixteen 32-bit console-palette values, their opaque LLC palette equivalents, the sixteen 16-bit console attributes and foreground/background nibble inversion. GPFTW Advanced establishes the palette-versus-attribute storage split, later GPFTW stages preserve it, and the early CP437 renderer demonstrates the character-plane plus attribute-plane use case. KLIB's unused `STextColorASCII` bitfield wrapper is not restored; its real targets also store raw 16-bit attributes. The focused suite checks both exact scalar widths, every named value and all 256 foreground/background combinations independently.
 - The former ASCII target now has an operating-system-independent owner. `SASCIITarget` owns separate unsigned 8-bit character and unsigned 16-bit color images, validates their dimensions, storage and views as one framebuffer, resizes both planes transactionally and rejects unrepresentable cell counts before mutation. `SASCIICell` retains the packed three-byte interchange value. Clearing is the only target operation; console, virtual-terminal and future machine presenters remain consumers, while shapes continue to use the generic raster owners instead of duplicated target-specific wrappers. The focused suite checks defaults, dimensions, every cleared cell through grid and linear access, deep-copy independence, mismatched planes, failed-resize preservation and zero-area targets.
+- The former bitmap target now has a generic 2D grid-raster owner. Lines include both endpoints, clipped shapes never invent a new edge, reversed endpoints and triangle winding preserve the same cells, and degenerate or entirely offscreen shapes are quiet no-ops. Typed callbacks replace the raw `void *` callback boundary and preserve returned contribution counts. Point-output overloads collect into temporary storage before appending and reject coordinate domains their output type cannot represent without changing caller state. Rectangle, circle, triangle, line and light behavior has independent focused coverage. Specialized BGRA, 3D and depth-tested rastering remains with `llc_raster_lh` rather than being folded into this owner.
+- The former collision helpers now have a current geometry-level owner. Line and segment intersections distinguish one representable point from parallel, coincident, disjoint and unrepresentable results; misses and failures preserve caller outputs. Point-in-segment checks collinearity as well as bounds. Ray/sphere intersection accepts non-unit directions, treats an origin inside the sphere as the first contact and rejects negative radii. Both AABB overloads validate dimensions and emit the same continuous edge winding. Galaxy Hell exercises the ray/sphere contract and Gontrill exercises line and segment intersections; engine broad-phase, spatial partitioning and rigid-body response remain outside this header. The focused suite records each coordinate and preservation contract independently.
+- The former COM pointer owner now has explicit reference-transfer contracts. Raw construction and `attach()` adopt an existing reference; copy, raw assignment and `set_ref()` acquire one; `detach()` transfers ownership out; and `put()` explicitly clears the previous reference before exposing COM output storage. Failed `QueryInterface()` calls preserve their destination. The historical overloaded address operator was rejected because it redirected ordinary object addressing to COM storage and corrupted `aobj<pcom<T>>` placement construction. The focused suite checks helper counts, ownership, replacement, moves, output parameters, successful and failed queries and owned arrays independently; pending COM consumers must use `put()` explicitly when they are migrated.
 - The pure record-address portion of the former block system now has a current owner. `SRecordMap` stores two unsigned 32-bit coordinates; `blockRecordId()` and `blockRecordIndices()` preserve complete 64-bit identifiers, reject zero block sizes and unrepresentable coordinates, and leave outputs untouched on failure. The historical 52-bit decode mask belonged to a removed 12-bit container field and was rejected rather than preserving an accidental alias. Path composition, JSON configuration, encryption, compression, caches and map allocation remain outside this foundation.
 - The scalar/vector geometry foundation now has current owners for vectors, lines, triangles, quads, rectangles, ranges, slices, min/max bounds, gauges, spheres, quaternions and matrices. `m3<T>` owns only storage; `m3a2` and `m3a3` separate 2D affine from 3D linear operations, while `m2` and `m4` also distinguish mathematical convention from physical layout. The aliases use LLC width names (`u0` through `u3`, `s0` through `s3`, `f2` and `f3`) and the focused geometry suite instantiates every scalar width.
 - PNG loading and Adam7 reconstruction now have current source owners. Grid and image scalar aliases follow the LLC width vocabulary (`gu2_t`, `imgu2_t` and their signed, unsigned and floating-point families), while color aliases retain channel-precision names such as `img8bgra`. PNG loading owns the CRC implementation it requires; PNG writing remains excluded from the build. The focused suites check every Adam7 pass, small-image coverage, reconstructed cells, malformed signatures and all 15 interlaced/non-interlaced PNGSuite basic format pairs.
@@ -44,6 +47,8 @@ Real current consumers confirm active use: [`llt/dedup`](../../llt/dedup) uses p
 - The former `view_stream<>` is now a bounded byte cursor over an LLC view. Every successful read or write reports bytes, exact-boundary operations are valid, failures preserve cursor and storage/output, `remaining()` saturates at zero for an invalid cursor and const storage cannot be written. Bulk operations accept views rather than naked pointer/count pairs; the unused historical object operations were rejected because they performed unaligned byte reinterpretation without lifetime or cursor guarantees. The focused suite checks scalar, array, empty and truncated operations across all ten LLC integer and floating-point widths.
 - The consumer-backed `realignRectangle()` operation now has a current owner in `llc_rect_align.h`. Its nine horizontal/vertical flag combinations preserve size and apply the source offset as the left/top position, right/bottom margin or center displacement. The focused geometry cases observe both coordinates and dimensions independently. The historical `dockRectangle()` remains pending because it has no located consumer and its horizontal-center branch has been disabled since the function's first revision.
 - Current `SCommandLineArgs`, `argsParse()` and `viewsFromEnvp()` already capture the entry-point environment as raw `NAME=VALUE` views, and current `keyval_split()` can interpret an individual entry. This covers the read/view side of the former environment helpers. What remains is composing those views into an owned, double-null-terminated native environment block when a consumer needs that representation. The `WinMain` entry path currently calls `argsParse()` without an environment, so it also needs an explicit population policy before such composition can be universal. Dynamic-module loading remains separately absent.
+- The former `gpk_io.h` contains only the old `fopen_s()` wrapper and is fully replaced by `llc_cstdio.h`. The current owner accepts counted filename and mode views, supports an optional initial offset through the 64-bit seek wrapper and preserves platform error diagnostics. The old GPK consumers exercise only file opening; no separate LLC I/O header or second implementation is required.
+- The former system-key enumeration remains the platform-neutral byte contract used by current GUI and input consumers. Its 193 registered names preserve all declared numeric codes and three legitimate aliases: Hangul/Kana, Hanja/Kanji and OEM_FJ_jisho/OEM_NEC_equal. The focused suite checks the exact byte type, registry count, every constant, every ordered registry value/name, every name lookup and each canonical alias independently.
 - `llc_slice.h` owns only scalar slices and depends only on the scalar foundation. `llc_slice_n2.h` and `llc_slice_n3.h` own the cross-type aliases so neither primitive template absorbs the other merely for a convenient alias. The former gauge-vector wrappers target a removed `gauge<>` type and are deliberately not restored; `gaugemax<>` and `gaugeminmax<>` remain the valid generic owners.
 
 ### Genuine consumer-backed gaps
@@ -114,6 +119,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_axis.h` -> `llc_axis.h`
 - [x] `gpk_base64.{h,cpp}` -> `llc_base64.{h,cpp}`
 - [x] `gpk_bit.h` -> `llc_bit.h`
+- [x] `gpk_bitmap_target.h` -> `llc_bitmap_target.h` (generic 2D grid raster contract; specialized BGRA, 3D and depth-tested rastering remains separate)
 - [x] `gpk_block.{h,cpp}` -> `llc_block.{h,cpp}` (pure record-address contract; the historical storage stack remains separately pending)
 - [x] `gpk_block_container.h` -> `llc_block_container.h`
 - [x] `gpk_block_container_nts.h` -> `llc_block_container_nts.h`
@@ -123,6 +129,8 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_circle.h` -> `llc_circle.h`
 - [x] `gpk_color.h` -> `llc_color.h`
 - [x] `gpk_color_type.h` -> `llc_color_type.h`
+- [x] `gpk_collision.h` -> `llc_collision.h` (geometry-level line, segment, ray/sphere and AABB contracts; engine collision systems remain separate)
+- [x] `gpk_complus.h` -> `llc_complus.h` (explicit adopt, acquire, transfer and output-replacement contracts; failed queries preserve outputs)
 - [x] `gpk_coord.h` -> `llc_coord.h`
 - [x] `gpk_cpow.h` -> `llc_cpow.h`
 - [x] `gpk_cstdio.h` -> `llc_cstdio.h`
@@ -153,6 +161,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_image.h` -> `llc_image.h` (`img<>` only; `imgmono<>`, render targets and update helpers remain pending)
 - [x] `gpk_img_color.h` -> `llc_img_color.h` (image aliases only; render-target and pointer aliases remain pending)
 - [x] `gpk_img_serialize.h` -> `llc_img_serialize.h`
+- [x] `gpk_io.h` -> `llc_cstdio.h` (the only operation was the old `fopen_s()` wrapper; the current owner also owns seek and platform diagnostics)
 - [x] `gpk_json.{h,cpp}` -> `llc_json.{h,cpp}`
 - [x] `gpk_json_expression.{h,cpp}` -> `llc_json_expression.{h,cpp}`
 - [x] `gpk_keyval.h` -> `llc_keyval.h`
@@ -220,6 +229,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [x] `gpk_sync.h` -> `llc_sync.h`
 - [x] `gpk_swap.h` -> `llc_swap.h`
 - [x] `gpk_system_event.h` -> `llc_system_event.h`
+- [x] `gpk_system_key.h` -> `llc_system_key.h` (unsigned-byte key codes, ordered registry and three aliases verified independently)
 - [x] `gpk_tcpip.{h,cpp}` -> `llc_tcpip.{h,cpp}`
 - [x] `gpk_timer.{h,cpp}` -> `llc_timer.{h,cpp}`
 - [x] `gpk_tri.h` -> `llc_tri.h`
@@ -239,6 +249,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ### Rejected deliberately
 
+- [x] `gpk_axis (2).h` -> accidental LLC-renamed duplicate of `gpk_axis.h`; its normalized contents are identical to the current `llc_axis.h`, and it has no consumers or additional behavior
 - [x] `gpk_gauge_n2.h` and `gpk_gauge_n3.h` -> invalid wrappers around the removed historical `gauge<>`; generic gauge owners retained in `llc_gauge.h`
 - [x] `gpk_apod_gauge.h` -> stale aliases for the same removed historical `gauge<>`; no current consumers and no replacement aliases required
 - [x] `gpk_broker.{h,cpp}` -> unused 2025 sketch containing only nested packet arrays, no operations and no located consumers; no contract exists to preserve
@@ -247,16 +258,12 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 ### Pending disposition/no current counterpart
 
 - [ ] `gpk_app_impl.h`
-- [ ] `gpk_axis (2).h`
-- [ ] `gpk_bitmap_target.h`
 - [ ] `gpk_cgi.{h,cpp}`
 - [ ] `gpk_cgi_app_impl.h`
 - [ ] `gpk_cgi_app_impl_v2.h`
 - [ ] `gpk_cgi_main.cpp`
 - [ ] `gpk_cgi_module.{h,cpp}`
 - [ ] `gpk_cgi_runtime.{h,cpp}`
-- [ ] `gpk_collision.h`
-- [ ] `gpk_complus.h`
 - [ ] `gpk_component_scene.{h,cpp}`
 - [ ] `gpk_component_scene_draw.cpp`
 - [ ] `gpk_d3d.{h,cpp}`
@@ -284,7 +291,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_http_client.{h,cpp}`
 - [ ] `gpk_https_client.cpp`
 - [ ] `gpk_input.h`
-- [ ] `gpk_io.h`
 - [ ] `gpk_keyed_bit_array.h`
 - [ ] `gpk_mapblock.cpp`
 - [x] `gpk_member_registry.h` -> `llc_member_registry.h`
@@ -299,7 +305,6 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_scene.{h,cpp}`
 - [ ] `gpk_serial.h`
 - [ ] `gpk_string_helper.{h,cpp}`
-- [ ] `gpk_system_key.h`
 - [x] `gpk_type_identifier.h` -> `llc_type_identifier.h`
 - [ ] `gpk_type_registry.h`
 - [ ] `gpk_view_layered.h`
@@ -318,5 +323,5 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 
 ## Evidence boundary
 
-The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-11 Debug x64 migration checkpoint passed all 3,145,193 checks across 2,221 result groups in 23,443,469 microseconds, verifying all 47 registered suites, including the incorporated ASCII-color, ASCII-target, block-address, camera, owning-bit-array, expression, geometry and rectangle-alignment, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, view-alias, view-stream, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
+The filename inventory was refreshed from both working trees on 2026-10-08. It is not a complete API-diff proof and does not authorize blind restoration of a pending item. The 2026-10-12 Debug x64 migration checkpoint passed all 3,147,308 checks across 2,432 result groups in 29,608,854 microseconds, verifying all 51 registered suites, including the incorporated ASCII-color, ASCII-target, bitmap-target, block-address, camera, collision, COM-ownership, owning-bit-array, expression, geometry and rectangle-alignment, JSON-expression, grid-operation, image-serialization, linear-map, process, STL, system-key, view-alias, view-stream, VOX and voxel contracts. That run proves the current checkpoint, not the absent ledger entries; every pending former facility still requires disposition and proof.
 

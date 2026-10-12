@@ -108,10 +108,19 @@
 		<ClCompile Include="llc_test_camera.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_collision.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_complus.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_ascii_color.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 		<ClCompile Include="llc_test_ascii_target.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_bitmap_target.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
 		<ClCompile Include="llc_test_msbuild_xml.cpp">
@@ -157,6 +166,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_test_stl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_system_key.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_test_type_metadata.cpp">
