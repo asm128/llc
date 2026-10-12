@@ -310,6 +310,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
 	<ClCompile Include="llc_gui_control.cpp" />
+	<ClCompile Include="llc_gui_input.cpp" />
 	<ClCompile Include="llc_gui_layout.cpp" />
 	<ClCompile Include="llc_gui_model.cpp" />
 	<ClCompile Include="llc_gui_render.cpp" />

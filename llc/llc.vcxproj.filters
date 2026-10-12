@@ -914,6 +914,9 @@
 	<ClCompile Include="llc_gui_control.cpp">
 	  <Filter>gui</Filter>
 	</ClCompile>
+	<ClCompile Include="llc_gui_input.cpp">
+	  <Filter>gui</Filter>
+	</ClCompile>
     <ClCompile Include="llc_gui_layout.cpp">
       <Filter>gui</Filter>
     </ClCompile>
