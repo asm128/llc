@@ -1,7 +1,7 @@
 #include "llc_block_container.h"
 
-#ifndef LLC_BLOCK_CONTAINER_NTS_230522
-#define LLC_BLOCK_CONTAINER_NTS_230522
+#ifndef LLC_BLOCK_CONTAINER_NTS_261011
+#define LLC_BLOCK_CONTAINER_NTS_261011
 
 namespace llc
 {
@@ -17,7 +17,7 @@ namespace llc
 		err_t	push_sequence	(sc_c * sequence, u2_t length, vcst_t & out_view) {
 			if_true_fef(length >= _size, LLC_FMT_GE_U2, length, (u2_t)_size);
 			if_true_fe(length && 0 == sequence);
-			vsc_t	stored	= {};
+			vs0_t	stored	= {};
 			err_t	iBlock	= {};
 			if_fail_fe(iBlock = Characters.reserve(length + 1, stored));
 			if(length)
@@ -29,4 +29,4 @@ namespace llc
 	};
 } // namespace
 
-#endif // LLC_BLOCK_CONTAINER_NTS_230522
+#endif // LLC_BLOCK_CONTAINER_NTS_261011

@@ -116,7 +116,7 @@ llc::err_t	llc::fileLastWriteTime	(vcst_t fileName, s3_t & modified) {
 // This function is useful for splitting files smaller than 4gb very quick.
 static	llc::err_t	fileSplitSmall	(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
 	if_zero_fef(sizePartMax, "Invalid part size:%" LLC_FMT_U2 ", fileNameSrc:%.*s.", sizePartMax, (int)fileNameSrc.size(), fileNameSrc.begin());
-	llc::apod<int8_t>				fileInMemory;
+	llc::as0_t					fileInMemory;
 	if_fail_fef(llc::fileToMemory(fileNameSrc, fileInMemory), "Failed to load '%.*s'.", (int)fileNameSrc.size(), fileNameSrc.begin());
 
 	// -- Write parts to disk.
@@ -240,7 +240,7 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 		result					= -1;
 	}
 	else {
-		if(fileSize != (int32_t)fread(fileInMemory.begin(), szof(uint8_t), fileSize, fp)) {
+		if(maxRead != fread(fileInMemory.begin(), szof(uint8_t), maxRead, fp)) {
 			error_printf("fread() failed! file: '%s'.", fileName.begin());
 			result					= -1;
 		}

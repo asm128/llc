@@ -230,8 +230,8 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_ARRAY_MUTATION, mutableArray[0] != 'A' , "Mutable array source was not updated. source[0]:%c, expected:A." , mutableArray[0] );
 
 	::llc::sc_t		countedStorage[]		= {'c', 'o', 0, 'u', 'n', 't'};
-	::llc::vsc_t	countedView				= {countedStorage, ::llc::size(countedStorage)};
-	::llc::vcsc_t	countedConstView		= {countedStorage, ::llc::size(countedStorage)};
+	::llc::vs0_t	countedView				= {countedStorage, ::llc::size(countedStorage)};
+	::llc::vcs0_t	countedConstView		= {countedStorage, ::llc::size(countedStorage)};
 	auto			countedText				= ::llc::str(countedView);
 	auto			countedConstText		= ::llc::str(countedConstView);
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_MUTABLE_VIEW_TYPE, false == (::std::is_same_v<decltype(countedText), ::llc::vs>), "Mutable view result type mismatch. size:%u.", countedText.size());

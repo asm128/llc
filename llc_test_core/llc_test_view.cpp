@@ -168,6 +168,7 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, RANGE_APPEND_COLLECTION_FIELD_1	, 172, "Ra
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, RANGE_APPEND_COLLECTION_FIELD_2	, 173, "Range mismatch in Append collection field 2.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, RANGE_DELIMITER_SEQUENCE_FIELD_0	, 174, "Range mismatch in Delimiter-sequence field 0.");
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, RANGE_DELIMITER_SEQUENCE_FIELD_1	, 175, "Range mismatch in Delimiter-sequence field 1.");
+GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, TEXT_SUBSCRIPT			, 176, "Semantic text views did not resolve integral subscripts through the view contract.");
 
 // The expected addresses verify begin()/end() boundaries; they are never dereferenced.
 tplt<tpnm T>
@@ -970,7 +971,7 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 }
 
 sttc ::llc::err_t testStringSplitCollection(ATestError & errors) {
-	::llc::aobj<::llc::view<cnst ::llc::sc_t>> output;
+	::llc::aobj<::llc::vcst_t> output;
 	cnst ::llc::err_t result = ::llc::split(LLC_CXS(",a,,b,"), ',', output);
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, result != 2 , "String collection result:%i, expected:2.", result );
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, output.size() != 2 , "String collection count:%u, expected:2.", output.size() );
@@ -981,6 +982,19 @@ sttc ::llc::err_t testStringSplitCollection(ATestError & errors) {
 		LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, output[1] != LLC_CXS("b") , "String collection field 1:'%.*s', expected:'b'." , (int)output[1].size(), output[1].begin() );
 	}
 
+	rtrn 0;
+}
+
+sttc ::llc::err_t testStringSubscript(ATestError & errors) {
+	::llc::sc_t storage[] = "abc";
+	::llc::vstr_t mutableText = storage;
+	cnst ::llc::vcst_t constText = storage;
+	cnst int signedIndex = 1;
+	cnst ::llc::u0_t byteIndex = 2;
+	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_TEXT_SUBSCRIPT, mutableText[signedIndex] != 'b', "Mutable text at index:%i is '%c', expected:'b'.", signedIndex, mutableText[signedIndex]);
+	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_TEXT_SUBSCRIPT, constText[signedIndex] != 'b', "Const text at index:%i is '%c', expected:'b'.", signedIndex, constText[signedIndex]);
+	mutableText[byteIndex] = 'd';
+	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_TEXT_SUBSCRIPT, storage[byteIndex] != 'd', "Mutable text write at index:%u left '%c', expected:'d'.", byteIndex, storage[byteIndex]);
 	rtrn 0;
 }
 
@@ -1035,6 +1049,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	if_fail_fe(testTypeLogged<::llc::s1_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::s2_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::s3_t>(errors));
+	if_fail_fe(testStringSubscript(errors));
 	if_fail_fe(testStringSplitCollection(errors));
 	if(failureCount == testErrorCount(errors))
 		always_printf("Types tested successfully:\n%s, %s, %s, %s, %s, %s, %s, %s."

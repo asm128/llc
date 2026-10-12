@@ -97,7 +97,7 @@ sttc ::llc::u2_t drawBase64FontLetter(cnst SBase64FontFixture & font, ::llc::vcu
 }
 
 stct SBase64Vector {
-	::llc::vcsc_t	Binary;
+	::llc::vcs0_t	Binary;
 	::llc::vcst_t	Encoded;
 };
 
@@ -205,11 +205,9 @@ sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
 	cnst ::llc::u0_t encodedBytes[] = {'T', 'W', 'F', 'u'};
 	cnst ::llc::s0_t binarySigned[] = {'M', 'a', 'n'};
 	cnst ::llc::s0_t encodedSigned[] = {'T', 'W', 'F', 'u'};
-	cnst ::llc::sc_t binaryChars[] = {'M', 'a', 'n'};
 	cnst ::llc::sc_t encodedChars[] = {'T', 'W', 'F', 'u'};
 	cnst ::llc::vcu0_t binaryU = {binary};
 	cnst ::llc::vcs0_t binaryS = {binarySigned};
-	cnst ::llc::vcsc_t binaryC = {binaryChars};
 	cnst ::llc::vcu0_t encodedU = {encodedBytes};
 	cnst ::llc::vcs0_t encodedS = {encodedSigned};
 	cnst ::llc::vcst_t encodedC = {encodedChars};
@@ -229,10 +227,9 @@ sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
 		::llc::au0_t output;
 		if_fail_fe(testEncode(binaryU, output, LLC_CXS("vcu0_t -> au0_t")));
 		output.clear(); if_fail_fe(testEncode(binaryS, output, LLC_CXS("vcs0_t -> au0_t")));
-		output.clear(); if_fail_fe(testEncode(binaryC, output, LLC_CXS("vcsc_t -> au0_t")));
 		output.clear(); if_fail_fe(testDecode(encodedU, output, LLC_CXS("vcu0_t -> au0_t")));
 		output.clear(); if_fail_fe(testDecode(encodedS, output, LLC_CXS("vcs0_t -> au0_t")));
-		output.clear(); if_fail_fe(testDecode(encodedC, output, LLC_CXS("vcsc_t -> au0_t")));
+		output.clear(); if_fail_fe(testDecode(encodedC, output, LLC_CXS("vcst_t -> au0_t")));
 	}
 	{
 		::llc::as0_t output;
@@ -244,7 +241,7 @@ sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
 	{
 		::llc::string output;
 		if_fail_fe(testEncode(binaryU, output, LLC_CXS("vcu0_t -> string")));
-		output.clear(); if_fail_fe(testEncode(binaryC, output, LLC_CXS("vcsc_t -> string")));
+		output.clear(); if_fail_fe(testEncode(binaryS, output, LLC_CXS("vcs0_t -> string")));
 	}
 	{
 		::llc::asc_t output;

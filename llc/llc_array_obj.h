@@ -302,7 +302,7 @@ namespace llc
 	tdcs	avcs3_t	avcs3_c;
 
 
-	tplT	err_t	split			(view<cnst T> target, cnst T & separator, aobj<view<cnst T>> & output) {
+	tplt<tpnm T, tpnm TView>	err_t	split			(view<cnst T> target, cnst T & separator, aobj<TView> & output) {
 		for(u2_t begin = 0; begin < target.size();) {
 			err_t			end				= target.find(separator, begin);
 			if(0 > end)
@@ -314,7 +314,7 @@ namespace llc
 		rtrn output.size();
 	}
 
-	tplT	err_t	split			(view<cnst T> target, view<cnst T> separator, aobj<view<cnst T>> & output) {
+	tplt<tpnm T, tpnm TView>	err_t	split			(view<cnst T> target, view<cnst T> separator, aobj<TView> & output) {
 		if_zero_fe(separator.size());
 		for(u2_t begin = 0; begin < target.size();) {
 			err_t			end				= target.find(separator, begin);

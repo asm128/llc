@@ -15,7 +15,7 @@ GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, TRUNCATED_CODEPOINT		, 9, "expressio
 GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, UNCLOSED_LEVEL			, 10, "expressionReaderParse() accepted an unclosed expression level.");
 
 ::llc::err_t testExpression(ATestError & errors) {
-	cnst ::llc::vcsc_t			validExpression			= LLC_CXS("application.test_udp");
+	cnst ::llc::vcst_t			validExpression			= LLC_CXS("application.test_udp");
 	::llc::SExpressionReader	validReader				= {};
 	cnst ::llc::err_t			validResult				= ::llc::expressionReaderParse(validReader, validExpression);
 	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_RESULT, ::llc::failed(validResult) , "Result:%i." , validResult );
@@ -36,21 +36,21 @@ GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, UNCLOSED_LEVEL			, 10, "expressionRe
 	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_STEP_RANGE, 0 <= emptyStepResult , "Result:%i." , emptyStepResult );
 
 	cnst ::llc::sc_t			invalidCharacterStorage[]	= {'\"', '\x01', '\"'};
-	cnst ::llc::vcsc_t			invalidCharacter			= invalidCharacterStorage;
+	cnst ::llc::vcst_t			invalidCharacter			= invalidCharacterStorage;
 	invalidReader										= {};
 	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t			invalidCharacterResult		= ::llc::expressionReaderParse(invalidReader, invalidCharacter);
 	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_INVALID_CHARACTER, 0 <= invalidCharacterResult , "Result:%i, byte:0x%02X." , invalidCharacterResult, (::llc::u0_t)invalidCharacter[1] );
 
-	cnst ::llc::vcsc_t			truncatedCodepoint			= LLC_CXS("\"\\u12\"");
+	cnst ::llc::vcst_t			truncatedCodepoint			= LLC_CXS("\"\\u12\"");
 	invalidReader										= {};
 	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t			truncatedCodepointResult	= ::llc::expressionReaderParse(invalidReader, truncatedCodepoint);
 	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_TRUNCATED_CODEPOINT, 0 <= truncatedCodepointResult , "Result:%i, expression:%.*s." , truncatedCodepointResult, LLC_VIEW_ARGS(truncatedCodepoint) );
 
-	cnst ::llc::vcsc_t			unclosedLevel				= LLC_CXS("application[");
+	cnst ::llc::vcst_t			unclosedLevel				= LLC_CXS("application[");
 	invalidReader										= {};
 	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t			unclosedLevelResult			= ::llc::expressionReaderParse(invalidReader, unclosedLevel);

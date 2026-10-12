@@ -82,9 +82,11 @@ namespace llc
 		rtrn 0;																															\
 	}
 
-#if defined LLC_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
-#		define LLC_DEFINE_APPLICATION_ENTRY_POINT(_mainClass, _moduleTitle)	\
-			LLC_DEFINE_APP_MODULE_INTERFACE(_mainClass, _moduleTitle)
+#if defined LLC_AVOID_LOCAL_APPLICATION_MODEL_EXECUTABLE_RUNTIME
+#	define LLC_DEFINE_APPLICATION_ENTRY_POINT(_mainClass, _moduleTitle)	\
+		LLC_DEFINE_APP_MODULE_INTERFACE(_mainClass, _moduleTitle)
+#	define LLC_DEFINE_APPLICATION_ENTRY_POINT_MT(_mainClass, _moduleTitle)	\
+		LLC_DEFINE_APPLICATION_ENTRY_POINT(_mainClass, _moduleTitle)
 #else
 #	define LLC_DEFINE_APPLICATION_ENTRY_POINT(_mainClass, _moduleTitle)												\
 		static ::llc::err_t rtMain(::llc::SRuntimeValues & runtimeValues);											\
@@ -201,6 +203,6 @@ namespace llc
 		}																											\
 
 
-#endif // LLC_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
+#endif // LLC_AVOID_LOCAL_APPLICATION_MODEL_EXECUTABLE_RUNTIME
 
 #endif // LLC_APP_IMPL_H_23627

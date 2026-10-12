@@ -29,7 +29,7 @@ namespace llc
 	};
 
 	stin error_t	loadLabel		(vcu0_t & input, vcst_t & output) {
-		vcsc_t			serialized		= {};
+		vcs0_t			serialized		= {};
 		uint32_t					bytesRead		= 0;
 		llc_necs(bytesRead = viewRead(serialized, input));
 		llc_necs(input.slice(input, bytesRead));

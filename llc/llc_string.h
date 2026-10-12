@@ -18,7 +18,7 @@ namespace llc
 
         tplt<size_t buflen>
         inline  string      (sc_c (&other)[buflen])         : asc_t(vcst_t{other})                                  { initialize(); }
-        inline  string      (vsc_c & other)                 : asc_t(other)                                          { initialize(); }
+        inline  string      (vs0_c & other)                 : asc_t(other)                                          { initialize(); }
         inline  string      (asc_c & other)                 : asc_t(other)                                          { initialize(); }
         inline  string      (vcst_t other)                  : asc_t(other)                                          { initialize(); }
         inline  string      (sc_c * unsafe)                 : asc_t(vcst_t{unsafe, (u2_t)-1})                       { initialize(); }

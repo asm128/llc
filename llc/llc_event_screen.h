@@ -26,9 +26,6 @@ namespace llc
 
 	stct SEventArgsScreenCreate {
 		::llc::n2u1_t		Size;
-#ifdef LLC_WINDOWS
-		CREATESTRUCT		PlatformDetail;
-#endif
 	};
 
 	stin	::llc::error_t	eventEnqueueScreenDestroy		(::llc::apobj<::llc::SEventSystem> & queue)						{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Destroy, {}); }

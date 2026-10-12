@@ -15,6 +15,9 @@ GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, MUTABLE_ELEMENT		, 0, "A mutable vie
 GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, CONST_ELEMENT		, 1, "A const-element view alias did not preserve element constness.");
 GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, MUTABLE_TOP_CONST	, 2, "A mutable-element view's top-level const alias names the wrong type.");
 GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, CONST_TOP_CONST		, 3, "A const-element view's top-level const alias names the wrong type.");
+GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, SIGNED_CHAR_IDENTITY	, 4, "The signed byte type does not share the platform's signed character representation.");
+GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, SIGNED_BYTE_VIEW		, 5, "A signed byte view alias names the wrong raw view type.");
+GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, TEXT_VIEW_IDENTITY	, 6, "A semantic text view collapsed into its raw signed byte representation.");
 
 #define LLC_TEST_VIEW_ALIAS(errors, mutableAlias, mutableConstAlias, constAlias, constConstAlias, elementType) do { \
 	LLC_TEST_CHECKF(errors, VIEW_ALIAS_TEST_RESULT_MUTABLE_ELEMENT	, (false == ::std::is_same_v<::llc::mutableAlias, ::llc::view<elementType>>)			, "Alias:%s.", #mutableAlias); \
@@ -24,6 +27,11 @@ GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, CONST_TOP_CONST		, 3, "A const-eleme
 } while(0)
 
 ::llc::err_t testViewAliases(ATestError & errors) {
+	LLC_TEST_CHECK(errors, VIEW_ALIAS_TEST_RESULT_SIGNED_CHAR_IDENTITY, (false == ::std::is_same_v<::llc::s0_t, ::llc::sc_t>));
+	LLC_TEST_CHECK(errors, VIEW_ALIAS_TEST_RESULT_SIGNED_BYTE_VIEW, (false == ::std::is_same_v<::llc::vs0_t, ::llc::view<::llc::s0_t>>));
+	LLC_TEST_CHECK(errors, VIEW_ALIAS_TEST_RESULT_SIGNED_BYTE_VIEW, (false == ::std::is_same_v<::llc::vcs0_t, ::llc::view<cnst ::llc::s0_t>>));
+	LLC_TEST_CHECK(errors, VIEW_ALIAS_TEST_RESULT_TEXT_VIEW_IDENTITY, (::std::is_same_v<::llc::vstr_t, ::llc::vs0_t>));
+	LLC_TEST_CHECK(errors, VIEW_ALIAS_TEST_RESULT_TEXT_VIEW_IDENTITY, (::std::is_same_v<::llc::vcst_t, ::llc::vcs0_t>));
 	LLC_TEST_VIEW_ALIAS(errors, vn2sc_t	, vn2sc_c	, vcn2sc_t	, vcn2sc_c	, ::llc::n2<::llc::sc_t>);
 	LLC_TEST_VIEW_ALIAS(errors, vn2uc_t	, vn2uc_c	, vcn2uc_t	, vcn2uc_c	, ::llc::n2<::llc::uc_t>);
 	LLC_TEST_VIEW_ALIAS(errors, vn2u0_t	, vn2u0_c	, vcn2u0_t	, vcn2u0_c	, ::llc::n2<::llc::u0_t>);

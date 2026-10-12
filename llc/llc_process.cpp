@@ -7,7 +7,7 @@
 #	include <unistd.h>
 #endif
 
-::llc::error_t			llc::environmentBlockViews		(vcsc_t environmentBlock, aobj<kv<vcst_t>> & out_Views)	{
+::llc::error_t			llc::environmentBlockViews		(vcs0_t environmentBlock, aobj<kv<vcst_t>> & out_Views)	{
 	::llc::aobj<::llc::kv<::llc::vcst_t>>	views						= {};
 	for(::llc::u2_t offsetBeginVar = 0; offsetBeginVar < environmentBlock.size(); ) {
 		cnst ::llc::err_t			offsetEndVar					= ::llc::find('\0', environmentBlock, offsetBeginVar);

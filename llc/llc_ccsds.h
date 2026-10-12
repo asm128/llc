@@ -78,7 +78,6 @@ namespace llc
         inline  err_t           AppendValue     (f3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
         inline  err_t           AppendValue     (const char                 & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
         inline  err_t           AppendValue     (const bool                 & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (s0_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
         inline  err_t           AppendValue     (s1_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
         inline  err_t           AppendValue     (s2_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
         inline  err_t           AppendValue     (s3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
@@ -88,7 +87,7 @@ namespace llc
         inline  err_t           AppendValue     (u3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
         inline  err_t           AppendValue     (const view<f2_c>           & values)       { for(auto value : values) if_fail_fe(AppendValue(CCSDSPayloadValue(value))); return 0; }
         inline  err_t           AppendValue     (const view<f3_c>           & values)       { for(auto value : values) if_fail_fe(AppendValue(CCSDSPayloadValue(value))); return 0; }
-        inline  err_t           AppendValue     (vcsc_c                     & values)       { return AppendValue(values.cu8()); }
+        inline  err_t           AppendValue     (vcs0_c                     & values)       { return AppendValue(values.cu8()); }
         err_t                   AppendValue     (vcu0_c                     & values)       {
             if_fail_fe(savePOD(EncodedPayload, CCSDS_VALUE_ARRAY));
             if_fail_fe(savePOD(EncodedPayload, (u1_t)values.size()));

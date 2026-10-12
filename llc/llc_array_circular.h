@@ -72,8 +72,8 @@ namespace llc
 			case 0:
 				return readCount;
 			default:
-				rve_if_failed(-readCount, funcRemainingResult, "%" LLC_FMT_S2 ":%" LLC_FMT_S2, readCount, funcRemainingResult);
-				rve_if_failed(-readCount, push_back(funcNext()), "%" LLC_FMT_S2, readCount);
+				if_fail_vef(-readCount, funcRemainingResult, "%" LLC_FMT_S2 ":%" LLC_FMT_S2, readCount, funcRemainingResult);
+				if_fail_vef(-readCount, push_back(funcNext()), "%" LLC_FMT_S2, readCount);
 				++readCount;
 			}
 			return readCount;
@@ -82,8 +82,8 @@ namespace llc
 		::llc::error_t			read		(uint32_t countToRead, const ::llc::function<int()> & funcRemaining, const ::llc::function<T()> & funcNext) {
 			u2_c			stop			= ::llc::min(countToRead, mAx - Count);
 			for(int32_t readCount = 0; readCount < stop; ++readCount) {
-				rve_if(-readCount, 0 >= funcRemaining(), "%" LLC_FMT_S2 " < %" LLC_FMT_S2, readCount, countToRead);
-				rve_if_failed(-readCount, push_back(funcNext()), "%" LLC_FMT_S2, readCount);
+				if_true_vef(-readCount, 0 >= funcRemaining(), "%" LLC_FMT_S2 " < %" LLC_FMT_S2, readCount, countToRead);
+				if_fail_vef(-readCount, push_back(funcNext()), "%" LLC_FMT_S2, readCount);
 			}
 			return stop;
 		}

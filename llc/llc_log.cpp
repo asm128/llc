@@ -33,7 +33,7 @@ stxp		int		LOG_PREFIX_BUFFER_SIZE	= 64;
 stxp		int		LOG_PREFIX_BUFFER_SIZE	= 256;
 #endif
 
-::llc::error_t			llc::debug_print_prefix				(int8_t severity, const char * path, uint32_t line, const char * function) {
+::llc::error_t			llc::debug_print_prefix				(s0_t severity, const char * path, uint32_t line, const char * function) {
 	stxp sc_c	STR_DEBUG_PREFIX[]					= "%i|%llu|%s(%" LLC_FMT_U2 "){%s}:";
 	char			formatted[::LOG_PREFIX_BUFFER_SIZE]	= {};
 	::llc::sprintf_s(formatted, STR_DEBUG_PREFIX, severity, ::llc::timeCurrentInMs(), path, line, function);

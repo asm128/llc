@@ -48,7 +48,7 @@ static	::llc::error_t	hexToByte		(const char* s, uint8_t & byte)															{
 	return 0;
 }
 
-static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
+static	::llc::error_t	hexToByte		(const char* s, ::llc::s0_t & byte)															{
 	char						temp [3]		= {s[0], s[1]};
 	llc_necs(llc::parseIntegerHexadecimal(::llc::vcst_t{temp}, byte));
 	return 0;
@@ -78,7 +78,7 @@ static	::llc::error_t	hexToByte		(const char* s, int8_t & byte)															{
 	uint32_t					binarySize						= in_hexed.size() >> 1;
 	llc_necs(out_binary.resize(offset + binarySize));
 	const char					* pHexed						= in_hexed.begin();
-	int8_t						* pBinary						= out_binary.begin();
+	s0_t						* pBinary						= out_binary.begin();
 	for(uint32_t iByte = 0; iByte < binarySize; ++iByte)
 		hexToByte(&pHexed[iByte * 2], pBinary[offset + iByte]);
 	return 0;

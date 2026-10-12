@@ -7,7 +7,7 @@
 
 namespace llc
 {
-	error_t			environmentBlockViews		(vcsc_t environmentBlock, aobj<kv<vcst_t>> & out_Views);
+	error_t			environmentBlockViews		(vcs0_t environmentBlock, aobj<kv<vcst_t>> & out_Views);
 	error_t			environmentBlockFromEnviron	(string & environmentBlock);
 } // namespace
 

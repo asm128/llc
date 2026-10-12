@@ -1,4 +1,4 @@
-#define LLC_AVOID_LOCAL_APPLICATION_MODULE_MODEL_EXECUTABLE_RUNTIME
+#define LLC_AVOID_LOCAL_APPLICATION_MODEL_EXECUTABLE_RUNTIME
 #include "llc_app_impl.h"
 
 struct SApplication {
@@ -26,4 +26,4 @@ struct SApplication {
 	rtrn 0;
 }
 
-LLC_DEFINE_APPLICATION_ENTRY_POINT(SApplication, "LLC test module");
+LLC_DEFINE_APPLICATION_ENTRY_POINT_MT(SApplication, "LLC test module");

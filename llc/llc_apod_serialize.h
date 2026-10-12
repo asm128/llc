@@ -54,7 +54,6 @@ namespace llc
 		return 0;
 	}
 	tplTstin		err_t	loadView					(vcs0_t & input, apod<T> & output)				{ return loadView(*(vcu0_t*)& input, output); }
-	tplTstin		err_t	loadView					(vcsc_t & input, apod<T> & output)				{ return loadView(*(vcu0_t*)& input, output); }
 
 	err_t					keyValConstStringSerialize	(view<cnst TKeyValConstString> keyVals, view<cnst vcst_t> keysToSave, au0_t & output);
 } // namespace

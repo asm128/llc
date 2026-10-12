@@ -3,6 +3,13 @@
 obj/
 x64/
 Win32/
+x64.Debug/
+x64.Release/
+Win32.Debug/
+Win32.Release/
+Debug/
+Release/
+codex_build/
 bin2hex/
 checkmater/
 esp_build/

@@ -51,6 +51,8 @@ namespace llc
 			if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn Data[index];
 		}
+		tplt<tpnm _tIndex> inln T&		oper[]			(_tIndex index)						{ rtrn operator[]((u2_t)index); }
+		tplt<tpnm _tIndex> inln cnst T&	oper[]			(_tIndex index)				cnst	{ rtrn operator[]((u2_t)index); }
 		bool					oper!=			(TCVCs & other)	cnst						{ rtrn  !operator==(other); } // I had to add this for the android build not supporting C++20.
 		bool					oper==			(TCVCs & other)	cnst						{
 			if(this->size() != other.size())
@@ -211,7 +213,7 @@ namespace llc
 
 	tydf	view<b8_c>	vcb8_t;
 	tydf	view<uc_c>	vcuc_t, vcuc, vcuchar;
-	tydf	view<sc_c>	vcsc_t, vcsc_t, vcchar;
+	tydf	view<sc_c>	vcchar;
 	tydf	view<u0_c>	vcu0_t, vcu0_t;
 	tydf	view<u1_c>	vcu1_t, vcu16;
 	tydf	view<u2_c>	vcu2_t, vcu32;
@@ -239,7 +241,6 @@ namespace llc
 
 	tdcs	 vcb8_t vcb8_c;
 	tdcs	 vcuc_t vcuc_c;
-	tdcs	 vcsc_t vcsc_c;
 	tdcs	 vcu0_t vcu0_c;
 	tdcs	 vcu1_t vcu1_c;
 	tdcs	 vcu2_t vcu2_c;
@@ -301,7 +302,7 @@ namespace llc
 
 	struct view_string : view<sc_t> {
 		inxp			view_string				()											= dflt;
-		inxp			view_string				(vsc_c & other)						nxpt	: view(other)							{}
+		inxp			view_string				(vs0_c & other)						nxpt	: view(other)							{}
 		tplN2u			view_string				(sc_t (&storage)[N])				nxpt	: view(storage)							{ Count = (u2_t)strnlen(storage, (u2_t)N);							}
 		tplN2u			view_string				(sc_t (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
 						view_string				(sc_t * storage, u2_t length)				: view(storage, length)					{ Count = (length == (u2_t)-1) ? (u2_t)strlen(storage) : length;		}
@@ -315,7 +316,7 @@ namespace llc
 	};
 	struct view_const_string : view<sc_c> {
 		inxp			view_const_string		()											: view(0, "") 							{}
-		inxp			view_const_string		(vcsc_c & other)					nxpt	: view(other)							{}
+		inxp			view_const_string		(vcs0_c & other)					nxpt	: view(other)							{}
 		tplN2u	inxp	view_const_string		(u2_t length, sc_c (&storage)[N])			: view(length, storage)					{}
 		tplN2u			view_const_string		(sc_c (&storage)[N])				nxpt	: view(storage)							{ Count = (u2_t)strnlen(storage, (u2_t)N);							}
 		tplN2u			view_const_string		(sc_c (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
@@ -348,8 +349,8 @@ namespace llc
 	stin			vs		str	(vs & arg)								{ rtrn arg; }
 	stin			vcst_t	str	(cnst vs & arg)							{ rtrn arg.cc(); }
 	stin			vcst_t	str	(cnst vcst_t & arg)						{ rtrn arg; }
-	stin			vs		str	(vsc_t arg)								{ rtrn arg; }
-	stin			vcst_t	str	(vcsc_t arg)							{ rtrn arg; }
+	stin			vs		str	(vs0_t arg)								{ rtrn arg; }
+	stin			vcst_t	str	(vcs0_t arg)							{ rtrn arg; }
 	tplN2usinx		vs		str	(sc_t (&arg)[N])						{ rtrn arg; }
 	tplN2usinx		vcst_t	str	(sc_c (&arg)[N])						{ rtrn arg; }
 	sinx			vcst_t	str	(cnst bool arg)							{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
@@ -369,7 +370,6 @@ namespace llc
 	GDEFINE_TYPE_NAME_STR(u1_t);
 	GDEFINE_TYPE_NAME_STR(u2_t);
 	GDEFINE_TYPE_NAME_STR(u3_t);
-	GDEFINE_TYPE_NAME_STR(s0_t);
 	GDEFINE_TYPE_NAME_STR(s1_t);
 	GDEFINE_TYPE_NAME_STR(s2_t);
 	GDEFINE_TYPE_NAME_STR(s3_t);
@@ -381,7 +381,6 @@ namespace llc
 	GDEFINE_TYPE_NAME_STR(u1_c);
 	GDEFINE_TYPE_NAME_STR(u2_c);
 	GDEFINE_TYPE_NAME_STR(u3_c);
-	GDEFINE_TYPE_NAME_STR(s0_c);
 	GDEFINE_TYPE_NAME_STR(s1_c);
 	GDEFINE_TYPE_NAME_STR(s2_c);
 	GDEFINE_TYPE_NAME_STR(s3_c);
@@ -395,22 +394,19 @@ namespace llc
 
 	stxp	vcst_t		TRIM_CHARACTERS		= LLC_CXS(" \t\b\n\r");
 
-	err_t			rtrim				(vcsc_t & trimmed, cnst vcsc_t & original, cnst vcsc_t & characters = TRIM_CHARACTERS);
-	err_t			ltrim				(vcsc_t & trimmed, cnst vcsc_t & original, cnst vcsc_t & characters = TRIM_CHARACTERS);
-	err_t			trim				(vcsc_t & trimmed, cnst vcsc_t & original, cnst vcsc_t & characters = TRIM_CHARACTERS);
-	stin	err_t	rtrim				(vcst_t & trimmed, vcst_t original, vcst_t characters = TRIM_CHARACTERS)	{ vcsc_t result = {}; cnst err_t count = rtrim(result, original, characters); trimmed = {result.begin(), result.size()}; rtrn count; }
-	stin	err_t	ltrim				(vcst_t & trimmed, vcst_t original, vcst_t characters = TRIM_CHARACTERS)	{ vcsc_t result = {}; cnst err_t count = ltrim(result, original, characters); trimmed = {result.begin(), result.size()}; rtrn count; }
-	stin	err_t	trim				(vcst_t & trimmed, vcst_t original, vcst_t characters = TRIM_CHARACTERS)	{ vcsc_t result = {}; cnst err_t count = trim(result, original, characters); trimmed = {result.begin(), result.size()}; rtrn count; }
+	err_t			rtrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
+	err_t			ltrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
+	err_t			trim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
 	stin	err_t	rtrim				(vcst_t & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
 	stin	err_t	ltrim				(vcst_t & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
 	stin	err_t	trim				(vcst_t & trimmed) 	{ rtrn trim(trimmed, trimmed); }
 
-	stin	err_t	rtrim				(vc & trimmed, cnst vc & original, vcst_t characters = TRIM_CHARACTERS)	{ rtrn rtrim	(*(vcsc_t*)&trimmed, *(cnst vcsc_t*)&original, characters); }
-	stin	err_t	ltrim				(vc & trimmed, cnst vc & original, vcst_t characters = TRIM_CHARACTERS)	{ rtrn ltrim	(*(vcsc_t*)&trimmed, *(cnst vcsc_t*)&original, characters); }
-	stin	err_t	trim				(vc & trimmed, cnst vc & original, vcst_t characters = TRIM_CHARACTERS)	{ rtrn trim	(*(vcsc_t*)&trimmed, *(cnst vcsc_t*)&original, characters); }
-	stin	err_t	rtrim				(vc & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
-	stin	err_t	ltrim				(vc & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
-	stin	err_t	trim				(vc & trimmed) 	{ rtrn trim(trimmed, trimmed); }
+	stin	err_t	rtrim				(vs0_t & trimmed, cnst vs0_t & original, vcst_t characters = TRIM_CHARACTERS)	{ vcst_t result = {}; cnst err_t count = rtrim(result, {original.begin(), original.size()}, characters); trimmed = {(sc_t*)result.begin(), result.size()}; rtrn count; }
+	stin	err_t	ltrim				(vs0_t & trimmed, cnst vs0_t & original, vcst_t characters = TRIM_CHARACTERS)	{ vcst_t result = {}; cnst err_t count = ltrim(result, {original.begin(), original.size()}, characters); trimmed = {(sc_t*)result.begin(), result.size()}; rtrn count; }
+	stin	err_t	trim				(vs0_t & trimmed, cnst vs0_t & original, vcst_t characters = TRIM_CHARACTERS)	{ vcst_t result = {}; cnst err_t count = trim(result, {original.begin(), original.size()}, characters); trimmed = {(sc_t*)result.begin(), result.size()}; rtrn count; }
+	stin	err_t	rtrim				(vs0_t & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
+	stin	err_t	ltrim				(vs0_t & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
+	stin	err_t	trim				(vs0_t & trimmed) 	{ rtrn trim(trimmed, trimmed); }
 
 	tplT	err_t	reverse				(view<T> elements)													{
 		u2_c				lastElement			= elements.size() - 1;
@@ -564,7 +560,7 @@ namespace llc
 #define LLC_USING_VIEW()												\
 	usng	::llc::vb8_t, ::llc::vb8_c, ::llc::vcb8_t, ::llc::vcb8_c	\
 		,	::llc::vuc_t, ::llc::vuc_c, ::llc::vcuc_t, ::llc::vcuc_c	\
-		,	::llc::vsc_t, ::llc::vsc_c, ::llc::vcsc_t, ::llc::vcsc_c	\
+		,	::llc::vsc_t, ::llc::vsc_c								\
 		,	::llc::vu0_t, ::llc::vu0_c, ::llc::vcu0_t, ::llc::vcu0_c	\
 		,	::llc::vu1_t, ::llc::vu1_c, ::llc::vcu1_t, ::llc::vcu1_c	\
 		,	::llc::vu2_t, ::llc::vu2_c, ::llc::vcu2_t, ::llc::vcu2_c	\

@@ -532,7 +532,6 @@ namespace llc
 	nsix DATA_TYPE	dataType		(u1_t)	{ return DATA_TYPE_UINT16;	}
 	nsix DATA_TYPE	dataType		(u2_t)	{ return DATA_TYPE_UINT32;	}
 	nsix DATA_TYPE	dataType		(u3_t)	{ return DATA_TYPE_UINT64;	}
-	nsix DATA_TYPE	dataType		(s0_t)	{ return DATA_TYPE_INT8;		}
 	nsix DATA_TYPE	dataType		(s1_t)	{ return DATA_TYPE_INT16;	}
 	nsix DATA_TYPE	dataType		(s2_t)	{ return DATA_TYPE_INT32;	}
 	nsix DATA_TYPE	dataType		(s3_t)	{ return DATA_TYPE_INT64;	}
