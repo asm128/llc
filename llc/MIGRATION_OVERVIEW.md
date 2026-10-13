@@ -269,7 +269,7 @@ This ledger covers production `.h` and `.cpp` files at the two source roots. `[x
 - [ ] `gpk_component_scene_draw.cpp`
 - [ ] `gpk_d3d.{h,cpp}`
 - [x] `gpk_dialog.{h,cpp}` -> `llc_dialog.{h,cpp}` as a resource-free form root with generation-safe control references, hierarchy membership, explicit focus/selection history and GUI-event synchronization; renderer resources and concrete dialog controls remain outside this contract
-- [ ] `gpk_dialog_controls.h`
+- [ ] `gpk_dialog_controls.h` -> check box and slider behavior extracted into resource-free `llc_gui_checkbox.{h,cpp}` and `llc_gui_slider.{h,cpp}` with explicit instance state, hierarchy, keyboard/mouse input and focused tests; remaining historical dialog controls still require disposition
 - [ ] `gpk_font.{h,cpp}`
 - [ ] `gpk_framework.{h,cpp}`
 - [ ] `gpk_geometry.{h,cpp}`

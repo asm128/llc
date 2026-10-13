@@ -125,8 +125,10 @@
     <ClInclude Include="llc_grid_color.h" />
     <ClInclude Include="llc_gui_control.h" />
     <ClInclude Include="llc_gui_control_state.h" />
+    <ClInclude Include="llc_gui_checkbox.h" />
     <ClInclude Include="llc_gui_render.h" />
     <ClInclude Include="llc_gui_inputbox.h" />
+    <ClInclude Include="llc_gui_slider.h" />
     <ClInclude Include="llc_gui_viewport.h" />
     <ClInclude Include="llc_img_color.h" />
     <ClInclude Include="llc_img_serialize.h" />
@@ -327,11 +329,13 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_gui_control.cpp" />
+    <ClCompile Include="llc_gui_checkbox.cpp" />
     <ClCompile Include="llc_gui_input.cpp" />
     <ClCompile Include="llc_gui_layout.cpp" />
     <ClCompile Include="llc_gui_model.cpp" />
     <ClCompile Include="llc_gui_render.cpp" />
     <ClCompile Include="llc_gui_inputbox.cpp" />
+    <ClCompile Include="llc_gui_slider.cpp" />
     <ClCompile Include="llc_gui_viewport.cpp" />
     <ClCompile Include="llc_i2c.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -498,8 +502,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(SolutionDir)../$(Platform).$(Configuration)/</OutDir>
-    <IntDir>$(SolutionDir)../obj/$(Platform).$(Configuration)/$(ProjectName)/</IntDir>
+    <OutDir>$(ProjectDir)../../$(Platform).$(Configuration)/</OutDir>
+    <IntDir>$(ProjectDir)../../obj/$(Platform).$(Configuration)/$(ProjectName)/</IntDir>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -528,7 +532,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -549,7 +553,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -570,7 +574,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -591,7 +595,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -614,7 +618,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -639,7 +643,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -664,7 +668,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -689,7 +693,7 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>

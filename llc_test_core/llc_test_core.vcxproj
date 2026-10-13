@@ -203,6 +203,7 @@
     <ClCompile Include="llc_test_grid_image.cpp" />
     <ClCompile Include="llc_test_grid_operations.cpp" />
     <ClCompile Include="llc_test_gui.cpp" />
+    <ClCompile Include="llc_test_gui_components.cpp" />
     <ClCompile Include="llc_test_gui_control.cpp" />
     <ClCompile Include="llc_test_gui_input.cpp" />
     <ClCompile Include="llc_test_gui_inputbox.cpp" />

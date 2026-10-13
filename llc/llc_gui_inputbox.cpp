@@ -200,6 +200,7 @@ sttc ::llc::err_t virtualKeyboardSetupFail(::llc::SGUI & gui, ::llc::SVirtualKey
 		inputBox.VirtualKeyboard = {};
 		rtrn -1;
 	}
+	gui.Controls.SetHidden(inputBox.VirtualKeyboard.IdRoot, false);
 	::llc::SControlPlacement & textPlacement = gui.Controls.Placement[inputBox.IdText];
 	::llc::SControlPlacement & keyboardPlacement = gui.Controls.Placement[inputBox.VirtualKeyboard.IdRoot];
 	keyboardPlacement.Align = textPlacement.Align;

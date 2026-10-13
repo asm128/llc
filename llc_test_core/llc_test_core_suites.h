@@ -31,6 +31,7 @@
 ::llc::err_t testGridImage		(ATestError & errors);
 ::llc::err_t testGridOperations	(ATestError & errors);
 ::llc::err_t testGUI			(ATestError & errors);
+::llc::err_t testGUIComponents	(ATestError & errors);
 ::llc::err_t testGUIInputBox	(ATestError & errors);
 ::llc::err_t testGUIText		(ATestError & errors);
 ::llc::err_t testGUIViewport	(ATestError & errors);

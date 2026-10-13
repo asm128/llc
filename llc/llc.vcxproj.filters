@@ -339,6 +339,9 @@
     <ClInclude Include="llc_gui_control_state.h">
       <Filter>gui</Filter>
     </ClInclude>
+	<ClInclude Include="llc_gui_checkbox.h">
+	  <Filter>gui</Filter>
+	</ClInclude>
 	<ClInclude Include="llc_gui_render.h">
 	  <Filter>gui</Filter>
 	</ClInclude>
@@ -346,6 +349,9 @@
       <Filter>dialog</Filter>
     </ClInclude>
     <ClInclude Include="llc_gui_inputbox.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_slider.h">
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="llc_gui_text.h">
@@ -917,6 +923,9 @@
 	<ClCompile Include="llc_gui_control.cpp">
 	  <Filter>gui</Filter>
 	</ClCompile>
+	<ClCompile Include="llc_gui_checkbox.cpp">
+	  <Filter>gui</Filter>
+	</ClCompile>
 	<ClCompile Include="llc_gui_input.cpp">
 	  <Filter>gui</Filter>
 	</ClCompile>
@@ -939,6 +948,9 @@
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui_inputbox.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_slider.cpp">
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui_viewport.cpp">

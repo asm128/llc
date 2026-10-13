@@ -16,6 +16,17 @@ sttc ::llc::u2_t guiControlKeyboardIndex(::llc::vcid controlsKeyboard, ::llc::ci
 	rtrn controlsKeyboard.size();
 }
 
+sttc ::llc::cid_t guiControlKeyboardOwner(cnst ::llc::SGUI & gui, ::llc::vcid controlsKeyboard, ::llc::cid_t idControl) nxpt {
+	for(::llc::u2_t iDepth = 0; idControl != ::llc::CID_INVALID && iDepth < gui.Controls.Entities.size(); ++iDepth) {
+		if(::guiControlKeyboardIndex(controlsKeyboard, idControl) < controlsKeyboard.size())
+			rtrn idControl;
+		if(::llc::controlInvalid(gui, idControl))
+			rtrn ::llc::CID_INVALID;
+		idControl = gui.Controls.Entities[idControl].Parent;
+	}
+	rtrn ::llc::CID_INVALID;
+}
+
 sttc void guiControlFocus(::llc::SGUI & gui, ::llc::cid_t idControl) nxpt {
 	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl) {
 		cnst ::llc::cid_t idCurrent = (::llc::cid_t)iControl;
@@ -113,8 +124,11 @@ sttc ::llc::cid_t guiControlHit(::llc::SGUI & gui, cnst ::llc::SInput & input, :
 		if(input.ButtonUp(0))
 			gui.Controls.SetPressed(idControl, false);
 	}
-	if(input.ButtonDown(0) && ::guiControlKeyboardIndex(controlsKeyboard, idHovered) < controlsKeyboard.size())
-		::guiControlFocus(gui, idHovered);
+	if(input.ButtonDown(0)) {
+		cnst ::llc::cid_t idFocus = ::guiControlKeyboardOwner(gui, controlsKeyboard, idHovered);
+		if(idFocus != ::llc::CID_INVALID)
+			::guiControlFocus(gui, idFocus);
+	}
 	if(input.KeyDown(::llc::SYSTEM_KEY_Tab)) {
 		cnst bool reverse = 0 != input.KeyboardCurrent.KeyState[::llc::SYSTEM_KEY_Shift];
 		::guiControlFocusMove(gui, controlsKeyboard, reverse);

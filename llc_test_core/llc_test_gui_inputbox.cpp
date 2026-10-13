@@ -77,6 +77,10 @@ GDEFINE_ENUM_VALUED(GUI_INPUTBOX_TEST_RESULT, ESCAPE_VISIBILITY		, 68, "Virtual 
 GDEFINE_ENUM_VALUED(GUI_INPUTBOX_TEST_RESULT, ENTER_RESULT				, 69, "Virtual enter did not return INT_MAX.");
 GDEFINE_ENUM_VALUED(GUI_INPUTBOX_TEST_RESULT, MALFORMED_RESULT			, 70, "An input box accepted a truncated text payload.");
 GDEFINE_ENUM_VALUED(GUI_INPUTBOX_TEST_RESULT, MALFORMED_TEXT			, 71, "A truncated text payload changed the input box.");
+GDEFINE_ENUM_VALUED(GUI_INPUTBOX_TEST_RESULT, MULTI_CREATE				, 72, "Creating independent input boxes failed.");
+GDEFINE_ENUM_VALUED(GUI_INPUTBOX_TEST_RESULT, MULTI_CONTROLS			, 73, "Independent input boxes share controls.");
+GDEFINE_ENUM_VALUED(GUI_INPUTBOX_TEST_RESULT, MULTI_EDITING			, 74, "Independent input boxes cannot edit concurrently.");
+GDEFINE_ENUM_VALUED(GUI_INPUTBOX_TEST_RESULT, MULTI_TEXT				, 75, "Input from one virtual keyboard changed another input box.");
 
 stacxpr ::llc::SYSTEM_KEY GUI_INPUTBOX_EXPECTED_COMMANDS[] =
 	{ ::llc::SYSTEM_KEY_Escape
@@ -200,6 +204,7 @@ sttc ::llc::err_t testGUIInputBoxCreation(ATestError & errors, ::llc::SGUI & gui
 	LLC_TEST_CHECKF(errors, GUI_INPUTBOX_TEST_RESULT_EDIT_RESULT, editResult != 1, "Edit result:%i, expected:1.", editResult);
 	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_EDIT_STATE, false == inputBox.Editing);
 	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_EDIT_VISIBILITY, 0 != ::llc::controlHidden(gui, inputBox.IdRoot));
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_EDIT_VISIBILITY, 0 != ::llc::controlHidden(gui, inputBox.VirtualKeyboard.IdRoot));
 	cnst ::llc::err_t textResult = inputBox.SetText(gui, "AB");
 	LLC_TEST_REQUIREF(errors, GUI_INPUTBOX_TEST_RESULT_SET_TEXT_RESULT, ::llc::failed(textResult), "SetText result:%i.", textResult);
 	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_SET_TEXT_STORAGE, inputBox.Text != LLC_CXS("AB"));
@@ -287,9 +292,39 @@ sttc ::llc::err_t testGUIInputBoxEvents(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIInputBoxInstances(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t idParent = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_CREATE, idParent < 0, "Parent creation result:%i.", idParent);
+	::llc::SInputBox inputBoxes[2] = {};
+	for(::llc::u2_t iInputBox = 0; iInputBox < ::llc::size(inputBoxes); ++iInputBox)
+		LLC_TEST_REQUIREF(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_CREATE, ::llc::failed(::llc::inputBoxCreate(inputBoxes[iInputBox], gui, idParent)), "Input box:%u creation failed.", iInputBox);
+
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_CONTROLS, inputBoxes[0].IdRoot == inputBoxes[1].IdRoot);
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_CONTROLS, inputBoxes[0].IdText == inputBoxes[1].IdText);
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_CONTROLS, inputBoxes[0].VirtualKeyboard.IdRoot == inputBoxes[1].VirtualKeyboard.IdRoot);
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_CONTROLS, inputBoxes[0].VirtualKeyboard.Characters[0].IdControl == inputBoxes[1].VirtualKeyboard.Characters[0].IdControl);
+	if_fail_fe(inputBoxes[0].SetText(gui, "P1"));
+	if_fail_fe(inputBoxes[1].SetText(gui, "P2"));
+	inputBoxes[0].Edit(gui, true);
+	inputBoxes[1].Edit(gui, true);
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_EDITING, false == inputBoxes[0].Editing || false == inputBoxes[1].Editing);
+
+	cnst ::llc::cid_t idCharacterA = inputBoxes[0].VirtualKeyboard.Characters['A' - 1].IdControl;
+	if_fail_fe(::inputBoxProcessControl(inputBoxes[0], gui, idCharacterA));
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_TEXT, inputBoxes[0].Text != LLC_CXS("P1A"));
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_TEXT, inputBoxes[1].Text != LLC_CXS("P2"));
+	cnst ::llc::cid_t idCharacterB = inputBoxes[1].VirtualKeyboard.Characters['B' - 1].IdControl;
+	if_fail_fe(::inputBoxProcessControl(inputBoxes[1], gui, idCharacterB));
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_TEXT, inputBoxes[0].Text != LLC_CXS("P1A"));
+	LLC_TEST_CHECK(errors, GUI_INPUTBOX_TEST_RESULT_MULTI_TEXT, inputBoxes[1].Text != LLC_CXS("P2B"));
+	rtrn 0;
+}
+
 ::llc::err_t testGUIInputBox(ATestError & errors) {
 	if_fail_fe(testGUIInputBoxDefaults(errors));
 	if_fail_fe(testGUIVirtualKeyboardSetup(errors));
 	if_fail_fe(testGUIVirtualKeyboard437(errors));
+	if_fail_fe(testGUIInputBoxInstances(errors));
 	rtrn testGUIInputBoxEvents(errors);
 }

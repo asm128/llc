@@ -33,6 +33,7 @@ GDEFINE_ENUM_VALUED(GUI_INPUT_TEST_RESULT, KEYBOARD_ACTION		, 25, "Enter did not
 GDEFINE_ENUM_VALUED(GUI_INPUT_TEST_RESULT, KEYBOARD_ACTION_CLEAR	, 26, "Keyboard activation remained set after its input frame.");
 GDEFINE_ENUM_VALUED(GUI_INPUT_TEST_RESULT, SPACE_ACTION			, 27, "Space did not activate the focused control.");
 GDEFINE_ENUM_VALUED(GUI_INPUT_TEST_RESULT, MOUSE_FOCUS			, 28, "Mouse press did not synchronize keyboard focus.");
+GDEFINE_ENUM_VALUED(GUI_INPUT_TEST_RESULT, MOUSE_CHILD_FOCUS		, 29, "Mouse press on a composite child did not focus its keyboard-listed owner.");
 
 sttc ::llc::err_t testGUIInputProcess(ATestError & errors) {
 	::llc::SGUI gui = {};
@@ -130,6 +131,9 @@ sttc ::llc::err_t testGUIInputKeyboard(ATestError & errors) {
 		LLC_TEST_REQUIREF(errors, GUI_INPUT_TEST_RESULT_CREATE_RESULT, controlsKeyboard[iControl] < 0, "Control:%u creation result:%i.", iControl, controlsKeyboard[iControl]);
 		gui.Controls.Placement[controlsKeyboard[iControl]].Area = {{(::llc::s1_t)(10 + 30 * iControl), 10}, {20, 20}};
 	}
+	cnst ::llc::cid_t idChild = ::llc::controlCreateChild(gui, controlsKeyboard[2]);
+	LLC_TEST_REQUIREF(errors, GUI_INPUT_TEST_RESULT_CREATE_RESULT, idChild < 0, "Child creation result:%i.", idChild);
+	gui.Controls.Placement[idChild].Area = {{0, 0}, {12, 12}};
 	LLC_TEST_REQUIREF(errors, GUI_INPUT_TEST_RESULT_METRICS_RESULT, 0 > ::llc::guiUpdateMetrics(gui, {100, 50}, true), "%s", "Keyboard-control metric update failed.");
 	::llc::SInput input = {};
 	input.MouseCurrent.Position = {99, 49};
@@ -180,6 +184,8 @@ sttc ::llc::err_t testGUIInputKeyboard(ATestError & errors) {
 	input.MouseCurrent.ButtonState[0] = 1;
 	LLC_TEST_REQUIREF(errors, GUI_INPUT_TEST_RESULT_PROCESS_RESULT, 0 > ::llc::guiProcessInput(gui, input, controlsKeyboard), "%s", "Mouse-focus processing failed.");
 	LLC_TEST_CHECK(errors, GUI_INPUT_TEST_RESULT_MOUSE_FOCUS, false == gui.Controls.IsFocused(controlsKeyboard[2]));
+	LLC_TEST_CHECK(errors, GUI_INPUT_TEST_RESULT_MOUSE_CHILD_FOCUS, false == gui.Controls.IsHovered(idChild));
+	LLC_TEST_CHECK(errors, GUI_INPUT_TEST_RESULT_MOUSE_CHILD_FOCUS, gui.Controls.IsFocused(idChild));
 	rtrn 0;
 }
 

@@ -75,6 +75,9 @@
 		<ClCompile Include="llc_test_gui.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_gui_components.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_gui_control.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
