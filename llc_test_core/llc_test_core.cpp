@@ -2,8 +2,14 @@
 //
 #include "llc_test_core_suites.h"
 #include "llc_log.h"
+#include "llc_parse.h"
 #include "llc_timer.h"
 #include "llc_runtime.h"
+
+sttc ::llc::u3_t TestSeedOverride = {};
+sttc bool TestSeedOverrideEnabled = false;
+
+::llc::u3_t testSeed(::llc::u3_t fallback) { rtrn TestSeedOverrideEnabled ? TestSeedOverride : fallback; }
 
 tplt<tpnm TFunction>
 stct STestSuite {
@@ -15,7 +21,9 @@ tplt<tpnm TFunction>
 sinx	STestSuite<TFunction>	testSuite			(TFunction & function, ::llc::vcst_t name) nxpt { rtrn {function, name}; }
 
 tplt<tpnm TFunction>
-sttc	::llc::err_t	testSuiteRun				(ATestError & results, cnst STestSuite<TFunction> & testSuite) {
+sttc	::llc::err_t	testSuiteRun				(ATestError & results, ::llc::view<cnst ::llc::vcst_t> selectedSuites, cnst STestSuite<TFunction> & testSuite) {
+	if(selectedSuites.size() && -1 == selectedSuites.find(testSuite.Name))
+		rtrn 0;
 	::llc::u2_c		checkCountBefore	= testCheckCount(results);
 	::llc::u2_c		failureCountBefore	= testErrorCount(results);
 	::llc::STimer	suiteTimer;
@@ -31,9 +39,13 @@ sttc	::llc::err_t	testSuiteRun				(ATestError & results, cnst STestSuite<TFuncti
 }
 
 tplt<tpnm... TSuites>
-sttc	::llc::err_t	testSuitesRun				(ATestError & results, cnst TSuites &... suites) {
+sttc	::llc::err_t	testSuitesRun				(ATestError & results, ::llc::view<cnst ::llc::vcst_t> selectedSuites, cnst TSuites &... suites) {
+	for(cnst ::llc::vcst_t & selectedSuite : selectedSuites) {
+		cnst bool found = ((suites.Name == selectedSuite) || ...);
+		if_zero_fef(found, "Unknown test suite:'%.*s'.", (int)selectedSuite.size(), selectedSuite.begin());
+	}
 	::llc::err_t	result				= 0;
-	((result = ::llc::min(result, ::testSuiteRun(results, suites))), ...);
+	((result = ::llc::min(result, ::testSuiteRun(results, selectedSuites, suites))), ...);
 	rtrn result;
 }
 
@@ -47,9 +59,33 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 	ATestError		results;
 	llc::err_t		result				= 0;
 	cnst bool		logSuccessDetails	= 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "success-details");
+	::llc::aobj<::llc::vcst_t> selectedSuites;
+	if_fail_fe(::llc::argsOptionValues(runtimeValues.EntryPointArgs, LLC_CXS("test"), selectedSuites));
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, LLC_CXS("seed"))) {
+		::llc::vcst_t seedText = {};
+		if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, LLC_CXS("seed"), seedText));
+		::llc::u3_t seed = {};
+		cnst ::llc::err_t digits = ::llc::parseIntegerDecimal(seedText, seed);
+		stxp ::llc::vcst_t seedMaximum = LLC_CXS("18446744073709551615");
+		::llc::u2_t significantOffset = 0;
+		while(significantOffset < seedText.size() && '0' == seedText[significantOffset])
+			++significantOffset;
+		cnst ::llc::u2_t significantLength = seedText.size() - significantOffset;
+		bool overflow = significantLength > seedMaximum.size();
+		for(::llc::u2_t iDigit = 0; false == overflow && significantLength == seedMaximum.size() && iDigit < significantLength; ++iDigit) {
+			if(seedText[significantOffset + iDigit] == seedMaximum[iDigit])
+				continue;
+			overflow = seedText[significantOffset + iDigit] > seedMaximum[iDigit];
+			break;
+		}
+		if_true_fef(0 == seedText.size() || ::llc::failed(digits) || (::llc::u2_t)digits != seedText.size() || overflow, "Invalid --seed value:'%.*s'.", (int)seedText.size(), seedText.begin());
+		TestSeedOverride = seed;
+		TestSeedOverrideEnabled = true;
+		always_printf("Using test seed:%" LLC_FMT_U3 ".", TestSeedOverride);
+	}
 
 	::llc::STimer	testTimer;
-	result = testSuitesRun(results
+	result = testSuitesRun(results, selectedSuites
 		, LLC_TEST_SUITE(testSPRNG         )
 		, LLC_TEST_SUITE(testSTL           )
 		, LLC_TEST_SUITE(testAdam7        )
@@ -129,5 +165,5 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 			, testResult.Value, testResult.Count, (int)testResult.Description.size(), testResult.Description.begin()
 			);
 	}
-	return llc::failed(result) || failureCount ? EXIT_FAILURE : EXIT_SUCCESS;
+	rtrn ::llc::failed(result) ? result : failureCount ? ::llc::OS_ERROR : 0;
 }

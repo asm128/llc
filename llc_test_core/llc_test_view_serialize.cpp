@@ -142,7 +142,8 @@ sttc ::llc::err_t testUIntType(ATestError & errors) {
 			if_fail_fe(testUIntValue<T>(errors, maximum));
 		previousMaximum = maximum;
 	}
-	::llc::SPRNG random = {SERIALIZE_UINT_RANDOM_SEED};
+	cnst ::llc::u3_t seed = testSeed(SERIALIZE_UINT_RANDOM_SEED);
+	::llc::SPRNG random = {seed};
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
 	stxp ::llc::u3_t VALUE_MASK = (::llc::u3_t(1) << VALUE_BITS) - 1;
 	for(::llc::u2_t iRandom = 0; iRandom < SERIALIZE_UINT_RANDOM_COUNT; ++iRandom) {
@@ -151,7 +152,7 @@ sttc ::llc::err_t testUIntType(ATestError & errors) {
 		if_fail_fe(testUIntValue<T>(errors, value));
 		if(failureCount != testErrorCount(errors))
 			error_printf("%u-bit randomized integer serialization case failed. seed:%" LLC_FMT_U3 ", iteration:%u, value:%" LLC_FMT_U3 "."
-				, bcof(T), SERIALIZE_UINT_RANDOM_SEED, iRandom, ::llc::u3_t(value)
+				, bcof(T), seed, iRandom, ::llc::u3_t(value)
 				);
 	}
 	return 0;
@@ -241,14 +242,15 @@ sttc ::llc::err_t testViewType(ATestError & errors) {
 	stxp ::llc::u2_t COUNTS[] = {0, 1, 2, 63, 64, 255, 16383, 16384};
 	for(::llc::u2_c count : COUNTS)
 		if_fail_fe(testViewCount<T>(errors, count));
-	::llc::SPRNG random = {SERIALIZE_VIEW_RANDOM_SEED};
+	cnst ::llc::u3_t seed = testSeed(SERIALIZE_VIEW_RANDOM_SEED);
+	::llc::SPRNG random = {seed};
 	for(::llc::u2_t iRandom = 0; iRandom < SERIALIZE_VIEW_RANDOM_COUNT; ++iRandom) {
 		cnst ::llc::u2_t elementCount = random.Next() & 0xFFFU;
 		cnst ::llc::u2_t failureCount = testErrorCount(errors);
 		if_fail_fe(testViewCount<T>(errors, elementCount));
 		if(failureCount != testErrorCount(errors))
 			error_printf("%u-bit randomized view serialization case failed. seed:%" LLC_FMT_U3 ", iteration:%u, element count:%u."
-				, bcof(T), SERIALIZE_VIEW_RANDOM_SEED, iRandom, elementCount
+				, bcof(T), seed, iRandom, elementCount
 				);
 	}
 	return 0;

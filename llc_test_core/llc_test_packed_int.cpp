@@ -98,7 +98,8 @@ sttc ::llc::err_t testType(ATestError & errors) {
 			if_fail_fe(testValue<T>(errors, maximum, tailWidth));
 		previousMaximum = maximum;
 	}
-	::llc::SPRNG random = {PACKED_RANDOM_SEED};
+	cnst ::llc::u3_t seed = testSeed(PACKED_RANDOM_SEED);
+	::llc::SPRNG random = {seed};
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
 	stxp ::llc::u3_t VALUE_MASK = (::llc::u3_t(1) << VALUE_BITS) - 1;
 	for(::llc::u2_t iRandom = 0; iRandom < PACKED_RANDOM_COUNT; ++iRandom) {
@@ -107,7 +108,7 @@ sttc ::llc::err_t testType(ATestError & errors) {
 		if_fail_fe(testValue<T>(errors, value, ::llc::uint_tail_width(value)));
 		if(failureCount != testErrorCount(errors))
 			error_printf("%u-bit randomized packed_uint<> case failed. seed:%" LLC_FMT_U3 ", iteration:%u, value:%" LLC_FMT_U3 "."
-				, ::llc::u2_t(szof(T) * 8), PACKED_RANDOM_SEED, iRandom, ::llc::u3_t(value)
+				, ::llc::u2_t(szof(T) * 8), seed, iRandom, ::llc::u3_t(value)
 				);
 	}
 	return 0;

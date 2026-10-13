@@ -381,7 +381,8 @@ sttc ::llc::err_t testBase64Fonts(ATestError & errors) {
 
 sttc ::llc::err_t testBase64Random(ATestError & errors, bool fileSafe) {
 	stxp ::llc::u3_t SEED = 0xB6405EEDULL;
-	::llc::SPRNG random = {SEED};
+	cnst ::llc::u3_t seed = testSeed(SEED);
+	::llc::SPRNG random = {seed};
 	::llc::au0_t binary, encoded, decoded;
 	for(::llc::u2_t byteCount = 1; byteCount <= 256; ++byteCount) {
 		if_fail_fe(binary.resize(byteCount));
@@ -389,15 +390,15 @@ sttc ::llc::err_t testBase64Random(ATestError & errors, bool fileSafe) {
 			binary[iByte] = (::llc::u0_t)random.Next();
 		encoded.clear();
 		cnst ::llc::err_t encodeResult = fileSafe ? ::llc::base64EncodeFS(binary, encoded) : ::llc::base64Encode(binary, encoded);
-		LLC_TEST_REQUIREF(errors, BASE64_TEST_RESULT_RANDOM_ENCODE, ::llc::failed(encodeResult) , "Generated encode failed. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, result:%i." , fileSafe ? "filesystem" : "standard", SEED, byteCount, encodeResult );
-		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_ENCODE_SIZE, encoded.size() != ((byteCount + 2) / 3) * 4 , "Generated encoded size mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, actual:%u, expected:%u." , fileSafe ? "filesystem" : "standard", SEED, byteCount, encoded.size(), ((byteCount + 2) / 3) * 4 );
-		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_TERMINATOR, encoded.begin()[encoded.size()] , "Generated encoded terminator mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, terminator:0x%02X." , fileSafe ? "filesystem" : "standard", SEED, byteCount, encoded.begin()[encoded.size()] );
+		LLC_TEST_REQUIREF(errors, BASE64_TEST_RESULT_RANDOM_ENCODE, ::llc::failed(encodeResult) , "Generated encode failed. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, result:%i." , fileSafe ? "filesystem" : "standard", seed, byteCount, encodeResult );
+		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_ENCODE_SIZE, encoded.size() != ((byteCount + 2) / 3) * 4 , "Generated encoded size mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, actual:%u, expected:%u." , fileSafe ? "filesystem" : "standard", seed, byteCount, encoded.size(), ((byteCount + 2) / 3) * 4 );
+		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_TERMINATOR, encoded.begin()[encoded.size()] , "Generated encoded terminator mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, terminator:0x%02X." , fileSafe ? "filesystem" : "standard", seed, byteCount, encoded.begin()[encoded.size()] );
 		decoded.clear();
 		cnst ::llc::err_t decodeResult = fileSafe ? ::llc::base64DecodeFS(encoded, decoded) : ::llc::base64Decode(encoded, decoded);
-		LLC_TEST_REQUIREF(errors, BASE64_TEST_RESULT_RANDOM_DECODE, ::llc::failed(decodeResult) , "Generated decode failed. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, encoded:%u, result:%i." , fileSafe ? "filesystem" : "standard", SEED, byteCount, encoded.size(), decodeResult );
-		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_DECODE_SIZE, decoded.size() != byteCount , "Generated decoded size mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", actual:%u, expected:%u." , fileSafe ? "filesystem" : "standard", SEED, decoded.size(), byteCount );
-		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_RANDOM_ROUND_TRIP, bytesMismatch(decoded, binary) , "Generated round trip mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, position:%" LLC_FMT_U3 "." , fileSafe ? "filesystem" : "standard", SEED, byteCount, random.Position );
-		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_TERMINATOR, decoded.begin()[decoded.size()] , "Generated decoded terminator mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, terminator:0x%02X." , fileSafe ? "filesystem" : "standard", SEED, byteCount, decoded.begin()[decoded.size()] );
+		LLC_TEST_REQUIREF(errors, BASE64_TEST_RESULT_RANDOM_DECODE, ::llc::failed(decodeResult) , "Generated decode failed. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, encoded:%u, result:%i." , fileSafe ? "filesystem" : "standard", seed, byteCount, encoded.size(), decodeResult );
+		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_DECODE_SIZE, decoded.size() != byteCount , "Generated decoded size mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", actual:%u, expected:%u." , fileSafe ? "filesystem" : "standard", seed, decoded.size(), byteCount );
+		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_RANDOM_ROUND_TRIP, bytesMismatch(decoded, binary) , "Generated round trip mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, position:%" LLC_FMT_U3 "." , fileSafe ? "filesystem" : "standard", seed, byteCount, random.Position );
+		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_TERMINATOR, decoded.begin()[decoded.size()] , "Generated decoded terminator mismatch. alphabet:%s, seed:%" LLC_FMT_U3 ", bytes:%u, terminator:0x%02X." , fileSafe ? "filesystem" : "standard", seed, byteCount, decoded.begin()[decoded.size()] );
 	}
 	rtrn 0;
 }

@@ -158,7 +158,8 @@ sttc ::llc::err_t testRandom(ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS	= szof(T) * 8;
 	stxp ::llc::u2_t MAX_BITS		= DATA_COUNT * ELEMENT_BITS;
 	T data[DATA_COUNT] = {};
-	::llc::SPRNG random = {BIT_RANDOM_SEED};
+	cnst ::llc::u3_t seed = testSeed(BIT_RANDOM_SEED);
+	::llc::SPRNG random = {seed};
 	for(::llc::u2_t iRandom = 0; iRandom < BIT_RANDOM_COUNT; ++iRandom) {
 		for(::llc::u2_t iData = 0; iData < DATA_COUNT; ++iData)
 			data[iData] = T(random.Next());
@@ -169,27 +170,27 @@ sttc ::llc::err_t testRandom(ATestError & errors) {
 		::llc::u2_t iBit = 0;
 		for(; iBit < bitCount && iterator != end; ++iterator, ++iBit) {
 			cnst bool expected = 0 != (data[iBit / ELEMENT_BITS] & (T(1) << (iBit % ELEMENT_BITS)));
-			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_POSITION, iterator.Index() != iBit , "%u-bit randomized iterator index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, iterator.Index(), iBit, BIT_RANDOM_SEED, iRandom, bitCount);
-			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_POSITION, iterator.Limit() != bitCount , "%u-bit randomized iterator limit:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit index:%u." , ELEMENT_BITS, iterator.Limit(), bitCount, BIT_RANDOM_SEED, iRandom, iBit);
-			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_VALUE, bool(*iterator) != expected , "%u-bit randomized iterator value mismatch. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, index:%u, value:%u, expected:%u." , ELEMENT_BITS, BIT_RANDOM_SEED, iRandom, bitCount, iBit, ::llc::u2_t(bool(*iterator)), ::llc::u2_t(expected) );
+			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_POSITION, iterator.Index() != iBit , "%u-bit randomized iterator index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, iterator.Index(), iBit, seed, iRandom, bitCount);
+			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_POSITION, iterator.Limit() != bitCount , "%u-bit randomized iterator limit:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit index:%u." , ELEMENT_BITS, iterator.Limit(), bitCount, seed, iRandom, iBit);
+			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_ITERATOR_VALUE, bool(*iterator) != expected , "%u-bit randomized iterator value mismatch. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, index:%u, value:%u, expected:%u." , ELEMENT_BITS, seed, iRandom, bitCount, iBit, ::llc::u2_t(bool(*iterator)), ::llc::u2_t(expected) );
 		}
-		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, iBit != bitCount , "%u-bit randomized visited count:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u." , ELEMENT_BITS, iBit, bitCount, BIT_RANDOM_SEED, iRandom);
-		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, iterator != end , "%u-bit randomized iterator did not reach the end after %u bits. seed:%" LLC_FMT_U3 ", iteration:%u, current index:%u, end index:%u." , ELEMENT_BITS, bitCount, BIT_RANDOM_SEED, iRandom, iterator.Index(), end.Index());
-		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Index() != bitCount , "%u-bit randomized end index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u." , ELEMENT_BITS, end.Index(), bitCount, BIT_RANDOM_SEED, iRandom);
-		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Element != (bitCount ? data + bitCount / ELEMENT_BITS : 0) , "%u-bit randomized end element:%p, expected:%p. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, end.Element, bitCount ? data + bitCount / ELEMENT_BITS : 0, BIT_RANDOM_SEED, iRandom, bitCount);
-		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Offset != bitCount % ELEMENT_BITS , "%u-bit randomized end offset:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, ::llc::u2_t(end.Offset), bitCount % ELEMENT_BITS, BIT_RANDOM_SEED, iRandom, bitCount);
-		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.End != (bitCount ? data + (bitCount + ELEMENT_BITS - 1) / ELEMENT_BITS : 0) , "%u-bit randomized storage end:%p, expected:%p. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, end.End, bitCount ? data + (bitCount + ELEMENT_BITS - 1) / ELEMENT_BITS : 0, BIT_RANDOM_SEED, iRandom, bitCount);
+		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, iBit != bitCount , "%u-bit randomized visited count:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u." , ELEMENT_BITS, iBit, bitCount, seed, iRandom);
+		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, iterator != end , "%u-bit randomized iterator did not reach the end after %u bits. seed:%" LLC_FMT_U3 ", iteration:%u, current index:%u, end index:%u." , ELEMENT_BITS, bitCount, seed, iRandom, iterator.Index(), end.Index());
+		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Index() != bitCount , "%u-bit randomized end index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u." , ELEMENT_BITS, end.Index(), bitCount, seed, iRandom);
+		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Element != (bitCount ? data + bitCount / ELEMENT_BITS : 0) , "%u-bit randomized end element:%p, expected:%p. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, end.Element, bitCount ? data + bitCount / ELEMENT_BITS : 0, seed, iRandom, bitCount);
+		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.Offset != bitCount % ELEMENT_BITS , "%u-bit randomized end offset:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, ::llc::u2_t(end.Offset), bitCount % ELEMENT_BITS, seed, iRandom, bitCount);
+		LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_END_POSITION, end.End != (bitCount ? data + (bitCount + ELEMENT_BITS - 1) / ELEMENT_BITS : 0) , "%u-bit randomized storage end:%p, expected:%p. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, end.End, bitCount ? data + (bitCount + ELEMENT_BITS - 1) / ELEMENT_BITS : 0, seed, iRandom, bitCount);
 		if(bitCount) {
 			auto last = end;
 			--last;
 			cnst ::llc::u2_t lastIndex = bitCount - 1;
 			cnst bool expected = 0 != (data[lastIndex / ELEMENT_BITS] & (T(1) << (lastIndex % ELEMENT_BITS)));
-			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_DECREMENT, last.Index() != lastIndex , "%u-bit randomized decremented index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, last.Index(), lastIndex, BIT_RANDOM_SEED, iRandom, bitCount);
-			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_DECREMENT, bool(*last) != expected , "%u-bit randomized decremented value:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, bit index:%u." , ELEMENT_BITS, ::llc::u2_t(bool(*last)), ::llc::u2_t(expected), BIT_RANDOM_SEED, iRandom, bitCount, lastIndex);
+			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_DECREMENT, last.Index() != lastIndex , "%u-bit randomized decremented index:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u." , ELEMENT_BITS, last.Index(), lastIndex, seed, iRandom, bitCount);
+			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_DECREMENT, bool(*last) != expected , "%u-bit randomized decremented value:%u, expected:%u. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, bit index:%u." , ELEMENT_BITS, ::llc::u2_t(bool(*last)), ::llc::u2_t(expected), seed, iRandom, bitCount, lastIndex);
 			cnst ::llc::u2_t writeIndex = ::llc::u2_t(random.Next() % bitCount);
 			cnst bool previous = bits[writeIndex];
 			bits[writeIndex] = !previous;
-			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_PROXY_WRITE, bool(bits[writeIndex]) == previous , "%u-bit randomized proxy write mismatch. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, index:%u, previous:%u, current:%u." , ELEMENT_BITS, BIT_RANDOM_SEED, iRandom, bitCount, writeIndex, ::llc::u2_t(previous), ::llc::u2_t(bool(bits[writeIndex])) );
+			LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_RANDOM_PROXY_WRITE, bool(bits[writeIndex]) == previous , "%u-bit randomized proxy write mismatch. seed:%" LLC_FMT_U3 ", iteration:%u, bit count:%u, index:%u, previous:%u, current:%u." , ELEMENT_BITS, seed, iRandom, bitCount, writeIndex, ::llc::u2_t(previous), ::llc::u2_t(bool(bits[writeIndex])) );
 		}
 	}
 	return 0;

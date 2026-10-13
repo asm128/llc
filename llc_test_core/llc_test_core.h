@@ -14,6 +14,8 @@ struct STestError {
 
 tydf ::llc::aobj<STestError> ATestError;
 
+::llc::u3_t testSeed(::llc::u3_t fallback);
+
 tplt<tpnm TEnum>			::llc::err_t testResultRecord(ATestError & errors, TEnum value, bool failed) {
 	cnst ::llc::vcst_t enumName = ::llc::get_enum_namev(value);
 	for(::llc::u2_t iError = 0; iError < errors.size(); ++iError)
