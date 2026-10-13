@@ -197,15 +197,16 @@ sttc ::llc::err_t guiRenderEventDraw(cnst ::llc::SEventGUIRender & event, ::llc:
 }
 
 ::llc::GUI_CONTROL_PALETTE llc::controlPaletteIndex(bool disabled, cnst ::llc::SControlState & controlState) nxpt {
+	cnst bool highlighted = controlState.IsHovered() || controlState.IsFocused();
 	if(controlState.IsSelected()) {
 		if(disabled)                    rtrn ::llc::GUI_CONTROL_PALETTE_SELECTED_DISABLED;
 		if(controlState.IsPressed())    rtrn ::llc::GUI_CONTROL_PALETTE_SELECTED_PRESSED;
-		if(controlState.IsHovered())    rtrn ::llc::GUI_CONTROL_PALETTE_SELECTED_HOVER;
+		if(highlighted)                 rtrn ::llc::GUI_CONTROL_PALETTE_SELECTED_HOVER;
 		rtrn ::llc::GUI_CONTROL_PALETTE_SELECTED;
 	}
 	if(disabled)                    rtrn ::llc::GUI_CONTROL_PALETTE_DISABLED;
 	if(controlState.IsPressed())    rtrn ::llc::GUI_CONTROL_PALETTE_PRESSED;
-	if(controlState.IsHovered())    rtrn ::llc::GUI_CONTROL_PALETTE_HOVER;
+	if(highlighted)                 rtrn ::llc::GUI_CONTROL_PALETTE_HOVER;
 	rtrn ::llc::GUI_CONTROL_PALETTE_NORMAL;
 }
 

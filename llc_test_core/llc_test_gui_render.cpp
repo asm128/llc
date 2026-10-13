@@ -68,9 +68,10 @@ sttc ::llc::err_t testGUIRenderPaletteIndex(ATestError & errors) {
 	for(::llc::u2_t inheritedDisabled = 0; inheritedDisabled < 2; ++inheritedDisabled) {
 		cnst ::llc::SControlState state = {(::llc::GUI_CONTROL_FLAG)stateValue, (::llc::GUI_CONTROL_FLAG)maskValue};
 		cnst bool disabled = 0 != inheritedDisabled;
+		cnst bool highlighted = state.IsHovered() || state.IsFocused();
 		cnst ::llc::GUI_CONTROL_PALETTE expected = state.IsSelected()
-			? disabled ? ::llc::GUI_CONTROL_PALETTE_SELECTED_DISABLED : state.IsPressed() ? ::llc::GUI_CONTROL_PALETTE_SELECTED_PRESSED : state.IsHovered() ? ::llc::GUI_CONTROL_PALETTE_SELECTED_HOVER : ::llc::GUI_CONTROL_PALETTE_SELECTED
-			: disabled ? ::llc::GUI_CONTROL_PALETTE_DISABLED : state.IsPressed() ? ::llc::GUI_CONTROL_PALETTE_PRESSED : state.IsHovered() ? ::llc::GUI_CONTROL_PALETTE_HOVER : ::llc::GUI_CONTROL_PALETTE_NORMAL;
+			? disabled ? ::llc::GUI_CONTROL_PALETTE_SELECTED_DISABLED : state.IsPressed() ? ::llc::GUI_CONTROL_PALETTE_SELECTED_PRESSED : highlighted ? ::llc::GUI_CONTROL_PALETTE_SELECTED_HOVER : ::llc::GUI_CONTROL_PALETTE_SELECTED
+			: disabled ? ::llc::GUI_CONTROL_PALETTE_DISABLED : state.IsPressed() ? ::llc::GUI_CONTROL_PALETTE_PRESSED : highlighted ? ::llc::GUI_CONTROL_PALETTE_HOVER : ::llc::GUI_CONTROL_PALETTE_NORMAL;
 		cnst ::llc::GUI_CONTROL_PALETTE actual = ::llc::controlPaletteIndex(disabled, state);
 		LLC_TEST_CHECKF(errors, GUI_RENDER_TEST_RESULT_PALETTE_INDEX, actual != expected, "Flag:0x%02X, Mask:0x%02X, inherited disabled:%u, palette:%u, expected:%u.", stateValue, maskValue, inheritedDisabled, (::llc::u2_t)actual, (::llc::u2_t)expected);
 	}

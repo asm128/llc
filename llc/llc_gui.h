@@ -38,6 +38,7 @@ namespace llc
 	};
 
 	::llc::error_t			guiProcessInput					(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> in_Events = {});
+	::llc::error_t			guiProcessInput					(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vcid controlsKeyboard, ::llc::vpobj<::llc::SEventSystem> in_Events = {});
 	::llc::error_t			guiUpdateMetrics				(::llc::SGUI & gui, const ::llc::n2u1_t & targetSize, const ::llc::FGUITextMeasure & textMeasure, bool forceUpdate);
 	::llc::error_t			guiUpdateMetrics				(::llc::SGUI & gui, const ::llc::n2u1_t & targetSize, bool forceUpdate);
 	::llc::error_t			guiGetProcessableControls		(const ::llc::SGUI & gui, ::llc::acid & controlIndices);
