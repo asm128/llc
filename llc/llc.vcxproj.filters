@@ -510,6 +510,9 @@
     <ClInclude Include="llc_sync.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="llc_test_core.h">
+      <Filter>base</Filter>
+    </ClInclude>
     <ClInclude Include="llc_timer.h">
       <Filter>time</Filter>
     </ClInclude>

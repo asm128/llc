@@ -247,6 +247,7 @@
     <ClInclude Include="llc_swap.h" />
     <ClInclude Include="llc_sync.h" />
     <ClInclude Include="llc_tcpip.h" />
+    <ClInclude Include="llc_test_core.h" />
     <ClInclude Include="llc_timer.h" />
     <ClInclude Include="llc_typeint.h" />
     <ClInclude Include="llc_type_identifier.h" />

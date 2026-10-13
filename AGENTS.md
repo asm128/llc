@@ -132,7 +132,7 @@ This file is operational memory for future work in this repository. Read it befo
 
 ## Test-system contract
 
-- Shared test machinery lives in `llc_test_core/llc_test_core.h`; suite timing and dispatch live in `llc_test_core/llc_test_core.cpp`.
+- Shared test machinery lives in `llc/llc_test_core.h`; suite timing and dispatch live in `llc_test_core/llc_test_core.cpp`.
 - Each suite keeps a private result enum whose name, numeric value and description explain the contract. Generic records aggregate successes and failures without discarding suite-specific meaning.
 - `LLC_TEST_CHECK` records a failure and continues whenever continued execution is safe. Multiple failures can illuminate the first defect.
 - `LLC_TEST_REQUIRE` records and returns only when continuing would make the test invalid or unsafe.

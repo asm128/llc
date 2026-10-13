@@ -241,7 +241,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="llc_test_base64_font_data.h" />
-    <ClInclude Include="llc_test_core.h" />
     <ClInclude Include="llc_test_core_suites.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

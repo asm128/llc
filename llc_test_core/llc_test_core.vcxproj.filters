@@ -206,9 +206,6 @@
     <ClInclude Include="llc_test_base64_font_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="llc_test_core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_test_core_suites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
