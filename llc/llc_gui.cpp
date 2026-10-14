@@ -393,11 +393,11 @@ static	::llc::error_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iCon
 	if(controlConstraints.AttachSizeToControl.x == iControl) { if(controlConstraints.DockToControl.Left	!= -1) {} else { scaledPosition.x = 0; } scaledSize.x = targetSize.x; } else if(false == ::llc::controlInvalid(gui, controlConstraints.AttachSizeToControl.x)) { if(controlConstraints.DockToControl.Left != -1) {} else { scaledPosition.x = 0;} scaledSize.x = gui.Controls.Area[controlConstraints.AttachSizeToControl.x].Total.Global.Size.x; }
 	if(controlConstraints.AttachSizeToControl.y == iControl) { if(controlConstraints.DockToControl.Top	!= -1) {} else { scaledPosition.y = 0; } scaledSize.y = targetSize.y; } else if(false == ::llc::controlInvalid(gui, controlConstraints.AttachSizeToControl.y)) { if(controlConstraints.DockToControl.Top  != -1) {} else { scaledPosition.y = 0;} scaledSize.y = gui.Controls.Area[controlConstraints.AttachSizeToControl.y].Total.Global.Size.y; }
 
-	controlMetrics.Client.Local	= {{(int16_t)ncSizesScaled.Left, (int16_t)ncSizesScaled.Top}, (scaledSize - ncTotalSizeScaled).s1()};
 	::llc::n2f3_t				minSizeScaled			= (controlConstraints.SizeMinMax.Min.f3().InPlaceScale(scale.x, scale.y));
 	::llc::n2f3_t				maxSizeScaled			= (controlConstraints.SizeMinMax.Max.f3().InPlaceScale(scale.x, scale.y));
 	scaledSize.x			= ::llc::max(minSizeScaled.x, ::llc::min(maxSizeScaled.x, scaledSize.x));
 	scaledSize.y			= ::llc::max(minSizeScaled.y, ::llc::min(maxSizeScaled.y, scaledSize.y));
+	controlMetrics.Client.Local	= {{(int16_t)ncSizesScaled.Left, (int16_t)ncSizesScaled.Top}, (scaledSize - ncTotalSizeScaled).s1()};
 	::llc::realignRectangle(targetSize.u2(), ::llc::rect2<int16_t>{scaledPosition.s1(), scaledSize.s1()}, controlMetrics.Total.Local, controlPlacement.Align);
 	controlMetrics.Total .Global	= controlMetrics.Total	.Local;
 	controlMetrics.Client.Global	= controlMetrics.Client	.Local;

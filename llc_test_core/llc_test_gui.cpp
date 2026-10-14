@@ -1,6 +1,7 @@
 #include "llc_gui.h"
 #include "llc_gui_inputbox.h"
 #include "llc_gui_viewport.h"
+#include "llc_rect_align.h"
 
 #include "llc_test_core.h"
 
@@ -36,6 +37,12 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, REPARENT           , 27, "Control reparenti
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, PARENT_REJECT      , 28, "A rejected parent assignment changed the hierarchy.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DELETE_DETACH      , 29, "Non-recursive deletion left children attached to the deleted control.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, REUSE_RESET        , 30, "A reused control slot retained state from its previous lifetime.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_ALIGN       , 31, "GUI metrics diverged from rectangle alignment.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_AREA        , 32, "GUI total or client rectangles are inconsistent.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_HIERARCHY   , 33, "Child metrics are inconsistent with the parent client rectangle.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_CONSTRAINT  , 34, "GUI size constraints produced inconsistent metrics.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_ATTACHMENT  , 35, "GUI size attachment produced inconsistent metrics.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_STABILITY   , 36, "An unchanged metric update changed geometry or emitted an event.");
 
 sttc ::llc::err_t testGUIStateEvent(ATestError & errors, cnst ::llc::TQueueSystemEvent & queue, ::llc::u2_c iEvent, ::llc::cid_t expectedId, ::llc::GUI_CONTROL_FLAG expectedClear, ::llc::GUI_CONTROL_FLAG expectedSet) {
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_STATE_EVENT, queue.size() <= iEvent || 0 == queue[iEvent].get_ref(), "Event:%u queue size:%u.", iEvent, queue.size());
@@ -193,6 +200,110 @@ sttc ::llc::err_t testGUIControlLifecycle(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIMetricAlignment(ATestError & errors) {
+	stxp ::llc::ALIGN alignments[] =
+		{ ::llc::ALIGN_TOP_LEFT, ::llc::ALIGN_TOP_RIGHT, ::llc::ALIGN_BOTTOM_LEFT, ::llc::ALIGN_BOTTOM_RIGHT
+		, ::llc::ALIGN_CENTER_TOP, ::llc::ALIGN_CENTER_BOTTOM, ::llc::ALIGN_CENTER_LEFT, ::llc::ALIGN_CENTER_RIGHT, ::llc::ALIGN_CENTER
+		};
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
+	::llc::SControlPlacement & placement = gui.Controls.Placement[control];
+	placement.Area = {{7, 11}, {20, 14}};
+	placement.Margin = placement.Border = {};
+	cnst ::llc::n2u1_t targetSize = {100, 80};
+	for(::llc::u2_t iAlign = 0; iAlign < ::llc::size(alignments); ++iAlign) {
+		placement.Align = alignments[iAlign];
+		::llc::rect2s1_t expected = {};
+		::llc::realignRectangle(targetSize.u2(), placement.Area, expected, placement.Align);
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRIC_ALIGN, 0 > ::llc::guiUpdateMetrics(gui, targetSize, true), "Alignment:%s.", ::llc::get_value_namep(placement.Align));
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_METRIC_ALIGN, gui.Controls.Area[control].Total.Local != expected, "Alignment:%s.", ::llc::get_value_namep(placement.Align));
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_METRIC_ALIGN, gui.Controls.Area[control].Total.Global != expected, "Alignment:%s.", ::llc::get_value_namep(placement.Align));
+	}
+	rtrn 0;
+}
+
+sttc ::llc::err_t testGUIMetricAreas(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
+	::llc::SControlPlacement & placement = gui.Controls.Placement[control];
+	placement.Area = {{10, 12}, {50, 40}};
+	placement.Margin = {2, 3, 4, 5};
+	placement.Border = {1, 2, 3, 4};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRIC_AREA, 0 > ::llc::guiUpdateMetrics(gui, {100, 80}, true), "%s", "Area metrics failed.");
+	cnst ::llc::SControlArea & area = gui.Controls.Area[control];
+	cnst ::llc::rect2s1_t totalExpected = placement.Area;
+	cnst ::llc::rect2s1_t clientLocalExpected = {{3, 5}, {40, 26}};
+	cnst ::llc::rect2s1_t clientGlobalExpected = {{13, 17}, {40, 26}};
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_AREA, area.Total.Local != totalExpected);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_AREA, area.Total.Global != totalExpected);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_AREA, area.Client.Local != clientLocalExpected);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_AREA, area.Client.Global != clientGlobalExpected);
+	rtrn 0;
+}
+
+sttc ::llc::err_t testGUIMetricHierarchy(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t parent = ::llc::controlCreate(gui);
+	cnst ::llc::cid_t child = ::llc::controlCreateChild(gui, parent);
+	cnst ::llc::cid_t unrelated = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, parent < 0 || child < 0 || unrelated < 0, "Parent:%i child:%i unrelated:%i.", parent, child, unrelated);
+	gui.Controls.Placement[parent].Area = {{10, 12}, {60, 40}};
+	gui.Controls.Placement[parent].Margin = gui.Controls.Placement[parent].Border = {1, 1, 1, 1};
+	gui.Controls.Placement[child].Area = {{4, 5}, {20, 10}};
+	gui.Controls.Placement[child].Margin = gui.Controls.Placement[child].Border = {};
+	gui.Controls.Placement[child].Align = ::llc::ALIGN_BOTTOM_RIGHT;
+	gui.Controls.Placement[unrelated].Area = {{70, 2}, {10, 10}};
+	gui.Controls.Placement[unrelated].Margin = gui.Controls.Placement[unrelated].Border = {};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRIC_HIERARCHY, 0 > ::llc::guiUpdateMetrics(gui, {100, 80}, true), "%s", "Hierarchy metrics failed.");
+	::llc::rect2s1_t childLocalExpected = {};
+	::llc::realignRectangle(gui.Controls.Area[parent].Client.Global.Size.u2(), gui.Controls.Placement[child].Area, childLocalExpected, gui.Controls.Placement[child].Align);
+	cnst ::llc::n2s1_t childGlobalExpected = childLocalExpected.Offset + gui.Controls.Area[parent].Client.Global.Offset;
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_HIERARCHY, gui.Controls.Area[child].Total.Local != childLocalExpected);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_HIERARCHY, gui.Controls.Area[child].Total.Global.Offset != childGlobalExpected);
+	cnst ::llc::SControlRectangle unrelatedBefore = gui.Controls.Area[unrelated].Total;
+	cnst ::llc::u2_t eventsBefore = gui.Controls.EventQueue.size();
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INVALIDATION, 0 > ::llc::controlMetricsInvalidate(gui, parent), "%s", "Hierarchy invalidation failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INVALIDATION, gui.Controls.IsUpdated(parent) || gui.Controls.IsUpdated(child) || false == gui.Controls.IsUpdated(unrelated));
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRIC_HIERARCHY, 0 > ::llc::guiUpdateMetrics(gui, {100, 80}, false), "%s", "Hierarchy recalculation failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_HIERARCHY, false == gui.Controls.IsUpdated(parent) || false == gui.Controls.IsUpdated(child));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_HIERARCHY, gui.Controls.Area[unrelated].Total.Local != unrelatedBefore.Local || gui.Controls.Area[unrelated].Total.Global != unrelatedBefore.Global);
+	cnst ::llc::u2_t eventsAfterRecalculation = gui.Controls.EventQueue.size();
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_METRIC_HIERARCHY, eventsAfterRecalculation != eventsBefore + 4, "Events before:%u after:%u expected:%u.", eventsBefore, eventsAfterRecalculation, eventsBefore + 4);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRIC_STABILITY, 0 > ::llc::guiUpdateMetrics(gui, {100, 80}, false), "%s", "Stable metrics failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_STABILITY, gui.Controls.EventQueue.size() != eventsAfterRecalculation);
+	rtrn 0;
+}
+
+sttc ::llc::err_t testGUIMetricConstraints(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t reference = ::llc::controlCreate(gui);
+	cnst ::llc::cid_t constrained = ::llc::controlCreate(gui);
+	cnst ::llc::cid_t attached = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, reference < 0 || constrained < 0 || attached < 0, "Reference:%i constrained:%i attached:%i.", reference, constrained, attached);
+	gui.Controls.Placement[reference].Area = {{5, 5}, {37, 23}};
+	gui.Controls.Placement[constrained].Area = {{0, 0}, {5, 80}};
+	gui.Controls.Placement[attached].Area = {{9, 11}, {3, 4}};
+	for(::llc::cid_t control : {reference, constrained, attached})
+		gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
+	gui.Controls.Constraints[constrained].SizeMinMax = {{10, 12}, {30, 40}};
+	gui.Controls.Constraints[attached].AttachSizeToControl = {reference, attached};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRIC_CONSTRAINT, 0 > ::llc::guiUpdateMetrics(gui, {100, 80}, true), "%s", "Constraint metrics failed.");
+	cnst ::llc::n2s1_t constrainedExpected = {10, 40};
+	cnst ::llc::n2s1_t attachedExpected = {37, 80};
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_CONSTRAINT, gui.Controls.Area[constrained].Total.Global.Size != constrainedExpected);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_CONSTRAINT, gui.Controls.Area[constrained].Client.Global.Size != constrainedExpected);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_ATTACHMENT, gui.Controls.Area[attached].Total.Global.Size != attachedExpected);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_ATTACHMENT, gui.Controls.Area[attached].Client.Global.Size != attachedExpected);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_ATTACHMENT, gui.Controls.Area[attached].Total.Global.Offset != ::llc::n2s1_t{});
+	gui.Controls.Placement[reference].Area.Size = {29, 17};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRIC_ATTACHMENT, 0 > ::llc::guiUpdateMetrics(gui, {90, 70}, true), "%s", "Attachment recalculation failed.");
+	cnst ::llc::n2s1_t attachedChangedExpected = {29, 70};
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_METRIC_ATTACHMENT, gui.Controls.Area[attached].Total.Global.Size != attachedChangedExpected);
+	rtrn 0;
+}
+
 sttc ::llc::err_t testGUILayoutAndInput(ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t parent = ::llc::controlCreate(gui);
@@ -302,6 +413,10 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	if_fail_fe(::testGUIControlStateMutations(errors));
 	if_fail_fe(::testGUIControlStateEvents(errors));
 	if_fail_fe(::testGUIControlLifecycle(errors));
+	if_fail_fe(::testGUIMetricAlignment(errors));
+	if_fail_fe(::testGUIMetricAreas(errors));
+	if_fail_fe(::testGUIMetricHierarchy(errors));
+	if_fail_fe(::testGUIMetricConstraints(errors));
 	if_fail_fe(::testGUILayoutAndInput(errors));
 	if_fail_fe(::testGUIDraw(errors));
 	rtrn ::testGUIComponents(errors);
