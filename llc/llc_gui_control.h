@@ -6,6 +6,8 @@
 #include "llc_align.h"
 #include "llc_array_static.h"
 
+#include "llc_img_color.h"
+#include "llc_grid_color.h"
 #include "llc_minmax_n2.h"
 
 #include "llc_axis.h"
@@ -19,13 +21,8 @@ namespace llc
 	typedef	n2<cid_t>		n2cid;
 	typedef	rect<cid_t>		rectcid;
 
-	tplt<uint32_t _sizeArray>
+	tplt<uint32_t _sizeArray>	
 	using	astcid	= ::llc::astatic<cid_t, _sizeArray>;
-
-	struct SControlEntity {
-		cid_t						Parent			= CID_INVALID;
-		u2_t						Generation		= 0;
-	};
 
 	GDEFINE_ENUM_TYPE(GUI_COLOR_MODE, uint8_t)
 	GDEFINE_ENUM_VALUE(GUI_COLOR_MODE, Default	, 0);
@@ -39,7 +36,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_LIMIT, Bottom	, ::llc::ALIGN_BOTTOM	);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_LIMIT, Outer		, ::llc::ALIGN_FAR		);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_LIMIT, Inner		, ::llc::ALIGN_NEAR		);
-
+	
 
 	GDEFINE_ENUM_TYPE (GUI_CONTROL_METRICS_FLAG, uint16_t);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_METRICS_FLAG, XSize		, 1 << 0);
@@ -56,14 +53,14 @@ namespace llc
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_METRICS_FLAG, YOffsetMax	, 1 << 11);
 
 	struct SControlPlacement {
-		::llc::rect2s1_t			Area				= {{}, {16, 16}};
+		::llc::rect2s1_t				Area				= {{}, {16, 16}};
 		::llc::rectu1_t				Margin				= {1, 1, 1, 1};
 		::llc::rectu1_t				Border				= {1, 1, 1, 1};
 		::llc::ALIGN				Align				= ::llc::ALIGN_TOP_LEFT;
 		GUI_CONTROL_LIMIT			RelativeBorderSize	: 4;
 		GUI_CONTROL_LIMIT			RelativeMarginSize	: 4;
 		GUI_CONTROL_METRICS_FLAG	RelativeMetrics		= {};
-	};
+	}; 
 
 	stincxp	::llc::rectu1_t	controlNCRect		(const ::llc::SControlPlacement & ctl)	noexcept	{ return ctl.Border + ctl.Margin; }
 	stacxpr	::llc::n2u1_t	controlNCSpacing	(const ::llc::SControlPlacement & ctl)	noexcept	{ const rectu1_t rc = controlNCRect(ctl); return ::llc::n2s2_t{rc.Left + rc.Right, rc.Top + rc.Bottom}.u1(); }
@@ -82,22 +79,22 @@ namespace llc
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_PALETTE, ACTION				, 8);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_PALETTE, OUTDATED			, 9);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_PALETTE, COUNT				, 10);
-
+	
 
 	struct SControlDraw {
 		uint8_t			ColorMode			: 2;
 		uint8_t			FrameOut			: 1;
 		uint8_t			NoBorder			: 1;	// skip drawing border area
 		uint8_t			NoClient			: 1;	// skip drawing client area
-
+		
 		bool			UseNewPalettes		: 1;	// -- Legacy property (don't use in the new implementation!)
 
 		int16_t			ColorTheme			= 0;
-		::llc::asti16<::llc::GUI_CONTROL_PALETTE_COUNT>
+		::llc::asti16<::llc::GUI_CONTROL_PALETTE_COUNT>	
 						Palettes			= {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9,}};
 	};
 
-	enum CONTROL_AREA_BASE : uint8_t
+	enum CONTROL_AREA_BASE : uint8_t 
 		{ CONTROL_AREA_BASE_BACKGROUND		= 0
 		, CONTROL_AREA_BASE_CONTENT
 		, CONTROL_AREA_BASE_BORDER_LEFT
@@ -158,6 +155,19 @@ namespace llc
 		::llc::tri2s1_t				Triangles	[8]		= {};
 	};
 
+	struct SControlRectangleGPU {
+		::llc::rect2f2_t				Local				= {};
+		::llc::rect2f2_t				Global				= {};
+	};
+
+	struct SControlAreaGPU {
+		::llc::SControlRectangleGPU	Total				= {};
+		::llc::SControlRectangleGPU	Client				= {};
+		::llc::rect2f2_t				Text				= {};
+		::llc::rect2f2_t				Rectangles	[::llc::GUI_CONTROL_AREA_OLD_COUNT]	= {};
+		::llc::tri2f2_t				Triangles	[8]		= {};
+	};
+
 	struct SControlAttachId {
 		cid_t						IdControl			: 15;
 		cid_t						Total				: 1;
@@ -171,22 +181,36 @@ namespace llc
 	};
 
 	struct SControlText {
-		::llc::vcst_t					Text				= {};
+		::llc::vcs					Text				= {};
 		::llc::ALIGN				Align				= ::llc::ALIGN_CENTER;
 		::llc::minmaxu1_t			Selection			= {0, 1};
 		int16_t						FontSelected		= -1;
 	};
 
+	struct SControlTheme {
+		::llc::astatic<::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>, ::llc::GUI_CONTROL_PALETTE_COUNT>
+									ColorCombos			= {};
+	};
 #pragma pack(pop)
 
+	struct SControlImage {
+		::llc::rt<::llc::bgra, ::llc::u2_t>			Temp				= {};
+		::llc::g8bgra				Image				= {};
+		::llc::n2s1_t				ImageOffset			= {};
+		uint8_t						ImageAlign			= ::llc::ALIGN_CENTER;
+		uint8_t						ImageInvertX		: 1;
+		uint8_t						ImageInvertY		: 1;
+		uint8_t						Rotation			: 2;
+	};
+
 	struct SControlTable {
-		::llc::apod<::llc::SControlEntity		>	Entities		= {};
 		::llc::apod<::llc::SControlState		>	States			= {};
 		::llc::apod<::llc::SControlPlacement	>	Placement		= {};
 		::llc::apod<::llc::SControlArea			>	Area			= {};
 		::llc::apod<::llc::SControlConstraints	>	Constraints		= {};
 		::llc::apod<::llc::SControlDraw			>	Draw			= {};
 		::llc::aobj<::llc::SControlText			>	Text			= {};
+		::llc::aobj<::llc::SControlImage		>	Images			= {};
 		::llc::aobj<::llc::acid					>	Children		= {};
 		//
 		::llc::apobj<::llc::SEventSystem		>	EventQueue		= {};
@@ -213,9 +237,6 @@ namespace llc
 	};
 
 	::llc::cid_t		controlCreate					(::llc::SControlTable & gui, ::llc::vi16 defaultColors);
-	::llc::error_t		controlDelete					(::llc::SControlTable & gui, cid_t iControl, bool recursive = true);
-	::llc::error_t		controlSetParent				(::llc::SControlTable & gui, cid_t iControl, cid_t iParent);
-	::llc::error_t		controlInvalid					(const ::llc::SControlTable & gui, cid_t iControl);
 } // namespace
 
 #endif // LLC_GUI_CONTROL_H_23627

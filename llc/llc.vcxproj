@@ -318,7 +318,9 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_deflate.cpp" />
-    <ClCompile Include="llc_dialog.cpp" />
+    <ClCompile Include="llc_dialog.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_geometry.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -328,14 +330,28 @@
     <ClCompile Include="llc_gltf.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="llc_gui_control.cpp" />
-    <ClCompile Include="llc_gui_checkbox.cpp" />
-    <ClCompile Include="llc_gui_input.cpp" />
-    <ClCompile Include="llc_gui_layout.cpp" />
-    <ClCompile Include="llc_gui_model.cpp" />
-    <ClCompile Include="llc_gui_render.cpp" />
+    <ClCompile Include="llc_gui_control.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_checkbox.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_input.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_layout.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_model.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="llc_gui_render.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_gui_inputbox.cpp" />
-    <ClCompile Include="llc_gui_slider.cpp" />
+    <ClCompile Include="llc_gui_slider.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_gui_viewport.cpp" />
     <ClCompile Include="llc_i2c.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -412,12 +428,8 @@
     <ClCompile Include="llc_geometry_lh.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="llc_gui.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gui_draw.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_gui.cpp" />
+    <ClCompile Include="llc_gui_draw.cpp" />
     <ClCompile Include="llc_https_client.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>

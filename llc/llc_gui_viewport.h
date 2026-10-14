@@ -5,32 +5,38 @@
 
 namespace llc
 {
-	stxp	::llc::s1_t	VIEWPORT_TITLE_HEIGHT	= 20;
-	stxp	::llc::s1_t	VIEWPORT_CLIENT_GAP		= 1;
+#pragma pack(push, 1)
+	enum VIEWPORT_CONTROL : int8_t
+		{ VIEWPORT_CONTROL_RESIZE_LEFT				= 0
+		, VIEWPORT_CONTROL_RESIZE_TOP
+		, VIEWPORT_CONTROL_RESIZE_RIGHT
+		, VIEWPORT_CONTROL_RESIZE_BOTTOM
+		, VIEWPORT_CONTROL_RESIZE_TOP_LEFT
+		, VIEWPORT_CONTROL_RESIZE_TOP_RIGHT
+		, VIEWPORT_CONTROL_RESIZE_BOTTOM_LEFT
+		, VIEWPORT_CONTROL_RESIZE_BOTTOM_RIGHT
+		, VIEWPORT_CONTROL_TITLE
+		, VIEWPORT_CONTROL_CLOSE
+		, VIEWPORT_CONTROL_TARGET
+		, VIEWPORT_CONTROL_COUNT
+		};
 
-	stct SViewportSettings {
-		bool				Dragging			= false;
-		bool				Unfolded			= true;
-		::llc::n2<bool>	DisplacementLock	= {};
+	enum GUI_CONTROL_TYPE : int8_t
+		{ GUI_CONTROL_TYPE_Viewport					= 0
+		, GUI_CONTROL_TYPE_PaletteGrid
+		, GUI_CONTROL_TYPE_ControlList
+		, GUI_CONTROL_TYPE_COUNT
+		};
+
+	struct SViewport {
+		cid_t					IdControl			= (int32_t)-1;
+		::llc::astcid<::llc::VIEWPORT_CONTROL_COUNT>	IdControls		= {};
+		cid_t					IdDesktopElement	= (int32_t)-1;
+		GUI_CONTROL_TYPE		ControlType			= (GUI_CONTROL_TYPE)-1;
 	};
 
-	stct SViewport {
-		::llc::cid_t		IdRoot				= ::llc::CID_INVALID;
-		::llc::cid_t		IdTitle			= ::llc::CID_INVALID;
-		::llc::cid_t		IdClient			= ::llc::CID_INVALID;
-		SViewportSettings	Settings			= {};
-	};
-
-	stct SViewportCreate {
-		::llc::cid_t		Parent				= ::llc::CID_INVALID;
-		::llc::n2s1_t		ClientSize			= {800, 450};
-		::llc::vcst_t		Title				= LLC_CXS("Viewport");
-		::llc::s1_t		TitleHeight		= ::llc::VIEWPORT_TITLE_HEIGHT;
-	};
-
-	::llc::err_t	viewportCreate			(::llc::SViewport & viewport, ::llc::SGUI & gui, cnst ::llc::SViewportCreate & setup = {});
-	::llc::err_t	viewportFold			(::llc::SViewport & viewport, ::llc::SGUI & gui, bool fold);
-	::llc::err_t	viewportUpdate			(::llc::SViewport & viewport, ::llc::SGUI & gui, ::llc::n2s2_c & mouseDeltas = {});
-} // namespace llc
+	::llc::error_t			viewportInitialize		(::llc::SGUI & gui, ::llc::SViewport & viewport);
+#pragma pack(pop)
+}
 
 #endif // LLC_GUI_VIEWPORT_H_23627
