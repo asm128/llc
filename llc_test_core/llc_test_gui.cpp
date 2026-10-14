@@ -61,6 +61,11 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_ALIGN         , 50, "Control text alig
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_PALETTE       , 51, "Control text used the wrong palette face color.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_STATE         , 52, "Hovered or pressed text did not preserve the one-pixel state offset.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_FONT          , 53, "Control text selected the wrong raster font.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_ALIGN        , 54, "Control image alignment is inconsistent with its client rectangle.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_OFFSET       , 55, "Control image source offset selected the wrong texels.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_STATE        , 56, "Hovered image did not preserve the one-pixel state offset.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_INVERT       , 57, "Control image Y inversion produced the wrong texels.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_CLIP         , 58, "Control image escaped the target or client rectangle.");
 
 sttc ::llc::err_t testGUITextFontCreate(::llc::po<::llc::SRasterFont> & font, ::llc::n2u0_c & charSize) {
 	font->CharSize = charSize;
@@ -605,6 +610,67 @@ sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIDrawImage(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
+	gui.Controls.Draw[control].NoClient = gui.Controls.Draw[control].NoBorder = true;
+	gui.Controls.Text[control].Text = {};
+	gui.Controls.Placement[control].Area = {{2, 2}, {10, 8}};
+	gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
+	::llc::img8bgra source = {};
+	cnst ::llc::n2u2_t sourceSize = {2, 2};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_ALIGN, 0 > source.resize(sourceSize), "%s", "Source allocation failed.");
+	cnst ::llc::bgra sourceColors[] = {{11, 12, 13, 0xFF}, {21, 22, 23, 0xFF}, {31, 32, 33, 0xFF}, {41, 42, 43, 0xFF}};
+	cnst ::llc::bgra drawnColors [] = {{11, 12, 13, 0x00}, {21, 22, 23, 0x00}, {31, 32, 33, 0x00}, {41, 42, 43, 0x00}};
+	for(::llc::u2_t iColor = 0; iColor < ::llc::size(sourceColors); ++iColor)
+		source.Texels[iColor] = sourceColors[iColor];
+	gui.Controls.Images[control].Image = source.View;
+	::llc::img8bgra target = {};
+	cnst ::llc::n2u2_t targetSize = {16, 12};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_ALIGN, 0 > target.resize(targetSize), "%s", "Target allocation failed.");
+	stxp ::llc::ALIGN alignments[] =
+		{ ::llc::ALIGN_TOP_LEFT, ::llc::ALIGN_TOP_RIGHT, ::llc::ALIGN_BOTTOM_LEFT, ::llc::ALIGN_BOTTOM_RIGHT
+		, ::llc::ALIGN_CENTER_TOP, ::llc::ALIGN_CENTER_BOTTOM, ::llc::ALIGN_CENTER_LEFT, ::llc::ALIGN_CENTER_RIGHT, ::llc::ALIGN_CENTER
+		};
+	for(::llc::u2_t iAlign = 0; iAlign < ::llc::size(alignments); ++iAlign) {
+		target.View.fill({});
+		gui.Controls.Images[control].ImageAlign = alignments[iAlign];
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_ALIGN, 0 > ::llc::guiDraw(gui, target.View), "Alignment:%s.", ::llc::get_value_namep(alignments[iAlign]));
+		::llc::rect2s1_t expected = {{}, sourceSize.s1()};
+		::llc::realignRectangle(gui.Controls.Area[control].Client.Global.Size, expected, expected, alignments[iAlign]);
+		expected.Offset += gui.Controls.Area[control].Client.Global.Offset;
+		cnst ::llc::bgra actualTopLeft = target.View[expected.Offset.y][expected.Offset.x];
+		cnst ::llc::bgra actualBottomRight = target.View[expected.Limit().y - 1][expected.Limit().x - 1];
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_IMAGE_ALIGN, actualTopLeft != drawnColors[0], "Alignment:%s top-left:{%u,%u,%u} at {%i,%i}.", ::llc::get_value_namep(alignments[iAlign]), actualTopLeft.b, actualTopLeft.g, actualTopLeft.r, expected.Offset.x, expected.Offset.y);
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_IMAGE_ALIGN, actualBottomRight != drawnColors[3], "Alignment:%s bottom-right:{%u,%u,%u} at {%i,%i}.", ::llc::get_value_namep(alignments[iAlign]), actualBottomRight.b, actualBottomRight.g, actualBottomRight.r, expected.Limit().x - 1, expected.Limit().y - 1);
+	}
+	gui.Controls.Images[control].ImageAlign = ::llc::ALIGN_TOP_LEFT;
+	gui.Controls.Images[control].ImageOffset = {1, 0};
+	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_OFFSET, 0 > ::llc::guiDraw(gui, target.View), "%s", "Offset draw failed.");
+	cnst ::llc::n2s1_t imageOrigin = gui.Controls.Area[control].Client.Global.Offset;
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_OFFSET, target.View[imageOrigin.y][imageOrigin.x] != drawnColors[1]);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_OFFSET, target.View[imageOrigin.y][imageOrigin.x + 1] != ::llc::bgra{});
+	gui.Controls.Images[control].ImageOffset = {};
+	gui.Controls.States[control].Flag = ::llc::GUI_CONTROL_FLAG_Hovered;
+	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_STATE, 0 > ::llc::guiDraw(gui, target.View), "%s", "Hovered draw failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_STATE, target.View[imageOrigin.y][imageOrigin.x] != ::llc::bgra{} || target.View[imageOrigin.y + 1][imageOrigin.x + 1] != drawnColors[0]);
+	gui.Controls.States[control].Flag = {};
+	gui.Controls.Images[control].ImageInvertY = true;
+	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_INVERT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Inverted draw failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_INVERT, target.View[imageOrigin.y][imageOrigin.x] != drawnColors[2] || target.View[imageOrigin.y + 1][imageOrigin.x + 1] != drawnColors[1]);
+	gui.Controls.Images[control].ImageInvertY = false;
+	gui.Controls.Placement[control].Area = {{-1, -1}, {2, 2}};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_CLIP, 0 > ::llc::controlMetricsInvalidate(gui, control), "%s", "Clip invalidation failed.");
+	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_CLIP, 0 > ::llc::guiDraw(gui, target.View), "%s", "Clipped draw failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_CLIP, target.View[0][0] != drawnColors[3] || target.View[0][1] != ::llc::bgra{} || target.View[1][0] != ::llc::bgra{});
+	rtrn 0;
+}
+
 sttc ::llc::err_t testGUIDraw(ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
@@ -677,6 +743,7 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	if_fail_fe(::testGUILayoutAndInput(errors));
 	if_fail_fe(::testGUIDrawCore(errors));
 	if_fail_fe(::testGUIDrawText(errors));
+	if_fail_fe(::testGUIDrawImage(errors));
 	if_fail_fe(::testGUIDraw(errors));
 	rtrn ::testGUIComponents(errors);
 }
