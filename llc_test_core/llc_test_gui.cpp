@@ -43,6 +43,11 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_HIERARCHY   , 33, "Child metrics are
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_CONSTRAINT  , 34, "GUI size constraints produced inconsistent metrics.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_ATTACHMENT  , 35, "GUI size attachment produced inconsistent metrics.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_STABILITY   , 36, "An unchanged metric update changed geometry or emitted an event.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, HIT_BOUNDARY       , 37, "GUI hit testing violated rectangle boundaries.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, HIT_ORDER          , 38, "GUI hit testing violated hierarchy or display order.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, HIT_ELIGIBILITY    , 39, "Hidden or disabled controls participated in hit testing.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, INPUT_SEQUENCE     , 40, "GUI hover, press, release, or action sequencing is inconsistent.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, INPUT_STABILITY    , 41, "Stable input retained stale events or changed control state.");
 
 sttc ::llc::err_t testGUIStateEvent(ATestError & errors, cnst ::llc::TQueueSystemEvent & queue, ::llc::u2_c iEvent, ::llc::cid_t expectedId, ::llc::GUI_CONTROL_FLAG expectedClear, ::llc::GUI_CONTROL_FLAG expectedSet) {
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_STATE_EVENT, queue.size() <= iEvent || 0 == queue[iEvent].get_ref(), "Event:%u queue size:%u.", iEvent, queue.size());
@@ -304,6 +309,82 @@ sttc ::llc::err_t testGUIMetricConstraints(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIHitTesting(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t back = ::llc::controlCreate(gui);
+	cnst ::llc::cid_t front = ::llc::controlCreate(gui);
+	cnst ::llc::cid_t child = ::llc::controlCreateChild(gui, front);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, back < 0 || front < 0 || child < 0, "Back:%i front:%i child:%i.", back, front, child);
+	gui.Controls.Placement[back ].Area = {{ 0,  0}, {40, 40}};
+	gui.Controls.Placement[front].Area = {{10, 10}, {40, 40}};
+	gui.Controls.Placement[child].Area = {{ 5,  5}, {10, 10}};
+	for(::llc::cid_t control : {back, front, child})
+		gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
+	gui.LastSize = {80, 60};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, gui.LastSize, true), "%s", "Hit-test metrics failed.");
+	::llc::SInput input = {};
+	input.MouseCurrent.Position = {5, 5};
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_BOUNDARY, ::llc::guiProcessInput(gui, input) != back, "Expected back control:%i.", back);
+	input.MouseCurrent.Position = {10, 10};
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_ORDER, ::llc::guiProcessInput(gui, input) != front, "Expected front control:%i.", front);
+	input.MouseCurrent.Position = {15, 15};
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_ORDER, ::llc::guiProcessInput(gui, input) != child, "Expected child control:%i.", child);
+	input.MouseCurrent.Position = {50, 20};
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_BOUNDARY, ::llc::guiProcessInput(gui, input) != (::llc::err_t)gui.Controls.States.size(), "Right edge accepted at x:%i.", input.MouseCurrent.Position.x);
+	input.MouseCurrent.Position = {20, 50};
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_BOUNDARY, ::llc::guiProcessInput(gui, input) != (::llc::err_t)gui.Controls.States.size(), "Bottom edge accepted at y:%i.", input.MouseCurrent.Position.y);
+	input.MouseCurrent.Position = {15, 15};
+	gui.Controls.SetHidden(child, true);
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_ELIGIBILITY, ::llc::guiProcessInput(gui, input) != front, "Hidden child selected:%i.", child);
+	gui.Controls.SetHidden(child, false);
+	gui.Controls.SetDisabled(child, true);
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_ELIGIBILITY, ::llc::guiProcessInput(gui, input) != front, "Disabled child selected:%i.", child);
+	gui.Controls.SetDisabled(child, false);
+	gui.Controls.SetDisabled(front, true);
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_ELIGIBILITY, ::llc::guiProcessInput(gui, input) != back, "Disabled root hierarchy selected:%i.", front);
+	gui.Controls.SetDisabled(front, false);
+	gui.Controls.SetHidden(front, true);
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_HIT_ELIGIBILITY, ::llc::guiProcessInput(gui, input) != back, "Hidden root hierarchy selected:%i.", front);
+	rtrn 0;
+}
+
+sttc ::llc::err_t testGUIInputSequence(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
+	gui.Controls.Placement[control].Area = {{10, 10}, {30, 20}};
+	gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
+	gui.LastSize = {80, 60};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, gui.LastSize, true), "%s", "Input metrics failed.");
+	::llc::SInput input = {};
+	input.MouseCurrent.Position = {20, 20};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != control, "%s", "Initial hover failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, false == gui.Controls.IsHovered(control) || gui.Controls.IsPressed(control) || gui.Controls.IsAction(control));
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.ButtonState[0] = 1;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != control, "%s", "Press failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, false == gui.Controls.IsHovered(control) || false == gui.Controls.IsPressed(control) || gui.Controls.IsAction(control));
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.Position = {70, 50};
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != (::llc::err_t)gui.Controls.States.size());
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, gui.Controls.IsHovered(control) || false == gui.Controls.IsPressed(control) || gui.Controls.IsAction(control));
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.Position = {20, 20};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != control, "%s", "Held return failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, false == gui.Controls.IsHovered(control) || false == gui.Controls.IsPressed(control) || gui.Controls.IsAction(control));
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.ButtonState[0] = 0;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != control, "%s", "Release failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, false == gui.Controls.IsHovered(control) || gui.Controls.IsPressed(control) || false == gui.Controls.IsAction(control));
+	::llc::inputNextFrame(input);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_STABILITY, ::llc::guiProcessInput(gui, input) != control, "%s", "Action reset failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_STABILITY, false == gui.Controls.IsHovered(control) || gui.Controls.IsPressed(control) || gui.Controls.IsAction(control));
+	::llc::inputNextFrame(input);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_STABILITY, ::llc::guiProcessInput(gui, input) != control, "%s", "Stable input failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_STABILITY, gui.Controls.EventQueue.size());
+	rtrn 0;
+}
+
 sttc ::llc::err_t testGUILayoutAndInput(ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t parent = ::llc::controlCreate(gui);
@@ -417,6 +498,8 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	if_fail_fe(::testGUIMetricAreas(errors));
 	if_fail_fe(::testGUIMetricHierarchy(errors));
 	if_fail_fe(::testGUIMetricConstraints(errors));
+	if_fail_fe(::testGUIHitTesting(errors));
+	if_fail_fe(::testGUIInputSequence(errors));
 	if_fail_fe(::testGUILayoutAndInput(errors));
 	if_fail_fe(::testGUIDraw(errors));
 	rtrn ::testGUIComponents(errors);
