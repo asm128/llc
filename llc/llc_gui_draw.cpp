@@ -18,6 +18,28 @@ static ::llc::error_t drawRectangle(::llc::grid<_tColor> & target, cnst _tColor 
 	rtrn (yStop - yStart) * (xStop - xStart);
 }
 
+tplt<tpnm _tCoord, tpnm _tColor>
+static ::llc::error_t drawControlTriangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::tri2<_tCoord> & triangle) {
+	cnst ::llc::n2<int32_t> pointA = {(int32_t)triangle.A.x, (int32_t)triangle.A.y};
+	cnst ::llc::n2<int32_t> pointB = {(int32_t)triangle.B.x, (int32_t)triangle.B.y};
+	cnst ::llc::n2<int32_t> pointC = {(int32_t)triangle.C.x, (int32_t)triangle.C.y};
+	cnst ::llc::n2<int32_t> areaMin = {::llc::min(pointA.x, ::llc::min(pointB.x, pointC.x)), ::llc::min(pointA.y, ::llc::min(pointB.y, pointC.y))};
+	cnst ::llc::n2<int32_t> areaMax = {::llc::max(pointA.x, ::llc::max(pointB.x, pointC.x)), ::llc::max(pointA.y, ::llc::max(pointB.y, pointC.y))};
+	cnst int32_t xStop = ::llc::min(areaMax.x, (int32_t)target.metrics().x);
+	::llc::error_t pixelsDrawn = 0;
+	for(int32_t y = ::llc::max(areaMin.y, 0), yStop = ::llc::min(areaMax.y, (int32_t)target.metrics().y); y < yStop; ++y)
+	for(int32_t x = ::llc::max(areaMin.x, 0); x < xStop; ++x) {
+		cnst ::llc::n2<int32_t> cell = {x, y};
+		if(::llc::orient2d(::llc::line2<int32_t>{pointB, pointA}, cell) < 0
+		|| ::llc::orient2d(::llc::line2<int32_t>{pointC, pointB}, cell) < 0
+		|| ::llc::orient2d(::llc::line2<int32_t>{pointA, pointC}, cell) < 0)
+			continue;
+		target[y][x] = color;
+		++pixelsDrawn;
+	}
+	rtrn pixelsDrawn;
+}
+
 static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::llc::g8bgra & target, bool bDisabled)				{
 	::llc::SControlState		& controlState		= gui.Controls.States	[iControl];
 	::llc::SControlDraw			& controlDraw		= gui.Controls.Draw	[iControl];
@@ -158,7 +180,7 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 		};
 	if(false == controlDraw.NoBorder && ::llc::controlNCSpacing(gui.Controls.Placement[iControl]).Area()) {
 		for(uint32_t iTri = 0; iTri < 8; ++iTri)
-			::llc::drawTriangle(target, colors[colorIndices[iTri]], controlMetrics.Triangles[iTri]);
+			::drawControlTriangle(target, colors[colorIndices[iTri]], controlMetrics.Triangles[iTri]);
 	}
 
 	const ::llc::SControlImage	& controlImage			= gui.Controls.Images[iControl];

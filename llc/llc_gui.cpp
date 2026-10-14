@@ -241,10 +241,16 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 ::llc::error_t			llc::controlDelete		(::llc::SGUI & gui, cid_t iControl, bool recursive)			{
 	llc_necall(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
 	info_printf("Deleting control id: %i.", iControl);
-	if(recursive) { // Delete children first.
+	{
 		::llc::acid					children				= gui.Controls.Children[iControl];
-		for(uint32_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild)
-			ef_if(failed(::llc::controlDelete(gui, children[iChild], true)), "Failed to delete control! Invalid control id? %i.", children[iChild]);
+		for(uint32_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild) {
+			if(recursive) {
+				ef_if(failed(::llc::controlDelete(gui, children[iChild], true)), "Failed to delete control! Invalid control id? %i.", children[iChild]);
+			}
+			else {
+				ef_if(failed(::llc::controlSetParent(gui, children[iChild], ::llc::CID_INVALID)), "Failed to detach child control: %i.", children[iChild]);
+			}
+		}
 	}
 	// Remove from parent list
 	const ::llc::cid_t			indexParent				= gui.Controls.States[iControl].Parent;
@@ -278,10 +284,11 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	if(control.Parent == iParent)	// Exit early if there is nothing to do here.
 		return 0;
 
-	control.Parent			= iParent;
-	if(::llc::controlInvalid(gui, iParent)) {
-		ree_if(-1 != iParent, "Invalid parent control id: %u.", iParent);
-		return 0;
+	ree_if(::llc::CID_INVALID != iParent && ::llc::controlInvalid(gui, iParent), "Invalid parent control id: %u.", iParent);
+	ree_if(iControl == iParent, "A control cannot be its own parent: %u.", iControl);
+	for(::llc::cid_t ancestor = iParent, iDepth = 0; false == ::llc::controlInvalid(gui, ancestor) && iDepth < (::llc::cid_t)gui.Controls.States.size(); ++iDepth) {
+		ree_if(ancestor == iControl, "Parent cycle for control: %u.", iControl);
+		ancestor = gui.Controls.States[ancestor].Parent;
 	}
 
 	if((uint32_t)oldParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(oldParent)) {
@@ -293,6 +300,10 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 				break;
 			}
 	}
+	control.Parent			= iParent;
+	gui.Controls.SetUpdated(iControl, false);
+	if(::llc::CID_INVALID == iParent)
+		return 0;
 
 	// Set iControl to parent's children array.
 	::llc::acid					& children				= gui.Controls.Children[iParent];
@@ -301,7 +312,6 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 			return 0;
 
 	gui.Controls.SetUpdated(iParent , false);
-	gui.Controls.SetUpdated(iControl, false);
 	llc_necs(children.push_back(iControl));
 	return 0;
 }
@@ -508,6 +518,13 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	//--------------------
 	::llc::SControlState		& controlState			= gui.Controls.States[iControl];
 	::llc::cid_t				controlHovered			= -1;
+	if(::llc::in_range(gui.CursorPos.s1(), gui.Controls.Area[iControl].Total.Global))
+		controlHovered			= ::updateGUIControlHovered(gui, iControl, controlState, input, ::llc::controlDisabled(gui, iControl) || ::llc::controlHidden(gui, iControl));
+	else {
+		gui.Controls.SetHovered(iControl, false);
+		if(input.ButtonUp(0))
+			gui.Controls.SetPressed(iControl, false);
+	}
 	{
 		::llc::vcid					& children				= gui.Controls.Children[iControl];
 		for(uint32_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild) {
@@ -515,19 +532,10 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 				continue;
 			::llc::cid_t				controlPressed			= ::controlProcessInput(gui, input, children[iChild]);
 			if(gui.Controls.States.size() > (uint32_t)controlPressed) {
-				//controlState.Hover		= false;
-				gui.Controls.SetPressed(iControl, false);
+				gui.Controls.SetHovered(iControl, false);
 				controlHovered			= controlPressed;
 			}
 		}
-	}
-	if(controlHovered == -1 && ::llc::in_range(gui.CursorPos.s1(), gui.Controls.Area[iControl].Total.Global))
-		controlHovered			= ::updateGUIControlHovered(gui, iControl, controlState, input, ::llc::controlDisabled(gui, iControl) || ::llc::controlHidden(gui, iControl));
-	else {
-		gui.Controls.SetHovered(iControl, false);
-
-		if(input.ButtonUp(0)) 
-			gui.Controls.SetPressed(iControl, false);
 	}
 	return controlHovered;
 }
@@ -537,7 +545,6 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 		return 0;
 
 	gui.Controls.EventQueue.clear();
-	es_if(failed(::llc::guiUpdateMetrics(gui, gui.LastSize, false)));
 	::llc::cid_t				controlHovered			= -1;
 	::llc::acid					rootControlsToProcess	= {};
 	rootControlsToProcess.reserve(1000);
@@ -570,6 +577,9 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 		if(gui.Controls.States.size() > (uint32_t)controlPressed)
 			controlHovered			= controlPressed;
 	}
+	if(controlHovered == -1)
+		return gui.Controls.States.size();
+
 	for(uint32_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {
 		if(iControl != (uint32_t)controlHovered) {
 			gui.Controls.SetHovered((::llc::cid_t)iControl, false);;
