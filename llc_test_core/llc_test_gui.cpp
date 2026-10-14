@@ -1,6 +1,7 @@
 #include "llc_gui.h"
 #include "llc_gui_inputbox.h"
 #include "llc_gui_viewport.h"
+#include "llc_gui_text.h"
 #include "llc_rect_align.h"
 
 #include "llc_test_core.h"
@@ -53,6 +54,41 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_CLIENT        , 43, "Client drawing or
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_BORDER        , 44, "Border drawing or suppression changed the wrong pixels.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_ORDER         , 45, "GUI hierarchy drawing order is inconsistent.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_CLIP          , 46, "GUI drawing escaped the target or control intersection.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_WIDTH         , 47, "Fixed-cell text width is inconsistent.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_RASTER        , 48, "Text rasterization produced inconsistent coordinates.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_CLIP          , 49, "Text rasterization escaped the render target.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_ALIGN         , 50, "Control text alignment is inconsistent with its client rectangle.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_PALETTE       , 51, "Control text used the wrong palette face color.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_STATE         , 52, "Hovered or pressed text did not preserve the one-pixel state offset.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TEXT_FONT          , 53, "Control text selected the wrong raster font.");
+
+sttc ::llc::err_t testGUITextFontCreate(::llc::po<::llc::SRasterFont> & font, ::llc::n2u0_c & charSize) {
+	font->CharSize = charSize;
+	if_fail_fe(font->Texture.resize(16U * charSize.x, 16U * charSize.y));
+	rtrn font->Texture.Texels.fill(0);
+}
+
+sttc ::llc::err_t testGUITextCore(ATestError & errors) {
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_WIDTH, ::llc::textLineCalcWidth({3, 5}, LLC_CXS("TEXT")) != 12);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_WIDTH, ::llc::textLineCalcWidth({3, 5}, {}) != 0);
+	::llc::po<::llc::SRasterFont> font = {};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_RASTER, 0 > ::testGUITextFontCreate(font, {2, 2}), "%s", "Font creation failed.");
+	cnst ::llc::u0_t character = 'A';
+	cnst ::llc::n2u2_t cell = {(character % 16U) * 2U, (character / 16U) * 2U};
+	font->Texture.View[(cell.y + 0U) * font->Texture.Pitch + cell.x + 1U] = true;
+	font->Texture.View[(cell.y + 1U) * font->Texture.Pitch + cell.x + 0U] = true;
+	::llc::apod<::llc::n2u1_t> coordinates = {{99, 98}};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_RASTER, 0 > ::llc::textLineRaster({8, 6}, font->CharSize, {{2, 1}, {4, 2}}, font->Texture, LLC_CXS("AA"), coordinates), "%s", "Raster failed.");
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_RASTER, coordinates.size() != 5, "Coordinate count:%u expected:5.", coordinates.size());
+	stxp ::llc::n2u1_t expected[] = {{99, 98}, {3, 1}, {2, 2}, {5, 1}, {4, 2}};
+	for(::llc::u2_t iCoord = 0; iCoord < ::llc::size(expected) && iCoord < coordinates.size(); ++iCoord)
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_RASTER, coordinates[iCoord] != expected[iCoord], "Coordinate:%u actual:{%u,%u} expected:{%u,%u}.", iCoord, coordinates[iCoord].x, coordinates[iCoord].y, expected[iCoord].x, expected[iCoord].y);
+	coordinates.clear();
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_CLIP, 0 > ::llc::textLineRaster({3, 2}, font->CharSize, {{-1, -1}, {4, 2}}, font->Texture, LLC_CXS("AA"), coordinates), "%s", "Clipped raster failed.");
+	cnst ::llc::n2u1_t clipped = {1, 0};
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_CLIP, coordinates.size() != 1 || coordinates[0] != clipped, "Coordinate count:%u.", coordinates.size());
+	rtrn 0;
+}
 
 sttc ::llc::err_t testGUIStateEvent(ATestError & errors, cnst ::llc::TQueueSystemEvent & queue, ::llc::u2_c iEvent, ::llc::cid_t expectedId, ::llc::GUI_CONTROL_FLAG expectedClear, ::llc::GUI_CONTROL_FLAG expectedSet) {
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_STATE_EVENT, queue.size() <= iEvent || 0 == queue[iEvent].get_ref(), "Event:%u queue size:%u.", iEvent, queue.size());
@@ -504,6 +540,71 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
+	gui.Fonts.clear();
+	::llc::po<::llc::SRasterFont> & fontDefault = gui.Fonts[gui.Fonts.push_back({})];
+	::llc::po<::llc::SRasterFont> & fontEmpty = gui.Fonts[gui.Fonts.push_back({})];
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_FONT, 0 > ::testGUITextFontCreate(fontDefault, {2, 2}) || 0 > ::testGUITextFontCreate(fontEmpty, {2, 2}), "%s", "GUI font creation failed.");
+	cnst ::llc::u0_t character = 'A';
+	cnst ::llc::n2u2_t cell = {(character % 16U) * 2U, (character / 16U) * 2U};
+	fontDefault->Texture.View[(cell.y + 0U) * fontDefault->Texture.Pitch + cell.x + 0U] = true;
+	fontDefault->Texture.View[(cell.y + 1U) * fontDefault->Texture.Pitch + cell.x + 1U] = true;
+	gui.SelectedFont = 0;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_PALETTE, 0 == gui.Colors.create() || 0 > gui.Colors->Palettes.resize(::llc::GUI_CONTROL_PALETTE_COUNT), "%s", "Palette allocation failed.");
+	cnst ::llc::bgra colors[] = {{11, 12, 13, 0xFF}, {21, 22, 23, 0xFF}, {31, 32, 33, 0xFF}, {41, 42, 43, 0xFF}, {51, 52, 53, 0xFF}};
+	for(::llc::u0_t iState = 0; iState < ::llc::GUI_CONTROL_PALETTE_COUNT; ++iState) {
+		gui.Controls.Draw[control].Palettes[iState] = iState;
+		gui.Colors->Palettes[iState][::llc::UI_CONTROL_AREA_TEXT_FACE] = colors[iState];
+	}
+	gui.Controls.Draw[control].UseNewPalettes = true;
+	gui.Controls.Draw[control].NoClient = gui.Controls.Draw[control].NoBorder = true;
+	gui.Controls.Placement[control].Area = {{2, 2}, {10, 8}};
+	gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
+	gui.Controls.Text[control].Text = LLC_CXS("A");
+	::llc::img8bgra target = {};
+	cnst ::llc::n2u2_t targetSize = {16, 12};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_PALETTE, 0 > target.resize(targetSize), "%s", "Target allocation failed.");
+	stxp ::llc::ALIGN alignments[] =
+		{ ::llc::ALIGN_TOP_LEFT, ::llc::ALIGN_TOP_RIGHT, ::llc::ALIGN_BOTTOM_LEFT, ::llc::ALIGN_BOTTOM_RIGHT
+		, ::llc::ALIGN_CENTER_TOP, ::llc::ALIGN_CENTER_BOTTOM, ::llc::ALIGN_CENTER_LEFT, ::llc::ALIGN_CENTER_RIGHT, ::llc::ALIGN_CENTER
+		};
+	for(::llc::u2_t iAlign = 0; iAlign < ::llc::size(alignments); ++iAlign) {
+		gui.Controls.Text[control].Align = alignments[iAlign];
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_ALIGN, 0 > ::llc::controlMetricsInvalidate(gui, control) || 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), true), "Alignment:%s.", ::llc::get_value_namep(alignments[iAlign]));
+		::llc::rect2s1_t expected = {{}, {2, 2}};
+		::llc::realignRectangle(gui.Controls.Area[control].Client.Global.Size.u2(), expected, expected, alignments[iAlign]);
+		expected.Offset += gui.Controls.Area[control].Client.Global.Offset;
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_ALIGN, gui.Controls.Area[control].Text != expected, "Alignment:%s.", ::llc::get_value_namep(alignments[iAlign]));
+	}
+	gui.Controls.Text[control].Align = ::llc::ALIGN_TOP_LEFT;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_ALIGN, 0 > ::llc::controlMetricsInvalidate(gui, control) || 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), true), "%s", "Final text metrics failed.");
+	stxp ::llc::GUI_CONTROL_FLAG states[] = {{}, ::llc::GUI_CONTROL_FLAG_Hovered, ::llc::GUI_CONTROL_FLAG_Pressed, ::llc::GUI_CONTROL_FLAG_Selected, ::llc::GUI_CONTROL_FLAG_Disabled};
+	stxp ::llc::GUI_CONTROL_PALETTE palettes[] = {::llc::GUI_CONTROL_PALETTE_NORMAL, ::llc::GUI_CONTROL_PALETTE_HOVER, ::llc::GUI_CONTROL_PALETTE_PRESSED, ::llc::GUI_CONTROL_PALETTE_SELECTED, ::llc::GUI_CONTROL_PALETTE_DISABLED};
+	for(::llc::u2_t iState = 0; iState < ::llc::size(states); ++iState) {
+		target.View.fill({});
+		gui.Controls.States[control].Flag = states[iState];
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_PALETTE, 0 > ::llc::guiDraw(gui, target.View), "State:%u.", iState);
+		cnst ::llc::n2u1_t offset = (states[iState] & (::llc::GUI_CONTROL_FLAG_Hovered | ::llc::GUI_CONTROL_FLAG_Pressed)) ? ::llc::n2u1_t{1, 1} : ::llc::n2u1_t{};
+		cnst ::llc::n2u1_t pixel = gui.Controls.Area[control].Text.Offset.u1() + offset;
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_PALETTE, target.View[pixel.y][pixel.x] != colors[palettes[iState]], "State:%u pixel:{%u,%u}.", iState, pixel.x, pixel.y);
+		if(offset.x)
+			LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_STATE, target.View[pixel.y - 1U][pixel.x - 1U] != ::llc::bgra{}, "State:%u retained unshifted text.", iState);
+	}
+	target.View.fill({});
+	gui.Controls.States[control].Flag = {};
+	gui.Controls.Text[control].FontSelected = 1;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_FONT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Explicit font draw failed.");
+	cnst ::llc::n2u1_t textOffset = gui.Controls.Area[control].Text.Offset.u1();
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_FONT, target.View[textOffset.y][textOffset.x] != ::llc::bgra{});
+	gui.Controls.Text[control].FontSelected = -1;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_FONT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Default font draw failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_FONT, target.View[textOffset.y][textOffset.x] != colors[::llc::GUI_CONTROL_PALETTE_NORMAL]);
+	rtrn 0;
+}
+
 sttc ::llc::err_t testGUIDraw(ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
@@ -562,6 +663,7 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 }
 
 ::llc::err_t testGUI(ATestError & errors) {
+	if_fail_fe(::testGUITextCore(errors));
 	if_fail_fe(::testGUIControlStateQueries(errors));
 	if_fail_fe(::testGUIControlStateMutations(errors));
 	if_fail_fe(::testGUIControlStateEvents(errors));
@@ -574,6 +676,7 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	if_fail_fe(::testGUIInputSequence(errors));
 	if_fail_fe(::testGUILayoutAndInput(errors));
 	if_fail_fe(::testGUIDrawCore(errors));
+	if_fail_fe(::testGUIDrawText(errors));
 	if_fail_fe(::testGUIDraw(errors));
 	rtrn ::testGUIComponents(errors);
 }
