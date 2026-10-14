@@ -186,28 +186,28 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 	const ::llc::SControlImage	& controlImage			= gui.Controls.Images[iControl];
 	if(controlImage.Image.metrics().x && controlImage.Image.metrics().y) {
 		const ::llc::SControlState	& controlState			= gui.Controls.States[iControl];
-		//::llc::rect2<int32_t>	rectImage						=
-		//	{ controlMetrics.Client.Global.Offset
-		//	, controlMetrics.Client.Global.Size
-		//		+ ::llc::n2<int32_t>
-		//			{ ::llc::min(0, ::llc::min(controlMetrics.Client.Global.Offset.x, controlMetrics.Client.Local.Offset.x))
-		//			, ::llc::min(0, ::llc::min(controlMetrics.Client.Global.Offset.y, controlMetrics.Client.Local.Offset.y))
-		//			}
-		//	};
 		::llc::rect2s1_t				rectImage				= {{}, controlImage.Image.metrics().s1()};
 		::llc::realignRectangle(controlMetrics.Client.Global.Size, rectImage, rectImage, (::llc::ALIGN)controlImage.ImageAlign);
 		rectImage.Offset		+= controlMetrics.Client.Global.Offset;
-		rectImage.Size.x		= ::llc::min(rectImage.Limit().x, controlMetrics.Client.Global.Limit().x) - rectImage.Offset.x;
-		rectImage.Size.y		= ::llc::min(rectImage.Limit().y, controlMetrics.Client.Global.Limit().y) - rectImage.Offset.y;
 		if(controlState.IsHovered())
 			rectImage.Offset		+= {1, 1};
+		cnst ::llc::n2s1_t		imageOffset			= rectImage.Offset;
+		cnst ::llc::n2s1_t		imageLimit			= rectImage.Limit();
+		cnst ::llc::rect2s1_t	& client				= controlMetrics.Client.Global;
+		rectImage.Offset.x		= ::llc::max(rectImage.Offset.x, client.Offset.x);
+		rectImage.Offset.y		= ::llc::max(rectImage.Offset.y, client.Offset.y);
+		rectImage.Size.x		= ::llc::max<::llc::s1_t>(0, ::llc::min(imageLimit.x, client.Limit().x) - rectImage.Offset.x);
+		rectImage.Size.y		= ::llc::max<::llc::s1_t>(0, ::llc::min(imageLimit.y, client.Limit().y) - rectImage.Offset.y);
+		cnst ::llc::n2s1_t		sourceOffset			= controlImage.ImageOffset + rectImage.Offset - imageOffset;
+		if(0 == rectImage.Size.x || 0 == rectImage.Size.y)
+			rtrn 0;
 		if(0 == controlImage.ImageInvertY)
-			::llc::grid_copy_blend(target, controlImage.Image, rectImage, controlImage.ImageOffset);
+			::llc::grid_copy_blend(target, controlImage.Image, rectImage, sourceOffset);
 		else {
 			::llc::img8bgra				& inverted				= gui.Controls.Images[iControl].Temp.Color;
 			llc_necs(gui.Controls.Images[iControl].Temp.resize(controlImage.Image.metrics()));
 			::llc::grid_mirror_y(inverted.View, controlImage.Image);
-			::llc::grid_copy_blend(target, inverted.View, rectImage, controlImage.ImageOffset);
+			::llc::grid_copy_blend(target, inverted.View, rectImage, sourceOffset);
 		}
 	}
 

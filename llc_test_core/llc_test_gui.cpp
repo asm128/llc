@@ -66,6 +66,11 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_OFFSET       , 55, "Control image sou
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_STATE        , 56, "Hovered image did not preserve the one-pixel state offset.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_INVERT       , 57, "Control image Y inversion produced the wrong texels.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, IMAGE_CLIP         , 58, "Control image escaped the target or client rectangle.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_GEOMETRY  , 59, "Virtual-keyboard control geometry is inconsistent.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_LABEL     , 60, "Virtual-keyboard control text is inconsistent.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_COMMAND   , 61, "Virtual-keyboard command mapping is inconsistent.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_INPUT     , 62, "Virtual-keyboard input did not preserve press-release activation.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_MOVE      , 63, "Moving the virtual-keyboard root detached its children.");
 
 sttc ::llc::err_t testGUITextFontCreate(::llc::po<::llc::SRasterFont> & font, ::llc::n2u0_c & charSize) {
 	font->CharSize = charSize;
@@ -584,6 +589,17 @@ sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
 		expected.Offset += gui.Controls.Area[control].Client.Global.Offset;
 		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_ALIGN, gui.Controls.Area[control].Text != expected, "Alignment:%s.", ::llc::get_value_namep(alignments[iAlign]));
 	}
+	gui.Controls.Text[control].Align = ::llc::ALIGN_CENTER;
+	stxp double dpiScales[] = {0.5, 1.0, 1.5};
+	for(::llc::u2_t iScale = 0; iScale < ::llc::size(dpiScales); ++iScale) {
+		gui.Zoom.DPI = {dpiScales[iScale], dpiScales[iScale]};
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_ALIGN, 0 > ::llc::controlMetricsInvalidate(gui, control) || 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), true), "DPI:%f.", dpiScales[iScale]);
+		::llc::rect2s1_t expected = {{}, fontDefault->CharSize.s1()};
+		::llc::realignRectangle(gui.Controls.Area[control].Client.Global.Size.u2(), expected, expected, ::llc::ALIGN_CENTER);
+		expected.Offset += gui.Controls.Area[control].Client.Global.Offset;
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_ALIGN, gui.Controls.Area[control].Text != expected, "DPI:%f.", dpiScales[iScale]);
+	}
+	gui.Zoom.DPI = {1, 1};
 	gui.Controls.Text[control].Align = ::llc::ALIGN_TOP_LEFT;
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_ALIGN, 0 > ::llc::controlMetricsInvalidate(gui, control) || 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), true), "%s", "Final text metrics failed.");
 	stxp ::llc::GUI_CONTROL_FLAG states[] = {{}, ::llc::GUI_CONTROL_FLAG_Hovered, ::llc::GUI_CONTROL_FLAG_Pressed, ::llc::GUI_CONTROL_FLAG_Selected, ::llc::GUI_CONTROL_FLAG_Disabled};
@@ -671,6 +687,87 @@ sttc ::llc::err_t testGUIDrawImage(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIVirtualKeyboard(ATestError & errors) {
+	::llc::SGUI gui = {};
+	::llc::SVirtualKeyboard keyboard = {};
+	cnst ::llc::u1_t keys[] = {'A', 'B', 'C', 'D', 'E'};
+	cnst ::llc::n2u1_t keySize = {10, 12};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_SETUP, 0 > ::llc::virtualKeyboardSetup(gui, keyboard, 2, keySize, keys), "%s", "Keyboard setup failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_SETUP, keyboard.IdRoot < 0 || keyboard.Characters.size() != ::llc::size(keys) || keyboard.Commands.size() != 8);
+	cnst ::llc::SControlPlacement & rootPlacement = gui.Controls.Placement[keyboard.IdRoot];
+	cnst ::llc::n2s1_t rootSizeExpected = {112, 164};
+	cnst ::llc::rectu1_t borderExpected = {1, 1, 1, 1};
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_GEOMETRY, rootPlacement.Area.Size != rootSizeExpected || rootPlacement.Align != ::llc::ALIGN_CENTER_BOTTOM);
+	for(::llc::u2_t iKey = 0; iKey < keyboard.Characters.size(); ++iKey) {
+		cnst ::llc::cid_t idControl = keyboard.Characters[iKey].IdControl;
+		cnst ::llc::SControlPlacement & placement = gui.Controls.Placement[idControl];
+		cnst ::llc::n2s1_t expectedOffset = {(::llc::s1_t)((iKey % 2U) * keySize.x), (::llc::s1_t)((iKey / 2U) * keySize.y)};
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_KEYBOARD_GEOMETRY, gui.Controls.States[idControl].Parent != keyboard.IdRoot || placement.Area.Offset != expectedOffset || placement.Area.Size != keySize.s1() || placement.Border != borderExpected, "Character:%u control:%i.", iKey, idControl);
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_KEYBOARD_LABEL, gui.Controls.Text[idControl].Text.size() != 1 || gui.Controls.Text[idControl].Text[0] != (::llc::sc_t)keys[iKey] || gui.Controls.Text[idControl].Align != ::llc::ALIGN_CENTER, "Character:%u control:%i.", iKey, idControl);
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_KEYBOARD_EVENT, keyboard.Characters[iKey].Character != keys[iKey], "Character:%u value:%u.", iKey, keyboard.Characters[iKey].Character);
+	}
+	stxp ::llc::SYSTEM_KEY commands[] =
+		{ ::llc::SYSTEM_KEY_Escape, ::llc::SYSTEM_KEY_Enter, ::llc::SYSTEM_KEY_Backspace, ::llc::SYSTEM_KEY_Clear
+		, ::llc::SYSTEM_KEY_Left, ::llc::SYSTEM_KEY_Right, ::llc::SYSTEM_KEY_Up, ::llc::SYSTEM_KEY_Down
+		};
+	::llc::TQueueSystemEvent events = {};
+	for(::llc::u2_t iCommand = 0; iCommand < keyboard.Commands.size(); ++iCommand) {
+		cnst ::llc::cid_t idControl = keyboard.Commands[iCommand].IdControl;
+		cnst ::llc::SControlPlacement & placement = gui.Controls.Placement[idControl];
+		cnst ::llc::n2s1_t commandSizeExpected = {88, 20};
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_KEYBOARD_GEOMETRY, gui.Controls.States[idControl].Parent != keyboard.IdRoot || placement.Area.Offset.y != (::llc::s1_t)(iCommand * 20U) || placement.Area.Size != commandSizeExpected || placement.Align != ::llc::ALIGN_TOP_RIGHT || placement.Border != borderExpected, "Command:%u control:%i.", iCommand, idControl);
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_KEYBOARD_LABEL, gui.Controls.Text[idControl].Text != ::llc::get_value_label(commands[iCommand]) || gui.Controls.Text[idControl].Align != ::llc::ALIGN_CENTER, "Command:%u control:%i.", iCommand, idControl);
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_KEYBOARD_COMMAND, keyboard.Commands[iCommand].Key != commands[iCommand], "Command:%u key:%u.", iCommand, (::llc::u2_t)keyboard.Commands[iCommand].Key);
+		cnst ::llc::u2_t eventIndex = events.size();
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_COMMAND, 1 != ::llc::virtualKeyboardHandleEvent(keyboard, idControl, events), "Command:%u.", iCommand);
+		::llc::u0_t key = {};
+		cnst ::llc::err_t extractResult = ::llc::eventExtractAndHandle<::llc::EVENT_KEYBOARD>(*events[eventIndex], [&key](cnst ::llc::SEView<::llc::EVENT_KEYBOARD> & eventView) {
+			if(eventView.Type != ::llc::EVENT_KEYBOARD_Down) rtrn -1;
+			::llc::vcu0_t payload = eventView.Data;
+			rtrn ::llc::loadPOD(payload, key);
+		});
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_KEYBOARD_COMMAND, ::llc::failed(extractResult) || key != (::llc::u0_t)commands[iCommand], "Command:%u payload:%u.", iCommand, key);
+	}
+	cnst ::llc::u2_t eventCount = events.size();
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_EVENT, 0 != ::llc::virtualKeyboardHandleEvent(keyboard, keyboard.IdRoot, events) || events.size() != eventCount);
+
+	gui.Controls.Placement[keyboard.IdRoot].Align = ::llc::ALIGN_TOP_LEFT;
+	gui.Controls.Placement[keyboard.IdRoot].Area.Offset = {5, 7};
+	cnst ::llc::n2u1_t targetSize = {300, 220};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_MOVE, 0 > ::llc::controlMetricsInvalidate(gui, keyboard.IdRoot) || 0 > ::llc::guiUpdateMetrics(gui, targetSize, true), "%s", "Initial keyboard metrics failed.");
+	cnst ::llc::n2s1_t childOrigin = gui.Controls.Area[keyboard.Characters[0].IdControl].Total.Global.Offset;
+	cnst ::llc::n2s1_t movement = {11, 13};
+	gui.Controls.Placement[keyboard.IdRoot].Area.Offset += movement;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_MOVE, 0 > ::llc::controlMetricsInvalidate(gui, keyboard.IdRoot) || 0 > ::llc::guiUpdateMetrics(gui, targetSize, true), "%s", "Moved keyboard metrics failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_MOVE, gui.Controls.Area[keyboard.Characters[0].IdControl].Total.Global.Offset != childOrigin + movement);
+
+	cnst ::llc::cid_t idKey = keyboard.Characters[0].IdControl;
+	cnst ::llc::rect2s1_t keyArea = gui.Controls.Area[idKey].Total.Global;
+	::llc::SInput input = {};
+	input.MouseCurrent.Position = keyArea.Offset + ::llc::n2s1_t{1, 1};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_INPUT, ::llc::guiProcessInput(gui, input) != idKey, "%s", "Key hover failed.");
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.ButtonState[0] = 1;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_INPUT, ::llc::guiProcessInput(gui, input) != idKey, "%s", "Key press failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_INPUT, false == gui.Controls.IsPressed(idKey) || gui.Controls.IsAction(idKey));
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.ButtonState[0] = 0;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_INPUT, ::llc::guiProcessInput(gui, input) != idKey, "%s", "Key release failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_INPUT, gui.Controls.IsPressed(idKey) || false == gui.Controls.IsAction(idKey));
+	::llc::acid processable = {idKey};
+	::llc::TQueueSystemEvent inputEvents = {};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_INPUT, 1 != ::llc::guiProcessControls(gui, processable, [&keyboard, &inputEvents](::llc::cid_t iControl) { rtrn ::llc::virtualKeyboardHandleEvent(keyboard, iControl, inputEvents); }), "%s", "Key action dispatch failed.");
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_EVENT, inputEvents.size() != 1, "Event count:%u.", inputEvents.size());
+	::llc::u2_t character = {};
+	cnst ::llc::err_t extractResult = ::llc::eventExtractAndHandle<::llc::EVENT_TEXT>(*inputEvents[0], [&character](cnst ::llc::SEView<::llc::EVENT_TEXT> & eventView) {
+		if(eventView.Type != ::llc::EVENT_TEXT_Char) rtrn -1;
+		::llc::vcu0_t payload = eventView.Data;
+		rtrn ::llc::loadPOD(payload, character);
+	});
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_EVENT, ::llc::failed(extractResult) || character != keys[0]);
+	rtrn 0;
+}
+
 sttc ::llc::err_t testGUIDraw(ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
@@ -695,21 +792,6 @@ sttc ::llc::err_t testGUIDraw(ATestError & errors) {
 
 sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	::llc::SGUI gui = {};
-	::llc::SVirtualKeyboard keyboard = {};
-	cnst ::llc::u1_t keys[] = {'A', 'B', 'C', 'D'};
-	cnst ::llc::n2u1_t keySize = {10, 12};
-	cnst ::llc::n2s1_t keyboardSize = {112, 164};
-	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_SETUP, 0 > ::llc::virtualKeyboardSetup(gui, keyboard, 2, keySize, keys), "%s", "Keyboard setup failed.");
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_SETUP, keyboard.IdRoot < 0 || keyboard.Characters.size() != 4 || keyboard.Commands.size() != 8);
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_SETUP, gui.Controls.Placement[keyboard.IdRoot].Align != ::llc::ALIGN_CENTER_BOTTOM || gui.Controls.Placement[keyboard.IdRoot].Area.Size != keyboardSize);
-	for(::llc::u2_t iKey = 0; iKey < keyboard.Characters.size(); ++iKey)
-		LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_SETUP, gui.Controls.States[keyboard.Characters[iKey].IdControl].Parent != keyboard.IdRoot || keyboard.Characters[iKey].Character != keys[iKey]);
-	::llc::TQueueSystemEvent events = {};
-	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_EVENT, 1 != ::llc::virtualKeyboardHandleEvent(keyboard, keyboard.Characters[2].IdControl, events), "%s", "Character mapping failed.");
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_EVENT, events.size() != 1);
-	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_KEYBOARD_EVENT, 0 != ::llc::virtualKeyboardHandleEvent(keyboard, ::llc::CID_INVALID, events), "%s", "Unmapped control was handled.");
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_KEYBOARD_EVENT, events.size() != 1);
-
 	::llc::SInputBox inputBox = {};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUTBOX, 0 > ::llc::inputBoxCreate(inputBox, gui), "%s", "Input box creation failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUTBOX, gui.Controls.States[inputBox.IdText].Parent != inputBox.IdRoot || gui.Controls.States[inputBox.VirtualKeyboard.IdRoot].Parent != inputBox.IdRoot);
@@ -745,5 +827,6 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	if_fail_fe(::testGUIDrawText(errors));
 	if_fail_fe(::testGUIDrawImage(errors));
 	if_fail_fe(::testGUIDraw(errors));
+	if_fail_fe(::testGUIVirtualKeyboard(errors));
 	rtrn ::testGUIComponents(errors);
 }

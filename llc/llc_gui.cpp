@@ -378,7 +378,6 @@ static	::llc::error_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iCon
 
 	const ::llc::n2u0_t			fontCharSize			= selectedFont.CharSize;
 	rectText.Size			= {(double)(fontCharSize.x * controlText.Text.size()), (double)fontCharSize.y};
-	rectText.Size.InPlaceScale(scale.x, scale.y);
 
 	const ::llc::SControlConstraints	& controlConstraints	= gui.Controls.Constraints[iControl];
 	const ::llc::rectu1_t		ncSizes					= ::llc::controlNCRect(controlPlacement);

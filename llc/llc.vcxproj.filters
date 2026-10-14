@@ -267,12 +267,6 @@
     <ClInclude Include="llc_deflate.h">
       <Filter>encoding</Filter>
     </ClInclude>
-    <ClInclude Include="llc_dialog.h">
-      <Filter>dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_dialog_controls.h">
-      <Filter>dialog</Filter>
-    </ClInclude>
     <ClInclude Include="llc_encoding.h">
       <Filter>encoding</Filter>
     </ClInclude>
@@ -723,6 +717,21 @@
     <ClInclude Include="llc_ctti.h">
       <Filter>type</Filter>
     </ClInclude>
+    <ClInclude Include="llc_engine.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_engine_entity.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_engine_orbit.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_engine_renderbuffer.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_engine_rendercolor.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_engine_rendermesh.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_engine_rendernode.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_engine_rendersurface.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_engine_scene.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_game.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_game_stage.h"><Filter>scene</Filter></ClInclude>
+    <ClInclude Include="llc_orbit.h"><Filter>physics</Filter></ClInclude>
+    <ClInclude Include="llc_rigid_body.h"><Filter>physics</Filter></ClInclude>
+    <ClInclude Include="llc_spaceship.h"><Filter>physics</Filter></ClInclude>
+    <ClInclude Include="llc_weapon.h"><Filter>physics</Filter></ClInclude>
     <ClInclude Include="llc_gpio.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -890,9 +899,6 @@
     <ClCompile Include="llc_deflate.cpp">
       <Filter>encoding</Filter>
     </ClCompile>
-    <ClCompile Include="llc_dialog.cpp">
-      <Filter>dialog</Filter>
-    </ClCompile>
     <ClCompile Include="llc_encoding.cpp">
       <Filter>encoding</Filter>
     </ClCompile>
@@ -908,6 +914,11 @@
     <ClCompile Include="llc_framework.cpp">
       <Filter>framework</Filter>
     </ClCompile>
+    <ClCompile Include="llc_engine.cpp"><Filter>scene</Filter></ClCompile>
+    <ClCompile Include="llc_engine_orbit.cpp"><Filter>scene</Filter></ClCompile>
+    <ClCompile Include="llc_engine_renderbuffer.cpp"><Filter>scene</Filter></ClCompile>
+    <ClCompile Include="llc_engine_scene.cpp"><Filter>scene</Filter></ClCompile>
+    <ClCompile Include="llc_rigid_body.cpp"><Filter>physics</Filter></ClCompile>
     <ClCompile Include="llc_geometry.cpp">
       <Filter>geometry</Filter>
     </ClCompile>
