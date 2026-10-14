@@ -48,6 +48,11 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, HIT_ORDER          , 38, "GUI hit testing v
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, HIT_ELIGIBILITY    , 39, "Hidden or disabled controls participated in hit testing.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, INPUT_SEQUENCE     , 40, "GUI hover, press, release, or action sequencing is inconsistent.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, INPUT_STABILITY    , 41, "Stable input retained stale events or changed control state.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_PALETTE       , 42, "Control state selected the wrong drawing palette.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_CLIENT        , 43, "Client drawing or suppression changed the wrong pixels.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_BORDER        , 44, "Border drawing or suppression changed the wrong pixels.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_ORDER         , 45, "GUI hierarchy drawing order is inconsistent.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_CLIP          , 46, "GUI drawing escaped the target or control intersection.");
 
 sttc ::llc::err_t testGUIStateEvent(ATestError & errors, cnst ::llc::TQueueSystemEvent & queue, ::llc::u2_c iEvent, ::llc::cid_t expectedId, ::llc::GUI_CONTROL_FLAG expectedClear, ::llc::GUI_CONTROL_FLAG expectedSet) {
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_STATE_EVENT, queue.size() <= iEvent || 0 == queue[iEvent].get_ref(), "Event:%u queue size:%u.", iEvent, queue.size());
@@ -432,6 +437,73 @@ sttc ::llc::err_t testGUILayoutAndInput(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t parent = ::llc::controlCreate(gui);
+	cnst ::llc::cid_t child = ::llc::controlCreateChild(gui, parent);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, parent < 0 || child < 0, "Parent:%i child:%i.", parent, child);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_PALETTE, 0 == gui.Colors.create() || 0 > gui.Colors->Palettes.resize(::llc::GUI_CONTROL_PALETTE_COUNT), "%s", "Palette allocation failed.");
+	for(::llc::u0_t iState = 0; iState < ::llc::GUI_CONTROL_PALETTE_COUNT; ++iState) {
+		::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT> & palette = gui.Colors->Palettes[iState];
+		for(::llc::u2_t iArea = 0; iArea < palette.size(); ++iArea)
+			palette[iArea] = {(::llc::u0_t)(10 + iState), (::llc::u0_t)(20 + iArea), (::llc::u0_t)(30 + iState + iArea), 0xFF};
+	}
+	for(::llc::cid_t control : {parent, child}) {
+		gui.Controls.Draw[control].UseNewPalettes = true;
+		gui.Controls.Draw[control].ColorMode = ::llc::GUI_COLOR_MODE_Flat;
+		gui.Controls.Text[control].Text = {};
+		for(::llc::u0_t iState = 0; iState < ::llc::GUI_CONTROL_PALETTE_COUNT; ++iState)
+			gui.Controls.Draw[control].Palettes[iState] = iState;
+	}
+	gui.Controls.Placement[parent].Area = {{2, 2}, {12, 10}};
+	gui.Controls.Placement[parent].Margin = {};
+	gui.Controls.Placement[parent].Border = {1, 1, 1, 1};
+	gui.Controls.Placement[child].Area = {{3, 3}, {4, 3}};
+	gui.Controls.Placement[child].Margin = gui.Controls.Placement[child].Border = {};
+	::llc::img8bgra target = {};
+	cnst ::llc::n2u2_t targetSize = {18, 14};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW, 0 > target.resize(targetSize), "%s", "Target resize failed.");
+	stxp ::llc::GUI_CONTROL_FLAG states[] =
+		{ {}, ::llc::GUI_CONTROL_FLAG_Hovered, ::llc::GUI_CONTROL_FLAG_Selected, ::llc::GUI_CONTROL_FLAG_Pressed, ::llc::GUI_CONTROL_FLAG_Disabled };
+	stxp ::llc::GUI_CONTROL_PALETTE palettes[] =
+		{ ::llc::GUI_CONTROL_PALETTE_NORMAL, ::llc::GUI_CONTROL_PALETTE_HOVER, ::llc::GUI_CONTROL_PALETTE_SELECTED, ::llc::GUI_CONTROL_PALETTE_PRESSED, ::llc::GUI_CONTROL_PALETTE_DISABLED };
+	gui.Controls.SetHidden(child, true);
+	for(::llc::u2_t iState = 0; iState < ::llc::size(states); ++iState) {
+		target.View.fill({});
+		gui.Controls.States[parent].Flag = states[iState];
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_PALETTE, 0 > ::llc::guiDraw(gui, target.View), "State:%u.", iState);
+		cnst ::llc::bgra expected = gui.Colors->Palettes[palettes[iState]][::llc::UI_CONTROL_AREA_CLIENT];
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_DRAW_PALETTE, target.View[6][7] != expected, "State:%u.", iState);
+	}
+	gui.Controls.States[parent].Flag = {};
+	cnst ::llc::bgra untouched = {1, 2, 3, 4};
+	target.View.fill(untouched);
+	gui.Controls.Draw[parent].NoClient = true;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_CLIENT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Client suppression failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIENT, target.View[6][7] != untouched);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_BORDER, target.View[2][7] == untouched);
+	target.View.fill(untouched);
+	gui.Controls.Draw[parent].NoClient = false;
+	gui.Controls.Draw[parent].NoBorder = true;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_BORDER, 0 > ::llc::guiDraw(gui, target.View), "%s", "Border suppression failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_BORDER, target.View[2][7] != untouched);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIENT, target.View[6][7] == untouched);
+	gui.Controls.Draw[parent].NoBorder = false;
+	gui.Controls.SetHidden(child, false);
+	gui.Controls.Draw[child].Palettes[::llc::GUI_CONTROL_PALETTE_NORMAL] = ::llc::GUI_CONTROL_PALETTE_HOVER;
+	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_ORDER, 0 > ::llc::guiDraw(gui, target.View), "%s", "Hierarchy drawing failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_ORDER, target.View[6][6] != gui.Colors->Palettes[::llc::GUI_CONTROL_PALETTE_HOVER][::llc::UI_CONTROL_AREA_CLIENT]);
+	gui.Controls.SetHidden(child, true);
+	gui.Controls.Placement[parent].Area = {{-4, -3}, {8, 7}};
+	gui.Controls.Placement[parent].Margin = gui.Controls.Placement[parent].Border = {};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_CLIP, 0 > ::llc::controlMetricsInvalidate(gui, parent), "%s", "Clip invalidation failed.");
+	target.View.fill(untouched);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_CLIP, 0 > ::llc::guiDraw(gui, target.View), "%s", "Clipped drawing failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIP, target.View[0][0] == untouched || target.View[3][3] == untouched || target.View[3][4] != untouched || target.View[4][3] != untouched);
+	rtrn 0;
+}
+
 sttc ::llc::err_t testGUIDraw(ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
@@ -501,6 +573,7 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	if_fail_fe(::testGUIHitTesting(errors));
 	if_fail_fe(::testGUIInputSequence(errors));
 	if_fail_fe(::testGUILayoutAndInput(errors));
+	if_fail_fe(::testGUIDrawCore(errors));
 	if_fail_fe(::testGUIDraw(errors));
 	rtrn ::testGUIComponents(errors);
 }
