@@ -44,6 +44,7 @@ namespace llc
 		::llc::n2f2_t			WeightedUV			;
 		::llc::SRenderMaterial	Material			;
 		::llc::gc8bgra			Surface				; 
+		::llc::gc8bgra			Surface1			;
 	};
 
 	stacxpr size_t		SPSINSIZE = sizeof(SPSIn);

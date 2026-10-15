@@ -8,6 +8,8 @@
 #include "llc_view_n2.h"
 #include "llc_view_tri.h"
 
+#include <algorithm>
+
 tplt <tpnm _tIndex>
 static	::llc::error_t	transformTriangles					
 	( ::llc::SVSOutput		& output
@@ -62,6 +64,7 @@ static	::llc::error_t	transformTriangles
 	( ::llc::SEngineRenderCache				& renderCache
 	, const ::llc::SEngineScene				& scene
 	, const ::llc::SEngineSceneConstants	& constants
+	, const ::llc::SRenderNodeConstants		& transforms
 	, int32_t								iRenderNode
 	) {
 	const ::llc::SRenderNode	& renderNode			= scene.RenderNodes.RenderNodes[iRenderNode];
@@ -72,14 +75,12 @@ static	::llc::error_t	transformTriangles
 	renderCache.VertexShaderOutput	= {};
 
 	if(mesh.GeometryBuffers.size()) {
-		::llc::SRenderNodeConstants	transforms				= scene.RenderNodes.Transforms[iRenderNode];
 		const ::llc::m4f2_t			& worldTransform		= transforms.Model;
 
 		const ::llc::vcn3f2_t			positions				= (mesh.GeometryBuffers.size() > 1) ? ::llc::vcn3f2_t	{(const ::llc::n3f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[1]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[1]]->Data.size() / (uint8_t)sizeof(const ::llc::n3f2_t)}	: ::llc::vcn3f2_t{};
 		const ::llc::vcn3f2_t			normals					= (mesh.GeometryBuffers.size() > 2) ? ::llc::vcn3f2_t	{(const ::llc::n3f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[2]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[2]]->Data.size() / (uint8_t)sizeof(const ::llc::n3f2_t)}	: ::llc::vcn3f2_t{};
 		const ::llc::vcn2f2_t			uv						= (mesh.GeometryBuffers.size() > 3) ? ::llc::vcn2f2_t	{(const ::llc::n2f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[3]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[3]]->Data.size() / (uint8_t)sizeof(const ::llc::n2f2_t)}	: ::llc::vcn2f2_t{};
 
-		transforms.Model					= scene.RenderNodes.BaseTransforms[iRenderNode].Model * transforms.Model;
 		::llc::pobj<::llc::SRenderBuffer>	indexBuffer		= scene.Graphics->Buffers[mesh.GeometryBuffers[0]];
 		if(indexBuffer->Desc.Format.TotalBytes() == 1) {
 			const ::llc::vcu0_t			indices					= ::llc::vcu0_t{(const uint8_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (uint8_t)sizeof(const uint8_t)};
@@ -100,6 +101,21 @@ static	::llc::error_t	transformTriangles
 	return 0;
 }
 
+static	::llc::error_t	getNodeTransform
+	( const ::llc::SRenderNodeManager		& nodeManager
+	, uint32_t							iNode
+	, const ::llc::SEngineSceneConstants	& constants
+	, ::llc::SRenderNodeConstants			& nodeConstants
+	) {
+	nodeConstants						= nodeManager.Transforms[iNode];
+	nodeConstants.Model					= nodeManager.BaseTransforms[iNode].Model * nodeConstants.Model;
+	nodeConstants.ModelInverse			= nodeConstants.Model.GetInverse();
+	nodeConstants.ModelInverseTranspose	= nodeConstants.ModelInverse.GetTranspose();
+	nodeConstants.MVP					= nodeConstants.Model * constants.View * constants.Perspective;
+	nodeConstants.NodeSize				= nodeManager.BaseTransforms[iNode].NodeSize;
+	return 0;
+}
+
 
 static	::llc::error_t	drawBuffers
 	( ::llc::g8bgra										& backBufferColors
@@ -108,9 +124,11 @@ static	::llc::error_t	drawBuffers
 	, ::llc::SVSCache									& cacheVS
 	, const ::llc::SRenderMaterial						& material
 	, ::llc::gc8bgra									surface
+	, ::llc::gc8bgra									surface1
 	, const ::llc::SEngineSceneConstants				& constants
 	, const ::llc::SRenderNodeConstants					& nodeConstants
 	, const ::std::function<::llc::TFuncPixelShader>	& ps
+	, bool											depthWrite
 	) {	// 
 	::llc::atrif2_t				& triangleWeights			= cacheVS.TriangleWeights		;
 	::llc::an2s1_t				& trianglePixelCoords		= cacheVS.SolidPixelCoords		;
@@ -118,6 +136,7 @@ static	::llc::error_t	drawBuffers
 	const ::llc::n3f2_t			lightDirectionNormalized	= ::llc::n3f2_t{constants.LightDirection}.Normalize();
 	::llc::SPSIn				inPS						= {nodeConstants};
 	inPS.Surface			= surface;
+	inPS.Surface1			= surface1;
 	inPS.Material			= material;
 
 	for(uint32_t iTriangle = 0; iTriangle < outVS.PositionsScreen.size(); ++iTriangle) {
@@ -134,7 +153,7 @@ static	::llc::error_t	drawBuffers
 
 		trianglePixelCoords.clear();
 		triangleWeights.clear();
-		if_fail_e(::llc::drawTriangle(offscreenMetrics.u2(), triPositions, trianglePixelCoords, triangleWeights, backBufferDepth));
+		if_fail_e(::llc::drawTriangle(offscreenMetrics.u2(), triPositions, trianglePixelCoords, triangleWeights, backBufferDepth, depthWrite));
 		//const bool													stripped					= surface[0][0] == ::llc::bgra{llc::WHITE};
 		for(uint32_t iCoord = 0; iCoord < trianglePixelCoords.size(); ++iCoord) {
 			const ::llc::trif2_t	& vertexWeights				= triangleWeights[iCoord];
@@ -142,7 +161,9 @@ static	::llc::error_t	drawBuffers
 			inPS.WeightedNormal		= (triNormals.A * vertexWeights.A + triNormals.B * vertexWeights.B + triNormals.C * vertexWeights.C).Normalize();
 			inPS.WeightedUV			= triUVs.A * vertexWeights.A + triUVs.B * vertexWeights.B + triUVs.C * vertexWeights.C;
 			const ::llc::n2u1_t			coord						= trianglePixelCoords[iCoord].u1();
-			ps(constants, inPS, backBufferColors[coord.y][coord.x]);
+			::llc::bgra					outputPixel					= {};
+			ps(constants, inPS, outputPixel);
+			::llc::pixelBlend(backBufferColors, coord.s1(), outputPixel);
 		}
 	}
 	return 0;
@@ -174,34 +195,53 @@ llc::err_t			llc::drawScene
 	constants.VPS			= constants.VP * constants.Screen;
 
 	static ::std::function<TFuncPixelShader>	defaultShader			= {psSolid};
+	apod<uint32_t>					solidNodes				= {};
+	apod<uint32_t>					alphaNodes				= {};
 	for(uint32_t iRenderNode = 0, countNodes = scene.RenderNodes.RenderNodes.size(); iRenderNode < countNodes; ++iRenderNode) {
 		const SRenderNodeFlags	& renderNodeFlags		= scene.RenderNodes.Flags[iRenderNode];
 		if(renderNodeFlags.NoDraw)
 			continue;
-
 		const SRenderNode		& renderNode		= scene.RenderNodes.RenderNodes[iRenderNode];
 		if(renderNode.Mesh >= scene.Graphics->Meshes.size())
 			continue;
-
-		info_printf("Mesh name: %s", scene.Graphics->Meshes.Names[renderNode.Mesh].begin());
+		const SSkin				& skin				= *scene.Graphics->Skins.Elements[renderNode.Skin];
+		(skin.Material.Color.Diffuse.a < 1.0f ? alphaNodes : solidNodes).push_back(iRenderNode);
+	}
+	const auto nodeDepth = [&scene, &constants](uint32_t iNode) {
+		const m4f2_t model = scene.RenderNodes.BaseTransforms[iNode].Model * scene.RenderNodes.Transforms[iNode].Model;
+		return constants.CameraFront.Dot(model.GetTranslation());
+	};
+	::std::sort(solidNodes.begin(), solidNodes.end(), [&nodeDepth](uint32_t a, uint32_t b) { return nodeDepth(a) < nodeDepth(b); });
+	::std::sort(alphaNodes.begin(), alphaNodes.end(), [&nodeDepth](uint32_t a, uint32_t b) { return nodeDepth(a) > nodeDepth(b); });
+	const auto drawNode = [&](uint32_t iRenderNode, bool depthWrite) -> error_t {
+		const SRenderNode		& renderNode		= scene.RenderNodes.RenderNodes[iRenderNode];
+		const SSkin				& skin				= *scene.Graphics->Skins.Elements[renderNode.Skin];
 		
-		SRenderNodeConstants		transforms			= scene.RenderNodes.Transforms[iRenderNode];
-		transforms.NodeSize	= scene.RenderNodes.BaseTransforms[iRenderNode].NodeSize;
+		SRenderNodeConstants		transforms			= {};
+		llc_necs(::getNodeTransform(scene.RenderNodes, iRenderNode, constants, transforms));
 		const m4f2_t				& worldTransform	= transforms.Model;
 		if((worldTransform.GetTranslation() - constants.CameraPosition).Normalize().Dot(constants.CameraFront) <= 0)
 			return 0;
 
-		if_true_cef(failed(::transformTriangles(renderCache, scene, constants, iRenderNode)), "iRenderNode %i", iRenderNode);
+		llc_necall(::transformTriangles(renderCache, scene, constants, transforms, iRenderNode), "iRenderNode %i", iRenderNode);
 
-		const SSkin				& skin				= *scene.Graphics->Skins.Elements[renderNode.Skin];
 		const SRenderMaterial	& material			= skin.Material;
 		const uint32_t					tex					= skin.Textures[0];
 		const SSurface			& surface			= *scene.Graphics->Surfaces[tex];
+		::llc::gc8bgra				surface1			= {};
+		if(skin.Textures.size() > 1) {
+			const SSurface			& surfaceTexture1	= *scene.Graphics->Surfaces[skin.Textures[1]];
+			surface1				= {(const bgra*)surfaceTexture1.Data.begin(), surfaceTexture1.Desc.Dimensions.u2()};
+		}
 		const ::std::function<TFuncPixelShader>	& fx
 			= (renderNode.Shader >= scene.Graphics->Shaders.size()) ? defaultShader : *scene.Graphics->Shaders[renderNode.Shader];
 
-		drawBuffers(backBufferColors, backBufferDepth, renderCache.VertexShaderOutput, renderCache.VertexShaderCache, material, {(const bgra*)surface.Data.begin(), surface.Desc.Dimensions.u2()}, constants, transforms, fx);
-	}
+		return drawBuffers(backBufferColors, backBufferDepth, renderCache.VertexShaderOutput, renderCache.VertexShaderCache, material, {(const bgra*)surface.Data.begin(), surface.Desc.Dimensions.u2()}, surface1, constants, transforms, fx, depthWrite);
+	};
+	for(uint32_t iNode : solidNodes)
+		llc_necs(drawNode(iNode, true));
+	for(uint32_t iNode : alphaNodes)
+		llc_necs(drawNode(iNode, false));
 
 	apod<n2s1_t>					wireframePixelCoords	= {};
 

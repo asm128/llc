@@ -40,6 +40,12 @@
 	for(uint32_t iPlanet = 0; iPlanet < stellarBodyIndices.size(); ++iPlanet) {
 		const int32_t				jsonIndexStellarBody		= stellarBodyIndices[iPlanet];
 		int32_t						indexProperty;
+		const auto					loadImageProperty			= [&jsonData, &jsonView, jsonIndexStellarBody](::llc::avcsc_t & images, ::llc::vcst_t propertyName) -> ::llc::error_t {
+			int32_t					indexImageProperty;
+			if_failed(indexImageProperty = ::llc::jsonObjectValueGet(jsonData, jsonIndexStellarBody + 2, propertyName))
+				return images.push_back({});
+			return images.push_back(::llc::label(jsonView[indexImageProperty]));
+		};
 
 		if_failed(indexProperty = ::llc::jsonObjectValueGet(jsonData, jsonIndexStellarBody + 2, "parent")) 
 			llc_necs(bodyParentNames.push_back({}));
@@ -59,6 +65,11 @@
 		}
 		llc_necs(solarSystem.Type.push_back(bodyType));
 		llc_necs(solarSystem.Body.push_back(::llc::label(stellarBodyNames[iPlanet]), bodyProperties));
+		llc_necs(loadImageProperty(solarSystem.ImageColor		, "image_color"));
+		llc_necs(loadImageProperty(solarSystem.ImageLight		, "image_light"));
+		llc_necs(loadImageProperty(solarSystem.ImageCloudColor	, "image_cloud_color"));
+		llc_necs(loadImageProperty(solarSystem.ImageCloudAlpha	, "image_cloud_alpha"));
+		llc_necs(loadImageProperty(solarSystem.Shader			, "shader"));
 	}
 
 	for(uint32_t iPlanet = 0; iPlanet < solarSystem.Body.Keys.size(); ++iPlanet)

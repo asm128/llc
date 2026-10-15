@@ -73,6 +73,11 @@
 		},
 	"Earth" :							
 		{ "type"					: "planet"
+		, "shader"					: "psEarth"
+		, "image_color"				: "earth_color.png"
+		, "image_light"				: "earth_light.png"
+		, "image_cloud_color"		: "earth_cloud_color.png"
+		, "image_cloud_alpha"		: "earth_cloud_alpha.png"
 		, "subtype"					: "terrestrial"
 		, "mass"					: 5.97
 		, "diameter"				: 12756

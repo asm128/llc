@@ -9,16 +9,16 @@ LLC_USING_TYPEINT();
 
 stacxpr	double			ASTRONOMICAL_UNIT_SCALE		= 1.0 / 149597870700;
 
-::llc::error_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, const ::llc::SJSONReader & jsonData)	{ 
+::llc::error_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, const ::llc::SJSONReader & jsonData, ::llc::vcs imageFolder, ::llc::vcs backgroundImage)	{
 	llc_necall(llc::planetarySystemSetup(planetarySystem.PlanetarySystem, jsonData), "%.*s", LLC_VIEW_ARGS(jsonData.View[0]));	
-	return ::llc::planetarySystemSetup(planetarySystem.PlanetarySystem, planetarySystem.EntityMap, engine); 
+	return ::llc::planetarySystemSetup(planetarySystem.PlanetarySystem, planetarySystem.EntityMap, engine, imageFolder, backgroundImage);
 }
-::llc::error_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcs jsonFilePath)				{ 
+::llc::error_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcs jsonFilePath, ::llc::vcs imageFolder, ::llc::vcs backgroundImage)				{
 	llc_necall(llc::planetarySystemSetup(planetarySystem.PlanetarySystem, jsonFilePath), "%s", jsonFilePath.begin());						
-	return ::llc::planetarySystemSetup(planetarySystem.PlanetarySystem, planetarySystem.EntityMap, engine); 
+	return ::llc::planetarySystemSetup(planetarySystem.PlanetarySystem, planetarySystem.EntityMap, engine, imageFolder, backgroundImage);
 }
 
-::llc::error_t			llc::planetarySystemSetup(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine) {
+::llc::error_t			llc::planetarySystemSetup(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine, ::llc::vcs imageFolder, ::llc::vcs backgroundImage) {
 	stacxpr	uint8_t				MAX_COLORS				= 16;
 	stacxpr	::llc::astatic<::llc::bgra, MAX_COLORS>	PLANET_COLORS	=
 		{ ::llc::YELLOW
@@ -38,7 +38,7 @@ stacxpr	double			ASTRONOMICAL_UNIT_SCALE		= 1.0 / 149597870700;
 		, ::llc::GREEN
 		, ::llc::YELLOW
 		};
-	llc_necs(llc::planetarySystemCreateEntities(solarSystem, entityMap, engine));
+	llc_necs(llc::planetarySystemCreateEntities(solarSystem, entityMap, engine, imageFolder, backgroundImage));
 	llc_necs(llc::planetarySystemReset(solarSystem, entityMap, engine, PLANET_COLORS));
 	return 0;
 }
@@ -61,21 +61,25 @@ static	::llc::error_t	createGravityCenter		(::llc::SEngine & engine, const ::llc
 	return iEntity;
 }
 
-static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::vcs shaderName = ::llc::vcs{5, "psSun"}) {	// Gravity cemters
+static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, ::llc::vcst_t shaderName = "psSun") {	// Gravity cemters
 	::llc::SParamsSphere		params					= {{}, {32, 32}};
 	int32_t						iEntity;
 	llc_necs(iEntity = engine.CreateSphere(params));
-	llc_necs(engine.SetColorDiffuse	(iEntity, {1.0f, 1.0f, 1.0f, 1.0f}));
-	llc_necs(engine.SetShader		(iEntity, ::llc::psSphereSolid, shaderName));
+	llc_necs(engine.SetColorDiffuse	(iEntity, {1.0f, 1.0f, 1.0f, 1.0f})); (void)shaderName;
+	//llc_necs(engine.SetShader		(iEntity, ::llc::psSphereSolid, shaderName));
 	return iEntity;
 }
 
-::llc::error_t			llc::planetarySystemCreateEntities(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine) {
+::llc::error_t			llc::planetarySystemCreateEntities(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine, ::llc::vcs imageFolder, ::llc::vcs backgroundImage) {
 	{	// Background sphere map
 		::llc::SParamsSphere		params					= {{}, {32, 32}, true, 1, 2};
 		llc_necs(entityMap.Background = engine.CreateSphere(params));
-		llc_necs(engine.SetColorDiffuse(entityMap.Background, {1.0f, 1.0f, 1.0f, 1.0f}));
+		llc_necs(engine.SetColorDiffuse(entityMap.Background, {1.0f, 1.0f, 1.0f, .999f}));
 		llc_necs(engine.SetShader(entityMap.Background, ::llc::psBackgroundMilkyWay, "psBackgroundMilkyWay"));
+		int32_t					iImage;
+		llc_necs(iImage = engine.CreateImageFromFile(imageFolder, backgroundImage));
+		::llc::SRenderNode			& renderNode			= engine.Scene->RenderNodes[engine.GetRenderNode(entityMap.Background)];
+		llc_necs(engine.Scene->Graphics->Skins[renderNode.Skin]->Textures.insert(0, iImage));
 	}
 
 	llc_necs(entityMap.GravityCenters.push_back(::createGravityCenter(engine)));
@@ -87,6 +91,54 @@ static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::
 	llc_necs(entityMap.Bodies.push_back(::createOrbiterBody(engine)));
 	for(uint32_t iOrbiter = 1; iOrbiter < solarSystem.Body.size(); ++iOrbiter)
 		llc_necs(entityMap.Bodies.push_back(engine.Clone(entityMap.Bodies[0], true, true, true)));
+
+	for(uint32_t iOrbiter = 0; iOrbiter < solarSystem.Body.size(); ++iOrbiter) {
+		::llc::string				fileName;
+		if(solarSystem.ImageColor[iOrbiter].size())
+			llc_necs(fileName.append_string(solarSystem.ImageColor[iOrbiter]));
+		else {
+			llc_necs(fileName.append_string(solarSystem.Body.Keys[iOrbiter]));
+			llc_necs(fileName.append_string("_color.png"));
+		}
+		int32_t					iImage;
+		llc_necs(iImage = engine.CreateImageFromFile(imageFolder, fileName));
+		::llc::SRenderNode			& renderNode			= engine.Scene->RenderNodes[engine.GetRenderNode(entityMap.Bodies[iOrbiter])];
+		::llc::SSkin				& skin					= *engine.Scene->Graphics->Skins[renderNode.Skin];
+		llc_necs(skin.Textures.insert(0, iImage));
+		if(solarSystem.ImageLight[iOrbiter].size()) {
+			int32_t					iImageLight;
+			llc_necs(iImageLight = engine.CreateImageFromFile(imageFolder, solarSystem.ImageLight[iOrbiter]));
+			if(skin.Textures.size() > 1)
+				skin.Textures[1]	= iImageLight;
+			else
+				llc_necs(skin.Textures.push_back(iImageLight));
+		}
+	}
+	for(uint32_t iOrbiter = 0; iOrbiter < solarSystem.Body.size(); ++iOrbiter) {
+		if(solarSystem.ImageCloudColor[iOrbiter].size() && solarSystem.ImageCloudAlpha[iOrbiter].size()) {
+			::llc::eid_t				iClouds;
+			::llc::SParamsSphere		params					= {{}, {32, 32}};
+			llc_necs(iClouds = engine.CreateSphere(params, "Clouds"));
+			llc_necs(entityMap.Clouds.push_back(iClouds));
+			llc_necs(engine.SetPhysicsActive(iClouds, true));
+			llc_necs(engine.SetCollides(iClouds, false));
+			llc_necs(engine.SetRotation(iClouds, {0, 1.0f, .5f}));
+			llc_necs(engine.SetColorDiffuse(iClouds, {1, 1, 1, .999f}));
+			llc_necs(engine.SetShader(iClouds, ::llc::psCloud, "psCloud"));
+			int32_t					iImageColor, iImageAlpha;
+			llc_necs(iImageColor = engine.CreateImageFromFile(imageFolder, solarSystem.ImageCloudColor[iOrbiter]));
+			llc_necs(iImageAlpha = engine.CreateImageFromFile(imageFolder, solarSystem.ImageCloudAlpha[iOrbiter]));
+			::llc::SRenderNode			& renderNode				= engine.Scene->RenderNodes[engine.GetRenderNode(iClouds)];
+			::llc::SSkin				& skin					= *engine.Scene->Graphics->Skins[renderNode.Skin];
+			skin.Textures[0]		= iImageColor;
+			if(skin.Textures.size() > 1)
+				skin.Textures[1]	= iImageAlpha;
+			else
+				llc_necs(skin.Textures.push_back(iImageAlpha));
+		}
+		else
+			llc_necs(entityMap.Clouds.push_back(::llc::EID_INVALID));
+	}
 
 	llc_necs(entityMap.Orbits.push_back(::createOrbiterOrbit(engine)));
 	for(uint32_t iOrbiter = 1; iOrbiter < solarSystem.Body.size(); ++iOrbiter)
@@ -107,6 +159,8 @@ static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::
 
 		engine.Entities.SetParent(entityMap.GravityCenters[iOrbiter], entityMap.Orbits[iOrbiter]);
 		engine.Entities.SetParent(entityMap.Bodies[iOrbiter], entityMap.GravityCenters[iOrbiter]);
+		if(::llc::EID_INVALID != entityMap.Clouds[iOrbiter])
+			engine.Entities.SetParent(entityMap.Clouds[iOrbiter], entityMap.GravityCenters[iOrbiter]);
 		//engine.Entities.SetParent(entityMap.Rings[iOrbiter], entityMap.GravityCenters[iOrbiter]);
 	}
 	return 0;
@@ -140,7 +194,7 @@ static	::llc::error_t	initGravityCenter		(::llc::SEngine & engine, int32_t iEnti
 	return 0;
 }
 
-static	::llc::error_t	initBody				(::llc::SEngine & engine, int32_t iEntity, bool isStar, ::llc::PLANET_TYPE subtype, double diameter, double distanceScale) {
+static	::llc::error_t	initBody				(::llc::SEngine & engine, int32_t iEntity, bool isStar, ::llc::PLANET_TYPE subtype, double diameter, double distanceScale, ::llc::vcst_t shaderOverride) {
 	llc_necs(engine.SetPhysicsActive(iEntity, false == isStar));
 	llc_necs(engine.SetCollides		(iEntity, false));
 
@@ -160,8 +214,28 @@ static	::llc::error_t	initBody				(::llc::SEngine & engine, int32_t iEntity, boo
 	case ::llc::PLANET_TYPE_MassiveSolid: ps = ::llc::psMassiveSolid; psName = "psMassiveSolid"; break;
 	default: break;
 	}
+	if(shaderOverride.size()) {
+		if(shaderOverride == LLC_CXS("psSun"))				{ ps = ::llc::psSun; psName = "psSun"; }
+		else if(shaderOverride == LLC_CXS("psTerrestrial"))	{ ps = ::llc::psTerrestrial; psName = "psTerrestrial"; }
+		else if(shaderOverride == LLC_CXS("psEarth"))			{ ps = ::llc::psEarth; psName = "psEarth"; }
+		else if(shaderOverride == LLC_CXS("psGasGiant"))		{ ps = ::llc::psGasGiant; psName = "psGasGiant"; }
+		else if(shaderOverride == LLC_CXS("psIceGiant"))		{ ps = ::llc::psIceGiant; psName = "psIceGiant"; }
+		else if(shaderOverride == LLC_CXS("psDwarf"))			{ ps = ::llc::psDwarf; psName = "psDwarf"; }
+		else if(shaderOverride == LLC_CXS("psMassiveSolid"))	{ ps = ::llc::psMassiveSolid; psName = "psMassiveSolid"; }
+		else
+			return ::llc::OS_INVALID_PARAMETER;
+	}
 	llc_necs(engine.SetShader	(iEntity, *ps, psName));
 	llc_necs(engine.SetHidden	(iEntity, false));
+	return 0;
+}
+
+static	::llc::error_t	initCloud				(::llc::SEngine & engine, int32_t iEntity, bool isStar, double diameter, double distanceScale) {
+	::llc::n3f3_t				scale					= {diameter, diameter, diameter};
+	scale					= isStar ? SUN_SCALE : scale * distanceScale;
+	scale					*= 1.01;
+	llc_necs(engine.SetMeshScale(iEntity, scale.f2(), true));
+	llc_necs(engine.SetHidden(iEntity, false));
 	return 0;
 }
 
@@ -229,7 +303,12 @@ static	::llc::error_t	initSkin				(::llc::SEngine & engine, ::llc::rgbaf color, 
 		{
 			const uint32_t				iEntity					= entityMap.Bodies[iOrbiter];
 			llc_necs(llc::initOrbiterBody(body, engine.Integrator, engine.GetRigidBody(iEntity), rotationUnit));
-			llc_necs(::initBody(engine, iEntity, isStar, body.Detail.Planet.Subtype, body.Diameter, distanceScale * .0001 * (isMoon ? moonScale * .05 : 1)));
+			llc_necs(::initBody(engine, iEntity, isStar, body.Detail.Planet.Subtype, body.Diameter, distanceScale * .0001 * (isMoon ? moonScale * .05 : 1), solarSystem.Shader[iOrbiter]));
+		}
+		if(::llc::EID_INVALID != entityMap.Clouds[iOrbiter]) {
+			const uint32_t				iEntity					= entityMap.Clouds[iOrbiter];
+			llc_necs(llc::initOrbiterBody(body, engine.Integrator, engine.GetRigidBody(iEntity), rotationUnit));
+			llc_necs(::initCloud(engine, iEntity, isStar, body.Diameter, distanceScale * .0001 * (isMoon ? moonScale * .05 : 1)));
 		}
 		::llc::rgbaf				color					= colors[iOrbiter];
 		const ::llc::eid_t			entities[3]				= {entityMap.Orbits[iOrbiter], entityMap.GravityCenters[iOrbiter], entityMap.Bodies[iOrbiter]};
@@ -238,7 +317,6 @@ static	::llc::error_t	initSkin				(::llc::SEngine & engine, ::llc::rgbaf color, 
 			llc_necs(::initSkin(engine, color, iOrbiter, entities[i]));
 		}
 	}
-
 	engine.Update(365);
 	return 0;
 }
