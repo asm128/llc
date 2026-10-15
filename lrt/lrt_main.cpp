@@ -46,8 +46,9 @@ static ::llc::err_t threadRenderStart(::SRuntimeState & runtimeState) {
 	}
 	::llc::err_t resultDraw = 0;
 	while(1 == llc_sync_compare_exchange(runtimeState.DrawThreadUsers, 0, 0)
-		&& ::llc::not_failed(resultDraw = (::llc::err_t)llc_sync_compare_exchange(runtimeState.DrawResult, 0, 0)))
+	 && ::llc::not_failed(resultDraw = (::llc::err_t)llc_sync_compare_exchange(runtimeState.DrawResult, 0, 0))) {
 		::llc::sleep(1);
+	}
 	rtrn ::llc::failed(resultDraw) ? ::threadRenderStop(runtimeState) : 0;
 }
 
@@ -93,9 +94,11 @@ static ::llc::err_t lrtModuleRun(::llc::SRuntimeModule & runtimeModule, ::llc::S
 
 static ::llc::err_t lrtMain(::llc::SRuntimeValues & runtimeValues) {
 	if_true_fef(1 != runtimeValues.EntryPointArgs.Positionals.size(), "%s", "Usage: lrt <module-name>.");
-	::llc::asc_t moduleName = {};
+
+	::llc::string moduleName = {};
 	if_fail_fe(moduleName.append_string(runtimeValues.EntryPointArgs.Positionals[0]));
 	if_fail_fe(moduleName.append_string("." LLC_MODULE_EXTENSION));
+	if_true_wf(0 <= ::llc::find_string(LLC_CXS(".dll.dll"), moduleName) || 0 <= ::llc::find_string(LLC_CXS(".so.so"), moduleName), "Duplicated module extension in filename:'%s'. Pass the module name without its platform extension.", moduleName.begin());
 
 	::llc::SRuntimeModule runtimeModule = {};
 	cnst ::llc::vcst_t moduleNameView = {moduleName.begin(), moduleName.size()};

@@ -40,12 +40,12 @@ GDEFINE_ENUM_VALUED(RUNTIME_MODULE_TEST_RESULT, UNLOAD_EMPTY			, 34, "unloadRunt
 ::llc::err_t testRuntimeModule(ATestError & errors) {
 	::llc::SRuntimeModule module = {};
 	::llc::setupLogCallbacks(0, 0);
-	cnst ::llc::err_t missingResult = ::llc::loadRuntimeModule(module, LLC_CXS("llc_test_module_missing.dll"));
+	cnst ::llc::err_t missingResult = ::llc::loadRuntimeModule(module, LLC_CXS("llc_test_module_missing." LLC_MODULE_EXTENSION));
 	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, RUNTIME_MODULE_TEST_RESULT_MISSING_RESULT, ::llc::OS_NOT_FOUND != missingResult, "Result:%i, expected:%i.", missingResult, ::llc::OS_NOT_FOUND);
 	LLC_TEST_CHECKF(errors, RUNTIME_MODULE_TEST_RESULT_MISSING_STATE, module.Handle || module.Title || module.Version || module.Create || module.Delete || module.Setup || module.Cleanup || module.Render || module.Update || module.Application, "Handle:%p, application:%p.", module.Handle, module.Application);
 
-	cnst ::llc::err_t loadResult = ::llc::loadRuntimeModule(module, LLC_CXS("llc_test_module.dll"));
+	cnst ::llc::err_t loadResult = ::llc::loadRuntimeModule(module, LLC_CXS("llc_test_module." LLC_MODULE_EXTENSION));
 	LLC_TEST_REQUIREF(errors, RUNTIME_MODULE_TEST_RESULT_LOAD_RESULT, ::llc::failed(loadResult), "Result:%i.", loadResult);
 	LLC_TEST_REQUIRE(errors, RUNTIME_MODULE_TEST_RESULT_LOAD_HANDLE, 0 == module.Handle);
 	LLC_TEST_CHECK(errors, RUNTIME_MODULE_TEST_RESULT_LOAD_TITLE, 0 == module.Title);
@@ -57,7 +57,7 @@ GDEFINE_ENUM_VALUED(RUNTIME_MODULE_TEST_RESULT, UNLOAD_EMPTY			, 34, "unloadRunt
 	LLC_TEST_CHECK(errors, RUNTIME_MODULE_TEST_RESULT_LOAD_RENDER, 0 == module.Render);
 	LLC_TEST_CHECK(errors, RUNTIME_MODULE_TEST_RESULT_LOAD_UPDATE, 0 == module.Update);
 	void* const loadedHandle = module.Handle;
-	LLC_TEST_CHECKF(errors, RUNTIME_MODULE_TEST_RESULT_LOAD_DUPLICATE, ::llc::OS_BUSY != ::llc::loadRuntimeModule(module, LLC_CXS("llc_test_module.dll")), "Handle:%p.", module.Handle);
+	LLC_TEST_CHECKF(errors, RUNTIME_MODULE_TEST_RESULT_LOAD_DUPLICATE, ::llc::OS_BUSY != ::llc::loadRuntimeModule(module, LLC_CXS("llc_test_module." LLC_MODULE_EXTENSION)), "Handle:%p.", module.Handle);
 
 	::llc::u2_t version = {};
 	LLC_TEST_CHECK(errors, RUNTIME_MODULE_TEST_RESULT_VERSION_RESULT, ::llc::failed(module.Version(&version)));
