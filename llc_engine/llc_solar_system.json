@@ -178,6 +178,7 @@
 		},
 	"Saturn" :							 
 		{ "type"					: "planet"
+		, "image_color"				: "saturn_color.png"
 		, "subtype"					: "gas_giant"
 		, "mass"					: 568.0
 		, "diameter"				: 120536
@@ -278,6 +279,7 @@
 		},
 	"Io" :							 
 		{ "type"					: "moon"
+		, "subtype"					: "terrestrial"
 		, "mass"					: 0.073
 		, "diameter"				: 3475
 		, "density"					: 3340
@@ -302,6 +304,7 @@
 		},
 	"Ganymede" :							 
 		{ "type"					: "moon"
+		, "subtype"					: "terrestrial"
 		, "mass"					: 0.073
 		, "diameter"				: 3475
 		, "density"					: 3340

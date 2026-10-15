@@ -11,7 +11,7 @@ float4			main					(PixelShaderInput input) : SV_TARGET {
 		|| (input.world.uv.x > 1.0 - margin2 && input.world.uv.x < 1.0)
 		);
 	float				diffuseFactor			= wave3(input.world.position.xyz, float3(0, 0, 0), 1200, 10);
-	float2				scaledUV				= float2(input.world.uv.x * NodeSize.x, input.world.uv.y * NodeSize.z);
+	float2				scaledUV				= float2(input.world.uv.y * NodeSize.z, input.world.uv.x * NodeSize.x);
 	float				randFactor				= wave2(scaledUV, NodeSize.xyz, 1, 100); // 
 	float4				materialColor			= Diffuse * 2;
 	materialColor	= markCenter

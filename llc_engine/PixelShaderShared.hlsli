@@ -1,6 +1,7 @@
 #include "ShaderShared.hlsli"
 
 Texture2D				texDiffuse						: register( t0 );
+Texture2D				texAuxiliary					: register( t1 );
 SamplerState			samplerLinear					: register( s0 );
 
 static const float		LIGHT_FACTOR_AMBIENT			= .025f;

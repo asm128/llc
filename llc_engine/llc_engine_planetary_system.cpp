@@ -38,8 +38,16 @@ stacxpr	double			ASTRONOMICAL_UNIT_SCALE		= 1.0 / 149597870700;
 		, ::llc::GREEN
 		, ::llc::YELLOW
 		};
-	llc_necs(llc::planetarySystemCreateEntities(solarSystem, entityMap, engine, imageFolder, backgroundImage));
-	llc_necs(llc::planetarySystemReset(solarSystem, entityMap, engine, PLANET_COLORS));
+	::llc::error_t result = llc::planetarySystemCreateEntities(solarSystem, entityMap, engine, imageFolder, backgroundImage);
+	if(::llc::failed(result)) {
+		error_printf("Planetary entity creation failed with result: %i.", result);
+		return result;
+	}
+	result = llc::planetarySystemReset(solarSystem, entityMap, engine, PLANET_COLORS);
+	if(::llc::failed(result)) {
+		error_printf("Planetary reset failed with result: %i.", result);
+		return result;
+	}
 	return 0;
 }
 
@@ -77,7 +85,7 @@ static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, ::llc::vcst_t
 		llc_necs(engine.SetColorDiffuse(entityMap.Background, {1.0f, 1.0f, 1.0f, .999f}));
 		llc_necs(engine.SetShader(entityMap.Background, ::llc::psBackgroundMilkyWay, "psBackgroundMilkyWay"));
 		int32_t					iImage;
-		llc_necs(iImage = engine.CreateImageFromFile(imageFolder, backgroundImage));
+		llc_necall(iImage = engine.CreateImageFromFile(imageFolder, backgroundImage), "Background image: %.*s", LLC_VIEW_ARGS(backgroundImage));
 		::llc::SRenderNode			& renderNode			= engine.Scene->RenderNodes[engine.GetRenderNode(entityMap.Background)];
 		llc_necs(engine.Scene->Graphics->Skins[renderNode.Skin]->Textures.insert(0, iImage));
 	}
@@ -101,13 +109,13 @@ static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, ::llc::vcst_t
 			llc_necs(fileName.append_string("_color.png"));
 		}
 		int32_t					iImage;
-		llc_necs(iImage = engine.CreateImageFromFile(imageFolder, fileName));
+		llc_necall(iImage = engine.CreateImageFromFile(imageFolder, fileName), "Body image: %s", fileName.begin());
 		::llc::SRenderNode			& renderNode			= engine.Scene->RenderNodes[engine.GetRenderNode(entityMap.Bodies[iOrbiter])];
 		::llc::SSkin				& skin					= *engine.Scene->Graphics->Skins[renderNode.Skin];
 		llc_necs(skin.Textures.insert(0, iImage));
 		if(solarSystem.ImageLight[iOrbiter].size()) {
 			int32_t					iImageLight;
-			llc_necs(iImageLight = engine.CreateImageFromFile(imageFolder, solarSystem.ImageLight[iOrbiter]));
+			llc_necall(iImageLight = engine.CreateImageFromFile(imageFolder, solarSystem.ImageLight[iOrbiter]), "Light image: %.*s", LLC_VIEW_ARGS(solarSystem.ImageLight[iOrbiter]));
 			if(skin.Textures.size() > 1)
 				skin.Textures[1]	= iImageLight;
 			else
@@ -126,8 +134,8 @@ static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, ::llc::vcst_t
 			llc_necs(engine.SetColorDiffuse(iClouds, {1, 1, 1, .999f}));
 			llc_necs(engine.SetShader(iClouds, ::llc::psCloud, "psCloud"));
 			int32_t					iImageColor, iImageAlpha;
-			llc_necs(iImageColor = engine.CreateImageFromFile(imageFolder, solarSystem.ImageCloudColor[iOrbiter]));
-			llc_necs(iImageAlpha = engine.CreateImageFromFile(imageFolder, solarSystem.ImageCloudAlpha[iOrbiter]));
+			llc_necall(iImageColor = engine.CreateImageFromFile(imageFolder, solarSystem.ImageCloudColor[iOrbiter]), "Cloud color image: %.*s", LLC_VIEW_ARGS(solarSystem.ImageCloudColor[iOrbiter]));
+			llc_necall(iImageAlpha = engine.CreateImageFromFile(imageFolder, solarSystem.ImageCloudAlpha[iOrbiter]), "Cloud alpha image: %.*s", LLC_VIEW_ARGS(solarSystem.ImageCloudAlpha[iOrbiter]));
 			::llc::SRenderNode			& renderNode				= engine.Scene->RenderNodes[engine.GetRenderNode(iClouds)];
 			::llc::SSkin				& skin					= *engine.Scene->Graphics->Skins[renderNode.Skin];
 			skin.Textures[0]		= iImageColor;

@@ -10,6 +10,53 @@
 
 #include <algorithm>
 
+struct SClipVertex {
+	::llc::n3f2_t		Position	= {};
+	::llc::n3f2_t		Normal		= {};
+	::llc::n2f2_t		UV			= {};
+};
+
+static	::SClipVertex	clipVertexNear
+	( const ::SClipVertex	& a
+	, const ::SClipVertex	& b
+	, double					distanceA
+	, double					distanceB
+	) {
+	const float			factor				= (float)(distanceA / (distanceA - distanceB));
+	::SClipVertex		result				= {};
+	result.Position		= a.Position + (b.Position - a.Position) * factor;
+	result.Normal		= a.Normal + (b.Normal - a.Normal) * factor;
+	result.Normal.Normalize();
+	result.UV			= a.UV + (b.UV - a.UV) * factor;
+	return result;
+}
+
+static	uint32_t		clipTriangleNear
+	( const ::SClipVertex	(& input)[3]
+	, ::SClipVertex		(& output)[4]
+	, const ::llc::n3f2_t	& cameraPosition
+	, const ::llc::n3f2_t	& cameraFront
+	, double					nearPlane
+	) {
+	uint32_t				count				= 0;
+	::SClipVertex			previous			= input[2];
+	double					distancePrevious	= (previous.Position - cameraPosition).Dot(cameraFront) - nearPlane;
+	for(uint32_t iVertex = 0; iVertex < 3; ++iVertex) {
+		const ::SClipVertex	& current			= input[iVertex];
+		const double				distanceCurrent	= (current.Position - cameraPosition).Dot(cameraFront) - nearPlane;
+		if(distanceCurrent >= 0) {
+			if(distancePrevious < 0)
+				output[count++] = ::clipVertexNear(previous, current, distancePrevious, distanceCurrent);
+			output[count++] = current;
+		}
+		else if(distancePrevious >= 0)
+			output[count++] = ::clipVertexNear(previous, current, distancePrevious, distanceCurrent);
+		previous			= current;
+		distancePrevious	= distanceCurrent;
+	}
+	return count;
+}
+
 tplt <tpnm _tIndex>
 static	::llc::error_t	transformTriangles					
 	( ::llc::SVSOutput		& output
@@ -19,10 +66,11 @@ static	::llc::error_t	transformTriangles
 	, ::llc::vcn2f2_t			uv			
 	, const ::llc::m4f2_t	& projection		
 	, const ::llc::m4f2_t	& worldTransform	
+	, const ::llc::n3f2_t	& cameraPosition
 	, const ::llc::n3f2_t	& cameraFront
+	, double				nearPlane
 )	{ 
 	::llc::vctri<_tIndex>				view_indices			= {(const ::llc::tri<_tIndex>*)indices.begin(), indices.size() / 3};
-	const ::llc::m4f2_t			mWVPS					= worldTransform * projection;
 
 	for(uint32_t iTriangle = 0; iTriangle < view_indices.size(); ++iTriangle) {
 		const ::llc::tri<_tIndex>	vertexIndices			= view_indices[iTriangle];
@@ -37,15 +85,8 @@ static	::llc::error_t	transformTriangles
 		if(directionFactorA > .35 && directionFactorB > .35 && directionFactorC > .35)
 			continue;
 
-		output.Normals.push_back(transformedNormals);
-
 		::llc::tri3f2_t				transformedPositions	= {positions[vertexIndices.A], positions[vertexIndices.B], positions[vertexIndices.C]};
 		::llc::transform(transformedPositions, worldTransform);
-		output.PositionsWorld.push_back(transformedPositions);
-		
-		::llc::transform(transformedPositions, projection);
-		output.PositionsScreen.push_back(transformedPositions);
-		
 		::llc::tri2f2_t				transformedUVs			= {uv[vertexIndices.A], uv[vertexIndices.B], uv[vertexIndices.C]};
 		if( transformedUVs.A.x > 1.0f
 		 || transformedUVs.A.y > 1.0f
@@ -55,7 +96,23 @@ static	::llc::error_t	transformTriangles
 		 || transformedUVs.C.y > 1.0f
 		) 
 			_CrtDbgBreak();
-		output.UVs.push_back(transformedUVs);
+
+		const ::SClipVertex		clipInput[3]			=
+			{ {transformedPositions.A, transformedNormals.A, transformedUVs.A}
+			, {transformedPositions.B, transformedNormals.B, transformedUVs.B}
+			, {transformedPositions.C, transformedNormals.C, transformedUVs.C}
+			};
+		::SClipVertex			clipOutput[4]			= {};
+		const uint32_t			clipCount				= ::clipTriangleNear(clipInput, clipOutput, cameraPosition, cameraFront, nearPlane);
+		for(uint32_t iOutput = 1; iOutput + 1 < clipCount; ++iOutput) {
+			::llc::tri3f2_t		positionsWorld			= {clipOutput[0].Position, clipOutput[iOutput].Position, clipOutput[iOutput + 1].Position};
+			::llc::tri3f2_t		positionsScreen			= positionsWorld;
+			::llc::transform(positionsScreen, projection);
+			output.PositionsWorld.push_back(positionsWorld);
+			output.PositionsScreen.push_back(positionsScreen);
+			output.Normals.push_back({clipOutput[0].Normal, clipOutput[iOutput].Normal, clipOutput[iOutput + 1].Normal});
+			output.UVs.push_back({clipOutput[0].UV, clipOutput[iOutput].UV, clipOutput[iOutput + 1].UV});
+		}
 	}
 	return 0; 
 }
@@ -66,6 +123,7 @@ static	::llc::error_t	transformTriangles
 	, const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SRenderNodeConstants		& transforms
 	, int32_t								iRenderNode
+	, double								nearPlane
 	) {
 	const ::llc::SRenderNode	& renderNode			= scene.RenderNodes.RenderNodes[iRenderNode];
 	const ::llc::SGeometryMesh	& mesh					= *scene.Graphics->Meshes[renderNode.Mesh];
@@ -85,17 +143,17 @@ static	::llc::error_t	transformTriangles
 		if(indexBuffer->Desc.Format.TotalBytes() == 1) {
 			const ::llc::vcu0_t			indices					= ::llc::vcu0_t{(const uint8_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (uint8_t)sizeof(const uint8_t)};
 			const ::llc::SGeometrySlice	slice					= (renderNode.Slice < mesh.GeometrySlices.size()) ? mesh.GeometrySlices[renderNode.Slice] : ::llc::SGeometrySlice{{0, indices.size() / 3}};
-			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraFront);
+			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraPosition, constants.CameraFront, nearPlane);
 		}
 		else if(indexBuffer->Desc.Format.TotalBytes() == 2) {
 			const ::llc::vcu1_t			indices					= ::llc::vcu1_t{(const uint16_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (uint8_t)sizeof(const uint16_t)};
 			const ::llc::SGeometrySlice	slice					= (renderNode.Slice < mesh.GeometrySlices.size()) ? mesh.GeometrySlices[renderNode.Slice] : ::llc::SGeometrySlice{{0, indices.size() / 3}};
-			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraFront);
+			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraPosition, constants.CameraFront, nearPlane);
 		}
 		else if(indexBuffer->Desc.Format.TotalBytes() == 4) {
 			const ::llc::vcu2_t			indices					= ::llc::vcu2_t{(const uint32_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (uint8_t)sizeof(const uint16_t)};
 			const ::llc::SGeometrySlice	slice					= (renderNode.Slice < mesh.GeometrySlices.size()) ? mesh.GeometrySlices[renderNode.Slice] : ::llc::SGeometrySlice{{0, indices.size() / 3}};
-			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraFront);
+			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraPosition, constants.CameraFront, nearPlane);
 		}
 	}
 	return 0;
@@ -223,7 +281,7 @@ llc::err_t			llc::drawScene
 		if((worldTransform.GetTranslation() - constants.CameraPosition).Normalize().Dot(constants.CameraFront) <= 0)
 			return 0;
 
-		llc_necall(::transformTriangles(renderCache, scene, constants, transforms, iRenderNode), "iRenderNode %i", iRenderNode);
+		llc_necall(::transformTriangles(renderCache, scene, constants, transforms, iRenderNode, nearFar.Min), "iRenderNode %i", iRenderNode);
 
 		const SRenderMaterial	& material			= skin.Material;
 		const uint32_t					tex					= skin.Textures[0];
