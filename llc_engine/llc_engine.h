@@ -29,6 +29,7 @@ namespace llc
 		::llc::lmpod<SParamsCylinderWall, uint32_t>	ParamsCylinderWall	;
 		::llc::lmpod<SParamsCylinderWall, uint32_t>	ParamsCylinder		;
 		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsFigure0		;
+		::llc::lmpod<SParamsTender		, uint32_t>	ParamsTender		;
 		::llc::lmpod<SParamsGrid		, uint32_t>	ParamsGrid			;
 		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsHelixHalf		;
 		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsHelix			;
@@ -37,7 +38,8 @@ namespace llc
 		::llc::lmpod<SParamsRingSide	, uint32_t>	ParamsRingSide		;
 		::llc::lmpod<SParamsRingSide	, uint32_t>	ParamsRingFlat		;
 
-		::llc::lmpod<::llc::vcst_t, uint32_t>	Images			= {};
+		::llc::avcsc_t					ImageNames		= {};
+		::llc::au2_t					Images			= {};
 
 		::llc::SPNGData						PNGCache		= {};
 
@@ -177,6 +179,7 @@ namespace llc
 		::llc::error_t				CreateHelixHalf		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcst_t{10, "Helix half"});
 		::llc::error_t				CreateHelix			(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcst_t{ 5, "Helix"});
 		::llc::error_t				CreateFigure0		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcs{"Figure0"});
+		::llc::error_t				CreateTender		(const ::llc::SParamsTender			& params, ::llc::vcs entityName = ::llc::vcs{"Tender"});
 
 		::llc::error_t				CreateImageFromFile	(const ::llc::vcst_t & fileFolder, const ::llc::vcst_t & fileName);
 

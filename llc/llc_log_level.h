@@ -931,7 +931,6 @@ namespace llc
 #define ci_if_null  if_null_ci
 #define cv_if_null  if_null_cv
 #define caf_if      if_true_caf
-#define cef_if      if_true_cef
 #define cwf_if      if_true_cwf
 #define cif_if      if_true_cif
 #define cvf_if      if_true_cvf

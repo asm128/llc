@@ -26,7 +26,7 @@ namespace llc
 
 	struct SVirtualEntityManager {
 		::llc::apod<SEntity>			Entities		= {};
-		::llc::avcst_t					Names			= {};
+		::llc::avcsc_t					Names			= {};
 
 		::llc::aobj<::llc::paeid>		Children		= {};
 

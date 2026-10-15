@@ -176,6 +176,24 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	}
 	return 0;
 }
+
+::llc::error_t			llc::geometryBuildTender	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTender & params) {
+	const uint32_t				vertexOffset				= geometry.Positions.size();
+	const ::llc::n2u1_t			vertexCount				= params.CellCount + ::llc::n2u1_t{1, 1};
+	const ::llc::n2f3_t			cellUnits				= {1.0 / params.CellCount.x, 1.0 / params.CellCount.y};
+	geometry.TextureCoords.reserve(vertexCount.Area());
+	geometry.Positions.reserve(vertexCount.Area());
+	geometry.Normals.reserve(vertexCount.Area());
+	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { geometry.TextureCoords.push_back(::llc::n2u2_t{coord.x, (uint32_t)params.CellCount.y - coord.y}.f2().InPlaceScale(cellUnits).f2()); });
+	for(uint32_t y = 0; y < vertexCount.y; ++y)
+	for(uint32_t x = 0; x < vertexCount.x; ++x) {
+		::llc::n3f3_t				position					= ::llc::n3f3_t{params.Radius, (double)y}.RotateY(::llc::math_2pi / params.CellCount.x * x).Normalize();
+		geometry.Normals.push_back(params.Orientation.RotateVector(position.f2()));
+		position.Scale(params.Scale.f3());
+		geometry.Positions.push_back(params.Orientation.RotateVector(position.f2() - params.Origin));
+	}
+	return ::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false);
+}
 ::llc::error_t			llc::geometryBuildHelixHalf	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix & params) {
 	const uint32_t				vertexOffset				= geometry.Positions.size();
 	const ::llc::n2u1_t			vertexCount					= params.CellCount + ::llc::n2u1_t{1, 1};

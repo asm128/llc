@@ -147,9 +147,18 @@
 
 ::llc::error_t			llc::SEngine::CreateFigure0		(const ::llc::SParamsHelix & params, ::llc::vcs entityName)	{ 
 	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
-	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Length * .5f, radius}, true, params, ParamsHelix
+	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Length * .5f, radius}, true, params, ParamsFigure0
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildHelix(geometry, params));
+			llc_necs(llc::geometryBuildFigure0(geometry, params));
+			return 0;
+		});
+}
+
+::llc::error_t			llc::SEngine::CreateTender		(const ::llc::SParamsTender & params, ::llc::vcs entityName)	{
+	const ::llc::n3f2_t		halfSizes					= params.Scale * params.Radius;
+	return CreateEntityFromGeometry(entityName, halfSizes, true, params, ParamsTender
+		, [params](::llc::SGeometryBuffers & geometry) {
+			llc_necs(llc::geometryBuildTender(geometry, params));
 			return 0;
 		});
 }
@@ -209,17 +218,19 @@
 
 ::llc::error_t			llc::SEngine::CreateImageFromFile(const ::llc::vcs & fileFolder, const ::llc::vcs & fileName) {
 	sc_t						filePath	[2048]				= {};
-	sprintf_s(filePath, "%s/%s", ::llc::toString(fileFolder).begin(), ::llc::toString(fileName).begin());
-	int32_t						index							= Images.Keys.find(filePath);
+	sprintf_s(filePath, "%.*s/%.*s", LLC_VIEW_ARGS(fileFolder), LLC_VIEW_ARGS(fileName));
+	int32_t						index							= ImageNames.find(filePath);
 	if(index != -1)
-		return Images.Values[index];
+		return Images[index];
 
 	index					= Scene->Graphics->Surfaces.Create(::llc::label(filePath));
 	::llc::pobj<::llc::SSurface>	& surface					= Scene->Graphics->Surfaces[index];
 	llc_necs(llc::pngFileLoad(PNGCache, filePath, surface->Data));
-	surface->Desc.Dimensions	= PNGCache.Header.Size.u1_t();
+	surface->Desc.Dimensions	= PNGCache.Header.Size.u1();
 	surface->Desc.BitDepth		= PNGCache.Header.BitDepth;
 	surface->Desc.ColorType		= PNGCache.Header.ColorType;
+	llc_necs(ImageNames.push_back(::llc::label(filePath)));
+	llc_necs(Images.push_back(index));
 	return index; 
 }
 

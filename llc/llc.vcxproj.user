@@ -7,4 +7,20 @@
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-MT|Win32'">
+    <LocalDebuggerCommand>$(OutDir)lrt.exe </LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(ProjectName)</LocalDebuggerCommandArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-MT|Win32'">
+    <LocalDebuggerCommand>$(OutDir)lrt.exe </LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(ProjectName)</LocalDebuggerCommandArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-MT|x64'">
+    <LocalDebuggerCommand>$(OutDir)lrt.exe </LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(ProjectName)</LocalDebuggerCommandArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-MT|x64'">
+    <LocalDebuggerCommand>$(OutDir)lrt.exe </LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>$(ProjectName)</LocalDebuggerCommandArguments>
+  </PropertyGroup>
 </Project>

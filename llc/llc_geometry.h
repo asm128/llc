@@ -128,6 +128,16 @@ namespace llc
 		LLC_DEFAULT_OPERATOR_C(SParamsHelix, Origin == other.Origin && CellCount == other.CellCount && Radius == other.Radius && Length == other.Length); 
 	};
 
+	struct SParamsTender {
+		::llc::n3f2_t		Origin			= {};
+		::llc::n2u1_t		CellCount		= {8, 8};
+		float				Radius			= .75f;
+		::llc::n3f2_t		Scale			= {1, 1, 1};
+		::llc::quatf2_t		Orientation		= {0, 0, 0, 1};
+
+		LLC_DEFAULT_OPERATOR_C(SParamsTender, Origin == other.Origin && CellCount == other.CellCount && Radius == other.Radius && Scale == other.Scale && Orientation == other.Orientation);
+	};
+
 #pragma pack(pop)
 
 #ifndef LLC_ATMEL
@@ -141,6 +151,7 @@ namespace llc
 	::llc::error_t		geometryBuildHelixHalf		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);	// TODO: Rewrite
 	::llc::error_t		geometryBuildHelix			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
 	::llc::error_t		geometryBuildFigure0		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
+	::llc::error_t		geometryBuildTender			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTender		& params);
 	::llc::error_t		geometryBuildRingSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
 	::llc::error_t		geometryBuildRingFlat		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
 	::llc::error_t		geometryBuildRing			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTube			& params);
