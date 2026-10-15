@@ -22,5 +22,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-MT|x64'">
     <LocalDebuggerCommand>$(OutDir)lrt.exe </LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>$(ProjectName)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArgumentsHistory>llc|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
 </Project>

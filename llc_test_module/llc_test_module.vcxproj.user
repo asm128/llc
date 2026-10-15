@@ -39,5 +39,6 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(OutDir)lrt.exe </LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>$(ProjectName)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArgumentsHistory>llc_test_module|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
 </Project>
