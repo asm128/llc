@@ -11,14 +11,16 @@
 #	include <dlfcn.h>
 #endif
 
-LLC_DECLARE_MODULE_FUNCTION(llc_moduleTitle		, ::llc::sc_t* outputBuffer, ::llc::u0_t* outputBufferLength	);
-LLC_DECLARE_MODULE_FUNCTION(llc_moduleVersion	, ::llc::u2_t* version											);
-LLC_DECLARE_MODULE_FUNCTION(llc_moduleCreate	, void** customApplication, ::llc::SRuntimeValues* runtimeValues	);
-LLC_DECLARE_MODULE_FUNCTION(llc_moduleDelete	, void** customApplication											);
-LLC_DECLARE_MODULE_FUNCTION(llc_moduleSetup		, void*	 customApplication											);
-LLC_DECLARE_MODULE_FUNCTION(llc_moduleCleanup	, void*	 customApplication											);
-LLC_DECLARE_MODULE_FUNCTION(llc_moduleRender	, void*	 customApplication											);
-LLC_DECLARE_MODULE_FUNCTION(llc_moduleUpdate	, void*	 customApplication, bool requestedExit						);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleTitle		, ::llc::sc_t	* outputBuffer, ::llc::u0_t * outputBufferLength			);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleVersion	, ::llc::u2_t	* version													);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleTitle		, ::llc::sc_t	* outputBuffer, ::llc::u0_t * outputBufferLength			);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleVersion	, ::llc::u2_t	* version													);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleCreate	, void*			* customApplication, ::llc::SRuntimeValues * runtimeValues	);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleDelete	, void*			* customApplication											);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleSetup		, void			* customApplication											);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleCleanup	, void			* customApplication											);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleRender	, void			* customApplication											);
+LLC_DECLARE_MODULE_FUNCTION(llc_moduleUpdate	, void			* customApplication, bool requestedExit						);
 
 namespace llc
 {

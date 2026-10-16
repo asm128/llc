@@ -186,7 +186,7 @@ static	::llc::error_t	drawBuffers
 	, const ::llc::SEngineSceneConstants				& constants
 	, const ::llc::SRenderNodeConstants					& nodeConstants
 	, const ::std::function<::llc::TFuncPixelShader>	& ps
-	, bool											depthWrite
+	//, bool											depthWrite
 	) {	// 
 	::llc::atrif2_t				& triangleWeights			= cacheVS.TriangleWeights		;
 	::llc::an2s1_t				& trianglePixelCoords		= cacheVS.SolidPixelCoords		;
@@ -211,7 +211,7 @@ static	::llc::error_t	drawBuffers
 
 		trianglePixelCoords.clear();
 		triangleWeights.clear();
-		if_fail_e(::llc::drawTriangle(offscreenMetrics.u2(), triPositions, trianglePixelCoords, triangleWeights, backBufferDepth, depthWrite));
+		if_fail_e(::llc::drawTriangle(offscreenMetrics.u2(), triPositions, trianglePixelCoords, triangleWeights, backBufferDepth));
 		//const bool													stripped					= surface[0][0] == ::llc::bgra{llc::WHITE};
 		for(uint32_t iCoord = 0; iCoord < trianglePixelCoords.size(); ++iCoord) {
 			const ::llc::trif2_t	& vertexWeights				= triangleWeights[iCoord];
