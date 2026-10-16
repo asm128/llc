@@ -397,12 +397,8 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_wifi.cpp" />
-    <ClCompile Include="llc_window.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_framework.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_window.cpp" />
+    <ClCompile Include="llc_framework.cpp" />
     <ClCompile Include="llc_gui_control_list.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -463,6 +459,7 @@
     <None Include="country_coords.json" />
     <None Include="cpp.hint" />
     <None Include="llc_module_exports.def" />
+    <None Include="llc_config.json" />
     <None Include="Makefile" />
     <None Include="README.md" />
   </ItemGroup>

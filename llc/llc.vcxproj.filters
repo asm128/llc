@@ -588,6 +588,9 @@
     <ClInclude Include="llc_window.h">
       <Filter>framework</Filter>
     </ClInclude>
+    <ClInclude Include="llc_framework.h">
+      <Filter>framework</Filter>
+    </ClInclude>
     <ClInclude Include="llc_windows.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -1019,6 +1022,9 @@
     <ClCompile Include="llc_window.cpp">
       <Filter>framework</Filter>
     </ClCompile>
+    <ClCompile Include="llc_framework.cpp">
+      <Filter>framework</Filter>
+    </ClCompile>
     <ClCompile Include="llc_windows.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -1094,6 +1100,7 @@
     <None Include="llc_module_exports.def">
       <Filter>module</Filter>
     </None>
+    <None Include="llc_config.json" />
     <None Include="Makefile" />
     <None Include="character_codes.json" />
     <None Include="copy_llc_config.bat">
