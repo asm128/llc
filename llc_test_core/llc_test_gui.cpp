@@ -791,16 +791,16 @@ sttc ::llc::err_t testGUIDraw(ATestError & errors) {
 }
 
 sttc ::llc::err_t testGUIComponents(ATestError & errors) {
-	::llc::SGUI gui = {};
-	::llc::SInputBox inputBox = {};
-	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUTBOX, 0 > ::llc::inputBoxCreate(inputBox, gui), "%s", "Input box creation failed.");
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUTBOX, gui.Controls.States[inputBox.IdText].Parent != inputBox.IdRoot || gui.Controls.States[inputBox.VirtualKeyboard.IdRoot].Parent != inputBox.IdRoot);
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUTBOX, false == gui.Controls.IsHidden(inputBox.IdRoot));
-	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUTBOX, 0 > inputBox.SetText(gui, LLC_CXS("TEST")), "%s", "Input text failed.");
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUTBOX, inputBox.Text != LLC_CXS("TEST"));
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUTBOX, 1 != inputBox.Edit(gui, true) || gui.Controls.IsHidden(inputBox.IdRoot));
+	::llc::SGUI			gui			= {};
+	::llc::SInputBox	inputBox	= {};
+	LLC_TEST_REQUIREF	(errors, GUI_TEST_RESULT_INPUTBOX, 0 > ::llc::inputBoxCreate(inputBox, gui), "%s", "Input box creation failed.");
+	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, gui.Controls.States[inputBox.IdText].Parent != inputBox.IdRoot || gui.Controls.States[inputBox.VirtualKeyboard.IdRoot].Parent != inputBox.IdRoot);
+	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, false == gui.Controls.IsHidden(inputBox.IdRoot));
+	LLC_TEST_REQUIREF	(errors, GUI_TEST_RESULT_INPUTBOX, 0 > inputBox.SetText(gui, LLC_CXS("TEST")), "%s", "Input text failed.");
+	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, inputBox.Text != LLC_CXS("TEST"));
+	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, 1 != inputBox.Edit(gui, true) || gui.Controls.IsHidden(inputBox.IdRoot));
 
-	::llc::SViewport viewport = {};
+	::llc::SViewport	viewport = {};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_VIEWPORT, 0 > ::llc::viewportInitialize(gui, viewport), "%s", "Viewport initialization failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_VIEWPORT, viewport.IdControl < 0 || viewport.IdControls.size() != ::llc::VIEWPORT_CONTROL_COUNT);
 	for(::llc::u2_t iControl = 0; iControl < viewport.IdControls.size(); ++iControl)

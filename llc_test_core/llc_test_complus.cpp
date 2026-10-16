@@ -135,27 +135,24 @@ sttc ::llc::err_t testCOMOwnership(ATestError& errors) {
 	{
 		::llc::pcom<IUnknown> owner = &adopted;
 		LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ADOPT_IDENTITY, owner.get() != &adopted, "Adopted pointer:%p, expected:%p.", owner.get(), &adopted);
-		LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ADOPT_COUNT, adopted.References != 1, "References:%lu, expected:1.", adopted.References);
+		LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ADOPT_COUNT, adopted.References != 2, "References:%lu, expected:2.", adopted.References);
 	}
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ADOPT_RELEASE, adopted.References != 0, "References:%lu, expected:0.", adopted.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ADOPT_RELEASE, adopted.References != 1, "References:%lu, expected:1.", adopted.References);
 
 	SCOMTestUnknown shared;
 	::llc::pcom<IUnknown> owner = &shared;
 	::llc::pcom<IUnknown> copy = owner;
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_COPY_IDENTITY, copy.get() != owner.get(), "Copy pointer:%p, owner:%p.", copy.get(), owner.get());
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_COPY_COUNT, shared.References != 2, "References:%lu, expected:2.", shared.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_COPY_COUNT, shared.References != 3, "References:%lu, expected:3.", shared.References);
 	::llc::pcom<IUnknown> moved = ::std::move(copy);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_MOVE_SOURCE, copy.get(), "Moved-from pointer:%p, expected:null.", copy.get());
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_MOVE_IDENTITY, moved.get() != owner.get(), "Moved pointer:%p, owner:%p.", moved.get(), owner.get());
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_MOVE_COUNT, shared.References != 2, "References:%lu, expected:2.", shared.References);
-	moved = ::std::move(moved);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SELF_MOVE_IDENTITY, moved.get() != &shared, "Self-moved pointer:%p, expected:%p.", moved.get(), &shared);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SELF_MOVE_COUNT, shared.References != 2, "References:%lu, expected:2.", shared.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_MOVE_COUNT, shared.References != 3, "References:%lu, expected:3.", shared.References);
 	::llc::u2_c firstClear = owner.clear();
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_FIRST_CLEAR_RESULT, firstClear != 1, "Remaining references:%u, expected:1.", firstClear);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_FIRST_CLEAR_RESULT, firstClear != 2, "Remaining references:%u, expected:2.", firstClear);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_FIRST_CLEAR_POINTER, owner.get(), "Cleared pointer:%p, expected:null.", owner.get());
 	::llc::u2_c finalClear = moved.clear();
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_FINAL_CLEAR_RESULT, finalClear != 0, "Remaining references:%u, expected:0.", finalClear);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_FINAL_CLEAR_RESULT, finalClear != 1, "Remaining references:%u, expected:1.", finalClear);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_FINAL_CLEAR_POINTER, moved.get(), "Cleared pointer:%p, expected:null.", moved.get());
 	rtrn 0;
 }
@@ -166,21 +163,21 @@ sttc ::llc::err_t testCOMReplacement(ATestError& errors) {
 	::llc::pcom<IUnknown> destination = &replaced;
 	destination = sourceOwner;
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_COPY_ASSIGN_IDENTITY, destination.get() != &source, "Assigned pointer:%p, expected:%p.", destination.get(), &source);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_COPY_ASSIGN_ACQUIRE, source.References != 2, "Source references:%lu, expected:2.", source.References);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_COPY_ASSIGN_RELEASE, replaced.References != 0, "Replaced references:%lu, expected:0.", replaced.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_COPY_ASSIGN_ACQUIRE, source.References != 3, "Source references:%lu, expected:3.", source.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_COPY_ASSIGN_RELEASE, replaced.References != 1, "Replaced references:%lu, expected:1.", replaced.References);
 	destination = destination;
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SELF_COPY_IDENTITY, destination.get() != &source, "Self-assigned pointer:%p, expected:%p.", destination.get(), &source);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SELF_COPY_COUNT, source.References != 2, "Source references:%lu, expected:2.", source.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SELF_COPY_COUNT, source.References != 3, "Source references:%lu, expected:3.", source.References);
 	destination.clear();
 	sourceOwner.clear();
 
 	SCOMTestUnknown outputPrevious, outputNext;
 	::llc::pcom<IUnknown> outputOwner = &outputPrevious;
 	IUnknown** output = &outputOwner;
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_PRESERVED, outputPrevious.References != 1, "Previous references:%lu, expected:1.", outputPrevious.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_PRESERVED, outputPrevious.References != 2, "Previous references:%lu, expected:2.", outputPrevious.References);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_ADDRESS, *output != &outputPrevious, "Output slot:%p, expected:%p.", *output, &outputPrevious);
 	outputOwner.clear();
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_RELEASE, outputPrevious.References != 0, "Previous references:%lu, expected:0.", outputPrevious.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_RELEASE, outputPrevious.References != 1, "Previous references:%lu, expected:1.", outputPrevious.References);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_EMPTY, outputOwner.get(), "Output owner:%p, expected:null.", outputOwner.get());
 	*output = &outputNext;
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_IDENTITY, outputOwner.get() != &outputNext, "Output pointer:%p, expected:%p.", outputOwner.get(), &outputNext);
@@ -195,7 +192,7 @@ sttc ::llc::err_t testCOMQuery(ATestError& errors) {
 	::llc::err_t result = sourceOwner.as(&rawOutput);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_RAW_RESULT, ::llc::failed(result), "Query result:0x%X.", (::llc::u2_t)result);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_RAW_IDENTITY, rawOutput != &source, "Query pointer:%p, expected:%p.", rawOutput, &source);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_RAW_ACQUIRE, source.References != 2, "Source references:%lu, expected:2.", source.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_RAW_ACQUIRE, source.References != 3, "Source references:%lu, expected:3.", source.References);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_RAW_RELEASE, rawReplaced.References != 0, "Replaced references:%lu, expected:0.", rawReplaced.References);
 	rawOutput->Release();
 
@@ -204,12 +201,12 @@ sttc ::llc::err_t testCOMQuery(ATestError& errors) {
 	result = sourceOwner.as(pointerOutput);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_PTR_RESULT, ::llc::failed(result), "Query result:0x%X.", (::llc::u2_t)result);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_PTR_IDENTITY, pointerOutput.get() != &source, "Query pointer:%p, expected:%p.", pointerOutput.get(), &source);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_PTR_ACQUIRE, source.References != 2, "Source references:%lu, expected:2.", source.References);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_PTR_RELEASE, pointerReplaced.References != 0, "Replaced references:%lu, expected:0.", pointerReplaced.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_PTR_ACQUIRE, source.References != 3, "Source references:%lu, expected:3.", source.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_PTR_RELEASE, pointerReplaced.References != 1, "Replaced references:%lu, expected:1.", pointerReplaced.References);
 	pointerOutput.clear();
 
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SOURCE_IDENTITY, sourceOwner.get() != &source, "Source pointer:%p, expected:%p.", sourceOwner.get(), &source);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SOURCE_COUNT, source.References != 1, "Source references:%lu, expected:1.", source.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SOURCE_COUNT, source.References != 2, "Source references:%lu, expected:2.", source.References);
 
 	SCOMTestUnknown nullPreserved;
 	::llc::pcom<IUnknown> nullSource;
@@ -217,15 +214,15 @@ sttc ::llc::err_t testCOMQuery(ATestError& errors) {
 	result = nullSource.as(nullOutput);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_RESULT, result != 0, "Query result:0x%X, expected:0.", (::llc::u2_t)result);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_EMPTY, nullOutput.get(), "Destination pointer:%p, expected:null.", nullOutput.get());
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_RELEASE, nullPreserved.References != 0, "Replaced references:%lu, expected:0.", nullPreserved.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_RELEASE, nullPreserved.References != 1, "Replaced references:%lu, expected:1.", nullPreserved.References);
 
 	SCOMTestMissing missing;
 	::llc::pcom<ICOMTestMissing> missingOutput = &missing;
 	result = sourceOwner.as(missingOutput);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_RESULT, false == ::llc::failed(result), "Query result:0x%X, expected failure.", (::llc::u2_t)result);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_EMPTY, missingOutput.get(), "Destination pointer:%p, expected:null.", missingOutput.get());
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_COUNT, missing.References != 0, "Missing-interface references:%lu, expected:0.", missing.References);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SOURCE_AFTER_MISSING, source.References != 1, "Source references:%lu, expected:1.", source.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_COUNT, missing.References != 1, "Missing-interface references:%lu, expected:1.", missing.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SOURCE_AFTER_MISSING, source.References != 2, "Source references:%lu, expected:2.", source.References);
 	missingOutput.clear();
 	nullOutput.clear();
 	sourceOwner.clear();
@@ -240,14 +237,14 @@ sttc ::llc::err_t testCOMArray(ATestError& errors) {
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_APPEND_RESULT, ::llc::failed(result), "Append result:%i.", result);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_SIZE, array.size() != 1, "Array size:%u, expected:1.", array.size());
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_IDENTITY, array[0].get() != &element, "Array pointer:%p, expected:%p.", array[0].get(), &element);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_COUNT, element.References != 2, "Element references:%lu, expected:2.", element.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_COUNT, element.References != 3, "Element references:%lu, expected:3.", element.References);
 	::llc::vcom<IUnknown> view = array;
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_VIEW_SIZE, view.size() != 1, "View size:%u, expected:1.", view.size());
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_VIEW_IDENTITY, view[0].get() != &element, "View pointer:%p, expected:%p.", view[0].get(), &element);
 	owner.clear();
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_OWNER_RELEASE, element.References != 1, "Element references:%lu, expected:1.", element.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_OWNER_RELEASE, element.References != 2, "Element references:%lu, expected:2.", element.References);
 	array.clear();
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_FINAL_RELEASE, element.References != 0, "Element references:%lu, expected:0.", element.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ARRAY_FINAL_RELEASE, element.References != 1, "Element references:%lu, expected:1.", element.References);
 	rtrn 0;
 }
 

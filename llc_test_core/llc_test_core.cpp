@@ -56,6 +56,7 @@ LLC_SYSTEM_OS_ENTRY_POINT(::test_core_entry_point);
 
 
 sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues) {
+	//_CrtSetBreakAlloc(12390);
 	ATestError		results;
 	llc::err_t		result				= 0;
 	cnst bool		logSuccessDetails	= 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "success-details");
