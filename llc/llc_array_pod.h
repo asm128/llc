@@ -130,7 +130,7 @@ namespace llc
 		inln		err_t	append_string		(cnst llc::function<err_t(TArray&)> & funcAppend)	noexcept	{ return funcAppend ? funcAppend(*this) : 0; }
 		
 		tplN2uinln	err_t	append_string		(cnst T (&newChain)[N])								noexcept	{ return append_string(vcst_t{newChain}); }
-		inln		err_t	append_string		(cnst vcst_t & newChain)						noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
+		inln		err_t	append_string		(cnst vcst_t & newChain)							noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
 		inln		err_t	append_string		(cnst T & element)									noexcept	{ llc_necs(push_back(element)); return 1; }
 		inln		err_t	append_strings		(cnst view<cnst vcst_t> & newChains)	noexcept	{ 
 			s2_t					appended				= 0;

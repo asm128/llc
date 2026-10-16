@@ -31,7 +31,7 @@ namespace llc
 		uint8_t&			oper[]			(uint8_t index)				noexcept	{ return *(((uint8_t*)&IP) + index); }
 
 		inxp	oper	uint32_t			()					const	noexcept	{ return IP; }
-		cxpr	oper	llc::astu8<4>		()					const	noexcept	{
+		cxpr	oper	llc::astu0_t<4>		()					const	noexcept	{
 			return 
 				{ ::llc::byte_at(IP, 0)
 				, ::llc::byte_at(IP, 1) 

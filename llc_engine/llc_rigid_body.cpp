@@ -29,29 +29,29 @@
 	return 0; 
 }
 
-void					llc::transformInertiaTensor	(::llc::m3a3f2_t & iitWorld, const ::llc::m3a3f2_t & iitBody, const ::llc::m4f2_t & rotmat)		{
-	const float					t4							= rotmat(0, 0)*iitBody.Value[0] + rotmat(1, 0)*iitBody.Value[1] + rotmat(2, 0)*iitBody.Value[2];
-	const float					t9							= rotmat(0, 0)*iitBody.Value[3] + rotmat(1, 0)*iitBody.Value[4] + rotmat(2, 0)*iitBody.Value[5];
-	const float					t14							= rotmat(0, 0)*iitBody.Value[6] + rotmat(1, 0)*iitBody.Value[7] + rotmat(2, 0)*iitBody.Value[8];
-	const float					t28							= rotmat(0, 1)*iitBody.Value[0] + rotmat(1, 1)*iitBody.Value[1] + rotmat(2, 1)*iitBody.Value[2];
-	const float					t33							= rotmat(0, 1)*iitBody.Value[3] + rotmat(1, 1)*iitBody.Value[4] + rotmat(2, 1)*iitBody.Value[5];
-	const float					t38							= rotmat(0, 1)*iitBody.Value[6] + rotmat(1, 1)*iitBody.Value[7] + rotmat(2, 1)*iitBody.Value[8];
-	const float					t52							= rotmat(0, 2)*iitBody.Value[0] + rotmat(1, 2)*iitBody.Value[1] + rotmat(2, 2)*iitBody.Value[2];
-	const float					t57							= rotmat(0, 2)*iitBody.Value[3] + rotmat(1, 2)*iitBody.Value[4] + rotmat(2, 2)*iitBody.Value[5];
-	const float					t62							= rotmat(0, 2)*iitBody.Value[6] + rotmat(1, 2)*iitBody.Value[7] + rotmat(2, 2)*iitBody.Value[8];
+void					llc::transformInertiaTensor	(::llc::m3f32 & iitWorld, const ::llc::m3f32 & iitBody, const ::llc::m4f32 & rotmat)		{
+	const float					t4							= rotmat._11*iitBody._11 + rotmat._21*iitBody._12 + rotmat._31*iitBody._13;
+	const float					t9							= rotmat._11*iitBody._21 + rotmat._21*iitBody._22 + rotmat._31*iitBody._23;
+	const float					t14							= rotmat._11*iitBody._31 + rotmat._21*iitBody._32 + rotmat._31*iitBody._33;
+	const float					t28							= rotmat._12*iitBody._11 + rotmat._22*iitBody._12 + rotmat._32*iitBody._13;
+	const float					t33							= rotmat._12*iitBody._21 + rotmat._22*iitBody._22 + rotmat._32*iitBody._23;
+	const float					t38							= rotmat._12*iitBody._31 + rotmat._22*iitBody._32 + rotmat._32*iitBody._33;
+	const float					t52							= rotmat._13*iitBody._11 + rotmat._23*iitBody._12 + rotmat._33*iitBody._13;
+	const float					t57							= rotmat._13*iitBody._21 + rotmat._23*iitBody._22 + rotmat._33*iitBody._23;
+	const float					t62							= rotmat._13*iitBody._31 + rotmat._23*iitBody._32 + rotmat._33*iitBody._33;
 
-	iitWorld.Value[0]			= t4 *rotmat(0, 0) + t9 *rotmat(1, 0) + t14*rotmat(2, 0);
-	iitWorld.Value[3]			= t4 *rotmat(0, 1) + t9 *rotmat(1, 1) + t14*rotmat(2, 1);
-	iitWorld.Value[6]			= t4 *rotmat(0, 2) + t9 *rotmat(1, 2) + t14*rotmat(2, 2);
-	iitWorld.Value[1]			= t28*rotmat(0, 0) + t33*rotmat(1, 0) + t38*rotmat(2, 0);
-	iitWorld.Value[4]			= t28*rotmat(0, 1) + t33*rotmat(1, 1) + t38*rotmat(2, 1);
-	iitWorld.Value[7]			= t28*rotmat(0, 2) + t33*rotmat(1, 2) + t38*rotmat(2, 2);
-	iitWorld.Value[2]			= t52*rotmat(0, 0) + t57*rotmat(1, 0) + t62*rotmat(2, 0);
-	iitWorld.Value[5]			= t52*rotmat(0, 1) + t57*rotmat(1, 1) + t62*rotmat(2, 1);
-	iitWorld.Value[8]			= t52*rotmat(0, 2) + t57*rotmat(1, 2) + t62*rotmat(2, 2);
+	iitWorld._11			= t4 *rotmat._11 + t9 *rotmat._21 + t14*rotmat._31;
+	iitWorld._21			= t4 *rotmat._12 + t9 *rotmat._22 + t14*rotmat._32;
+	iitWorld._31			= t4 *rotmat._13 + t9 *rotmat._23 + t14*rotmat._33;
+	iitWorld._12			= t28*rotmat._11 + t33*rotmat._21 + t38*rotmat._31;
+	iitWorld._22			= t28*rotmat._12 + t33*rotmat._22 + t38*rotmat._32;
+	iitWorld._32			= t28*rotmat._13 + t33*rotmat._23 + t38*rotmat._33;
+	iitWorld._13			= t52*rotmat._11 + t57*rotmat._21 + t62*rotmat._31;
+	iitWorld._23			= t52*rotmat._12 + t57*rotmat._22 + t62*rotmat._32;
+	iitWorld._33			= t52*rotmat._13 + t57*rotmat._23 + t62*rotmat._33;
 }
 
-void					llc::updateTransform	(::llc::SBodyCenter & bodyTransform, ::llc::m4f2_t & transformLocal)	{
+void					llc::updateTransform	(::llc::SBodyCenter & bodyTransform, ::llc::m4f32 & transformLocal)	{
 	//transformLocal.Scale( bodyTransform.Scale, true );
 	bodyTransform.Orientation.Normalize();
 	transformLocal.SetOrientation(bodyTransform.Orientation);

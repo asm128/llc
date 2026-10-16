@@ -1,6 +1,6 @@
 #include "llc_engine_rendercolor.h"
 #include "llc_array_ptr.h"
-#include "llc_matrix3.h"
+#include "llc_matrix.h"
 #include "llc_camera.h"
 
 #ifndef LLC_ENGINE_RENDERNODE_H_23627
@@ -34,10 +34,10 @@ namespace llc
 
 	struct SRenderNodeConstants {
 		::llc::SRenderMaterial	Material				= {};
-		::llc::m4f2_t			MVP						= ::llc::m4f2_t::GetIdentity();
-		::llc::m4f2_t			Model					= ::llc::m4f2_t::GetIdentity();
-		::llc::m4f2_t			ModelInverse			= ::llc::m4f2_t::GetIdentity();
-		::llc::m4f2_t			ModelInverseTranspose	= ::llc::m4f2_t::GetIdentity();
+		::llc::m4f32			MVP						= ::llc::m4f32::GetIdentity();
+		::llc::m4f32			Model					= ::llc::m4f32::GetIdentity();
+		::llc::m4f32			ModelInverse			= ::llc::m4f32::GetIdentity();
+		::llc::m4f32			ModelInverseTranspose	= ::llc::m4f32::GetIdentity();
 		::llc::n3f2_t			NodeSize				= {}; 
 		float					PaddingC				= 0;
 	};

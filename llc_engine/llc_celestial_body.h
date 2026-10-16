@@ -81,8 +81,8 @@ namespace llc
 	::llc::error_t	printPlanet				(const ::llc::SDetailPlanet  & body);
 	::llc::error_t	printCelestialBody		(const ::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type);
 
-	CELESTIAL_BODY	bodyTypeFromString		(::llc::vcs bodyType);
-	PLANET_TYPE		bodySubtypeFromString	(::llc::vcs bodyType);
+	CELESTIAL_BODY	bodyTypeFromString		(::llc::vcsc_t bodyType);
+	PLANET_TYPE		bodySubtypeFromString	(::llc::vcsc_t bodyType);
 } // namespace
 
 #endif // LLC_CELESTIAL_BODY

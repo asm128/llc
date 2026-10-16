@@ -29,7 +29,6 @@ namespace llc
 		::llc::lmpod<SParamsCylinderWall, uint32_t>	ParamsCylinderWall	;
 		::llc::lmpod<SParamsCylinderWall, uint32_t>	ParamsCylinder		;
 		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsFigure0		;
-		::llc::lmpod<SParamsTender		, uint32_t>	ParamsTender		;
 		::llc::lmpod<SParamsGrid		, uint32_t>	ParamsGrid			;
 		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsHelixHalf		;
 		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsHelix			;
@@ -38,8 +37,7 @@ namespace llc
 		::llc::lmpod<SParamsRingSide	, uint32_t>	ParamsRingSide		;
 		::llc::lmpod<SParamsRingSide	, uint32_t>	ParamsRingFlat		;
 
-		::llc::avcsc_t					ImageNames		= {};
-		::llc::au2_t					Images			= {};
+		::llc::lmpod<::llc::vcsc_t, uint32_t>	Images			= {};
 
 		::llc::SPNGData						PNGCache		= {};
 
@@ -103,9 +101,9 @@ namespace llc
 			entityNew.RigidBody			= ((uint32_t)entitySource.RigidBody < Integrator.Flags.size()) ? Integrator.Clone(entitySource.RigidBody) : (uint32_t)-1;
 			entityNew.Parent			= entitySource.Parent;
 
-			const ::llc::pau2_t				childrenSource		= Entities.Children[iEntitySource];
+			const ::llc::pau32				childrenSource		= Entities.Children[iEntitySource];
 			if(childrenSource && childrenSource->size()) {
-				::llc::pau2_t					childrenNew			= Entities.Children[iEntityNew];
+				::llc::pau32					childrenNew			= Entities.Children[iEntityNew];
 				for(uint32_t iChild = 0; iChild < childrenSource->size(); ++iChild) {
 					uint32_t						entityChild			= Clone((*childrenSource)[iChild], cloneSkin, cloneSurfaces, cloneShaders);
 					Entities[entityChild].Parent= iEntityNew;
@@ -141,7 +139,7 @@ namespace llc
 		inline	::llc::error_t		GetVelocity			(uint32_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
 		inline	::llc::error_t		GetAcceleration		(uint32_t iEntity, ::llc::n3f2_t & acceleration)			const	{ Integrator.GetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
 		inline	::llc::error_t		GetRotation			(uint32_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		GetOrientation		(uint32_t iEntity, ::llc::quatf2_t & orientation)		const	{ Integrator.GetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
+		inline	::llc::error_t		GetOrientation		(uint32_t iEntity, ::llc::quatf32 & orientation)		const	{ Integrator.GetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
 		inline	::llc::error_t		SetPhysicsActive	(uint32_t iEntity, bool active)									{ Integrator.SetActive		(GetRigidBody(iEntity), active);			return 0; }
 		inline	::llc::error_t		SetCollides			(uint32_t iEntity, bool collides)								{ Integrator.SetCollides	(GetRigidBody(iEntity), collides);			return 0; }
 		inline	::llc::error_t		SetHalfSizes		(uint32_t iEntity, const ::llc::n3f2_t & halfSizes)				{ Integrator.SetHalfSizes	(GetRigidBody(iEntity), halfSizes);			return 0; }
@@ -151,7 +149,7 @@ namespace llc
 		inline	::llc::error_t		SetVelocity			(uint32_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
 		inline	::llc::error_t		SetAcceleration		(uint32_t iEntity, const ::llc::n3f2_t & acceleration)			{ Integrator.SetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
 		inline	::llc::error_t		SetRotation			(uint32_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		SetOrientation		(uint32_t iEntity, const ::llc::quatf2_t & orientation)			{ Integrator.SetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
+		inline	::llc::error_t		SetOrientation		(uint32_t iEntity, const ::llc::quatf32 & orientation)			{ Integrator.SetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
 		inline	::llc::error_t		SetDampingLinear	(uint32_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].LinearDamping	= damping;	return 0; }
 		inline	::llc::error_t		SetDampingAngular	(uint32_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].AngularDamping	= damping;	return 0; }
 		::llc::error_t				SetHidden			(uint32_t iEntity, bool hidden)									{ Scene->RenderNodes.Flags[GetRenderNode(iEntity)].NoDraw	= hidden;	return 0; }	
@@ -166,20 +164,19 @@ namespace llc
 		::llc::error_t				CreateCamera		();
 
 
-		::llc::error_t				CreateBox			(const ::llc::SParamsBox			& params, ::llc::vcs entityName = ::llc::vcst_t{ 3, "Box"});
-		::llc::error_t				CreateSphere		(const ::llc::SParamsSphere			& params, ::llc::vcs entityName = ::llc::vcst_t{ 6, "Sphere"});
-		::llc::error_t				CreateCylinderWall	(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = ::llc::vcst_t{13, "Cylinder Wall"});
-		::llc::error_t				CreateCylinder		(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = ::llc::vcst_t{ 8, "Cylinder"});		
-		::llc::error_t				CreateCircleSide	(const ::llc::SParamsCircle			& params, ::llc::vcs entityName = ::llc::vcst_t{11, "Circle Side"});
-		::llc::error_t				CreateDisc			(const ::llc::SParamsDisc			& params, ::llc::vcs entityName = ::llc::vcst_t{ 4, "Disc"});
-		::llc::error_t				CreateTube			(const ::llc::SParamsTube			& params, ::llc::vcs entityName = ::llc::vcst_t{ 4, "Tube"});
-		::llc::error_t				CreateRingSide		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = ::llc::vcst_t{ 9, "Ring Side"});
-		::llc::error_t				CreateRingFlat		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = ::llc::vcst_t{ 9, "Ring flat"});
-		::llc::error_t				CreateGrid			(const ::llc::SParamsGrid			& params, ::llc::vcs entityName = ::llc::vcst_t{ 4, "Grid"});
-		::llc::error_t				CreateHelixHalf		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcst_t{10, "Helix half"});
-		::llc::error_t				CreateHelix			(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcst_t{ 5, "Helix"});
+		::llc::error_t				CreateBox			(const ::llc::SParamsBox			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 3, "Box"});
+		::llc::error_t				CreateSphere		(const ::llc::SParamsSphere			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 6, "Sphere"});
+		::llc::error_t				CreateCylinderWall	(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = ::llc::vcsc_t{13, "Cylinder Wall"});
+		::llc::error_t				CreateCylinder		(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = ::llc::vcsc_t{ 8, "Cylinder"});		
+		::llc::error_t				CreateCircleSide	(const ::llc::SParamsCircle			& params, ::llc::vcs entityName = ::llc::vcsc_t{11, "Circle Side"});
+		::llc::error_t				CreateDisc			(const ::llc::SParamsDisc			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 4, "Disc"});
+		::llc::error_t				CreateTube			(const ::llc::SParamsTube			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 4, "Tube"});
+		::llc::error_t				CreateRingSide		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = ::llc::vcsc_t{ 9, "Ring Side"});
+		::llc::error_t				CreateRingFlat		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = ::llc::vcsc_t{ 9, "Ring flat"});
+		::llc::error_t				CreateGrid			(const ::llc::SParamsGrid			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 4, "Grid"});
+		::llc::error_t				CreateHelixHalf		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcsc_t{10, "Helix half"});
+		::llc::error_t				CreateHelix			(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 5, "Helix"});
 		::llc::error_t				CreateFigure0		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcs{"Figure0"});
-		::llc::error_t				CreateTender		(const ::llc::SParamsTender			& params, ::llc::vcs entityName = ::llc::vcs{"Tender"});
 
 		::llc::error_t				CreateImageFromFile	(const ::llc::vcst_t & fileFolder, const ::llc::vcst_t & fileName);
 
@@ -187,7 +184,7 @@ namespace llc
 
 		tplt<tpnm _tParams>
 		::llc::error_t				CreateEntityFromGeometry
-			( const ::llc::vcst_t							name		
+			( const ::llc::vcsc_t							name		
 			, const ::llc::n3f2_t						halfSizes
 			, bool										createSkin
 			, const _tParams							& params

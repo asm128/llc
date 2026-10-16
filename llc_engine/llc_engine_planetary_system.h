@@ -12,7 +12,6 @@ namespace llc
 		::llc::aeid				GravityCenters	;
 		::llc::aeid				Orbits			;
 		::llc::aeid				Bodies			;
-		::llc::aeid				Clouds			;
 		::llc::aeid				Cameras			;
 		::llc::eid_t			Camera			= ::llc::EID_INVALID;
 		::llc::eid_t			Background		= ::llc::EID_INVALID;
@@ -21,7 +20,6 @@ namespace llc
 			llc_necs(llc::saveView(output, GravityCenters	));
 			llc_necs(llc::saveView(output, Orbits			));
 			llc_necs(llc::saveView(output, Bodies			));
-			llc_necs(llc::saveView(output, Clouds			));
 			llc_necs(llc::saveView(output, Cameras		));
 			llc_necs(llc::savePOD (output, Camera			));
 			llc_necs(llc::savePOD (output, Background		));
@@ -32,7 +30,6 @@ namespace llc
 			llc_necs(llc::loadView(input, GravityCenters	));
 			llc_necs(llc::loadView(input, Orbits			));
 			llc_necs(llc::loadView(input, Bodies			));
-			llc_necs(llc::loadView(input, Clouds			));
 			llc_necs(llc::loadView(input, Cameras			));
 			llc_necs(llc::loadPOD (input, Camera			));
 			llc_necs(llc::loadPOD (input, Background		));
@@ -58,10 +55,10 @@ namespace llc
 	};
 
 	::llc::error_t			planetarySystemReset			(const ::llc::SPlanetarySystem & solarSystem, const ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine, const ::llc::vc8bgra & colors);
-	::llc::error_t			planetarySystemCreateEntities	(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine, ::llc::vcs imageFolder, ::llc::vcs backgroundImage);
-	::llc::error_t			planetarySystemSetup			(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine, ::llc::vcs imageFolder, ::llc::vcs backgroundImage);
-	::llc::error_t			planetarySystemSetup			(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, const ::llc::SJSONReader & jsonData, ::llc::vcs imageFolder, ::llc::vcs backgroundImage);
-	::llc::error_t			planetarySystemSetup			(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcs jsonFilePath, ::llc::vcs imageFolder, ::llc::vcs backgroundImage);
+	::llc::error_t			planetarySystemCreateEntities	(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine);
+	::llc::error_t			planetarySystemSetup			(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine); 
+	::llc::error_t			planetarySystemSetup			(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, const ::llc::SJSONReader & jsonData);
+	::llc::error_t			planetarySystemSetup			(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcsc_t jsonFilePath);
 } // namespace
 
 #endif // LLC_ENGINE_PLANETARY_SYSTEM_H_23701

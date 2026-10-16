@@ -100,14 +100,14 @@
 	return 0;
 }
 
-::llc::CELESTIAL_BODY	llc::bodyTypeFromString		(::llc::vcs bodyType) { 
+::llc::CELESTIAL_BODY	llc::bodyTypeFromString		(::llc::vcsc_t bodyType) { 
 	if(2 > bodyType.size())
 		return (::llc::CELESTIAL_BODY)-1;
 
 	return ::llc::get_value_camelcased<::llc::CELESTIAL_BODY>(bodyType);
 }
 
-::llc::PLANET_TYPE		llc::bodySubtypeFromString	(::llc::vcs bodyType) {
+::llc::PLANET_TYPE		llc::bodySubtypeFromString	(::llc::vcsc_t bodyType) {
 	if(2 > bodyType.size())
 		return (::llc::PLANET_TYPE)-1;
 
@@ -115,7 +115,7 @@
 }
 
 ::llc::error_t			llc::loadPlanet		(::llc::SDetailPlanet & body, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody) { 
-	::llc::vcs						subtype;
+	::llc::vcsc_t					subtype;
 	ws_if_failed(::llc::jsonObjectGetAsString (jsonData, jsonIndexStellarBody, "subtype"				, subtype					));
 	body.Subtype			= ::llc::bodySubtypeFromString(subtype);
 	ws_if_failed(::llc::jsonObjectGetAsInteger(jsonData, jsonIndexStellarBody, "density"				, body.Density				));

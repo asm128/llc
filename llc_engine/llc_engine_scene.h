@@ -20,11 +20,11 @@ namespace llc
 	
 #pragma pack(push, 1)
 	struct SEngineSceneConstants {
-		::llc::m4f2_t			View					= {}; 
-		::llc::m4f2_t			Perspective				= {}; 
-		::llc::m4f2_t			Screen					= {}; 
-		::llc::m4f2_t			VP						= {}; 
-		::llc::m4f2_t			VPS						= {}; 
+		::llc::m4f32			View					= {}; 
+		::llc::m4f32			Perspective				= {}; 
+		::llc::m4f32			Screen					= {}; 
+		::llc::m4f32			VP						= {}; 
+		::llc::m4f32			VPS						= {}; 
 		::llc::n3f2_t			CameraPosition			= {};
 		float					CameraAngle				= 0;
 		::llc::n3f2_t			CameraFront				= {}; 
@@ -44,7 +44,6 @@ namespace llc
 		::llc::n2f2_t			WeightedUV			;
 		::llc::SRenderMaterial	Material			;
 		::llc::gc8bgra			Surface				; 
-		::llc::gc8bgra			Surface1			;
 	};
 
 	stacxpr size_t		SPSINSIZE = sizeof(SPSIn);
@@ -57,17 +56,17 @@ namespace llc
 		);
 
 	struct SVSCache {
-		::llc::atrif2_t			TriangleWeights			= {};
-		::llc::an2s1_t			SolidPixelCoords		= {};
-		::llc::an3f2_t			WireframePixelCoords	= {};
+		::llc::atrif32			TriangleWeights			= {};
+		::llc::an2i16			SolidPixelCoords		= {};
+		::llc::an3f32			WireframePixelCoords	= {};
 	};
 
 	struct SVSOutput {
-		::llc::atri3f2_t			PositionsWorld			= {};
-		::llc::atri3f2_t			PositionsScreen			= {};
-		::llc::atri3f2_t			Normals					= {};
-		::llc::atri3f2_t			NormalsScreen			= {};
-		::llc::atri2f2_t			UVs						= {};
+		::llc::atri3f32			PositionsWorld			= {};
+		::llc::atri3f32			PositionsScreen			= {};
+		::llc::atri3f32			Normals					= {};
+		::llc::atri3f32			NormalsScreen			= {};
+		::llc::atri2f32			UVs						= {};
 	};
 
 	struct SEngineRenderCache {
@@ -128,7 +127,7 @@ namespace llc
 		::llc::SRenderNodeManager		RenderNodes				= {};
 		::llc::SEngineRenderCache		RenderCache				= {};
 
-		::llc::error_t					CreateRenderNode		(const ::llc::SGeometryBuffers & geometry, ::llc::vcst_c name, bool createSkin);
+		::llc::error_t					CreateRenderNode		(const ::llc::SGeometryBuffers & geometry, ::llc::vcsc_c name, bool createSkin);
 
 		::llc::error_t					Load					(::llc::vcu0_t & input) {
 			llc_necs(Graphics		->Load(input));
@@ -175,14 +174,13 @@ namespace llc
 
 	::llc::error_t							drawScene
 		( ::llc::g8bgra				backBufferColors
-		, ::llc::gu2_t				backBufferDepth
+		, ::llc::gu32				backBufferDepth
 		, ::llc::SEngineRenderCache	& renderCache
 		, const ::llc::SEngineScene	& scene
 		, const ::llc::n3f2_t		& cameraPosition
 		, const ::llc::n3f2_t		& cameraTarget
 		, const ::llc::n3f2_t		& cameraUp
 		, const ::llc::minmaxf2_t	& nearFar
-		, ::llc::f3_t				time = 0
 		);
 
 } // namespace

@@ -1,7 +1,4 @@
-#include "llc_matrix3.h"
-#include "llc_quat.h"
-#include "llc_view.h"
-#include "llc_array_obj.h"
+#include "llc_matrix.h"
 #include "llc_enum.h"
 
 #ifndef LLC_RIGIDBODY_H_23627
@@ -22,7 +19,7 @@ namespace llc
 		float				LinearDamping					= 1.0f;
 		float				AngularDamping					= 1.0f;
 		float				InverseMass						= 0;
-		::llc::m3a3f2_t		InverseAngularMassTensor		= {1,0,0,0,1,0,0,0,1};
+		::llc::m3f32		InverseAngularMassTensor		= {1,0,0,0,1,0,0,0,1};
 
 		inlcxpr	double		GetMass							()	{
 			return (InverseMass == 0) ? DBL_MAX : 1.0 / InverseMass; 
@@ -31,7 +28,7 @@ namespace llc
 
 	struct SBodyCenter {
 		::llc::n3f2_t		Position						= {};
-		::llc::quatf2_t		Orientation						= {0, 0, 0, 1};
+		::llc::quatf32		Orientation						= {0, 0, 0, 1};
 	};
 
 	GDEFINE_ENUM_TYPE(BOUNDING_TYPE, uint8_t);
@@ -52,7 +49,7 @@ namespace llc
 	};
 
 	struct SBodyFrame {
-		::llc::m3a3f2_t		InverseInertiaTensorWorld		= {1, 0, 0, 0, 1, 0, 0, 0, 1};
+		::llc::m3f32		InverseInertiaTensorWorld		= {1, 0, 0, 0, 1, 0, 0, 0, 1};
 		::llc::n3f2_t		LastFrameAcceleration			= {0, 0, 0};
 		::llc::n3f2_t		AccumulatedForce				= {0, 0, 0};
 		::llc::n3f2_t		AccumulatedTorque				= {0, 0, 0};
@@ -64,10 +61,10 @@ namespace llc
 		::llc::n3f2_t		HalfSizes						= {.5f, .5f, .5f};
 	};
 #pragma pack(pop)
-	void				updateTransform					(::llc::SBodyCenter & bodyTransform, ::llc::m4f2_t & transformLocal);
+	void				updateTransform					(::llc::SBodyCenter & bodyTransform, ::llc::m4f32 & transformLocal);
 	int32_t				integrateForces					(double duration, ::llc::SBodyFrame & bodyFrame, ::llc::SBodyForces & bodyForce, const ::llc::SBodyMass & bodyMass);
 	int32_t				integratePosition				(double duration, double durationHalfSquared, ::llc::SBodyFlags & bodyFlags, ::llc::SBodyCenter & bodyTransform, const ::llc::SBodyForces & bodyForces);
-	void				transformInertiaTensor			(::llc::m3a3f2_t & iitWorld, const ::llc::m3a3f2_t & iitBody, const ::llc::m4f2_t &rotmat);
+	void				transformInertiaTensor			(::llc::m3f32 & iitWorld, const ::llc::m3f32 & iitBody, const ::llc::m4f32 &rotmat);
 
 
 	struct SRigidBodyIntegrator {
@@ -77,14 +74,14 @@ namespace llc
 		::llc::apod<::llc::SBodyForces	>	Forces							= {};
 		::llc::apod<::llc::SBodyCenter	>	Centers							= {};
 		::llc::apod<::llc::SBodyVolume	>	BoundingVolumes					= {};
-		::llc::apod<::llc::m4f2_t		>	TransformsLocal					= {};
+		::llc::apod<::llc::m4f32		>	TransformsLocal					= {};
 
-		stacxpr	::llc::m4f2_t				MatrixIdentity4					= {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
-		stacxpr	::llc::m3a3f2_t				MatrixIdentity3					= {1,0,0,0,1,0,0,0,1};
+		stacxpr	::llc::m4f32				MatrixIdentity4					= {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+		stacxpr	::llc::m3f32				MatrixIdentity3					= {1,0,0,0,1,0,0,0,1};
 
 		::llc::error_t						Load							(::llc::vcu0_t & input);
 		::llc::error_t						Save							(::llc::au0_t & output)	const;
-		inline	::llc::error_t				Load							(::llc::vcst_t & input)			{ return Load(*((::llc::vcu0_t*)&input)); }
+		inline	::llc::error_t				Load							(::llc::vcsc_t & input)			{ return Load(*((::llc::vcu0_t*)&input)); }
 		inline	::llc::error_t				Save							(::llc::as0_t & output)	const	{ return Save(*((::llc::apod<uint8_t>*)&output)); }
 
 		int32_t 							ZeroCenters						()	{ return Centers.fill({}); }
@@ -109,7 +106,7 @@ namespace llc
 			Masses					.push_back(::llc::SBodyMass			{Masses				[iBody]});
 			Centers					.push_back(::llc::SBodyCenter		{Centers			[iBody]});
 			BoundingVolumes			.push_back(::llc::SBodyVolume		{BoundingVolumes	[iBody]});
-			return TransformsLocal	.push_back(::llc::m4f2_t				{TransformsLocal	[iBody]});
+			return TransformsLocal	.push_back(::llc::m4f32				{TransformsLocal	[iBody]});
 		}
 
 		int32_t 							Create							()	{
@@ -145,9 +142,9 @@ namespace llc
 			return indexFirstBody;
 		}
 
-		int32_t 							GetTransform					(uint32_t iBody, ::llc::m4f2_t	& transform)	{
+		int32_t 							GetTransform					(uint32_t iBody, ::llc::m4f32	& transform)	{
 			::llc::SBodyFlags						& bodyFlags						= Flags				[iBody];
-			::llc::m4f2_t							& bodyTransformLocal			= TransformsLocal	[iBody];
+			::llc::m4f32							& bodyTransformLocal			= TransformsLocal	[iBody];
 			if(false == bodyFlags.UpdatedTransform || false == bodyFlags.UpdatedTensorWorld) {
 				if(false == bodyFlags.UpdatedTransform) {
 					::llc::SBodyCenter						& bodyCenter					= Centers[iBody];
@@ -177,7 +174,7 @@ namespace llc
 
 		int32_t								Integrate						(double duration)	{
 			const double							durationHalfSquared				= duration * duration * 0.5;
-			::llc::m4f2_t							dummy;
+			::llc::m4f32							dummy;
 			for(uint32_t iBody = 0; iBody < Flags.size(); ++iBody) {
 				::llc::SBodyFlags						& bodyFlags						= Flags[iBody];
 				if(false == bodyFlags.Active)
@@ -215,7 +212,7 @@ namespace llc
 		inline	bool						Collides						(uint32_t iBody)									const	{ return Flags[iBody].Collides; }
 		inline	float						GetMass							(uint32_t iBody)									const	{ return 1.0f / Masses[iBody].InverseMass; }
 		inline	void						GetPosition						(uint32_t iBody, ::llc::n3f2_t & position)			const	{ position		= Centers[iBody].Position; }
-		inline	void						GetOrientation					(uint32_t iBody, ::llc::quatf2_t & orientation)		const	{ orientation	= Centers[iBody].Orientation; }
+		inline	void						GetOrientation					(uint32_t iBody, ::llc::quatf32 & orientation)		const	{ orientation	= Centers[iBody].Orientation; }
 		inline	void						GetRotation						(uint32_t iBody, ::llc::n3f2_t & rotation)			const	{ rotation		= Forces[iBody].Rotation;		}
 		inline	void						GetAcceleration					(uint32_t iBody, ::llc::n3f2_t & acceleration)		const	{ acceleration	= Forces[iBody].Acceleration;	}
 		inline	void						GetVelocity						(uint32_t iBody, ::llc::n3f2_t & velocity)			const	{ velocity		= Forces[iBody].Velocity;		}
@@ -237,7 +234,7 @@ namespace llc
 			bodyFlags.UpdatedTransform			= 
 			bodyFlags.UpdatedTensorWorld		= false;
 		}
-		void								SetOrientation					(uint32_t iBody, const ::llc::quatf2_t & newOrientation)		{
+		void								SetOrientation					(uint32_t iBody, const ::llc::quatf32 & newOrientation)		{
 			::llc::SBodyCenter						& bodyCenter					= Centers[iBody];
 			if(0 == memcmp(&newOrientation.x, &bodyCenter.Orientation.x, sizeof(::llc::quat<float>)))
 				return;

@@ -10,25 +10,25 @@
 namespace llc 
 {
 
-	typedef	::llc::aobj<::llc::an3sc_t	>	aan3c	, aan3sc_t		;
-	typedef	::llc::aobj<::llc::an3uc_t	>	aan3uc	, aan3uc_t		;
-	typedef	::llc::aobj<::llc::an3f2_t	>	aan3f2_t	;
-	typedef	::llc::aobj<::llc::an3f3_t	>	aan3f3_t	;
-	typedef	::llc::aobj<::llc::an3u0_t	>	aan3u0_t	;
-	typedef	::llc::aobj<::llc::an3u1_t	>	aan3u1_t	;
-	typedef	::llc::aobj<::llc::an3u2_t	>	aan3u2_t	;
-	typedef	::llc::aobj<::llc::an3u3_t	>	aan3u3_t	;
-	typedef	::llc::aobj<::llc::an3s0_t	>	aan3s0_t	;
-	typedef	::llc::aobj<::llc::an3s1_t	>	aan3s1_t	;
-	typedef	::llc::aobj<::llc::an3s2_t	>	aan3s2_t	;
-	typedef	::llc::aobj<::llc::an3s3_t	>	aan3s3_t	;
+	typedef	::llc::aobj<::llc::an3char	>	aan3c	, aan3char		;
+	typedef	::llc::aobj<::llc::an3uchar	>	aan3uc	, aan3uchar		;
+	typedef	::llc::aobj<::llc::an3f32	>	aan3f32	;
+	typedef	::llc::aobj<::llc::an3f64	>	aan3f64	;
+	typedef	::llc::aobj<::llc::an3u8	>	aan3u8	;
+	typedef	::llc::aobj<::llc::an3u16	>	aan3u16	;
+	typedef	::llc::aobj<::llc::an3u32	>	aan3u32	;
+	typedef	::llc::aobj<::llc::an3u64	>	aan3u64	;
+	typedef	::llc::aobj<::llc::an3i8	>	aan3i8	;
+	typedef	::llc::aobj<::llc::an3i16	>	aan3i16	;
+	typedef	::llc::aobj<::llc::an3i32	>	aan3i32	;
+	typedef	::llc::aobj<::llc::an3i64	>	aan3i64	;
 
 	struct SShots	{
-		::llc::aan3f2_t				DistanceToTargets	= {};
+		::llc::aan3f32				DistanceToTargets	= {};
 		::llc::af2_t				Lifetime			= {};
 		::llc::af2_t				Brightness			= {};
-		::llc::an3f2_t				PositionDraw		= {};
-		::llc::an3f2_t				PositionPrev		= {};
+		::llc::an3f32				PositionDraw		= {};
+		::llc::an3f32				PositionPrev		= {};
 		::llc::SParticles3			Particles			= {};
 
 		int							Remove				(uint32_t iShot)			{
@@ -102,8 +102,8 @@ namespace llc
 #pragma pack(push, 1)
 
 	struct SWeaponTrigger {
-		gaugemaxf2_t		Delay				= {};	// Trigger delay
-		gaugemaxf2_t		Overheat			= {};	// Cooldown/Reload time in seconds
+		gaugemaxf32		Delay				= {};	// Trigger delay
+		gaugemaxf32		Overheat			= {};	// Cooldown/Reload time in seconds
 		float			OverheatPerShot		= {};	// 
 		bool			CoolingDown			= {};	// Reloading
 
@@ -249,7 +249,7 @@ namespace llc
 	struct SWeaponManager {
 		::llc::apod<::llc::SWeapon>	Weapons			= {};	// 
 		::llc::aobj<::llc::SShots >	Shots			= {};	// One per weapon
-		::llc::apobj<::llc::an3f2_t>	WeaponTargets	= {};	// One per weapon
+		::llc::apobj<::llc::an3f32>	WeaponTargets	= {};	// One per weapon
 
 		int32_t						Clear					()		{ ::llc::clear(Weapons, Shots, WeaponTargets); return 0; }
 		::llc::error_t				Save					(::llc::au0_t & output)	const	{ 
@@ -259,7 +259,7 @@ namespace llc
 				if(WeaponTargets[iWeapon] && WeaponTargets[iWeapon]->size())
 					llc_necall(llc::saveView(output, *WeaponTargets[iWeapon]), "iWeapon: %i", iWeapon);
 				else
-					llc_necall(llc::saveView(output, ::llc::vcn3f2_t{}), "iWeapon: %i", iWeapon);
+					llc_necall(llc::saveView(output, ::llc::vc3f32{}), "iWeapon: %i", iWeapon);
 				llc_necall(Shots[iWeapon].Save(output), "iWeapon: %i", iWeapon);
 			}
 			return 0;

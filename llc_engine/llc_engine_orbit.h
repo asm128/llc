@@ -6,7 +6,7 @@
 
 namespace llc
 {
-	::llc::error_t			initOrbitRotation	(::llc::SBodyForces & orbitForces, ::llc::AXIS rotationAxis, const ::llc::quatf2_t & orbitOrientation, double rotation_period, double rotation_unit);
+	::llc::error_t			initOrbitRotation	(::llc::SBodyForces & orbitForces, ::llc::AXIS rotationAxis, const ::llc::quatf32 & orbitOrientation, double rotation_period, double rotation_unit);
 	::llc::error_t			initOrbitCenter		(::llc::SBodyCenter & orbitCenter, ::llc::AXIS rotationAxis, double orbitalInclination, double orbitRadius);
 
 	stainli ::llc::error_t	initOrbit			(::llc::SBodyCenter & orbitCenter, ::llc::SBodyForces & orbitForces, const ::llc::SOrbit & orbit) {

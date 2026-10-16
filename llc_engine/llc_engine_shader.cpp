@@ -1,11 +1,6 @@
 #include "llc_engine_shader.h"
 #include "llc_noise.h"
 
-static	float			shaderRand			(const ::llc::n2f2_t & uv);
-static	::llc::rgbaf	shaderSample			(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv);
-static	::llc::rgbaf	shaderSampleNearest	(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv);
-static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2_t & uv);
-
 ::llc::rgbaf			llc::lightCalcSpecular	(::llc::n3f2_t gEyePosW, float specularPower, ::llc::rgbaf specularLight, ::llc::rgbaf specularMaterial, ::llc::n3f2_t posW, ::llc::n3f2_t normalW, ::llc::n3f2_t lightVecW) {
 	const ::llc::n3f2_t			pointToEye				= (gEyePosW - posW).Normalize();
 	const ::llc::n3f2_t			reflected				= normalW.Reflect(-lightVecW);
@@ -29,22 +24,17 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
 	) {
-	const ::llc::rgbaf			vDiffuse				= ::shaderSample(inPS, inPS.WeightedUV);
-	const float					lighting				= ::llc::clamped((float)constants.LightDirection.Normalized().Dot(inPS.WeightedNormal.Normalized()), .1f, .5f);
-	::llc::rgbaf				result					= vDiffuse * lighting;
-	result.a				= inPS.Material.Color.Diffuse.a * vDiffuse.a;
-	outputPixel				= result.Clamp();
+	const ::llc::n3f2_t			lightVecW				= (constants.LightPosition - inPS.WeightedPosition).Normalize();
+	const ::llc::rgbaf			diffuse					= ::llc::lightCalcDiffuse(::llc::DARKGREEN, inPS.WeightedNormal, lightVecW);
+	outputPixel				= ::llc::rgbaf(diffuse).Clamp();
 	return 0;
 }
 
 ::llc::error_t			llc::psHidden
 	( const ::llc::SEngineSceneConstants	& /*constants*/
-	, const ::llc::SPSIn					& inPS
-	, ::llc::bgra							& outputPixel
+	, const ::llc::SPSIn					& /*inPS*/
+	, ::llc::bgra							& /*outputPixel*/
 	) {
-	const ::llc::rgbaf			vDiffuse				= ::shaderSample(inPS, inPS.WeightedUV);
-	const float					lighting				= ::llc::max((float)::llc::n3f2_t{-.5f, -1, 0}.Normalized().Dot(inPS.WeightedNormal), .1f);
-	outputPixel				= (vDiffuse * lighting).Clamp();
 	return 0;
 }
 
@@ -54,18 +44,8 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	, ::llc::bgra							& outputPixel
 	) { 
 	const ::llc::n3f2_t			lightVecW				= (constants.LightPosition - inPS.WeightedPosition).Normalize();
-	const float					diffuseFactor			= (float)::llc::max(lightVecW.Dot(inPS.WeightedNormal.Normalized()), 0.0);
-	const ::llc::rgbaf			materialColor			= (inPS.WeightedUV.x > .2485f && inPS.WeightedUV.x < .2515f) ? ::llc::rgbaf{::llc::WHITE.rgb(), inPS.Material.Color.Diffuse.a} : inPS.Material.Color.Diffuse;
-	::llc::rgbaf				diffuse					= diffuseFactor ? ::llc::rgbaf{((materialColor * diffuseFactor) * ::llc::max(.65f, ::shaderRand(inPS.WeightedUV))).rgb(), materialColor.a} : ::llc::rgbaf{0, 0, 0, materialColor.a};
-	const ::llc::n2f2_t			scaledUV				= {inPS.WeightedUV.x * 2, inPS.WeightedUV.y};
-	if( .0025f > scaledUV.LengthSquared()
-	 || .0025f > (scaledUV - ::llc::n2f2_t{1, 1}).LengthSquared()
-	 || .0025f > (scaledUV - ::llc::n2f2_t{1, 0}).LengthSquared()
-	 || .0025f > (scaledUV - ::llc::n2f2_t{2, 1}).LengthSquared()
-	 || .0025f > (scaledUV - ::llc::n2f2_t{2, 0}).LengthSquared()
-	 || .0025f > (scaledUV - ::llc::n2f2_t{0, 1}).LengthSquared())
-		return 0;
-	outputPixel				= diffuse.Clamp();
+	const ::llc::rgbaf			diffuse					= ::llc::lightCalcDiffuse(::llc::DARKGREEN, inPS.WeightedNormal, lightVecW);
+	outputPixel				= ::llc::rgbaf(diffuse).Clamp();
 	return 0; 
 }
 
@@ -95,7 +75,7 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 			)	? ::llc::rgbaf(::llc::WHITE.rgb(), inPS.Material.Color.Diffuse.a)
 				: inPS.Material.Color.Diffuse
 				;
-		::llc::rgbaf				diffuse					= diffuseFactor ? ::llc::rgbaf(((materialColor * (double)diffuseFactor) * ::llc::max(.65f, ::shaderRand(inPS.WeightedUV))).rgb(), materialColor.a) : ::llc::rgbaf{0, 0, 0, materialColor.a};
+		::llc::rgbaf				diffuse					= diffuseFactor ? ::llc::rgbaf(((materialColor * (double)diffuseFactor) * ::llc::max(.65, ::llc::noise2D(uint32_t(inPS.WeightedUV.x * 10000), uint32_t(inPS.WeightedUV.y * 10000), 10000))).rgb(), materialColor.a) : ::llc::BLACK;
 		return outputPixel		= diffuse.Clamp();
 	}
 }
@@ -106,64 +86,14 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	, ::llc::bgra							& outputPixel
 	) { 
 	const ::llc::n3f2_t			lightVecW					= (constants.LightPosition - inPS.WeightedPosition).Normalize();
-	const float					diffuseFactor				= (float)::llc::max(lightVecW.Dot(inPS.WeightedNormal.Normalized()), 0.0);
-	::llc::rgbaf				diffuse						= diffuseFactor ? ::llc::rgbaf{((inPS.Material.Color.Diffuse * diffuseFactor) * ::llc::max(.65f, ::shaderRand(inPS.WeightedUV))).rgb(), inPS.Material.Color.Diffuse.a} : ::llc::rgbaf{0, 0, 0, 1};
-	outputPixel				= diffuse.Clamp();
+	const ::llc::rgbaf			diffuse						= ::llc::lightCalcDiffuse(::llc::DARKGRAY, inPS.WeightedNormal, lightVecW);
+	outputPixel				= ::llc::rgbaf(diffuse).Clamp();
 	return 0; 
 }
 
 stacxpr	float			LIGHT_FACTOR_AMBIENT		= .025f;
 stacxpr	float			LIGHT_FACTOR_SPECULAR_POWER	= 30.0f;
 stacxpr	::llc::bgra8	PIXEL_BLACK_NUMBER			= ::llc::bgra{0, 0, 0, 255};
-
-static	float			shaderRand				(const ::llc::n2f2_t & uv) {
-	const double				value					= ::sin(uv.Dot({12.9898f, 78.233f})) * 43758.5453123;
-	return (float)(value - ::floor(value));
-}
-
-static	::llc::rgbaf	shaderSampleNearest	(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv) {
-	const ::llc::n2u2_t		metrics					= surface.metrics();
-	if(0 == metrics.x || 0 == metrics.y)
-		return {};
-	const auto				wrap						= [](int32_t coord, uint32_t size) { const int32_t wrapped = coord % (int32_t)size; return (uint32_t)(wrapped < 0 ? wrapped + size : wrapped); };
-	return ::llc::rgbaf{surface[wrap((int32_t)(uv.y * metrics.y), metrics.y)][wrap((int32_t)(uv.x * metrics.x), metrics.x)]};
-}
-
-static	::llc::rgbaf	shaderSample			(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv) {
-	const ::llc::n2u2_t		metrics					= surface.metrics();
-	if(0 == metrics.x || 0 == metrics.y)
-		return {};
-	const ::llc::n2f2_t		texel					= {uv.x * metrics.x - .5f, uv.y * metrics.y - .5f};
-	const int32_t				x0						= (int32_t)::floor(texel.x);
-	const int32_t				y0						= (int32_t)::floor(texel.y);
-	const float				factorX					= texel.x - x0;
-	const float				factorY					= texel.y - y0;
-	const auto				wrap						= [](int32_t coord, uint32_t size) { const int32_t wrapped = coord % (int32_t)size; return (uint32_t)(wrapped < 0 ? wrapped + size : wrapped); };
-	const uint32_t			x[2]						= {wrap(x0, metrics.x), wrap(x0 + 1, metrics.x)};
-	const uint32_t			y[2]						= {wrap(y0, metrics.y), wrap(y0 + 1, metrics.y)};
-	const ::llc::rgbaf		row[2]						=
-		{ ::llc::interpolate_linear(::llc::rgbaf{surface[y[0]][x[0]]}, ::llc::rgbaf{surface[y[0]][x[1]]}, factorX)
-		, ::llc::interpolate_linear(::llc::rgbaf{surface[y[1]][x[0]]}, ::llc::rgbaf{surface[y[1]][x[1]]}, factorX)
-		};
-	return ::llc::interpolate_linear(row[0], row[1], factorY);
-}
-
-static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2_t & uv) {
-	return ::shaderSample(inPS.Surface, uv);
-}
-
-static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS) {
-	const ::llc::n3f2_t		lightDelta					= constants.LightPosition - inPS.WeightedPosition;
-	const ::llc::n3f2_t		lightVecW					= lightDelta.Normalized();
-	const ::llc::n3f2_t		normal						= inPS.WeightedNormal.Normalized();
-	const float				diffuseFactor				= ::llc::max(0.0f, (float)normal.Dot(lightVecW));
-	const ::llc::rgbaf		textureColor				= ::shaderSampleNearest(inPS.Surface, inPS.WeightedUV);
-	const ::llc::rgbaf		ambient						= inPS.Material.Color.Ambient * ::llc::rgbaf{.05f, .05f, .07f, 1};
-	const ::llc::rgbaf		diffuse						= inPS.Material.Color.Diffuse * diffuseFactor;
-	::llc::rgbaf			finalColor					= ((ambient + diffuse) * textureColor).Clamp();
-	finalColor.a			= inPS.Material.Color.Diffuse.a;
-	return finalColor;
-}
 
 ::llc::error_t			llc::psCylinder
 	( const ::llc::SEngineSceneConstants	& constants
@@ -211,7 +141,52 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
 	) { 
-	outputPixel				= ::shaderPlanet(constants, inPS);
+	const ::llc::n2u2_t			& surfaceSize				= inPS.Surface.metrics();
+	::llc::n2f2_t				relativeToCenter			= ::llc::n2f2_t{inPS.WeightedUV.x, inPS.WeightedUV.y} - ::llc::n2f2_t{.5f, .5f};
+	relativeToCenter.x		*= 2;
+
+	::llc::rgbaf				materialColor;
+	bool						shade						= false;
+	float						ambientFactor				= ::LIGHT_FACTOR_AMBIENT;
+	if((::llc::n2f2_t{0.0f, 0.0f} - relativeToCenter).LengthSquared() >= .0225f) {
+		materialColor			= inPS.Material.Color.Diffuse;
+		shade					= true;
+	}
+	else {
+		const ::llc::n2u2_t			fetchCoord					= 
+			{ (uint32_t)(relativeToCenter.x * 2.f * surfaceSize.x + surfaceSize.x / 2)
+			, (uint32_t)(relativeToCenter.y * 4.f * surfaceSize.y + surfaceSize.y / 2)
+			};
+		const ::llc::bgra			surfacecolor				= inPS.Surface
+			[fetchCoord.y % surfaceSize.y]
+			[fetchCoord.x % surfaceSize.x]
+			;
+		if(surfacecolor != PIXEL_BLACK_NUMBER) {
+			materialColor			= ::llc::WHITE;
+			shade					= rand() % 2;
+			ambientFactor			= .65f;
+		}
+		else {
+			materialColor			= llc::BLACK;
+			shade					= true;
+		}
+	}
+
+	if(shade) {
+		const ::llc::n3f2_t			lightVecW					= (constants.LightPosition - inPS.WeightedPosition).Normalize();
+		double						diffuseFactor				= inPS.WeightedNormal.Dot(lightVecW);
+		if(diffuseFactor < 0) {
+			ambientFactor			+= (rand() % 256) / 255.0f * float(diffuseFactor) * -.25f;
+			materialColor			= (materialColor * ambientFactor).Clamp();
+		}
+		else {
+			const ::llc::rgbaf			specular					= ::llc::lightCalcSpecular(constants.CameraPosition, ::LIGHT_FACTOR_SPECULAR_POWER, llc::WHITE, ::llc::WHITE, inPS.WeightedPosition, inPS.WeightedNormal, lightVecW);
+			const ::llc::rgbaf			diffuse						= materialColor * ::llc::max(0.0, diffuseFactor);
+			const ::llc::rgbaf			ambient						= materialColor * ambientFactor;
+			materialColor			= ::llc::rgbaf(ambient + diffuse + specular).Clamp();
+		}
+	}
+	outputPixel				= materialColor;
 	return 0; 
 }
 
@@ -220,16 +195,14 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
 	) { 
+	const ::llc::n2u2_t			& surfaceSize			= inPS.Surface.metrics();
 	::llc::n2f2_t				relativeToCenter		= ::llc::n2f2_t{inPS.WeightedUV.x, inPS.WeightedUV.y} - ::llc::n2f2_t{.5f, .5f};
 	relativeToCenter.x		*= 2;
 
-	::llc::rgbaf				materialColor			= inPS.Material.Color.Diffuse;
+	::llc::rgbaf				materialColor;
 	bool						shade					= false;
 	float						ambientFactor			= ::LIGHT_FACTOR_AMBIENT;
-	const ::llc::n3f2_t			lightVecW				= (constants.LightPosition - inPS.WeightedPosition).Normalize();
-	const ::llc::n3f2_t			normal					= inPS.WeightedNormal.Normalized();
-	const float					diffuseFactor			= (float)normal.Dot(lightVecW);
-	if(relativeToCenter.LengthSquared() >= .030625f) {
+	if((::llc::n2f2_t{0.0f, 0.0f} - relativeToCenter).LengthSquared() >= .0225f) {
 		materialColor							
 			= (relativeToCenter.y >  .20f) ? ::llc::WHITE
 			: (relativeToCenter.y < -.20f) ? ::llc::WHITE
@@ -238,11 +211,19 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 		shade				= true;
 	}
 	else {
-		const ::llc::rgbaf			surfaceColor			= ::shaderSample(inPS, {relativeToCenter.x * 2.f + .5f, relativeToCenter.y * 2.f + .5f});
-		if(0 != surfaceColor.r + surfaceColor.g + surfaceColor.b) {
+		const ::llc::n2u2_t			fetchCoord				= 
+			{ (uint32_t)(relativeToCenter.x * 2.f * surfaceSize.x + surfaceSize.x / 2)
+			, (uint32_t)(relativeToCenter.y * 4.f * surfaceSize.y + surfaceSize.y / 2)
+			};
+		const ::llc::bgra			surfacecolor			= inPS.Surface
+			[fetchCoord.y % surfaceSize.y]
+			[fetchCoord.x % surfaceSize.x]
+			;
+
+		if(surfacecolor != PIXEL_BLACK_NUMBER) {
 			materialColor		= ::llc::WHITE;
-			shade				= 0 != ((uint32_t)(::shaderRand(inPS.WeightedUV * diffuseFactor) * 10) % 2);
-			ambientFactor		= .35f;
+			shade				= rand() % 2;
+			ambientFactor		= .65f;
 		}
 		else {
 			materialColor		= ::llc::BLACK;
@@ -250,142 +231,19 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 		} 
 	}
 	if(shade) {
+		const ::llc::n3f2_t			lightVecW				= (constants.LightPosition - inPS.WeightedPosition).Normalize();
+		double						diffuseFactor			= inPS.WeightedNormal.Dot(lightVecW);
 		if(diffuseFactor < 0) {
-			ambientFactor			+= ::shaderRand(inPS.WeightedUV * diffuseFactor) * diffuseFactor * -.25f;
+			ambientFactor			+= (rand() % 256) * (1.0f / 255) * float(diffuseFactor) * -.25f;
 			materialColor			= (materialColor * ambientFactor).Clamp();
 		}
 		else {
-			const ::llc::rgbaf			specular				= ::llc::lightCalcSpecular(constants.CameraPosition, ::LIGHT_FACTOR_SPECULAR_POWER, llc::WHITE, ::llc::WHITE, inPS.WeightedPosition, normal, lightVecW);
-			const ::llc::rgbaf			diffuse					= materialColor * ::llc::max(0.0f, diffuseFactor);
+			const ::llc::rgbaf			specular				= ::llc::lightCalcSpecular(constants.CameraPosition, ::LIGHT_FACTOR_SPECULAR_POWER, llc::WHITE, ::llc::WHITE, inPS.WeightedPosition, inPS.WeightedNormal, lightVecW);
+			const ::llc::rgbaf			diffuse					= materialColor * ::llc::max(0.0, diffuseFactor);
 			const ::llc::rgbaf			ambient					= materialColor * ambientFactor;
 			materialColor			= ::llc::rgbaf(ambient + diffuse + specular).Clamp();
 		}
 	}
-	materialColor.a			= inPS.Material.Color.Diffuse.a;
 	outputPixel				= materialColor;
 	return 0; 
-}
-
-::llc::error_t			llc::psOrbit
-	( const ::llc::SEngineSceneConstants & constants
-	, const ::llc::SPSIn & inPS
-	, ::llc::bgra & outputPixel
-	) {
-	stacxpr float			margin						= .00025f;
-	const float				u							= inPS.WeightedUV.x;
-	const bool				markCenter					= (u > 0 && u < margin) || ::abs(u - .25f) < margin || ::abs(u - .5f) < margin || ::abs(u - .75f) < margin || (u > 1 - margin && u < 1);
-	const float				diffuseFactor				= ::llc::max(0.0f, (float)::sin(inPS.WeightedPosition.Length() * 1200 + constants.Time * 10));
-	const ::llc::n2f2_t		scaledUV					= {u * inPS.NodeConstants.NodeSize.x, inPS.WeightedUV.y * inPS.NodeConstants.NodeSize.z};
-	const float				randFactor					= ::llc::max(0.0f, (float)::sin(((scaledUV - ::llc::n2f2_t{inPS.NodeConstants.NodeSize.x * .5f, inPS.NodeConstants.NodeSize.z * .5f}).Length() - constants.Time * (.005f / inPS.NodeConstants.NodeSize.z)) * 3.14159f * 100));
-	const ::llc::rgbaf		diffuse						= inPS.Material.Color.Diffuse;
-	::llc::rgbaf			materialColor				= diffuse * 2.0f;
-	if(markCenter)
-		materialColor		= ::llc::rgbaf{materialColor.r + ::llc::max(0.0f, diffuse.b * diffuseFactor * 2) + ::llc::max(0.0f, diffuse.g * randFactor), materialColor.g + ::llc::max(0.0f, diffuse.r * diffuseFactor * 2) + ::llc::max(0.0f, diffuse.b * randFactor), materialColor.b + ::llc::max(0.0f, diffuse.g * diffuseFactor * 2) + ::llc::max(0.0f, diffuse.r * randFactor), ::llc::max(diffuse.a * diffuseFactor * 4, .25f)}.Clamp();
-	else
-		materialColor		= ::llc::rgbaf{materialColor.rgb(), diffuse.a * diffuseFactor * (1.0f - ::abs(inPS.WeightedUV.y - .5f) * 2)}.Clamp();
-	materialColor			+= materialColor * randFactor;
-	materialColor.r		= ::llc::clamped(materialColor.r, 0.0f, 1.0f);
-	materialColor.g		= ::llc::clamped(materialColor.g, 0.0f, 1.0f);
-	materialColor.b		= ::llc::clamped(materialColor.b, 0.0f, 1.0f);
-	outputPixel				= materialColor;
-	return 0;
-}
-
-::llc::error_t			llc::psSunfire
-	( const ::llc::SEngineSceneConstants & constants
-	, const ::llc::SPSIn & inPS
-	, ::llc::bgra & outputPixel
-	) {
-	const ::llc::n2f2_t		scaledUV					= {inPS.WeightedUV.x * inPS.NodeConstants.NodeSize.x, inPS.WeightedUV.y * inPS.NodeConstants.NodeSize.z};
-	const float				diffuseFactor				= ::llc::max(0.0f, (float)::sin(::llc::n2f2_t{inPS.WeightedPosition.x * 10, inPS.WeightedPosition.z * 10}.Length() * 1200 + constants.Time * 20));
-	const ::llc::n3f2_t		fromCenter					= inPS.WeightedPosition * 10 - inPS.NodeConstants.NodeSize * .5f;
-	const float				nodeZ						= inPS.NodeConstants.NodeSize.z ? inPS.NodeConstants.NodeSize.z : 1;
-	const float				randFactor					= ::llc::max(0.0f, (float)::sin((fromCenter.Length() * 1000 - constants.Time * (.005f / nodeZ)) * ::llc::math_pi * 1000));
-	const ::llc::rgbaf		diffuse						= inPS.Material.Color.Diffuse;
-	::llc::rgbaf			materialColor				= diffuse * 2.0f;
-	materialColor			= {materialColor.r + ::llc::max(0.0f, diffuse.b * diffuseFactor * 2) + ::llc::max(0.0f, diffuse.g * randFactor), materialColor.g + ::llc::max(0.0f, diffuse.r * diffuseFactor * 2) + ::llc::max(0.0f, diffuse.b * randFactor), materialColor.b + ::llc::max(0.0f, diffuse.g * diffuseFactor * .1f), ::llc::max(diffuse.a * diffuseFactor * 2, .125f)};
-	materialColor			+= materialColor * randFactor;
-	outputPixel				= materialColor.Clamp();
-	(void)scaledUV;
-	return 0;
-}
-
-::llc::error_t			llc::psGravityCenter
-	( const ::llc::SEngineSceneConstants & constants
-	, const ::llc::SPSIn & inPS
-	, ::llc::bgra & outputPixel
-	) {
-	stacxpr float			margin						= .00025f;
-	const float				u							= inPS.WeightedUV.x;
-	const bool				markCenter					= (u > 0 && u < margin) || ::abs(u - .25f) < margin || ::abs(u - .5f) < margin || ::abs(u - .75f) < margin || (u > 1 - margin && u < 1);
-	float					diffuseFactor				= ::llc::max(0.0f, (float)::sin(::llc::n2f2_t{inPS.WeightedPosition.x, inPS.WeightedPosition.z}.Length() * 1200 + constants.Time * 10));
-	diffuseFactor			*= ::llc::max(0.0f, (float)::sin(::llc::n2f2_t{inPS.WeightedPosition.x, inPS.WeightedPosition.y}.Length() * 1200 + constants.Time * 10));
-	const float				nodeZ						= inPS.NodeConstants.NodeSize.z ? inPS.NodeConstants.NodeSize.z : 1;
-	const float				randFactor					= ::llc::max(0.0f, (float)::sin(((inPS.WeightedPosition - inPS.NodeConstants.NodeSize * .5f).Length() - constants.Time * (.005f / nodeZ)) * ::llc::math_pi * 100));
-	const ::llc::rgbaf		diffuse						= inPS.Material.Color.Diffuse;
-	::llc::rgbaf			materialColor				= diffuse * 2.0f;
-	if(markCenter)
-		materialColor		= {materialColor.r + ::llc::max(0.0f, diffuse.b * diffuseFactor * 2) + ::llc::max(0.0f, diffuse.g * randFactor), materialColor.g + ::llc::max(0.0f, diffuse.r * diffuseFactor * 2) + ::llc::max(0.0f, diffuse.b * randFactor), materialColor.b + ::llc::max(0.0f, diffuse.g * diffuseFactor * 2) + ::llc::max(0.0f, diffuse.r * randFactor), ::llc::max(diffuse.a * diffuseFactor * 4, .25f)};
-	else
-		materialColor.a	= diffuse.a * diffuseFactor * (1.0f - ::abs(inPS.WeightedUV.y - .5f) * 2);
-	materialColor			+= materialColor * randFactor;
-	outputPixel				= materialColor.Clamp();
-	return 0;
-}
-
-::llc::error_t			llc::psSun
-	( const ::llc::SEngineSceneConstants & constants
-	, const ::llc::SPSIn & inPS
-	, ::llc::bgra & outputPixel
-	) {
-	outputPixel				= ::shaderSampleNearest(inPS.Surface, inPS.WeightedUV);
-	(void)constants;
-	return 0;
-}
-
-::llc::error_t llc::psTerrestrial(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-::llc::error_t llc::psEarth(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
-	const ::llc::n3f2_t		lightVecW					= (constants.LightPosition - inPS.WeightedPosition).Normalize();
-	const float				lightFactor					= (float)inPS.WeightedNormal.Normalized().Dot(lightVecW);
-	const ::llc::rgbaf		dayTexture					= ::shaderSampleNearest(inPS.Surface, inPS.WeightedUV);
-	const ::llc::rgbaf		nightTexture				= ::shaderSampleNearest(inPS.Surface1, inPS.WeightedUV);
-	const ::llc::rgbaf		dayColor					= dayTexture * ::llc::max(lightFactor, 0.0f);
-	const float				nightFactor					= ::llc::max(-lightFactor, 0.0f);
-	::llc::rgbaf			finalColor					= ::llc::interpolate_linear(dayColor, nightTexture, nightFactor);
-	finalColor.a			= inPS.Material.Color.Diffuse.a;
-	outputPixel				= finalColor.Clamp();
-	return 0;
-}
-::llc::error_t llc::psGasGiant  (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-::llc::error_t llc::psIceGiant  (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-::llc::error_t llc::psDwarf     (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-::llc::error_t llc::psMassiveSolid(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-
-::llc::error_t llc::psCloud(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
-	const ::llc::rgbaf		cloudColor					= ::shaderSampleNearest(inPS.Surface, inPS.WeightedUV);
-	const ::llc::rgbaf		cloudMask					= ::shaderSampleNearest(inPS.Surface1, inPS.WeightedUV);
-	const ::llc::n3f2_t		lightDelta					= constants.LightPosition - inPS.WeightedPosition;
-	const double				lightDistance				= lightDelta.Length();
-	const ::llc::n3f2_t		lightVecW					= lightDelta.Normalized();
-	const float				diffuseFactor				= ::llc::max(0.0f, (float)inPS.WeightedNormal.Normalized().Dot(lightVecW));
-	const double				attenuation					= 1.0 + .001 * lightDistance + .001 * lightDistance * lightDistance;
-	const ::llc::rgbaf		ambientLight				= {.05f, .05f, .07f, 1};
-	::llc::rgbaf			finalColor					= cloudColor * (ambientLight + ::llc::rgbaf{1, 1, 1, 1} * (diffuseFactor / attenuation));
-	finalColor.a			= (1.0f - cloudMask.r) * inPS.Material.Color.Diffuse.a;
-	outputPixel				= finalColor.Clamp();
-	return 0;
-}
-
-::llc::error_t llc::psClouds(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
-	return ::llc::psCloud(constants, inPS, outputPixel);
-}
-
-::llc::error_t			llc::psBackgroundMilkyWay
-	( const ::llc::SEngineSceneConstants & constants
-	, const ::llc::SPSIn & inPS
-	, ::llc::bgra & outputPixel
-	) {
-	outputPixel				= ::shaderSampleNearest(inPS.Surface, inPS.WeightedUV);
-	(void)constants;
-	return 0;
 }

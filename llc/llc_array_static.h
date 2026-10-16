@@ -54,68 +54,68 @@ namespace llc
 			rtrn out.size();
 		}
 	};
-	tplTN2usng	asttc		= ::llc::array_static<T, N>;
-	tplTN2usng	astatic		= ::llc::array_static<T, N>;
+	tplTN2usng	asttc		= array_static<T, N>;
+	tplTN2usng	astatic		= array_static<T, N>;
 
-	tplN2uusng	astvcs		= ::llc::astatic<::llc::vcst_t	, N>;	tplN2uusng astaticvcs	= ::llc::astvcs	<N>;
-	tplN2uusng	astvs		= ::llc::astatic<::llc::vs		, N>;	tplN2uusng astaticvs	= ::llc::astvs	<N>;
+	tplN2uusng	astvcs		= astatic<vcst_t	, N>;	tplN2uusng astaticvcs	= astvcs	<N>;
+	tplN2uusng	astvs		= astatic<vs		, N>;	tplN2uusng astaticvs	= astvs	<N>;
 
-	tplN2uusng	astb8_t		= ::llc::astatic<b8_t, N>; tplN2uusng	astb8_c	= const ::llc::astb8_t<N>; 
-	tplN2uusng	astuc_t		= ::llc::astatic<uc_t, N>; tplN2uusng	astuc_c	= const ::llc::astuc_t<N>; tplN2uusng astuc 	= ::llc::astatic<uc_t, N>; tplN2uusng astaticuc 	= ::llc::astuc 	<N>; tplN2uusng astuchar	= ::llc::astatic<uc_t, N>;
-	tplN2uusng	astsc_t		= ::llc::astatic<sc_t, N>; tplN2uusng	astsc_c	= const ::llc::astsc_t<N>; tplN2uusng astc		= ::llc::astatic<sc_t, N>; tplN2uusng astaticc		= ::llc::astc	<N>; tplN2uusng astchar		= ::llc::astatic<sc_t, N>;
-	tplN2uusng	astu0_t		= ::llc::astatic<u0_t, N>; tplN2uusng	astu0_c	= const ::llc::astu0_t<N>; tplN2uusng astu8 	= ::llc::astatic<u0_t, N>; tplN2uusng astaticu8 	= ::llc::astu8 	<N>;
-	tplN2uusng	astu1_t		= ::llc::astatic<u1_t, N>; tplN2uusng	astu1_c	= const ::llc::astu1_t<N>; tplN2uusng astu16	= ::llc::astatic<u1_t, N>; tplN2uusng astaticu16	= ::llc::astu16	<N>;
-	tplN2uusng	astu2_t		= ::llc::astatic<u2_t, N>; tplN2uusng	astu2_c	= const ::llc::astu2_t<N>; tplN2uusng astu32	= ::llc::astatic<u2_t, N>; tplN2uusng astaticu32	= ::llc::astu32	<N>;
-	tplN2uusng	astu3_t		= ::llc::astatic<u3_t, N>; tplN2uusng	astu3_c	= const ::llc::astu3_t<N>; tplN2uusng astu64	= ::llc::astatic<u3_t, N>; tplN2uusng astaticu64	= ::llc::astu64	<N>;
-	tplN2uusng	asts0_t		= ::llc::astatic<s0_t, N>; tplN2uusng	asts0_c	= const ::llc::asts0_t<N>; tplN2uusng asti8 	= ::llc::astatic<s0_t, N>; tplN2uusng astatici8 	= ::llc::asti8 	<N>;
-	tplN2uusng	asts1_t		= ::llc::astatic<s1_t, N>; tplN2uusng	asts1_c	= const ::llc::asts1_t<N>; tplN2uusng asti16	= ::llc::astatic<s1_t, N>; tplN2uusng astatici16	= ::llc::asti16	<N>;
-	tplN2uusng	asts2_t		= ::llc::astatic<s2_t, N>; tplN2uusng	asts2_c	= const ::llc::asts2_t<N>; tplN2uusng asti32	= ::llc::astatic<s2_t, N>; tplN2uusng astatici32	= ::llc::asti32	<N>;
-	tplN2uusng	asts3_t		= ::llc::astatic<s3_t, N>; tplN2uusng	asts3_c	= const ::llc::asts3_t<N>; tplN2uusng asti64	= ::llc::astatic<s3_t, N>; tplN2uusng astatici64	= ::llc::asti64	<N>;
-	tplN2uusng	astf2_t		= ::llc::astatic<f2_t, N>; tplN2uusng	astf2_c	= const ::llc::astf2_t<N>; tplN2uusng astf32	= ::llc::astatic<f2_t, N>; tplN2uusng astaticf32	= ::llc::astf32	<N>;
-	tplN2uusng	astf3_t		= ::llc::astatic<f3_t, N>; tplN2uusng	astf3_c	= const ::llc::astf3_t<N>; tplN2uusng astf64	= ::llc::astatic<f3_t, N>; tplN2uusng astaticf64	= ::llc::astf64	<N>;
+	tplN2uusng	astb8_t		= astatic<b8_t, N>; tplN2uusng	astb8_c	= const astb8_t<N>; 
+	tplN2uusng	astuc_t		= astatic<uc_t, N>; tplN2uusng	astuc_c	= const astuc_t<N>; tplN2uusng astuc 	= astatic<uc_t, N>; tplN2uusng astaticuc 	= astuc 	<N>; tplN2uusng astuchar	= astatic<uc_t, N>;
+	tplN2uusng	astsc_t		= astatic<sc_t, N>; tplN2uusng	astsc_c	= const astsc_t<N>; tplN2uusng astc		= astatic<sc_t, N>; tplN2uusng astaticc		= astc	<N>; tplN2uusng astchar		= astatic<sc_t, N>;
+	tplN2uusng	astu0_t		= astatic<u0_t, N>; tplN2uusng	astu0_c	= const astu0_t<N>; tplN2uusng astu0_t= astatic<u0_t, N>; tplN2uusng astaticu8 	= astu0_t<N>;
+	tplN2uusng	astu1_t		= astatic<u1_t, N>; tplN2uusng	astu1_c	= const astu1_t<N>; tplN2uusng astu1_t= astatic<u1_t, N>; tplN2uusng astaticu16	= astu1_t<N>;
+	tplN2uusng	astu2_t		= astatic<u2_t, N>; tplN2uusng	astu2_c	= const astu2_t<N>; tplN2uusng astu2_t= astatic<u2_t, N>; tplN2uusng astaticu32	= astu2_t<N>;
+	tplN2uusng	astu3_t		= astatic<u3_t, N>; tplN2uusng	astu3_c	= const astu3_t<N>; tplN2uusng astu3_t= astatic<u3_t, N>; tplN2uusng astaticu64	= astu3_t<N>;
+	tplN2uusng	asts0_t		= astatic<s0_t, N>; tplN2uusng	asts0_c	= const asts0_t<N>; tplN2uusng asts0_t= astatic<s0_t, N>; tplN2uusng astatici8 	= asts0_t<N>;
+	tplN2uusng	asts1_t		= astatic<s1_t, N>; tplN2uusng	asts1_c	= const asts1_t<N>; tplN2uusng asts1_t= astatic<s1_t, N>; tplN2uusng astatici16	= asts1_t<N>;
+	tplN2uusng	asts2_t		= astatic<s2_t, N>; tplN2uusng	asts2_c	= const asts2_t<N>; tplN2uusng asts2_t= astatic<s2_t, N>; tplN2uusng astatici32	= asts2_t<N>;
+	tplN2uusng	asts3_t		= astatic<s3_t, N>; tplN2uusng	asts3_c	= const asts3_t<N>; tplN2uusng asts3_t= astatic<s3_t, N>; tplN2uusng astatici64	= asts3_t<N>;
+	tplN2uusng	astf2_t		= astatic<f2_t, N>; tplN2uusng	astf2_c	= const astf2_t<N>; tplN2uusng astf2_t= astatic<f2_t, N>; tplN2uusng astaticf32	= astf2_t<N>;
+	tplN2uusng	astf3_t		= astatic<f3_t, N>; tplN2uusng	astf3_c	= const astf3_t<N>; tplN2uusng astf3_t= astatic<f3_t, N>; tplN2uusng astaticf64	= astf3_t<N>;
 
-	tplN2uusng	astvcuc 	= ::llc::astatic<::llc::vcuc 	, N>; tplN2uusng astaticvcuc 	= ::llc::astvcuc <N>;
-	tplN2uusng	astvcc		= ::llc::astvcs<N>; tplN2uusng astaticvcc		= ::llc::astvcc<N>;
-	tplN2uusng	astvcu8 	= ::llc::astatic<::llc::vcu0_t 	, N>; tplN2uusng astaticvcu8 	= ::llc::astvcu8 <N>;
-	tplN2uusng	astvcu16	= ::llc::astatic<::llc::vcu16	, N>; tplN2uusng astaticvcu16	= ::llc::astvcu16<N>;
-	tplN2uusng	astvcu32	= ::llc::astatic<::llc::vcu32	, N>; tplN2uusng astaticvcu32	= ::llc::astvcu32<N>;
-	tplN2uusng	astvcu64	= ::llc::astatic<::llc::vcu64	, N>; tplN2uusng astaticvcu64	= ::llc::astvcu64<N>;
-	tplN2uusng	astvci8 	= ::llc::astatic<::llc::vcs0_t 	, N>; tplN2uusng astaticvci8 	= ::llc::astvci8 <N>;
-	tplN2uusng	astvci16	= ::llc::astatic<::llc::vci16	, N>; tplN2uusng astaticvci16	= ::llc::astvci16<N>;
-	tplN2uusng	astvci32	= ::llc::astatic<::llc::vci32	, N>; tplN2uusng astaticvci32	= ::llc::astvci32<N>;
-	tplN2uusng	astvci64	= ::llc::astatic<::llc::vci64	, N>; tplN2uusng astaticvci64	= ::llc::astvci64<N>;
-	tplN2uusng	astvcf32	= ::llc::astatic<::llc::vcf32	, N>; tplN2uusng astaticvcf32	= ::llc::astvcf32<N>;
-	tplN2uusng	astvcf64	= ::llc::astatic<::llc::vcf64	, N>; tplN2uusng astaticvcf64	= ::llc::astvcf64<N>;
+	tplN2uusng	astvcuc 	= astatic<vcuc 	, N>;	tplN2uusng astaticvcuc 		= astvcuc <N>;
+	tplN2uusng	astvcc		= astvcs<N>;			tplN2uusng astaticvcc		= astvcc<N>;
+	tplN2uusng	astvcu0_t 	= astatic<vcu0_t, N>;	tplN2uusng astaticvcu8 		= astvcu0_t<N>;
+	tplN2uusng	astvcu1_t	= astatic<vcu1_t, N>;	tplN2uusng astaticvcu16		= astvcu1_t<N>;
+	tplN2uusng	astvcu2_t	= astatic<vcu2_t, N>;	tplN2uusng astaticvcu2_t	= astvcu2_t<N>;
+	tplN2uusng	astvcu3_t	= astatic<vcu3_t, N>;	tplN2uusng astaticvcu64		= astvcu3_t<N>;
+	tplN2uusng	astvcs0_t	= astatic<vcs0_t, N>;	tplN2uusng astaticvcs0_t	= astvcs0_t<N>;
+	tplN2uusng	astvcs1_t	= astatic<vcs1_t, N>;	tplN2uusng astaticvcs1_t	= astvcs1_t<N>;
+	tplN2uusng	astvcs2_t	= astatic<vcs2_t, N>;	tplN2uusng astaticvcs2_t	= astvcs2_t<N>;
+	tplN2uusng	astvcs3_t	= astatic<vcs3_t, N>;	tplN2uusng astaticvcs3_t	= astvcs3_t<N>;
+	tplN2uusng	astvcf2_t	= astatic<vcf2_t, N>;	tplN2uusng astaticvcf2_t	= astvcf2_t<N>;
+	tplN2uusng	astvcf3_t	= astatic<vcf3_t, N>;	tplN2uusng astaticvcf3_t	= astvcf3_t<N>;
 	
-	tplTN2sinx	u2_t	size		(::llc::astatic<T, N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N);				}
-	tplTN2sinx	u2_t	byte_count	(::llc::astatic<T, N> /*viewToTest*/)	nxpt	{ rtrn u2_t(sizeof(T) * N);	}
+	tplTN2sinx	u2_t	size		(astatic<T, N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N);				}
+	tplTN2sinx	u2_t	byte_count	(astatic<T, N> /*viewToTest*/)	nxpt	{ rtrn u2_t(sizeof(T) * N);	}
 
 	// Is this really worth it?
 	tplN2usinx	u2_t	size(astc	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	//tplN2usinx	u2_t	size(astuc 	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu8 	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu16	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu32	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu64	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(asti16	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(asti32	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(asti64	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astf32	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astf64	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astu0_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astu1_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astu2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astu3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(asts1_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(asts2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(asts3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astf2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astf3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 
-	tplN2usinx	u2_t	size(astvcc	 <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	//tplN2usinx	u2_t	size(astvcuc <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu8 <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu16<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu32<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu64<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvci16<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvci32<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvci64<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcf32<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcf64<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(astvcc	 <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	////tplN2usinx	u2_t	size(astvcuc <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(astu0_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(astu1_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(astu2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(astu3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(asts1_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(asts2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(asts3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(astf2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	//tplN2usinx	u2_t	size(astf3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 
-	tplTN2sinx	err_t	find		(cnst T & element, cnst astatic<T, N> & target, u2_t offset = 0)		{ rtrn ::llc::find(element, ::llc::view<cnst T>{target.begin(), target.size()}, offset); }
+	tplTN2sinx	err_t	find		(cnst T & element, cnst astatic<T, N> & target, u2_t offset = 0)		{ rtrn find(element, view<cnst T>{target.begin(), target.size()}, offset); }
 	tplN2ustin	vs		str			(astchar<N> & arg)		{ rtrn arg.Storage; }
 	tplN2ustin	vcst_t	str			(cnst astchar<N> & arg)	{ rtrn arg.Storage; }
 	stin astchar< 7>	str			(u1_t arg)	{ astchar< 7> dest = {}; sprintf_s(dest.Storage, "%u" , arg); rtrn dest; }

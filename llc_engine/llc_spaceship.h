@@ -69,7 +69,7 @@ namespace llc
 #pragma pack(push, 1)
 	struct SSpaceshipOrbiter {
 		SHIP_PART_TYPE		Type			= SHIP_PART_TYPE_Cargo;
-		::llc::gaugemaxs2_t	Health			= {};
+		::llc::gaugemaxi32	Health			= {};
 		uint32_t			Weapon			= (uint32_t)-1;
 		uint32_t			ActiveAction	= ~0U;
 	};
@@ -90,7 +90,7 @@ namespace llc
 	struct SSpaceshipCore {
 		// Generally constants, little or no variation during level gameplay
 		int32_t				Team			= {};
-		::llc::gaugemaxf2_t	Nitro			= {};
+		::llc::gaugemaxf32	Nitro			= {};
 
 		// Variable, may change at any time during 
 		int32_t				Health			= {};
@@ -183,7 +183,7 @@ namespace llc
 				if(ShipOrbiterActionQueue[iShipOrbiter] && ShipOrbiterActionQueue[iShipOrbiter]->size())
 					llc_necall(llc::saveView(output, *ShipOrbiterActionQueue[iShipOrbiter]), "iShipOrbiter: %i", iShipOrbiter);
 				else
-					llc_necall(llc::saveView(output, ::llc::vcn3f2_t{}), "iShipOrbiter: %i", iShipOrbiter);
+					llc_necall(llc::saveView(output, ::llc::vc3f32{}), "iShipOrbiter: %i", iShipOrbiter);
 			}
 			return 0; 
 		}

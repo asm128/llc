@@ -74,7 +74,7 @@ namespace llc
 		::llc::error_t					Save			(::llc::au0_t & output) const { 
 			llc_necs(llc::saveView(output, Entities));
 			for(uint32_t iEntity = 0; iEntity < Entities.size(); ++iEntity) {
-				llc_necall(llc::saveView(output, Children[iEntity] ? ::llc::vcu2_t{*Children[iEntity]} : ::llc::vcu2_t{}), "iEntity: %i", iEntity);
+				llc_necall(llc::saveView(output, Children[iEntity] ? ::llc::vcu32{*Children[iEntity]} : ::llc::vcu32{}), "iEntity: %i", iEntity);
 				llc_necall(llc::saveView(output, Names[iEntity]), "iEntity: %i", iEntity);
 			}
 			info_printf("Saved %s, %i", "Entities", Children.size());
@@ -92,7 +92,7 @@ namespace llc
 				llc_necall(llc::loadView(input, *Children[iEntity]), "iEntity: %i", iEntity);
 				::llc::apod<sc_t>					name;
 				llc_necall(llc::loadView(input, name), "iEntity: %i", iEntity);
-				Names[iEntity]					= ::llc::label(::llc::vcst_t{name});
+				Names[iEntity]					= ::llc::label(::llc::vcsc_t{name});
 			}
 
 			return 0; 

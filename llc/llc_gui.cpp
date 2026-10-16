@@ -44,11 +44,11 @@ static	::llc::error_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::ll
 }
 
 static	::llc::error_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra> & palette, int32_t iColor, ::llc::SControlTheme & theme, uint32_t iShades)	{
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboDisabled									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	]	= {};
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboPressed 									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	]	= {};
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboSelected									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	]	= {};
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboHover 										= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_HOVER	]	= {};
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboNormal										= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_NORMAL	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboDisabled									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboPressed 									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboSelected									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboHover 										= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_HOVER	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboNormal										= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_NORMAL	]	= {};
 
 	//const int32_t														colorBase												= iColor / iShades;
 	const int32_t														colorShade												= iColor % iShades;

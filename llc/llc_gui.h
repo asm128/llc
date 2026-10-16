@@ -26,7 +26,7 @@ namespace llc
 		::llc::papod<::llc::bgra>			Palette					= {};
 		::llc::papod<::llc::SControlTheme>	ControlThemes			= {};
 
-		::llc::asti16<::llc::GUI_CONTROL_PALETTE_COUNT>	
+		::llc::asts1_t<::llc::GUI_CONTROL_PALETTE_COUNT>	
 											DefaultColors			= {};
 
 		::llc::apod<::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>>
