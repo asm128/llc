@@ -98,7 +98,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; user32.lib;  llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -122,7 +122,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; user32.lib;  llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -144,7 +144,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; user32.lib;  llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -168,7 +168,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; user32.lib;  llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>

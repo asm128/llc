@@ -7,11 +7,11 @@ GDEFINE_ENUM_TYPE(COMPLUS_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_RELEASE_RESULT			,  0, "safe_release() returned the wrong remaining reference count.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_RELEASE_POINTER		,  1, "safe_release() retained the released pointer.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_RELEASE_COUNT			,  2, "safe_release() left the wrong object reference count.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_RELEASE_NULL_STORAGE	,  3, "safe_release() rejected null storage unsafely.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_RELEASE_EMPTY_STORAGE	,  3, "safe_release() mishandled an empty storage slot.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_ADDREF_RESULT			,  4, "safe_addref() returned the wrong acquired reference count.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_ADDREF_POINTER		,  5, "safe_addref() stored the wrong pointer.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_ADDREF_COUNT			,  6, "safe_addref() left the wrong object reference count.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_ADDREF_NULL_STORAGE	,  7, "safe_addref() rejected null storage unsafely.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SAFE_ADDREF_EMPTY_STORAGE	,  7, "safe_addref() mishandled an empty storage slot.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, DEFAULT_POINTER			,  8, "A default pcom<> retained a pointer.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ADOPT_IDENTITY				,  9, "Raw construction did not adopt the supplied interface.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ADOPT_COUNT				, 10, "Raw construction changed the adopted reference count.");
@@ -32,14 +32,10 @@ GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, COPY_ASSIGN_ACQUIRE		, 24, "Copy assign
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, COPY_ASSIGN_RELEASE		, 25, "Copy assignment did not release the replaced interface.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SELF_COPY_IDENTITY		, 26, "Self-copy assignment changed the interface identity.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, SELF_COPY_COUNT			, 27, "Self-copy assignment changed the reference count.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, DETACH_IDENTITY			, 28, "detach() returned the wrong interface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, DETACH_SOURCE			, 29, "detach() retained the transferred interface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, DETACH_COUNT				, 30, "detach() changed the transferred reference count.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ATTACH_IDENTITY			, 31, "attach() stored the wrong interface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ATTACH_COUNT				, 32, "attach() changed the adopted reference count.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ATTACH_RELEASE			, 33, "attach() did not release the replaced interface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, OUTPUT_RELEASE			, 34, "COM output access did not release the previous interface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, OUTPUT_EMPTY				, 35, "COM output access retained the previous interface.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, OUTPUT_PRESERVED			, 28, "COM address access changed the previous reference count.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, OUTPUT_ADDRESS			, 29, "COM address access returned the wrong interface slot.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, OUTPUT_RELEASE			, 34, "Explicit clear did not release the previous interface.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, OUTPUT_EMPTY				, 35, "Explicit clear retained the previous interface.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, OUTPUT_IDENTITY			, 36, "COM output access stored the wrong interface.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_RAW_RESULT			, 37, "Raw QueryInterface returned failure for IUnknown.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_RAW_IDENTITY		, 38, "Raw QueryInterface stored the wrong interface.");
@@ -49,14 +45,14 @@ GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_PTR_RESULT			, 41, "pcom QueryInt
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_PTR_IDENTITY		, 42, "pcom QueryInterface stored the wrong interface.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_PTR_ACQUIRE		, 43, "pcom QueryInterface left the source with the wrong count.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_PTR_RELEASE		, 44, "pcom QueryInterface did not release the replaced interface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_SELF_RESULT		, 45, "Self QueryInterface returned failure for IUnknown.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_SELF_IDENTITY		, 46, "Self QueryInterface changed the interface identity.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_SELF_COUNT			, 47, "Self QueryInterface changed the reference count.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_NULL_RESULT			, 48, "A null source reported successful QueryInterface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_NULL_PRESERVED		, 49, "A null source changed the QueryInterface destination.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_SOURCE_IDENTITY		, 45, "The query setup lost its source interface.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_SOURCE_COUNT		, 46, "The query setup changed the source reference count.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_SOURCE_AFTER_MISSING	, 47, "An unsupported query changed the source reference count.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_NULL_RESULT			, 48, "A null source returned a nonzero result.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_NULL_EMPTY			, 49, "A null source retained the destination interface.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_MISSING_RESULT		, 50, "An unsupported interface reported successful QueryInterface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_MISSING_PRESERVED	, 51, "An unsupported query changed the destination interface.");
-GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_MISSING_COUNT		, 52, "An unsupported query changed the destination reference count.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_MISSING_EMPTY		, 51, "An unsupported query retained the destination interface.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_MISSING_COUNT		, 52, "An unsupported query did not release the replaced destination.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ARRAY_APPEND_RESULT		, 53, "The COM-pointer array rejected an element.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ARRAY_SIZE				, 54, "The COM-pointer array has the wrong size.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ARRAY_IDENTITY			, 55, "The COM-pointer array stored the wrong interface.");
@@ -65,6 +61,7 @@ GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ARRAY_VIEW_SIZE			, 57, "The COM-pointe
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ARRAY_VIEW_IDENTITY		, 58, "The COM-pointer view exposes the wrong interface.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ARRAY_OWNER_RELEASE		, 59, "Releasing the original owner changed the array reference count.");
 GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, ARRAY_FINAL_RELEASE		, 60, "Clearing the COM-pointer array retained a reference.");
+GDEFINE_ENUM_VALUED(COMPLUS_TEST_RESULT, QUERY_NULL_RELEASE			, 61, "A null source did not release the replaced destination.");
 
 #ifdef LLC_WINDOWS
 
@@ -115,7 +112,8 @@ sttc ::llc::err_t testCOMSafeFunctions(ATestError& errors) {
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_RELEASE_RESULT, releaseResult != 0, "Remaining references:%u, expected:0.", releaseResult);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_RELEASE_POINTER, pointer, "Released pointer:%p, expected:null.", pointer);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_RELEASE_COUNT, released.References != 0, "References:%lu, expected:0.", released.References);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_RELEASE_NULL_STORAGE, ::llc::safe_release<IUnknown>(0) != 0, "%s", "Null storage returned a reference count.");
+	IUnknown* emptyStorage = 0;
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_RELEASE_EMPTY_STORAGE, ::llc::safe_release(&emptyStorage) != 0, "%s", "Empty storage returned a reference count.");
 
 	SCOMTestUnknown acquired;
 	pointer = {};
@@ -123,7 +121,7 @@ sttc ::llc::err_t testCOMSafeFunctions(ATestError& errors) {
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_ADDREF_RESULT, addResult != 2, "Acquired references:%u, expected:2.", addResult);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_ADDREF_POINTER, pointer != &acquired, "Stored pointer:%p, expected:%p.", pointer, &acquired);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_ADDREF_COUNT, acquired.References != 2, "References:%lu, expected:2.", acquired.References);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_ADDREF_NULL_STORAGE, ::llc::safe_addref<IUnknown>(0, &acquired) != 0, "%s", "Null storage returned a reference count.");
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_SAFE_ADDREF_EMPTY_STORAGE, ::llc::safe_addref(&emptyStorage, (IUnknown*)0) != 0, "%s", "Empty storage returned a reference count.");
 	::llc::safe_release(&pointer);
 	acquired.Release();
 	rtrn 0;
@@ -176,22 +174,12 @@ sttc ::llc::err_t testCOMReplacement(ATestError& errors) {
 	destination.clear();
 	sourceOwner.clear();
 
-	SCOMTestUnknown detachedSource, attachedReplacement;
-	::llc::pcom<IUnknown> detachedOwner = &detachedSource;
-	IUnknown* detached = detachedOwner.detach();
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_DETACH_IDENTITY, detached != &detachedSource, "Detached pointer:%p, expected:%p.", detached, &detachedSource);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_DETACH_SOURCE, detachedOwner.get(), "Owner pointer:%p, expected:null.", detachedOwner.get());
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_DETACH_COUNT, detachedSource.References != 1, "References:%lu, expected:1.", detachedSource.References);
-	detachedOwner.attach(detached);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ATTACH_IDENTITY, detachedOwner.get() != &detachedSource, "Attached pointer:%p, expected:%p.", detachedOwner.get(), &detachedSource);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ATTACH_COUNT, detachedSource.References != 1, "References:%lu, expected:1.", detachedSource.References);
-	detachedOwner.attach(&attachedReplacement);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_ATTACH_RELEASE, detachedSource.References != 0, "Replaced references:%lu, expected:0.", detachedSource.References);
-	detachedOwner.clear();
-
 	SCOMTestUnknown outputPrevious, outputNext;
 	::llc::pcom<IUnknown> outputOwner = &outputPrevious;
-	IUnknown** output = outputOwner.put();
+	IUnknown** output = &outputOwner;
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_PRESERVED, outputPrevious.References != 1, "Previous references:%lu, expected:1.", outputPrevious.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_ADDRESS, *output != &outputPrevious, "Output slot:%p, expected:%p.", *output, &outputPrevious);
+	outputOwner.clear();
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_RELEASE, outputPrevious.References != 0, "Previous references:%lu, expected:0.", outputPrevious.References);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_OUTPUT_EMPTY, outputOwner.get(), "Output owner:%p, expected:null.", outputOwner.get());
 	*output = &outputNext;
@@ -220,24 +208,24 @@ sttc ::llc::err_t testCOMQuery(ATestError& errors) {
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_PTR_RELEASE, pointerReplaced.References != 0, "Replaced references:%lu, expected:0.", pointerReplaced.References);
 	pointerOutput.clear();
 
-	result = sourceOwner.as(sourceOwner);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SELF_RESULT, ::llc::failed(result), "Query result:0x%X.", (::llc::u2_t)result);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SELF_IDENTITY, sourceOwner.get() != &source, "Self-query pointer:%p, expected:%p.", sourceOwner.get(), &source);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SELF_COUNT, source.References != 1, "Source references:%lu, expected:1.", source.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SOURCE_IDENTITY, sourceOwner.get() != &source, "Source pointer:%p, expected:%p.", sourceOwner.get(), &source);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SOURCE_COUNT, source.References != 1, "Source references:%lu, expected:1.", source.References);
 
 	SCOMTestUnknown nullPreserved;
 	::llc::pcom<IUnknown> nullSource;
 	::llc::pcom<IUnknown> nullOutput = &nullPreserved;
 	result = nullSource.as(nullOutput);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_RESULT, false == ::llc::failed(result), "Query result:0x%X, expected failure.", (::llc::u2_t)result);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_PRESERVED, nullOutput.get() != &nullPreserved, "Preserved pointer:%p, expected:%p.", nullOutput.get(), &nullPreserved);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_RESULT, result != 0, "Query result:0x%X, expected:0.", (::llc::u2_t)result);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_EMPTY, nullOutput.get(), "Destination pointer:%p, expected:null.", nullOutput.get());
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_NULL_RELEASE, nullPreserved.References != 0, "Replaced references:%lu, expected:0.", nullPreserved.References);
 
 	SCOMTestMissing missing;
 	::llc::pcom<ICOMTestMissing> missingOutput = &missing;
 	result = sourceOwner.as(missingOutput);
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_RESULT, false == ::llc::failed(result), "Query result:0x%X, expected failure.", (::llc::u2_t)result);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_PRESERVED, missingOutput.get() != &missing, "Preserved pointer:%p, expected:%p.", missingOutput.get(), &missing);
-	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_COUNT, missing.References != 1, "Missing-interface references:%lu, expected:1.", missing.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_EMPTY, missingOutput.get(), "Destination pointer:%p, expected:null.", missingOutput.get());
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_MISSING_COUNT, missing.References != 0, "Missing-interface references:%lu, expected:0.", missing.References);
+	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_QUERY_SOURCE_AFTER_MISSING, source.References != 1, "Source references:%lu, expected:1.", source.References);
 	missingOutput.clear();
 	nullOutput.clear();
 	sourceOwner.clear();

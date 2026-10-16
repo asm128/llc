@@ -37,7 +37,8 @@ GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, DEVICE_PRESERVED			, 17, "Validation rebuil
 	::DX::D3DDeviceResources			resources;
 	LLC_TEST_REQUIRE(errors, D3D_TEST_RESULT_DEVICE_INIT, ::llc::failed(resources.Initialize()));
 	LLC_TEST_REQUIRE(errors, D3D_TEST_RESULT_WINDOW_RESOURCES, ::llc::failed(resources.SetWindow(window.Handle)) || nullptr == resources.GetSwapChain() || nullptr == resources.GetBackBufferRenderTargetView() || nullptr == resources.GetDepthStencilView());
-	::llc::pcom<ID3D11Device3>		device3 = resources.GetD3DDevice();
+	::llc::pcom<ID3D11Device3>		device3;
+	device3 = resources.GetD3DDevice();
 	::llc::pcom<ID3D11Device>			device;
 	if_fail_fe(device3.as(device));
 	ID3D11DeviceContext3			* context = resources.GetD3DDeviceContext();

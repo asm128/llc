@@ -91,6 +91,13 @@ GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, BOUNDARY_ADOPT_IDENTITY, 92, "NCO adoption 
 GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, BOUNDARY_ADOPT_COUNT, 93, "NCO adoption left the wrong reference count.");
 GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, BOUNDARY_FINAL_CONSTRUCTIONS, 94, "Raw reference lifecycle had the wrong construction count.");
 GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, BOUNDARY_FINAL_DESTRUCTIONS, 95, "Raw reference lifecycle had the wrong destruction count.");
+GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, AS_FAILURE_SOURCE_INSTANCE, 96, "Failed-cast source creation returned no instance.");
+GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, AS_FAILURE_SOURCE_REFERENCE, 97, "Failed-cast source creation returned no reference.");
+GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, AS_FAILURE_RESULT, 98, "pnco<>::as() returned an instance for a failed cast.");
+GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, AS_FAILURE_OUTPUT, 99, "pnco<>::as() retained the previous output after a failed cast.");
+GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, AS_FAILURE_COUNT, 100, "pnco<>::as() changed the reference count after a failed cast.");
+GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, AS_EMPTY_RESULT, 101, "Empty pnco<>::as() returned an instance.");
+GDEFINE_ENUM_VALUED(PTR_TEST_RESULT, AS_EMPTY_OUTPUT, 102, "Empty pnco<>::as() retained the previous output.");
 
 // Raw pointers in this suite are the instance and control-block boundaries exposed by ppod<>, pobj<>, pnco<> and ref_*(); their null, identity and output behavior is what these tests verify.
 
@@ -286,6 +293,23 @@ sttc ::llc::err_t testPointerReferenceBoundary(ATestError & errors) {
 	if_fail_fe(adopted.clear());
 	LLC_TEST_CHECKF(errors, PTR_TEST_RESULT_BOUNDARY_FINAL_CONSTRUCTIONS, SPtrObject::Constructions != 3 , "Boundary lifecycle constructions:%u.", SPtrObject::Constructions);
 	LLC_TEST_CHECKF(errors, PTR_TEST_RESULT_BOUNDARY_FINAL_DESTRUCTIONS, SPtrObject::Destructions != 3 , "Boundary lifecycle destructions:%u.", SPtrObject::Destructions);
+	stct SPtrDerived : SPtrObject {};
+	SPtrDerived sentinel;
+	::llc::pnco<SPtrObject> castSource;
+	SPtrObject * castInstance = ::llc::ref_create(&castSource, 0x44U);
+	LLC_TEST_REQUIREF(errors, PTR_TEST_RESULT_AS_FAILURE_SOURCE_INSTANCE, 0 == castInstance, "Failed-cast source instance:%p.", castInstance);
+	LLC_TEST_REQUIREF(errors, PTR_TEST_RESULT_AS_FAILURE_SOURCE_REFERENCE, 0 == castSource.get_ref(), "Failed-cast source reference:%p.", castSource.get_ref());
+	SPtrDerived * failedOutput = &sentinel;
+	SPtrObject * failedResult = castSource.as(&failedOutput);
+	LLC_TEST_CHECKF(errors, PTR_TEST_RESULT_AS_FAILURE_RESULT, failedResult, "Failed-cast result:%p, expected:null.", failedResult);
+	LLC_TEST_CHECKF(errors, PTR_TEST_RESULT_AS_FAILURE_OUTPUT, failedOutput, "Failed-cast output:%p, expected:null.", failedOutput);
+	LLC_TEST_CHECKF(errors, PTR_TEST_RESULT_AS_FAILURE_COUNT, castSource.get_ref()->References != 1, "Failed-cast references:%" LLC_FMT_S2 ", expected:1.", (::llc::s2_t)castSource.get_ref()->References);
+	::llc::pnco<SPtrObject> emptySource;
+	SPtrObject * emptyOutput = castInstance;
+	SPtrObject * emptyResult = emptySource.as(&emptyOutput);
+	LLC_TEST_CHECKF(errors, PTR_TEST_RESULT_AS_EMPTY_RESULT, emptyResult, "Empty-source result:%p, expected:null.", emptyResult);
+	LLC_TEST_CHECKF(errors, PTR_TEST_RESULT_AS_EMPTY_OUTPUT, emptyOutput, "Empty-source output:%p, expected:null.", emptyOutput);
+	if_fail_fe(castSource.clear());
 	rtrn 0;
 }
 
