@@ -18,7 +18,7 @@ namespace llc
 	typedef	view<cid_t>		vcid;
 	typedef	view<ccid_t>	vccid;
 
-	GDEFINE_ENUM_TYPE(GUI_CONTROL_FLAG, uint8_t)
+	GDEFINE_ENUM_TYPE(GUI_CONTROL_FLAG, u0_t)
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Hidden		, 0x01U);	// Prevents from drawing the control and its children
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Disabled	, 0x02U);	// Prevents the control from responding to user interaction
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Hovered	, 0x04U);	// Modifies behavior depending on whether the mouse pointer top is inside the control area.
@@ -57,7 +57,7 @@ namespace llc
 	inlcxpr	GUI_CONTROL_FLAG	setUnused		(GUI_CONTROL_FLAG & state, bool value)								noexcept	{ return state = bit_set(state, GUI_CONTROL_FLAG_Unused, value); }
 
 
-	GDEFINE_ENUM_TYPE (EVENT_GUI_CONTROL, uint8_t)
+	GDEFINE_ENUM_TYPE (EVENT_GUI_CONTROL, u0_t)
 	GDEFINE_ENUM_VALUE(EVENT_GUI_CONTROL, StateChange, 2);
 
 	struct SChangeControlState { 
@@ -71,10 +71,10 @@ namespace llc
 		stateChange.Clear		= ::llc::bit_clear(oldState, newState);
 		stateChange.Set			= ::llc::bit_clear(newState, oldState);
 		llc_gui_printf("Control state change: %i", iControl);
-		for(uint32_t i = 0; i < 8 * sizeof(GUI_CONTROL_FLAG); ++i) {
-			const GUI_CONTROL_FLAG bit = bit_make<GUI_CONTROL_FLAG>((uint8_t)i);
-			if(bit & stateChange.Set  ) llc_gui_printf("State set  : (0x%X) %s", (uint32_t)bit, ::llc::get_value_namep(bit));
-			if(bit & stateChange.Clear) llc_gui_printf("State clear: (0x%X) %s", (uint32_t)bit, ::llc::get_value_namep(bit));
+		for(::llc::u2_t i = 0; i < 8 * sizeof(GUI_CONTROL_FLAG); ++i) {
+			const GUI_CONTROL_FLAG bit = bit_make<GUI_CONTROL_FLAG>((u0_t)i);
+			if(bit & stateChange.Set  ) llc_gui_printf("State set  : (0x%X) %s", (::llc::u2_t)bit, ::llc::get_value_namep(bit));
+			if(bit & stateChange.Clear) llc_gui_printf("State clear: (0x%X) %s", (::llc::u2_t)bit, ::llc::get_value_namep(bit));
 		}
 		return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_GUI, ::llc::EVENT_GUI_CONTROL_StateChange, stateChange); 
 	}
@@ -129,7 +129,7 @@ namespace llc
 #endif // LLC_GUI_CONTROL_FLAG_H_23627
 
 
-	//GDEFINE_ENUM_TYPE(GUI_CONTROL_FLAG_EX, uint8_t)
+	//GDEFINE_ENUM_TYPE(GUI_CONTROL_FLAG_EX, u0_t)
 	//GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG_EX, Open		, 0x01U);
 	//GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG_EX, Locked		, 0x02U);
 	//GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG_EX, Expanded	, 0x04U);

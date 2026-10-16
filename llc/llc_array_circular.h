@@ -8,12 +8,12 @@
 namespace llc
 {
 
-	tplt<tpnm _tPOD, uint32_t mAx>
+	tplt<tpnm _tPOD, ::llc::u2_t mAx>
 	struct array_circular : private astatic<_tPOD, mAx> {
 	protected:
 		tydf	_tPOD			_t;
-		uint32_t				Offset	= 0;
-		uint32_t				Count	= 0;
+		::llc::u2_t				Offset	= 0;
+		::llc::u2_t				Count	= 0;
 
 		using astatic<_t, mAx>	::Storage;
 		using astatic<_t, mAx>	::size;
@@ -38,7 +38,7 @@ namespace llc
 			return Count += 1;
 		}
 
-		template<uint32_t _nBatch>
+		template<::llc::u2_t _nBatch>
 		::llc::error_t			append			(const T (&output)[_nBatch])	{
 			rees_if(Count + _nBatch > free());
 			Storage[(Offset + Count) % mAx] = output;
@@ -61,7 +61,7 @@ namespace llc
 		inxp	::llc::error_t	used			()	const	noexcept	{ return Count; }
 		inxp	::llc::error_t	byte_count		()	const	noexcept	{ return Count * szof(T); }
 
-//		::llc::error_t			read			(const ::llc::function<int()> & funcRemaining, const ::llc::function<int(T *, uint32_t)> & funcRead) {
+//		::llc::error_t			read			(const ::llc::function<int()> & funcRemaining, const ::llc::function<int(T *, ::llc::u2_t)> & funcRead) {
 //			return 0;	
 //		}	
 		::llc::error_t			read			(const ::llc::function<int()> & funcRemaining, const ::llc::function<T()> & funcNext) {
@@ -79,7 +79,7 @@ namespace llc
 			return readCount;
 		}
 
-		::llc::error_t			read		(uint32_t countToRead, const ::llc::function<int()> & funcRemaining, const ::llc::function<T()> & funcNext) {
+		::llc::error_t			read		(::llc::u2_t countToRead, const ::llc::function<int()> & funcRemaining, const ::llc::function<T()> & funcNext) {
 			u2_c			stop			= ::llc::min(countToRead, mAx - Count);
 			for(int32_t readCount = 0; readCount < stop; ++readCount) {
 				if_true_vef(-readCount, 0 >= funcRemaining(), "%" LLC_FMT_S2 " < %" LLC_FMT_S2, readCount, countToRead);
@@ -89,21 +89,21 @@ namespace llc
 		}
 	};
 
-	tplt<tpnm T, uint32_t _maxCount> using acir			= ::llc::array_circular<T, _maxCount>;
-	tplt<tpnm T, uint32_t _maxCount> using acircular	= ::llc::acir<T, _maxCount>;
+	tplt<tpnm T, ::llc::u2_t _maxCount> using acir			= ::llc::array_circular<T, _maxCount>;
+	tplt<tpnm T, ::llc::u2_t _maxCount> using acircular	= ::llc::acir<T, _maxCount>;
 	
-	tplt<uint32_t _maxCount>	using acirc		= ::llc::acir<char     , _maxCount>; tplt<uint32_t _maxCount>	using acirchar	= ::llc::acir<char    , _maxCount>;
-	tplt<uint32_t _maxCount>	using aciruc 	= ::llc::acir<uc_t  , _maxCount>; tplt<uint32_t _maxCount>	using aciruchar	= ::llc::acir<uc_t , _maxCount>;
-	tplt<uint32_t _maxCount>	using aciru8 	= ::llc::acir<uint8_t  , _maxCount>; 
-	tplt<uint32_t _maxCount>	using aciru16	= ::llc::acir<uint16_t , _maxCount>; 
-	tplt<uint32_t _maxCount>	using aciru32	= ::llc::acir<uint32_t , _maxCount>; 
-	tplt<uint32_t _maxCount>	using aciru64	= ::llc::acir<uint64_t , _maxCount>; 
-	tplt<uint32_t _maxCount>	using aciri8 	= ::llc::acir<int8_t   , _maxCount>; 
-	tplt<uint32_t _maxCount>	using aciri16	= ::llc::acir<int16_t  , _maxCount>; 
-	tplt<uint32_t _maxCount>	using aciri32	= ::llc::acir<int32_t  , _maxCount>; 
-	tplt<uint32_t _maxCount>	using aciri64	= ::llc::acir<int64_t  , _maxCount>; 
-	tplt<uint32_t _maxCount>	using acirf32	= ::llc::acir<f2s_t, _maxCount>; 
-	tplt<uint32_t _maxCount>	using acirf64	= ::llc::acir<f3s_t, _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using acirc		= ::llc::acir<char     , _maxCount>; tplt<::llc::u2_t _maxCount>	using acirchar	= ::llc::acir<char    , _maxCount>;
+	tplt<::llc::u2_t _maxCount>	using aciruc 	= ::llc::acir<uc_t  , _maxCount>; tplt<::llc::u2_t _maxCount>	using aciruchar	= ::llc::acir<uc_t , _maxCount>;
+	tplt<::llc::u2_t _maxCount>	using aciru8 	= ::llc::acir<u0_t  , _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using aciru16	= ::llc::acir<::llc::u1_t , _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using aciru32	= ::llc::acir<::llc::u2_t , _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using aciru64	= ::llc::acir<uint64_t , _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using aciri8 	= ::llc::acir<int8_t   , _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using aciri16	= ::llc::acir<int16_t  , _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using aciri32	= ::llc::acir<int32_t  , _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using aciri64	= ::llc::acir<int64_t  , _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using acirf32	= ::llc::acir<f2s_t, _maxCount>; 
+	tplt<::llc::u2_t _maxCount>	using acirf64	= ::llc::acir<f3s_t, _maxCount>; 
 } // namespace 
 
 #endif // LLC_ARRAY_CIRCULAR_H

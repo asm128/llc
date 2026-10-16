@@ -23,7 +23,7 @@ namespace llc
 
 	tplt <tpnm... _tArgs>
 			error_t					keyValVerify		(view<cnst TKeyValConstString> environViews, vcst_t keyToVerify, view<cnst vcst_t> valueToVerify)	{
-		for(uint32_t iKey = 0; iKey < valueToVerify.size(); ++iKey) {
+		for(::llc::u2_t iKey = 0; iKey < valueToVerify.size(); ++iKey) {
 			err_c						val						= keyValVerify(environViews, keyToVerify, valueToVerify[iKey]);
 			if(-1 != val)
 				return val;

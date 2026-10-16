@@ -89,7 +89,7 @@
       <PreprocessorDefinitions>LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG; WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>../llc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../llc; ../llc_engine; </AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
@@ -98,7 +98,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; zlibvc.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -113,7 +113,7 @@
       <PreprocessorDefinitions>LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG; WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>../llc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../llc; ../llc_engine; </AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
@@ -122,7 +122,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; zlibvc.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -135,7 +135,7 @@
       <PreprocessorDefinitions>LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG; _DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>../llc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../llc; ../llc_engine; </AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
@@ -144,7 +144,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; zlibvc.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -159,7 +159,7 @@
       <PreprocessorDefinitions>LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG; NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>../llc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../llc; ../llc_engine; </AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
@@ -168,7 +168,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; zlibvc.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -196,6 +196,7 @@
     <ClCompile Include="llc_test_core.cpp" />
     <ClCompile Include="llc_test_cpow.cpp" />
     <ClCompile Include="llc_test_ctti.cpp" />
+    <ClCompile Include="llc_test_d3d.cpp" />
     <ClCompile Include="llc_test_enum.cpp" />
     <ClCompile Include="llc_test_expression.cpp" />
     <ClCompile Include="llc_test_geometry.cpp" />

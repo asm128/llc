@@ -69,7 +69,7 @@ namespace llc
         }
         inline  operator        vcu0_t          ()                                  const   { return EncodedPayload; }
 
-        inline  const uint32_t& Size            ()                                  const   { return EncodedPayload.size(); }
+        inline  const ::llc::u2_t& Size            ()                                  const   { return EncodedPayload.size(); }
         inline  err_t           Serialize       (au0_t & output)                    const   { return output.append(EncodedPayload); }
 
         inline  err_t           AppendValue     (const CCSDSPayloadValue & valueToAppend)   { return failed(EncodedPayload.append(valueToAppend)) ? -1 : ++ValueCount; }
@@ -99,7 +99,7 @@ namespace llc
     
     inline  u2_t            size            (const CCSDSPayload & payload)  { return payload.Size(); }
 
-    GDEFINE_ENUM_TYPE (CCSDS_APID, uint16_t);
+    GDEFINE_ENUM_TYPE (CCSDS_APID, ::llc::u1_t);
     GDEFINE_ENUM_VALUE(CCSDS_APID, Telemetry    , 1);
     GDEFINE_ENUM_VALUE(CCSDS_APID, Energy       , 2);
     GDEFINE_ENUM_VALUE(CCSDS_APID, Compute      , 3);

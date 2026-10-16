@@ -68,12 +68,12 @@ namespace llc
 	struct auto_free : public ::llc::auto_handler<void*, nullptr>	{ using TWrapper::auto_handler; inline ~auto_free() noexcept { close(); } inline void close() noexcept { safe_llc_free(Handle); } };
 
 #define GREF_PAGE_SIZE_MAX (4096)
-	tplt<tpnm _tBase>	sinx	uint32_t	get_page_size				()							noexcept	{ return (uint32_t)(szof(_tBase) <= GREF_PAGE_SIZE_MAX) ? GREF_PAGE_SIZE_MAX/szof(_tBase) : 1; };
-	tplt<tpnm _tBase>	sinx	uint32_t	get_type_size				()							noexcept	{ return (uint32_t) szof(_tBase); }
-	tplt<tpnm _tBase>	sinx	uint32_t	get_type_size				(const _tBase&)				noexcept	{ return (uint32_t) szof(_tBase); }
-	tplt<tpnm _tBase>	sinx	uint32_t	get_type_size_padded		(uint32_t paddingInBytes)	noexcept	{ return paddingInBytes ? (uint32_t) ( (szof(_tBase) / paddingInBytes) + one_if(szof(_tBase) % paddingInBytes) ) * paddingInBytes : szof(_tBase); }
-	tplt<tpnm _tBase>	sinx	uint32_t	get_type_align				()							noexcept	{
-		return (uint32_t)
+	tplt<tpnm _tBase>	sinx	::llc::u2_t	get_page_size				()							noexcept	{ return (::llc::u2_t)(szof(_tBase) <= GREF_PAGE_SIZE_MAX) ? GREF_PAGE_SIZE_MAX/szof(_tBase) : 1; };
+	tplt<tpnm _tBase>	sinx	::llc::u2_t	get_type_size				()							noexcept	{ return (::llc::u2_t) szof(_tBase); }
+	tplt<tpnm _tBase>	sinx	::llc::u2_t	get_type_size				(const _tBase&)				noexcept	{ return (::llc::u2_t) szof(_tBase); }
+	tplt<tpnm _tBase>	sinx	::llc::u2_t	get_type_size_padded		(::llc::u2_t paddingInBytes)	noexcept	{ return paddingInBytes ? (::llc::u2_t) ( (szof(_tBase) / paddingInBytes) + one_if(szof(_tBase) % paddingInBytes) ) * paddingInBytes : szof(_tBase); }
+	tplt<tpnm _tBase>	sinx	::llc::u2_t	get_type_align				()							noexcept	{
+		return (::llc::u2_t)
 			(	(0 == (szof(_tBase) % 32))	? 32
 			:	(0 == (szof(_tBase) % 16))	? 16
 			:	(0 == (szof(_tBase) % 8 ))	? 8
@@ -83,8 +83,8 @@ namespace llc
 			);
 	}
 
-	tplt <tpnm _tBase>	sinx	uint32_t	get_type_align_multiplier	()							noexcept	{
-		return (uint32_t)
+	tplt <tpnm _tBase>	sinx	::llc::u2_t	get_type_align_multiplier	()							noexcept	{
+		return (::llc::u2_t)
 			(	(0 == (szof(_tBase) % 32)) ? szof(_tBase) / 32
 			:	(0 == (szof(_tBase) % 16)) ? szof(_tBase) / 16
 			:	(0 == (szof(_tBase) %  8)) ? szof(_tBase) /  8

@@ -3,7 +3,7 @@
 #ifndef LLC_ATMEL
 llc::err_t	llc::appendHtmlScripts	(::llc::string & output, llc::vcvcs filenames) {
 	::llc::err_t 		result 				= 0;
-	for(uint32_t iFile = 0; iFile < filenames.size(); ++iFile) {
+	for(::llc::u2_t iFile = 0; iFile < filenames.size(); ++iFile) {
 		::llc::string		cooked			= {};
 		if_fail_fe(::llc::append_strings(cooked, "type=\"text/javascript\" src=\"/", filenames[iFile], ".js\""));
 		result 		+= ::llc::appendXmlTag(output, "script", cooked);
@@ -12,7 +12,7 @@ llc::err_t	llc::appendHtmlScripts	(::llc::string & output, llc::vcvcs filenames)
 }
 llc::err_t	llc::appendHtmlStyles	(::llc::string & output, llc::vcvcs filenames) {
 	::llc::err_t 		result 				= 0;
-	for(uint32_t iFile = 0; iFile < filenames.size(); ++iFile) {
+	for(::llc::u2_t iFile = 0; iFile < filenames.size(); ++iFile) {
 		::llc::string		cooked			= {};
 		if_fail_fe(::llc::append_strings(cooked, "rel=\"stylesheet\" href=\"/", filenames[iFile], ".css\""));
 		result 		+= ::llc::appendXmlTag(output, "link", cooked);

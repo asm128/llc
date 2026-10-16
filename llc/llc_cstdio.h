@@ -18,7 +18,7 @@ namespace llc
 	ndsi int64_t	ftell		(FILE * fp) { return ::ftell(fp); }
 #endif
 	// fseek
-	GDEFINE_ENUM_TYPE(FSEEK, uint8_t);
+	GDEFINE_ENUM_TYPE(FSEEK, u0_t);
 	GDEFINE_ENUM_VALUE(FSEEK, SET, SEEK_SET);
 	GDEFINE_ENUM_VALUE(FSEEK, CUR, SEEK_CUR);
 	GDEFINE_ENUM_VALUE(FSEEK, END, SEEK_END);

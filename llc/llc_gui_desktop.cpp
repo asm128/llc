@@ -2,7 +2,7 @@
 #include "llc_label.h"
 
 #define NEW_OR_UNUSED(ctoken, utoken)							\
-	uint32_t					i##ctoken				= 0;	\
+	::llc::u2_t					i##ctoken				= 0;	\
 	while(i##ctoken < desktop.Items.ctoken##s.size()) {			\
 		if(desktop.Items.ctoken##s.Unused[i##ctoken]) 			\
 			break;												\
@@ -33,18 +33,18 @@
 }
 
 ::llc::error_t			llc::desktopDeleteControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement)	{
-	llc_necall(desktop.Items.ControlLists.size() <= (uint32_t)iElement, "%s", "Invalid control list.");
+	llc_necall(desktop.Items.ControlLists.size() <= (::llc::u2_t)iElement, "%s", "Invalid control list.");
 	::llc::SControlList			& controlListToDelete			= desktop.Items.ControlLists[iElement];
 	::llc::acid					childLists						= desktop.Children[iElement];
-	for(uint32_t iOption = 0, countOptions = childLists.size(); iOption < countOptions; ++iOption) {
+	for(::llc::u2_t iOption = 0, countOptions = childLists.size(); iOption < countOptions; ++iOption) {
 		::llc::cid_t				childControlListIndex			= childLists[iOption];
-		if(desktop.Items.ControlLists.size() > (uint32_t)childControlListIndex && false == desktop.Items.ControlLists.Unused[childControlListIndex])
+		if(desktop.Items.ControlLists.size() > (::llc::u2_t)childControlListIndex && false == desktop.Items.ControlLists.Unused[childControlListIndex])
 			llc_necall(llc::desktopDeleteControlList(gui, desktop, childControlListIndex), "%s", "??");
 		else
 			ef_if(childControlListIndex != -1, "%s", "");
 	}
-	if(desktop.Items.ControlLists.size() > (uint32_t)controlListToDelete.IndexParentList && false == desktop.Items.ControlLists.Unused[controlListToDelete.IndexParentList]) {
-		if (desktop.Children[controlListToDelete.IndexParentList].size() > (uint32_t)controlListToDelete.IndexParentItem)
+	if(desktop.Items.ControlLists.size() > (::llc::u2_t)controlListToDelete.IndexParentList && false == desktop.Items.ControlLists.Unused[controlListToDelete.IndexParentList]) {
+		if (desktop.Children[controlListToDelete.IndexParentList].size() > (::llc::u2_t)controlListToDelete.IndexParentItem)
 			desktop.Children[controlListToDelete.IndexParentList][controlListToDelete.IndexParentItem]	= -1;
 	}
 	desktop.Items.ControlLists.Unused[iElement]	= true;
@@ -79,7 +79,7 @@ static	::llc::error_t	displace					(::llc::SGUI & gui, ::llc::cid_t iControl, co
 
 static	::llc::error_t	pushToFrontAndDisplace		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::SInput & input)							{
 	const ::llc::cid_t			parentControlId				= gui.Controls.States[iControl].Parent;
-	for(uint32_t iChild = 0, childCount = gui.Controls.Children[parentControlId].size(); iChild < childCount; ++iChild)
+	for(::llc::u2_t iChild = 0, childCount = gui.Controls.Children[parentControlId].size(); iChild < childCount; ++iChild)
 		if(gui.Controls.Children[parentControlId][iChild] == iControl) {
 			llc_necs(gui.Controls.Children[parentControlId].remove(iChild));
 			llc_necs(gui.Controls.Children[parentControlId].push_back(iControl));
@@ -98,7 +98,7 @@ static	::llc::error_t	unhideMenuHierarchy			(::llc::SGUI & gui, ::llc::SDesktop&
 	const ::llc::cid_t			parentControlIndex			= gui.Controls.States[menu.IdControl].Parent;
 	if(-1 != parentControlIndex) {
 		::llc::acid & parentChildren = gui.Controls.Children[parentControlIndex];
-		for(uint32_t iChild = 0, childCount = parentChildren.size(); iChild < childCount; ++iChild) {
+		for(::llc::u2_t iChild = 0, childCount = parentChildren.size(); iChild < childCount; ++iChild) {
 			if(parentChildren[iChild] == menu.IdControl) {
 				parentChildren.remove(iChild);
 				parentChildren.push_back(menu.IdControl);
@@ -121,12 +121,12 @@ static	::llc::error_t	selectMenuHierarchy				(::llc::SGUI & gui, ::llc::SDesktop
 }
 
 static	::llc::error_t	unhoverMenuHierarchy						(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SControlList & menu)	{
-	if(desktop.Items.ControlLists.size() > (uint32_t)menu.IndexParentList)
+	if(desktop.Items.ControlLists.size() > (::llc::u2_t)menu.IndexParentList)
 		::unhoverMenuHierarchy(gui, desktop, desktop.Items.ControlLists[menu.IndexParentList]);
 	
 	gui.Controls.SetHovered(menu.IdControl, false);
 
-	for(uint32_t iItem = 0; iItem < menu.IdControls.size(); ++iItem)
+	for(::llc::u2_t iItem = 0; iItem < menu.IdControls.size(); ++iItem)
 		gui.Controls.SetHovered(menu.IdControls[iItem], false);
 
 	return 0;
@@ -134,10 +134,10 @@ static	::llc::error_t	unhoverMenuHierarchy						(::llc::SGUI & gui, ::llc::SDesk
 
 static	::llc::error_t	clearMenuHierarchy	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{
 	::llc::SRecyclableElementContainer<::llc::SControlList>	& menus	= desktop.Items.ControlLists;
-	for(uint32_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
+	for(::llc::u2_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
 		::llc::SControlList			& menu				= menus[iMenu];
 		menu.IdSelected			= -1;
-		if(desktop.Children.size() <= (uint32_t)menu.IndexParentList || desktop.Children[menu.IndexParentList].size() <= (uint32_t)menu.IndexParentItem) // skip root menus
+		if(desktop.Children.size() <= (::llc::u2_t)menu.IndexParentList || desktop.Children[menu.IndexParentList].size() <= (::llc::u2_t)menu.IndexParentItem) // skip root menus
 			continue;
 
 		gui.Controls.SetHidden(menu.IdControl, true);
@@ -153,7 +153,7 @@ static	int64_t			viewportUpdate		(::llc::SGUI & gui, ::llc::SDesktop & desktop, 
 		::pushToFrontAndDisplace(gui, vp.IdControl, input);
 	else if(gui.Controls.IsPressed(vp.IdControls[::llc::VIEWPORT_CONTROL_RESIZE_BOTTOM_RIGHT])) {
 		if(input.MouseCurrent.Deltas.x || input.MouseCurrent.Deltas.y) {
-			//::llc::n2<int32_t> nextSize = gui.Controls.Controls[(uint32_t)vp.IdControl].Area.Size + ::llc::n2<int32_t>{input.MouseCurrent.Deltas.x, input.MouseCurrent.Deltas.y};
+			//::llc::n2<int32_t> nextSize = gui.Controls.Controls[(::llc::u2_t)vp.IdControl].Area.Size + ::llc::n2<int32_t>{input.MouseCurrent.Deltas.x, input.MouseCurrent.Deltas.y};
 			//if(::llc::in_range(nextSize, {{}, gui.LastSize.s2()})) {
 				::llc::n2s2_t			mouseDeltas			= {input.MouseCurrent.Deltas.x, input.MouseCurrent.Deltas.y};
 				const ::llc::n2f3_t		currentScale		= gui.Zoom.DPI * gui.Zoom.ZoomLevel;
@@ -167,7 +167,7 @@ static	int64_t			viewportUpdate		(::llc::SGUI & gui, ::llc::SDesktop & desktop, 
 	return 0;
 }
 int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SInput & input)							{
-	for(uint32_t iViewport = 0; iViewport < desktop.Items.Viewports.size(); ++iViewport) {
+	for(::llc::u2_t iViewport = 0; iViewport < desktop.Items.Viewports.size(); ++iViewport) {
 		if(desktop.Items.Viewports.Unused[iViewport])
 			continue;
 		::viewportUpdate(gui, desktop, input, (::llc::cid_t)iViewport);
@@ -178,11 +178,11 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 
 	bool						inControlArea						= false;
 	//bool						anyControlPressed					= false;
-	for(uint32_t iControlToProcess = 0, countControls = controlsToProcess.size(); iControlToProcess < countControls; ++iControlToProcess) {
-		const uint32_t				iControl							= controlsToProcess[iControlToProcess];
+	for(::llc::u2_t iControlToProcess = 0, countControls = controlsToProcess.size(); iControlToProcess < countControls; ++iControlToProcess) {
+		const ::llc::u2_t				iControl							= controlsToProcess[iControlToProcess];
 		const ::llc::SControlArea	& controlMetrics					= gui.Controls.Area[iControl];
 		const ::llc::SControlState	& controlState						= gui.Controls.States[iControl];
-		if(iControl != (uint32_t)desktop.IdControl)
+		if(iControl != (::llc::u2_t)desktop.IdControl)
 			inControlArea			= inControlArea || ::llc::in_range(gui.CursorPos.s1(), controlMetrics.Total.Global);
 		//if(controlState.Pressed && (int32_t)iControl != app.Desktop.IdControl)
 		//	anyControlPressed															= true;
@@ -195,11 +195,11 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 
 	bool						selectedMenu					= false;
 	::llc::SRecyclableElementContainer<::llc::SControlList>	& menus			= desktop.Items.ControlLists;
-	for(uint32_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
+	for(::llc::u2_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
 		::llc::SControlList			& menu				= menus[iMenu];
-		if(desktop.Children.size() <= (uint32_t)menu.IndexParentList)
+		if(desktop.Children.size() <= (::llc::u2_t)menu.IndexParentList)
 			continue;
-		else if(desktop.Children[menu.IndexParentList].size() <= (uint32_t)menu.IndexParentItem) // parent
+		else if(desktop.Children[menu.IndexParentList].size() <= (::llc::u2_t)menu.IndexParentItem) // parent
 			continue;
 
 		::llc::SControlList					& parentMenu		= menus[menu.IndexParentList];
@@ -224,9 +224,9 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 
 	if(input.ButtonDown(1) || input.ButtonDown(2)) {
 		::clearMenuHierarchy(gui, desktop);
-		for(uint32_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
+		for(::llc::u2_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
 			::llc::SControlList																& menu								= menus[iMenu];
-			if(desktop.Children.size() <= (uint32_t)menu.IndexParentList || desktop.Children[menu.IndexParentList].size() <= (uint32_t)menu.IndexParentItem) // parent
+			if(desktop.Children.size() <= (::llc::u2_t)menu.IndexParentList || desktop.Children[menu.IndexParentList].size() <= (::llc::u2_t)menu.IndexParentItem) // parent
 				continue;
 			::unhoverMenuHierarchy(gui, desktop, menu);
 		}
@@ -235,10 +235,10 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 		::clearMenuHierarchy(gui, desktop);
 
 	int64_t																	resultEvent							= 0;
-	for(uint32_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
+	for(::llc::u2_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
 		::llc::SControlList																& menu								= menus[iMenu];
 		bool																			eventFound							= false;
-		for(uint32_t iItem = 0, countItems = menu.IdControls.size(); iItem < countItems; ++iItem) {
+		for(::llc::u2_t iItem = 0, countItems = menu.IdControls.size(); iItem < countItems; ++iItem) {
 			if(false == gui.Controls.States[menu.IdControls[iItem]].IsAction())
 				continue;
 			if(desktop.Children[iMenu].size() < menu.IdControls.size())
@@ -255,7 +255,7 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 }
 
 ::llc::error_t			llc::desktopControlListSetParent(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iControlList, ::llc::cid_t iParentControlList, ::llc::cid_t iParentListItem)			{
-	ree_if((desktop.Items.ControlLists.size() <= (uint32_t)iControlList) || desktop.Items.ControlLists.Unused[iControlList], "Invalid control list: %u.", iControlList);
+	ree_if((desktop.Items.ControlLists.size() <= (::llc::u2_t)iControlList) || desktop.Items.ControlLists.Unused[iControlList], "Invalid control list: %u.", iControlList);
 	::llc::SControlList			& controlList				= desktop.Items.ControlLists[iControlList];
 	const int32_t				oldParentList				= controlList.IndexParentList;
 	const int32_t				oldParentItem				= controlList.IndexParentItem;
@@ -264,20 +264,20 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 	controlList.IndexParentList = iParentControlList;
 	controlList.IndexParentItem	= iParentListItem;
 	
-	if((desktop.Items.ControlLists.size() <= (uint32_t)iParentControlList) || desktop.Items.ControlLists.Unused[iParentControlList]) {
+	if((desktop.Items.ControlLists.size() <= (::llc::u2_t)iParentControlList) || desktop.Items.ControlLists.Unused[iParentControlList]) {
 		ree_if(-1 != iParentControlList, "Invalid parent control list: %i. List item: %i.", iParentControlList, iParentListItem);
 		gui.Controls.SetHidden(controlList.IdControl, false);
 	}
 	else { // update tree
 		::llc::SControlList			& parentControlList			= desktop.Items.ControlLists[iParentControlList];
-		if(desktop.Children.size() > (uint32_t)oldParentList && desktop.Children[oldParentList].size() > (uint32_t)oldParentItem)
+		if(desktop.Children.size() > (::llc::u2_t)oldParentList && desktop.Children[oldParentList].size() > (::llc::u2_t)oldParentItem)
 			desktop.Children[oldParentList][oldParentItem]							= -1;
 
 		::llc::acid					& parentChildren			= desktop.Children[iParentControlList];
 		if(parentChildren.size() < parentControlList.IdControls.size())
 			parentChildren.resize(parentControlList.IdControls.size(), -1);
 
-		ree_if(parentChildren.size() <= ((uint32_t)iParentListItem) && iParentListItem != -1, "Invalid parent item: %i.", iParentListItem);
+		ree_if(parentChildren.size() <= ((::llc::u2_t)iParentListItem) && iParentListItem != -1, "Invalid parent item: %i.", iParentListItem);
 		::llc::SControlConstraints	& controlListConstraints	= gui.Controls.Constraints[controlList.IdControl];
 		if(iParentListItem == -1) 
 			gui.Controls.SetHidden(controlList.IdControl, false);

@@ -31,9 +31,9 @@ namespace llc
 	stxp	u0_t		ASCII_DIGIT_COUNT		= ASCII_LETTER_COUNT + 10;
 
 	nsix	char		digit_ascii				(char remainder)								nxpt	{ return remainder + ((remainder < 10) ? '0' : (remainder < 10 + ASCII_ALPHABET_LENGTH) ? 'A' - 10 : 'a' - 10 - ASCII_ALPHABET_LENGTH); }
-	nsix	char		digit_ascii				(uint64_t value, uint8_t base)					nxpt	{ return digit_ascii(char(value % base)); }
-	tplt<uint8_t exp, tpnm TValue>
-	nsix	char		digit					(const TValue value, const TValue base = 10)	nxpt	{ return ::llc::digit_ascii(value / ::llc::cpow<exp>(base), (uint8_t)base); }
+	nsix	char		digit_ascii				(uint64_t value, u0_t base)					nxpt	{ return digit_ascii(char(value % base)); }
+	tplt<u0_t exp, tpnm TValue>
+	nsix	char		digit					(const TValue value, const TValue base = 10)	nxpt	{ return ::llc::digit_ascii(value / ::llc::cpow<exp>(base), (u0_t)base); }
 } // namespace
 
 #endif // LLC_CPOW_H

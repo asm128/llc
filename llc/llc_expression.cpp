@@ -5,7 +5,7 @@ LLC_USING_TYPEINT();
 #define llc_expression_info_printf(...) //info_printf
 
 static	::llc::error_t	expressionReaderViews					(::llc::apod<::llc::SExpressionToken> & tokens, ::llc::aobj<::llc::vcst_t> & views, ::llc::vcst_t expression) {
-	for(uint32_t iTag = 0; iTag < tokens.size(); ++iTag) {
+	for(::llc::u2_t iTag = 0; iTag < tokens.size(); ++iTag) {
 		const ::llc::SExpressionToken								& type									 = tokens[iTag];
 		if(iTag && (::llc::EXPRESSION_READER_TYPE_TERM_INDEX == type.Type || ::llc::EXPRESSION_READER_TYPE_TERM_KEY == type.Type || ::llc::EXPRESSION_READER_TYPE_LITERAL
 			== type.Type) && (type.Span.End - type.Span.Begin) <= expression.size()) // doesn't count for root expression
@@ -21,18 +21,18 @@ static	::llc::error_t	expressionTreeRebuild					(::llc::view<::llc::SExpressionT
 	llc_necall(tree.resize(in_object.size()), "Out of memory? Object count: %u.", in_object.size());
 
 	// -- Build all nodes linearly, without assigning the children
-	for(uint32_t iObject = 0; iObject < tree.size(); ++iObject) {
+	for(::llc::u2_t iObject = 0; iObject < tree.size(); ++iObject) {
 		::llc::pobj<::llc::SExpressionNode>							& nodeCurrent										= tree[iObject];
 		nodeCurrent->Token											= &in_object[iObject];
-		nodeCurrent->Parent											= ((uint32_t)nodeCurrent->Token->ParentIndex < tree.size()) ? (llc::SExpressionNode*)tree[nodeCurrent->Token->ParentIndex] : nullptr;
+		nodeCurrent->Parent											= ((::llc::u2_t)nodeCurrent->Token->ParentIndex < tree.size()) ? (llc::SExpressionNode*)tree[nodeCurrent->Token->ParentIndex] : nullptr;
 		nodeCurrent->ObjectIndex									= iObject;
 	}
 
 	// -- Assign the children to every object of the hierarchy
-	for(uint32_t iObject = 0, countNodes = tree.size(); iObject < countNodes; ++iObject) {
-		for(uint32_t iOther = 0; iOther < countNodes; ++iOther) {
+	for(::llc::u2_t iObject = 0, countNodes = tree.size(); iObject < countNodes; ++iObject) {
+		for(::llc::u2_t iOther = 0; iOther < countNodes; ++iOther) {
 			const ::llc::pobj<::llc::SExpressionNode>					& nodeOther											= tree[iOther];
-			if(((uint32_t)nodeOther->Token->ParentIndex) == iObject)
+			if(((::llc::u2_t)nodeOther->Token->ParentIndex) == iObject)
 				llc_necall(tree[iObject]->Children.push_back(nodeOther), "%s", "Failed to push tree node. Out of memory?");
 		}
 	}
@@ -58,7 +58,7 @@ static	::llc::error_t	expressionReaderCloseIfType				(::llc::SExpressionReaderSt
 	return 0;
 }
 
-static	::llc::error_t	expressionReaderOpenLevel				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type, uint32_t iChar)	{
+static	::llc::error_t	expressionReaderOpenLevel				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type, ::llc::u2_t iChar)	{
 	stateReader.IndexCurrentElement								= tokens.push_back({stateReader.IndexCurrentElement, type, {iChar, iChar}});
 	stateReader.CurrentElement									= &tokens[stateReader.IndexCurrentElement];
 	++stateReader.NestLevel;
@@ -98,8 +98,8 @@ static	::llc::error_t	expressionReaderCloseTerm							(::llc::SExpressionReaderS
 	::llc::error_t							errVal												= 0;
 	switch(stateReader.CharCurrent) {
 	default:
-		seterr_break_if(stateReader.CharCurrent < 0x20 || ((uint8_t)stateReader.CharCurrent) > 0xFE, "Invalid character: %i (%u) '%c'.", stateReader.CharCurrent, (::llc::uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
-		seterr_break_if(stateReader.Escaping, "Cannot escape character: %i (%u) '%c'.", stateReader.CharCurrent, (uint8_t)stateReader.CharCurrent, stateReader.CharCurrent);
+		seterr_break_if(stateReader.CharCurrent < 0x20 || ((u0_t)stateReader.CharCurrent) > 0xFE, "Invalid character: %i (%u) '%c'.", stateReader.CharCurrent, (::llc::uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
+		seterr_break_if(stateReader.Escaping, "Cannot escape character: %i (%u) '%c'.", stateReader.CharCurrent, (u0_t)stateReader.CharCurrent, stateReader.CharCurrent);
 		break;
 	case 'b': case 'f': case 'n': case 'r': case 't':
 		break;	// these characters are both valid as part of the string and as escapable characters.
@@ -152,13 +152,13 @@ static	bool												isSpaceCharacter		(const sc_t characterToTest)		{
 }
 
 //static	bool												isAnyOfCharacters		(const ::llc::vcst_t & charactersToFind, const sc_t characterToTest)		{
-//	for(uint32_t iCharacter = 0; iCharacter < charactersToFind.size(); ++iCharacter)
+//	for(::llc::u2_t iCharacter = 0; iCharacter < charactersToFind.size(); ++iCharacter)
 //		if(characterToTest == charactersToFind[iCharacter])
 //			return true;
 //	return false;
 //}
 
-static	::llc::error_t	skipToNextCharacter						(uint32_t & indexCurrentChar, const ::llc::vcst_t & expression)		{
+static	::llc::error_t	skipToNextCharacter						(::llc::u2_t & indexCurrentChar, const ::llc::vcst_t & expression)		{
 	while(indexCurrentChar < expression.size()) {
 		if(::isSpaceCharacter(expression[indexCurrentChar]))
 			++indexCurrentChar;
@@ -340,7 +340,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 		: ::expressionReaderProcessDocCharacter		(stateReader, tokens, expression)
 		;
 	if (llc::failed(result)) {
-		const bool														validElement										= (uint32_t)reader.StateRead.IndexCurrentElement < reader.Token.size();
+		const bool														validElement										= (::llc::u2_t)reader.StateRead.IndexCurrentElement < reader.Token.size();
 		const ::llc::SExpressionToken									* currentElement									= validElement ? &reader.Token[reader.StateRead.IndexCurrentElement] : 0;
 		error_printf("Error during read step. Malformed expression?"
 			"\nPosition         : %i."

@@ -6,7 +6,7 @@
 
 namespace llc
 {
-	GDEFINE_ENUM_TYPE(PLAYER_MODE, uint8_t);
+	GDEFINE_ENUM_TYPE(PLAYER_MODE, u0_t);
 	GDEFINE_ENUM_VALUE(PLAYER_MODE, AI			, 0);
 	GDEFINE_ENUM_VALUE(PLAYER_MODE, Human		, 1);
 
@@ -16,23 +16,23 @@ namespace llc
 
 	struct SPlayer {
 		::llc::vcst_t		Name				= "Player 1";
-		uint32_t			Color				= 0xFFFF0000;
+		::llc::u2_t			Color				= 0xFFFF0000;
 		::llc::PLAYER_MODE	Mode				= (::llc::PLAYER_MODE)::llc::PLAYER_MODE_AI;
 	};
 
-	GDEFINE_ENUM_TYPE(NETWORK_MODE, uint8_t);
+	GDEFINE_ENUM_TYPE(NETWORK_MODE, u0_t);
 	GDEFINE_ENUM_VALUE(NETWORK_MODE, Offline, 0);
 	GDEFINE_ENUM_VALUE(NETWORK_MODE, LAN	, 1);
 	GDEFINE_ENUM_VALUE(NETWORK_MODE, Online	, 2);
 
 #pragma pack(push, 1)
 	struct SGameSetup {
-		uint32_t			OffsetStage			= 0;
+		::llc::u2_t			OffsetStage			= 0;
 		::llc::NETWORK_MODE	NetworkMode			= ::llc::NETWORK_MODE_Offline;
 	};
 
 	struct SGameState {
-		uint32_t			Stage				= 0;
+		::llc::u2_t			Stage				= 0;
 		SStageTime			UserTime			= {};
 		bool				Paused				= false;
 		double				CameraSwitchDelay	= 0;

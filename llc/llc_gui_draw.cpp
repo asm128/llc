@@ -82,10 +82,10 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 
 	::llc::SControlText			& controlText		= gui.Controls.Text		[iControl];
 	::llc::apod<::llc::n2u1_t>	dstCoords;
-	const uint32_t				iFont				= ::llc::in_range(controlText.FontSelected, (int16_t)0, (int16_t)gui.Fonts.size()) ? controlText.FontSelected : gui.SelectedFont;
+	const ::llc::u2_t				iFont				= ::llc::in_range(controlText.FontSelected, (int16_t)0, (int16_t)gui.Fonts.size()) ? controlText.FontSelected : gui.SelectedFont;
 	const ::llc::SRasterFont	& selectedFont		= *gui.Fonts[iFont];
 	llc_necs(llc::textLineRaster(target.metrics(), selectedFont.CharSize, rectText, selectedFont.Texture, controlText.Text, dstCoords));
-	for(uint32_t iCoord = 0; iCoord < dstCoords.size(); ++iCoord) {
+	for(::llc::u2_t iCoord = 0; iCoord < dstCoords.size(); ++iCoord) {
 		const ::llc::n2u1_t			dstCoord			= dstCoords[iCoord];
 		target[dstCoord.y][dstCoord.x]	= colorFace;
 		//::llc::drawPixelLight(target, dstCoords[iCoord], colorFace, controlState.Pressed ? 0.75f : 0.5f, controlState.Pressed ? 1.0f : 0.95);
@@ -160,7 +160,7 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 	{
 		::fillColorTable(gui, iControl, disabled, colors);
 
-		for(uint32_t iElement = 0; iElement < ::llc::GUI_CONTROL_AREA_OLD_COUNT; ++iElement) {
+		for(::llc::u2_t iElement = 0; iElement < ::llc::GUI_CONTROL_AREA_OLD_COUNT; ++iElement) {
 			if( (controlDraw.NoBorder && iElement != ::llc::GUI_CONTROL_AREA_OLD_CLIENT) // (iElement >= ::llc::GUI_CONTROL_AREA_OLD_BORDER_LEFT || iElement <= ::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM))
 			 || (controlDraw.NoClient && iElement == ::llc::GUI_CONTROL_AREA_OLD_CLIENT) //(iElement == ::llc::GUI_CONTROL_AREA_OLD_BACKGROUND || iElement == ::llc::GUI_CONTROL_AREA_OLD_CLIENT))
 			)
@@ -179,7 +179,7 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 		, ::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM
 		};
 	if(false == controlDraw.NoBorder && ::llc::controlNCSpacing(gui.Controls.Placement[iControl]).Area()) {
-		for(uint32_t iTri = 0; iTri < 8; ++iTri)
+		for(::llc::u2_t iTri = 0; iTri < 8; ++iTri)
 			::drawControlTriangle(target, colors[colorIndices[iTri]], controlMetrics.Triangles[iTri]);
 	}
 
@@ -217,27 +217,27 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 ::llc::error_t			llc::controlDrawHierarchy		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra target)								{
 	llc_necall(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
 	if(gui.LastSize != target.metrics16()) {
-		for(uint32_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
+		for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
 			gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
 		gui.LastSize			= target.metrics().u1();
 	}
 	if(false == ::llc::controlHidden(gui, iControl)) {
 		llc_necs(::actualControlDraw(gui, iControl, target));
 		::llc::vccid				children						= gui.Controls.Children[iControl];
-		for(uint32_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild)
+		for(::llc::u2_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild)
 			llc_necs(llc::controlDrawHierarchy(gui, children[iChild], target));
 	}
 	return 0;
 }
 ::llc::error_t			llc::guiDraw					(::llc::SGUI & gui, ::llc::g8bgra target)													{
 	if(gui.LastSize != target.metrics().u1() || gui.LastZoom != gui.Zoom) {
-		for(uint32_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
+		for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
 			gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
 		gui.LastSize			= target.metrics().u1();
 		gui.LastZoom			= gui.Zoom;
 	}
 	llc_necs(llc::guiUpdateMetrics(gui, gui.LastSize, false));;
-	for(uint32_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
+	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
 		if(false == ::llc::controlInvalid(gui, (::llc::cid_t)iControl) && ::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent))
 			es_if(::llc::failed(::llc::controlDrawHierarchy(gui, (::llc::cid_t)iControl, target)));
 	return 0;

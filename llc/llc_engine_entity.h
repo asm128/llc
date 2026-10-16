@@ -9,7 +9,7 @@
 namespace llc 
 {
 #pragma pack(push, 1)
-	typedef	uint32_t		eid_t;
+	typedef	::llc::u2_t		eid_t;
 	stacxpr	eid_t			EID_INVALID		= eid_t(-1);
 
 	typedef	const eid_t		ceid_t;
@@ -18,8 +18,8 @@ namespace llc
 	typedef	view<ceid_t>	vceid;
 	typedef	papod<eid_t>	paeid;
 	struct SEntity {
-		uint32_t				RenderNode		= (uint32_t)-1;
-		uint32_t				RigidBody		= (uint32_t)-1;
+		::llc::u2_t				RenderNode		= (::llc::u2_t)-1;
+		::llc::u2_t				RigidBody		= (::llc::u2_t)-1;
 		::llc::eid_t			Parent			= EID_INVALID;
 	};
 #pragma pack(pop)
@@ -33,8 +33,8 @@ namespace llc
 		const ::llc::SEntity&			operator[]		(::llc::eid_t id)	const	{ return Entities[id]; }
 		SEntity&						operator[]		(::llc::eid_t id)			{ return Entities[id]; }
 
-		uint32_t						size			()					const	{ return Names.size(); }
-		uint32_t						clear			()							{ ::llc::clear(Entities, Names, Children); return 0; }
+		::llc::u2_t						size			()					const	{ return Names.size(); }
+		::llc::u2_t						clear			()							{ ::llc::clear(Entities, Names, Children); return 0; }
 
 		::llc::error_t					Create			() {
 			Children.push_back({});
@@ -54,9 +54,9 @@ namespace llc
 		inline	const ::llc::SEntity&	GetChild		(::llc::eid_t id, int32_t iChild)	const	{ return Entities[GetIndexChild	(id, iChild)]; }
 		inline	SEntity&				GetParent		(::llc::eid_t id)							{ return Entities[GetIndexParent(id)]; }
 		inline	SEntity&				GetChild		(::llc::eid_t id, int32_t iChild)			{ return Entities[GetIndexChild	(id, iChild)]; }
-		inline	::llc::error_t			GetChildCount	(uint32_t iEntity)					const	{ const ::llc::papod<::llc::eid_t> & children = Children[iEntity]; return children ? children->size() : 0; }
-		inline	::llc::vceid			GetChildren		(uint32_t iEntity)					const	{ const ::llc::papod<::llc::eid_t> & children = Children[iEntity]; return children ? ::llc::vceid{*children} : ::llc::vceid{}; }
-		inline	::llc::veid				GetChildren		(uint32_t iEntity)							{ ::llc::papod<::llc::eid_t> & children = Children[iEntity]; return children ? *children : ::llc::veid{}; }
+		inline	::llc::error_t			GetChildCount	(::llc::u2_t iEntity)					const	{ const ::llc::papod<::llc::eid_t> & children = Children[iEntity]; return children ? children->size() : 0; }
+		inline	::llc::vceid			GetChildren		(::llc::u2_t iEntity)					const	{ const ::llc::papod<::llc::eid_t> & children = Children[iEntity]; return children ? ::llc::vceid{*children} : ::llc::vceid{}; }
+		inline	::llc::veid				GetChildren		(::llc::u2_t iEntity)							{ ::llc::papod<::llc::eid_t> & children = Children[iEntity]; return children ? *children : ::llc::veid{}; }
 
 
 		::llc::error_t					SetParent		(::llc::eid_t id, ::llc::eid_t idParent)		{
@@ -73,7 +73,7 @@ namespace llc
 
 		::llc::error_t					Save			(::llc::au0_t & output) const { 
 			llc_necs(llc::saveView(output, Entities));
-			for(uint32_t iEntity = 0; iEntity < Entities.size(); ++iEntity) {
+			for(::llc::u2_t iEntity = 0; iEntity < Entities.size(); ++iEntity) {
 				llc_necall(llc::saveView(output, Children[iEntity] ? ::llc::vcu2_t{*Children[iEntity]} : ::llc::vcu2_t{}), "iEntity: %i", iEntity);
 				llc_necall(llc::saveView(output, Names[iEntity]), "iEntity: %i", iEntity);
 			}
@@ -85,7 +85,7 @@ namespace llc
 			llc_necs(llc::loadView(input, Entities));
 			llc_necs(Children	.resize(Entities.size()));
 			llc_necs(Names		.resize(Entities.size()));
-			for(uint32_t iEntity = 0; iEntity < Entities.size(); ++iEntity) {
+			for(::llc::u2_t iEntity = 0; iEntity < Entities.size(); ++iEntity) {
 				if(!Children[iEntity])
 					Children[iEntity].create();
 

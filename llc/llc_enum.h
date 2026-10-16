@@ -44,7 +44,7 @@ namespace llc
 			return INVALID_VALUE;
 		}
 		err_t				get_value				(vcst_t name, T & value)		const	{
-			for(uint32_t i=0, count = Names.size(); i<count; ++i)
+			for(::llc::u2_t i=0, count = Names.size(); i<count; ++i)
 				if(name == Names[i]) {
 					value				= Values[i];
 					return 0;
@@ -54,7 +54,7 @@ namespace llc
 			return -1;
 		}
 		//err_t				get_value				(const char* name, T & value)				const			{
-		//	for(uint32_t i=0, count = Names.size(); i<count; ++i)
+		//	for(::llc::u2_t i=0, count = Names.size(); i<count; ++i)
 		//		if(0 == ::strcmp(name, Names[i].begin())) {
 		//			value				= Values[i];
 		//			return 0;
@@ -64,14 +64,14 @@ namespace llc
 		//	return -1;
 		//}
 		T					get_value				(vcst_t name)					const			{
-			for(uint32_t i=0, count = Names.size(); i<count; ++i) {
+			for(::llc::u2_t i=0, count = Names.size(); i<count; ++i) {
 				if(name == Names[i])
 					return Values[i];
 			}
 			enum_printf("Enumeration value not found! Name: %.*s.", (int)name.size(), name.begin());
 			return INVALID_VALUE;
 		}
-		err_t				get_value_by_index		(uint32_t index, T & value)					const			{
+		err_t				get_value_by_index		(::llc::u2_t index, T & value)					const			{
 			if(index < Values.size()) {
 				value				= Values[index];
 				return 0;
@@ -80,11 +80,11 @@ namespace llc
 			value				= INVALID_VALUE;
 			return -1;
 		}
-		T					get_value_by_index		(uint32_t index)					const			{
+		T					get_value_by_index		(::llc::u2_t index)					const			{
 			retval_gwarn_if(INVALID_VALUE, index >= Values.size(), "Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
 			return Values[index];
 		}
-		err_t				get_label_by_index		(uint32_t index, vcst_t & value)		const			{
+		err_t				get_label_by_index		(::llc::u2_t index, vcst_t & value)		const			{
 			if(index < Names.size()) {
 				value				= Names[index];
 				return 0;
@@ -93,14 +93,14 @@ namespace llc
 			enum_printf("Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
 			return -1;
 		}
-		vcst_t			get_label_by_index		(uint32_t index)					const			{
+		vcst_t			get_label_by_index		(::llc::u2_t index)					const			{
 			if(index < Names.size())
 				return Names[index];
 			enum_printf("Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
 			return UNDEFINED_ENUM_VALUE_STR;
 		}
 		err_t				get_value_index			(vcst_t name, int32_t & index)	const			{
-			for(uint32_t i=0, count = Names.size(); i < count; ++i)
+			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i)
 				if(name == Names[i]) {
 					index				= (int32_t)i;
 					return index;
@@ -109,7 +109,7 @@ namespace llc
 			return index				= -1;
 		}
 		int32_t				get_value_index			(vcst_t name)					const			{
-			for(uint32_t i=0, count = Names.size(); i < count; ++i) {
+			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i) {
 				if(name == Names[i])
 					return (int32_t)i;
 			}
@@ -117,7 +117,7 @@ namespace llc
 			return -1;
 		}
 		err_t				get_value_index			(const T & value, int32_t & index)		const			{
-			for(uint32_t i=0, count = Names.size(); i < count; ++i)
+			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i)
 				if(value == Values[i]) {
 					index					= (int32_t)i;
 					return 0;
@@ -126,7 +126,7 @@ namespace llc
 			return index					= -1;
 		}
 		int32_t				get_value_index			(const T & value)				const			{
-			for(uint32_t i=0, count = Names.size(); i < count; ++i) {
+			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i) {
 				if(value == Values[i])
 					return (int32_t)i;
 			}
@@ -134,7 +134,7 @@ namespace llc
 			return -1;
 		}
 		err_t				get_value_label			(const T & value, vcst_t & name)	const			{
-			for(uint32_t i=0, count = Values.size(); i < count; ++i)
+			for(::llc::u2_t i=0, count = Values.size(); i < count; ++i)
 				if(value == Values[i]) {
 					name				= Names[i];
 					return 0;
@@ -144,7 +144,7 @@ namespace llc
 			return -1;
 		}
 		err_t				get_value_desc			(const T & value, vcst_t & name)	const			{
-			for(uint32_t i=0, count = Values.size(); i < count; ++i)
+			for(::llc::u2_t i=0, count = Values.size(); i < count; ++i)
 				if(value == Values[i]) {
 					name				= Descriptions[i];
 					return 0;
@@ -154,7 +154,7 @@ namespace llc
 			return -1;
 		}
 		vcst_t	get_value_label			(const T & value)				const			{
-			for(uint32_t i=0, count = Values.size(); i < count; ++i) {
+			for(::llc::u2_t i=0, count = Values.size(); i < count; ++i) {
 				if(value == Values[i])
 					return Names[i];
 			}
@@ -162,7 +162,7 @@ namespace llc
 			return UNRESOLVED_ENUM_LABEL_STR;
 		}
 		vcst_t	get_value_desc			(const T & value)				const			{
-			for(uint32_t i=0, count = Values.size(); i < count; ++i) {
+			for(::llc::u2_t i=0, count = Values.size(); i < count; ++i) {
 				if(value == Values[i])
 					return Descriptions[i];
 			}
@@ -170,28 +170,28 @@ namespace llc
 			return UNRESOLVED_ENUM_LABEL_STR;
 		}
 		err_t				add_value				(const T & value, vcst_t name, vcst_t title, vcst_t description)	{
-			for(uint32_t i=0, count = Names.size(); i < count; ++i)
+			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i)
 				if(Names[i] == name) {
 					ree_if(Values[i] != value, "Enumeration name already has another value! Type:'%.*s'. Name:'%.*s'. Previous:0x%llX. New:0x%llX."
 						, (int)Name.size(), Name.begin(), (int)name.size(), name.begin(), (uint64_t)Values[i], (uint64_t)value
 						);
 					return -1;
 				}
-			uint32_t				newIndex				= Values.push_back(value);
+			::llc::u2_t				newIndex				= Values.push_back(value);
 			llc_necs(newIndex);
 			llc_necs(Names.push_back(name));
 			llc_necs(Titles.push_back(title));
 			llc_necs(Descriptions.push_back(description));
 			verbose_printf("Added new value to enumeration definition. Enum name: %.*s. Index: %.02u, Value: 0x%llX. Value name: %.*s."
 				, (int)Name.size(), Name.begin()
-				, (uint32_t)newIndex
+				, (::llc::u2_t)newIndex
 				, (uint64_t)value
 				, (int)name.size(), name.begin()
 				);
 			return newIndex;
 		}
 		err_t				add_value_auto			(vcst_t name, vcst_t title, vcst_t description)	{
-			for(uint32_t i=0, count = Names.size(); i < count; ++i) {
+			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i) {
 				ree_if(name == Names[i], "Enumeration value already defined! Type: '%.*s'. Value: 0x%llX. Previous name: %.*s. New name: %.*s. Second definition ignored..."
 					, (int)Name		.size(), Name		.begin()
 					, (uint64_t)Values[i]
@@ -199,16 +199,16 @@ namespace llc
 					, (int)name		.size(), name		.begin()
 					);
 			}
-			uint32_t				valueCount				= {};
-			for(uint32_t i=0; i < Values.size(); ++i)
+			::llc::u2_t				valueCount				= {};
+			for(::llc::u2_t i=0; i < Values.size(); ++i)
 				valueCount += get_value_index(Values[i]) == (int32_t)i;
 			const T					value					= (T)valueCount;
-			uint32_t				newIndex				= Values.push_back(value);
+			::llc::u2_t				newIndex				= Values.push_back(value);
 			llc_necs(newIndex);
 			llc_necs(Names.push_back(name));
 			llc_necs(Titles.push_back(title));
 			llc_necs(Descriptions.push_back(description));
-			verbose_printf("Added new value to enumeration definition. Enum name: %.*s. Index: %.02u, Value: 0x%llX. Value name: %.*s.", (int)Name.size(), Name.begin(), (uint32_t)newIndex, (uint64_t)value, (int)name.size(), name.begin());
+			verbose_printf("Added new value to enumeration definition. Enum name: %.*s. Index: %.02u, Value: 0x%llX. Value name: %.*s.", (int)Name.size(), Name.begin(), (::llc::u2_t)newIndex, (uint64_t)value, (int)name.size(), name.begin());
 			return newIndex;
 		}
 	};
@@ -249,7 +249,7 @@ namespace llc
 		camelCase(uncased, camelCased);
 		return get_enum<TEnum>().get_value(camelCased);
 	}
-	tplt<tpnm TEnum>	ndsi	uint32_t		get_value_count		()							nxpt	{ return get_enum<TEnum>().Values.size(); }
+	tplt<tpnm TEnum>	ndsi	::llc::u2_t		get_value_count		()							nxpt	{ return get_enum<TEnum>().Values.size(); }
 	tplt<tpnm TEnum>	ndsi	vcst_t			get_value_label		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit); }
 	tplt<tpnm TEnum>	ndsi	vcst_t			get_value_namev		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit); }
 	tplt<tpnm TEnum>	ndsi	sc_c*			get_value_namep		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit).begin(); }
@@ -379,7 +379,7 @@ namespace llc
 		::llc::vcst_t 						getEnumName		()		cnst nxpt		{ return Name; }								\
 		::llc::vcst_t 						getValueName	()				cnst	{ return getValueName(Value); }					\
 		::llc::vcst_t 						getValueName	(IntType value)	cnst	{												\
-			for(uint32_t i=0, count = ::llc::size(Values); i < count; ++i) {														\
+			for(::llc::u2_t i=0, count = ::llc::size(Values); i < count; ++i) {														\
 				if(value == Values[i].Value)																						\
 					return Values[i].Name;																							\
 			}																														\

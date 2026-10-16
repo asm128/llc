@@ -8,7 +8,7 @@
 
 namespace llc
 {
-	ndsi	vcst_t	tovcc   (sc_c * srcstr)						{ rtrn {srcstr, (uint32_t)-1}; }
+	ndsi	vcst_t	tovcc   (sc_c * srcstr)						{ rtrn {srcstr, (::llc::u2_t)-1}; }
 	stin	err_t	tovcc   (vcst_t	& output, sc_c * srcstr)	{ rtrn (output = tovcc(srcstr)).size(); }
 	stin	err_t	tolabel (vcst_t	& output, sc_c * srcstr)	{ rtrn (output = label(tovcc(srcstr))).size(); }
 	stin	err_t	toachar (string	& output, sc_c * srcstr)	{

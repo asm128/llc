@@ -6,7 +6,7 @@ static	::llc::CLabelManager*	labelManagerSingleton		()			noexcept	{
 	return &instanceLabelManager; 
 }
 
-		::llc::label::label			(const char * text, uint32_t stringLen)	noexcept	: LabelManager(::labelManagerSingleton())	{ 
+		::llc::label::label			(const char * text, ::llc::u2_t stringLen)	noexcept	: LabelManager(::labelManagerSingleton())	{ 
 	e_if_failed(LabelManager->View(text, stringLen, *this), "text: %.*s.", (int)stringLen, text);
 }
 

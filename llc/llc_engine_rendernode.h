@@ -20,10 +20,10 @@ namespace llc
 		//bool					NoTransformInherit	: 1;
 	};
 	struct SRenderNode {
-		uint32_t				Mesh			= (u2_t)-1;
-		uint32_t				Slice			= (u2_t)-1;
-		uint32_t				Shader			= (u2_t)-1;
-		uint32_t				Skin			= (u2_t)-1;
+		::llc::u2_t				Mesh			= (u2_t)-1;
+		::llc::u2_t				Slice			= (u2_t)-1;
+		::llc::u2_t				Shader			= (u2_t)-1;
+		::llc::u2_t				Skin			= (u2_t)-1;
 	};
 	struct SRenderMaterial {
 		::llc::SRenderColor		Color			= {};
@@ -44,7 +44,7 @@ namespace llc
 	stacxpr size_t		SRENDERNODECONSTANTSSIZE = sizeof(SRenderNodeConstants);
 
 
-	GDEFINE_ENUM_TYPE(LIGHT_TYPE, uint8_t);
+	GDEFINE_ENUM_TYPE(LIGHT_TYPE, u0_t);
 	GDEFINE_ENUM_VALUE(LIGHT_TYPE, Directional	, 0);
 	GDEFINE_ENUM_VALUE(LIGHT_TYPE, Point		, 1);
 	GDEFINE_ENUM_VALUE(LIGHT_TYPE, Spot			, 2);
@@ -65,7 +65,7 @@ namespace llc
 	};
 	struct SLight {
 		::llc::LIGHT_TYPE		Type;
-		uint16_t				Index;
+		::llc::u1_t				Index;
 	};
 	struct SCamera : SCameraPoints, SCameraRange, SCameraVectors {};
 #pragma pack(pop)
@@ -83,30 +83,30 @@ namespace llc
 		::llc::apobj<::llc::apod<::llc::SLightPoint>>		LightsPoint			= {};
 		::llc::apobj<::llc::apod<::llc::SLightSpot>>		LightsSpot			= {};
 
-		const ::llc::SRenderNode&			operator[]		(uint32_t index)							const	{ return RenderNodes[index]; }
-		SRenderNode&						operator[]		(uint32_t index)									{ return RenderNodes[index]; }
+		const ::llc::SRenderNode&			operator[]		(::llc::u2_t index)							const	{ return RenderNodes[index]; }
+		SRenderNode&						operator[]		(::llc::u2_t index)									{ return RenderNodes[index]; }
 
-		uint32_t							size			()											const	{ return RenderNodes.size(); }
+		::llc::u2_t							size			()											const	{ return RenderNodes.size(); }
 
-		::llc::error_t						Save			(::llc::apod<uint8_t> & output) const { 
+		::llc::error_t						Save			(::llc::apod<u0_t> & output) const { 
 			llc_necs(llc::saveView(output, RenderNodes	));
 			llc_necs(llc::saveView(output, Flags			));
 			llc_necs(llc::saveView(output, Transforms		));
 			llc_necs(llc::saveView(output, BaseTransforms	));
-			for(uint32_t iEntity = 0; iEntity < RenderNodes.size(); ++iEntity) {
+			for(::llc::u2_t iEntity = 0; iEntity < RenderNodes.size(); ++iEntity) {
 				llc_necall(llc::saveView(output, Lights	[iEntity] ? ::llc::v1<const ::llc::SLight >{*Lights	[iEntity]} : ::llc::v1<const ::llc::SLight >{}), "iEntity: %i", iEntity);
 				llc_necall(llc::saveView(output, Cameras	[iEntity] ? ::llc::v1<const ::llc::SCamera>{*Cameras[iEntity]} : ::llc::v1<const ::llc::SCamera>{}), "iEntity: %i", iEntity);
 			}
-			llc_necs(output.append({(const uint8_t*)&LightsDirectional.size(), 4}));
-			for(uint32_t iEntity = 0; iEntity < LightsDirectional.size(); ++iEntity)
+			llc_necs(output.append({(const u0_t*)&LightsDirectional.size(), 4}));
+			for(::llc::u2_t iEntity = 0; iEntity < LightsDirectional.size(); ++iEntity)
 				llc_necall(llc::saveView(output, LightsDirectional[iEntity] ? ::llc::v1<const ::llc::SLightDirectional>{*LightsDirectional[iEntity]} : ::llc::v1<const ::llc::SLightDirectional>{}), "iEntity: %i", iEntity);
 
-			llc_necs(output.append({(const uint8_t*)&LightsPoint.size(), 4}));
-			for(uint32_t iEntity = 0; iEntity < LightsPoint.size(); ++iEntity)
+			llc_necs(output.append({(const u0_t*)&LightsPoint.size(), 4}));
+			for(::llc::u2_t iEntity = 0; iEntity < LightsPoint.size(); ++iEntity)
 				llc_necall(llc::saveView(output, LightsPoint[iEntity] ? ::llc::v1<const ::llc::SLightPoint>{*LightsPoint[iEntity]} : ::llc::v1<const ::llc::SLightPoint>{}), "iEntity: %i", iEntity);
 
-			llc_necs(output.append({(const uint8_t*)&LightsSpot.size(), 4}));
-			for(uint32_t iEntity = 0; iEntity < LightsSpot.size(); ++iEntity)
+			llc_necs(output.append({(const u0_t*)&LightsSpot.size(), 4}));
+			for(::llc::u2_t iEntity = 0; iEntity < LightsSpot.size(); ++iEntity)
 				llc_necall(llc::saveView(output, LightsSpot[iEntity] ? ::llc::v1<const ::llc::SLightSpot>{*LightsSpot[iEntity]} : ::llc::v1<const ::llc::SLightSpot>{}), "iEntity: %i", iEntity);
 
 			info_printf("Saved %s, %i", "RenderNodes", RenderNodes.size());
@@ -120,7 +120,7 @@ namespace llc
 			llc_necs(llc::loadView(input, BaseTransforms	));
 			llc_necall(Lights	.resize(RenderNodes.size()), "size: %i", RenderNodes.size());
 			llc_necall(Cameras	.resize(RenderNodes.size()), "size: %i", RenderNodes.size());
-			for(uint32_t iEntity = 0; iEntity < RenderNodes.size(); ++iEntity) {
+			for(::llc::u2_t iEntity = 0; iEntity < RenderNodes.size(); ++iEntity) {
 				if(!Lights	[iEntity]) 
 					ree_if(0 == Lights	[iEntity].create(), "iEntity: %i", iEntity);
 				if(!Cameras	[iEntity]) 
@@ -129,25 +129,25 @@ namespace llc
 				llc_necall(llc::loadView(input, *Cameras	[iEntity]), "iEntity: %i", iEntity);
 			}
 
-			llc_necs(LightsDirectional.resize(*(uint32_t*)input.begin()));
-			input								= {input.begin() + sizeof(uint32_t), input.size() - 4};
-			for(uint32_t iEntity = 0; iEntity < LightsDirectional.size(); ++iEntity) {
+			llc_necs(LightsDirectional.resize(*(::llc::u2_t*)input.begin()));
+			input								= {input.begin() + sizeof(::llc::u2_t), input.size() - 4};
+			for(::llc::u2_t iEntity = 0; iEntity < LightsDirectional.size(); ++iEntity) {
 				if(!LightsDirectional[iEntity])
 					ree_if(0 == LightsDirectional[iEntity].create(), "iEntity: %i", iEntity);
 				llc_necall(llc::loadView(input, *LightsDirectional[iEntity]), "iEntity: %i", iEntity);
 			}
 
-			llc_necs(LightsPoint.resize(*(uint32_t*)input.begin()));
-			input								= {input.begin() + sizeof(uint32_t), input.size() - 4};
-			for(uint32_t iEntity = 0; iEntity < LightsPoint.size(); ++iEntity) {
+			llc_necs(LightsPoint.resize(*(::llc::u2_t*)input.begin()));
+			input								= {input.begin() + sizeof(::llc::u2_t), input.size() - 4};
+			for(::llc::u2_t iEntity = 0; iEntity < LightsPoint.size(); ++iEntity) {
 				if(!LightsPoint[iEntity])
 					ree_if(0 == LightsPoint[iEntity].create(), "iEntity: %i", iEntity);
 				llc_necall(llc::loadView(input, *LightsPoint[iEntity]), "iEntity: %i", iEntity);
 			}
 
-			llc_necs(LightsSpot.resize(*(uint32_t*)input.begin()));
-			input								= {input.begin() + sizeof(uint32_t), input.size() - 4};
-			for(uint32_t iEntity = 0; iEntity < LightsSpot.size(); ++iEntity) {
+			llc_necs(LightsSpot.resize(*(::llc::u2_t*)input.begin()));
+			input								= {input.begin() + sizeof(::llc::u2_t), input.size() - 4};
+			for(::llc::u2_t iEntity = 0; iEntity < LightsSpot.size(); ++iEntity) {
 				if(!LightsSpot[iEntity])
 					ree_if(0 == LightsSpot[iEntity].create(), "iEntity: %i", iEntity);
 				llc_necall(llc::loadView(input, *LightsSpot[iEntity]), "iEntity: %i", iEntity);
@@ -160,10 +160,10 @@ namespace llc
 			llc_necs(Lights			.push_back({}));
 			llc_necs(Cameras		.push_back({}));
 			llc_necs(Flags			.push_back({}));
-			return RenderNodes.push_back({(uint32_t)-1});
+			return RenderNodes.push_back({(::llc::u2_t)-1});
 		}
 
-		::llc::error_t						Clone		(uint32_t iNode)	{
+		::llc::error_t						Clone		(::llc::u2_t iNode)	{
 			llc_necs(Transforms		.push_back(::llc::SRenderNodeConstants					{Transforms		[iNode]}));
 			llc_necs(BaseTransforms	.push_back(::llc::SRenderNodeConstants					{BaseTransforms	[iNode]}));
 			llc_necs(Lights			.push_back(::llc::pobj<::llc::apod<::llc::SLight	>>	{Lights			[iNode]}));
@@ -172,7 +172,7 @@ namespace llc
 			return RenderNodes.push_back(::llc::SRenderNode{RenderNodes	[iNode]});
 		}
 
-		::llc::error_t						Delete		(uint32_t indexNode)	{
+		::llc::error_t						Delete		(::llc::u2_t indexNode)	{
 			llc_necs(Transforms			.remove_unordered(indexNode));
 			llc_necs(BaseTransforms		.remove_unordered(indexNode));
 			llc_necs(Lights				.remove_unordered(indexNode));

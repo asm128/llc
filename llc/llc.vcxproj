@@ -104,7 +104,6 @@
     <ClInclude Include="llc_coord.h" />
     <ClInclude Include="llc_cpow.h" />
     <ClInclude Include="llc_ctti.h" />
-    <ClInclude Include="llc_d3d.h" />
     <ClInclude Include="llc_datatype.h" />
     <ClInclude Include="llc_debug.h" />
     <ClInclude Include="llc_deflate.h" />
@@ -322,9 +321,6 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_component_scene_draw.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_d3d.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_datatype.cpp">

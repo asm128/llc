@@ -29,13 +29,13 @@ namespace llc
 	int				drawLine			(::llc::g8bgra pixels, ::llc::line2s1_t  line		, ::llc::bgra color);
 	int				drawLine			(::llc::n2u1_c offscreenMetrics, ::llc::line2s1_t line, ::llc::apod<::llc::n2s1_t> & pixelCoords);
 	int				drawLine
-		( const ::llc::n2<uint16_t>	offscreenMetrics
+		( const ::llc::n2<::llc::u1_t>	offscreenMetrics
 		, const ::llc::line3f2_t		& lineFloat
 		, ::llc::apod<::llc::n3f2_t>	& pixelCoords
-		, ::llc::grid<uint32_t>	depthBuffer
+		, ::llc::grid<::llc::u2_t>	depthBuffer
 		);
 	int				drawTriangle		(::llc::g8bgra pixels, const ::llc::tri2s1_t & triangle, ::llc::bgra color);
-	int				drawTriangle		(::llc::n2u2_t targetSize, const ::llc::tri3f2_t & triangle, ::llc::apod<::llc::n2s1_t> & pixelCoords, ::llc::apod<::llc::trif2_t> & proportions, ::llc::grid<uint32_t> depthBuffer);
+	int				drawTriangle		(::llc::n2u2_t targetSize, const ::llc::tri3f2_t & triangle, ::llc::apod<::llc::n2s1_t> & pixelCoords, ::llc::apod<::llc::trif2_t> & proportions, ::llc::grid<::llc::u2_t> depthBuffer);
 	int				drawTriangle		(::llc::n2u2_t targetSize, const ::llc::tri2f2_t & triangle, ::llc::apod<::llc::n2s1_t> & pixelCoords, ::llc::apod<::llc::trif2_t> & proportions);
 	int				drawQuadTriangle
 		( ::llc::g8bgra					targetPixels
@@ -47,7 +47,7 @@ namespace llc
 		, const ::llc::bgra				color
 		, ::llc::apod<::llc::n2s1_t>	& pixelCoords
 		, ::llc::apod<::llc::trif2_t>	& pixelVertexWeights
-		, ::llc::grid<uint32_t>			depthBuffer
+		, ::llc::grid<::llc::u2_t>			depthBuffer
 		);
 	int				drawQuadTriangle
 		( ::llc::g8bgra						targetPixels
@@ -61,7 +61,7 @@ namespace llc
 		, ::llc::gc8bgra					textureImage
 		, ::llc::apod<::llc::n3f2_t>		& lightPoints
 		, ::llc::a8bgra						& lightColors
-		, ::llc::grid<uint32_t>				depthBuffer
+		, ::llc::grid<::llc::u2_t>				depthBuffer
 		);
 
 	int				drawQuadTriangle
@@ -76,7 +76,7 @@ namespace llc
 		, ::llc::gc8bgra					textureImage
 		, ::llc::apod<::llc::n3f2_t>		& lightPoints
 		, ::llc::a8bgra						& lightColors
-		, ::llc::grid<uint32_t>				depthBuffer
+		, ::llc::grid<::llc::u2_t>				depthBuffer
 		, const ::llc::function<::llc::error_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
 		);
 
@@ -86,14 +86,14 @@ namespace llc
 		, const ::llc::m4f2_t				& matrixTransformView
 		, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 		, ::llc::apod<::llc::trif2_t>		& pixelVertexWeights
-		, ::llc::grid<uint32_t>				depthBuffer
+		, ::llc::grid<::llc::u2_t>				depthBuffer
 		);
 	int				drawQuadTriangle
 		( ::llc::n2u2_c						& targetSize
 		, const ::llc::tri3f2_t				& triangleScreen
 		, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 		, ::llc::apod<::llc::trif2_t>		& pixelVertexWeights
-		, ::llc::grid<uint32_t>				depthBuffer
+		, ::llc::grid<::llc::u2_t>				depthBuffer
 		);
 	int				drawTriangle
 		( ::llc::g8bgra						targetPixels
@@ -105,7 +105,7 @@ namespace llc
 		, ::llc::bgra						color
 		, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 		, ::llc::apod<::llc::trif2_t>		& pixelVertexWeights
-		, ::llc::grid<uint32_t>				depthBuffer
+		, ::llc::grid<::llc::u2_t>				depthBuffer
 		);
 	int				drawTriangle
 		( ::llc::g8bgra						targetPixels
@@ -117,7 +117,7 @@ namespace llc
 		, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 		, ::llc::apod<::llc::trif2_t>		& pixelVertexWeights
 		, ::llc::gc8bgra					textureImage
-		, ::llc::grid<uint32_t>				depthBuffer
+		, ::llc::grid<::llc::u2_t>				depthBuffer
 		);
 	int				drawTriangle
 		( ::llc::g8bgra						targetPixels
@@ -132,7 +132,7 @@ namespace llc
 		, ::llc::gc8bgra					textureImage
 		, ::llc::apod<::llc::SLight3>		& lightPoints
 		, ::llc::a8bgra						& lightColors
-		, ::llc::grid<uint32_t>				depthBuffer
+		, ::llc::grid<::llc::u2_t>				depthBuffer
 		);
 
 	int				drawPixels

@@ -65,7 +65,7 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_FILE_EQUIVALENT, 55, "Callback a
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_FOLDER_EQUIVALENT, 56, "Callback and non-callback pathList() trees disagreed on folder count.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_EXTENSION_FOLDER_COUNT, 57, "Extension-filtered pathList() tree contained the wrong folder count.");
 
-tydf ::llc::err_t (*TFileToString)(::llc::vcst_t, ::llc::string &, uint32_t, uint64_t);
+tydf ::llc::err_t (*TFileToString)(::llc::vcst_t, ::llc::string &, ::llc::u2_t, uint64_t);
 tydf ::llc::err_t (*TFileFromBytes)(::llc::vcst_t, ::llc::vcs0_t, bool);
 tydf ::llc::err_t (*TFileFromString)(::llc::vcst_t, ::llc::vcst_t, bool);
 tydf ::llc::err_t (*TPathCreate)(::llc::vcst_t, ::llc::sc_c);

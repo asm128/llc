@@ -75,7 +75,7 @@ s3_t	llc::	fileSize			(llc::vcst_t fileName)			{
 	FIX_SOC_PATH(fileName);
 	File				fp						= getSoCFileSystem().open(fileName.begin(), LLC_OPEN_MODE_READ);
 	ree_if(!fp, "Cannot open file: %.*s.", (int)fileName.size(), fileName.begin());
-	u2_c				fileSize				= (uint32_t)fp.size();
+	u2_c				fileSize				= (::llc::u2_t)fp.size();
 #	endif // LLC_ESP32
 #else
 	::FILE				* fp					= 0;
@@ -120,9 +120,9 @@ static	llc::err_t	fileSplitSmall	(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
 	if_fail_fef(llc::fileToMemory(fileNameSrc, fileInMemory), "Failed to load '%.*s'.", (int)fileNameSrc.size(), fileNameSrc.begin());
 
 	// -- Write parts to disk.
-	uint32_t			countParts			= fileInMemory.size() / sizePartMax + one_if(fileInMemory.size() % sizePartMax);
+	::llc::u2_t			countParts			= fileInMemory.size() / sizePartMax + one_if(fileInMemory.size() % sizePartMax);
 	llc::string			fileNameDst			= {};
-	uint32_t			iPart				= 0;
+	::llc::u2_t			iPart				= 0;
 	for(; iPart < countParts; ++iPart) {
 		u2_c					offsetPart					= sizePartMax * iPart;
 		fileNameDst.clear();
@@ -131,7 +131,7 @@ static	llc::err_t	fileSplitSmall	(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
 		FILE				* fpDest					= 0;
 		if_true_fef(llc::fopen_s(fpDest, fileNameDst, LLC_OPEN_MODE_WRITE), "Failed to open file: \"%s\".", fileNameDst.begin());
 		if_null_fef(fpDest, "Failed to create or open file: \"%s\".", fileNameDst.begin());
-		uint32_t			countBytes					= (iPart == countParts - 1) ? fileInMemory.size() - offsetPart : sizePartMax;
+		::llc::u2_t			countBytes					= (iPart == countParts - 1) ? fileInMemory.size() - offsetPart : sizePartMax;
 		ree_if(countBytes != fwrite(&fileInMemory[offsetPart], 1, countBytes, fpDest), "Failed to write part %" LLC_FMT_U2 " of %" LLC_FMT_U2 " bytes to disk. Disk full? file: \"%s\".", iPart, countBytes, fileNameDst.begin());
 		fclose(fpDest);
 	}
@@ -153,9 +153,9 @@ static	llc::err_t	fileSplitLarge				(llc::vcst_t /*fileNameSrc*/, u2_c /*sizePar
 	//llc_necall(partInMemory.resize(sizePartMax), "Failed to allocate buffer for file part. Out of memory? File part size: %" LLC_FMT_U2 ".", sizePartMax);
 	//
 	//// -- Write parts to disk.
-	//uint32_t			countParts					= (uint32_t)(sizeFile / sizePartMax + one_if(sizeFile % sizePartMax));
+	//::llc::u2_t			countParts					= (::llc::u2_t)(sizeFile / sizePartMax + one_if(sizeFile % sizePartMax));
 	//char				fileNameDst	[1024]			= {};
-	//uint32_t			iPart				= 0;
+	//::llc::u2_t			iPart				= 0;
 	//for(; iPart < countParts; ++iPart) { //
 	//	u2_c					offsetPart					= sizePartMax * iPart;
 	//	llc_necall(snprintf(fileNameDst, llc::size(fileNameDst) - 2, "%s.%.2" LLC_FMT_U2, fileNameSrc.begin(), iPart), "File name too large: %.*s.", fileNameSrc.size(), fileNameSrc.begin());
@@ -164,7 +164,7 @@ static	llc::err_t	fileSplitLarge				(llc::vcst_t /*fileNameSrc*/, u2_c /*sizePar
 	//	if_fail_fef(llc::fopen_s(fpDest, fileNameDst, LLC_OPEN_MODE_WRITE), "Failed to open file: %s.", fileNameDst);
 	//	if_null_fef(fpDest, "Failed to create file: %s.", fileNameDst);
 	//	s3_t				countBytes					= (iPart == countParts - 1) ? sizeFile - offsetPart : sizePartMax;
-	//	if_true_fef(countBytes != (s3_t)fwrite(partInMemory.begin(), 1, (uint32_t)countBytes, fpDest), "Failed to write part %" LLC_FMT_U2 " of %" LLC_FMT_U2 " bytes to disk. Disk full? file: \"%s\".", iPart, countBytes, fileNameDst.begin());
+	//	if_true_fef(countBytes != (s3_t)fwrite(partInMemory.begin(), 1, (::llc::u2_t)countBytes, fpDest), "Failed to write part %" LLC_FMT_U2 " of %" LLC_FMT_U2 " bytes to disk. Disk full? file: \"%s\".", iPart, countBytes, fileNameDst.begin());
 	//	fclose(fpDest);
 	//}
 	//return countParts;
@@ -184,7 +184,7 @@ llc::err_t	llc::	fileSplit				(vcst_t fileNameSrc, u2_c sizePartMax) {
 // Joins a file split into file.## parts.
 llc::err_t	llc::	fileJoin				(vcst_t fileNameDst)	{
 	string					fileNameSrc				= {};
-	uint32_t				iPart					= 0;
+	::llc::u2_t				iPart					= 0;
 	if_fail_fe(llc::append_strings(fileNameSrc, fileNameDst, '.', llc::str(iPart)));
 	::FILE					* fpDest					= 0;
 	llc::string				finalPathName				= fileNameDst;
@@ -204,7 +204,7 @@ llc::err_t	llc::	fileJoin				(vcst_t fileNameDst)	{
 
 #define LLC_DEBUG_FILE_CONTENTS
 
-llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, uint32_t maxSize, uint64_t offset)		{
+llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, ::llc::u2_t maxSize, uint64_t offset)		{
 	llc::string			fileName					= usfileName;
 	llc_file_info_printf("Loading '%s'.", fileName.begin());
 
@@ -213,14 +213,14 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 	FIX_SOC_PATH(fileName);
 	File				fp					= getSoCFileSystem().open(fileName.begin(), LLC_OPEN_MODE_READ);
 	ree_if(!fp, "Cannot open file: %s.", fileName.begin());
-	u2_c				fileSize					= (uint32_t)fp.size();
+	u2_c				fileSize					= (::llc::u2_t)fp.size();
 	fileInMemory.clear();
 #		ifdef LLC_ESP32
 	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
 #		else
 	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
 #		endif // LLC_ESP32
-	rees_if(fileSize != (uint32_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
+	rees_if(fileSize != (::llc::u2_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
 	fp.close();
 #	endif // LLC_ESP32 || LLC_ESP8266
 	llc::err_t	result				= 0;
@@ -232,7 +232,7 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 	const s3_t				fileSize					= llc::ftell(fp);
 	fail_if_lt3s(fileSize, 0);
 	fail_if_ge3u(offset, fileSize);
-	u2_c				maxRead				= (uint32_t)min((s3_t)maxSize, fileSize - (s3_t)offset);
+	u2_c				maxRead				= (::llc::u2_t)min((s3_t)maxSize, fileSize - (s3_t)offset);
 	fail_if_ne3u(0, llc::fseek(fp, offset, FSEEK_SET));
 	llc::err_t	result				= 0;
 	if_failed(fileInMemory.resize(maxRead)) {
@@ -240,7 +240,7 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, u
 		result					= -1;
 	}
 	else {
-		if(maxRead != fread(fileInMemory.begin(), szof(uint8_t), maxRead, fp)) {
+		if(maxRead != fread(fileInMemory.begin(), szof(u0_t), maxRead, fp)) {
 			error_printf("fread() failed! file: '%s'.", fileName.begin());
 			result					= -1;
 		}
@@ -304,7 +304,7 @@ llc::err_t	llc::	fileDelete				(vcst_t usfileName)	{
 	llc_file_info_printf("'%s' deleted successfully.", fileName.begin());
 	return 0;
 }
-llc::err_t	llc::fileToMemory		(vcst_t folderPath, vcst_t fileName, llc::au0_t & fileBytes, uint32_t maxSize, uint64_t offset) {
+llc::err_t	llc::fileToMemory		(vcst_t folderPath, vcst_t fileName, llc::au0_t & fileBytes, ::llc::u2_t maxSize, uint64_t offset) {
 	llc::string			filePath			= {};
 	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());
 	if_fail_fef(llc::fileToMemory(filePath, fileBytes, maxSize, offset), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());

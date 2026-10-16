@@ -63,8 +63,8 @@ namespace llc
 	( GTYPEID_ELEMENTPAD(_dataTypeID) ?																			\
 		(GTYPEID_ELEMENTBYTES( _dataTypeID )*GTYPEID_ELEMENTCOUNT( _dataTypeID )) :								\
 		(							\
-			( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(uint32_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) / 8 )			\
-			+ one_if( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(uint32_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) % 8 )	\
+			( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(::llc::u2_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) / 8 )			\
+			+ one_if( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(::llc::u2_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) % 8 )	\
 		)							\
 	)
 
@@ -145,7 +145,7 @@ namespace llc
 	//----------------------------------------------------------------------------------------------------------------------------------
 
 // ( IsSigned, IsNorm, IsFloat, IsBigEndian, ElementCount, ElementPad, SizeInBits )
-#define GTYPEID_POINTER_MAKE(	TypeName )							::llc::SDataTypeID((uint8_t)(sizeof(TypeName*)*8)	, 1	, false, false)	// defines an unsigned unorm little endian integer of sizeof(TypeName*) bytes.
+#define GTYPEID_POINTER_MAKE(	TypeName )							::llc::SDataTypeID((u0_t)(sizeof(TypeName*)*8)	, 1	, false, false)	// defines an unsigned unorm little endian integer of sizeof(TypeName*) bytes.
 #define GTYPEID_DATA_MAKE(		TypeName )							::llc::SDataTypeID(8, sizeof(TypeName)					, false, false)	// defines an array of unsigned unorm little endian sizeof(TypeName) bytes.
 
 #define GTYPEID_MAKE_NON_UNIFORM(	_TypeCode )						::llc::SDataTypeID(1, _TypeCode, false, true, false)

@@ -9,7 +9,7 @@
 namespace llc
 {
 #ifdef LLC_ATMEL
-	enum SHAPE_TYPE : uint8_t
+	enum SHAPE_TYPE : u0_t
 		{ SHAPE_TYPE_Custom		= 0
 		, SHAPE_TYPE_Rectangle	= 1
 		, SHAPE_TYPE_Circle		= 2
@@ -20,7 +20,7 @@ namespace llc
 		, SHAPE_TYPE_Torus		= 7
 		};
 #else
-	GDEFINE_ENUM_TYPE(SHAPE_TYPE, uint8_t);
+	GDEFINE_ENUM_TYPE(SHAPE_TYPE, u0_t);
 	GDEFINE_ENUM_VALUE(SHAPE_TYPE, Custom		, 0);
 	GDEFINE_ENUM_VALUE(SHAPE_TYPE, Rectangle	, 1);
 	GDEFINE_ENUM_VALUE(SHAPE_TYPE, Circle		, 2);
@@ -53,7 +53,7 @@ namespace llc
 
 	struct SParamsDisc { 
 		::llc::n3f2_t		Origin			= {};
-		uint16_t			Slices			= 16;
+		::llc::u1_t			Slices			= 16;
 		float				Circumference	= 1.0f;
 		float				Radius			= .5f;
 		::llc::quatf2_t		Orientation		= {0, 0, 0, 1};
@@ -73,7 +73,7 @@ namespace llc
 
 	struct SParamsRingSide { 
 		::llc::n3f2_t		Origin			= {};
-		uint16_t			Slices			= 16;
+		::llc::u1_t			Slices			= 16;
 		bool				Reverse			= false;
 		float				Circumference	= 1.0f;
 		::llc::minmaxf2_t	Radius			= {.45f, .5f};

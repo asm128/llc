@@ -8,11 +8,11 @@ namespace llc
 {
 #pragma pack(push, 1)
 	stct SPackHeader {
-		uint32_t				TotalFileCount					;
-		uint32_t				SizeCompressedTableFiles		;
-		uint32_t				SizeCompressedContentsPacked	;
-		uint32_t				SizeUncompressedTableFiles		;
-		uint32_t				SizeUncompressedContentsPacked	;
+		::llc::u2_t				TotalFileCount					;
+		::llc::u2_t				SizeCompressedTableFiles		;
+		::llc::u2_t				SizeCompressedContentsPacked	;
+		::llc::u2_t				SizeUncompressedTableFiles		;
+		::llc::u2_t				SizeUncompressedContentsPacked	;
 	};
 #pragma pack(pop)
 
@@ -31,11 +31,11 @@ namespace llc
 
 
 #if defined(LLC_ESP32) || defined(LLC_ARDUINO)
-	stxp	uint32_t		DEFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 4;
-	stxp	uint32_t		INFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 4;
+	stxp	::llc::u2_t		DEFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 4;
+	stxp	::llc::u2_t		INFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 4;
 #else
-	stxp	uint32_t		DEFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 32;
-	stxp	uint32_t		INFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 32;
+	stxp	::llc::u2_t		DEFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 32;
+	stxp	::llc::u2_t		INFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 32;
 #endif	
 
 	err_t			arrayDeflate			(vcu0_t inflated, au0_t & deflated, u2_c chunkSize = DEFLATE_DEFAULT_CHUNK_SIZE);

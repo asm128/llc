@@ -23,7 +23,7 @@
 #	include <string>
 #endif
 
-stxp	uint32_t LLC_MAX_PATH = 256;
+stxp	::llc::u2_t LLC_MAX_PATH = 256;
 
 #define llc_path_debug info_printf
 
@@ -242,7 +242,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 
 ::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::aobj<vcst_t> & output, ::llc::vcst_c extension)					{
 	llc_path_debug("extension=\"%.*s\"", (int)extension.size(), extension.begin());
-	for(uint32_t iFile = 0; iFile < input.Files.size(); ++iFile) {
+	for(::llc::u2_t iFile = 0; iFile < input.Files.size(); ++iFile) {
 		::llc::vcst_c			& fileName					= input.Files[iFile];
 		if(extension.size() && extension.size() >= fileName.size())
 			continue;
@@ -254,14 +254,14 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 			llc_necs(output.push_back(fileName));
 		}
 	}
-	for(uint32_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder)
+	for(::llc::u2_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder)
 		if_fail_fef(llc::pathList(input.Folders[iFolder], output, extension), "%s", "Unknown error!");
 	return 0;
 }
 
 ::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::aobj<string> & output, ::llc::vcst_c extension)					{
 	llc_path_debug("extension=\"%.*s\"", (int)extension.size(), extension.begin());
-	for(uint32_t iFile = 0; iFile < input.Files.size(); ++iFile) {
+	for(::llc::u2_t iFile = 0; iFile < input.Files.size(); ++iFile) {
 		::llc::vcst_c			& fileName					= input.Files[iFile];
 		llc_path_debug("fileName=\"%.*s\"", (int)fileName.size(), fileName.begin());
 		if(extension.size() && extension.size() >= fileName.size())
@@ -274,7 +274,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 			if_fail_fef(output.push_back(fileName), "fileName=%.*s, output.size()=%" LLC_FMT_U2, (int)fileName.size(), fileName.begin(), output.size());
 		}
 	}
-	for(uint32_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder	) {
+	for(::llc::u2_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder	) {
 		const ::llc::SPathContents	& childPath	= input.Folders[iFolder];
 		if_fail_fef(llc::pathList(childPath, output, extension), "output.size()=%" LLC_FMT_U2 ", extension=%.*s", output.size(), (int)extension.size(), extension.begin());
 	}

@@ -79,6 +79,14 @@ namespace llc
 	tydf grid<s3_t>	gs3_t;
 	tydf grid<f2_t>	gf2_t;
 	tydf grid<f3_t>	gf3_t;
+
+	enum GRID_ROTATION : u0_t {
+		GRID_ROTATION_DEFAULT	= 0,
+		GRID_ROTATION_0			= 0x1,
+		GRID_ROTATION_90		= 0x2,
+		GRID_ROTATION_180		= 0x4,
+		GRID_ROTATION_270		= 0x8,
+	};
 } // namespace llc
 
 #endif // LLC_GRID_H_23627

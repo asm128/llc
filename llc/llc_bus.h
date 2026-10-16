@@ -5,7 +5,7 @@
 
 namespace llc
 {	
-	GDEFINE_ENUM_TYPE (WIRE_EVENT, uint8_t);
+	GDEFINE_ENUM_TYPE (WIRE_EVENT, u0_t);
 	GDEFINE_ENUM_VALUE(WIRE_EVENT, Mode		,  0);
 	GDEFINE_ENUM_VALUE(WIRE_EVENT, Value	,  1);
 	//

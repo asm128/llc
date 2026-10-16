@@ -11,8 +11,8 @@ namespace llc
 		typedef	T			TCell;
 		typedef	grid<T>		TGridView;
 
-		stacxpr	uint32_t	Width									= (uint32_t)_sizeWidth;
-		stacxpr	uint32_t	Depth									= (uint32_t)_sizeDepth;
+		stacxpr	::llc::u2_t	Width									= (::llc::u2_t)_sizeWidth;
+		stacxpr	::llc::u2_t	Depth									= (::llc::u2_t)_sizeDepth;
 
 				TCell		Cells	[_sizeDepth][_sizeWidth]		= {};
 

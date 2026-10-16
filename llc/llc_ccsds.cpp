@@ -8,14 +8,14 @@ LLC_USING_TYPEINT();
 sttc llc::err_t ccsdsPacketHeaders  (llc::au0_t & output, bool telemetry, CCSDS_APID apid, u1_t family, u1_t subfamily, u1_t payloadSize) {
     {
         const struct CCSDSHeader {
-            uint16_t    DataLength      = {};
-            uint16_t    SequenceCount   : 14;
-            uint16_t    SequenceFlags   : 2;
-            uint16_t    APID            : 11; //
-            uint16_t    SecondaryHeader : 1; //
-            uint16_t    Type            : 1; // Telemetry (report) or Telecommand (request)
-            uint16_t    Version         : 3; // Currently always 000
-        }           primary     = {payloadSize, 0, 3, apid, uint16_t(payloadSize ? 1 : 0), uint16_t(telemetry ? 1 : 0), 0};
+            ::llc::u1_t    DataLength      = {};
+            ::llc::u1_t    SequenceCount   : 14;
+            ::llc::u1_t    SequenceFlags   : 2;
+            ::llc::u1_t    APID            : 11; //
+            ::llc::u1_t    SecondaryHeader : 1; //
+            ::llc::u1_t    Type            : 1; // Telemetry (report) or Telecommand (request)
+            ::llc::u1_t    Version         : 3; // Currently always 000
+        }           primary     = {payloadSize, 0, 3, apid, ::llc::u1_t(payloadSize ? 1 : 0), ::llc::u1_t(telemetry ? 1 : 0), 0};
         llc::reverse<u0_t>({(u0_t*)&primary, sizeof(primary)});
         if_fail_fe(savePOD(output, primary));
     }
@@ -23,8 +23,8 @@ sttc llc::err_t ccsdsPacketHeaders  (llc::au0_t & output, bool telemetry, CCSDS_
         return 0;
     {
         const struct CCSDSSecondaryHeader {
-            uint16_t    Subfamily       : 7;
-            uint16_t    Family          : 9;
+            ::llc::u1_t    Subfamily       : 7;
+            ::llc::u1_t    Family          : 9;
         }           secondary   = {subfamily, family};
         llc::reverse<u0_t>({(u0_t*)&secondary, sizeof(secondary)});
         if_fail_fe(savePOD(output, secondary));

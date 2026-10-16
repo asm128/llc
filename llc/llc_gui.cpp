@@ -5,29 +5,29 @@
 #include "llc_apod_color.h"
 
 ::llc::error_t			llc::controlInvalid			(const ::llc::SGUI & gui, cid_t iControl)				{
-	if(gui.Controls.States.size() <= uint32_t(iControl)	) 
+	if(gui.Controls.States.size() <= ::llc::u2_t(iControl)	) 
 		return -1;
 	if(gui.Controls.IsUnused(iControl)) 
 		return -1;
 	return 0;
 }
 
-static	::llc::error_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::llc::view<const ::llc::bgra> & colors, uint32_t iShades)	{
-	const uint32_t				newPaletteSize				= colors.size() * iShades;
+static	::llc::error_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::llc::view<const ::llc::bgra> & colors, ::llc::u2_t iShades)	{
+	const ::llc::u2_t				newPaletteSize				= colors.size() * iShades;
 	if(palette.size() < newPaletteSize)
 		llc_necs(palette.resize(newPaletteSize));
 
-	for(uint32_t iTone = 0; iTone < colors.size(); ++iTone)
+	for(::llc::u2_t iTone = 0; iTone < colors.size(); ++iTone)
 		palette[iTone * iShades]	= colors[iTone];
 
-	for(uint32_t iShade = 0; iShade < iShades; ++iShade) {
+	for(::llc::u2_t iShade = 0; iShade < iShades; ++iShade) {
 		const ::llc::bgra			& baseColor					= palette[iShade * iShades];
 		::llc::bgra					& paletteItem				= palette[iShade];
 		paletteItem				= baseColor;
 	}
 
-	for(uint32_t iTone = 1; iTone < colors.size(); ++iTone)
-		for(uint32_t iShade = 0; iShade < iShades; ++iShade) {
+	for(::llc::u2_t iTone = 1; iTone < colors.size(); ++iTone)
+		for(::llc::u2_t iShade = 0; iShade < iShades; ++iShade) {
 			if(0 == (iShade % iShades))
 				continue;
 
@@ -43,7 +43,7 @@ static	::llc::error_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::ll
 	return 0;
 }
 
-static	::llc::error_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra> & palette, int32_t iColor, ::llc::SControlTheme & theme, uint32_t iShades)	{
+static	::llc::error_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra> & palette, int32_t iColor, ::llc::SControlTheme & theme, ::llc::u2_t iShades)	{
 	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboDisabled									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	]	= {};
 	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboPressed 									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	]	= {};
 	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboSelected									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	]	= {};
@@ -100,15 +100,15 @@ static	::llc::error_t	themeSetupDefault						(const ::llc::view<const ::llc::bgr
 	colorComboNormal	[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND	]	= colorComboNormal		[::llc::UI_CONTROL_AREA_BACKGROUND];
 	colorComboNormal	[::llc::UI_CONTROL_AREA_CLIENT			]	= colorComboNormal		[::llc::UI_CONTROL_AREA_BACKGROUND];
 
-	for(uint32_t iState = 0; iState < theme.ColorCombos.size(); ++iState)
-		for(uint32_t iArea = 0; iArea < ::llc::UI_CONTROL_AREA_COUNT; ++iArea) {
-			theme.ColorCombos[iState][iArea]	= ::llc::min((uint32_t)theme.ColorCombos[iState][iArea], palette.size() - 1);
+	for(::llc::u2_t iState = 0; iState < theme.ColorCombos.size(); ++iState)
+		for(::llc::u2_t iArea = 0; iArea < ::llc::UI_CONTROL_AREA_COUNT; ++iArea) {
+			theme.ColorCombos[iState][iArea]	= ::llc::min((::llc::u2_t)theme.ColorCombos[iState][iArea], palette.size() - 1);
 		}
 	return 0;
 }
 
-static	::llc::error_t	themeSetupDefault	(const ::llc::a8bgra & palette, ::llc::apod<::llc::SControlTheme>& themes, uint32_t iShades)	{
-	for(uint32_t iColor = 0; iColor < palette.size(); ++iColor) {
+static	::llc::error_t	themeSetupDefault	(const ::llc::a8bgra & palette, ::llc::apod<::llc::SControlTheme>& themes, ::llc::u2_t iShades)	{
+	for(::llc::u2_t iColor = 0; iColor < palette.size(); ++iColor) {
 		const int32_t				indexTheme			= themes.push_back({});
 		::llc::SControlTheme		& theme				= themes[indexTheme];
 		::themeSetupDefault(palette, iColor, theme, iShades);
@@ -117,7 +117,7 @@ static	::llc::error_t	themeSetupDefault	(const ::llc::a8bgra & palette, ::llc::a
 }
 
 static	::llc::error_t	initDefaults		(::llc::pobj<::llc::a8bgra> & palette, ::llc::pobj<::llc::apod<::llc::SControlTheme>> & controlThemes) {
-	stacxpr	uint32_t			iShades				= 16;
+	stacxpr	::llc::u2_t			iShades				= 16;
 	static	::llc::bgra			paletteColors []	=
 		// 16 Base colors
 		{ ::llc::SColorRGBA{::llc::ASCII_COLOR_INDEX_0	}
@@ -147,15 +147,15 @@ static	::llc::error_t	initDefaults		(::llc::pobj<::llc::a8bgra> & palette, ::llc
 		, ::llc::SColorRGBA{0xFFFFFFFFU & (::llc::ASCII_COLOR_INDEX_4 * (uint64_t)::llc::ASCII_COLOR_INDEX_11)}
 		, ::llc::SColorRGBA{0xFFFFFFFFU & (::llc::ASCII_COLOR_INDEX_5 * (uint64_t)::llc::ASCII_COLOR_INDEX_10)}
 		, ::llc::SColorRGBA{0xFFFFFFFFU & (::llc::ASCII_COLOR_INDEX_7 * (uint64_t)::llc::ASCII_COLOR_INDEX_8 )}
-		, ::llc::SColorRGBA{(uint32_t)(::llc::ASCII_COLOR_INDEX_1 + ::llc::ASCII_COLOR_INDEX_4)}
-		, ::llc::SColorRGBA{(uint32_t)(::llc::ASCII_COLOR_INDEX_3 + ::llc::ASCII_COLOR_INDEX_7)}
-		, ::llc::SColorRGBA{(uint32_t)(::llc::ASCII_COLOR_INDEX_1 + ::llc::ASCII_COLOR_INDEX_8)}
-		, ::llc::SColorRGBA{(uint32_t)(::llc::ASCII_COLOR_INDEX_4 + ::llc::ASCII_COLOR_INDEX_7)}
+		, ::llc::SColorRGBA{(::llc::u2_t)(::llc::ASCII_COLOR_INDEX_1 + ::llc::ASCII_COLOR_INDEX_4)}
+		, ::llc::SColorRGBA{(::llc::u2_t)(::llc::ASCII_COLOR_INDEX_3 + ::llc::ASCII_COLOR_INDEX_7)}
+		, ::llc::SColorRGBA{(::llc::u2_t)(::llc::ASCII_COLOR_INDEX_1 + ::llc::ASCII_COLOR_INDEX_8)}
+		, ::llc::SColorRGBA{(::llc::u2_t)(::llc::ASCII_COLOR_INDEX_4 + ::llc::ASCII_COLOR_INDEX_7)}
 
 		, ::llc::BROWN
 		, ::llc::LIGHTORANGE
 	};
-	for(uint32_t iColor = 0; iColor < ::llc::size(paletteColors); ++iColor) 
+	for(::llc::u2_t iColor = 0; iColor < ::llc::size(paletteColors); ++iColor) 
 		paletteColors[iColor].a = 255;
 
 	if(palette && 0 == palette->size())
@@ -183,16 +183,16 @@ static	::llc::error_t	paletteSetupDefaultColors	(::llc::pobj<::llc::a8bgra> & pa
 }
 
 static	::llc::error_t	uiColorsSetupDefault (::llc::SGUIColors & guiColors) {
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_NORMAL				]	= (uint16_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::GRAY	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_DISABLED				]	= (uint16_t)guiColors.Palettes.push_back({{::llc::LIGHTGRAY	, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::LIGHTGRAY * 1.1	,::llc::LIGHTGRAY * 1.1	,}});::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_HOVER				]	= (uint16_t)guiColors.Palettes.push_back({{::llc::CYAN		, ::llc::YELLOW	, ::llc::MAGENTA, ::llc::GREEN, ::llc::ORANGE, {}, ::llc::DARKCYAN / 2.0	, ::llc::DARKCYAN / 2.0	,}}); ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_PRESSED				]	= (uint16_t)guiColors.Palettes.push_back({{::llc::RED		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_SELECTED				]	= (uint16_t)guiColors.Palettes.push_back({{::llc::ORANGE	, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_SELECTED_DISABLED	]	= (uint16_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_SELECTED_HOVER		]	= (uint16_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_SELECTED_PRESSED		]	= (uint16_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_ACTION				]	= (uint16_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
-	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_OUTDATED				]	= (uint16_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_NORMAL				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::GRAY	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_DISABLED				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::LIGHTGRAY	, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::LIGHTGRAY * 1.1	,::llc::LIGHTGRAY * 1.1	,}});::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_HOVER				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::CYAN		, ::llc::YELLOW	, ::llc::MAGENTA, ::llc::GREEN, ::llc::ORANGE, {}, ::llc::DARKCYAN / 2.0	, ::llc::DARKCYAN / 2.0	,}}); ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_PRESSED				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::RED		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_SELECTED				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::ORANGE	, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_SELECTED_DISABLED	]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_SELECTED_HOVER		]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_SELECTED_PRESSED		]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_ACTION				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
+	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_OUTDATED				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
 	return 0;
 }
 
@@ -210,10 +210,10 @@ static	::llc::error_t	uiColorsSetupDefault (::llc::pobj<::llc::SGUIColors> & gui
 
 static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	static ::llc::SRasterFontManager	g_managedFonts;
-	static const uint32_t				g_resultFontsLoaded	= ::llc::rasterFontDefaults(g_managedFonts);
+	static const ::llc::u2_t				g_resultFontsLoaded	= ::llc::rasterFontDefaults(g_managedFonts);
 	(void)g_resultFontsLoaded;
 	gui.Fonts.resize(g_managedFonts.Fonts.size());
-	for(uint32_t iFont = 0; iFont < g_managedFonts.Fonts.size(); ++iFont)
+	for(::llc::u2_t iFont = 0; iFont < g_managedFonts.Fonts.size(); ++iFont)
 		gui.Fonts[iFont] = g_managedFonts.Fonts[iFont];
 
 	llc_necs(llc::guiUpdateMetrics(gui, gui.LastSize, true));
@@ -233,7 +233,7 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 		llc_necs(::setupDefaultFontTexture(gui));
 
 	if(gui.Fonts.size() <= gui.SelectedFont)
-		gui.SelectedFont = uint16_t(gui.Fonts.size() - 1);
+		gui.SelectedFont = ::llc::u1_t(gui.Fonts.size() - 1);
 
 	return ::llc::controlCreate(gui.Controls, gui.Colors->DefaultColors);
 }
@@ -243,7 +243,7 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	info_printf("Deleting control id: %i.", iControl);
 	{
 		::llc::acid					children				= gui.Controls.Children[iControl];
-		for(uint32_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild) {
+		for(::llc::u2_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild) {
 			if(recursive) {
 				ef_if(failed(::llc::controlDelete(gui, children[iChild], true)), "Failed to delete control! Invalid control id? %i.", children[iChild]);
 			}
@@ -255,11 +255,11 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	// Remove from parent list
 	const ::llc::cid_t			indexParent				= gui.Controls.States[iControl].Parent;
 #if defined(LLC_DEBUG_ENABLED)
-	uint32_t					childrenRemoved			= 0;
+	::llc::u2_t					childrenRemoved			= 0;
 #endif
-	if((uint32_t)indexParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(indexParent)) {
+	if((::llc::u2_t)indexParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(indexParent)) {
 		::llc::acid					& children				= gui.Controls.Children[indexParent];
-		for(uint32_t iChild = 0; iChild < children.size(); ++iChild)
+		for(::llc::u2_t iChild = 0; iChild < children.size(); ++iChild)
 			if(children[iChild] == iControl) {
 				llc_necall(children.remove_unordered(iChild), "Failed to remove child at index: %u.", iChild);
 #if defined(LLC_DEBUG_ENABLED)
@@ -291,7 +291,7 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 		ancestor = gui.Controls.States[ancestor].Parent;
 	}
 
-	if((uint32_t)oldParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(oldParent)) {
+	if((::llc::u2_t)oldParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(oldParent)) {
 		::llc::acid					& children				= gui.Controls.Children[oldParent];
 		for(int32_t iChild = 0; iChild < (int32_t)children.size(); ++iChild)
 			if(children[iChild] == iControl) {
@@ -358,7 +358,7 @@ static	::llc::error_t	buildControlGeometry	(const ::llc::SControlPlacement & con
 	return 0;
 }
 
-static	::llc::error_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<uint16_t> & _targetSize)					{
+static	::llc::error_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<::llc::u1_t> & _targetSize)					{
 	llc_necall(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
 
 	::llc::SControlState		& controlState			= gui.Controls.States[iControl];
@@ -481,18 +481,18 @@ static	::llc::error_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iCon
 	return 0;
 }
 
-::llc::error_t			llc::controlUpdateMetricsTopToDown							(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<uint16_t> & targetSize, bool forceUpdate)				{
+::llc::error_t			llc::controlUpdateMetricsTopToDown							(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<::llc::u1_t> & targetSize, bool forceUpdate)				{
 	if(false == gui.Controls.IsUpdated(iControl) || forceUpdate)
 		llc_necall(::controlUpdateMetrics(gui, iControl, targetSize), "Failed to update metrics for control %i", iControl);
 
 	::llc::vcid					& children												= gui.Controls.Children[iControl];
-	for(uint32_t iChild = 0; iChild < children.size(); ++iChild)
+	for(::llc::u2_t iChild = 0; iChild < children.size(); ++iChild)
 		llc_necall(llc::controlUpdateMetricsTopToDown(gui, children[iChild], targetSize, forceUpdate), "Failed to update metrics for control %i", children[iChild]);
 	return 0;
 }
 
-::llc::error_t			llc::guiUpdateMetrics									(::llc::SGUI & gui, const ::llc::n2<uint16_t> & targetSize, bool forceUpdate)								{
-	for(uint32_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
+::llc::error_t			llc::guiUpdateMetrics									(::llc::SGUI & gui, const ::llc::n2<::llc::u1_t> & targetSize, bool forceUpdate)								{
+	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
 		if(::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent) && false == ::llc::controlInvalid(gui, (::llc::cid_t)iControl))
 			llc_necall(llc::controlUpdateMetricsTopToDown(gui, (::llc::cid_t)iControl, targetSize, forceUpdate), "Failed to update metrics for control %i", iControl);
 	return 0;
@@ -526,11 +526,11 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	}
 	{
 		::llc::vcid					& children				= gui.Controls.Children[iControl];
-		for(uint32_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild) {
+		for(::llc::u2_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild) {
 			if(::llc::controlHidden(gui, children[iChild]))
 				continue;
 			::llc::cid_t				controlPressed			= ::controlProcessInput(gui, input, children[iChild]);
-			if(gui.Controls.States.size() > (uint32_t)controlPressed) {
+			if(gui.Controls.States.size() > (::llc::u2_t)controlPressed) {
 				gui.Controls.SetHovered(iControl, false);
 				controlHovered			= controlPressed;
 			}
@@ -548,7 +548,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	::llc::acid					rootControlsToProcess	= {};
 	rootControlsToProcess.reserve(1000);
 	(void)sysEvents;
-	for(uint32_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {	// Only process root parents
+	for(::llc::u2_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {	// Only process root parents
 		const ::llc::SControlState	& controlState			= gui.Controls.States[iControl];
 		if(controlState.IsUnused())
 			continue;
@@ -568,19 +568,19 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	}
 
 	gui.CursorPos			= {(float)input.MouseCurrent.Position.x, (float)input.MouseCurrent.Position.y}; //+= {(float)input.MouseCurrent.Deltas.x, (float)input.MouseCurrent.Deltas.y};
-	for(uint32_t iControl = 0, countControls = rootControlsToProcess.size(); iControl < countControls; ++iControl) {
+	for(::llc::u2_t iControl = 0, countControls = rootControlsToProcess.size(); iControl < countControls; ++iControl) {
 		if(::llc::controlHidden(gui, rootControlsToProcess[iControl]))
 			continue;
 
 		::llc::cid_t				controlPressed		= ::controlProcessInput(gui, input, rootControlsToProcess[iControl]);
-		if(gui.Controls.States.size() > (uint32_t)controlPressed)
+		if(gui.Controls.States.size() > (::llc::u2_t)controlPressed)
 			controlHovered			= controlPressed;
 	}
 	if(controlHovered == -1)
 		return gui.Controls.States.size();
 
-	for(uint32_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {
-		if(iControl != (uint32_t)controlHovered) {
+	for(::llc::u2_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {
+		if(iControl != (::llc::u2_t)controlHovered) {
 			gui.Controls.SetHovered((::llc::cid_t)iControl, false);;
 			if(0 == input.MouseCurrent.ButtonState[0])
 				gui.Controls.SetPressed((::llc::cid_t)iControl, false);
@@ -591,14 +591,14 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 }
 
 ::llc::error_t			llc::guiDeselect		(::llc::SGUI & gui)	{
-	for(uint32_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
+	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
 		gui.Controls.SetSelected((::llc::cid_t)iControl, false);
 
 	return 0;
 }
 
 ::llc::error_t			llc::guiSelect			(::llc::SGUI & gui, ::llc::cid_t controlToSelect)	{
-	for(uint32_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl) 
+	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl) 
 		gui.Controls.SetSelected((::llc::cid_t)iControl, controlToSelect == (::llc::cid_t)iControl);
 
 	return 0;
@@ -617,14 +617,14 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 ::llc::error_t			llc::controlMetricsInvalidate	(::llc::SGUI & gui, ::llc::cid_t iControl)	{
 	gui.Controls.SetUpdated(iControl, false);
 	const ::llc::vcid			& controlChildren		= gui.Controls.Children[iControl];
-	for(uint32_t iChild = 0, countChild = controlChildren.size(); iChild < countChild; ++iChild)
+	for(::llc::u2_t iChild = 0, countChild = controlChildren.size(); iChild < countChild; ++iChild)
 		llc_necall(llc::controlMetricsInvalidate(gui, controlChildren[iChild]), "%s", "Invalid child?");
 
 	return 0;
 }
 
 ::llc::error_t			llc::guiGetProcessableControls	(const ::llc::SGUI & gui, ::llc::acid & controlIndices)													{
-	for(uint32_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {	// Only process root parents
+	for(::llc::u2_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {	// Only process root parents
 		const ::llc::SControlState	& controlState					= gui.Controls.States[iControl];
 		if(controlState.IsUnused() || ::llc::controlDisabled(gui, (::llc::cid_t)iControl) || ::llc::controlHidden(gui, (::llc::cid_t)iControl))
 			continue;
@@ -640,7 +640,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 }
 
 ::llc::error_t			llc::guiProcessControls		(const ::llc::SGUI & gui, ::llc::vcid controlsToProcess, const ::llc::function<::llc::error_t(::llc::cid_t iControl)> & funcOnExecute) {
-	for(uint32_t iControl = 0, countControls = controlsToProcess.size(); iControl < countControls; ++iControl) {
+	for(::llc::u2_t iControl = 0, countControls = controlsToProcess.size(); iControl < countControls; ++iControl) {
 		const ::llc::cid_t			idControl					= controlsToProcess[iControl];
 		const ::llc::SControlState	& controlState				= gui.Controls.States[idControl];
 		if(controlState.IsAction()) {
@@ -680,7 +680,7 @@ static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable,
 	controlTable.Images		[iControl]	= {};
 	
 	::llc::SControlDraw			& controlDraw			= controlTable.Draw[iControl];
-	for(uint32_t iColor = 0, countColors = ::llc::min(controlDraw.Palettes.size(), defaultColors.size()); iColor < countColors; ++iColor)
+	for(::llc::u2_t iColor = 0, countColors = ::llc::min(controlDraw.Palettes.size(), defaultColors.size()); iColor < countColors; ++iColor)
 		controlDraw.Palettes[iColor] = defaultColors[iColor];
 
 	return 0;
@@ -688,7 +688,7 @@ static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable,
 
 
 ::llc::cid_t			llc::controlCreate		(::llc::SControlTable & controlTable, ::llc::vi16 defaultColors)	{
-	for(uint32_t iControl = 0; iControl < controlTable.States.size(); ++iControl) {
+	for(::llc::u2_t iControl = 0; iControl < controlTable.States.size(); ++iControl) {
 		if(controlTable.IsUnused((::llc::cid_t)iControl)) {
 			llc_necall(::controlInstanceReset(controlTable, (::llc::cid_t)iControl, defaultColors), "iControl: %i", iControl);
 			return (::llc::cid_t)iControl;

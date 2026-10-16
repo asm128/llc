@@ -5,7 +5,7 @@
 #include "llc_engine_shader.h"
 
 ::llc::error_t			llc::updateEntityTransforms			
-	( uint32_t								iEntity
+	( ::llc::u2_t								iEntity
 	, const ::llc::SEntity			& entity
 	, const ::llc::SVirtualEntityManager	& managedEntities	
 	, ::llc::SRigidBodyIntegrator			& integrator		
@@ -47,8 +47,8 @@
 		}
 	}
 	if(children) {
-		for(uint32_t iChild = 0; iChild < children->size(); ++iChild) {
-			const uint32_t								iChildEntity					= (*children)[iChild];
+		for(::llc::u2_t iChild = 0; iChild < children->size(); ++iChild) {
+			const ::llc::u2_t								iChildEntity					= (*children)[iChild];
 			::llc::updateEntityTransforms(iChildEntity, managedEntities.Entities[iChildEntity], managedEntities, integrator, renderNodes);
 		}
 	}
@@ -61,11 +61,11 @@
 	::llc::SEntity			& entity			= Entities[iEntity];
 	entity.RenderNode			= Scene->RenderNodes.Create();
 
-	uint16_t						indexLight			= (uint16_t)-1;
+	::llc::u1_t						indexLight			= (::llc::u1_t)-1;
 	switch(type) {
-	case ::llc::LIGHT_TYPE_Directional	: indexLight = (uint16_t)Scene->RenderNodes.LightsDirectional	.push_back({}); break;
-	case ::llc::LIGHT_TYPE_Point		: indexLight = (uint16_t)Scene->RenderNodes.LightsPoint			.push_back({}); break;
-	case ::llc::LIGHT_TYPE_Spot			: indexLight = (uint16_t)Scene->RenderNodes.LightsSpot			.push_back({}); break;
+	case ::llc::LIGHT_TYPE_Directional	: indexLight = (::llc::u1_t)Scene->RenderNodes.LightsDirectional	.push_back({}); break;
+	case ::llc::LIGHT_TYPE_Point		: indexLight = (::llc::u1_t)Scene->RenderNodes.LightsPoint			.push_back({}); break;
+	case ::llc::LIGHT_TYPE_Spot			: indexLight = (::llc::u1_t)Scene->RenderNodes.LightsSpot			.push_back({}); break;
 	default:
 		error_printf("Invalid light type: %i", (int)type);
 		return -1;
@@ -228,17 +228,17 @@
 //	::llc::SEntity		& entity				= Entities[iEntity];
 //	::llc::SRenderNode			& renderNode			= Scene->RenderNodes[entity.RenderNode];
 //
-//	uint32_t					iMesh					= renderNode.Mesh;
+//	::llc::u2_t					iMesh					= renderNode.Mesh;
 //	::llc::pobj<::llc::SGeometryMesh>	& mesh			= Scene->Graphics->Meshes[iMesh];
 //	Scene->Graphics->Skins[renderNode.Skin]->Material.Color.Diffuse.a = .25f;
 //	mesh->GeometrySlices.resize(6);	// one per face
 //
-//	uint32_t					offsetIndex				= 0;
-//	for(uint32_t iFace = 0; iFace < 6; ++iFace) {
-//		uint32_t					iSkin					= (uint32_t)Scene->Graphics->Skins.Create();
+//	::llc::u2_t					offsetIndex				= 0;
+//	for(::llc::u2_t iFace = 0; iFace < 6; ++iFace) {
+//		::llc::u2_t					iSkin					= (::llc::u2_t)Scene->Graphics->Skins.Create();
 //		::llc::pobj<::llc::SSkin>	& skin					= Scene->Graphics->Skins.Elements[iSkin];
 //
-//		uint32_t					iSurface				= (uint32_t)Scene->Graphics->Surfaces.Create();
+//		::llc::u2_t					iSurface				= (::llc::u2_t)Scene->Graphics->Surfaces.Create();
 //		::llc::pobj<::llc::SSurface>& surface				= Scene->Graphics->Surfaces[iSurface];
 //		surface->Desc.ColorType				= ::llc::COLOR_TYPE_BGRA;
 //		surface->Desc.MethodCompression		= 0;
@@ -261,7 +261,7 @@
 //		offsetIndex				+= slice.Slice.Count;
 //
 //		int32_t						iFaceEntity				= Entities.Create();
-//		uint32_t					iFaceRenderNode			= Scene->RenderNodes.Create();
+//		::llc::u2_t					iFaceRenderNode			= Scene->RenderNodes.Create();
 //		::llc::SEntity		& faceEntity			= Entities[iFaceEntity];
 //		::llc::SRenderNode			& faceRenderNode		= Scene->RenderNodes.RenderNodes[iFaceRenderNode];
 //

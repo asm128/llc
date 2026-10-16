@@ -19,7 +19,7 @@ namespace llc
 	stxp	double		math_pi_180			= ::llc::math_pi / 180.0;				// Pi / 180.0
 	stxp	double		math_epsilon		= 0.00001;
 
-	stin	uint64_t	powui				(u2_c	base, u2_c exponent)				noexcept	{ uint64_t result = 1; for(uint32_t i = 0; i < exponent; ++i) result *= base; return result;	}
+	stin	uint64_t	powui				(u2_c	base, u2_c exponent)				noexcept	{ uint64_t result = 1; for(::llc::u2_t i = 0; i < exponent; ++i) result *= base; return result;	}
 
 	tplt<tpnm _tNumber>
 	sinx	double		sqrt_safe			(_tNumber _valueSquared)									noexcept	{ return _valueSquared ? sqrt(_valueSquared) : 0;		}

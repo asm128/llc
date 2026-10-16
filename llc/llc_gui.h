@@ -43,8 +43,8 @@ namespace llc
 
 		::llc::SGUIZoom						LastZoom			= {};
 		::llc::SGUIZoom						Zoom				= {};
-		uint16_t							SelectedFont		= 7;
-		uint16_t							ThemeDefault		= ::llc::ASCII_COLOR_CYAN * 16 + 8;
+		::llc::u1_t							SelectedFont		= 7;
+		::llc::u1_t							ThemeDefault		= ::llc::ASCII_COLOR_CYAN * 16 + 8;
 		::llc::GUI_COLOR_MODE				ColorModeDefault	= ::llc::GUI_COLOR_MODE_3D;//::llc::GUI_COLOR_MODE_DEFAULT;
 		bool								InputModeTouch		= true;
 	};
@@ -63,7 +63,7 @@ namespace llc
 	::llc::error_t			controlDrawHierarchy			(::llc::SGUI & gui, cid_t iControl, ::llc::g8bgra target);
 	::llc::error_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, const ::llc::vcs & text);
 	::llc::error_t			controlFontSet					(::llc::SGUI & gui, cid_t iControl, int16_t iFont);
-	//::llc::error_t			controlUpdateMetrics			(::llc::SGUI & gui, int32_t iControl, const ::llc::n2<uint32_t> & targetSize);
+	//::llc::error_t			controlUpdateMetrics			(::llc::SGUI & gui, int32_t iControl, const ::llc::n2<::llc::u2_t> & targetSize);
 	::llc::error_t			controlUpdateMetricsTopToDown	(::llc::SGUI & gui, cid_t iControl, const ::llc::n2u1_t & targetSize, bool forceUpdate);
 	::llc::error_t			controlMetricsInvalidate		(::llc::SGUI & gui, cid_t iControl);
 	::llc::error_t			controlHidden					(const ::llc::SGUI & gui, cid_t iControl);

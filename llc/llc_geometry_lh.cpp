@@ -1,14 +1,14 @@
 #ifndef LLC_ATMEL
 #include "llc_geometry_lh.h"
 
-::llc::error_t			llc::geometryBuildTileListFromImage		(::llc::gc8bgra image, ::llc::apod<::llc::STile> & out_tiles, uint32_t imagePitch)	{
+::llc::error_t			llc::geometryBuildTileListFromImage		(::llc::gc8bgra image, ::llc::apod<::llc::STile> & out_tiles, ::llc::u2_t imagePitch)	{
 	{
 		::llc::STile											newTile;
-		for(uint32_t z = 0, maxZ = image.metrics().y; z < maxZ ; ++z)
-		for(uint32_t x = 0, maxX = image.metrics().x; x < maxX ; ++x) {
+		for(::llc::u2_t z = 0, maxZ = image.metrics().y; z < maxZ ; ++z)
+		for(::llc::u2_t x = 0, maxX = image.metrics().x; x < maxX ; ++x) {
 			::llc::rgbaf										currentPixel							= (0 == imagePitch) ? image[z][x] : image.begin()[z * imagePitch + x];
 			float													pixelHeight								= float((currentPixel.r + (double)currentPixel.g + currentPixel.b) / 3.0);
-			for(uint32_t iCorner = 0; iCorner < 4; ++iCorner)
+			for(::llc::u2_t iCorner = 0; iCorner < 4; ++iCorner)
 				newTile.Height[iCorner]								= pixelHeight;
 			newTile.Top											= 1;
 			newTile.Front										= -1;
@@ -17,15 +17,15 @@
 			out_tiles.push_back(newTile);
 		}
 	}
-	for(uint32_t z = 0; z < image.metrics().y; ++z)
-	for(uint32_t x = 0; x < image.metrics().x - 1; ++x) {
+	for(::llc::u2_t z = 0; z < image.metrics().y; ++z)
+	for(::llc::u2_t x = 0; x < image.metrics().x - 1; ++x) {
 		::llc::STile											& currentTile							= out_tiles[z * image.metrics().y + x];
 		::llc::STile											& frontTile								= out_tiles[z * image.metrics().y + x + 1];
 		if(currentTile.Height[1] != frontTile.Height[0] || currentTile.Height[3] != frontTile.Height[2])
 			currentTile.Front									= 1;
 	}
-	for(uint32_t z = 0; z < image.metrics().y - 1; ++z)
-	for(uint32_t x = 0; x < image.metrics().x; ++x) {
+	for(::llc::u2_t z = 0; z < image.metrics().y - 1; ++z)
+	for(::llc::u2_t x = 0; x < image.metrics().x; ++x) {
 		::llc::STile											& currentTile							= out_tiles[z		* image.metrics().y + x];
 		::llc::STile											& rightTile								= out_tiles[(z + 1)	* image.metrics().y + x];
 		if(currentTile.Height[2] != rightTile.Height[0] || currentTile.Height[3] != rightTile.Height[1])
@@ -36,8 +36,8 @@
 
 ::llc::error_t			llc::geometryBuildGridFromTileList		(::llc::SGeometryQuads & geometry, ::llc::grid<const ::llc::STile> tiles, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale) {
 	::llc::n2f2_t									texCoordUnits						= {1.0f / tiles.metrics().x, 1.0f / tiles.metrics().y};
-	for(uint32_t z = 0; z < tiles.metrics().y; ++z)
-	for(uint32_t x = 0; x < tiles.metrics().x; ++x) {
+	for(::llc::u2_t z = 0; z < tiles.metrics().y; ++z)
+	for(::llc::u2_t x = 0; x < tiles.metrics().x; ++x) {
 		::llc::n2f2_t									texcoords	[4]				=
 			{ {(x		) * texCoordUnits.x, (z		) * texCoordUnits.y}
 			, {(x + 1	) * texCoordUnits.x, (z		) * texCoordUnits.y}
@@ -227,20 +227,20 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 	};
 
 ::llc::error_t			llc::geometryBuildCube	(SGeometryQuads & geometry, const ::llc::n3f2_t & scale, const ::llc::n3f2_t & translation)	{
-	const uint32_t											firstTriangle					= geometry.Triangles.size(); 
+	const ::llc::u2_t											firstTriangle					= geometry.Triangles.size(); 
 	llc_necs(llc::geometryBuildCube(geometry, scale));
-	for(uint32_t iTri = firstTriangle; iTri < geometry.Triangles.size(); ++iTri) 
+	for(::llc::u2_t iTri = firstTriangle; iTri < geometry.Triangles.size(); ++iTri) 
 		geometry.Triangles[iTri].Translate(translation);
 	return 0;
 }
 
 ::llc::error_t			llc::geometryBuildCube	(SGeometryQuads & geometry, const ::llc::n3f2_t & scale)	{
-	const uint32_t				triangleOffset			= geometry.Triangles.size();
-	geometry.Triangles		.resize(triangleOffset + (uint32_t)::llc::size(geometryCube));
-	geometry.Normals		.resize(triangleOffset + (uint32_t)::llc::size(geometryNormals));
-	geometry.TextureCoords	.resize(triangleOffset + (uint32_t)::llc::size(texCoordCubeYUp));
+	const ::llc::u2_t				triangleOffset			= geometry.Triangles.size();
+	geometry.Triangles		.resize(triangleOffset + (::llc::u2_t)::llc::size(geometryCube));
+	geometry.Normals		.resize(triangleOffset + (::llc::u2_t)::llc::size(geometryNormals));
+	geometry.TextureCoords	.resize(triangleOffset + (::llc::u2_t)::llc::size(texCoordCubeYUp));
 
-	for(uint32_t iTriangle = 0, countTriangles = (uint32_t)::llc::size(geometryCube); iTriangle < countTriangles; ++iTriangle) {
+	for(::llc::u2_t iTriangle = 0, countTriangles = (::llc::u2_t)::llc::size(geometryCube); iTriangle < countTriangles; ++iTriangle) {
 		::llc::tri3f2_t				& newTriangle		= geometry.Triangles[triangleOffset + iTriangle];
 		newTriangle				= geometryCube[iTriangle].f2();
 		newTriangle.A			-= {.5, .5, .5};
@@ -261,8 +261,8 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 
 ::llc::error_t			llc::geometryBuildGrid	(SGeometryQuads & geometry, ::llc::n2u1_t gridSize, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t				texCoordUnits			= {1.0f / gridSize.x, 1.0f / gridSize.y};
-	for(uint32_t z = 0; z < gridSize.y; ++z)
-	for(uint32_t x = 0; x < gridSize.x; ++x)  {
+	for(::llc::u2_t z = 0; z < gridSize.y; ++z)
+	for(::llc::u2_t x = 0; x < gridSize.x; ++x)  {
 		::llc::n3f2_t				coords	[4]				=
 			{ {0, 0, 0}
 			, {0, 0, 1}
@@ -303,10 +303,10 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 }
 
 //
-::llc::error_t			llc::geometryBuildFigure0	(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
+::llc::error_t			llc::geometryBuildFigure0	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
 	(void)radius;
-	for(uint32_t z = 0; z < stacks; ++z)
-	for(uint32_t x = 0; x < slices; ++x)  {
+	for(::llc::u2_t z = 0; z < stacks; ++z)
+	for(::llc::u2_t x = 0; x < slices; ++x)  {
 		::llc::n2f2_t				texcoords	[4]			=
 			{ {0, 0}
 			, {0, 1}
@@ -335,10 +335,10 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 	return 0;
 }
 //
-//::llc::error_t			llc::geometryBuildFigure1	(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
+//::llc::error_t			llc::geometryBuildFigure1	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
 //	(void)radius;
-//	for(uint32_t z = 0; z < stacks; ++z)
-//	for(uint32_t x = 0; x < slices; ++x)  {
+//	for(::llc::u2_t z = 0; z < stacks; ++z)
+//	for(::llc::u2_t x = 0; x < slices; ++x)  {
 //		::llc::n2f2_t									texcoords	[4]			=
 //			{ {0, 0}
 //			, {0, 1}
@@ -367,10 +367,10 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 //	return 0;
 //}
 
-::llc::error_t			llc::geometryBuildHelixHalf	(SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::error_t			llc::geometryBuildHelixHalf	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t									texCoordUnits				= {1.0f / slices, 1.0f / stacks};
-	for(uint32_t z = 0; z < stacks; ++z)
-	for(uint32_t x = 0; x < slices; ++x)  {
+	for(::llc::u2_t z = 0; z < stacks; ++z)
+	for(::llc::u2_t x = 0; x < slices; ++x)  {
 		::llc::n2f2_t									texcoords	[4]			=
 			{ {(x		) * texCoordUnits.x, (z		) * texCoordUnits.y}
 			, {(x		) * texCoordUnits.x, (z + 1	) * texCoordUnits.y}
@@ -400,10 +400,10 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 	return 0;
 }
 
-::llc::error_t			llc::geometryBuildHelix		(SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::error_t			llc::geometryBuildHelix		(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t									texCoordUnits				= {1.0f / slices, 1.0f / stacks};
-	for(uint32_t z = 0; z < stacks; ++z)
-	for(uint32_t x = 0; x < slices; ++x)  {
+	for(::llc::u2_t z = 0; z < stacks; ++z)
+	for(::llc::u2_t x = 0; x < slices; ++x)  {
 		::llc::n2f2_t									texcoords	[4]			=
 			{ {(x		) * texCoordUnits.x, (z		) * texCoordUnits.y}
 			, {(x		) * texCoordUnits.x, (z + 1	) * texCoordUnits.y}
@@ -455,10 +455,10 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 }
 
 //
-::llc::error_t			llc::geometryBuildSphere	(SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
+::llc::error_t			llc::geometryBuildSphere	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
 	::llc::n2f2_t									texCoordUnits				= {1.0f / slices, 1.0f / stacks};
-	for(uint32_t z = 0; z < stacks; ++z)
-	for(uint32_t x = 0; x < slices; ++x)  {
+	for(::llc::u2_t z = 0; z < stacks; ++z)
+	for(::llc::u2_t x = 0; x < slices; ++x)  {
 		{
 			::llc::n2f2_t									texcoords	[4]				=
 				{ {(z		) * texCoordUnits.y, (x		) * texCoordUnits.x}
@@ -505,13 +505,13 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 }
 
 //
-::llc::error_t			llc::geometryBuildCylinder	(SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radiusYMin, float radiusYMax, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::error_t			llc::geometryBuildCylinder	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radiusYMin, float radiusYMax, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t				texCoordUnits				= {1.0f / slices, 1.0f / stacks};
 	const double				radiusUnit					= 1.0 / stacks;
-	for(uint32_t y = 0; y < stacks; ++y) {
+	for(::llc::u2_t y = 0; y < stacks; ++y) {
 		double						radius						= ::llc::interpolate_linear(radiusYMin, radiusYMax, radiusUnit * y);
 		double						radiusNext					= ::llc::interpolate_linear(radiusYMin, radiusYMax, radiusUnit * (y + 1));
-		for(uint32_t z = 0; z < slices; ++z) {
+		for(::llc::u2_t z = 0; z < slices; ++z) {
 			{
 				::llc::n2f2_t				texcoords	[4]				=
 					{ {(z		) * texCoordUnits.x, (y		) * texCoordUnits.y}
@@ -559,10 +559,10 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 }
 
 
-::llc::error_t			llc::geometryBuildTender	(SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::error_t			llc::geometryBuildTender	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t				texCoordUnits				= {1.0f / slices, 1.0f / stacks};
-	for(uint32_t z = 0; z < stacks; ++z)
-	for(uint32_t x = 0; x < slices; ++x)  {
+	for(::llc::u2_t z = 0; z < stacks; ++z)
+	for(::llc::u2_t x = 0; x < slices; ++x)  {
 		{
 			::llc::n2f2_t				texcoords	[4]				=
 				{ {(z		) * texCoordUnits.y, (x		) * texCoordUnits.x}

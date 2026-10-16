@@ -7,9 +7,9 @@ namespace llc
 {
 	tplt<tpnm T>
 	::llc::error_t					grid_scale_fast				(::llc::grid<T> & dst, const ::llc::grid<T> & src, const float xFactor, const float yFactor) {
-		for(uint32_t y = 0; y < dst.metrics().y; ++y)
-		for(uint32_t x = 0; x < dst.metrics().x; ++x)
-			dst[y][x]						= src[(uint32_t)(y * yFactor)][(uint32_t)(x * xFactor)];
+		for(::llc::u2_t y = 0; y < dst.metrics().y; ++y)
+		for(::llc::u2_t x = 0; x < dst.metrics().x; ++x)
+			dst[y][x]						= src[(::llc::u2_t)(y * yFactor)][(::llc::u2_t)(x * xFactor)];
 		return 0;
 	}
 
@@ -22,10 +22,10 @@ namespace llc
 
 	tplt<tpnm T>
 	::llc::error_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const float xFactor, const float yFactor) {
-		for(uint32_t y = 0; y < dst.metrics().y; ++y)
-		for(uint32_t x = 0; x < dst.metrics().x; ++x) {
-			const u2_t						xSrc						= (uint32_t)(x * xFactor);
-			const u2_t						ySrc						= (uint32_t)(y * yFactor);
+		for(::llc::u2_t y = 0; y < dst.metrics().y; ++y)
+		for(::llc::u2_t x = 0; x < dst.metrics().x; ++x) {
+			const u2_t						xSrc						= (::llc::u2_t)(x * xFactor);
+			const u2_t						ySrc						= (::llc::u2_t)(y * yFactor);
 			if( ::llc::in_range(ySrc, 0U, src.metrics().y)
 			 && ::llc::in_range(xSrc, 0U, src.metrics().x)
 			 )

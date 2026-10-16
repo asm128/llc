@@ -19,7 +19,7 @@ namespace llc
 		const T&			operator[]		(const K & key)	const	{ return Values[Keys.find(key)]; }
 		T&					operator[]		(const K & key)			{ return Values[Keys.find(key)]; }
 
-		uint32_t			size			()				const	{ return Keys.size(); }
+		::llc::u2_t			size			()				const	{ return Keys.size(); }
 
 		::llc::error_t		push_back		(const K & key, const T & instance)	{
 			if_true_fef(0 <= Keys.find(key), "%s", "Duplicate key.");
@@ -44,7 +44,7 @@ namespace llc
 			return Values.remove_unordered(index);
 		}
 
-		::llc::error_t		Clone			(const K & key, uint32_t index)	{
+		::llc::error_t		Clone			(const K & key, ::llc::u2_t index)	{
 			if_true_fef(index >= Values.size(), "Invalid source index:%u. Value count:%u.", index, Values.size());
 			return push_back(key, Values[index]);
 		}

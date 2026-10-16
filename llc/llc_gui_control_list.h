@@ -7,7 +7,7 @@ namespace llc
 {
 	::llc::cid_t			guiCreateControlList		(::llc::SGUI & gui, ::llc::DIRECTION direction, ::llc::view<::llc::vcst_c> buttonText, ::llc::cid_t iParent, const ::llc::SControlPlacement & args, ::llc::ALIGN textAlign, ::llc::vcid out_ids);
 	stainli	::llc::cid_t	guiCreateControlList		(::llc::SGUI & gui, ::llc::DIRECTION direction, ::llc::view<::llc::vcst_c> buttonText, ::llc::cid_t iParent, const ::llc::SControlPlacement & args, ::llc::ALIGN textAlign, ::llc::acid & out_ids)									{ 
-		const uint32_t offset = out_ids.size();
+		const ::llc::u2_t offset = out_ids.size();
 		llc_necs(out_ids.resize(offset + buttonText.size()));
 		return ::llc::guiCreateControlList(gui, direction, buttonText, iParent, args, textAlign, vcid{out_ids.begin() + offset, buttonText.size()}); 
 	}
@@ -22,17 +22,17 @@ namespace llc
 		return ::llc::guiCreateControlList(gui, ::llc::get_value_labels<_tUIEnum>(), iParent, buttonSize, offset, controlAlign, textAlign, out_ids);
 	}
 	stainli	::llc::cid_t	guiCreateControlList		(::llc::SGUI & gui, ::llc::view<::llc::vcst_c> buttonText, ::llc::cid_t iParent, const ::llc::n2u1_t & buttonSize, const ::llc::n2s1_t & offset, ::llc::ALIGN controlAlign, ::llc::ALIGN textAlign, ::llc::acid & out_ids)	{ 
-		const uint32_t offsetId = out_ids.size();
+		const ::llc::u2_t offsetId = out_ids.size();
 		out_ids.resize(offsetId + buttonText.size()); 
 		return ::llc::guiCreateControlList(gui, buttonText, iParent, buttonSize, offset, controlAlign, textAlign, vcid{out_ids.begin() + offsetId, buttonText.size()}); 
 	}
 
 	tplt<tpnm _tUIEnum>
-	stainli	::llc::cid_t	guiCreateControlList		(::llc::SGUI & gui, ::llc::cid_t iParent, uint16_t buttonWidth, int16_t yOffset, ::llc::ALIGN controlAlign, ::llc::ALIGN textAlign, ::llc::acid & out_ids) {
+	stainli	::llc::cid_t	guiCreateControlList		(::llc::SGUI & gui, ::llc::cid_t iParent, ::llc::u1_t buttonWidth, int16_t yOffset, ::llc::ALIGN controlAlign, ::llc::ALIGN textAlign, ::llc::acid & out_ids) {
 		return ::llc::guiCreateControlList(gui, ::llc::get_value_labels<_tUIEnum>(), iParent, {buttonWidth, 20}, {0, yOffset}, controlAlign, textAlign, out_ids);
 	}
 	tplt<tpnm _tUIEnum>
-	stainli	::llc::cid_t	guiCreateControlList		(::llc::SGUI & gui, ::llc::cid_t iParent, uint16_t buttonWidth, const ::llc::n2s1_t & offset, ::llc::ALIGN controlAlign, ::llc::ALIGN textAlign, ::llc::acid & out_ids) {
+	stainli	::llc::cid_t	guiCreateControlList		(::llc::SGUI & gui, ::llc::cid_t iParent, ::llc::u1_t buttonWidth, const ::llc::n2s1_t & offset, ::llc::ALIGN controlAlign, ::llc::ALIGN textAlign, ::llc::acid & out_ids) {
 		return ::llc::guiCreateControlList(gui, ::llc::get_value_labels<_tUIEnum>(), iParent, {buttonWidth, 20}, offset, controlAlign, textAlign, out_ids);
 	}
 	tplt<tpnm _tUIEnum>

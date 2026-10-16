@@ -67,7 +67,7 @@ namespace llc
 
 	tplt<tpnm _tElement>
 	::llc::error_t			integrate					(const ::llc::view<::llc::SParticle2<_tElement>>& particles, ::llc::apod<::llc::SParticle2State>& particleStates, ::llc::view<::llc::SParticle2<_tElement>>& particlesNext, double timeElapsed, double timeElapsedHalfSquared)			{
-		for(uint32_t iParticle = 0, particleCount = (uint32_t)particleStates.size(); iParticle < particleCount; ++iParticle)
+		for(::llc::u2_t iParticle = 0, particleCount = (::llc::u2_t)particleStates.size(); iParticle < particleCount; ++iParticle)
 			if(particleStates[iParticle].RequiresProcessing()) {
 				::llc::SParticle2<_tElement>												& particleNext								= particlesNext[iParticle] = particles[iParticle];	// Copy the current particle state to the next
 				::llc::particleIntegratePosition(particleNext.Forces.Velocity, timeElapsed, timeElapsedHalfSquared, particleNext.Position);
@@ -91,10 +91,10 @@ namespace llc
 		::llc::error_t							Integrate									(::llc::view<TParticle>& particleNext, double timeElapsed, double timeElapsedHalfSquared)			{ return ::llc::integrate(Particle, ParticleState, particleNext, timeElapsed, timeElapsedHalfSquared);		}
 		// --------------------------------------------------------
 		::llc::error_t							AddParticle					(const TParticle& particleData)																			{
-			const uint32_t								particleCount								= (uint32_t)ParticleState.size();
+			const ::llc::u2_t								particleCount								= (::llc::u2_t)ParticleState.size();
 			stacxpr	const ::llc::SParticle2State		initialParticleState						= {false, true};
 
-			for(uint32_t iBody = 0; iBody < particleCount; ++iBody)	// Check if there is any unused particle that we can recycle.
+			for(::llc::u2_t iBody = 0; iBody < particleCount; ++iBody)	// Check if there is any unused particle that we can recycle.
 				if( ParticleState	[iBody].Unused ) {
 					ParticleState	[iBody]													= initialParticleState;
 					Particle		[iBody]													=

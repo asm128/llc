@@ -27,7 +27,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 ::llc::error_t			llc::crcGenerate			(vcu0_t bytes, uint64_t & crc)	{
 	crc						= 0;
 	u2_c				lastPos						= bytes.size() - 1;
-	for(uint32_t i=0; i < bytes.size(); ++i) {
+	for(::llc::u2_t i=0; i < bytes.size(); ++i) {
 		crc						+= ::llc::noise1DBase(bytes[i], ::LLC_CRC_CRC_SEED);
 		crc						+= ::llc::noise1DBase(bytes[lastPos - i], ::LLC_CRC_CRC_SEED);
 	}
@@ -37,7 +37,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 ::llc::error_t			llc::crcGenerateAndAppend	(::llc::au0_t & bytes)	{
 	uint64_t					crcToStore					= 0;
 	::llc::crcGenerate(bytes, crcToStore);
-	llc_necs(bytes.append((const uint8_t*)&crcToStore, szof(uint64_t)));;
+	llc_necs(bytes.append((const u0_t*)&crcToStore, szof(uint64_t)));;
 	return 0;
 }
 
@@ -74,7 +74,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 		strm.next_out			= (Bytef*)block.begin();
 		ret						= deflate(&strm, Z_FINISH);    // no bad return value
 		bef_if(ret == Z_STREAM_ERROR, "Failed to compress: 0x%x.", ret);  // state not clobbered
-		u2_c				deflatedSize			= (uint32_t)((uint8_t*)strm.next_out - block.begin());
+		u2_c				deflatedSize			= (::llc::u2_t)((u0_t*)strm.next_out - block.begin());
 		llc_necs(deflated.append(block.begin(), deflatedSize));
 		if(ret == Z_STREAM_END)
 			break;
@@ -84,7 +84,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 	ree_if(ret < 0, "%s", "Unknown error");												// stream will be complete
 	ef_if(ret != Z_STREAM_END && ret != Z_OK, "%s", "Unknown error");				// stream will be complete
 	ree_if(ret_end == Z_STREAM_ERROR, "deflateEnd() returned %s", "Z_STREAM_ERROR");
-	info_printf("deflateEnd: %u.", (uint32_t)ret);
+	info_printf("deflateEnd: %u.", (::llc::u2_t)ret);
 #endif
 	return 0;
 }
@@ -102,12 +102,12 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 	if (ret != Z_OK)
 		return ret;
 
-	strm.avail_in			= (uint32_t)deflated.size();
+	strm.avail_in			= (::llc::u2_t)deflated.size();
 	strm.next_in			= (Bytef *)deflated.begin();
 	::llc::au0_t					block;
 	llc_necs(block.resize(chunkSize));
 	while(true) {
-		strm.avail_out			= (uint32_t)block.size();
+		strm.avail_out			= (::llc::u2_t)block.size();
 		strm.next_out			= (Bytef *)block.begin();
 		ret						= ::inflate(&strm, Z_NO_FLUSH);
 		switch (ret) {
@@ -120,7 +120,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 			break;
 		}
 		ree_if(ret < 0, "Failed to decompress? inflate error: %i.", ret);
-		u2_c				inflatedSize			= (uint32_t)((const uint8_t*)strm.next_out - block.begin());
+		u2_c				inflatedSize			= (::llc::u2_t)((const u0_t*)strm.next_out - block.begin());
 		llc_necs(inflated.append(block.begin(), inflatedSize));
 		if(ret == Z_STREAM_END)
 			break;
@@ -155,7 +155,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 	return 0;
 }
 
-stxp	uint32_t		DEFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
+stxp	::llc::u2_t		DEFLATE_CHUNK_SIZE			= ::llc::u2_t(1024) * 1024 * 4;
 ::llc::error_t			llc::folderPack				(::llc::SFolderPackage & output, const ::llc::vcst_t nameFolderSrc) {
 	::llc::SPackHeader 			& fileHeader			= output.PackageInfo = {};
 	// -- The following two arrays store the file table and the file contents that are going to be compressed and stored on disk
@@ -180,7 +180,7 @@ stxp	uint32_t		DEFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 	return 0;
 }
 
-stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
+stxp	::llc::u2_t		INFLATE_CHUNK_SIZE			= ::llc::u2_t(1024) * 1024 * 4;
 ::llc::error_t			llc::folderUnpack			(::llc::SFolderInMemory & output, vcu0_t rawFileInMemory)		{
 	const ::llc::SPackHeader	& header					= *(::llc::SPackHeader*)&rawFileInMemory[0];
 	output.Names	.resize(header.TotalFileCount);
@@ -190,12 +190,12 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 	llc_necs(llc::arrayInflate({&rawFileInMemory[0] + szof(::llc::SPackHeader)									, header.SizeCompressedTableFiles		}, output.DataInfo	, ::INFLATE_CHUNK_SIZE));
 	llc_necs(llc::arrayInflate({&rawFileInMemory[0] + szof(::llc::SPackHeader) + header.SizeCompressedTableFiles, header.SizeCompressedContentsPacked	}, output.DataContents	, ::INFLATE_CHUNK_SIZE));
 	{ // Build access tables.
-		uint32_t					offsetInfo					= 0;
-		for(uint32_t iFile = 0; iFile < output.Names.size(); ++iFile) {
+		::llc::u2_t					offsetInfo					= 0;
+		for(::llc::u2_t iFile = 0; iFile < output.Names.size(); ++iFile) {
 			const ::llc::rangeu2_t		& fileLocation				= *(const ::llc::rangeu2_t*)&output.DataInfo[offsetInfo];
 			offsetInfo				+= szof(::llc::rangeu2_t);
-			u2_c				lenName						= *(uint32_t*)&output.DataInfo[offsetInfo];
-			offsetInfo				+= szof(uint32_t);
+			u2_c				lenName						= *(::llc::u2_t*)&output.DataInfo[offsetInfo];
+			offsetInfo				+= szof(::llc::u2_t);
 			output.Names[iFile]	= {(const char*)&output.DataInfo[offsetInfo], lenName};
 			offsetInfo				+= lenName;
 			output.Contents[iFile]	= {&output.DataContents	[fileLocation.Offset], fileLocation.Count};
@@ -210,14 +210,14 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 	, ::llc::au0_t	& contentsPacked			
 	) {
 	// -- The following two arrays store the file table and the file contents that are going to be compressed and stored on disk
-	uint32_t					totalFileCount			= 0;
+	::llc::u2_t					totalFileCount			= 0;
 	{
 		::llc::aobj<::llc::string>	listFiles				= {};
 		llc_necall(llc::pathList(nameFolderSrc, listFiles), "Failed to list folder: %.*s.", (int)nameFolderSrc.size(), nameFolderSrc.begin());
 
 		::llc::au0_t				contentsTemp			= {};
 		::llc::rangeu2_t			fileLocation			= {0, 0};
-		for(uint32_t iFile = 0; iFile < listFiles.size(); ++iFile) {
+		for(::llc::u2_t iFile = 0; iFile < listFiles.size(); ++iFile) {
 			fileLocation.Offset		= contentsPacked.size();
 			cnst ::llc::vcst_t			pathToLoad				= {listFiles[iFile].begin(), listFiles[iFile].size()};
 			if(0 == pathToLoad.size())
@@ -242,7 +242,7 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
 ::llc::error_t			llc::folderToDisk			(const ::llc::SFolderInMemory & virtualFolder, ::llc::vcst_t destinationPath)				{
 	::llc::string				finalPathName				= {};
 	FILE						* fp						= 0;
-	for(uint32_t iFile = 0, countFiles = virtualFolder.Names.size(); iFile < countFiles; ++iFile) {
+	for(::llc::u2_t iFile = 0, countFiles = virtualFolder.Names.size(); iFile < countFiles; ++iFile) {
 		llc_safe_fclose(fp);
 		const ::llc::vcst_t			& fileName					= virtualFolder.Names		[iFile];
 		vcu0_c			& fileContent				= virtualFolder.Contents	[iFile];

@@ -4,7 +4,7 @@
 ::llc::error_t			llc::viewportInitialize	(::llc::SGUI & gui, ::llc::SViewport & viewport)			{
 	const ::llc::n2u0_t			fontCharSize			= gui.Fonts[gui.SelectedFont]->CharSize;
 	int16_t						heightTitleBar			= fontCharSize.y + 4;
-	uint32_t					widthTarget				= 800;
+	::llc::u2_t					widthTarget				= 800;
 	const ::llc::n2f3_t			targetSize				= {(double)widthTarget, widthTarget * (9 / 16.0)};
 
 	//if(-1 == viewport.IdControl)
@@ -16,16 +16,16 @@
 		control.Align			= ::llc::ALIGN_TOP_LEFT;
 		control.Border = control.Margin	= {1, 1, 1, 1};
 
-		const uint32_t				widthViewport			= (uint32_t)(targetSize.x + ::llc::controlNCSpacing(control).x);
-		const uint32_t				heightViewport			= (uint32_t)(targetSize.y + ((int64_t)heightTitleBar + ::llc::controlNCSpacing(control).y));
+		const ::llc::u2_t				widthViewport			= (::llc::u2_t)(targetSize.x + ::llc::controlNCSpacing(control).x);
+		const ::llc::u2_t				heightViewport			= (::llc::u2_t)(targetSize.y + ((int64_t)heightTitleBar + ::llc::controlNCSpacing(control).y));
 		control.Area.Size		= {(int16_t)widthViewport, (int16_t)heightViewport};
-		for(uint32_t iElement = 0; iElement < viewport.IdControls.size(); ++iElement) {
+		for(::llc::u2_t iElement = 0; iElement < viewport.IdControls.size(); ++iElement) {
 			llc_necs(viewport.IdControls[iElement] = ::llc::controlCreate(gui));
 			::llc::SControlConstraints	& controlConstraints	= gui.Controls.Constraints	[viewport.IdControls[iElement]];
 			controlConstraints.AttachSizeToControl.x	= viewport.IdControls[iElement];
 			llc_necall(llc::controlSetParent(gui, viewport.IdControls[iElement], viewport.IdControl), "iElement: %i, viewport.IdControl: %i", iElement, viewport.IdControl);
 		}
-		for(uint32_t iElement = 0; iElement < VIEWPORT_CONTROL_TITLE; ++iElement) {
+		for(::llc::u2_t iElement = 0; iElement < VIEWPORT_CONTROL_TITLE; ++iElement) {
 			gui.Controls.Placement  [viewport.IdControls[iElement]].Area.Size			= {16, 16};
 			gui.Controls.Placement  [viewport.IdControls[iElement]].Area.Offset			= {-2, -2};
 			gui.Controls.Constraints[viewport.IdControls[iElement]].AttachSizeToControl	= {-1, -1};
@@ -47,7 +47,7 @@
 		::llc::SControlText			& controlText			= gui.Controls.Text		[viewport.IdControls[VIEWPORT_CONTROL_CLOSE]];
 		control.Area.Size		= {(int16_t)heightTitleBar, (int16_t)heightTitleBar};
 		control.Align			= ::llc::ALIGN_TOP_RIGHT;
-		controlText.Text		= {"X", (uint32_t)1};
+		controlText.Text		= {"X", (::llc::u2_t)1};
 		controlText.Align		= ::llc::ALIGN_CENTER;
 		::llc::SControlConstraints	& controlConstraints	= gui.Controls.Constraints[viewport.IdControls[VIEWPORT_CONTROL_CLOSE]];
 		controlConstraints.AttachSizeToControl	= {-1, -1};
@@ -60,7 +60,7 @@
 		++counterVPs;
 		sc_t						buffer [256];
 		const int32_t				titleLen				= snprintf(buffer, ::llc::size(buffer) - 2, "Viewport #%i", counterVPs);
-		controlText.Text		= {::llc::label(buffer).begin(), (uint32_t)titleLen};
+		controlText.Text		= {::llc::label(buffer).begin(), (::llc::u2_t)titleLen};
 		controlText.Align		= ::llc::ALIGN_CENTER;
 		control.Area.Offset.x	= heightTitleBar;
 		control.Align			= ::llc::ALIGN_TOP_RIGHT;
@@ -81,7 +81,7 @@
 		controlConstraints.DockToControl	= {-1, -1, -1, viewport.IdControls[VIEWPORT_CONTROL_TITLE]};
 		//controlConstraints.AttachSizeToControl	= {-1, viewport.IdControl};
 	}
-	//for(uint32_t i = 0; i < 2; ++i)
+	//for(::llc::u2_t i = 0; i < 2; ++i)
 	//	::llc::controlUpdateMetricsTopToDown(gui, viewport.IdControl, gui.LastSize, true);
 	return 0;
 }

@@ -94,9 +94,9 @@ namespace llc
 		rtrn (T)(((T)1) << bitIndex);
 	}
 //#ifdef LLC_BIGENDIAN
-//	sinx	u0_t		le_byte_at		(uint32_t bytes, u0_t byteIndex)	nxpt	{ return ((0xFF000000 >> (byteIndex * 8)) & bytes) >> ((szof(bytes) - byteIndex) * 8); }
+//	sinx	u0_t		le_byte_at		(::llc::u2_t bytes, u0_t byteIndex)	nxpt	{ return ((0xFF000000 >> (byteIndex * 8)) & bytes) >> ((szof(bytes) - byteIndex) * 8); }
 //#else
-//	sinx	u0_t		le_byte_at		(uint32_t bytes, u0_t byteIndex)	nxpt	{ return ((0xFF << (byteIndex * 8)) & bytes) >> (byteIndex * 8); }
+//	sinx	u0_t		le_byte_at		(::llc::u2_t bytes, u0_t byteIndex)	nxpt	{ return ((0xFF << (byteIndex * 8)) & bytes) >> (byteIndex * 8); }
 //#endif
 	tplT	sttc	T	reverse_bitfield	(T input, s2_c bitDepth)	{
 		u2_c					sizeType			= u2_t(szof(T) * 8);
@@ -104,7 +104,7 @@ namespace llc
 			rtrn input;
 		cnst T					mask				= ((T)(-1)) >> (sizeType - bitDepth);
 		T						result				= 0;
-		for(uint32_t iBit = 0; iBit < sizeType; iBit += bitDepth) {
+		for(::llc::u2_t iBit = 0; iBit < sizeType; iBit += bitDepth) {
 			result				|= (input & mask) << (sizeType - bitDepth - iBit);
 			input				>>= bitDepth;
 		}

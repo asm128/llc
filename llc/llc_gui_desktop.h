@@ -13,16 +13,16 @@ namespace llc
 		::llc::aobj<_tElement>		Elements;
 		::llc::au3_t				UnusedData;
 
-		inlcxpr	const _tElement&	operator[]					(uint32_t index)			const				{ return Elements[index]; }
-		inlcxpr	_tElement&			operator[]					(uint32_t index)								{ return Elements[index]; }
+		inlcxpr	const _tElement&	operator[]					(::llc::u2_t index)			const				{ return Elements[index]; }
+		inlcxpr	_tElement&			operator[]					(::llc::u2_t index)								{ return Elements[index]; }
 
-		inlcxpr	uint32_t			size						()							const	noexcept	{ return Elements.size(); }
+		inlcxpr	::llc::u2_t			size						()							const	noexcept	{ return Elements.size(); }
 		::llc::error_t				push_back					(const _tElement & toPush)						{
 			const ::llc::cid_t				elemIndex					= (::llc::cid_t)Elements.push_back(toPush);
 			ree_if(failed(elemIndex), "%s", "Failed to add element to container! Out of memory?");
-			stacxpr	uint32_t				boolContainerElementSize	= sizeof(uint64_t) * ::llc::BYTE_SIZE;
+			stacxpr	::llc::u2_t				boolContainerElementSize	= sizeof(uint64_t) * ::llc::BYTE_SIZE;
 			llc_necs(UnusedData.resize((elemIndex + 1) / boolContainerElementSize + 1));
-			Unused						= {UnusedData.begin(), (uint32_t)(elemIndex + 1)};
+			Unused						= {UnusedData.begin(), (::llc::u2_t)(elemIndex + 1)};
 			Unused[elemIndex]			= false;
 			return elemIndex;
 		}

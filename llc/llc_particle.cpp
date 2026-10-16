@@ -2,7 +2,7 @@
 #include "llc_apod_serialize.h"
 
 ::llc::error_t			llc::SParticles3::IntegrateSpeed		(double secondsLastFrame)	{
-	for(uint32_t iShot = 0; iShot < Position.size(); ++iShot) {
+	for(::llc::u2_t iShot = 0; iShot < Position.size(); ++iShot) {
 		::llc::n3f2_t							& direction			= Direction	[iShot];
 		::llc::n3f2_t							& position			= Position	[iShot];
 		float											& speed				= Speed		[iShot];

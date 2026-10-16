@@ -1,127 +1,100 @@
 #include "llc_array_obj.h"
 
-#ifndef LLC_COMPLUS_H_23627
-#define LLC_COMPLUS_H_23627
-
 #ifdef LLC_WINDOWS
+
+#include "llc_windows.h"
 
 #include <Unknwn.h>
 
+#ifndef LLC_COMPLUS_H_23627
+#define LLC_COMPLUS_H_23627
+
 namespace llc
 {
-	tplt<tpnm TUnknown>
-	u2_t	safe_release	(TUnknown** storage) nxpt {
-		if(0 == storage)
-			rtrn 0;
-		TUnknown* acquired = *storage;
-		*storage = {};
-		rtrn acquired ? (u2_t)acquired->Release() : 0;
+	tplt<tpnm TUnknown> 
+	::llc::error_t		safe_release	(TUnknown ** storage) { 
+		IUnknown*				p				= *storage;
+		if(p) { 
+			(*storage)			= 0; 
+			return (::llc::error_t)p->Release(); 
+		} 
+		return 0;
 	}
 
-	tplt<tpnm TUnknown>
-	u2_t	safe_addref	(TUnknown** storage, TUnknown* toAcquire) nxpt {
-		if(0 == storage)
-			rtrn 0;
-		TUnknown* released = *storage;
-		u2_c references = toAcquire ? (u2_t)toAcquire->AddRef() : 0;
-		*storage = toAcquire;
-		if(released)
-			released->Release();
-		rtrn references;
+	tplt<tpnm TUnknown> 
+	::llc::error_t		safe_addref		(TUnknown ** storage, TUnknown * toAcquire) { 
+		::llc::error_t			result			= 0;
+		IUnknown*				p				= *storage;
+		*storage			= toAcquire;
+		if(toAcquire)
+			result = (::llc::error_t)toAcquire->AddRef();
+
+		if(p)
+			p->Release(); 
+
+		return result; 
 	}
 
-	tplt<tpnm TUnknown>
+	tplt<tpnm _tNCO>
 	class ptr_com {
 	protected:
-		TUnknown* Unknown = {};
+		_tNCO				* Unknown			= 0;
 	public:
-		tydf ptr_com<TUnknown>	TNCOPtr;
-		tydf TUnknown			TRef;
+		typedef	::llc::ptr_com<_tNCO>	TNCOPtr;
+		typedef	_tNCO					TRef;
 
-		inln			~ptr_com	() nxpt { clear(); }
+		inline					~ptr_com		()									noexcept	{ clear(); }
 
-		inxp			ptr_com		() nxpt = default;
-		inln			ptr_com		(cnst TNCOPtr& other) nxpt : Unknown(other.Unknown) { if(Unknown) Unknown->AddRef(); }
-		inxp			ptr_com		(TNCOPtr&& other) nxpt : Unknown(other.Unknown) { other.Unknown = {}; }
-		// A raw-pointer construction adopts one existing COM reference. Assignment and set_ref() acquire an additional reference.
-		inxp			ptr_com		(TRef* other) nxpt : Unknown(other) {}
+		inlcxpr					ptr_com			()									noexcept	= default;
+		inline					ptr_com			(const TNCOPtr& other)				noexcept	{ Unknown = other.Unknown; if(Unknown) Unknown->AddRef(); }
+		inlcxpr					ptr_com			(TNCOPtr&& other)					noexcept	{ Unknown = other.Unknown; other.Unknown = 0; }
+		inline					ptr_com			(TRef* other)						noexcept	{ Unknown = other; }
 
-		inxp oper		TRef*		() nxpt { rtrn Unknown; }
-		inxp oper		cnst TRef*	() csnx { rtrn Unknown; }
+		inlcxpr	operator		TRef		*	()									noexcept	{ return Unknown;	}
+		inlcxpr	operator		const TRef	*	()							const	noexcept	{ return Unknown;	}
 
-		inxp bool		oper==		(cnst TNCOPtr& other) csnx { rtrn Unknown == other.Unknown; }
-		inxp bool		oper!=		(cnst TNCOPtr& other) csnx { rtrn false == operator==(other); }
+		inlcxpr	bool			operator==		(const TNCOPtr& other)		const	noexcept	{ return Unknown == other.Unknown; }
+		inlcxpr	bool			operator!=		(const TNCOPtr& other)		const	noexcept	{ return !operator==(other); }
 
-		inln TNCOPtr&	oper=		(cnst TNCOPtr& other) nxpt { safe_addref(&Unknown, other.Unknown); rtrn *this; }
-		inln TNCOPtr&	oper=		(TNCOPtr&& other) nxpt {
-			if(this != &other) {
-				clear();
-				Unknown = other.Unknown;
-				other.Unknown = {};
-			}
-			rtrn *this;
-		}
-		inln TNCOPtr&	oper=		(TRef* other) nxpt { safe_addref(&Unknown, other); rtrn *this; }
+		inlcxpr	TNCOPtr			operator =		(const TNCOPtr& other)				noexcept	{ TRef* oldInstance = Unknown; Unknown = other.Unknown; if(Unknown) Unknown->AddRef();	if(oldInstance) oldInstance->Release(); return *this; }
+		inlcxpr	TNCOPtr			operator =		(TNCOPtr&& other)					noexcept	{ TRef* oldInstance = Unknown; Unknown = other.Unknown; other.Unknown = 0;					if(oldInstance) oldInstance->Release(); return *this; }
+		inlcxpr	TNCOPtr			operator =		(TRef* other)						noexcept	{ TRef* oldInstance = Unknown; Unknown = other; if(Unknown) Unknown->AddRef();				if(oldInstance) oldInstance->Release(); return *this; }
 
-		inln TRef*		oper->		() nxpt { rtrn Unknown; }
-		inln cnst TRef*	oper->		() csnx { rtrn Unknown; }
+		inline	TRef*			operator->		()									noexcept	{ return Unknown; }
+		inline	const TRef*		operator->		()							const	noexcept	{ return Unknown; }
 
-		inln u2_t		clear		() nxpt { rtrn safe_release(&Unknown); }
-		inxp cnst TRef*	get_ref		() csnx { rtrn Unknown; }
-		inln cnst TRef*	set_ref		(TRef* reference) nxpt { safe_addref(&Unknown, reference); rtrn Unknown; }
-		inxp TRef*		get			() csnx { rtrn Unknown; }
+		inline	TRef**			operator &		()									noexcept	{ return &Unknown; }
 
-		inln TRef*		attach		(TRef* reference) nxpt {
-			TRef* released = Unknown;
-			Unknown = reference;
-			if(released)
-				released->Release();
-			rtrn Unknown;
-		}
-		inln TRef*		detach		() nxpt { TRef* detached = Unknown; Unknown = {}; rtrn detached; }
-		// COM output parameters replace, rather than silently leak, the currently owned reference.
-		inln TRef**		put			() nxpt { clear(); rtrn &Unknown; }
+		inline	::llc::u2_t		clear			()									noexcept	{ return ::llc::safe_release(&Unknown); }
+		inlcxpr	const TRef*		get_ref			()							const	noexcept	{ return Unknown; }
+		inlcxpr	const TRef*		set_ref			(TRef* ref)							noexcept	{ ::llc::safe_addref(&Unknown, ref); return Unknown; }
+		inlcxpr	TRef*			get				()							const	noexcept	{ return Unknown; }
 
-		tplt<tpnm TOther>
-		inln err_t		as			(TOther** other) nxpt {
-			if(0 == other || 0 == Unknown)
-				rtrn E_POINTER;
-			TOther* acquired = {};
-			HRESULT hr = Unknown->QueryInterface(__uuidof(TOther), (void**)&acquired);
-			if(FAILED(hr)) {
-				if(acquired)
-					acquired->Release();
-				rtrn (err_t)hr;
-			}
-			TOther* released = *other;
-			*other = acquired;
-			if(released)
-				released->Release();
-			rtrn (err_t)hr;
+		tplt<tpnm _tNCOOther>
+		inline	::llc::error_t	as				(_tNCOOther** other)				noexcept	{ 
+			_tNCOOther*					old				= *other;
+			*other					= {};
+			HRESULT						hr				= Unknown ? Unknown->QueryInterface(__uuidof(_tNCOOther), (void**)other) : 0;
+			if(old)
+				old->Release();
+			return hr;
 		}
 
-		tplt<tpnm TOther>
-		inln err_t		as			(ptr_com<TOther>& other) nxpt {
-			if(0 == Unknown)
-				rtrn E_POINTER;
-			TOther* acquired = {};
-			HRESULT hr = Unknown->QueryInterface(__uuidof(TOther), (void**)&acquired);
-			if(FAILED(hr)) {
-				if(acquired)
-					acquired->Release();
-				rtrn (err_t)hr;
-			}
-			other.attach(acquired);
-			rtrn (err_t)hr;
+		tplt<tpnm _tNCOOther>
+		inline	::llc::error_t	as				(::llc::ptr_com<_tNCOOther>& other)	noexcept	{ 
+			::llc::ptr_com<_tNCOOther>	old				= other;
+			other					= {};
+			HRESULT						hr				= Unknown ? Unknown->QueryInterface(__uuidof(_tNCOOther), (void**)&other) : 0;
+			return hr;
 		}
 	};
-	tplt<tpnm T> usng pcom		= ptr_com<T>;
-	tplt<tpnm T> usng acom		= aobj<pcom<T>>;
-	tplt<tpnm T> usng vcom		= view<pcom<T>>;
-	tplt<tpnm T> usng array_com	= acom<T>;
-	tplt<tpnm T> usng view_com	= vcom<T>;
+	tplt <tpnm T> using pcom		= ::llc::ptr_com<T>;
+	tplt <tpnm T> using acom		= ::llc::aobj<::llc::pcom<T>>;
+	tplt <tpnm T> using vcom		= ::llc::view<::llc::pcom<T>>;
+	tplt <tpnm T> using array_com	= ::llc::acom<T>;
+	tplt <tpnm T> using view_com	= ::llc::vcom<T>;
 }
 
-#endif // LLC_WINDOWS
-
 #endif // LLC_COMPLUS_H_23627
+
+#endif // LLC_WINDOWS - ignore the whole thing if not a Windows build

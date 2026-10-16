@@ -15,13 +15,13 @@ namespace llc
 		::llc::aobj<TPObj>			Elements		= {};
 		::llc::avcsc_t				Names			= {};
 
-		inline	const TPObj&		operator[]		(uint32_t index)	const	{ return Elements[index]; }
-		inline	TPObj&				operator[]		(uint32_t index)			{ return Elements[index]; }
+		inline	const TPObj&		operator[]		(::llc::u2_t index)	const	{ return Elements[index]; }
+		inline	TPObj&				operator[]		(::llc::u2_t index)			{ return Elements[index]; }
 		inline	const TPObj&		operator[]		(::llc::vcst_t key)	const	{ return Elements[Names.find(key)]; }
 		inline	TPObj&				operator[]		(::llc::vcst_t key)			{ return Elements[Names.find(key)]; }
 
-		inlcxpr	uint32_t			size			()											const	{ return Names.size(); }
-		inline	::llc::error_t		find			(::llc::vcst_t key, uint32_t offset = 0)	const	{ return Names.find(key, offset); }
+		inlcxpr	::llc::u2_t			size			()											const	{ return Names.size(); }
+		inline	::llc::error_t		find			(::llc::vcst_t key, ::llc::u2_t offset = 0)	const	{ return Names.find(key, offset); }
 
 		::llc::error_t				push_back		(const ::llc::pobj<T> & instance, ::llc::vcst_t name = {})	{
 			::llc::err_t				index			= 0;
@@ -35,13 +35,13 @@ namespace llc
 		}
 
 		inline	::llc::error_t		Create			(const ::llc::vcst_t name = {})									{ return push_back({}, name); }
-		::llc::error_t				Delete			(uint32_t index)												{
+		::llc::error_t				Delete			(::llc::u2_t index)												{
 			if_true_fef(index >= size(), "Invalid index:%u. Element count:%u.", index, size());
 			llc_necs(Names.remove_unordered(index));
 			return Elements.remove_unordered(index);
 		}
 
-		::llc::error_t				Clone			(uint32_t index)												{
+		::llc::error_t				Clone			(::llc::u2_t index)												{
 			if_true_fef(index >= size(), "Invalid index:%u. Element count:%u.", index, size());
 			int32_t							iNew;
 			llc_necall(iNew = Create(Names[index]), "index: %i", index);
@@ -62,7 +62,7 @@ namespace llc
 			::llc::au0_t				serialized		= {};
 			cnst ::llc::u2_t		elementCount	= Elements.size();
 			llc_necs(::llc::savePOD(serialized, elementCount));
-			for(uint32_t iEntity = 0; iEntity < Elements.size(); ++iEntity) {
+			for(::llc::u2_t iEntity = 0; iEntity < Elements.size(); ++iEntity) {
 				if_true_fef(0 == Elements[iEntity], "Null element at index:%u.", iEntity);
 				llc_necall(Elements[iEntity]->Save(serialized), "iEntity: %i", iEntity);
 				llc_necall(llc::saveView(serialized, Names[iEntity]), "iEntity: %i", iEntity);
@@ -78,7 +78,7 @@ namespace llc
 			llc_necs(::llc::loadPOD(inputToRead, elementCount));
 			::llc::aobj<TPObj>		loadedElements	= {};
 			::llc::avcsc_t			loadedNames		= {};
-			for(uint32_t iEntity = 0; iEntity < elementCount; ++iEntity) {
+			for(::llc::u2_t iEntity = 0; iEntity < elementCount; ++iEntity) {
 				TPObj						element			= {};
 				if_true_fef(0 == element.create(), "Failed to create element at index:%u.", iEntity);
 				llc_necall(element->Load(inputToRead), "iEntity: %i", iEntity);

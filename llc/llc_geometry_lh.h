@@ -34,7 +34,7 @@ namespace llc
 	};
 
 
-	GDEFINE_ENUM_TYPE (MODEL_NODE_TYPE, uint8_t);
+	GDEFINE_ENUM_TYPE (MODEL_NODE_TYPE, u0_t);
 	GDEFINE_ENUM_VALUE(MODEL_NODE_TYPE, FILE		, 0);
 	GDEFINE_ENUM_VALUE(MODEL_NODE_TYPE, FUNCTION	, 1);
 	GDEFINE_ENUM_VALUE(MODEL_NODE_TYPE, COMMAND		, 2);
@@ -47,18 +47,18 @@ namespace llc
 	GDEFINE_ENUM_VALUE(MODEL_NODE_TYPE, SPHERE		, 9);
 	GDEFINE_ENUM_VALUE(MODEL_NODE_TYPE, CYLINDER	, 10);
 
-	GDEFINE_ENUM_TYPE (PRIMITIVE_TYPE, uint8_t);
+	GDEFINE_ENUM_TYPE (PRIMITIVE_TYPE, u0_t);
 	GDEFINE_ENUM_VALUE(PRIMITIVE_TYPE, POINT		, 0);
 	GDEFINE_ENUM_VALUE(PRIMITIVE_TYPE, SEGMENT		, 1);
 	GDEFINE_ENUM_VALUE(PRIMITIVE_TYPE, TRIANGLE		, 2);
 	GDEFINE_ENUM_VALUE(PRIMITIVE_TYPE, RECTANGLE	, 3);
 
-	GDEFINE_ENUM_TYPE (INDEX_MODE, uint8_t);
+	GDEFINE_ENUM_TYPE (INDEX_MODE, u0_t);
 	GDEFINE_ENUM_VALUE(INDEX_MODE, LIST			, 0);
 	GDEFINE_ENUM_VALUE(INDEX_MODE, STRIP		, 1);
 	GDEFINE_ENUM_VALUE(INDEX_MODE, FAN			, 2);
 
-	GDEFINE_ENUM_TYPE (BUFFER_TYPE, uint8_t);
+	GDEFINE_ENUM_TYPE (BUFFER_TYPE, u0_t);
 	GDEFINE_ENUM_VALUE(BUFFER_TYPE, VERTEX		, 0);
 	GDEFINE_ENUM_VALUE(BUFFER_TYPE, POLYGON		, 1);
 #pragma pack(push, 1)
@@ -67,16 +67,16 @@ namespace llc
 		PRIMITIVE_TYPE						PrimitiveType	;
 		INDEX_MODE							IndexMode		;
 
-		uint16_t							Transparent		: 1;
-		uint16_t							SkipSpecular	: 1;
-		uint16_t							SkipAmbient		: 1;
-		uint16_t							SkipDiffuse		: 1;
+		::llc::u1_t							Transparent		: 1;
+		::llc::u1_t							SkipSpecular	: 1;
+		::llc::u1_t							SkipAmbient		: 1;
+		::llc::u1_t							SkipDiffuse		: 1;
 	};
 
 	struct SGeometryGroup {
-		uint32_t							Geometry		= (uint32_t)-1;
-		uint32_t							Image			= (uint32_t)-1;
-		uint32_t							Material		= (uint32_t)-1;
+		::llc::u2_t							Geometry		= (::llc::u2_t)-1;
+		::llc::u2_t							Image			= (::llc::u2_t)-1;
+		::llc::u2_t							Material		= (::llc::u2_t)-1;
 		::llc::SGeometryGroupModes			Modes			= {};
 		::llc::rangeu2_t					Slice			= {};
 	};
@@ -128,18 +128,18 @@ namespace llc
 	::llc::error_t	geometryBuildCube		(::llc::SGeometryQuads & geometry, ::llc::n3f2_c & scale);
 	::llc::error_t	geometryBuildGrid		(::llc::SGeometryQuads & geometry, ::llc::n2u1_t gridSize, ::llc::n2f2_t gridCenter, ::llc::n3f2_c & scale);
 
-	::llc::error_t	geometryBuildSphere		(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, ::llc::n3f2_c & gridCenter);
-	::llc::error_t	geometryBuildCylinder	(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radiusYMin, float radiusYMax, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildHelixHalf	(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildHelix		(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildTender		(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildFigure0	(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, ::llc::n3f2_c & gridCenter);
-	::llc::error_t	geometryBuildFigure1	(::llc::SGeometryQuads & geometry, uint32_t stacks, uint32_t slices, float radius, ::llc::n3f2_c & gridCenter);
+	::llc::error_t	geometryBuildSphere		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter);
+	::llc::error_t	geometryBuildCylinder	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radiusYMin, float radiusYMax, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
+	::llc::error_t	geometryBuildHelixHalf	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
+	::llc::error_t	geometryBuildHelix		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
+	::llc::error_t	geometryBuildTender		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
+	::llc::error_t	geometryBuildFigure0	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter);
+	::llc::error_t	geometryBuildFigure1	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter);
 
-	::llc::error_t	geometryBuildSphere		(::llc::SGeometryTriangles & geometry, uint32_t stacks, uint32_t slices, float radius, ::llc::n3f2_c & gridCenter);
+	::llc::error_t	geometryBuildSphere		(::llc::SGeometryTriangles & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter);
 	::llc::error_t	geometryBuildCube		(::llc::SGeometryQuads & geometry, const ::llc::n3f2_t & scale, const ::llc::n3f2_t & translation);
 
-	::llc::error_t	geometryBuildTileListFromImage	(::llc::gc8bgra image, ::llc::apod<STile> & out_tiles, uint32_t imagePitch = 0);
+	::llc::error_t	geometryBuildTileListFromImage	(::llc::gc8bgra image, ::llc::apod<STile> & out_tiles, ::llc::u2_t imagePitch = 0);
 	::llc::error_t	geometryBuildGridFromTileList	(::llc::SGeometryQuads & geometry, ::llc::grid<const ::llc::STile> image, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale);
 
 #endif
@@ -147,8 +147,8 @@ namespace llc
 #pragma pack(push, 1)
 	struct SRenderMaterialPaletted {
 		::llc::rgbaf	Diffuse		;
-		uint16_t		Color		;
-		uint16_t		Palette		;
+		::llc::u1_t		Color		;
+		::llc::u1_t		Palette		;
 	};
 
 	struct SAABBGeometry {

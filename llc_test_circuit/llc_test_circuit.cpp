@@ -41,13 +41,13 @@ sttc int test_circuitParallelResistor() {
 }
 
 #if defined(LLC_WINDOWS)
-static	::llc::error_t	test_base_log_write	(const char * text, uint32_t /*textLen*/) {	OutputDebugStringA(text); return (::llc::error_t)printf("%s", text); }
+static	::llc::error_t	test_base_log_write	(const char * text, ::llc::u2_t /*textLen*/) {	OutputDebugStringA(text); return (::llc::error_t)printf("%s", text); }
 #elif defined(LLC_ANDROID)
-static	::llc::error_t	test_base_log_write	(const char * text, uint32_t textLen) {	LOGI("%s", text); return (::llc::error_t)textLen; }
+static	::llc::error_t	test_base_log_write	(const char * text, ::llc::u2_t textLen) {	LOGI("%s", text); return (::llc::error_t)textLen; }
 #elif defined(LLC_ARDUINO)
-static	::llc::error_t	test_base_log_write	(const char * text, uint32_t textLen) {	return ::llc::error_t(Serial ? (::llc::error_t)Serial.write(text, textLen) : (::llc::error_t)textLen); }
+static	::llc::error_t	test_base_log_write	(const char * text, ::llc::u2_t textLen) {	return ::llc::error_t(Serial ? (::llc::error_t)Serial.write(text, textLen) : (::llc::error_t)textLen); }
 #else
-static	::llc::error_t	test_base_log_write	(const char * text, uint32_t textLen) {	(void)textLen; return (::llc::error_t)printf_s("%s", text, textLen); }
+static	::llc::error_t	test_base_log_write	(const char * text, ::llc::u2_t textLen) {	(void)textLen; return (::llc::error_t)printf_s("%s", text, textLen); }
 #endif
 
 #if defined(LLC_WINDOWS)

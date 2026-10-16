@@ -38,12 +38,12 @@ tydf int SOCKET;
 		inline			void							close								()	noexcept	{ if(INVALID_SOCKET != Handle) { closesocket(Handle); Handle = INVALID_SOCKET; } }
 	};
 
-	::llc::error_t			tcpipAddressToSockaddr		(uint8_t a1, uint8_t a2, uint8_t a3, uint8_t a4, uint16_t port, sockaddr_in & sockaddr);
-	::llc::error_t			tcpipAddressToSockaddr		(uint32_t address, uint16_t port, sockaddr_in & sockaddr);
+	::llc::error_t			tcpipAddressToSockaddr		(u0_t a1, u0_t a2, u0_t a3, u0_t a4, ::llc::u1_t port, sockaddr_in & sockaddr);
+	::llc::error_t			tcpipAddressToSockaddr		(::llc::u2_t address, ::llc::u1_t port, sockaddr_in & sockaddr);
 
-	//::llc::error_t			tcpipAddressFromSockaddr	(const sockaddr_in & sockaddr, uint8_t * a1, uint8_t * a2, uint8_t * a3, uint8_t * a4, uint16_t * port);
-	::llc::error_t			tcpipAddressFromSockaddr	(const sockaddr_in & sockaddr, uint32_t & address, uint16_t & port);
-	::llc::error_t			tcpipAddress				(SOCKET socket, uint32_t & ip, uint16_t & port);
+	//::llc::error_t			tcpipAddressFromSockaddr	(const sockaddr_in & sockaddr, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4, ::llc::u1_t * port);
+	::llc::error_t			tcpipAddressFromSockaddr	(const sockaddr_in & sockaddr, ::llc::u2_t & address, ::llc::u1_t & port);
+	::llc::error_t			tcpipAddress				(SOCKET socket, ::llc::u2_t & ip, ::llc::u1_t & port);
 
 	stin	::llc::error_t	tcpipAddressToSockaddr		(const ::llc::SIPv4End & addr, sockaddr_in & sockaddr)	{ return tcpipAddressToSockaddr		
 		( ::llc::byte_at(addr.IP, 0)

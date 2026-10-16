@@ -20,21 +20,21 @@ namespace llc
 #	pragma warning(disable : 4996)
 #endif
 	stin	int	strcat_s		(sc_t * dst, u2_t bufferSize, sc_c * src)										{
-		if((uint32_t)strlen(dst)+(uint32_t)strlen(src)+1U > (uint32_t)bufferSize)
+		if((::llc::u2_t)strlen(dst)+(::llc::u2_t)strlen(src)+1U > (::llc::u2_t)bufferSize)
 			return -1;
 		strcat(dst, src);
 		return 0;
 	}
 
 	stin	int	strcpy_s		(sc_t * dst, u2_t bufferSize, sc_c * src)										{
-		if((uint32_t)strlen(src)+1U > (uint32_t)bufferSize)
+		if((::llc::u2_t)strlen(src)+1U > (::llc::u2_t)bufferSize)
 			return -1;
 		strcpy(dst, src);
 		return 0;
 	}
 
 	stin	int	strncpy_s		(sc_t * dst, sc_c * src, u2_t bufferSize)										{
-		//if((uint32_t)strlen(src)+1U > (uint32_t)bufferSize)
+		//if((::llc::u2_t)strlen(src)+1U > (::llc::u2_t)bufferSize)
 		//	return -1;
 		strncpy(dst, src, bufferSize);
 		return 0;
@@ -83,7 +83,7 @@ namespace llc
 		return result;
 	}
 
-	stin	int	sprintf_s		(sc_t * buffer , uint32_t bufferSize, sc_c * format, ...)								{
+	stin	int	sprintf_s		(sc_t * buffer , ::llc::u2_t bufferSize, sc_c * format, ...)								{
 		va_list			args			= {};
 		va_start(args, format);
 		const int		result			= ::vsnprintf(buffer, bufferSize, format, args);

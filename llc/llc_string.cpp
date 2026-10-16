@@ -3,7 +3,7 @@
 
 llc::err_t	llc::camelCase		(vcst_t input, string & camelCased) {
 	bool						capsNext			= true;
-	for(uint32_t i = 0; i < input.size(); ++i) {
+	for(::llc::u2_t i = 0; i < input.size(); ++i) {
 		char						current				= input[i];
 		if(current == '_' || current == '-')
 			capsNext	= true;

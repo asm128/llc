@@ -15,7 +15,7 @@
 	colorToSet.g = bytes[1]; 
 	colorToSet.b = bytes[0]; 
 	return 4;
-	//uint8_t readBytes = 0;
+	//u0_t readBytes = 0;
 	//switch(bytes.size()) {
 	//case 4: ++readBytes; colorToSet.a = bytes[3];
 	//case 3: ++readBytes; colorToSet.r = bytes[2]; if(bytes.size() == 3) colorToSet.a	= 0xFF;
