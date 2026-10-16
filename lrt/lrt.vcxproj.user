@@ -22,7 +22,6 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommand>$(OutDir)lrt.exe </LocalDebuggerCommand>
     <LocalDebuggerCommandArguments>$(ProjectName)</LocalDebuggerCommandArguments>
-    <LocalDebuggerCommandArgumentsHistory>lrt|</LocalDebuggerCommandArgumentsHistory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
