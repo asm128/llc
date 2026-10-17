@@ -564,7 +564,8 @@ sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
 	fontDefault->Texture.View[(cell.y + 1U) * fontDefault->Texture.Pitch + cell.x + 1U] = true;
 	gui.SelectedFont = 0;
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_PALETTE, 0 == gui.Colors.create() || 0 > gui.Colors->Palettes.resize(::llc::GUI_CONTROL_PALETTE_COUNT), "%s", "Palette allocation failed.");
-	cnst ::llc::bgra colors[] = {{11, 12, 13, 0xFF}, {21, 22, 23, 0xFF}, {31, 32, 33, 0xFF}, {41, 42, 43, 0xFF}, {51, 52, 53, 0xFF}};
+	cnst ::llc::bgra colors[] = {{11, 12, 13, 0xFF}, {21, 22, 23, 0xFF}, {31, 32, 33, 0xFF}, {41, 42, 43, 0xFF}, {51, 52, 53, 0xFF}, {61, 62, 63, 0xFF}, {71, 72, 73, 0xFF}, {81, 82, 83, 0xFF}, {91, 92, 93, 0xFF}, {101, 102, 103, 0xFF}};
+	static_assert(::llc::size(colors) == ::llc::GUI_CONTROL_PALETTE_COUNT);
 	for(::llc::u0_t iState = 0; iState < ::llc::GUI_CONTROL_PALETTE_COUNT; ++iState) {
 		gui.Controls.Draw[control].Palettes[iState] = iState;
 		gui.Colors->Palettes[iState][::llc::UI_CONTROL_AREA_TEXT_FACE] = colors[iState];

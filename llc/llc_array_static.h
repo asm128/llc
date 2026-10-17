@@ -76,7 +76,7 @@ namespace llc
 
 	tplN2uusng	astvcuc 	= ::llc::astatic<::llc::vcuc 	, N>; tplN2uusng astaticvcuc 	= ::llc::astvcuc <N>;
 	tplN2uusng	astvcc		= ::llc::astvcs<N>; tplN2uusng astaticvcc		= ::llc::astvcc<N>;
-	tplN2uusng	astvcu8 	= ::llc::astatic<::llc::vcu0_t 	, N>; tplN2uusng astaticvcu8 	= ::llc::astvcu8 <N>;
+	tplN2uusng	astvcu0_t 	= ::llc::astatic<::llc::vcu0_t 	, N>; tplN2uusng astaticvcu0_t 	= ::llc::astvcu0_t <N>;
 	tplN2uusng	astvcu16	= ::llc::astatic<::llc::vcu16	, N>; tplN2uusng astaticvcu16	= ::llc::astvcu16<N>;
 	tplN2uusng	astvcu32	= ::llc::astatic<::llc::vcu32	, N>; tplN2uusng astaticvcu32	= ::llc::astvcu32<N>;
 	tplN2uusng	astvcu64	= ::llc::astatic<::llc::vcu64	, N>; tplN2uusng astaticvcu64	= ::llc::astvcu64<N>;
@@ -93,10 +93,10 @@ namespace llc
 	// Is this really worth it?
 	tplN2usinx	u2_t	size(astc	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	//tplN2usinx	u2_t	size(astuc 	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu8 	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu16	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu32	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu64	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astu0_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astu1_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astu2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astu3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(asti16	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(asti32	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(asti64	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
@@ -105,7 +105,7 @@ namespace llc
 
 	tplN2usinx	u2_t	size(astvcc	 <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	//tplN2usinx	u2_t	size(astvcuc <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu8 <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(astvcu0_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(astvcu16<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(astvcu32<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(astvcu64<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
