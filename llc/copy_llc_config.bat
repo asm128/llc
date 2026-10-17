@@ -1,9 +1,17 @@
-@REM mkdir ..\..\Win32.Release
-@REM mkdir ..\..\Win32.Debug
-@REM mkdir ..\..\x64.Release
-@REM mkdir ..\..\x64.Debug
+mkdir ..\..\Win32.Release
+mkdir ..\..\Win32.Debug
+mkdir ..\..\Win32.Release-MT
+mkdir ..\..\Win32.Debug-MT
+mkdir ..\..\x64.Release
+mkdir ..\..\x64.Debug
+mkdir ..\..\x64.Release-MT
+mkdir ..\..\x64.Debug-MT
 
-@REM copy *.json ..\..\Win32.Release\*.*
-@REM copy *.json ..\..\Win32.Debug\*.*
-@REM copy *.json ..\..\x64.Release\*.*
-@REM copy *.json ..\..\x64.Debug\*.*
+copy *.json ..\..\Win32.Release\*.*
+copy *.json ..\..\Win32.Debug\*.*
+copy *.json ..\..\Win32.Release-MT\*.*
+copy *.json ..\..\Win32.Debug-MT\*.*
+copy *.json ..\..\x64.Release\*.*
+copy *.json ..\..\x64.Debug\*.*
+copy *.json ..\..\x64.Release-MT\*.*
+copy *.json ..\..\x64.Debug-MT\*.*

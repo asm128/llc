@@ -25,6 +25,7 @@
 ::llc::err_t testCPow			(ATestError & errors);
 ::llc::err_t testCTTIParser		(ATestError & errors);
 ::llc::err_t testD3D			(ATestError & errors);
+::llc::err_t testDeflate		(ATestError & errors);
 ::llc::err_t testEnum			(ATestError & errors);
 ::llc::err_t testExpression		(ATestError & errors);
 ::llc::err_t testGeometry		(ATestError & errors);

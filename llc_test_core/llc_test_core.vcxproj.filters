@@ -57,6 +57,9 @@
 		<ClCompile Include="llc_test_d3d.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_deflate.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
 		<ClCompile Include="llc_test_enum.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>

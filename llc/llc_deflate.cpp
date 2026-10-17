@@ -22,8 +22,7 @@
 
 LLC_USING_TYPEINT();
 
-stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
-
+stxp u2_c			LLC_CRC_CRC_SEED			= 18973;
 llc::err_t			llc::crcGenerate			(vcu0_t bytes, uint64_t & crc)	{
 	crc						= 0;
 	u2_c				lastPos						= bytes.size() - 1;
@@ -33,14 +32,12 @@ llc::err_t			llc::crcGenerate			(vcu0_t bytes, uint64_t & crc)	{
 	}
 	return 0;
 }
-
 llc::err_t			llc::crcGenerateAndAppend	(au0_t & bytes)	{
 	uint64_t					crcToStore					= 0;
 	crcGenerate(bytes, crcToStore);
 	llc_necs(bytes.append((const u0_t*)&crcToStore, szof(uint64_t)));;
 	return 0;
 }
-
 llc::err_t			llc::crcVerifyAndRemove		(au0_t & bytes)	{
 	if_true_fef(bytes.size() < 8, "Invalid input. No CRC can be found in an array of %u bytes.", bytes.size());
 	uint64_t					check						= 0;
@@ -52,7 +49,7 @@ llc::err_t			llc::crcVerifyAndRemove		(au0_t & bytes)	{
 	return 0;
 }
 
-llc::err_t			llc::arrayDeflate		(vcu0_t inflated, au0_t & deflated, u2_c chunkSize)	{
+llc::err_t			llc::arrayDeflate			(vcu0_t inflated, au0_t & deflated, u2_c chunkSize)	{
 #if defined(LLC_ESP32) || defined(LLC_ARDUINO)
 #	ifdef LLC_ESP32
 	deflated			= inflated;
@@ -83,8 +80,7 @@ llc::err_t			llc::arrayDeflate		(vcu0_t inflated, au0_t & deflated, u2_c chunkSi
 #endif
 	return 0;
 }
-
-llc::err_t			llc::arrayInflate		(vcu0_t deflated, au0_t & inflated, u2_c chunkSize)	{
+llc::err_t			llc::arrayInflate			(vcu0_t deflated, au0_t & inflated, u2_c chunkSize)	{
 #if defined(LLC_ESP32) || defined(LLC_ARDUINO)
 #	ifdef LLC_ESP32
 	inflated			= deflated;
@@ -116,14 +112,12 @@ llc::err_t			llc::arrayInflate		(vcu0_t deflated, au0_t & inflated, u2_c chunkSi
 #endif
 	return 0;
 }
-
 llc::err_t			llc::folderUnpack			(SFolderInMemory & out_loaded, vcst_t nameFileSrc)					{
 	au0_t				rawFileInMemory				= {};
 	llc_necall(fileToMemory(nameFileSrc, rawFileInMemory), "Failed to load pak file: %.*s.", (int)nameFileSrc.size(), nameFileSrc.begin());
 	llc_necall(folderUnpack(out_loaded, rawFileInMemory), "Failed to unpack pak file: %.*s.", (int)nameFileSrc.size(), nameFileSrc.begin());
 	return 0;
 }
-
 llc::err_t			llc::folderToDisk			(const SFolderPackage & folderPackage, const vcst_t nameFileDst)			{
 	const SPackHeader 	& fileHeader				= folderPackage.PackageInfo;
 	const au0_t			& compressedTableFiles		= folderPackage.CompressedTableFiles		;
@@ -141,7 +135,8 @@ llc::err_t			llc::folderToDisk			(const SFolderPackage & folderPackage, const vc
 	return 0;
 }
 
-stxp	u2_t		DEFLATE_CHUNK_SIZE			= u2_t(1024) * 1024 * 4;
+stxp u2_t			DEFLATE_CHUNK_SIZE			= u2_t(1024) * 1024 * 4;
+stxp u2_t			INFLATE_CHUNK_SIZE			= u2_t(1024) * 1024 * 4;
 llc::err_t			llc::folderPack				(SFolderPackage & output, const vcst_t nameFolderSrc) {
 	SPackHeader 			& fileHeader			= output.PackageInfo = {};
 	// -- The following two arrays store the file table and the file contents that are going to be compressed and stored on disk
@@ -165,8 +160,6 @@ llc::err_t			llc::folderPack				(SFolderPackage & output, const vcst_t nameFolde
 
 	return 0;
 }
-
-stxp	u2_t		INFLATE_CHUNK_SIZE			= u2_t(1024) * 1024 * 4;
 llc::err_t			llc::folderUnpack			(SFolderInMemory & output, vcu0_t rawFileInMemory)		{
 	const SPackHeader	& header					= *(SPackHeader*)&rawFileInMemory[0];
 	output.Names	.resize(header.TotalFileCount);
@@ -189,12 +182,7 @@ llc::err_t			llc::folderUnpack			(SFolderInMemory & output, vcu0_t rawFileInMemo
 	}
 	return 0;
 }
-
-llc::err_t			llc::folderLoad			
-	( vcst_t	nameFolderSrc 
-	, au0_t	& tableFiles				
-	, au0_t	& contentsPacked			
-	) {
+llc::err_t			llc::folderLoad				(vcst_t nameFolderSrc, au0_t & tableFiles, au0_t & contentsPacked) {
 	// -- The following two arrays store the file table and the file contents that are going to be compressed and stored on disk
 	u2_t					totalFileCount			= 0;
 	{
@@ -223,8 +211,6 @@ llc::err_t			llc::folderLoad
 	}
 	return totalFileCount;
 }
-
-// Write folder to disk.
 llc::err_t			llc::folderToDisk			(const SFolderInMemory & virtualFolder, vcst_t destinationPath)				{
 	string				finalPathName				= {};
 	FILE						* fp						= 0;
@@ -248,22 +234,19 @@ llc::err_t			llc::folderToDisk			(const SFolderInMemory & virtualFolder, vcst_t 
 	llc_safe_fclose(fp);
 	return 0;
 }
-
-llc::err_t			llc::folderPackToDisk		(vcst_t nameFileDst,	vcst_t nameFolderSrc)		{
+llc::err_t			llc::folderPackToDisk		(vcst_t nameFileDst	 , vcst_t nameFolderSrc)		{
 	SFolderPackage		folderPackage;
 	llc_necall(llc::folderPack(folderPackage, nameFolderSrc), "Failed to pack folder: %.*s.", (int)nameFolderSrc.size(), nameFolderSrc.begin());
 	llc_necall(llc::folderToDisk(folderPackage, nameFileDst), "Failed to pack folder: %.*s.", (int)nameFolderSrc.size(), nameFolderSrc.begin());
 	return 0;
 }
-
-llc::err_t			llc::folderUnpackToDisk		(vcst_t namePathDst, vcst_t nameFileSrc)		{
+llc::err_t			llc::folderUnpackToDisk		(vcst_t namePathDst	 , vcst_t nameFileSrc)		{
 	SFolderInMemory		virtualFolder				= {};
 	llc_necall(llc::folderUnpack(virtualFolder, nameFileSrc), "Failed to unpack file: %.*s.", (int)nameFileSrc.size(), nameFileSrc.begin());
 	llc_necall(llc::folderToDisk(virtualFolder, namePathDst), "Failed to write folder to disk. Disk full or insufficient permissions. File name: %.*s. Destination path: %.*s.", (int)nameFileSrc.size(), nameFileSrc.begin(), (int)namePathDst.size(), namePathDst.begin());
 	return 0;
 }
-
-llc::err_t			llc::inflateToMemory  		(au0_t & tempCache, vcst_t fileName, au0_t & output) {
+llc::err_t			llc::inflateToMemory  		(au0_t & tempCache	 , vcst_t fileName, au0_t & output) {
 	llc_necs(llc::fileToMemory(fileName, tempCache));
 	info_printf("File size: %u.", tempCache.size());
 
@@ -271,15 +254,13 @@ llc::err_t			llc::inflateToMemory  		(au0_t & tempCache, vcst_t fileName, au0_t 
 	info_printf("Inflated size: %u.", output.size());
 	return 0; 
 }
-
-llc::err_t			llc::deflateFromMemory		(au0_t & tempCache, vcst_t fileName, vcu0_t input) {
+llc::err_t			llc::deflateFromMemory		(au0_t & tempCache	 , vcst_t fileName, vcu0_t input) {
 	info_printf("Input size: %u.", input.size());
 	llc_necs(llc::arrayDeflate(input, tempCache));
 
 	info_printf("Deflated size: %u.", tempCache.size());
 	return fileFromMemory(fileName, tempCache);
 }
-
 llc::err_t			llc::fileFromMemorySecure	(SLoadCache & recycle, vcst_t fileName, vcu0_t key, b8_t deflate, vcu0_t blockBytes) {
 	if(false == deflate && 0 == key.size())
 		recycle.Encrypted		= blockBytes;
@@ -298,7 +279,6 @@ llc::err_t			llc::fileFromMemorySecure	(SLoadCache & recycle, vcst_t fileName, v
 	llc_necall(llc::fileFromMemory(fileName, recycle.Encrypted), "Failed to save file: %.*s.", (int)fileName.size(), fileName.begin());
 	return 0;
 }
-
 llc::err_t			llc::fileToMemorySecure		(SLoadCache & recycle, vcst_t fileName, vcu0_t key, const b8_t deflate, au0_t & loadedBytes)								{
 	if(false == deflate && 0 == key.size()) {
 		llc_necall(llc::fileToMemory(fileName, loadedBytes), "Failed to read file: %.*s.", (int)fileName.size(), fileName.begin());

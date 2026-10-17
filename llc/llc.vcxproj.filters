@@ -22,6 +22,9 @@
     <Filter Include="container">
       <UniqueIdentifier>{1ef7945b-1d26-41bf-9f58-c719dc22c61b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="d3d">
+      <UniqueIdentifier>{ea9dc06f-264e-4565-a096-4c11804cfff7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="dialog">
       <UniqueIdentifier>{6a2f53ea-3719-45cb-bb6a-7d0fbac6c6fd}</UniqueIdentifier>
     </Filter>
@@ -254,6 +257,9 @@
     </ClInclude>
     <ClInclude Include="llc_coord.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_d3d.h">
+      <Filter>d3d</Filter>
     </ClInclude>
     <ClInclude Include="llc_debug.h">
       <Filter>base</Filter>
@@ -874,6 +880,9 @@
     </ClCompile>
     <ClCompile Include="llc_component_scene_draw.cpp">
       <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_d3d.cpp">
+      <Filter>d3d</Filter>
     </ClCompile>
     <ClCompile Include="llc_datatype.cpp">
       <Filter>type</Filter>

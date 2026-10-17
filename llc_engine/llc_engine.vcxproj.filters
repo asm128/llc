@@ -14,4 +14,144 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="psCloud.hlsl" />
+    <FxCompile Include="psEarth.hlsl" />
+    <FxCompile Include="psBackgroundMilkyWay.hlsl" />
+    <FxCompile Include="psCylinder.hlsl" />
+    <FxCompile Include="psCylinderIn.hlsl" />
+    <FxCompile Include="psDwarf.hlsl" />
+    <FxCompile Include="psGasGiant.hlsl" />
+    <FxCompile Include="psGravityCenter.hlsl" />
+    <FxCompile Include="psGrid.hlsl" />
+    <FxCompile Include="psGridRuler.hlsl" />
+    <FxCompile Include="psGUI.hlsl" />
+    <FxCompile Include="psHidden.hlsl" />
+    <FxCompile Include="psIceGiant.hlsl" />
+    <FxCompile Include="psMassiveSolid.hlsl" />
+    <FxCompile Include="psOrbit.hlsl" />
+    <FxCompile Include="psSolid.hlsl" />
+    <FxCompile Include="psSphereAxis.hlsl" />
+    <FxCompile Include="psSphereMeridian.hlsl" />
+    <FxCompile Include="psSphereSolid.hlsl" />
+    <FxCompile Include="psSun.hlsl" />
+    <FxCompile Include="psSunfire.hlsl" />
+    <FxCompile Include="psTerrestrial.hlsl" />
+    <FxCompile Include="SampleVertexShader.hlsl" />
+    <FxCompile Include="vsGUI.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="llc_celestial_body.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_engine_d3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_engine_orbit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_engine_planetary_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_engine_renderbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_engine_scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_engine_shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_engine_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_planetary_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_rigid_body.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="llc_celestial_body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_d3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_orbit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_planetary_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_renderbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_rendercolor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_rendermesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_rendernode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_rendersurface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_engine_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_game_stage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_orbit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_planetary_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_rigid_body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_spaceship.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_weapon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="deploy_data.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="llc_solar_system.json" />
+    <None Include="PixelShaderShared.hlsli" />
+    <None Include="PixelShaderShared2D.hlsli" />
+    <None Include="ShaderColors.hlsli" />
+    <None Include="ShaderShared.hlsli" />
+    <None Include="ShaderShared2D.hlsli" />
+  </ItemGroup>
 </Project>
