@@ -294,6 +294,9 @@
     <ClInclude Include="llc_geometry.h">
       <Filter>geometry</Filter>
     </ClInclude>
+    <ClInclude Include="llc_geometry2.h">
+      <Filter>geometry</Filter>
+    </ClInclude>
     <ClInclude Include="llc_geometry_draw.h">
       <Filter>geometry</Filter>
     </ClInclude>
@@ -327,12 +330,12 @@
     <ClInclude Include="llc_gui_control_state.h">
       <Filter>gui</Filter>
     </ClInclude>
-    <ClInclude Include="llc_gui_checkbox.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_gui_render.h">
-      <Filter>gui</Filter>
-    </ClInclude>
+	<ClInclude Include="llc_gui_checkbox.h">
+	  <Filter>gui</Filter>
+	</ClInclude>
+	<ClInclude Include="llc_gui_render.h">
+	  <Filter>gui</Filter>
+	</ClInclude>
     <ClInclude Include="llc_gui_desktop.h">
       <Filter>dialog</Filter>
     </ClInclude>
@@ -579,6 +582,9 @@
     <ClInclude Include="llc_window.h">
       <Filter>framework</Filter>
     </ClInclude>
+    <ClInclude Include="llc_framework.h">
+      <Filter>framework</Filter>
+    </ClInclude>
     <ClInclude Include="llc_windows.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -710,51 +716,6 @@
     </ClInclude>
     <ClInclude Include="llc_ctti.h">
       <Filter>type</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine_entity.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine_orbit.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine_renderbuffer.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine_rendercolor.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine_rendermesh.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine_rendernode.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine_rendersurface.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_engine_scene.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_game.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_game_stage.h">
-      <Filter>scene</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_orbit.h">
-      <Filter>physics</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_rigid_body.h">
-      <Filter>physics</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_spaceship.h">
-      <Filter>physics</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_weapon.h">
-      <Filter>physics</Filter>
     </ClInclude>
     <ClInclude Include="llc_gpio.h">
       <Filter>base</Filter>
@@ -935,21 +896,6 @@
     <ClCompile Include="llc_framework.cpp">
       <Filter>framework</Filter>
     </ClCompile>
-    <ClCompile Include="llc_engine.cpp">
-      <Filter>scene</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_engine_orbit.cpp">
-      <Filter>scene</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_engine_renderbuffer.cpp">
-      <Filter>scene</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_engine_scene.cpp">
-      <Filter>scene</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_rigid_body.cpp">
-      <Filter>physics</Filter>
-    </ClCompile>
     <ClCompile Include="llc_geometry.cpp">
       <Filter>geometry</Filter>
     </ClCompile>
@@ -962,15 +908,15 @@
     <ClCompile Include="llc_gui.cpp">
       <Filter>gui</Filter>
     </ClCompile>
-    <ClCompile Include="llc_gui_control.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_checkbox.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_input.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
+	<ClCompile Include="llc_gui_control.cpp">
+	  <Filter>gui</Filter>
+	</ClCompile>
+	<ClCompile Include="llc_gui_checkbox.cpp">
+	  <Filter>gui</Filter>
+	</ClCompile>
+	<ClCompile Include="llc_gui_input.cpp">
+	  <Filter>gui</Filter>
+	</ClCompile>
     <ClCompile Include="llc_gui_layout.cpp">
       <Filter>gui</Filter>
     </ClCompile>
@@ -1067,6 +1013,9 @@
     <ClCompile Include="llc_window.cpp">
       <Filter>framework</Filter>
     </ClCompile>
+    <ClCompile Include="llc_framework.cpp">
+      <Filter>framework</Filter>
+    </ClCompile>
     <ClCompile Include="llc_windows.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -1136,15 +1085,13 @@
     <ClCompile Include="llc_process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llc_header_checkingg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="llc_module_exports.def">
       <Filter>module</Filter>
     </None>
+    <None Include="llc_config.json" />
     <None Include="Makefile" />
     <None Include="character_codes.json" />
     <None Include="copy_llc_config.bat">

@@ -104,24 +104,10 @@
     <ClInclude Include="llc_coord.h" />
     <ClInclude Include="llc_cpow.h" />
     <ClInclude Include="llc_ctti.h" />
+    <ClInclude Include="llc_d3d.h" />
     <ClInclude Include="llc_datatype.h" />
     <ClInclude Include="llc_debug.h" />
     <ClInclude Include="llc_deflate.h" />
-    <ClInclude Include="llc_engine.h" />
-    <ClInclude Include="llc_engine_entity.h" />
-    <ClInclude Include="llc_engine_orbit.h" />
-    <ClInclude Include="llc_engine_renderbuffer.h" />
-    <ClInclude Include="llc_engine_rendercolor.h" />
-    <ClInclude Include="llc_engine_rendermesh.h" />
-    <ClInclude Include="llc_engine_rendernode.h" />
-    <ClInclude Include="llc_engine_rendersurface.h" />
-    <ClInclude Include="llc_engine_scene.h" />
-    <ClInclude Include="llc_game.h" />
-    <ClInclude Include="llc_game_stage.h" />
-    <ClInclude Include="llc_orbit.h" />
-    <ClInclude Include="llc_rigid_body.h" />
-    <ClInclude Include="llc_spaceship.h" />
-    <ClInclude Include="llc_weapon.h" />
     <ClInclude Include="llc_gpio.h" />
     <ClInclude Include="llc_i2c.h" />
     <ClInclude Include="llc_keyed_bit_array.h" />
@@ -215,6 +201,7 @@
     <ClInclude Include="llc_expression.h" />
     <ClInclude Include="llc_frameinfo.h" />
     <ClInclude Include="llc_geometry.h" />
+    <ClInclude Include="llc_geometry2.h" />
     <ClInclude Include="llc_geometry_lh.h" />
     <ClInclude Include="llc_grid_copy.h" />
     <ClInclude Include="llc_grid_scale.h" />
@@ -323,19 +310,13 @@
     <ClCompile Include="llc_component_scene_draw.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_d3d.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="llc_datatype.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_deflate.cpp" />
-    <ClCompile Include="llc_engine.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_engine_orbit.cpp" />
-    <ClCompile Include="llc_engine_renderbuffer.cpp" />
-    <ClCompile Include="llc_engine_scene.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_rigid_body.cpp" />
     <ClCompile Include="llc_geometry.cpp" />
     <ClCompile Include="llc_geometry_draw.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -416,12 +397,8 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_wifi.cpp" />
-    <ClCompile Include="llc_window.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_framework.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_window.cpp" />
+    <ClCompile Include="llc_framework.cpp" />
     <ClCompile Include="llc_gui_control_list.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -482,6 +459,7 @@
     <None Include="country_coords.json" />
     <None Include="cpp.hint" />
     <None Include="llc_module_exports.def" />
+    <None Include="llc_config.json" />
     <None Include="Makefile" />
     <None Include="README.md" />
   </ItemGroup>
@@ -561,13 +539,16 @@
     <Lib>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-MT|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LLC_AVOID_LOCAL_APPLICATION_MODEL_EXECUTABLE_RUNTIME; WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -582,6 +563,9 @@
     <Lib>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -603,13 +587,16 @@
     <Lib>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-MT|x64'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LLC_AVOID_LOCAL_APPLICATION_MODEL_EXECUTABLE_RUNTIME; _DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -624,6 +611,9 @@
     <Lib>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -649,6 +639,9 @@
     <Lib>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-MT|Win32'">
     <ClCompile>
@@ -657,7 +650,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LLC_AVOID_LOCAL_APPLICATION_MODEL_EXECUTABLE_RUNTIME; WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -674,6 +667,9 @@
     <Lib>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -699,6 +695,9 @@
     <Lib>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-MT|x64'">
     <ClCompile>
@@ -707,7 +706,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LLC_AVOID_LOCAL_APPLICATION_MODEL_EXECUTABLE_RUNTIME; NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -724,6 +723,9 @@
     <Lib>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy_llc_config.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
