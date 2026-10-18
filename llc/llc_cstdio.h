@@ -28,8 +28,8 @@ namespace llc
 	ndsi err_t		fseek		(FILE * fp, int64_t offset, FSEEK origin) { if_true_vef(-1, ::fseek(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
 #endif
 	ndsi err_t		fopen_s		(FILE* & out_fp, vcst_t filename, vcst_t mode, uint64_t offset = 0)	{
-		rees_if(0 == filename.size());
-		ree_if(0 == mode.size()		, "'%.*s'", LLC_VIEW_ARGS(filename));
+		if_true_fe(0 == filename.size());
+		if_true_fef(0 == mode.size()		, "'%.*s'", LLC_VIEW_ARGS(filename));
 #ifndef LLC_WINDOWS
 		if_null_vef(-(errno), out_fp = fopen(filename, mode), "['%.*s','%.*s'].", LLC_VIEW_ARGS(filename), LLC_VIEW_ARGS(mode));
 #else

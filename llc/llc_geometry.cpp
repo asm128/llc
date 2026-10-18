@@ -44,7 +44,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 			= ( (coord.x >= halfCount.x && coord.y <  halfCount.y)
 			 || (coord.x <  halfCount.x && coord.y >= halfCount.y)
 			);
-		const ::llc::vcu2_t			relative_indices			= indices_modes[((reverseQuad ? SQUARE_MODE_TOP_RIGHT : SQUARE_MODE_TOP_LEFT) + one_if(outward)) % 2];
+		const ::llc::vcu2_t			relative_indices			= indices_modes[((reverseQuad ? SQUARE_MODE_TOP_RIGHT : SQUARE_MODE_TOP_LEFT) + onif_true_e(outward)) % 2];
 		for(::llc::u2_t i = 0; i < 6; ++i) {
 			positionIndices.push_back(vertexOffset + vertexIndex + relative_indices[i]);
 		}

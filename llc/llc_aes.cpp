@@ -430,8 +430,8 @@ void											llc::aesCTRXCryptBuffer				(::llc::SAESContext* ctx, u0_t * buf, 
 }
 
 ::llc::error_t			llc::aesEncode		(vcu0_c & messageToEncrypt, vcu0_c & iv, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputEncrypted) {
-	ree_if(0 == messageToEncrypt.size(), "Cannot encode empty message at address %p.", messageToEncrypt);
-	ree_if(encryptionKey.size() != 32, "Invalid key length! Key must be exactly 32 bytes long. Key size: %" LLC_FMT_U2 ".", encryptionKey.size());
+	if_true_fef(0 == messageToEncrypt.size(), "Cannot encode empty message at address %p.", messageToEncrypt);
+	if_true_fef(encryptionKey.size() != 32, "Invalid key length! Key must be exactly 32 bytes long. Key size: %" LLC_FMT_U2 ".", encryptionKey.size());
 	int8_t													excedent								= messageToEncrypt.size() % ::llc::AES_SIZEBLOCK;
 	int8_t													paddingRequired							= (int8_t)(::llc::AES_SIZEBLOCK - excedent);
 	outputEncrypted.clear();
@@ -447,9 +447,9 @@ void											llc::aesCTRXCryptBuffer				(::llc::SAESContext* ctx, u0_t * buf, 
 }
 
 ::llc::error_t			llc::aesDecode		(vcu0_c & messageEncrypted, vcu0_c & iv, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputDecrypted) {
-	ree_if(0 == messageEncrypted.size(), "Cannot encode empty message at address %p.", messageEncrypted.begin());
-	ree_if(messageEncrypted.size() % ::llc::AES_SIZEBLOCK, "Invalid data length: %" LLC_FMT_U2 ".", messageEncrypted.size());
-	ree_if(encryptionKey.size() != 32, "Invalid key length! Key must be exactly 32 bytes long. Key size: %" LLC_FMT_U2 ".", encryptionKey.size());
+	if_true_fef(0 == messageEncrypted.size(), "Cannot encode empty message at address %p.", messageEncrypted.begin());
+	if_true_fef(messageEncrypted.size() % ::llc::AES_SIZEBLOCK, "Invalid data length: %" LLC_FMT_U2 ".", messageEncrypted.size());
+	if_true_fef(encryptionKey.size() != 32, "Invalid key length! Key must be exactly 32 bytes long. Key size: %" LLC_FMT_U2 ".", encryptionKey.size());
 	llc_necs(outputDecrypted.resize(messageEncrypted.size()));
 	memcpy(outputDecrypted.begin(), messageEncrypted.begin(), outputDecrypted.size());
 	::llc::SAESContext										aes;

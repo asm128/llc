@@ -18,10 +18,71 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="llc_test_adam7.cpp" />
+    <ClCompile Include="llc_test_apod_minmax.cpp" />
+    <ClCompile Include="llc_test_app.cpp" />
+    <ClCompile Include="llc_test_args.cpp" />
+    <ClCompile Include="llc_test_array_bit.cpp" />
+    <ClCompile Include="llc_test_array_obj.cpp" />
+    <ClCompile Include="llc_test_array_pod.cpp" />
+    <ClCompile Include="llc_test_array_static.cpp" />
+    <ClCompile Include="llc_test_ascii_color.cpp" />
+    <ClCompile Include="llc_test_ascii_target.cpp" />
+    <ClCompile Include="llc_test_base64.cpp" />
+    <ClCompile Include="llc_test_bit.cpp" />
+    <ClCompile Include="llc_test_bitmap_target.cpp" />
+    <ClCompile Include="llc_test_block.cpp" />
+    <ClCompile Include="llc_test_block_container.cpp" />
+    <ClCompile Include="llc_test_camera.cpp" />
+    <ClCompile Include="llc_test_collision.cpp" />
+    <ClCompile Include="llc_test_complus.cpp" />
+    <ClCompile Include="llc_test_core.cpp" />
+    <ClCompile Include="llc_test_cpow.cpp" />
+    <ClCompile Include="llc_test_ctti.cpp" />
+    <ClCompile Include="llc_test_d3d.cpp" />
+    <ClCompile Include="llc_test_deflate.cpp" />
+    <ClCompile Include="llc_test_enum.cpp" />
+    <ClCompile Include="llc_test_expression.cpp" />
+    <ClCompile Include="llc_test_geometry.cpp" />
+    <ClCompile Include="llc_test_grid_image.cpp" />
+    <ClCompile Include="llc_test_grid_operations.cpp" />
+    <ClCompile Include="llc_test_gui.cpp" />
+    <ClCompile Include="llc_test_input.cpp" />
+    <ClCompile Include="llc_test_json.cpp" />
+    <ClCompile Include="llc_test_json_expression.cpp" />
+    <ClCompile Include="llc_test_keyval.cpp" />
+    <ClCompile Include="llc_test_label.cpp" />
+    <ClCompile Include="llc_test_linear_map.cpp" />
+    <ClCompile Include="llc_test_msbuild_xml.cpp" />
+    <ClCompile Include="llc_test_noise.cpp" />
+    <ClCompile Include="llc_test_packed_int.cpp" />
+    <ClCompile Include="llc_test_path.cpp" />
+    <ClCompile Include="llc_test_png.cpp" />
+    <ClCompile Include="llc_test_process.cpp" />
+    <ClCompile Include="llc_test_ptr.cpp" />
+    <ClCompile Include="llc_test_runtime_module.cpp" />
+    <ClCompile Include="llc_test_stl.cpp" />
+    <ClCompile Include="llc_test_str.cpp" />
+    <ClCompile Include="llc_test_system_key.cpp" />
+    <ClCompile Include="llc_test_type_metadata.cpp" />
+    <ClCompile Include="llc_test_view.cpp" />
+    <ClCompile Include="llc_test_view_aliases.cpp" />
+    <ClCompile Include="llc_test_view_bit.cpp" />
+    <ClCompile Include="llc_test_view_serialize.cpp" />
+    <ClCompile Include="llc_test_view_stream.cpp" />
+    <ClCompile Include="llc_test_vox.cpp" />
+    <ClCompile Include="llc_test_voxel.cpp" />
+    <ClCompile Include="llc_test_xml.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="llc_test_base64_font_data.h" />
+    <ClInclude Include="llc_test_core_suites.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{b3625f28-5c83-4b44-8260-1133b4186fc6}</ProjectGuid>
+    <ProjectGuid>{6ac63b34-f2af-481d-9f2f-d7336a272638}</ProjectGuid>
     <RootNamespace>llctestcore</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -86,19 +147,18 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG; WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>../llc; ../llc_engine; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; user32.lib;  llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -110,19 +170,18 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG; WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>../llc; ../llc_engine; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; user32.lib;  llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -132,19 +191,18 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG; _DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>../llc; ../llc_engine; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; user32.lib;  llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -156,85 +214,23 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG; NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>../llc; ../llc_engine; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; user32.lib;  llc_engine.lib; zlibvc.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="llc_test_adam7.cpp" />
-    <ClCompile Include="llc_test_app.cpp" />
-    <ClCompile Include="llc_test_ascii_color.cpp" />
-    <ClCompile Include="llc_test_ascii_target.cpp" />
-    <ClCompile Include="llc_test_array_bit.cpp" />
-    <ClCompile Include="llc_test_apod_minmax.cpp" />
-    <ClCompile Include="llc_test_array_pod.cpp" />
-    <ClCompile Include="llc_test_array_obj.cpp" />
-    <ClCompile Include="llc_test_array_static.cpp" />
-    <ClCompile Include="llc_test_args.cpp" />
-    <ClCompile Include="llc_test_base64.cpp" />
-    <ClCompile Include="llc_test_bit.cpp" />
-    <ClCompile Include="llc_test_bitmap_target.cpp" />
-    <ClCompile Include="llc_test_block.cpp" />
-    <ClCompile Include="llc_test_block_container.cpp" />
-    <ClCompile Include="llc_test_camera.cpp" />
-    <ClCompile Include="llc_test_collision.cpp" />
-    <ClCompile Include="llc_test_complus.cpp" />
-    <ClCompile Include="llc_test_core.cpp" />
-    <ClCompile Include="llc_test_cpow.cpp" />
-    <ClCompile Include="llc_test_ctti.cpp" />
-    <ClCompile Include="llc_test_d3d.cpp" />
-    <ClCompile Include="llc_test_deflate.cpp" />
-    <ClCompile Include="llc_test_enum.cpp" />
-    <ClCompile Include="llc_test_expression.cpp" />
-    <ClCompile Include="llc_test_geometry.cpp" />
-    <ClCompile Include="llc_test_grid_image.cpp" />
-    <ClCompile Include="llc_test_grid_operations.cpp" />
-    <ClCompile Include="llc_test_gui.cpp" />
-    <ClCompile Include="llc_test_input.cpp" />
-    <ClCompile Include="llc_test_json_expression.cpp" />
-    <ClCompile Include="llc_test_json.cpp" />
-    <ClCompile Include="llc_test_keyval.cpp" />
-    <ClCompile Include="llc_test_label.cpp" />
-    <ClCompile Include="llc_test_linear_map.cpp" />
-    <ClCompile Include="llc_test_msbuild_xml.cpp" />
-    <ClCompile Include="llc_test_xml.cpp" />
-    <ClCompile Include="llc_test_noise.cpp" />
-    <ClCompile Include="llc_test_path.cpp" />
-    <ClCompile Include="llc_test_png.cpp" />
-    <ClCompile Include="llc_test_packed_int.cpp" />
-    <ClCompile Include="llc_test_ptr.cpp" />
-    <ClCompile Include="llc_test_process.cpp" />
-    <ClCompile Include="llc_test_runtime_module.cpp" />
-    <ClCompile Include="llc_test_str.cpp" />
-    <ClCompile Include="llc_test_stl.cpp" />
-    <ClCompile Include="llc_test_system_key.cpp" />
-    <ClCompile Include="llc_test_type_metadata.cpp" />
-    <ClCompile Include="llc_test_view.cpp" />
-    <ClCompile Include="llc_test_view_aliases.cpp" />
-    <ClCompile Include="llc_test_view_bit.cpp" />
-    <ClCompile Include="llc_test_view_serialize.cpp" />
-    <ClCompile Include="llc_test_view_stream.cpp" />
-    <ClCompile Include="llc_test_vox.cpp" />
-    <ClCompile Include="llc_test_voxel.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="llc_test_base64_font_data.h" />
-    <ClInclude Include="llc_test_core_suites.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -172,7 +172,7 @@ namespace llc
 		err_t				add_value				(const T & value, vcst_t name, vcst_t title, vcst_t description)	{
 			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i)
 				if(Names[i] == name) {
-					ree_if(Values[i] != value, "Enumeration name already has another value! Type:'%.*s'. Name:'%.*s'. Previous:0x%llX. New:0x%llX."
+					if_true_fef(Values[i] != value, "Enumeration name already has another value! Type:'%.*s'. Name:'%.*s'. Previous:0x%llX. New:0x%llX."
 						, (int)Name.size(), Name.begin(), (int)name.size(), name.begin(), (uint64_t)Values[i], (uint64_t)value
 						);
 					return -1;
@@ -192,7 +192,7 @@ namespace llc
 		}
 		err_t				add_value_auto			(vcst_t name, vcst_t title, vcst_t description)	{
 			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i) {
-				ree_if(name == Names[i], "Enumeration value already defined! Type: '%.*s'. Value: 0x%llX. Previous name: %.*s. New name: %.*s. Second definition ignored..."
+				if_true_fef(name == Names[i], "Enumeration value already defined! Type: '%.*s'. Value: 0x%llX. Previous name: %.*s. New name: %.*s. Second definition ignored..."
 					, (int)Name		.size(), Name		.begin()
 					, (uint64_t)Values[i]
 					, (int)Names[i]	.size(), Names[i]	.begin()
@@ -249,7 +249,7 @@ namespace llc
 		camelCase(uncased, camelCased);
 		return get_enum<TEnum>().get_value(camelCased);
 	}
-	tplt<tpnm TEnum>	ndsi	::llc::u2_t		get_value_count		()							nxpt	{ return get_enum<TEnum>().Values.size(); }
+	tplt<tpnm TEnum>	ndsi	u2_t			get_value_count		()							nxpt	{ return get_enum<TEnum>().Values.size(); }
 	tplt<tpnm TEnum>	ndsi	vcst_t			get_value_label		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit); }
 	tplt<tpnm TEnum>	ndsi	vcst_t			get_value_namev		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit); }
 	tplt<tpnm TEnum>	ndsi	sc_c*			get_value_namep		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_label(statusBit).begin(); }

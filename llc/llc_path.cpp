@@ -42,15 +42,15 @@ stxp	::llc::u2_t LLC_MAX_PATH = 256;
 				break;
 			continue;
 		}
-		ree_if(0 != strncpy_s(folder, pathName.begin(), (offsetBar < 0) ? pathName.size() : offsetBar), "String buffer overflow? Path size: %" LLC_FMT_U2 ".", pathName.size());
+		if_true_fef(0 != strncpy_s(folder, pathName.begin(), (offsetBar < 0) ? pathName.size() : offsetBar), "String buffer overflow? Path size: %" LLC_FMT_U2 ".", pathName.size());
 		if(0 == strcmp(".", folder))
 			continue;
 #if defined(LLC_WINDOWS)
 		llc_path_debug("Creating folder \"%s\".", folder);
 		if(FALSE == CreateDirectoryA(folder, NULL)) {
-			ci_if(strlen(folder) == 2 && folder[1] == ':');
+			if_true_ci(strlen(folder) == 2 && folder[1] == ':');
 			DWORD						err							= GetLastError();
-			ree_if(err != ERROR_ALREADY_EXISTS, "Failed to create directory: %s. hr: (%" LLC_FMT_U2 ")", folder, err);
+			if_true_fef(err != ERROR_ALREADY_EXISTS, "Failed to create directory: %s. hr: (%" LLC_FMT_U2 ")", folder, err);
 		}
 #else
 		struct stat st = {0};
@@ -83,11 +83,11 @@ stxp	::llc::u2_t LLC_MAX_PATH = 256;
 	rtrn filename.slice(stem, 0, filename.size());
 }
 
-stxp	bool				pathSeparator			(::llc::sc_c value) { rtrn '/' == value || '\\' == value; }
-stxp	bool				pathDriveLetter			(::llc::sc_c value) { rtrn ('A' <= value && value <= 'Z') || ('a' <= value && value <= 'z'); }
+stxp	bool			pathSeparator			(::llc::sc_c value) { rtrn '/' == value || '\\' == value; }
+stxp	bool			pathDriveLetter			(::llc::sc_c value) { rtrn ('A' <= value && value <= 'Z') || ('a' <= value && value <= 'z'); }
 
 ::llc::err_t			llc::pathBegin				(::llc::vcst_t path, ::llc::vcst_t & output) {
-	::llc::u2_t				prefixSize				= 0;
+	::llc::u2_t					prefixSize				= 0;
 	if(path.size() && ::pathSeparator(path[0])) {
 		prefixSize							= 1;
 		if(path.size() > 1 && ::pathSeparator(path[1])) {
@@ -340,7 +340,7 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	if_fail_fef(::llc::pathNameCompose(pathToList, LLC_CXS("*.*"), sPath), "Invalid path: '%.*s'.", (int)pathToList.size(), pathToList.begin());
 	WIN32_FIND_DATAA			fdFile						= {};
 	HANDLE						hFind						= FindFirstFile(sPath.begin(), &fdFile);
-	ree_if(hFind == INVALID_HANDLE_VALUE, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());
+	if_true_fef(hFind == INVALID_HANDLE_VALUE, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());
 	do {
 		cnst ::llc::vcst_t		entryName						= {fdFile.cFileName, (::llc::u2_t)-1};
 		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, 0 != (fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)), "'%.*s'", (int)entryName.size(), entryName.begin());
@@ -349,7 +349,7 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	FindClose(hFind);
 #elif defined(LLC_ANDROID) || defined(LLC_LINUX)
 	DIR							* dir							= opendir(pathToList.begin());
-	ree_if(0 == dir, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());
+	if_true_fef(0 == dir, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());
 	struct dirent				* drnt						= nullptr;
 	while((drnt = readdir(dir))) {
 		cnst ::llc::vcst_t		entryName						= {drnt->d_name, (::llc::u2_t)-1};

@@ -701,11 +701,11 @@ static	::llc::err_t	pngDecode
 	) {
 	switch(colorType) {
 	default: error_printf("Invalid color type: %u.", colorType); return -1;
-	case  2: ree_if(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_2_8(out_View, scanlines)			: ::pngScanlineDecode_2_16  (out_View, scanlines);
-	case  4: ree_if(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_4_8(out_View, scanlines)			: ::pngScanlineDecode_4_16  (out_View, scanlines);
-	case  6: ree_if(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_6_8(out_View, scanlines)			: ::pngScanlineDecode_6_16  (out_View, scanlines);
-	case  3: ree_if(bitDepth != 1 && bitDepth != 2 && bitDepth != 4 && bitDepth != 8, "Invalid bit depth: %u.", bitDepth);	return (bitDepth == 8) ? ::pngScanlineDecode_3_8(out_View, scanlines, palette)	: ::pngScanlineDecode_3_bits(out_View, scanlines, palette, bitDepth);
-	case  0: ree_if(bitDepth != 1 && bitDepth != 2 && bitDepth != 4 && bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);
+	case  2: if_true_fef(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_2_8(out_View, scanlines)			: ::pngScanlineDecode_2_16  (out_View, scanlines);
+	case  4: if_true_fef(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_4_8(out_View, scanlines)			: ::pngScanlineDecode_4_16  (out_View, scanlines);
+	case  6: if_true_fef(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_6_8(out_View, scanlines)			: ::pngScanlineDecode_6_16  (out_View, scanlines);
+	case  3: if_true_fef(bitDepth != 1 && bitDepth != 2 && bitDepth != 4 && bitDepth != 8, "Invalid bit depth: %u.", bitDepth);	return (bitDepth == 8) ? ::pngScanlineDecode_3_8(out_View, scanlines, palette)	: ::pngScanlineDecode_3_bits(out_View, scanlines, palette, bitDepth);
+	case  0: if_true_fef(bitDepth != 1 && bitDepth != 2 && bitDepth != 4 && bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);
 		 if(bitDepth == 8)
 			return ::pngScanlineDecode_0_8(out_View, scanlines);
 		else
@@ -808,7 +808,7 @@ static	::llc::err_t	pngActualFileLoad		(const ::llc::vcu0_t & source, ::llc::SPN
 		cnst ::llc::vcu0_t			crcData					= pngStream;
 		if_fail_fef(::llc::loadPOD(pngStream, chunkRead.Type), "%s", "Failed to read PNG chunk type.");
 		be2le(sizeChunk);
-		ree_if(sizeChunk > (0x7FFFFFFF >> 2), "%s", "Chunk too large! Corrupt file?");
+		if_true_fef(sizeChunk > (0x7FFFFFFF >> 2), "%s", "Chunk too large! Corrupt file?");
 		if_true_fef(pngStream.size() < sizeChunk + 4U, "Chunk size:%u, remaining bytes:%u.", sizeChunk, pngStream.size());
 		llc_necall(chunkRead.Data.resize(sizeChunk), "Out of memory? Chunk size: %u.", sizeChunk);
 		if(sizeChunk)
@@ -817,9 +817,9 @@ static	::llc::err_t	pngActualFileLoad		(const ::llc::vcu0_t & source, ::llc::SPN
 		if_fail_fef(::llc::loadPOD(pngStream, chunkRead.CRC), "%s", "Failed to read PNG chunk CRC.");
 		be2le(chunkRead.CRC);
 		u2_t					crcGenerated			= ::llc::get_crc({crcData.begin(), sizeChunk + 4});
-		ef_if(crcGenerated != chunkRead.CRC, "Invalid CRC: File: %X, Generated: %X.", chunkRead.CRC, crcGenerated);
+		if_true_ef(crcGenerated != chunkRead.CRC, "Invalid CRC: File: %X, Generated: %X.", chunkRead.CRC, crcGenerated);
 		llc_necs(pngData.Chunks.push_back(chunkRead));
-		break_gverbose_if(0 == memcmp(chunkRead.Type, "IEND", 4), "%s", "Found IEND chunk (image end).");
+		if_null_bef(memcmp(chunkRead.Type, "IEND", 4), "%s", "Found IEND chunk (image end).");
 	}
 
 	::llc::SPNGIHDR						& imageHeader	= pngData.Header;
@@ -959,11 +959,11 @@ static	::llc::err_t	pngScanlineDefilter		(const ::llc::vcu0_t & scanlineFilters,
 				else if(scanlineFilters[y] == 3) { ::pngDefilterAverage	(scanlines[y], scanlines[y - 1], bytesPerPixel);	filteredScanlines[y] = true; }
 				else if(scanlineFilters[y] == 4) { ::pngDefilterPaeth	(scanlines[y], scanlines[y - 1], bytesPerPixel);	filteredScanlines[y] = true; }
 				else
-					reterr_gerror_if(scanlineFilters[y] > 4, "Invalid filter: %u! Corrupt png file?", (u2_t)scanlineFilters[y]);
+					if_true_fef(scanlineFilters[y] > 4, "Invalid filter: %u! Corrupt png file?", (u2_t)scanlineFilters[y]);
 			}
 		}
 	}
-	wf_if(countPasses > 1, "Decoding passess executed: %u.", countPasses);
+	if_true_ef(countPasses > 1, "Decoding passess executed: %u.", countPasses);
 	return 0;
 }
 
@@ -993,7 +993,7 @@ static	::llc::err_t	defilterInterlaced			(::llc::SPNGData & pngData)									{
 	u2_t					offsetByte					= 0;
 	u2_t					offsetScanline				= 0;
 	const u2_t				bytesPerPixel				= ::pngBytesPerPixel(imageHeader.ColorType, imageHeader.BitDepth);
-	ree_if(::llc::failed(bytesPerPixel), "Invalid format! ColorType: %u. Bit Depth: %u.", bytesPerPixel);
+	if_true_fef(::llc::failed(bytesPerPixel), "Invalid format! ColorType: %u. Bit Depth: %u.", bytesPerPixel);
 	for(u2_t iImage = 0; iImage < 7; ++iImage) {
 		u2_t					widthScanlineCurrent		= ::scanLineSizeFromFormat(imageHeader.ColorType, imageHeader.BitDepth, imageSizes[iImage].x);
 		verbose_printf("Image: %u. Scanline size: %u.", iImage, widthScanlineCurrent);

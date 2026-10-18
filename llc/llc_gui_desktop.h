@@ -19,7 +19,7 @@ namespace llc
 		inlcxpr	::llc::u2_t			size						()							const	noexcept	{ return Elements.size(); }
 		::llc::error_t				push_back					(const _tElement & toPush)						{
 			const ::llc::cid_t				elemIndex					= (::llc::cid_t)Elements.push_back(toPush);
-			ree_if(failed(elemIndex), "%s", "Failed to add element to container! Out of memory?");
+			if_true_fef(failed(elemIndex), "%s", "Failed to add element to container! Out of memory?");
 			stacxpr	::llc::u2_t				boolContainerElementSize	= sizeof(uint64_t) * ::llc::BYTE_SIZE;
 			llc_necs(UnusedData.resize((elemIndex + 1) / boolContainerElementSize + 1));
 			Unused						= {UnusedData.begin(), (::llc::u2_t)(elemIndex + 1)};

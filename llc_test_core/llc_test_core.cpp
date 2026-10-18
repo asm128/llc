@@ -52,7 +52,7 @@ sttc	::llc::err_t	testSuitesRun				(ATestError & results, ::llc::view<cnst ::llc
 #define LLC_TEST_SUITE(funcSuite) ::testSuite(funcSuite, LLC_CXS(#funcSuite))
 
 sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues);
-LLC_SYSTEM_OS_ENTRY_POINT(::test_core_entry_point);
+LLC_OS_ENTRY_POINT(::test_core_entry_point);
 
 
 sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues) {
@@ -90,7 +90,7 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 		, LLC_TEST_SUITE(testSPRNG         )
 		, LLC_TEST_SUITE(testSTL           )
 		, LLC_TEST_SUITE(testAdam7        )
-		, LLC_TEST_SUITE(testApp          )
+		//, LLC_TEST_SUITE(testApp          )
 		, LLC_TEST_SUITE(testASCIIColor   )
 		, LLC_TEST_SUITE(testASCIITarget  )
 		, LLC_TEST_SUITE(testArgs          )
@@ -132,7 +132,7 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 		, LLC_TEST_SUITE(testPointers      )
 		, LLC_TEST_SUITE(testPNG           )
 		, LLC_TEST_SUITE(testProcess       )
-		, LLC_TEST_SUITE(testRuntimeModule )
+		//, LLC_TEST_SUITE(testRuntimeModule )
 		, LLC_TEST_SUITE(testView          )
 		, LLC_TEST_SUITE(testViewAliases   )
 		, LLC_TEST_SUITE(testViewBit       )

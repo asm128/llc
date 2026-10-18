@@ -74,13 +74,13 @@ s3_t	llc::	fileSize			(llc::vcst_t fileName)			{
 #	if defined(LLC_ESP32) || defined(LLC_ESP8266)
 	FIX_SOC_PATH(fileName);
 	File				fp						= getSoCFileSystem().open(fileName.begin(), LLC_OPEN_MODE_READ);
-	ree_if(!fp, "Cannot open file: %.*s.", (int)fileName.size(), fileName.begin());
+	if_true_fef(!fp, "Cannot open file: %.*s.", (int)fileName.size(), fileName.begin());
 	u2_c				fileSize				= (::llc::u2_t)fp.size();
 #	endif // LLC_ESP32
 #else
 	::FILE				* fp					= 0;
 	llc_necall(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
-	ree_if(0 == fp, "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
+	if_true_fef(0 == fp, "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
 	if(0 != llc::fseek(fp, 0, FSEEK_END)) {
 		error_printf("Unknown error reading '%.*s'.", (int)fileName.size(), fileName.begin());
 		fclose(fp);
@@ -120,7 +120,7 @@ static	llc::err_t	fileSplitSmall	(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
 	if_fail_fef(llc::fileToMemory(fileNameSrc, fileInMemory), "Failed to load '%.*s'.", (int)fileNameSrc.size(), fileNameSrc.begin());
 
 	// -- Write parts to disk.
-	::llc::u2_t			countParts			= fileInMemory.size() / sizePartMax + one_if(fileInMemory.size() % sizePartMax);
+	::llc::u2_t			countParts			= fileInMemory.size() / sizePartMax + onif_true_e(fileInMemory.size() % sizePartMax);
 	llc::string			fileNameDst			= {};
 	::llc::u2_t			iPart				= 0;
 	for(; iPart < countParts; ++iPart) {
@@ -132,7 +132,7 @@ static	llc::err_t	fileSplitSmall	(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
 		if_true_fef(llc::fopen_s(fpDest, fileNameDst, LLC_OPEN_MODE_WRITE), "Failed to open file: \"%s\".", fileNameDst.begin());
 		if_null_fef(fpDest, "Failed to create or open file: \"%s\".", fileNameDst.begin());
 		::llc::u2_t			countBytes					= (iPart == countParts - 1) ? fileInMemory.size() - offsetPart : sizePartMax;
-		ree_if(countBytes != fwrite(&fileInMemory[offsetPart], 1, countBytes, fpDest), "Failed to write part %" LLC_FMT_U2 " of %" LLC_FMT_U2 " bytes to disk. Disk full? file: \"%s\".", iPart, countBytes, fileNameDst.begin());
+		if_true_fef(countBytes != fwrite(&fileInMemory[offsetPart], 1, countBytes, fpDest), "Failed to write part %" LLC_FMT_U2 " of %" LLC_FMT_U2 " bytes to disk. Disk full? file: \"%s\".", iPart, countBytes, fileNameDst.begin());
 		fclose(fpDest);
 	}
 	return countParts;
@@ -153,7 +153,7 @@ static	llc::err_t	fileSplitLarge				(llc::vcst_t /*fileNameSrc*/, u2_c /*sizePar
 	//llc_necall(partInMemory.resize(sizePartMax), "Failed to allocate buffer for file part. Out of memory? File part size: %" LLC_FMT_U2 ".", sizePartMax);
 	//
 	//// -- Write parts to disk.
-	//::llc::u2_t			countParts					= (::llc::u2_t)(sizeFile / sizePartMax + one_if(sizeFile % sizePartMax));
+	//::llc::u2_t			countParts					= (::llc::u2_t)(sizeFile / sizePartMax + onif_true_e(sizeFile % sizePartMax));
 	//char				fileNameDst	[1024]			= {};
 	//::llc::u2_t			iPart				= 0;
 	//for(; iPart < countParts; ++iPart) { //
@@ -178,7 +178,7 @@ llc::err_t	llc::	fileSplit				(vcst_t fileNameSrc, u2_c sizePartMax) {
 	stxp	u2_c			gigabyte					= 1024U*1024U*1024U;
 	stxp	u2_c			sizeSmallFileMax			= 3U * gigabyte;
 	const s3_t				sizeFile					= llc::fileSize(fileNameSrc);
-	ree_if(-1 == sizeFile, "Failed to get size for file: '%.*s'.", (int)fileNameSrc.size(), fileNameSrc.begin());
+	if_true_fef(-1 == sizeFile, "Failed to get size for file: '%.*s'.", (int)fileNameSrc.size(), fileNameSrc.begin());
 	return (sizeSmallFileMax > sizeFile) ? ::fileSplitSmall(fileNameSrc, sizePartMax) : ::fileSplitLarge(fileNameSrc, sizePartMax);
 }
 // Joins a file split into file.## parts.
@@ -189,7 +189,7 @@ llc::err_t	llc::	fileJoin				(vcst_t fileNameDst)	{
 	::FILE					* fpDest					= 0;
 	llc::string				finalPathName				= fileNameDst;
 	if_fail_fef(llc::fopen_s(fpDest, finalPathName, LLC_OPEN_MODE_WRITE), "%s", finalPathName.begin());
-	ree_if(0 == fpDest, "Failed to create file: %s.", finalPathName.begin());
+	if_true_fef(0 == fpDest, "Failed to create file: %s.", finalPathName.begin());
 	llc::apod<s0_t>			fileInMemory				= {};
 	// Load each .split part and write it to the destionation file.
 	while(0 == llc::fileToMemory(fileNameSrc, fileInMemory)) {	// Load first part and write it to the joined file.
@@ -212,7 +212,7 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, :
 #	if defined(LLC_ESP32) || defined(ESP8266)
 	FIX_SOC_PATH(fileName);
 	File				fp					= getSoCFileSystem().open(fileName.begin(), LLC_OPEN_MODE_READ);
-	ree_if(!fp, "Cannot open file: %s.", fileName.begin());
+	if_true_fef(!fp, "Cannot open file: %s.", fileName.begin());
 	u2_c				fileSize					= (::llc::u2_t)fp.size();
 	fileInMemory.clear();
 #		ifdef LLC_ESP32
@@ -220,20 +220,20 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, :
 #		else
 	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
 #		endif // LLC_ESP32
-	rees_if(fileSize != (::llc::u2_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
+	if_true_fe(fileSize != (::llc::u2_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
 	fp.close();
 #	endif // LLC_ESP32 || LLC_ESP8266
 	llc::err_t	result				= 0;
 #else // !LLC_ARDUINO
 	::FILE				* fp				= 0;
 	const int32_t				fileErr				= llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ);
-	rvw_if((fileErr > 0) ? -fileErr : fileErr, 0 != fileErr || 0 == fp, "Cannot open file: %s.", fileName.begin());
+	if_true_vef((fileErr > 0) ? -fileErr : fileErr, 0 != fileErr || 0 == fp, "Cannot open file: %s.", fileName.begin());
 	fseek(fp, 0, SEEK_END);
 	const s3_t				fileSize					= llc::ftell(fp);
-	fail_if_lt3s(fileSize, 0);
-	fail_if_ge3u(offset, fileSize);
+	llc_fail_if_lt(LLC_FMT_LT_S3, fileSize, 0);
+	llc_fail_if_ge(LLC_FMT_GE_S3, s2_t(offset), fileSize);
 	u2_c				maxRead				= (::llc::u2_t)min((s3_t)maxSize, fileSize - (s3_t)offset);
-	fail_if_ne3u(0, llc::fseek(fp, offset, FSEEK_SET));
+	llc_fail_if_ne(LLC_FMT_NE_S3, 0, llc::fseek(fp, offset, FSEEK_SET));
 	llc::err_t	result				= 0;
 	if_failed(fileInMemory.resize(maxRead)) {
 		error_printf("File too large? : %llu.", (uint64_t)fileSize);
@@ -269,13 +269,13 @@ llc::err_t	llc::	fileFromMemory			(vcst_t usfileName, vcu0_t fileInMemory, bool 
 #	if defined(LLC_ESP32) || defined(ESP8266)
 	FIX_SOC_PATH(fileName);
 	File 				fp	 				= ::getSoCFileSystem().open(fileName.begin(), append ? LLC_OPEN_MODE_APPEND : LLC_OPEN_MODE_WRITE);
-	ree_if(!fp, "Failed to open '%s'.", fileName.begin());
-	ree_if(!fp.write(fileInMemory.begin(), fileInMemory.size()), "Failed to write to '%s'.", fileName.begin());
+	if_true_fef(!fp, "Failed to open '%s'.", fileName.begin());
+	if_true_fef(!fp.write(fileInMemory.begin(), fileInMemory.size()), "Failed to write to '%s'.", fileName.begin());
 #	endif // LLC_ESP32 || LLC_ESP8266
 #else // !LLC_ARDUINO
 	::FILE				* fp				= 0;
 	const int32_t				fileErr				= llc::fopen_s(fp, fileName, append ? LLC_OPEN_MODE_APPEND : LLC_OPEN_MODE_WRITE);
-	rvw_if((fileErr > 0) ? -fileErr : fileErr, 0 != fileErr || 0 == fp, "Failed to create '%s' for %s.", fileName.begin(), append ? "appending" : "writing");
+	if_true_vwf((fileErr > 0) ? -fileErr : fileErr, 0 != fileErr || 0 == fp, "Failed to create '%s' for %s.", fileName.begin(), append ? "appending" : "writing");
 	if(fileInMemory.size() != fwrite(fileInMemory.begin(), 1, fileInMemory.size(), fp)) {
 		error_printf("Failed to write '%s'. Disk full? File size: %" LLC_FMT_U2 ".", fileName.begin(), fileInMemory.size());
 		result				= -1;
@@ -290,12 +290,12 @@ llc::err_t	llc::	fileDelete				(vcst_t usfileName)	{
 	llc::string 			fileName				= usfileName;
 	llc_file_info_printf("Deleting '%s'.", fileName.begin());
 #ifdef LLC_WINDOWS
-	ree_if(FALSE == DeleteFileA(fileName.begin()), "Failed to delete '%s'.", fileName.begin());
+	if_true_fef(FALSE == DeleteFileA(fileName.begin()), "Failed to delete '%s'.", fileName.begin());
 #elif defined(LLC_ANDROID)
 #elif defined(LLC_ARDUINO)
 #	if defined(LLC_ESP32) || defined(ESP8266)
 	FIX_SOC_PATH(fileName);
-	ree_if(0 == ::getSoCFileSystem().remove(fileName.begin()), "Failed to delete '%s'.", fileName.begin());
+	if_true_fef(0 == ::getSoCFileSystem().remove(fileName.begin()), "Failed to delete '%s'.", fileName.begin());
 #	elif defined(LLC_ATMEL)
 #	endif // LLC_ESP32 || LLC_ESP8266
 #else

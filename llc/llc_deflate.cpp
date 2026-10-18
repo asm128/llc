@@ -228,8 +228,8 @@ llc::err_t			llc::folderToDisk			(const SFolderInMemory & virtualFolder, vcst_t 
 			if_fail_cef(pathCreate(folderName), "Failed to create folder: %.*s.", (int)folderName.size(), folderName.begin());
 		}
 		if_fail_fef(fopen_s(fp, finalPathName, "wb"), "%s", finalPathName.begin());
-		cef_if(0 == fp, "Failed to create file: %s.", finalPathName.begin());
-		cef_if(fileContent.size() != fwrite(fileContent.begin(), 1, fileContent.size(), fp), "Failed to write file: %s. Disk full?", finalPathName.begin());
+		if_null_cef(fp, "Failed to create file: %s.", finalPathName.begin());
+		if_true_cef(fileContent.size() != fwrite(fileContent.begin(), 1, fileContent.size(), fp), "Failed to write file: %s. Disk full?", finalPathName.begin());
 	}
 	llc_safe_fclose(fp);
 	return 0;

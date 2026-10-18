@@ -40,7 +40,7 @@ static	::llc::error_t	expressionTreeRebuild					(::llc::view<::llc::SExpressionT
 }
 
 static	::llc::error_t	expressionReaderCloseType				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type, int32_t indexCurrentChar) {
-	ree_if(type != stateReader.CurrentElement->Type, "Invalid type to close: %s. Current type: %s.", ::llc::get_value_label(type).begin(), ::llc::get_value_label(stateReader.CurrentElement->Type).begin());
+	if_true_fef(type != stateReader.CurrentElement->Type, "Invalid type to close: %s. Current type: %s.", ::llc::get_value_label(type).begin(), ::llc::get_value_label(stateReader.CurrentElement->Type).begin());
 	stateReader.CurrentElement->Span.End						= indexCurrentChar;
 	stateReader.IndexCurrentElement								= stateReader.CurrentElement->ParentIndex;
 	stateReader.CurrentElement									= (-1 != stateReader.IndexCurrentElement) ? &tokens[stateReader.IndexCurrentElement] : nullptr;
@@ -50,7 +50,7 @@ static	::llc::error_t	expressionReaderCloseType				(::llc::SExpressionReaderStat
 }
 
 static	::llc::error_t	expressionReaderCloseIfType				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type)	{
-	rni_if(0 == stateReader.CurrentElement, "Cannot close %s. Nothing to close.", ::llc::get_value_label(type).begin());
+	if_null_vif(0, stateReader.CurrentElement, "Cannot close %s. Nothing to close.", ::llc::get_value_label(type).begin());
 	if(type == stateReader.CurrentElement->Type) {
 		llc_necall(::expressionReaderCloseType(stateReader, tokens, type, stateReader.IndexCurrentChar), "Failed to close type: %s. Why would this happen?", ::llc::get_value_label(type).begin());
 		return 1;
@@ -172,18 +172,18 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 	if(0 == tokens.size())
 		llc_necall(::expressionReaderOpenLevel(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_ANY, stateReader.IndexCurrentChar), "Failed to open expression at index %i", stateReader.IndexCurrentChar);
 
-#define test_first_position()	ree_if(0 == stateReader.CharCurrent, "Character found at invalid position. Index: %u. Character: %c.", stateReader.IndexCurrentChar, stateReader.CharCurrent);
+#define test_first_position()	if_true_fef(0 == stateReader.CharCurrent, "Character found at invalid position. Index: %u. Character: %c.", stateReader.IndexCurrentChar, stateReader.CharCurrent);
 #define skip_if_escaping()		if(true == stateReader.Escaping) break
 
 	switch(stateReader.CharCurrent) {
 	case '"'	:case '\''	:
-		ree_if(stateReader.ExpectsSeparator, "Separator expected, found: %c (%i).", stateReader.CharCurrent, (int32_t)stateReader.CharCurrent);
+		if_true_fef(stateReader.ExpectsSeparator, "Separator expected, found: %c (%i).", stateReader.CharCurrent, (int32_t)stateReader.CharCurrent);
 		llc_necall(::expressionReaderOpenLevel(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_LITERAL, stateReader.IndexCurrentChar), "Failed to open string at index %i", stateReader.IndexCurrentChar);	// skip the " character in order to set the begin the string
 		stateReader.InsideString									= true;
 		stateReader.ClosingQuotes									= stateReader.CharCurrent;
 		break;
 	default	:
-		ree_if(stateReader.ExpectsSeparator, "Separator expected, found: %c (%i).", stateReader.CharCurrent, (int32_t)stateReader.CharCurrent);
+		if_true_fef(stateReader.ExpectsSeparator, "Separator expected, found: %c (%i).", stateReader.CharCurrent, (int32_t)stateReader.CharCurrent);
 		if( ::llc::EXPRESSION_READER_TYPE_TERM_KEY		== stateReader.CurrentElement->Type
 		 || ::llc::EXPRESSION_READER_TYPE_TERM_INDEX	== stateReader.CurrentElement->Type
 		 || ::llc::EXPRESSION_READER_TYPE_TERM_ANY		== stateReader.CurrentElement->Type
@@ -211,7 +211,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 	case '=':
 		stateReader.ExpectsSeparator								= false;
 		skip_if_escaping();
-		ree_if(stateReader.IndexCurrentChar >= expression.size() - 1 || '=' != expression[stateReader.IndexCurrentChar + 1], "%s", "Invalid syntax.");
+		if_true_fef(stateReader.IndexCurrentChar >= expression.size() - 1 || '=' != expression[stateReader.IndexCurrentChar + 1], "%s", "Invalid syntax.");
 		llc_necall(::expressionReaderCloseTerm(stateReader, tokens), "Failed to close term at index %i", stateReader.IndexCurrentChar);
 		++stateReader.IndexCurrentChar;
 		llc_necall(::expressionReaderOpenLevel	(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_EQUALS	, stateReader.IndexCurrentChar + 1), "Failed to open key at index %i", stateReader.IndexCurrentChar);
@@ -229,7 +229,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 	case '&':
 		stateReader.ExpectsSeparator								= false;
 		skip_if_escaping();
-		ree_if(stateReader.IndexCurrentChar >= expression.size() - 1 || '&' != expression[stateReader.IndexCurrentChar + 1], "%s", "Invalid syntax.");
+		if_true_fef(stateReader.IndexCurrentChar >= expression.size() - 1 || '&' != expression[stateReader.IndexCurrentChar + 1], "%s", "Invalid syntax.");
 		llc_necall(::expressionReaderCloseTerm(stateReader, tokens), "Failed to close term at index %i", stateReader.IndexCurrentChar);
 		++stateReader.IndexCurrentChar;
 		llc_necall(::expressionReaderOpenLevel	(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_AND	, stateReader.IndexCurrentChar + 1), "Failed to open key at index %i", stateReader.IndexCurrentChar);
@@ -237,7 +237,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 	case '|':
 		stateReader.ExpectsSeparator								= false;
 		skip_if_escaping();
-		ree_if(stateReader.IndexCurrentChar >= expression.size() - 2 || '|' != expression[stateReader.IndexCurrentChar + 1], "%s", "Invalid syntax.");
+		if_true_fef(stateReader.IndexCurrentChar >= expression.size() - 2 || '|' != expression[stateReader.IndexCurrentChar + 1], "%s", "Invalid syntax.");
 		llc_necall(::expressionReaderCloseTerm(stateReader, tokens), "Failed to close term at index %i", stateReader.IndexCurrentChar);
 		++stateReader.IndexCurrentChar;
 		llc_necall(::expressionReaderOpenLevel	(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_OR		, stateReader.IndexCurrentChar + 1), "Failed to open key at index %i", stateReader.IndexCurrentChar);
@@ -277,7 +277,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 		break;
 	case '{':
 		skip_if_escaping();
-		ree_if(stateReader.ExpectsSeparator, "%s", "This character can only be used after the . separator, so this requirement should be canceled already.");
+		if_true_fef(stateReader.ExpectsSeparator, "%s", "This character can only be used after the . separator, so this requirement should be canceled already.");
 		llc_necall(::expressionReaderOpenLevel	(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_KEY, stateReader.IndexCurrentChar), "Failed to open expression at index %i", stateReader.IndexCurrentChar);	// Enter sub-expression
 		break;
 	case '}':
@@ -305,7 +305,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 		break;
 	case '(':
 		skip_if_escaping();
-		ree_if(stateReader.ExpectsSeparator, "%s", "This character can only be used after some separator, so this requirement should be canceled already.");
+		if_true_fef(stateReader.ExpectsSeparator, "%s", "This character can only be used after some separator, so this requirement should be canceled already.");
 		llc_necall(::expressionReaderOpenLevel	(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_ANY	, stateReader.IndexCurrentChar), "Failed to open expression at index %i", stateReader.IndexCurrentChar);	// Enter sub-expression
 		break;
 	case ')':
@@ -380,7 +380,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 			break;
 		llc_necall(stateReader.NestLevel, "Nest level cannot be negative. Current level: %i.", stateReader.NestLevel);
 	}
-	ree_if(0 != stateReader.NestLevel, "Nest level: %i (Needs to be zero).", stateReader.NestLevel);
+	if_true_fef(0 != stateReader.NestLevel, "Nest level: %i (Needs to be zero).", stateReader.NestLevel);
 	llc_necall(::expressionReaderViews(tokens, reader.View, expression), "%s", "Failed to build views. Corrupt info?");
 	llc_necall(::expressionTreeRebuild(tokens, reader.Tree), "%s", "Failed to rebuild tree. Corrupt tree?");
 	return 0;

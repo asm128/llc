@@ -63,7 +63,7 @@ namespace llc
 			if(newCount > Size) {
 				T							* newData			= 0;
 				u2_c				newSize				= alloc_with_reserve(newCount, newData);
-				ree_if(0 == newData, "newCount: %" LLC_FMT_S2 ", newSize: %" LLC_FMT_S2 "", newCount, newSize);
+				if_true_fef(0 == newData, "newCount: %" LLC_FMT_S2 ", newSize: %" LLC_FMT_S2 "", newCount, newSize);
 				for(u2_t iElement = 0; iElement < Count; ++iElement) {
 					new (&newData[iElement]) T(Data[iElement]);
 					Data[iElement].~T();
@@ -104,13 +104,13 @@ namespace llc
 		}
 		// Returns the new size of the array
 		inln	err_t	pop_back			()											nxpt	{
-			ree_if(0 == Count, "%s", "Cannot pop elements of an empty array.");
+			if_true_fef(0 == Count, "%s", "Cannot pop elements of an empty array.");
 			Data[--Count].~T();
 			rtrn Count;
 		}
 		// Returns the new size of the array
 		inln	err_t	pop_back			(T & oldValue)								nxpt	{
-			ree_if(0 == Count, "%s", "Cannot pop elements of an empty array.");
+			if_true_fef(0 == Count, "%s", "Cannot pop elements of an empty array.");
 			oldValue				= Data[--Count];
 			Data[Count].~T();
 			rtrn Count;
@@ -128,15 +128,15 @@ namespace llc
 		}
 		// returns the new array size or -1 if failed.
 		inln	err_t	erase				(TCnst * address)																	{
-			ree_if(0 == Data, "Uninitialized array pointer! Invalid address to erase: %p.", address);
+			if_true_fef(0 == Data, "Uninitialized array pointer! Invalid address to erase: %p.", address);
 			cnst ptrdiff_t		ptrDiff				= ptrdiff_t(address) - (ptrdiff_t)Data;
 			u2_c				index				= (u2_t)(ptrDiff / (ptrdiff_t)szof(T));
-			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_true_fef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn remove(index);
 		}
 		err_t			remove				(u2_t index)																		{
-			ree_if(0 == Data, "Uninitialized array pointer! Invalid index to erase: %" LLC_FMT_U2 ".", index);
-			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_true_fef(0 == Data, "Uninitialized array pointer! Invalid index to erase: %" LLC_FMT_U2 ".", index);
+			if_true_fef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			--Count;
 			while(index < Count) {
 				Data[index].~T();							// Destroy old
@@ -148,8 +148,8 @@ namespace llc
 		}
 		// Returns the new size of the list or -1 if the array pointer is not initialized.
 		err_t			remove_unordered	(u2_t index)																		{
-			ree_if(0 == Data, "Uninitialized array pointer! Invalid index to erase: %" LLC_FMT_U2 ".", index);
-			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_true_fef(0 == Data, "Uninitialized array pointer! Invalid index to erase: %" LLC_FMT_U2 ".", index);
+			if_true_fef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			Data[index].~T();							// Destroy old
 			if(1 == Count || index == (Count - 1))
 				--Count;
@@ -176,12 +176,12 @@ namespace llc
 		tpl_nu2	inln	err_t	insert				(u2_t index, TCnst* (&chainToInsert)[_nu2])	nxpt	{ rtrn insert(index, chainToInsert, (u2_t)_nu2); }
 		inln			err_t	insert				(u2_t index, view<TCnst> chainToInsert)		nxpt	{ rtrn insert(index, chainToInsert.begin(), chainToInsert.size()); }
 						err_t	insert				(u2_t index, TCnst & newValue)										nxpt	{
-			ree_if(index > Count, "Invalid index: %" LLC_FMT_U2 ".", index);
+			if_true_fef(index > Count, "Invalid index: %" LLC_FMT_U2 ".", index);
 			u2_c			newCount			= Count + 1;
 			if(Size < newCount) {
 				T				* newData			= 0;
 				u2_c			newSize				= alloc_with_reserve(newCount, newData);
-				rees_if(0 == newData);
+				if_true_fe(0 == newData);
 				for(u2_t i = 0; i < index; ++i) {
 					new (&newData[i]) T(Data[i]);
 					Data[i].~T();
@@ -207,13 +207,13 @@ namespace llc
 		}
 		// returns the new size of the list or -1 on failure.
 		err_t			insert				(u2_t index, TCnst * chainToInsert, u2_t chainLength)			nxpt	{
-			ree_if(index > Count, "Invalid index: %" LLC_FMT_U2 ".", index);
+			if_true_fef(index > Count, "Invalid index: %" LLC_FMT_U2 ".", index);
 
 			u2_c				newCount			= Count + chainLength;
 			if(Size < newCount) {
 				T					* newData			= 0;
 				u2_c				newSize				= alloc_with_reserve(newCount, newData);
-				rees_if(0 == newData);
+				if_true_fe(0 == newData);
 				for(u2_t i = 0; i < index; ++i) {
 					new (&newData[i]) T(Data[i]);
 					Data[i].~T();

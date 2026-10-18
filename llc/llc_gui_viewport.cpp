@@ -1,6 +1,47 @@
 #include "llc_gui_viewport.h"
 #include "llc_label.h"
 
+bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport & viewport)											nxpt	{
+	rtrn gui.Controls.IsPressed(viewport.IdControl)
+		|| gui.Controls.IsPressed(viewport.IdControls[::llc::VIEWPORT_CONTROL_TITLE])
+		|| gui.Controls.IsPressed(viewport.IdControls[::llc::VIEWPORT_CONTROL_TARGET])
+		;
+}
+
+::llc::error_t			llc::viewportActivate	(::llc::SGUI & gui, ::llc::cid_t idParent, ::llc::view<cnst ::llc::SViewport> viewports, ::llc::u0_t iViewport) {
+	if_true_fe(iViewport >= viewports.size());
+	cnst ::llc::cid_t			idRoot				= viewports[iViewport].IdControl;
+	::llc::acid					& parentChildren		= gui.Controls.Children[idParent];
+	if(0 == parentChildren.size() || parentChildren[parentChildren.size() - 1] != idRoot) {
+		cnst ::llc::err_t			iChild				= parentChildren.find(idRoot);
+		if(iChild >= 0)
+			if_fail_fe(parentChildren.remove((::llc::u2_t)iChild));
+		if_fail_fe(parentChildren.push_back(idRoot));
+	}
+	for(::llc::u0_t iOther = 0; iOther < viewports.size(); ++iOther) {
+		cnst bool					active				= iOther == iViewport;
+		gui.Controls.SetSelected(viewports[iOther].IdControl, active);
+		gui.Controls.SetSelected(viewports[iOther].IdControls[::llc::VIEWPORT_CONTROL_TITLE], active);
+	}
+	rtrn 0;
+}
+
+::llc::error_t			llc::viewportFold		(::llc::SGUI & gui, ::llc::SViewport & viewport) {
+	::llc::SControlPlacement	& root					= gui.Controls.Placement[viewport.IdControl];
+	cnst ::llc::cid_t			idClient				= viewport.IdControls[::llc::VIEWPORT_CONTROL_TARGET];
+	if(viewport.Folded) {
+		root.Area.Size		= viewport.UnfoldedSize;
+		gui.Controls.SetHidden(idClient, false);
+	}
+	else {
+		viewport.UnfoldedSize	= root.Area.Size;
+		root.Area.Size.y		= 30;
+		gui.Controls.SetHidden(idClient, true);
+	}
+	viewport.Folded			= false == viewport.Folded;
+	rtrn ::llc::controlMetricsInvalidate(gui, viewport.IdControl);
+}
+
 ::llc::error_t			llc::viewportInitialize	(::llc::SGUI & gui, ::llc::SViewport & viewport)			{
 	const ::llc::n2u0_t			fontCharSize			= gui.Fonts[gui.SelectedFont]->CharSize;
 	int16_t						heightTitleBar			= fontCharSize.y + 4;

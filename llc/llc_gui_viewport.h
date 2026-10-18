@@ -33,8 +33,13 @@ namespace llc
 		::llc::astcid<::llc::VIEWPORT_CONTROL_COUNT>	IdControls		= {};
 		cid_t					IdDesktopElement	= (int32_t)-1;
 		GUI_CONTROL_TYPE		ControlType			= (GUI_CONTROL_TYPE)-1;
+		::llc::n2s1_t			UnfoldedSize		= {};
+		bool					Folded				= false;
 	};
 
+	bool					viewportIsPressed		(cnst ::llc::SGUI & gui, cnst ::llc::SViewport & viewport)												nxpt;
+	::llc::error_t			viewportActivate		(::llc::SGUI & gui, ::llc::cid_t idParent, ::llc::view<cnst ::llc::SViewport> viewports, ::llc::u0_t iViewport);
+	::llc::error_t			viewportFold			(::llc::SGUI & gui, ::llc::SViewport & viewport);
 	::llc::error_t			viewportInitialize		(::llc::SGUI & gui, ::llc::SViewport & viewport);
 #pragma pack(pop)
 }

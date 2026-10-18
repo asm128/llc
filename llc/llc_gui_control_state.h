@@ -92,7 +92,7 @@ namespace llc
 		const _tState			oldState		= state;
 		state				= funcSetValue();
 		if(oldState != state)
-			es_if_failed(::llc::eventEnqueueGuiControlStateChange(eventQueue, iControl, oldState, state));
+			if_fail_e(::llc::eventEnqueueGuiControlStateChange(eventQueue, iControl, oldState, state));
 		return state;
 	}
 

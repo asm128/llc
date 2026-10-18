@@ -41,7 +41,7 @@
 		if(desktop.Items.ControlLists.size() > (::llc::u2_t)childControlListIndex && false == desktop.Items.ControlLists.Unused[childControlListIndex])
 			llc_necall(llc::desktopDeleteControlList(gui, desktop, childControlListIndex), "%s", "??");
 		else
-			ef_if(childControlListIndex != -1, "%s", "");
+			if_true_ef(childControlListIndex != -1, "%s", "");
 	}
 	if(desktop.Items.ControlLists.size() > (::llc::u2_t)controlListToDelete.IndexParentList && false == desktop.Items.ControlLists.Unused[controlListToDelete.IndexParentList]) {
 		if (desktop.Children[controlListToDelete.IndexParentList].size() > (::llc::u2_t)controlListToDelete.IndexParentItem)
@@ -255,7 +255,7 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 }
 
 ::llc::error_t			llc::desktopControlListSetParent(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iControlList, ::llc::cid_t iParentControlList, ::llc::cid_t iParentListItem)			{
-	ree_if((desktop.Items.ControlLists.size() <= (::llc::u2_t)iControlList) || desktop.Items.ControlLists.Unused[iControlList], "Invalid control list: %u.", iControlList);
+	if_true_fef((desktop.Items.ControlLists.size() <= (::llc::u2_t)iControlList) || desktop.Items.ControlLists.Unused[iControlList], "Invalid control list: %u.", iControlList);
 	::llc::SControlList			& controlList				= desktop.Items.ControlLists[iControlList];
 	const int32_t				oldParentList				= controlList.IndexParentList;
 	const int32_t				oldParentItem				= controlList.IndexParentItem;
@@ -265,7 +265,7 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 	controlList.IndexParentItem	= iParentListItem;
 	
 	if((desktop.Items.ControlLists.size() <= (::llc::u2_t)iParentControlList) || desktop.Items.ControlLists.Unused[iParentControlList]) {
-		ree_if(-1 != iParentControlList, "Invalid parent control list: %i. List item: %i.", iParentControlList, iParentListItem);
+		if_true_fef(-1 != iParentControlList, "Invalid parent control list: %i. List item: %i.", iParentControlList, iParentListItem);
 		gui.Controls.SetHidden(controlList.IdControl, false);
 	}
 	else { // update tree
@@ -277,7 +277,7 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 		if(parentChildren.size() < parentControlList.IdControls.size())
 			parentChildren.resize(parentControlList.IdControls.size(), -1);
 
-		ree_if(parentChildren.size() <= ((::llc::u2_t)iParentListItem) && iParentListItem != -1, "Invalid parent item: %i.", iParentListItem);
+		if_true_fef(parentChildren.size() <= ((::llc::u2_t)iParentListItem) && iParentListItem != -1, "Invalid parent item: %i.", iParentListItem);
 		::llc::SControlConstraints	& controlListConstraints	= gui.Controls.Constraints[controlList.IdControl];
 		if(iParentListItem == -1) 
 			gui.Controls.SetHidden(controlList.IdControl, false);

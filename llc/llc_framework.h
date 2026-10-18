@@ -63,7 +63,7 @@ namespace llc
 			RootWindow.Input.create();
 			GUI.create();
 			if(fileNameJSONConfig.size())	// Attempt to load config file.
-				if_if(failed(::llc::jsonFileRead(JSONConfig, fileNameJSONConfig)), "File name: '%s'.", fileNameJSONConfig.begin());
+				if_fail_if(::llc::jsonFileRead(JSONConfig, fileNameJSONConfig), "File name: '%s'.", fileNameJSONConfig.begin());
 		}
 	}; // struct
 

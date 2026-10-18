@@ -1,4 +1,3 @@
-#define LLC_AVOID_LOCAL_APPLICATION_MODEL_EXECUTABLE_RUNTIME
 #include "llc_app_impl.h"
 
 struct SApplication {

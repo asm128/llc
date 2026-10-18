@@ -89,8 +89,8 @@ sttc ::llc::err_t testDataTypeMatrix(ATestError & errors) {
 		cnst ::llc::SDataTypeID source = {bitCount, elementCount, isFloat, isSigned, isNormalized, elementPad, isBigEndian};
 		cnst ::llc::DATA_TYPE encoded = source;
 		cnst ::llc::SDataTypeID decoded = encoded;
-		cnst ::llc::u2_t expectedElementBytes = bitCount / 8 + one_if(bitCount % 8);
-		cnst ::llc::u2_t expectedTotalBytes = elementPad ? expectedElementBytes * elementCount : bitCount * elementCount / 8 + one_if(bitCount * elementCount % 8);
+		cnst ::llc::u2_t expectedElementBytes = bitCount / 8 + onif_true_e(bitCount % 8);
+		cnst ::llc::u2_t expectedTotalBytes = elementPad ? expectedElementBytes * elementCount : bitCount * elementCount / 8 + onif_true_e(bitCount * elementCount % 8);
 		cnst bool expectedSTL = 1 == bitCount && isSigned && isNormalized && isFloat && !isBigEndian && !elementPad;
 		cnst bool expectedNonUniform = 1 == bitCount && isSigned && !isNormalized && !isFloat && !isBigEndian && !elementPad;
 		LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_TYPE_ELEMENT_SIZE, bitCount != GTYPEID_ELEMENTSIZE(encoded), "bits:%u count:%u flags:0x%02X decoded:%u.", bitCount, elementCount, flags, GTYPEID_ELEMENTSIZE(encoded));

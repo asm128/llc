@@ -31,9 +31,9 @@ namespace llc
 			if(sourceAddress < dataAddress || sourceAddress > endAddress)
 				return 0;
 			u3_c				byteOffset			= sourceAddress - dataAddress;
-			ree_if(byteOffset % szof(T), "Misaligned source address: 0x%p.", source);
+			if_true_fef(byteOffset % szof(T), "Misaligned source address: 0x%p.", source);
 			offset					= (u2_t)(byteOffset / szof(T));
-			ree_if(count > Count - offset, LLC_FMT_GT_U2, count, Count - offset);
+			if_true_fef(count > Count - offset, LLC_FMT_GT_U2, count, Count - offset);
 			return 1;
 		}
 
@@ -110,13 +110,13 @@ namespace llc
 		err_t				clear_pointer		()										noexcept	{ safe_llc_free(Data); Data = 0; return Size = Count = 0; }
 		// Returns the new size of the array
 		err_t				pop_back			()										noexcept	{
-			rees_if(0 == Count);
+			if_true_fe(0 == Count);
 			Data[--Count]				= {};
 			return Count;
 		}
 		// Returns the new size of the array
 		err_t				pop_back			(T & oldValue)							noexcept	{
-			rees_if(0 == Count);
+			if_true_fe(0 == Count);
 			oldValue				= Data[--Count];
 			Data[Count]				= {};
 			return Count;
@@ -173,7 +173,7 @@ namespace llc
 			if(newCount > Size) {
 				T							* newData			= 0;
 				u2_c				newSize				= alloc_with_reserve(newCount, newData);
-				rees_if(0 == newData);
+				if_true_fe(0 == newData);
 				if(Data)
 					memcpy(newData, Data, this->byte_count());
 					
@@ -187,7 +187,7 @@ namespace llc
 		}
 		inln	err_t		resize_bits			(u2_t newBitCount)						noexcept	{
 			stxp u2_t					elementBits			= (u2_t)szof(T) * 8U;
-			return resize(newBitCount / elementBits + one_if(newBitCount % elementBits));
+			return resize(newBitCount / elementBits + onif_true_e(newBitCount % elementBits));
 		}
 		// Returns the new size of the array.
 		err_t				resize				(u2_t newCount)							noexcept	{
@@ -210,13 +210,13 @@ namespace llc
 		}
 		// returns the new size of the list or -1 on failure.
 		err_t				insert				(u2_t index, cnst T & newValue)	noexcept	{
-			ree_if(index > Count, LLC_FMT_GT_U2, index, Count);
+			if_true_fef(index > Count, LLC_FMT_GT_U2, index, Count);
 			cnst T				valueCopy			= newValue;
 			u2_c				newCount			= Count + 1;
 			if(Size < newCount) {
 				T							* newData			= 0;
 				u2_c				newSize				= alloc_with_reserve(newCount, newData);
-				rees_if(0 == newData);
+				if_true_fe(0 == newData);
 				if(Data)
 					memcpy(newData, Data, index * szof(T));
 				newData[index]			= valueCopy;
@@ -237,7 +237,7 @@ namespace llc
 		}
 		// returns the new size of the list or -1 on failure.
 		err_t				insert				(u2_t index, cnst T * chainToInsert, u2_t chainLength)	noexcept	{
-			ree_if(index > Count, LLC_FMT_GT_U2, index, Count);
+			if_true_fef(index > Count, LLC_FMT_GT_U2, index, Count);
 			if(0 == chainLength)
 				return Count;
 			if_null_fe(chainToInsert);
@@ -249,7 +249,7 @@ namespace llc
 			if(Size < newCount) {
 				T							* newData			= 0;
 				u2_c				newSize				= alloc_with_reserve(newCount, newData);
-				rees_if(0 == newData);
+				if_true_fe(0 == newData);
 				if(Data)
 					memcpy(newData, Data, index * szof(T));
 				memcpy(&newData[index], chainToInsert, chainLength * szof(T));
@@ -283,7 +283,7 @@ namespace llc
 		inln	err_t		insert				(u2_t index, view<cnst T> chainToInsert)			noexcept	{ return insert(index, chainToInsert.begin(), chainToInsert.size()); }
 		// Returns the new size of the list or -1 if the array pointer is not initialized.
 		err_t				remove_unordered	(u2_t index)											noexcept	{
-			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_true_fef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			Data[index]				= Data[--Count];
 			Data[Count]				= {};
 			return Count;
@@ -291,12 +291,12 @@ namespace llc
 		// returns the new array size or -1 if failed.
 		err_t				erase				(cnst T * address)										noexcept	{
 			u2_t					index				= 0;
-			ree_if(1 != source_offset(address, 1, index), "Address outside the array range: 0x%p.", address);
+			if_true_fef(1 != source_offset(address, 1, index), "Address outside the array range: 0x%p.", address);
 			return remove(index);
 		}
 		// returns the new array size or -1 if failed.
 		err_t				remove				(u2_t index)											noexcept	{
-			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_true_fef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			--Count;
 			while(index < Count) {
 				Data[index]				= Data[index + 1];

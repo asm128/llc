@@ -134,7 +134,7 @@ static	::llc::error_t	default_log_print		(const char * text)						{ return (::ll
 
 static	::llc::error_t	getSystemErrorAsString			(const uint64_t lastError, char* buffer, ::llc::u2_t bufferSize)			{	// Get the error message, if any.
 #ifdef LLC_WINDOWS
-	rees_if(0 == buffer);
+	if_true_fe(0 == buffer);
 	return lastError
 		? ::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, (DWORD)(lastError & 0xFFFFFFFF), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, bufferSize, NULL)
 		: 0

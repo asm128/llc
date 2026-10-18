@@ -6,7 +6,7 @@
 	, ::llc::n2u2_t		& offsetBase
 	)
 {
-	ree_if(iImage >= 7 || iImage < 0, "Invalid Adam7 image: %i.", iImage);
+	if_true_fef(iImage >= 7 || iImage < 0, "Invalid Adam7 image: %i.", iImage);
 	switch(iImage) {
 	case 0: offsetMultiplier = {8, 8}; offsetBase = {0, 0}; break;
 	case 1: offsetMultiplier = {8, 8}; offsetBase = {4, 0}; break;

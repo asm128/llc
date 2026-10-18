@@ -245,10 +245,10 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 		::llc::acid					children				= gui.Controls.Children[iControl];
 		for(::llc::u2_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild) {
 			if(recursive) {
-				ef_if(failed(::llc::controlDelete(gui, children[iChild], true)), "Failed to delete control! Invalid control id? %i.", children[iChild]);
+				if_true_ef(failed(::llc::controlDelete(gui, children[iChild], true)), "Failed to delete control! Invalid control id? %i.", children[iChild]);
 			}
 			else {
-				ef_if(failed(::llc::controlSetParent(gui, children[iChild], ::llc::CID_INVALID)), "Failed to detach child control: %i.", children[iChild]);
+				if_true_ef(failed(::llc::controlSetParent(gui, children[iChild], ::llc::CID_INVALID)), "Failed to detach child control: %i.", children[iChild]);
 			}
 		}
 	}
@@ -271,7 +271,7 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 			}
 	}
 #if defined(LLC_DEBUG_ENABLED)
-	ef_if(childrenRemoved > 1, "Parent should not reference a child control more than once. References found: %i.", childrenRemoved);
+	if_true_ef(childrenRemoved > 1, "Parent should not reference a child control more than once. References found: %i.", childrenRemoved);
 #endif
 	gui.Controls.SetUnused(iControl, true);
 	return 0;
@@ -284,10 +284,10 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	if(control.Parent == iParent)	// Exit early if there is nothing to do here.
 		return 0;
 
-	ree_if(::llc::CID_INVALID != iParent && ::llc::controlInvalid(gui, iParent), "Invalid parent control id: %u.", iParent);
-	ree_if(iControl == iParent, "A control cannot be its own parent: %u.", iControl);
+	if_true_fef(::llc::CID_INVALID != iParent && ::llc::controlInvalid(gui, iParent), "Invalid parent control id: %u.", iParent);
+	if_true_fef(iControl == iParent, "A control cannot be its own parent: %u.", iControl);
 	for(::llc::cid_t ancestor = iParent, iDepth = 0; false == ::llc::controlInvalid(gui, ancestor) && iDepth < (::llc::cid_t)gui.Controls.States.size(); ++iDepth) {
-		ree_if(ancestor == iControl, "Parent cycle for control: %u.", iControl);
+		if_true_fef(ancestor == iControl, "Parent cycle for control: %u.", iControl);
 		ancestor = gui.Controls.States[ancestor].Parent;
 	}
 

@@ -203,7 +203,7 @@ sttc ::llc::err_t testDefaultFonts(ATestError & errors) {
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_IMAGE_WIDTH, font.Texture.metrics().x != font.CharSize.x, "Font:%u, texture width:%u, expected:%u.", iFont, font.Texture.metrics().x, font.CharSize.x);
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_IMAGE_HEIGHT, font.Texture.metrics().y != font.CharSize.y * 256U, "Font:%u, texture height:%u, expected:%u.", iFont, font.Texture.metrics().y, font.CharSize.y * 256U);
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_BIT_COUNT, font.Texture.size() != ::llc::u2_t(font.CharSize.x) * font.CharSize.y * 256U, "Font:%u, bit count:%u, expected:%u.", iFont, font.Texture.size(), ::llc::u2_t(font.CharSize.x) * font.CharSize.y * 256U);
-		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_CELL_COUNT, font.Texture.Texels.size() != font.Texture.size() / 64U + one_if(font.Texture.size() % 64U), "Font:%u, cell count:%u, expected:%u.", iFont, font.Texture.Texels.size(), font.Texture.size() / 64U + one_if(font.Texture.size() % 64U));
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_CELL_COUNT, font.Texture.Texels.size() != font.Texture.size() / 64U + onif_true_e(font.Texture.size() % 64U), "Font:%u, cell count:%u, expected:%u.", iFont, font.Texture.Texels.size(), font.Texture.size() / 64U + onif_true_e(font.Texture.size() % 64U));
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_FONT_DEFAULT_OWNERSHIP, font.Texture.View.begin().Begin != font.Texture.Texels.begin(), "Font:%u, view begin:%p, owned begin:%p.", iFont, font.Texture.View.begin().Begin, font.Texture.Texels.begin());
 		bool anyBit = false;
 		for(::llc::u2_t iCell = 0; iCell < font.Texture.Texels.size(); ++iCell)

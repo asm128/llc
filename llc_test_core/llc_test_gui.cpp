@@ -71,6 +71,9 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_LABEL     , 60, "Virtual-keyboard 
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_COMMAND   , 61, "Virtual-keyboard command mapping is inconsistent.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_INPUT     , 62, "Virtual-keyboard input did not preserve press-release activation.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_MOVE      , 63, "Moving the virtual-keyboard root detached its children.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, VIEWPORT_PRESS     , 64, "Viewport press aggregation ignored the root, title, or target control.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, VIEWPORT_ACTIVATE  , 65, "Viewport activation did not update display order or selection.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, VIEWPORT_FOLD      , 66, "Viewport folding did not preserve and restore client geometry or visibility.");
 
 sttc ::llc::err_t testGUITextFontCreate(::llc::po<::llc::SRasterFont> & font, ::llc::n2u0_c & charSize) {
 	font->CharSize = charSize;
@@ -811,6 +814,46 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIViewportOperations(ATestError & errors) {
+	::llc::SGUI						gui					= {};
+	cnst ::llc::cid_t				idParent				= ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_VIEWPORT_ACTIVATE, idParent < 0, "Parent result:%i.", idParent);
+	::llc::astatic<::llc::SViewport, 2>	viewports				= {};
+	for(::llc::u0_t iViewport = 0; iViewport < viewports.size(); ++iViewport) {
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_VIEWPORT, 0 > ::llc::viewportInitialize(gui, viewports[iViewport]), "Viewport:%u initialization failed.", iViewport);
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_VIEWPORT_ACTIVATE, 0 > ::llc::controlSetParent(gui, viewports[iViewport].IdControl, idParent), "Viewport:%u parent assignment failed.", iViewport);
+	}
+
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_VIEWPORT_PRESS, ::llc::viewportIsPressed(gui, viewports[0]));
+	cnst ::llc::cid_t pressedControls[] =
+		{ viewports[0].IdControl
+		, viewports[0].IdControls[::llc::VIEWPORT_CONTROL_TITLE]
+		, viewports[0].IdControls[::llc::VIEWPORT_CONTROL_TARGET]
+		};
+	for(::llc::u0_t iControl = 0; iControl < ::llc::size(pressedControls); ++iControl) {
+		gui.Controls.SetPressed(pressedControls[iControl], true);
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_VIEWPORT_PRESS, false == ::llc::viewportIsPressed(gui, viewports[0]), "Control:%u id:%i.", iControl, pressedControls[iControl]);
+		gui.Controls.SetPressed(pressedControls[iControl], false);
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_VIEWPORT_PRESS, ::llc::viewportIsPressed(gui, viewports[0]), "Released control:%u id:%i.", iControl, pressedControls[iControl]);
+	}
+
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_VIEWPORT_ACTIVATE, 0 > ::llc::viewportActivate(gui, idParent, viewports, 0), "%s", "Viewport activation failed.");
+	cnst ::llc::acid & parentChildren = gui.Controls.Children[idParent];
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_VIEWPORT_ACTIVATE, parentChildren.size() != viewports.size() || parentChildren[parentChildren.size() - 1] != viewports[0].IdControl);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_VIEWPORT_ACTIVATE, false == gui.Controls.IsSelected(viewports[0].IdControl) || false == gui.Controls.IsSelected(viewports[0].IdControls[::llc::VIEWPORT_CONTROL_TITLE]));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_VIEWPORT_ACTIVATE, gui.Controls.IsSelected(viewports[1].IdControl) || gui.Controls.IsSelected(viewports[1].IdControls[::llc::VIEWPORT_CONTROL_TITLE]));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_VIEWPORT_ACTIVATE, 0 <= ::llc::viewportActivate(gui, idParent, viewports, (::llc::u0_t)viewports.size()));
+
+	cnst ::llc::n2s1_t unfoldedExpected = {320, 200};
+	cnst ::llc::n2s1_t foldedExpected = {320, 30};
+	gui.Controls.Placement[viewports[0].IdControl].Area.Size = unfoldedExpected;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_VIEWPORT_FOLD, 0 > ::llc::viewportFold(gui, viewports[0]), "%s", "Viewport fold failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_VIEWPORT_FOLD, false == viewports[0].Folded || viewports[0].UnfoldedSize != unfoldedExpected || gui.Controls.Placement[viewports[0].IdControl].Area.Size != foldedExpected || false == gui.Controls.IsHidden(viewports[0].IdControls[::llc::VIEWPORT_CONTROL_TARGET]));
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_VIEWPORT_FOLD, 0 > ::llc::viewportFold(gui, viewports[0]), "%s", "Viewport restore failed.");
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_VIEWPORT_FOLD, viewports[0].Folded || gui.Controls.Placement[viewports[0].IdControl].Area.Size != unfoldedExpected || gui.Controls.IsHidden(viewports[0].IdControls[::llc::VIEWPORT_CONTROL_TARGET]));
+	rtrn 0;
+}
+
 ::llc::err_t testGUI(ATestError & errors) {
 	if_fail_fe(::testGUITextCore(errors));
 	if_fail_fe(::testGUIControlStateQueries(errors));
@@ -829,5 +872,6 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	if_fail_fe(::testGUIDrawImage(errors));
 	if_fail_fe(::testGUIDraw(errors));
 	if_fail_fe(::testGUIVirtualKeyboard(errors));
+	if_fail_fe(::testGUIViewportOperations(errors));
 	rtrn ::testGUIComponents(errors);
 }

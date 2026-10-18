@@ -38,7 +38,7 @@
 
 	// The following function retrieves the process's environment block using GetEnvironmentStrings and adds it to the environmentBlock parameter.
 	//sc_t						* lpvEnv						= GetEnvironmentStringsA();	// Get a pointer to the environment block.
-	//ree_if(lpvEnv == NULL, "GetEnvironmentStringsA failed (%x)\n", (::llc::u2_t)GetLastError());
+	//if_true_fef(lpvEnv == NULL, "GetEnvironmentStringsA failed (%x)\n", (::llc::u2_t)GetLastError());
 	//int32_t						lengthEnvStrings				= ::llc::find_sequence_pod(::llc::view<const sc_t>{"\0", 2U}, ::llc::view<const sc_t>{(const sc_t*)lpvEnv, (::llc::u2_t)-1});
 	//environmentBlock		= ::llc::view<const sc_t>{lpvEnv, (::llc::u2_t)lengthEnvStrings + 2U};
 	//FreeEnvironmentStringsA(lpvEnv);

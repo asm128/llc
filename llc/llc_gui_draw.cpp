@@ -211,7 +211,7 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 		}
 	}
 
-	es_if(::llc::failed(::controlTextDraw(gui, iControl, target, disabled)));
+	if_true_e(::llc::failed(::controlTextDraw(gui, iControl, target, disabled)));
 	return 0;
 }
 ::llc::error_t			llc::controlDrawHierarchy		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra target)								{
@@ -239,6 +239,6 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 	llc_necs(llc::guiUpdateMetrics(gui, gui.LastSize, false));;
 	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
 		if(false == ::llc::controlInvalid(gui, (::llc::cid_t)iControl) && ::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent))
-			es_if(::llc::failed(::llc::controlDrawHierarchy(gui, (::llc::cid_t)iControl, target)));
+			if_true_e(::llc::failed(::llc::controlDrawHierarchy(gui, (::llc::cid_t)iControl, target)));
 	return 0;
 }

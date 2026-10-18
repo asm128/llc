@@ -44,7 +44,7 @@ sttc ::llc::err_t virtualKeyboardSetupFail(::llc::SGUI & gui, ::llc::SVirtualKey
 	if_zero_fef(rowWidth, "%s", "Virtual keyboard row width cannot be zero.");
 	if_true_fef(0 == keySize.x || 0 == keySize.y, "Virtual keyboard key size cannot be zero:{%u, %u}.", keySize.x, keySize.y);
 
-	cnst ::llc::u2_t rowCount = keys.size() / rowWidth + one_if(keys.size() % rowWidth);
+	cnst ::llc::u2_t rowCount = keys.size() / rowWidth + onif_true_e(keys.size() % rowWidth);
 	cnst ::llc::u3_t width = (::llc::u3_t)keySize.x * rowWidth + 4U + ::VIRTUAL_KEYBOARD_COMMAND_SIZE.x;
 	cnst ::llc::u3_t heightCharacters = (::llc::u3_t)keySize.y * rowCount + 4U;
 	cnst ::llc::u3_t heightCommands = (::llc::u3_t)::llc::size(::VIRTUAL_KEYBOARD_COMMANDS) * ::VIRTUAL_KEYBOARD_COMMAND_SIZE.y + 4U;

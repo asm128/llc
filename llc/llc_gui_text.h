@@ -20,8 +20,8 @@ namespace llc
 			const ::llc::n2s1_t			coordCharTable					= {int16_t(coordTableX * sizeCharCell.x), int16_t(coordTableY * sizeCharCell.y)};
 			const ::llc::rect2s1_t		dstRect0						= {{int16_t(sizeCharCell.x * iChar), dstOffsetY}, sizeCharCell.s1()};
 			const ::llc::rect2s1_t		srcRect0						= {coordCharTable, sizeCharCell.s1()};
-			es_if(failed(::llc::grid_copy_alpha(target, viewTextureFont, ::llc::rect2s1_t{dstTextOffset + dstRect0.Offset, dstRect0.Size}, srcRect0.Offset, {0xFF, 0x00, 0xFF, 0xFF})));
-			//es_if(failed(::llc::grid_copy(target, viewTextureFont, dstTextOffset + dstOffset1, srcRect0)));
+			if_true_e(failed(::llc::grid_copy_alpha(target, viewTextureFont, ::llc::rect2s1_t{dstTextOffset + dstRect0.Offset, dstRect0.Size}, srcRect0.Offset, {0xFF, 0x00, 0xFF, 0xFF})));
+			//if_true_e(failed(::llc::grid_copy(target, viewTextureFont, dstTextOffset + dstOffset1, srcRect0)));
 		}
 		return 0;
 	}
@@ -37,9 +37,9 @@ namespace llc
 			const ::llc::n2s1_t			coordCharTable					= {int16_t(coordTableX * sizeCharCell.x), int16_t(coordTableY * sizeCharCell.y)};
 			const ::llc::rect2s1_t		dstRect0						= {{int16_t(sizeCharCell.x * iChar), dstOffsetY}, sizeCharCell.s1()};
 			const ::llc::rect2s1_t		srcRect0						= {coordCharTable, sizeCharCell.s1()};
-			//es_if(failed(::llc::grid_copy_alpha_bit(target, viewTextureFont, dstTextOffset + dstOffset1, viewMetrics, color, srcRect0)));
-			es_if(failed(::llc::grid_raster_alpha_bit(target.metrics(), viewTextureFont, viewMetrics, ::llc::rect2s1_t{dstTextOffset + dstRect0.Offset, sizeCharCell.s1()}, srcRect0.Offset, dstCoords)));
-			//es_if(failed(::llc::grid_raster_alpha_bit(target, viewTextureFont, dstTextOffset + dstOffset1, viewMetrics, srcRect0, dstCoords)));
+			//if_true_e(failed(::llc::grid_copy_alpha_bit(target, viewTextureFont, dstTextOffset + dstOffset1, viewMetrics, color, srcRect0)));
+			if_true_e(failed(::llc::grid_raster_alpha_bit(target.metrics(), viewTextureFont, viewMetrics, ::llc::rect2s1_t{dstTextOffset + dstRect0.Offset, sizeCharCell.s1()}, srcRect0.Offset, dstCoords)));
+			//if_true_e(failed(::llc::grid_raster_alpha_bit(target, viewTextureFont, dstTextOffset + dstOffset1, viewMetrics, srcRect0, dstCoords)));
 		}
 		for(::llc::u2_t iCoord = 0; iCoord < dstCoords.size(); ++iCoord)
 			::llc::drawPixelLight(target, dstCoords[iCoord], color, 0.05f, 0.75);
@@ -72,7 +72,7 @@ namespace llc
 			::llc::rect2s2_t				dstRect1						= {{int32_t(targetRect.Offset.x + fontCharSize.x * iChar), targetRect.Offset.y}, fontCharSize.s2()};
 			//dstRect1.Size.x		+= ::llc::min(0, (int32_t)targetRect.Offset.x);
 			dstRect1.Size.y			+= ::llc::min<int16_t>(0, targetRect.Offset.y);
-			es_if(failed(::llc::grid_raster_alpha_bit(targetMetrics, fontTexture.View, {::llc::u2_t(charsPerRow * fontCharSize.x), 256U * fontCharSize.y}, dstRect1, srcRect0.Offset, dstCoords)));
+			if_true_e(failed(::llc::grid_raster_alpha_bit(targetMetrics, fontTexture.View, {::llc::u2_t(charsPerRow * fontCharSize.x), 256U * fontCharSize.y}, dstRect1, srcRect0.Offset, dstCoords)));
 		}
 		return 0;
 	}

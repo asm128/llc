@@ -1,6 +1,20 @@
 #include "llc_runtime_module.h"
 
-::llc::err_t llc::loadRuntimeModule(SRuntimeModule & loadedModule, cnst vcst_t & moduleName) {
+llc::err_t llc::unloadRuntimeModule(SRuntimeModule & loadedModule) {
+	if_true_ve(OS_BUSY, loadedModule.Application);
+	if(0 == loadedModule.Handle)
+		rtrn 0;
+#if defined(LLC_WINDOWS)
+	if_zero_ve(OS_ERROR, LLC_FREE_MODULE(loadedModule.Handle));
+#elif defined(LLC_LINUX) || defined(LLC_ANDROID)
+	if_true_ve(OS_ERROR, LLC_FREE_MODULE(loadedModule.Handle));
+#else
+	rtrn OS_NOT_AVAILABLE;
+#endif
+	loadedModule = {};
+	rtrn 0;
+}
+llc::err_t llc::loadRuntimeModule(SRuntimeModule & loadedModule, cnst vcst_t & moduleName) {
 	if_true_ve(OS_BUSY, loadedModule.Handle);
 	loadedModule.Handle = LLC_LOAD_MODULE(moduleName.begin());
 	if_null_vef(OS_NOT_FOUND, loadedModule.Handle, "Cannot load module:%.*s.", LLC_VIEW_ARGS(moduleName));
@@ -19,20 +33,5 @@
 			rtrn OS_NOT_FOUND;
 		}
 	}
-	rtrn 0;
-}
-
-::llc::err_t llc::unloadRuntimeModule(SRuntimeModule & loadedModule) {
-	if_true_ve(OS_BUSY, loadedModule.Application);
-	if(0 == loadedModule.Handle)
-		rtrn 0;
-#if defined(LLC_WINDOWS)
-	if_zero_ve(OS_ERROR, LLC_FREE_MODULE(loadedModule.Handle));
-#elif defined(LLC_LINUX) || defined(LLC_ANDROID)
-	if_true_ve(OS_ERROR, LLC_FREE_MODULE(loadedModule.Handle));
-#else
-	rtrn OS_NOT_AVAILABLE;
-#endif
-	loadedModule = {};
 	rtrn 0;
 }

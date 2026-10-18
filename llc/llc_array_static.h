@@ -38,18 +38,18 @@ namespace llc
 		inxp	TCnst*		end				()						csnx	{ rtrn Storage + N;	}
 
 		err_t				slice			(V & out, u2_t offset, u2_t count = (u2_t)-1)				{
-			ree_if(offset > N, LLC_FMT_GT_U2, offset, N);
+			if_true_fef(offset > N, LLC_FMT_GT_U2, offset, N);
 			u2_c					newSize			= N - offset;
 			if(count != (u2_t)-1)
-				ree_if(count > newSize, LLC_FMT_GT_U2, count, newSize);
+				if_true_fef(count > newSize, LLC_FMT_GT_U2, count, newSize);
 			out						= {&Storage[offset], ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
 		err_t				slice			(VCnst & out, u2_t offset, u2_t count = (u2_t)-1)	cnst	{
-			ree_if(offset > N, LLC_FMT_GT_U2, offset, N);
+			if_true_fef(offset > N, LLC_FMT_GT_U2, offset, N);
 			u2_c					newSize			= N - offset;
 			if(count != (u2_t)-1)
-				ree_if(count > newSize, LLC_FMT_GT_U2, count, newSize);
+				if_true_fef(count > newSize, LLC_FMT_GT_U2, count, newSize);
 			out						= {&Storage[offset], ::llc::min(newSize, count)};
 			rtrn out.size();
 		}

@@ -48,8 +48,8 @@ static	::llc::error_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::
 	if_fail_fe(::base64SymbolMapValidate(symbolMap));
 	cnst ::llc::vcst_t	& base64Symbols									= symbolMap.Symbols;
 	cnst char				base64PadSymbol									= symbolMap.Pad;
-	rni_if(0 == inputBytes.size(), "%s", "Empty input stream.");
-	u2_c						packsNeeded												= inputBytes.size() / 3 + one_if(inputBytes.size() % 3);
+	if_null_vif(0, inputBytes.size(), "%s", "Empty input stream.");
+	u2_c						packsNeeded												= inputBytes.size() / 3 + onif_true_e(inputBytes.size() % 3);
 	::llc::u2_t					iOutput64												= out_base64.size();
 	llc_necall(out_base64.resize(out_base64.size() + packsNeeded * 4), "Out of memory? out_base64.size() : %" LLC_FMT_U2 ". packsNeeded : %" LLC_FMT_U2 ".", iOutput64, packsNeeded);
 	for(::llc::u2_t iInputByte = 0, inputByteCount = inputBytes.size(); iInputByte < inputByteCount; iInputByte += 3) { // process each byte triplet and turn it into 4 bytes padded with 2 bit
@@ -98,7 +98,7 @@ static	::llc::error_t	base64DecodeQuad								(::llc::vu8 inputQuad, ::llc::vu8 
 	if_fail_fe(::base64SymbolMapValidate(symbolMap));
 	cnst ::llc::u0_t	(&base64SymbolRemap)[256]						= symbolMap.Decode.Storage;
 	cnst char				base64PadSymbol									= symbolMap.Pad;
-	rni_if(0 == in_base64.size(), "%s", "Empty base64 string.");
+	if_zero_vif(0, in_base64.size(), "%s", "Empty base64 string.");
 	::llc::u2_t				lengthInput											= in_base64.size();
 	if(::llc::u2_c remainder = lengthInput % 4) {
 		if_true_fef(1 != remainder || in_base64[lengthInput - 1], "Invalid Base64 input size: %" LLC_FMT_U2 ".", in_base64.size());

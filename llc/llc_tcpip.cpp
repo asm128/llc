@@ -88,7 +88,7 @@ LLC_USING_TYPEINT();
 ::llc::error_t			llc::tcpipInitialize						()							{
 #if defined(LLC_WINDOWS)
 	::WSADATA										w											= {};
-	ree_if(::WSAStartup(0x0202, &w) != 0, "Could not open Windows sockets: 0x%X '%s'", WSAGetLastError(), ::llc::getWindowsErrorAsString(WSAGetLastError()).begin());
+	if_true_fef(::WSAStartup(0x0202, &w) != 0, "Could not open Windows sockets: 0x%X '%s'", WSAGetLastError(), ::llc::getWindowsErrorAsString(WSAGetLastError()).begin());
 #endif
 	info_printf("%s", "Network subsystem initialized.");
 	return 0;
@@ -96,7 +96,7 @@ LLC_USING_TYPEINT();
 
 ::llc::error_t			llc::tcpipShutdown							()							{
 #if defined(LLC_WINDOWS)
-	ree_if(::WSACleanup() != 0, "Could not shut down Windows sockets: 0x%X '%s'", WSAGetLastError(), ::llc::getWindowsErrorAsString(WSAGetLastError()).begin());		// Open windows connection
+	if_true_fef(::WSACleanup() != 0, "Could not shut down Windows sockets: 0x%X '%s'", WSAGetLastError(), ::llc::getWindowsErrorAsString(WSAGetLastError()).begin());		// Open windows connection
 #endif
 	info_printf("%s", "Network subsystem shut down.");
 	return 0;
@@ -165,7 +165,7 @@ LLC_USING_TYPEINT();
 ::llc::error_t			llc::tcpipAddress	(SOCKET socket, ::llc::u2_t & ip, ::llc::u1_t & port) {
 	sockaddr_in					sockaddr_ipv4		= {};
 	socklen_t					len					= szof(sockaddr_in);
-	ree_if(getsockname(socket, (sockaddr*)&sockaddr_ipv4, &len) != 0, "%s", "getpeername failed.");
+	if_true_fef(getsockname(socket, (sockaddr*)&sockaddr_ipv4, &len) != 0, "%s", "getpeername failed.");
 	return ::llc::tcpipAddressFromSockaddr(sockaddr_ipv4, ip, port);
 }
 
@@ -312,7 +312,7 @@ LLC_USING_TYPEINT();
 //#else
 //	struct hostent									* hp		= gethostbyname(host_name);
 //
-//	ree_if(hp == NULL, "Could not get host by name.");
+//	if_true_fef(hp == NULL, "Could not get host by name.");
 //
 //	b1											= hp->h_addr_list[0][0];
 //	b2											= hp->h_addr_list[0][1];

@@ -525,7 +525,7 @@ namespace llc
 	}
 
 	tplT	err_t		max						(view<T> input, T ** result) {
-		ree_if(0 == input.size(), "%s", "Cannot get reference to max element of an empty array.");
+		if_true_fef(0 == input.size(), "%s", "Cannot get reference to max element of an empty array.");
 		*result				= &input[0];
 		s2_t					iMax					= 0;
 		for(u2_t iElement = 1; iElement < input.size(); ++iElement) {
@@ -539,7 +539,7 @@ namespace llc
 	}
 
 	tplT	err_t		min						(view<T> input, T ** result) {
-		ree_if(0 == input.size(), "%s", "Cannot get reference to min element of an empty array.");
+		if_true_fef(0 == input.size(), "%s", "Cannot get reference to min element of an empty array.");
 		*result				= &input[0];
 		s2_t					iMin					= 0;
 		for(u2_t iElement = 1; iElement < input.size(); ++iElement) {

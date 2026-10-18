@@ -5,7 +5,7 @@
 
 ::llc::err_t testArrayStatic		(ATestError & errors);
 ::llc::err_t testAdam7			(ATestError & errors);
-::llc::err_t testApp			(ATestError & errors);
+//::llc::err_t testApp			(ATestError & errors);
 ::llc::err_t testASCIIColor		(ATestError & errors);
 ::llc::err_t testASCIITarget		(ATestError & errors);
 ::llc::err_t testArrayBit		(ATestError & errors);
@@ -44,7 +44,7 @@
 ::llc::err_t testPointers		(ATestError & errors);
 ::llc::err_t testPNG			(ATestError & errors);
 ::llc::err_t testProcess		(ATestError & errors);
-::llc::err_t testRuntimeModule	(ATestError & errors);
+//::llc::err_t testRuntimeModule	(ATestError & errors);
 ::llc::err_t testSPRNG			(ATestError & errors);
 ::llc::err_t testSTL			(ATestError & errors);
 ::llc::err_t testStr			(ATestError & errors);

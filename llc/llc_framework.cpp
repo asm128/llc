@@ -127,14 +127,14 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 #else
 	::llc::error_t				updateResult		= ::llc::windowUpdate(mainWindow);
 #endif
-	rees_if(llc::failed(updateResult));
-	rvis_if(1, mainWindow.Closed);
-	rvis_if(1, 1 == updateResult);
+	if_true_fe(llc::failed(updateResult));
+	if_true_vi(1, mainWindow.Closed);
+	if_true_vi(1, 1 == updateResult);
 	::llc::pobj<::llc::SWindow::TOffscreen>	offscreen	= framework.RootWindow.BackBuffer;
 #if defined(LLC_WINDOWS)
 	if(mainWindow.PlatformDetail.WindowHandle) {
 		if(offscreen && offscreen->Color.Texels.size())
-			e_if(llc::failed(::llc::windowPresentTarget(mainWindow, offscreen->Color.View)));
+			if_true_e(llc::failed(::llc::windowPresentTarget(mainWindow, offscreen->Color.View)));
 	}
 #endif
 	::llc::SGUI						& gui				= *framework.GUI;
@@ -202,8 +202,8 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	::llc::pobj<::llc::SEventSystem>	newSystemEvent;
 	switch(uMsg) {
 	default: break;
-	case WM_CLOSE			: e_if(llc::failed(::llc::eventEnqueueScreenClose  (mainDisplay.EventQueue))); ::DestroyWindow(hWnd); return 0;
-	case WM_DESTROY			: e_if(llc::failed(::llc::eventEnqueueScreenDestroy(mainDisplay.EventQueue))); 
+	case WM_CLOSE			: if_true_e(llc::failed(::llc::eventEnqueueScreenClose  (mainDisplay.EventQueue))); ::DestroyWindow(hWnd); return 0;
+	case WM_DESTROY			: if_true_e(llc::failed(::llc::eventEnqueueScreenDestroy(mainDisplay.EventQueue))); 
 		displayDetail.WindowHandle									= 0;
 		mainDisplay.Closed											= true;
 		::PostQuitMessage(0);
@@ -212,15 +212,15 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		RECT								rect					= {};
 		GetClientRect(hWnd, &rect);
 		::llc::n2u1_t						newMetrics				= {(uint16_t)(rect.right - rect.left), (uint16_t)(rect.bottom - rect.top)};
-		e_if(llc::failed(::llc::eventEnqueueScreenCreate(mainDisplay.EventQueue, {newMetrics, *(const CREATESTRUCTA*)lParam})));
+		if_true_e(llc::failed(::llc::eventEnqueueScreenCreate(mainDisplay.EventQueue, {newMetrics, *(const CREATESTRUCTA*)lParam})));
 		break;
 	}
 	case WM_SHOWWINDOW		: { 
 		if(0 == wParam) {
-			e_if(llc::failed(::llc::eventEnqueueScreenHide(mainDisplay.EventQueue, (uint8_t)lParam))); 
+			if_true_e(llc::failed(::llc::eventEnqueueScreenHide(mainDisplay.EventQueue, (uint8_t)lParam))); 
 		} 
 		else {
-			e_if(llc::failed(::llc::eventEnqueueScreenShow(mainDisplay.EventQueue, (uint8_t)lParam)));
+			if_true_e(llc::failed(::llc::eventEnqueueScreenShow(mainDisplay.EventQueue, (uint8_t)lParam)));
 			mainDisplay.Repaint = true; 
 		}
 		break;
@@ -249,15 +249,15 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		if(input.MouseCurrent.Deltas.x || input.MouseCurrent.Deltas.y)
 			mainDisplay.Repaint				= true;
 
-		e_if(llc::failed(::llc::eventEnqueueMousePosition(mainDisplay.EventQueue, input.MouseCurrent.Position))); 
+		if_true_e(llc::failed(::llc::eventEnqueueMousePosition(mainDisplay.EventQueue, input.MouseCurrent.Position))); 
 
 		break;
 		}
 	case WM_ACTIVATE: {
 		switch(wParam) {
-		case WA_ACTIVE		: e_if(llc::failed(::llc::eventEnqueueScreenActivate  (mainDisplay.EventQueue, 0))); /*XInputEnable(1); */break; // Activated by some method other than a mouse click (for example, by a call to the SetActiveWindow function or by use of the keyboard interface to select the window).
-		case WA_CLICKACTIVE	: e_if(llc::failed(::llc::eventEnqueueScreenActivate  (mainDisplay.EventQueue, 1))); /*XInputEnable(1); */break; // Activated by a mouse click.
-		case WA_INACTIVE	: e_if(llc::failed(::llc::eventEnqueueScreenDeactivate(mainDisplay.EventQueue, 0))); /*XInputEnable(0); */break; 
+		case WA_ACTIVE		: if_true_e(llc::failed(::llc::eventEnqueueScreenActivate  (mainDisplay.EventQueue, 0))); /*XInputEnable(1); */break; // Activated by some method other than a mouse click (for example, by a call to the SetActiveWindow function or by use of the keyboard interface to select the window).
+		case WA_CLICKACTIVE	: if_true_e(llc::failed(::llc::eventEnqueueScreenActivate  (mainDisplay.EventQueue, 1))); /*XInputEnable(1); */break; // Activated by a mouse click.
+		case WA_INACTIVE	: if_true_e(llc::failed(::llc::eventEnqueueScreenDeactivate(mainDisplay.EventQueue, 0))); /*XInputEnable(0); */break; 
 		}
 		break;
 	}
@@ -289,7 +289,7 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 #else
 				SetWindowText(mainDisplay.PlatformDetail.WindowHandle, buffer);
 #endif
-				e_if(llc::failed(::llc::eventEnqueueScreenResize(mainDisplay.EventQueue, newMetrics)));
+				if_true_e(llc::failed(::llc::eventEnqueueScreenResize(mainDisplay.EventQueue, newMetrics)));
 			}
 		}
 		break;
@@ -297,12 +297,12 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		info_printf("%s", "WM_PAINT");
 		mainDisplay.Repaint		= true;
 		break;
-	//case MM_JOY1BUTTONDOWN	: e_if(failed(::llc::eventEnqueueJoyPadDown		(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// A button on joystick JOYSTICKID1 has been pressed.
-	//case MM_JOY1BUTTONUP		: e_if(failed(::llc::eventEnqueueJoyPadUp			(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// A button on joystick JOYSTICKID1 has been released.
-	//case MM_JOY1ZMOVE			: e_if(failed(::llc::eventEnqueueJoyPadZMove		(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// Joystick JOYSTICKID1 changed position in the z-direction.
-	//case MM_JOY2BUTTONDOWN	: e_if(failed(::llc::eventEnqueueJoyPadDown		(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// A button on joystick JOYSTICKID2 has been pressed.
-	//case MM_JOY2BUTTONUP		: e_if(failed(::llc::eventEnqueueJoyPadUp			(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// A button on joystick JOYSTICKID2 has been released.
-	//case MM_JOY2ZMOVE			: e_if(failed(::llc::eventEnqueueJoyPadZMove		(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// Joystick JOYSTICKID2 changed position in the x- or y-direction
+	//case MM_JOY1BUTTONDOWN	: if_true_e(failed(::llc::eventEnqueueJoyPadDown		(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// A button on joystick JOYSTICKID1 has been pressed.
+	//case MM_JOY1BUTTONUP		: if_true_e(failed(::llc::eventEnqueueJoyPadUp			(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// A button on joystick JOYSTICKID1 has been released.
+	//case MM_JOY1ZMOVE			: if_true_e(failed(::llc::eventEnqueueJoyPadZMove		(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// Joystick JOYSTICKID1 changed position in the z-direction.
+	//case MM_JOY2BUTTONDOWN	: if_true_e(failed(::llc::eventEnqueueJoyPadDown		(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// A button on joystick JOYSTICKID2 has been pressed.
+	//case MM_JOY2BUTTONUP		: if_true_e(failed(::llc::eventEnqueueJoyPadUp			(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// A button on joystick JOYSTICKID2 has been released.
+	//case MM_JOY2ZMOVE			: if_true_e(failed(::llc::eventEnqueueJoyPadZMove		(mainDisplay.EventQueue, 0))); input.MouseCurrent.ButtonState[0] = 1; *(LPARAM*)&newEvent.Data[1] = lParam; mainDisplay.EventQueueOld.push_back(newEvent); mainDisplay.Repaint = true; break;// Joystick JOYSTICKID2 changed position in the x- or y-direction
 	//case MM_JOY1MOVE		: 
 	//case MM_JOY2MOVE		: { 
 	//	const sc_t							iJoystick					= (MM_JOY2MOVE == uMsg) ? 1 : 0;

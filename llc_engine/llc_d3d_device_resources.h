@@ -131,7 +131,7 @@ namespace DX
 
 				//DXGI_SWAP_CHAIN_FULLSCREEN_DESC			swapChainDescFS				= {0};
 				//MONITORINFO								monitor_info				= {sizeof(monitor_info)};
-				//ree_if(FALSE == GetMonitorInfoA(MonitorFromWindow(m_window, MONITOR_DEFAULTTOPRIMARY), &monitor_info), "Cannot get MONITORINFO for hWnd(0x%x)", m_window);
+				//if_true_fef(FALSE == GetMonitorInfoA(MonitorFromWindow(m_window, MONITOR_DEFAULTTOPRIMARY), &monitor_info), "Cannot get MONITORINFO for hWnd(0x%x)", m_window);
 
 				//swapChainDescFS.Scaling				= DisplayMetrics::SupportHighResolutions ? DXGI_MODE_SCALING_UNSPECIFIED : DXGI_MODE_SCALING_STRETCHED;;
 				//swapChainDescFS.Windowed				= true;
@@ -198,7 +198,7 @@ namespace DX
 
 			D2D1_BITMAP_PROPERTIES1						bitmapProperties					= D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED), m_dpi, m_dpi);
 			::llc::pcom<IDXGISurface2>					dxgiBackBuffer;
-			ws_if_failed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer)));
+			if_fail_w(m_swapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer)));
 			llc_hrcall(m_d2dContext->CreateBitmapFromDxgiSurface(dxgiBackBuffer, &bitmapProperties, &m_d2dTargetBitmap));	// Create a Direct2D target bitmap associated with the swap chain back buffer and set it as the current target.
 
 			m_d2dContext->SetTarget(m_d2dTargetBitmap);
