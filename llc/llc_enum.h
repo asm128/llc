@@ -81,7 +81,7 @@ namespace llc
 			return -1;
 		}
 		T					get_value_by_index		(::llc::u2_t index)					const			{
-			retval_gwarn_if(INVALID_VALUE, index >= Values.size(), "Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
+			if_true_vwf(INVALID_VALUE, index >= Values.size(), "Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
 			return Values[index];
 		}
 		err_t				get_label_by_index		(::llc::u2_t index, vcst_t & value)		const			{
