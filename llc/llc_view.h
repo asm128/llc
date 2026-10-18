@@ -1,17 +1,15 @@
+#include "llc_keyval.h"
+#include "llc_functional.h"
 #include "llc_log.h"
 
-#include "llc_functional.h"
 
 #if defined(LLC_ATMEL)
-#	include <string.h>
 #	ifdef max
 #		undef max
 #	endif
 #	ifdef min
 #		undef min
 #	endif
-#else
-#	include <cstring>
 #endif
 
 #ifndef LLC_ARRAY_VIEW_H_23627
@@ -40,23 +38,23 @@ namespace llc
 		tplN2u	inxp			view			(T (&elements)[N])					nxpt	: Data(elements), Count(N)								{}
 		tplN2u	inxp			view			(u2_t elementCount, T (&elements)[N])		: Data(elements), Count(::llc::min(N, elementCount))	{}
 		inln					view			(T * elements, u2_t elementCount)			: Data(elements), Count(elementCount)					{ gthrow_if(0 == elements && 0 != elementCount, "%" LLC_FMT_U2 " -> 0.", elementCount);	}
-		tplN2u	inln			view			(T (&elements)[N], u2_t elementCount)		: Data(elements), Count(::llc::min(N, elementCount))	{ gthrow_if(elementCount > N, LLC_FMT_GT_U2, elementCount, (u2_t)N); }
 
 		// Operators
 		inxp	oper			view<TCnst>		()									csnx	{ rtrn {Data, Count}; }
 		T&						oper[]			(u2_t index)								{
-			static T dymmy = {};
-			rves_if(dymmy, 0 == Data);
-			gthrow_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_null_te(Data);
+			if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn Data[index];
 		}
-		cnst T&					operator[]		(u2_t index)						cnst	{
-			gsthrow_if(0 == Data);
-			gthrow_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+		cnst T&					oper[]			(u2_t index)						cnst	{
+			if_null_te(Data);
+			if_true_tef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn Data[index];
 		}
-		bool					operator!=		(TCVCs & other)	cnst						{ rtrn  !operator==(other); } // I had to add this for the android build not supporting C++20.
-		bool					operator==		(TCVCs & other)	cnst						{
+		tplt<tpnm _tIndex> inln T&		oper[]			(_tIndex index)						{ rtrn operator[]((u2_t)index); }
+		tplt<tpnm _tIndex> inln cnst T&	oper[]			(_tIndex index)				cnst	{ rtrn operator[]((u2_t)index); }
+		bool					oper!=			(TCVCs & other)	cnst						{ rtrn  !operator==(other); } // I had to add this for the android build not supporting C++20.
+		bool					oper==			(TCVCs & other)	cnst						{
 			if(this->size() != other.size())
 				rtrn false;
 			if(this->begin() == other.begin())
@@ -77,19 +75,19 @@ namespace llc
 		inln	T*				begin			()														nxpt	{ rtrn Data;				}
 		inln	T*				end				()														nxpt	{ rtrn begin() + Count;	}
 		err_t					slice			(TV & out, u2_t offset, u2_t count = (u2_t)-1)					{
-			reterr_gerror_if(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
+			if_true_fef(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
 			u2_c					newSize			= Count - offset;
 			if(count != (u2_t)-1)
-				ree_if(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
-			out						= {&Data[offset], ::llc::min(newSize, count)};
+				if_true_fef(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
+			out						= {Data ? &Data[offset] : 0, ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
 		err_t					slice			(TCstV & out, u2_t offset, u2_t count = (u2_t)-1)		cnst	{
-			ree_if(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
+			if_true_fef(offset > Count, LLC_FMT_GT_U2, offset, (u2_t)Count);
 			u2_c					newSize			= Count - offset;
 			if(count != (u2_t)-1)
-				ree_if(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
-			out						= {&Data[offset], ::llc::min(newSize, count)};
+				if_true_fef(count > newSize, LLC_FMT_GT_U2, count, (u2_t)newSize);
+			out						= {Data ? &Data[offset] : 0, ::llc::min(newSize, count)};
 			rtrn out.size();
 		}
 		err_t					revert			()																{
@@ -102,27 +100,92 @@ namespace llc
 			rtrn 0;
 		}
 
-		inln	err_t			fill			(cnst T & value, u2_t offset = 0, u2_t stop = 0xFFFFFFFFU)										{ for(; offset < ::llc::min(Count, stop); ++offset) Data[offset] = value; rtrn Count; }
+		inln	err_t			fill			(cnst T & value, u2_t offset = 0, u2_t stop = 0xFFFFFFFFU)										{ u2_c offsetStart = offset; for(; offset < ::llc::min(Count, stop); ++offset) Data[offset] = value; rtrn offset - offsetStart; }
 
-
-		err_t					for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset = 0)								{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
-		err_t					for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset = 0)						cnst	{ for(; offset < Count; ++offset) funcForEach(Data[offset]); rtrn offset; }
-		err_t					enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset = 0)								{ for(; offset < Count; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
-		err_t					enumerate		(cnst ::llc::TFuncEnumerateConst<T> & funcForEach, u2_t offset = 0)						cnst	{ for(; offset < Count; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
+		err_t					for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset = 0)								{ u2_c offsetStart = offset; for(; offset < Count; ++offset) if_fail_fef(funcForEach(Data[offset]), "offset:%u.", offset); rtrn offset - offsetStart; }
+		err_t					for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset = 0)						cnst	{ u2_c offsetStart = offset; for(; offset < Count; ++offset) if_fail_fef(funcForEach(Data[offset]), "offset:%u.", offset); rtrn offset - offsetStart; }
+		err_t					enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset = 0)								{ u2_c offsetStart = offset; for(; offset < Count; ++offset) if_fail_fef(funcForEach(offset, Data[offset]), "offset:%u.", offset); rtrn offset - offsetStart; }
+		err_t					enumerate		(cnst ::llc::TFuncEnumerateConst<T> & funcForEach, u2_t offset = 0)						cnst	{ u2_c offsetStart = offset; for(; offset < Count; ++offset) if_fail_fef(funcForEach(offset, Data[offset]), "offset:%u.", offset); rtrn offset - offsetStart; }
 		//
-		err_t					for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset, u2_t stop)						{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(Data[offset]); rtrn offset; }
-		err_t					for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset, u2_t stop)				cnst	{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(Data[offset]); rtrn offset; }
-		err_t					enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset, u2_t stop)						{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
-		err_t					enumerate		(cnst ::llc::TFuncEnumerateConst<T> & funcForEach, u2_t offset, u2_t stop)				cnst	{ for(stop = ::llc::min(stop, Count); offset < stop; ++offset) funcForEach(offset, Data[offset]); rtrn offset; }
+		err_t					for_each		(cnst ::llc::TFuncForEach       <T> & funcForEach, u2_t offset, u2_t stop)						{ u2_c offsetStart = offset; for(stop = ::llc::min(stop, Count); offset < stop; ++offset) if_fail_fef(funcForEach(Data[offset]), "offset:%u.", offset); rtrn offset - offsetStart; }
+		err_t					for_each		(cnst ::llc::TFuncForEachConst  <T> & funcForEach, u2_t offset, u2_t stop)				cnst	{ u2_c offsetStart = offset; for(stop = ::llc::min(stop, Count); offset < stop; ++offset) if_fail_fef(funcForEach(Data[offset]), "offset:%u.", offset); rtrn offset - offsetStart; }
+		err_t					enumerate		(cnst ::llc::TFuncEnumerate     <T> & funcForEach, u2_t offset, u2_t stop)						{ u2_c offsetStart = offset; for(stop = ::llc::min(stop, Count); offset < stop; ++offset) if_fail_fef(funcForEach(offset, Data[offset]), "offset:%u.", offset); rtrn offset - offsetStart; }
+		err_t					enumerate		(cnst ::llc::TFuncEnumerateConst<T> & funcForEach, u2_t offset, u2_t stop)				cnst	{ u2_c offsetStart = offset; for(stop = ::llc::min(stop, Count); offset < stop; ++offset) if_fail_fef(funcForEach(offset, Data[offset]), "offset:%u.", offset); rtrn offset - offsetStart; }
 
 		err_t					find			(cnst FBool<T&>		& funcForEach	, u2_t offset = 0)											{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
 		err_t					find			(cnst FBool<TCnst&>	& funcForEach	, u2_t offset = 0)									cnst	{ for(; offset < Count; ++offset) if(funcForEach(Data[offset])) rtrn (err_t)offset; rtrn -1; }
 		err_t					find			(cnst T				& value			, u2_t offset = 0)									cnst	{ for(; offset < Count; ++offset) if(Data[offset] == value) rtrn (err_t)offset; rtrn -1; }
+		err_t					find			(TCstV sequence, u2_t offset = 0)										cnst	{
+			if(sequence.size() > Count || offset > Count - sequence.size())
+				rtrn -1;
+			if(0 == sequence.size())
+				rtrn offset;
+			for(u2_t iOffset = offset, offsetStop = Count - sequence.size() + 1; iOffset < offsetStop; ++iOffset) {
+				bool					equal			= true;
+				for(u2_t iSequence = 0; iSequence < sequence.size(); ++iSequence)
+					if(sequence[iSequence] != Data[iOffset + iSequence]) {
+						equal					= false;
+						break;
+					}
+				if(equal)
+					rtrn iOffset;
+			}
+			rtrn -1;
+		}
+		err_t					rfind			(cnst T & value, u2_t offset = 0)										cnst	{
+			if(offset >= Count)
+				rtrn -1;
+			for(u2_t iOffset = Count - 1 - offset; iOffset < Count; --iOffset)
+				if(Data[iOffset] == value)
+					rtrn iOffset;
+			rtrn -1;
+		}
+		err_t					rfind			(TCstV sequence, u2_t offset = 0)										cnst	{
+			if(sequence.size() > Count || offset > Count - sequence.size())
+				rtrn -1;
+			if(0 == sequence.size())
+				rtrn Count - offset;
+			for(u2_t iOffset = Count - sequence.size() - offset; iOffset < Count; --iOffset) {
+				bool					equal			= true;
+				for(u2_t iSequence = 0; iSequence < sequence.size(); ++iSequence)
+					if(sequence[iSequence] != Data[iOffset + iSequence]) {
+						equal					= false;
+						break;
+					}
+				if(equal)
+					rtrn iOffset;
+			}
+			rtrn -1;
+		}
 
-		tplt<tpnm _tMax> err_t	max				(_tMax & maxFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{ s2_t iMax = 0; for(; offset < Count; ++offset) { _tMax value = funcComparand(Data[offset]); if(value > maxFound) { iMax = offset; maxFound = value; } } rtrn iMax; }
-		tplt<tpnm _tMax> err_t	min				(_tMax & minFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{ s2_t iMin = 0; for(; offset < Count; ++offset) { _tMax value = funcComparand(Data[offset]); if(value < minFound) { iMin = offset; minFound = value; } } rtrn iMin; }
-		tplt<tpnm _tMax> err_t	max				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax maxFound; rtrn max(maxFound, funcComparand, offset); }
-		tplt<tpnm _tMax> err_t	min				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax minFound; rtrn min(minFound, funcComparand, offset); }
+		tplt<tpnm _tMax> err_t	max				(_tMax & maxFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{
+			if_true_fef(offset >= Count, LLC_FMT_GE_U2, offset, Count);
+			err_t					iMax			= (err_t)offset;
+			maxFound								= funcComparand(Data[offset]);
+			for(++offset; offset < Count; ++offset) {
+				_tMax					value			= funcComparand(Data[offset]);
+				if(value > maxFound) {
+					iMax								= (err_t)offset;
+					maxFound							= value;
+				}
+			}
+			rtrn iMax;
+		}
+		tplt<tpnm _tMax> err_t	min				(_tMax & minFound, cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)	cnst	{
+			if_true_fef(offset >= Count, LLC_FMT_GE_U2, offset, Count);
+			err_t					iMin			= (err_t)offset;
+			minFound								= funcComparand(Data[offset]);
+			for(++offset; offset < Count; ++offset) {
+				_tMax					value			= funcComparand(Data[offset]);
+				if(value < minFound) {
+					iMin								= (err_t)offset;
+					minFound							= value;
+				}
+			}
+			rtrn iMin;
+		}
+		tplt<tpnm _tMax> err_t	max				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax maxFound = {}; rtrn max(maxFound, funcComparand, offset); }
+		tplt<tpnm _tMax> err_t	min				(cnst FTransform<_tMax, TCnst &> & funcComparand, u2_t offset = 0)						cnst	{ _tMax minFound = {}; rtrn min(minFound, funcComparand, offset); }
 	}; // view<>
 
 	tplTusng	view_array	= ::llc::view<T>;
@@ -150,7 +213,7 @@ namespace llc
 
 	tydf	view<b8_c>	vcb8_t;
 	tydf	view<uc_c>	vcuc_t, vcuc, vcuchar;
-	tydf	view<sc_c>	vcsc_t, vcsc_t, vcchar;
+	tydf	view<sc_c>	vcchar;
 	tydf	view<u0_c>	vcu0_t, vcu0_t;
 	tydf	view<u1_c>	vcu1_t, vcu16;
 	tydf	view<u2_c>	vcu2_t, vcu32;
@@ -178,7 +241,6 @@ namespace llc
 
 	tdcs	 vcb8_t vcb8_c;
 	tdcs	 vcuc_t vcuc_c;
-	tdcs	 vcsc_t vcsc_c;
 	tdcs	 vcu0_t vcu0_c;
 	tdcs	 vcu1_t vcu1_c;
 	tdcs	 vcu2_t vcu2_c;
@@ -189,8 +251,6 @@ namespace llc
 	tdcs	 vcs3_t vcs3_c;
 	tdcs	 vcf2_t vcf2_c;
 	tdcs	 vcf3_t vcf3_c;
-// Use this to initialize a constexpr vcs from a string literal
-#define LLC_CXS(constexpr_string_literal) ::llc::vcsc_t{szof(constexpr_string_literal) - 1U, constexpr_string_literal}
 	tydf	view<vuc_t>	vvuc_t;
 	tydf	view<vsc_t>	vvsc_t;
 	tydf	view<vu0_t>	vvu0_t;
@@ -240,20 +300,9 @@ namespace llc
 	tdcs	vcvf2_t	vcvf2_c;
 	tdcs	vcvf3_t	vcvf3_c;
 
-	stxp	vcsc_t	VCC_NULL		= {4, "null"};
-	stxp	vcsc_t	VCC_TRUE		= {4, "true"};
-	stxp	vcsc_t	VCC_FALSE		= {5, "false"};
-
-	nsix	vcsc_t	bool2vcc		(bool b)							{ rtrn b ? ::llc::VCC_TRUE : ::llc::VCC_FALSE; }
-	nsix	sc_c*	bool2char		(bool b)							{ rtrn b ? ::llc::VCC_TRUE.begin() : ::llc::VCC_FALSE.begin(); }
-	nsix	u0_t	bool2u8			(bool b)							{ rtrn b ? 1 : 0; }
-	nsix	u0_t	bool2i8			(bool b)							{ rtrn b ? 1 : 0; }
-	stin	sc_c*	bool2char		(bool b, ::llc::vcsc_t & output)	{ rtrn (output = b ? ::llc::VCC_TRUE : ::llc::VCC_FALSE).begin(); }
-	stin	bool	vcc2bool		(::llc::vcsc_t b)					{ rtrn b.size() && b != VCC_FALSE; }
-
 	struct view_string : view<sc_t> {
 		inxp			view_string				()											= dflt;
-		inxp			view_string				(vsc_c & other)						nxpt	: view(other)							{}
+		inxp			view_string				(vs0_c & other)						nxpt	: view(other)							{}
 		tplN2u			view_string				(sc_t (&storage)[N])				nxpt	: view(storage)							{ Count = (u2_t)strnlen(storage, (u2_t)N);							}
 		tplN2u			view_string				(sc_t (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
 						view_string				(sc_t * storage, u2_t length)				: view(storage, length)					{ Count = (length == (u2_t)-1) ? (u2_t)strlen(storage) : length;		}
@@ -261,10 +310,14 @@ namespace llc
 		inxp	sc_c*	begin					()	csnx	{ rtrn (Data && Count) ? Data : ""; }
 		inxp	sc_c*	end						()	csnx	{ rtrn (Data && Count) ? Data + Count : begin(); }
 		ndin	oper	sc_c* 					()  csnx	{ rtrn begin(); }
+		inln	sc_t*	begin					()	nxpt	{ rtrn Data; }
+		inln	sc_t*	end						()	nxpt	{ rtrn begin() + Count; }
+		ndin	oper	sc_t* 					()  nxpt	{ rtrn begin(); }
 	};
 	struct view_const_string : view<sc_c> {
 		inxp			view_const_string		()											: view(0, "") 							{}
-		inxp			view_const_string		(vcsc_c & other)					nxpt	: view(other)							{}
+		inxp			view_const_string		(vcs0_c & other)					nxpt	: view(other)							{}
+		tplN2u	inxp	view_const_string		(u2_t length, sc_c (&storage)[N])			: view(length, storage)					{}
 		tplN2u			view_const_string		(sc_c (&storage)[N])				nxpt	: view(storage)							{ Count = (u2_t)strnlen(storage, (u2_t)N);							}
 		tplN2u			view_const_string		(sc_c (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
 						view_const_string		(sc_c * storage, u2_t length)				: view(storage ? storage : "", length)	{ if(length == (u2_t)-1) Count = (u2_t)strlen(begin());					}
@@ -278,26 +331,45 @@ namespace llc
 	tydf	view_const_string	vcst_t, vcs;
 	tdcs	vstr_t				vstr_c;
 	tdcs	vcst_t				vcst_c;
+	tplt<tpnm _tVal>						using kvvcst_t	= kv<vcst_t, _tVal>;
+	// Use this to initialize a constexpr string view from a string literal.
+#define LLC_CXS(constexpr_string_literal) ::llc::vcst_t{::llc::size(constexpr_string_literal) - 1U, constexpr_string_literal}
+#define LLC_VIEW_ARGS(view) (int)view.size(), view.begin() // Parenthesizing the argument does not merely tolerate expressions—it legitimizes and conceals them. Without those parentheses, the macro enforces its intended use.
+	stxp	vcst_t	VCC_NULL		= LLC_CXS("null");
+	stxp	vcst_t	VCC_TRUE		= LLC_CXS("true");
+	stxp	vcst_t	VCC_FALSE		= LLC_CXS("false");
 
-	stin			llc::vcst_t	str				(cnst llc::vcst_t & arg)	{ rtrn arg; }
-	stin			llc::vcst_t	str				(cnst llc::vs & arg)		{ rtrn arg.cc(); }
-	sinx			llc::vcst_t	str				(cnst bool arg)				{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
+	nsix	vcst_t	bool2vcc		(bool b)							{ rtrn b ? VCC_TRUE : VCC_FALSE; }
+	nsix	sc_c*	bool2char		(bool b)							{ rtrn b ? VCC_TRUE.begin() : VCC_FALSE.begin(); }
+	nsix	u0_t	bool2u8			(bool b)							{ rtrn b ? 1 : 0; }
+	nsix	u0_t	bool2i8			(bool b)							{ rtrn b ? 1 : 0; }
+	stin	sc_c*	bool2char		(bool b, vcst_t & output)			{ rtrn (output = b ? VCC_TRUE : VCC_FALSE).begin(); }
+	stin	bool	vcc2bool		(vcst_t b)							{ rtrn b.size() && b != VCC_FALSE; }
+
+	stin			vs		str	(vs & arg)								{ rtrn arg; }
+	stin			vcst_t	str	(cnst vs & arg)							{ rtrn arg.cc(); }
+	stin			vcst_t	str	(cnst vcst_t & arg)						{ rtrn arg; }
+	stin			vs		str	(vs0_t arg)								{ rtrn arg; }
+	stin			vcst_t	str	(vcs0_t arg)							{ rtrn arg; }
+	tplN2usinx		vs		str	(sc_t (&arg)[N])						{ rtrn arg; }
+	tplN2usinx		vcst_t	str	(sc_c (&arg)[N])						{ rtrn arg; }
+	sinx			vcst_t	str	(cnst bool arg)							{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
 	//
-	tplTnsix		::llc::vcst_t	get_type_namev	()									nxpt	{ rtrn LLC_CXS("unknown"); }
-	tplTnsix		sc_c*			get_type_namep	()									nxpt	{ rtrn get_type_namev<T>().begin(); }
+	tplTnsix		vcst_t	get_type_namev	()					nxpt	{ rtrn LLC_CXS("unknown"); }
+	tplTnsix		sc_c*	get_type_namep	()					nxpt	{ rtrn get_type_namev<T>().begin(); }
 
 #define GDEFINE_TYPE_NAME_STR(typeIdentifier)																										\
 			nsix	::llc::vcst_t	get_type_namev					(typeIdentifier &)	nxpt	{ rtrn LLC_CXS(#typeIdentifier); }					\
 	tplt<>	ndix	::llc::vcst_t	get_type_namev<typeIdentifier>	()					nxpt	{ rtrn LLC_CXS(#typeIdentifier); }					\
 			nsix	::llc::sc_c*	get_type_namep					(typeIdentifier &)	nxpt	{ rtrn get_type_namev<typeIdentifier>().begin(); }	\
 	tplt<>	ndix	::llc::sc_c*	get_type_namep<typeIdentifier>	()					nxpt	{ rtrn get_type_namev<typeIdentifier>().begin(); }
+
 	GDEFINE_TYPE_NAME_STR(b8_t);
 	GDEFINE_TYPE_NAME_STR(sc_t);
 	GDEFINE_TYPE_NAME_STR(u0_t);
 	GDEFINE_TYPE_NAME_STR(u1_t);
 	GDEFINE_TYPE_NAME_STR(u2_t);
 	GDEFINE_TYPE_NAME_STR(u3_t);
-	GDEFINE_TYPE_NAME_STR(s0_t);
 	GDEFINE_TYPE_NAME_STR(s1_t);
 	GDEFINE_TYPE_NAME_STR(s2_t);
 	GDEFINE_TYPE_NAME_STR(s3_t);
@@ -309,33 +381,32 @@ namespace llc
 	GDEFINE_TYPE_NAME_STR(u1_c);
 	GDEFINE_TYPE_NAME_STR(u2_c);
 	GDEFINE_TYPE_NAME_STR(u3_c);
-	GDEFINE_TYPE_NAME_STR(s0_c);
 	GDEFINE_TYPE_NAME_STR(s1_c);
 	GDEFINE_TYPE_NAME_STR(s2_c);
 	GDEFINE_TYPE_NAME_STR(s3_c);
 	GDEFINE_TYPE_NAME_STR(f2_c);
 	GDEFINE_TYPE_NAME_STR(f3_c);
 	//
-	tydf	view<::llc::vs		>	vvs;
-	tydf	view<::llc::vcst_t		>	vvcs;
-	tydf	view<cnst ::llc::vs	>	vcvs;
-	tydf	view<cnst ::llc::vcst_t	>	vcvcs;
+	tydf	view<vs		>	vvs;
+	tydf	view<vcst_t		>	vvcs;
+	tydf	view<cnst vs	>	vcvs;
+	tydf	view<cnst vcst_t	>	vcvcs;
 
-	stxp	::llc::vcsc_t		TRIM_CHARACTERS		= " \t\b\n\r";
+	stxp	vcst_t		TRIM_CHARACTERS		= LLC_CXS(" \t\b\n\r");
 
-	err_t			rtrim				(::llc::vcsc_t & trimmed, cnst ::llc::vcsc_t & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS);
-	err_t			ltrim				(::llc::vcsc_t & trimmed, cnst ::llc::vcsc_t & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS);
-	err_t			trim				(::llc::vcsc_t & trimmed, cnst ::llc::vcsc_t & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS);
-	stin	err_t	rtrim				(::llc::vcsc_t & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
-	stin	err_t	ltrim				(::llc::vcsc_t & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
-	stin	err_t	trim				(::llc::vcsc_t & trimmed) 	{ rtrn trim(trimmed, trimmed); }
+	err_t			rtrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
+	err_t			ltrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
+	err_t			trim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
+	stin	err_t	rtrim				(vcst_t & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
+	stin	err_t	ltrim				(vcst_t & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
+	stin	err_t	trim				(vcst_t & trimmed) 	{ rtrn trim(trimmed, trimmed); }
 
-	stin	err_t	rtrim				(::llc::vc & trimmed, cnst ::llc::vc & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS)	{ rtrn rtrim	(*(::llc::vcsc_t*)&trimmed, *(cnst ::llc::vcsc_t*)&original, characters); }
-	stin	err_t	ltrim				(::llc::vc & trimmed, cnst ::llc::vc & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS)	{ rtrn ltrim	(*(::llc::vcsc_t*)&trimmed, *(cnst ::llc::vcsc_t*)&original, characters); }
-	stin	err_t	trim				(::llc::vc & trimmed, cnst ::llc::vc & original, cnst ::llc::vcsc_t & characters = ::llc::TRIM_CHARACTERS)	{ rtrn trim	(*(::llc::vcsc_t*)&trimmed, *(cnst ::llc::vcsc_t*)&original, characters); }
-	stin	err_t	rtrim				(::llc::vc & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
-	stin	err_t	ltrim				(::llc::vc & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
-	stin	err_t	trim				(::llc::vc & trimmed) 	{ rtrn trim(trimmed, trimmed); }
+	stin	err_t	rtrim				(vs0_t & trimmed, cnst vs0_t & original, vcst_t characters = TRIM_CHARACTERS)	{ vcst_t result = {}; cnst err_t count = rtrim(result, {original.begin(), original.size()}, characters); trimmed = {(sc_t*)result.begin(), result.size()}; rtrn count; }
+	stin	err_t	ltrim				(vs0_t & trimmed, cnst vs0_t & original, vcst_t characters = TRIM_CHARACTERS)	{ vcst_t result = {}; cnst err_t count = ltrim(result, {original.begin(), original.size()}, characters); trimmed = {(sc_t*)result.begin(), result.size()}; rtrn count; }
+	stin	err_t	trim				(vs0_t & trimmed, cnst vs0_t & original, vcst_t characters = TRIM_CHARACTERS)	{ vcst_t result = {}; cnst err_t count = trim(result, {original.begin(), original.size()}, characters); trimmed = {(sc_t*)result.begin(), result.size()}; rtrn count; }
+	stin	err_t	rtrim				(vs0_t & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
+	stin	err_t	ltrim				(vs0_t & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
+	stin	err_t	trim				(vs0_t & trimmed) 	{ rtrn trim(trimmed, trimmed); }
 
 	tplT	err_t	reverse				(view<T> elements)													{
 		u2_c				lastElement			= elements.size() - 1;
@@ -347,83 +418,49 @@ namespace llc
 		rtrn 0;
 	}
 
-	tplT	err_t	find					(cnst T & valueToFind, cnst ::llc::view<cnst T> & target, u2_t offset = 0)		{
-		for(u2_t iOffset = offset, offsetStop = target.size(); iOffset < offsetStop; ++iOffset)
-			if(valueToFind == target[iOffset])
-				rtrn (s2_t)iOffset;
+	tplT	err_t	find					(cnst T & valueToFind, view<cnst T> target, u2_t offset = 0)		{ rtrn target.find(valueToFind, offset); }
+
+	tplT	err_t	rfind					(cnst T & valueToFind, cnst view<cnst T> & target, u2_t offset = 0)		{ rtrn target.rfind(valueToFind, offset); }
+	tplt<tpnm _tKey, tpnm _tVal>
+	err_t	find	(cnst llc_rmcnst(_tKey) & keyToFind, view<cnst keyval<_tKey, _tVal>> keyvals) {
+		for(u2_t iKeyVal = 0; iKeyVal < keyvals.size(); ++iKeyVal)
+			if(keyToFind == keyvals[iKeyVal].Key)
+				rtrn iKeyVal;
 		rtrn -1;
 	}
+	tplt<tpnm _tKey, tpnm _tVal>
+	err_t	find	(cnst llc_rmcnst(_tKey) & keyToFind, view<cnst keyval<_tKey, _tVal>> keyvals, llc_rmcnst(_tVal) & out_val) {
+		cnst err_t	index	= find(keyToFind, keyvals);
+		out_val				= 0 > index ? llc_rmcnst(_tVal){} : keyvals[index].Val;
+		rtrn index;
+	}
+	stin	err_t					find_string				(vcst_t toFind, vcst_t target, u2_t offset = 0) { rtrn target.find(toFind, offset); }
+	stin	err_t					rfind_string			(vcst_t toFind, vcst_t target, u2_t offset = 0) { rtrn target.rfind(toFind, offset); }
 
-	tplT	err_t	rfind					(cnst T & valueToFind, cnst ::llc::view<cnst T> & target, s2_t offset = 0)		{
-		for(u2_t iOffset = target.size() - 1 - offset; iOffset < target.size(); --iOffset)
-			if(valueToFind == target[iOffset])
-				rtrn iOffset;
-		rtrn -1;
+	tplT	err_t					split					(tpnm view<T>::TCnst & valueToFind, view<T> & input) {
+		cnst err_t							iValue					= find<llc_rmcnst(T)>(valueToFind, input);
+		rtrn input.slice(input, 0, (u2_t)iValue);
 	}
 
-	tplT	err_t	find_sequence_obj		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T> & target, u2_t offset = 0)	{
-		for(s2_t iOffset = (s2_t)offset, offsetStop = ((s2_t)target.size() - sequence.size()) + 1; iOffset < offsetStop; ++iOffset) {
-			bool								equal					= true;
-			for(u2_t iSequenceElement = 0; iSequenceElement < sequence.size(); ++iSequenceElement) {
-				if(sequence[iSequenceElement] != target[iOffset + iSequenceElement]) {
-					equal							= false;
-					break;
-				}
-			}
-			if(equal)
-				rtrn iOffset;
-		}
-		rtrn -1;
-	}
-
-	tplT	err_t					rfind_sequence_obj		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T> & target, u2_t offset = 0)	{
-		for(s2_t iOffset = (s2_t)(target.size() - sequence.size() - offset); iOffset >= 0; --iOffset) {
-			bool								equal					= true;
-			for(u2_t iSequenceElement = 0; iSequenceElement < sequence.size(); ++iSequenceElement) {
-				if(sequence[iSequenceElement] != target[iOffset + iSequenceElement]) {
-					equal							= false;
-					break;
-				}
-			}
-			if(equal)
-				rtrn iOffset;
-		}
-		rtrn -1;
-	}
-
-	tplT	err_t					find_sequence_pod		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T> & target, u2_t offset = 0)	{
-		for(s2_t iOffset = (s2_t)offset, offsetStop = ((s2_t)target.size() - sequence.size()) + 1; iOffset < offsetStop; ++iOffset)
-			if(0 == memcmp(sequence.begin(), &target[iOffset], sequence.size() * sizeof(T)))
-				rtrn iOffset;
-		rtrn -1;
-	}
-
-	tplT	err_t					rfind_sequence_pod		(cnst ::llc::view<T> & sequence, cnst ::llc::view<T>& target, u2_t offset = 0)	{
-		for(s2_t iOffset = (s2_t)(target.size() - sequence.size() - offset); iOffset >= 0; --iOffset)
-			if(0 == memcmp(sequence.begin(), &target[iOffset], sequence.size() * sizeof(T)))
-				rtrn iOffset;
-		rtrn -1;
-	}
-
-	stin	err_t			find_string				(cnst ::llc::vcst_t & toFind, cnst ::llc::vcsc_t & target, u2_t offset = 0) { rtrn ::llc::find_sequence_pod (toFind, target, offset); }
-	stin	err_t			rfind_string			(cnst ::llc::vcst_t & toFind, cnst ::llc::vcsc_t & target, u2_t offset = 0) { rtrn ::llc::rfind_sequence_pod(toFind, target, offset); }
-
-	tplT	err_t					split					(cnst T & valueToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
-		cnst err_t				iValue					= ::llc::find(valueToFind, original);
-		if(0 > iValue) {
-			left							= original;
+	tplT	err_t					split					(tpnm view<T>::TCnst & valueToFind, view<T> original, view<T> & left, view<T> & right) {
+		left							= original;
+		if_fail_fe(split(valueToFind, left));
+		if(left.size() == original.size()) {
 			right							= {};
+			rtrn -1;
 		}
-		else {
-			llc_necs(original.slice(left, 0, iValue));
-			u2_c						offsetRight				= iValue + 1;
-			llc_necs(original.slice(right, offsetRight, original.size() - offsetRight));
-		}
-		rtrn iValue;
+		if_fail_fe(original.slice(right, left.size() + 1));
+		rtrn left.size();
 	}
 
-	tplT	err_t					splitAt					(cnst T & valueToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
-		cnst err_t				iValue					= ::llc::find(valueToFind, original);
+	tplT requires(false == is_cnst<T>::Value)
+	err_t						split					(tpnm view<T>::TCnst & valueToFind, view<T> original, tpnm view<T>::TConstView & left, tpnm view<T>::TConstView & right) {
+		tpnm view<T>::TConstView	constOriginal			= original;
+		rtrn split(valueToFind, constOriginal, left, right);
+	}
+
+	tplT	err_t					splitAt					(tpnm view<T>::TCnst & valueToFind, view<T> original, view<T> & left, view<T> & right) {
+		cnst err_t				iValue					= original.find(valueToFind);
 		if(0 > iValue) { // Read until the end unless fragment is found.
 			left							= original;
 			right							= {};
@@ -435,9 +472,15 @@ namespace llc
 		rtrn iValue;
 	}
 
+	tplT requires(false == is_cnst<T>::Value)
+	err_t						splitAt					(tpnm view<T>::TCnst & valueToFind, view<T> original, tpnm view<T>::TConstView & left, tpnm view<T>::TConstView & right) {
+		tpnm view<T>::TConstView	constOriginal			= original;
+		rtrn splitAt(valueToFind, constOriginal, left, right);
+	}
+
 	// Returns the index of the start of the sequence if the latter found.
-	tplT	err_t					split					(cnst ::llc::view<T> & sequenceToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
-		cnst err_t				iValue					= ::llc::find_sequence_pod(sequenceToFind, original);
+	tplT	err_t					split					(cnst view<T> & sequenceToFind, view<T> original, view<T> & left, view<T> & right) {
+		cnst err_t				iValue					= original.find(sequenceToFind);
 		if(0 > iValue) {
 			left							= original;
 			right							= {};
@@ -449,13 +492,20 @@ namespace llc
 		rtrn iValue;
 	}
 
-	tplt<tpnm T>
-	inln	err_t			split					(cnst ::llc::view<T> & sequenceToFind, ::llc::view<T> & inputOrLeft, ::llc::view<T> & right) {
-		rtrn ::llc::split(sequenceToFind, inputOrLeft, inputOrLeft, right);
+	tplT requires(false == is_cnst<T>::Value)
+	err_t						split					(cnst view<T> & sequenceToFind, view<T> original, tpnm view<T>::TConstView & left, tpnm view<T>::TConstView & right) {
+		tpnm view<T>::TConstView	constSequence			= sequenceToFind;
+		tpnm view<T>::TConstView	constOriginal			= original;
+		rtrn split(constSequence, constOriginal, left, right);
 	}
 
-	tplT	err_t					splitAt					(cnst ::llc::view<T> & sequenceToFind, cnst ::llc::view<T> & original, ::llc::view<T> & left, ::llc::view<T> & right) {
-		cnst err_t				iValue					= ::llc::find_sequence_pod(sequenceToFind, original);
+	tplt<tpnm T>
+	inln	err_t			split					(cnst view<T> & sequenceToFind, view<T> & inputOrLeft, view<T> & right) {
+		rtrn split(sequenceToFind, inputOrLeft, inputOrLeft, right);
+	}
+
+	tplT	err_t					splitAt					(cnst view<T> & sequenceToFind, view<T> original, view<T> & left, view<T> & right) {
+		cnst err_t				iValue					= original.find(sequenceToFind);
 		if(0 > iValue) { // Read until the end unless fragment is found.
 			left							= original;
 			right							= {};
@@ -467,8 +517,15 @@ namespace llc
 		rtrn iValue;
 	}
 
+	tplT requires(false == is_cnst<T>::Value)
+	err_t						splitAt					(cnst view<T> & sequenceToFind, view<T> original, tpnm view<T>::TConstView & left, tpnm view<T>::TConstView & right) {
+		tpnm view<T>::TConstView	constSequence			= sequenceToFind;
+		tpnm view<T>::TConstView	constOriginal			= original;
+		rtrn splitAt(constSequence, constOriginal, left, right);
+	}
+
 	tplT	err_t		max						(view<T> input, T ** result) {
-		ree_if(0 == input.size(), "%s", "Cannot get reference to max element of an empty array.");
+		if_true_fef(0 == input.size(), "%s", "Cannot get reference to max element of an empty array.");
 		*result				= &input[0];
 		s2_t					iMax					= 0;
 		for(u2_t iElement = 1; iElement < input.size(); ++iElement) {
@@ -482,7 +539,7 @@ namespace llc
 	}
 
 	tplT	err_t		min						(view<T> input, T ** result) {
-		ree_if(0 == input.size(), "%s", "Cannot get reference to min element of an empty array.");
+		if_true_fef(0 == input.size(), "%s", "Cannot get reference to min element of an empty array.");
 		*result				= &input[0];
 		s2_t					iMin					= 0;
 		for(u2_t iElement = 1; iElement < input.size(); ++iElement) {
@@ -495,15 +552,15 @@ namespace llc
 		rtrn iMin;
 	}
 
-	tplT		T&	max		(view<T> elements)		{ T * rmax	{}; if_fail_e(::llc::max(elements, &rmax));	rtrn *rmax; }
-	tplT		T&	min		(view<T> elements)		{ T * rmin	{}; if_fail_e(::llc::min(elements, &rmin));	rtrn *rmin; }
+	tplT		T&	max		(view<T> elements)		{ T * rmax	{}; if_fail_e(max(elements, &rmax));	rtrn *rmax; }
+	tplT		T&	min		(view<T> elements)		{ T * rmin	{}; if_fail_e(min(elements, &rmin));	rtrn *rmin; }
 	tplT		T	sum		(view<cnst T> elements)	{ T result	{}; for(T element : elements) result += element; rtrn result; }
-	tplTstin	T&	be2le	(T & number)			{ ::llc::reverse<i0u_t>({(i0u_t*)&number, sizeof(T)}); rtrn number; }
+	tplTstin	T&	be2le	(T & number)			{ reverse<i0u_t>({(i0u_t*)&number, sizeof(T)}); rtrn number; }
 
 #define LLC_USING_VIEW()												\
 	usng	::llc::vb8_t, ::llc::vb8_c, ::llc::vcb8_t, ::llc::vcb8_c	\
 		,	::llc::vuc_t, ::llc::vuc_c, ::llc::vcuc_t, ::llc::vcuc_c	\
-		,	::llc::vsc_t, ::llc::vsc_c, ::llc::vcsc_t, ::llc::vcsc_c	\
+		,	::llc::vsc_t, ::llc::vsc_c								\
 		,	::llc::vu0_t, ::llc::vu0_c, ::llc::vcu0_t, ::llc::vcu0_c	\
 		,	::llc::vu1_t, ::llc::vu1_c, ::llc::vcu1_t, ::llc::vcu1_c	\
 		,	::llc::vu2_t, ::llc::vu2_c, ::llc::vcu2_t, ::llc::vcu2_c	\

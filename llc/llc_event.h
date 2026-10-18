@@ -106,12 +106,12 @@ namespace llc
 
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild, tpnm _tPOD>
 	static	error_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, view<const _tPOD> eventData) {
-		rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, vcu0_t{(const uint8_t*)eventData.begin(), eventData.byte_count()});
+		rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, vcu0_t{(const u0_t*)eventData.begin(), eventData.byte_count()});
 	}
 
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild, tpnm _tPOD>
 	static	error_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, const _tPOD & childEventDataType) {
-		rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, vcu0_t{(const uint8_t*)&childEventDataType, szof(_tPOD)});
+		rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, vcu0_t{(const u0_t*)&childEventDataType, szof(_tPOD)});
 	}
 
 	tplt<tpnm _tChildEvent, tpnm _tParentEvent>

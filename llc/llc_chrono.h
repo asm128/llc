@@ -24,7 +24,7 @@ namespace llc
 
 	stct SDaylight {
 		uint64_t				TimeOffset		= {};
-		uint32_t				OffsetMinutes	= 90;
+		::llc::u2_t				OffsetMinutes	= 90;
 		float					ExtraRatio		= .5;
 	};
 #pragma pack(pop)

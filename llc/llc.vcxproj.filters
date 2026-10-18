@@ -813,6 +813,9 @@
     <ClInclude Include="llc_ccsds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_args.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -919,9 +922,6 @@
     </ClCompile>
     <ClCompile Include="llc_json_expression.cpp">
       <Filter>json</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_keyval.cpp">
-      <Filter>container</Filter>
     </ClCompile>
     <ClCompile Include="llc_label.cpp">
       <Filter>container</Filter>
@@ -1047,6 +1047,12 @@
       <Filter>wifi</Filter>
     </ClCompile>
     <ClCompile Include="llc_ccsds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_args.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_keyval_old.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

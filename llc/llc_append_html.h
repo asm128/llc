@@ -5,19 +5,19 @@
 
 namespace llc
 {
-	stin	llc::err_t	appendHtmlHead		(::llc::asc_t & output, ::llc::vcst_t tagAttributes, ::llc::vcst_t innerHtml)	{ return ::llc::appendXmlTag(output, "head", tagAttributes, innerHtml); }
-	stin	llc::err_t	appendHtmlBody		(::llc::asc_t & output, ::llc::vcst_t tagAttributes, ::llc::vcst_t innerHtml)	{ return ::llc::appendXmlTag(output, "body", tagAttributes, innerHtml); }
-	stin	llc::err_t	appendHtmlScript	(::llc::asc_t & output, ::llc::vcst_t tagAttributes, ::llc::vcst_t innerHtml)	{ return ::llc::appendXmlTag(output, "script", tagAttributes, innerHtml); }
-	stin	llc::err_t	appendHtmlTable		(::llc::asc_t & output, ::llc::vcst_t tagAttributes, ::llc::vcst_t innerHtml)	{ return ::llc::appendXmlTag(output, "table", tagAttributes, innerHtml); }
-	stin	llc::err_t	appendHtmlTableRow	(::llc::asc_t & output, ::llc::vcst_t tagAttributes, ::llc::vcst_t innerHtml)	{ return ::llc::appendXmlTag(output, "tr", tagAttributes, innerHtml); }
-	stin	llc::err_t	appendHtmlTableCol	(::llc::asc_t & output, ::llc::vcst_t tagAttributes, ::llc::vcst_t innerHtml)	{ return ::llc::appendXmlTag(output, "td", tagAttributes, innerHtml); }
+	stin	err_t	appendHtmlHead		(string & output, vcst_t tagAttributes, vcst_t innerHtml)	{ return appendXmlTag(output, "head", tagAttributes, innerHtml); }
+	stin	err_t	appendHtmlBody		(string & output, vcst_t tagAttributes, vcst_t innerHtml)	{ return appendXmlTag(output, "body", tagAttributes, innerHtml); }
+	stin	err_t	appendHtmlScript	(string & output, vcst_t tagAttributes, vcst_t innerHtml)	{ return appendXmlTag(output, "script", tagAttributes, innerHtml); }
+	stin	err_t	appendHtmlTable		(string & output, vcst_t tagAttributes, vcst_t innerHtml)	{ return appendXmlTag(output, "table", tagAttributes, innerHtml); }
+	stin	err_t	appendHtmlTableRow	(string & output, vcst_t tagAttributes, vcst_t innerHtml)	{ return appendXmlTag(output, "tr", tagAttributes, innerHtml); }
+	stin	err_t	appendHtmlTableCol	(string & output, vcst_t tagAttributes, vcst_t innerHtml)	{ return appendXmlTag(output, "td", tagAttributes, innerHtml); }
 	
-	llc::err_t			appendHtmlStyles	(::llc::asc_t & output, llc::vcvcs filenames);
-	llc::err_t			appendHtmlScripts	(::llc::asc_t & output, llc::vcvcs filenames);
-	llc::err_t			appendHtmlHead		(::llc::asc_t & output, ::llc::vcst_t title, ::llc::vcvcs filesCSS, ::llc::vcvcs filesJS);
-	llc::err_t			appendHtmlPage		(::llc::asc_t & output, const ::llc::FAppend & funcAppendHead, const ::llc::FAppend & funcAppendBody);
-	llc::err_t			appendHtmlPage		(::llc::asc_t & output, const ::llc::FAppend & funcAppendCSS, const ::llc::FAppend & funcAppendJS, const ::llc::FAppend & funcAppendBody);
-	llc::err_t			appendHtmlPage		(::llc::asc_t & output, ::llc::vcst_t title, ::llc::vcvcs filesCSS, ::llc::vcvcs filesJS, const ::llc::FAppend & funcAppendBody, ::llc::vcst_t postScript = {});
+	err_t			appendHtmlStyles	(string & output, vcvcs filenames);
+	err_t			appendHtmlScripts	(string & output, vcvcs filenames);
+	err_t			appendHtmlHead		(string & output, vcst_t title, vcvcs filesCSS, vcvcs filesJS);
+	err_t			appendHtmlPage		(string & output, const FAppend & funcAppendHead, const FAppend & funcAppendBody);
+	err_t			appendHtmlPage		(string & output, const FAppend & funcAppendCSS, const FAppend & funcAppendJS, const FAppend & funcAppendBody);
+	err_t			appendHtmlPage		(string & output, vcst_t title, vcvcs filesCSS, vcvcs filesJS, const FAppend & funcAppendBody, vcst_t postScript = {});
 } // namespace 
 
 #endif // LLC_APPEND_HTML_H

@@ -8,7 +8,9 @@
 #endif
 
 // Uncomment these to toggle behavior
-//#define LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
+#ifndef LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
+#	define LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
+#endif
 //#define LLC_KEEP_SYSTEM_ERROR_ON_ERROR_LOG
 
 #ifndef LLC_DEBUG_H

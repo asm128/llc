@@ -12,7 +12,7 @@
 	char						* messageBuffer					= nullptr;
 	u2_c				size							= FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, (DWORD)lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
-	ve_if(::llc::apod<char>(), nullptr == messageBuffer)
+	if_true_ve(::llc::apod<char>(), nullptr == messageBuffer)
 	else {
 		const ::llc::apod<char>		message							= ::llc::view<const char>{messageBuffer, size >= 2 ? size - 2 : size};
 		LocalFree(messageBuffer);
@@ -35,14 +35,14 @@
 	return sizeNeededForMultiByte;
 }
 
-::llc::error_t			llc::mbstowcs					(::llc::apod<wchar_t> & output, ::llc::vcsc_c input)	{
+::llc::error_t			llc::mbstowcs					(::llc::apod<wchar_t> & output, ::llc::vcs0_t input)	{
 	if(0 == input.size())
 		return 0;
 
 	::llc::apod<wchar_t>		converted;
 	converted.resize(input.size());
 	llc_hrcall(MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, &input[0], input.size(), &converted[0], converted.size()));
-	converted.resize((uint32_t)wcslen(converted.begin()));
+	converted.resize((::llc::u2_t)wcslen(converted.begin()));
 	output.append(converted);
 	return converted.size();
 }

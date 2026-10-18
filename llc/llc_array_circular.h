@@ -33,14 +33,14 @@ namespace llc
 		}
 
 		::llc::error_t			push_back		(const T & output)	{
-			rees_if(0 == free());
+			if_true_fe(0 == free());
 			Storage[(Offset + Count) % mAx] = output;
 			return Count += 1;
 		}
 
 		template<uint32_t _nBatch>
 		::llc::error_t			append			(const T (&output)[_nBatch])	{
-			rees_if(Count + _nBatch > free());
+			if_true_fe(Count + _nBatch > free());
 			Storage[(Offset + Count) % mAx] = output;
 			return Count += 1;
 		}

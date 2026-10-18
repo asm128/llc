@@ -1,7 +1,7 @@
 /// Copyright 2010-2024 - ogarnd
 #include "llc_array_base.h"
 
-#include "llc_keyval.h"
+#include "llc_keyval_old.h"
 
 #ifndef LLC_ARRAY_OBJ_H_23627
 #define LLC_ARRAY_OBJ_H_23627
@@ -17,6 +17,8 @@ namespace llc
 		usng	array_base<T>		::Data					;
 		usng	array_base<T>		::Size					;
 		usng	array_base<T>		::alloc_with_reserve	;
+		usng	array_base<T>		::find					;
+		usng	array_base<T>		::rfind					;
 
 		inln					~array_obj			()			{ for(u2_t i = 0; i < Count; ++i) Data[i].~T(); }	// dtor
 
@@ -61,7 +63,7 @@ namespace llc
 			if(newCount > Size) {
 				T							* newData			= 0;
 				u2_c				newSize				= alloc_with_reserve(newCount, newData);
-				ree_if(0 == newData, "newCount: %" LLC_FMT_S2 ", newSize: %" LLC_FMT_S2 "", newCount, newSize);
+				if_true_fef(0 == newData, "newCount: %" LLC_FMT_S2 ", newSize: %" LLC_FMT_S2 "", newCount, newSize);
 				for(u2_t iElement = 0; iElement < Count; ++iElement) {
 					new (&newData[iElement]) T(Data[iElement]);
 					Data[iElement].~T();
@@ -69,7 +71,7 @@ namespace llc
 				T						* oldData			= Data;
 				Data					= newData;
 				Size					= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			rtrn Size;
 		}
@@ -102,13 +104,13 @@ namespace llc
 		}
 		// Returns the new size of the array
 		inln	err_t	pop_back			()											nxpt	{
-			ree_if(0 == Count, "%s", "Cannot pop elements of an empty array.");
+			if_true_fef(0 == Count, "%s", "Cannot pop elements of an empty array.");
 			Data[--Count].~T();
 			rtrn Count;
 		}
 		// Returns the new size of the array
 		inln	err_t	pop_back			(T & oldValue)								nxpt	{
-			ree_if(0 == Count, "%s", "Cannot pop elements of an empty array.");
+			if_true_fef(0 == Count, "%s", "Cannot pop elements of an empty array.");
 			oldValue				= Data[--Count];
 			Data[Count].~T();
 			rtrn Count;
@@ -119,17 +121,22 @@ namespace llc
 			llc_necs(resize(oldSize + 1, newValue));
 			rtrn oldSize;
 		}
+		tpl_vtArgs	err_t	emplace_back		(_tArgs&&... constructorArgs)											{
+			cnst s2_t				oldSize				= Count;
+			llc_necs(resize(oldSize + 1, constructorArgs...));
+			rtrn oldSize;
+		}
 		// returns the new array size or -1 if failed.
 		inln	err_t	erase				(TCnst * address)																	{
-			ree_if(0 == Data, "Uninitialized array pointer! Invalid address to erase: %p.", address);
+			if_true_fef(0 == Data, "Uninitialized array pointer! Invalid address to erase: %p.", address);
 			cnst ptrdiff_t		ptrDiff				= ptrdiff_t(address) - (ptrdiff_t)Data;
 			u2_c				index				= (u2_t)(ptrDiff / (ptrdiff_t)szof(T));
-			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_true_fef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			rtrn remove(index);
 		}
 		err_t			remove				(u2_t index)																		{
-			ree_if(0 == Data, "Uninitialized array pointer! Invalid index to erase: %" LLC_FMT_U2 ".", index);
-			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_true_fef(0 == Data, "Uninitialized array pointer! Invalid index to erase: %" LLC_FMT_U2 ".", index);
+			if_true_fef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			--Count;
 			while(index < Count) {
 				Data[index].~T();							// Destroy old
@@ -141,8 +148,8 @@ namespace llc
 		}
 		// Returns the new size of the list or -1 if the array pointer is not initialized.
 		err_t			remove_unordered	(u2_t index)																		{
-			ree_if(0 == Data, "Uninitialized array pointer! Invalid index to erase: %" LLC_FMT_U2 ".", index);
-			ree_if(index >= Count, LLC_FMT_GE_U2, index, Count);
+			if_true_fef(0 == Data, "Uninitialized array pointer! Invalid index to erase: %" LLC_FMT_U2 ".", index);
+			if_true_fef(index >= Count, LLC_FMT_GE_U2, index, Count);
 			Data[index].~T();							// Destroy old
 			if(1 == Count || index == (Count - 1))
 				--Count;
@@ -169,12 +176,12 @@ namespace llc
 		tpl_nu2	inln	err_t	insert				(u2_t index, TCnst* (&chainToInsert)[_nu2])	nxpt	{ rtrn insert(index, chainToInsert, (u2_t)_nu2); }
 		inln			err_t	insert				(u2_t index, view<TCnst> chainToInsert)		nxpt	{ rtrn insert(index, chainToInsert.begin(), chainToInsert.size()); }
 						err_t	insert				(u2_t index, TCnst & newValue)										nxpt	{
-			ree_if(index > Count, "Invalid index: %" LLC_FMT_U2 ".", index);
+			if_true_fef(index > Count, "Invalid index: %" LLC_FMT_U2 ".", index);
 			u2_c			newCount			= Count + 1;
 			if(Size < newCount) {
 				T				* newData			= 0;
 				u2_c			newSize				= alloc_with_reserve(newCount, newData);
-				rees_if(0 == newData);
+				if_true_fe(0 == newData);
 				for(u2_t i = 0; i < index; ++i) {
 					new (&newData[i]) T(Data[i]);
 					Data[i].~T();
@@ -187,7 +194,7 @@ namespace llc
 				T				* oldData			= Data;
 				Data		= newData;
 				Size		= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			else {
 				for(s2_t i = (int)Count - 1; i >= (int)index; --i) {
@@ -200,13 +207,13 @@ namespace llc
 		}
 		// returns the new size of the list or -1 on failure.
 		err_t			insert				(u2_t index, TCnst * chainToInsert, u2_t chainLength)			nxpt	{
-			ree_if(index > Count, "Invalid index: %" LLC_FMT_U2 ".", index);
+			if_true_fef(index > Count, "Invalid index: %" LLC_FMT_U2 ".", index);
 
 			u2_c				newCount			= Count + chainLength;
 			if(Size < newCount) {
 				T					* newData			= 0;
 				u2_c				newSize				= alloc_with_reserve(newCount, newData);
-				rees_if(0 == newData);
+				if_true_fe(0 == newData);
 				for(u2_t i = 0; i < index; ++i) {
 					new (&newData[i]) T(Data[i]);
 					Data[i].~T();
@@ -222,7 +229,7 @@ namespace llc
 				T					* oldData			= Data;
 				Data			= newData;
 				Size			= newSize;
-				::llc::llc_free(oldData);
+				llc_free(oldData);
 			}
 			else {	// no need to reallocate and copy, just shift rightmost elements and insert in-place
 				for(s2_t i = (int)Count - 1; i >= (int)index; --i) {
@@ -238,11 +245,11 @@ namespace llc
 
 	}; // array_obj
 
-	tplT	using aobj		= ::llc::array_obj<T>; 
-	tplT	using ao		= ::llc::aobj<T>; 
+	tplT	using aobj		= array_obj<T>; 
+	tplT	using ao		= aobj<T>; 
 
-	tplT	using aview		= ::llc::aobj	<::llc::view<T>>; 
-	tplT	using av		= ::llc::aview	<T>; 
+	tplT	using aview		= aobj	<view<T>>; 
+	tplT	using av		= aview	<T>; 
 
 	tydf	aview<uc_t>	avuc_t;
 	tydf	aview<sc_t>	avsc_t;
@@ -295,62 +302,40 @@ namespace llc
 	tdcs	avcs3_t	avcs3_c;
 
 
-	tplT	err_t							split					(cnst ::llc::view<cnst T> & target, cnst T & separator, ::llc::aobj<::llc::view<cnst T>> & split)	{
-		u2_t									lastOffset				= 0;
-		for(u2_t iChar = 0; iChar < target.size(); ++iChar) {
-			if(target[iChar] == separator) {
-				cnst ::llc::view<cnst T>			newView					= {&target[lastOffset], iChar - lastOffset};
-				++iChar;
-				llc_necs(split.push_back(newView));
-				lastOffset								= iChar;
-			}
+	tplt<tpnm T, tpnm TView>	err_t	split			(view<cnst T> target, cnst T & separator, aobj<TView> & output) {
+		for(u2_t begin = 0; begin < target.size();) {
+			err_t			end				= target.find(separator, begin);
+			if(0 > end)
+				end				= target.size();
+			if(begin < (u2_t)end)
+				llc_necs(output.push_back({&target[begin], (u2_t)end - begin}));
+			begin				= (u2_t)end + 1;
 		}
-		if(lastOffset < target.size())
-			llc_necs(split.push_back({&target[lastOffset], target.size() - lastOffset}));
-		rtrn (s2_t)split.size();
+		rtrn output.size();
 	}
 
-	tplT	err_t							split					(cnst ::llc::view<cnst T> & target, cnst ::llc::view<cnst T>& separators, ::llc::aobj<::llc::view<cnst T>> & split)	{
-		u2_t									lastOffset				= 0;
-		for(u2_t iChar = 0; iChar < target.size(); ++iChar) {
-			for(u2_t iSeparator = 0; iSeparator < separators.size(); ++iSeparator) {
-				if(target[iChar] == separators[iSeparator]) {
-					cnst ::llc::view<cnst T>			newView					= {&target[lastOffset], iChar - lastOffset};
-					++iChar;
-					llc_necs(split.push_back(newView));
-					lastOffset								= iChar;
-				}
-			}
+	tplt<tpnm T, tpnm TView>	err_t	split			(view<cnst T> target, view<cnst T> separator, aobj<TView> & output) {
+		if_zero_fe(separator.size());
+		for(u2_t begin = 0; begin < target.size();) {
+			err_t			end				= target.find(separator, begin);
+			if(0 > end)
+				end				= target.size();
+			if(begin < (u2_t)end)
+				llc_necs(output.push_back({&target[begin], (u2_t)end - begin}));
+			begin				= (u2_t)end + separator.size();
 		}
-		if(lastOffset < target.size())
-			llc_necs(split.push_back({&target[lastOffset], target.size() - lastOffset}));
-		rtrn (s2_t)split.size();
+		rtrn output.size();
 	}
 
-	tplT	err_t							split					(cnst ::llc::vcst_t & target, cnst T & separator, ::llc::aobj<::llc::vcst_t> & split)	{
-		s2_t										lastOffset				= 0;
-		for(s2_t iChar = 0, countChars = target.size(); iChar < countChars; ++iChar) {
-			if(target[iChar] == separator) {
-				cnst ::llc::vcst_t							newView					= {&target[lastOffset], (u2_t)::llc::max((s2_t)0, s2_t(iChar - lastOffset))};
-				++iChar;
-				llc_necs(split.push_back(newView));
-				lastOffset								= iChar;
-			}
-		}
-		if(lastOffset < (s2_t)target.size()) {
-			llc_necs(split.push_back({&target[lastOffset], target.size() - lastOffset}));
-			//if(split[split.size()-1][] == separator)
-		}
-		rtrn (s2_t)split.size();
-	}
+	
+	err_t			filterPrefix	(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
+	err_t			filterPostfix	(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
 
 
 
-	tydf ::llc::SKeyVal<::llc::vcst_t, ::llc::aobj<::llc::vcst_t>>	TKeyValConstStringArray;
+	tydf keyval<vcst_t, aobj<vcst_t>>	TKeyValConstStringArray;
 	//------------------------------------------------------------------------------------------------------------
-	err_t							keyValConstStringDeserialize	(vcu0_c & input, ::llc::aobj<::llc::TKeyValConstChar> & output);
+	err_t			keyValConstStringDeserialize	(vcu0_t input, aobj<TKeyValConstChar> & output);
 
-	err_t							filterPrefix					(::llc::view<::llc::vcsc_c> input, ::llc::vcsc_c prefix, ::llc::aobj<::llc::vcsc_t> & filtered, bool nullIncluded = false);
-	err_t							filterPostfix					(::llc::view<::llc::vcsc_c> input, ::llc::vcsc_c prefix, ::llc::aobj<::llc::vcsc_t> & filtered, bool nullIncluded = false);
 }
 #endif // LLC_ARRAY_OBJ_H_23627

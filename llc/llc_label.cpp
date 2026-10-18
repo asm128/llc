@@ -1,23 +1,21 @@
 #include "llc_label.h"
 #include "llc_label_manager.h"
 
-static	::llc::CLabelManager*	labelManagerSingleton		()			noexcept	{ 
-	static	::llc::CLabelManager	instanceLabelManager; 
+sttc	llc::CLabelManager*	labelManagerSingleton	()	nxpt	{ 
+	sttc	::llc::CLabelManager	instanceLabelManager; 
 	return &instanceLabelManager; 
 }
-
-		::llc::label::label			(const char * text, uint32_t stringLen)	noexcept	: LabelManager(::labelManagerSingleton())	{ 
-	e_if_failed(LabelManager->View(text, stringLen, *this), "text: %s.", text); 
+		llc::label::label	(sc_c * text, u2_t stringLen)	nxpt
+	: LabelManager(::labelManagerSingleton()) {
+	if_fail_ef(LabelManager->View(text, stringLen, *this), "text: %.*s.", (int)stringLen, text);
 }
-
-bool	::llc::label::oper==	(const ::llc::vcst_t & other)		const	noexcept	{
+bool	llc::label::oper==	(vcst_t other)			csnx	{
 	return (Data == other.begin()) 	? true
 		: (Count != other.size()) 	? false 
 		: 0 == memcmp(Data, other.begin(), Count)
 		;
 }
-
-bool	::llc::label::oper==	(const label & other)			const	noexcept	{
+bool	llc::label::oper==	(cnst label & other)	csnx	{
 	return (Data == other.Data) 	? true
 		: (Count != other.Count) 	? false
 		: (LabelManager == other.LabelManager) ? false 

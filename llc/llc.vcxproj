@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="llc_arduino.h" />
     <ClInclude Include="llc_arduino_stream.h" />
+    <ClInclude Include="llc_args.h" />
     <ClInclude Include="llc_bus_manager.h" />
     <ClInclude Include="llc_ccsds.h" />
     <ClInclude Include="llc_cerrno.h" />
@@ -253,6 +254,7 @@
     <ClInclude Include="llc_queue_async.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="llc_args.cpp" />
     <ClCompile Include="llc_ccsds.cpp" />
     <ClCompile Include="llc_circuit.cpp" />
     <ClCompile Include="llc_adam7.cpp">
@@ -328,6 +330,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_keyval_old.cpp" />
     <ClCompile Include="llc_pack.cpp" />
     <ClCompile Include="llc_particle.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -395,7 +398,6 @@
     <ClCompile Include="llc_json_expression.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="llc_keyval.cpp" />
     <ClCompile Include="llc_label.cpp" />
     <ClCompile Include="llc_log.cpp" />
     <ClCompile Include="llc_mapblock.cpp">

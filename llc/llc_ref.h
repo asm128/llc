@@ -35,7 +35,7 @@ namespace llc
 		tydf	gref<T>			TRef;
 		TRef					* newRef;
 		if_null_ve(0, newRef = malloc(newRef));
-		if_true_block_log(error_printf, 0 == (newRef->References = one_if(malloc(newRef->Instance))), llc_free(newRef); return 0;);
+		if_true_block_log(error_printf, 0 == (newRef->References = onif_true_e(malloc(newRef->Instance))), llc_free(newRef); return 0;);
 		TRef					* oldRef				= *llc_reference;
 		*llc_reference		= newRef;
 		ref_release(&oldRef);

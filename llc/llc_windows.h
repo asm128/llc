@@ -6,9 +6,9 @@
 namespace llc
 {
 #ifdef LLC_WINDOWS
-	::llc::apod<char>	getWindowsErrorAsString	(const int32_t lastError); // Get the error message, if any.
-	::llc::error_t		wcstombs				(::llc::apod<char> & output, const ::llc::view<wchar_t> input);
-	::llc::error_t		mbstowcs				(::llc::apod<wchar_t> & output, ::llc::vcsc_c input);
+	apod<char>	getWindowsErrorAsString	(const int32_t lastError); // Get the error message, if any.
+	error_t		wcstombs				(apod<char> & output, const view<wchar_t> input);
+	error_t		mbstowcs				(apod<wchar_t> & output, vcs0_t input);
 #endif
 } // namespace
 
