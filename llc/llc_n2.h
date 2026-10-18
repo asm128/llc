@@ -72,14 +72,14 @@ namespace llc
 		inline	Tn2&		Set					(T value)							nxpt	{ x = y = value; return *this; }
 		inline	Tn2&		From				(T value)							nxpt	{ x = y = value; return *this; }
 
-		int					SetAxis				(uint8_t axisIndex, T value)		nxpt	{
+		int					SetAxis				(u0_t axisIndex, T value)		nxpt	{
 			switch(axisIndex) { 
 			case 0: x = value; return 0; 
 			case 1: y = value; return 1; 
 			}
 			return -1;
 		}
-		int					SetOther			(uint8_t axisExcluded, T value)		nxpt	{
+		int					SetOther			(u0_t axisExcluded, T value)		nxpt	{
 			switch(axisExcluded) { 
 			case 0: y = value; return 0;
 			case 1: x = value; return 1;
@@ -87,7 +87,7 @@ namespace llc
 			return -1;
 		}
 
-		inxp	uint32_t	Index				(uint32_t width) 						csnx	{ return y * width + x; }
+		inxp	::llc::u2_t	Index				(::llc::u2_t width) 						csnx	{ return y * width + x; }
 		inxp	T			Area				()										csnx	{ return x * y; }
 		Tn2					Clamp				(cnst Tn2 & min, cnst Tn2 & max)		csnx	{ return {::llc::clamped(x, min.x, max.x), ::llc::clamped(y, min.y, max.y)}; }
 		inxp	Tn2			GetScaled			(f3_t	scalar)							csnx	{ return {(T)(x * scalar), (T)(y * scalar)}; }
@@ -122,7 +122,7 @@ namespace llc
 		}
 
 		tydf	FVoid<Tn2&>				TFuncForEach;
-		tydf	FVoid<uint32_t&, Tn2&>	TFuncEnumerate;
+		tydf	FVoid<::llc::u2_t&, Tn2&>	TFuncEnumerate;
 
 		T					for_each			(cnst TFuncForEach & funcForEach, T xStart = 0)			cnst	{
 			Tn2						offset				= {};
@@ -132,8 +132,8 @@ namespace llc
 
 			return T(offset.x * offset.y);
 		}
-		uint32_t			enumerate			(cnst TFuncEnumerate & funcForEach)	cnst {
-			uint32_t				index				= 0;
+		::llc::u2_t			enumerate			(cnst TFuncEnumerate & funcForEach)	cnst {
+			::llc::u2_t				index				= 0;
 			Tn2						offset				= {};
 			for(; offset.y < y; ++offset.y)
 			for(offset.x = 0; offset.x < x; ++offset.x, ++index) 
@@ -141,8 +141,8 @@ namespace llc
 
 			return index;
 		}
-		uint32_t			enumerate			(cnst TFuncEnumerate & funcForEachX, cnst TFuncEnumerate & funcForEachY)	cnst {
-			uint32_t				index				= 0;
+		::llc::u2_t			enumerate			(cnst TFuncEnumerate & funcForEachX, cnst TFuncEnumerate & funcForEachY)	cnst {
+			::llc::u2_t				index				= 0;
 			Tn2						offset				= {};
 			for(; offset.y < y; ++offset.y) {
 				for(offset.x = 0; offset.x < x; ++offset.x, ++index) 

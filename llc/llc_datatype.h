@@ -52,19 +52,19 @@ namespace llc
 #define	GTYPEID_ISFLOAT(		_dataTypeID )	(0U != ( ::llc::DATA_TYPE_IS_FLOAT			& _dataTypeID ))		// returns true if the element bits represent a floating point number
 #define	GTYPEID_ISBIGENDIAN(	_dataTypeID )	(0U != ( ::llc::DATA_TYPE_IS_BIG_ENDIAN		& _dataTypeID ))		// returns true if the element bits has the bits inverted
 #define	GTYPEID_ELEMENTPAD(		_dataTypeID )	(0U != ( ::llc::DATA_TYPE_HAS_INNER_PADDING	& _dataTypeID ))		// returns true if the elements have inner padding to next byte size
-#define	GTYPEID_ELEMENTCOUNT(	_dataTypeID )	(u2_t((0x0FFFFF00U	& _dataTypeID) >> 8) + 1U)							// returns the element count (up to 1024k elements)
-#define	GTYPEID_ELEMENTSIZE(	_dataTypeID )	(u2_t( 0x7FU		& _dataTypeID) + 1U)								// returns the element size in bits (up to 128 bits)
+#define	GTYPEID_ELEMENTCOUNT(	_dataTypeID )	(::llc::u2_t((0x0FFFFF00U	& _dataTypeID) >> 8) + 1U)							// returns the element count (up to 1024k elements)
+#define	GTYPEID_ELEMENTSIZE(	_dataTypeID )	(::llc::u2_t( 0x7FU		& _dataTypeID) + 1U)								// returns the element size in bits (up to 128 bits)
 
 // Return the byte count of the element type (ElementSize/8). Note: this funcion pads leading bits to next byte size.
-#define	GTYPEID_ELEMENTBYTES( _dataTypeID )		((GTYPEID_ELEMENTSIZE( _dataTypeID )/8)	+ one_if(GTYPEID_ELEMENTSIZE( _dataTypeID ) % 8))
+#define	GTYPEID_ELEMENTBYTES( _dataTypeID )		((GTYPEID_ELEMENTSIZE( _dataTypeID )/8)	+ onif_true_e(GTYPEID_ELEMENTSIZE( _dataTypeID ) % 8))
 
 // Return the byte count of the data type (ElementCount*(ElementSize/8))
 #define	GTYPEID_TOTALBYTES( _dataTypeID )																		\
 	( GTYPEID_ELEMENTPAD(_dataTypeID) ?																			\
 		(GTYPEID_ELEMENTBYTES( _dataTypeID )*GTYPEID_ELEMENTCOUNT( _dataTypeID )) :								\
 		(							\
-			( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(uint32_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) / 8 )			\
-			+ one_if( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(uint32_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) % 8 )	\
+			( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(::llc::u2_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) / 8 )			\
+			+ onif_true_e( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(::llc::u2_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) % 8 )	\
 		)							\
 	)
 
@@ -77,11 +77,11 @@ namespace llc
 		u2_t			IsNorm			:  1	;
 		u2_t			IsSigned		:  1	;
 
-		inxp	u2_t	ElementBytes	()							csnx	{ return ( SizeInBits / 8 + one_if( SizeInBits % 8 ) ); }
-		inxp	u2_t	TotalBytes		()							csnx	{ return ElementPad ? ElementBytes() * (ElementCount + 1) : SizeInBits * (ElementCount + 1) / 8 + one_if( SizeInBits * (ElementCount + 1) % 8 ); }
-		inxp	bool	IsSTL			()							csnx	{ return (1 == SizeInBits) && IsSigned && IsFloat			&& IsNorm			&& (IsBigEndian == 0); }
-		inxp	bool	IsNonUniform	()							csnx	{ return (1 == SizeInBits) && IsSigned && (IsFloat == 0)	&& (IsNorm == 0)	&& (IsBigEndian == 0); }
-		inxp	bool	IsUniform		()							csnx	{ return !IsNonUniform(); }
+		inxp	u2_t	ElementBytes	()							csnx	{ u2_c elementBits = SizeInBits + 1; return elementBits / 8 + onif_true_e(elementBits % 8); }
+		inxp	u2_t	TotalBytes		()							csnx	{ u2_c elementBits = SizeInBits + 1, elementCount = ElementCount + 1; return ElementPad ? ElementBytes() * elementCount : elementBits * elementCount / 8 + onif_true_e(elementBits * elementCount % 8); }
+		inxp	bool	IsSTL			()							csnx	{ return (0 == SizeInBits) && (0 == ElementPad) && (0 == IsSigned) && IsFloat			&& IsNorm			&& (IsBigEndian == 0); }
+		inxp	bool	IsNonUniform	()							csnx	{ return (0 == SizeInBits) && (0 == ElementPad) && (0 == IsSigned) && (IsFloat == 0)	&& (IsNorm == 0)	&& (IsBigEndian == 0); }
+		inxp	bool	IsUniform		()							csnx	{ return !IsNonUniform() && !IsSTL(); }
 
 		inxp			SDataTypeID		( ::llc::DATA_TYPE typeId)	nxpt
 			: SizeInBits	(GTYPEID_ELEMENTSIZE	(typeId) - 1)
@@ -90,7 +90,7 @@ namespace llc
 			, IsBigEndian	(GTYPEID_ISBIGENDIAN	(typeId))
 			, IsFloat		(GTYPEID_ISFLOAT		(typeId))
 			, IsNorm		(GTYPEID_ISNORMALIZED	(typeId))
-			, IsSigned		(GTYPEID_ISSIGNED		(typeId))
+			, IsSigned		(GTYPEID_ISSIGNED		(typeId) ? 0U : 1U)
 		{}
 		//
 		inxp				SDataTypeID
@@ -145,7 +145,7 @@ namespace llc
 	//----------------------------------------------------------------------------------------------------------------------------------
 
 // ( IsSigned, IsNorm, IsFloat, IsBigEndian, ElementCount, ElementPad, SizeInBits )
-#define GTYPEID_POINTER_MAKE(	TypeName )							::llc::SDataTypeID((uint8_t)(sizeof(TypeName*)*8)	, 1	, false, false)	// defines an unsigned unorm little endian integer of sizeof(TypeName*) bytes.
+#define GTYPEID_POINTER_MAKE(	TypeName )							::llc::SDataTypeID((u0_t)(sizeof(TypeName*)*8)	, 1	, false, false)	// defines an unsigned unorm little endian integer of sizeof(TypeName*) bytes.
 #define GTYPEID_DATA_MAKE(		TypeName )							::llc::SDataTypeID(8, sizeof(TypeName)					, false, false)	// defines an array of unsigned unorm little endian sizeof(TypeName) bytes.
 
 #define GTYPEID_MAKE_NON_UNIFORM(	_TypeCode )						::llc::SDataTypeID(1, _TypeCode, false, true, false)
@@ -297,7 +297,7 @@ namespace llc
 	stxp DATA_TYPE	DATA_TYPE_INT64_64			= GTYPEID_MAKE_INT64	 (0x040);
 	stxp DATA_TYPE	DATA_TYPE_INT64_128			= GTYPEID_MAKE_INT64	 (0x080);
 	stxp DATA_TYPE	DATA_TYPE_INT64_256			= GTYPEID_MAKE_INT64	 (0x100);
-	stxp DATA_TYPE	DATA_TYPE_INT64_NORM_256	= GTYPEID_MAKE_FLOAT16	 (0x100);
+	stxp DATA_TYPE	DATA_TYPE_INT64_NORM_256	= GTYPEID_MAKE_INT_NORM		(0x40,0x100);
 	stxp DATA_TYPE	DATA_TYPE_FLOAT16			= GTYPEID_MAKE_FLOAT16	 (0x001);
 	stxp DATA_TYPE	DATA_TYPE_FLOAT16_2			= GTYPEID_MAKE_FLOAT16	 (0x002);
 	stxp DATA_TYPE	DATA_TYPE_FLOAT16_3			= GTYPEID_MAKE_FLOAT16	 (0x003);
@@ -522,10 +522,22 @@ namespace llc
 	stxp DATA_TYPE	DATA_TYPE_STLOTHER			= GTYPEID_MAKE_STL(0x01);	// aka DATA_TYPE_FLOAT1_NORM
 	stxp DATA_TYPE	DATA_TYPE_STLVECTOR			= GTYPEID_MAKE_STL(0x02);	// aka DATA_TYPE_FLOAT1_NORM_2
 	stxp DATA_TYPE	DATA_TYPE_STLSTRING			= GTYPEID_MAKE_STL(0x03);	// aka DATA_TYPE_FLOAT1_NORM_3
-	stxp DATA_TYPE	DATA_TYPE_SIZE_T			= ::llc::SDataTypeID(sizeof(size_t)*8, 1, false, sizeof(size_t) == 4 ? false : true);
+	stxp DATA_TYPE	DATA_TYPE_SIZE_T			= ::llc::SDataTypeID(sizeof(size_t)*8, 1, false, false);
 	// ------------------------------------------ Aliases
 	stxp DATA_TYPE	DATA_TYPE_DATATYPE			= DATA_TYPE_UINT32;
 	stxp DATA_TYPE	DATA_TYPE_BOOL				= DATA_TYPE_UINT8;
+
+	nsix DATA_TYPE	dataType		(b8_t)	{ return DATA_TYPE_BOOL;		}
+	nsix DATA_TYPE	dataType		(u0_t)	{ return DATA_TYPE_UINT8;	}
+	nsix DATA_TYPE	dataType		(u1_t)	{ return DATA_TYPE_UINT16;	}
+	nsix DATA_TYPE	dataType		(u2_t)	{ return DATA_TYPE_UINT32;	}
+	nsix DATA_TYPE	dataType		(u3_t)	{ return DATA_TYPE_UINT64;	}
+	nsix DATA_TYPE	dataType		(s1_t)	{ return DATA_TYPE_INT16;	}
+	nsix DATA_TYPE	dataType		(s2_t)	{ return DATA_TYPE_INT32;	}
+	nsix DATA_TYPE	dataType		(s3_t)	{ return DATA_TYPE_INT64;	}
+	nsix DATA_TYPE	dataType		(f2_t)	{ return DATA_TYPE_FLOAT32;	}
+	nsix DATA_TYPE	dataType		(f3_t)	{ return DATA_TYPE_FLOAT64;	}
+	nsix DATA_TYPE	dataType		(sc_t)	{ return DATA_TYPE_INT8;		}
 #pragma pack(pop)
 	err_t			getStringFromDataType			(DATA_TYPE dataType, string & output);
 
