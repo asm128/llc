@@ -336,6 +336,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_path.cpp" />
+    <ClCompile Include="llc_string.cpp" />
     <ClCompile Include="llc_typeint.cpp" />
     <ClCompile Include="llc_spi.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
