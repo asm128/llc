@@ -318,7 +318,7 @@ namespace llc
 		inxp			view_const_string		()											: view(0, "") 							{}
 		inxp			view_const_string		(vcs0_c & other)					nxpt	: view(other)							{}
 		tplN2u	inxp	view_const_string		(u2_t length, sc_c (&storage)[N])			: view(length, storage)					{}
-		tplN2u			view_const_string		(sc_c (&storage)[N])				nxpt	: view(storage)							{ Count = (u2_t)strnlen(storage, (u2_t)N);							}
+		tplN2u	inxp	view_const_string		(sc_c (&storage)[N])				nxpt	: view(N-1, storage)					{}
 		tplN2u			view_const_string		(sc_c (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
 						view_const_string		(sc_c * storage, u2_t length)				: view(storage ? storage : "", length)	{ if(length == (u2_t)-1) Count = (u2_t)strlen(begin());					}
 
