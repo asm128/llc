@@ -57,7 +57,7 @@ namespace llc
 		X3DAUDIO_DSP_SETTINGS	dspSettings				= {};
 		bool					Playing					= false;
 
-		HRESULT					PrepareAudio			(::llc::vcsc_c & wavname, IXAudio2*	pXAudio2, IXAudio2MasteringVoice * pMasterVoice, IXAudio2SubmixVoice * pSubmixVoice);
+		HRESULT					PrepareAudio			(::llc::vcst_t wavname, IXAudio2 * pXAudio2, IXAudio2MasteringVoice * pMasterVoice, IXAudio2SubmixVoice * pSubmixVoice);
 	};
 
 	// Struct to hold audio game state
@@ -109,13 +109,13 @@ namespace llc
 
 
 		::llc::error_t			InitAudio				();
-		::llc::error_t			PrepareAudio			(::llc::vcsc_c & wavname);
+		::llc::error_t			PrepareAudio			(::llc::vcst_t wavname);
 		::llc::error_t			UpdateAudio				(double fElapsedTime);
 		::llc::error_t			SetReverb				(int nReverb);
 		::llc::error_t			PauseAudio				(bool resume);
 		::llc::error_t			CleanupAudio			();
 
-		::llc::error_t			PlayWave				(::llc::vcsc_c & wavname);
+		::llc::error_t			PlayWave				(::llc::vcst_t wavname);
 	};
 } // namespace
 #endif // LLC_XAUDIO2_H_23627

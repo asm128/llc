@@ -43,20 +43,20 @@ static	::llc::error_t	collisionDetectAny		(const ::llc::SRigidBodyIntegrator & i
 	switch(bvA) {
 	case ::llc::BOUNDING_TYPE_Sphere	: 
 		switch(bvB) { // rigid body A is Sphere
-		case ::llc::BOUNDING_TYPE_AABB		: i_if(result = ::detectSphereAABB		(integrator, rigidBodyA, rigidBodyB, contactCache, contactsDetected)); break; 
-		case ::llc::BOUNDING_TYPE_Cylinder	: i_if(result = ::detectSphereCylinder	(integrator, rigidBodyA, rigidBodyB, contactCache, contactsDetected)); break; 
+		case ::llc::BOUNDING_TYPE_AABB		: if_true_i(result = ::detectSphereAABB		(integrator, rigidBodyA, rigidBodyB, contactCache, contactsDetected)); break; 
+		case ::llc::BOUNDING_TYPE_Cylinder	: if_true_i(result = ::detectSphereCylinder	(integrator, rigidBodyA, rigidBodyB, contactCache, contactsDetected)); break; 
 		}  // switch bvB
 		break;
 	case ::llc::BOUNDING_TYPE_Cylinder	: 
 		switch(bvB) { // rigid body A is Cylinder
-		case ::llc::BOUNDING_TYPE_AABB		: i_if(result = ::detectCylinderAABB  (integrator, rigidBodyA, rigidBodyB, contactCache, contactsDetected)); break; 
-		case ::llc::BOUNDING_TYPE_Sphere	: i_if(result = ::detectSphereCylinder(integrator, rigidBodyB, rigidBodyA, contactCache, contactsDetected)); break; 
+		case ::llc::BOUNDING_TYPE_AABB		: if_true_i(result = ::detectCylinderAABB  (integrator, rigidBodyA, rigidBodyB, contactCache, contactsDetected)); break; 
+		case ::llc::BOUNDING_TYPE_Sphere	: if_true_i(result = ::detectSphereCylinder(integrator, rigidBodyB, rigidBodyA, contactCache, contactsDetected)); break; 
 		}  // switch bvB
 		break;
 	case ::llc::BOUNDING_TYPE_AABB		: 
 		switch(bvB) { // rigid body A is AABB
-		case ::llc::BOUNDING_TYPE_Cylinder	: i_if(result = ::detectCylinderAABB(integrator, rigidBodyB, rigidBodyA, contactCache, contactsDetected)); break; 
-		case ::llc::BOUNDING_TYPE_Sphere	: i_if(result = ::detectSphereAABB  (integrator, rigidBodyB, rigidBodyA, contactCache, contactsDetected)); break; 
+		case ::llc::BOUNDING_TYPE_Cylinder	: if_true_i(result = ::detectCylinderAABB(integrator, rigidBodyB, rigidBodyA, contactCache, contactsDetected)); break; 
+		case ::llc::BOUNDING_TYPE_Sphere	: if_true_i(result = ::detectSphereAABB  (integrator, rigidBodyB, rigidBodyA, contactCache, contactsDetected)); break; 
 		}  // switch bvB
 		break;
 	} // switch bvA

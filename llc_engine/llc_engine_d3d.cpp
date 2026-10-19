@@ -99,9 +99,9 @@
 
 		// After the pixel shader file is loaded, create the shader.
 		sc_t											shaderFileName	[1024]	= {};
-		sprintf_s(shaderFileName, "%s.cso", shaderName.begin());
-		::llc::apod<int8_t>						filePS;
-		llc_necs(llc::fileToMemory(::llc::vcs{shaderFileName}, filePS));
+		sprintf_s(shaderFileName, "%.*s.cso", LLC_VIEW_ARGS(shaderName));
+		::llc::as0_t					filePS;
+		llc_necs(llc::fileToMemory(::llc::vstr_t{shaderFileName}, filePS));
 
 		::llc::ptr_com<ID3D11PixelShader>				pixelShader;
 		llc_hrcall(pDevice->CreatePixelShader(&filePS[0], filePS.size(), nullptr, &pixelShader));

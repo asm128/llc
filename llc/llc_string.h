@@ -21,6 +21,7 @@ namespace llc
         inline  string      (vs0_c & other)                 : asc_t(other)                                          { initialize(); }
         inline  string      (asc_c & other)                 : asc_t(other)                                          { initialize(); }
         inline  string      (vcst_t other)                  : asc_t(other)                                          { initialize(); }
+        inline  string      (vcs0_t other)                  : asc_t(other)                                          { initialize(); }
         inline  string      (sc_c * unsafe)                 : asc_t(vcst_t{unsafe, (u2_t)-1})                       { initialize(); }
 #ifdef LLC_ARDUINO
         inline  string      (const String & other)          : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    { initialize(); }

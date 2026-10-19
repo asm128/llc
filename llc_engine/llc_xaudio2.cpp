@@ -111,7 +111,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 	XAUDIO2_VOICE_DETAILS		details			= {};
 	pMasterVoice->GetVoiceDetails(&details);
 
-	rees_if(details.InputChannels > OUTPUTCHANNELS);
+	if_true_fe(details.InputChannels > OUTPUTCHANNELS);
 
 	llc_hrcall(pMasterVoice->GetChannelMask( &dwChannelMask ));
 
@@ -126,7 +126,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 	XAUDIO2_DEVICE_DETAILS		details			= {};
 	llc_hrcall(XAudio2->GetDeviceDetails(0, &details));
 
-	rees_if(details.OutputFormat.Format.nChannels > OUTPUTCHANNELS);
+	if_true_fe(details.OutputFormat.Format.nChannels > OUTPUTCHANNELS);
 
 	nSampleRate				= details.OutputFormat.Format.nSamplesPerSec;
 	SampleRateOriginal		= SampleRateCurrent = details.OutputFormat.Format.nSamplesPerSec;
@@ -237,12 +237,12 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 //-----------------------------------------------------------------------------
 // Prepare a looping wave
 //-----------------------------------------------------------------------------
-::llc::error_t			llc::AUDIO_STATE::PrepareAudio(::llc::vcsc_c & wavname) {
+::llc::error_t			llc::AUDIO_STATE::PrepareAudio(::llc::vcst_t wavname) {
 	safe_destroySourceVoice(SourceVoice);
 
 	// Read in the wave file
 	const WAVEFORMATEX			* pwfx				= 0;
-	::llc::vcu0_t					audioView			= {};
+	::llc::vcu0_t				audioView			= {};
 	llc_necs(DirectX::LoadWAVAudioFromFile(wavname, WaveData, &pwfx, audioView));
 
 	if_true_fef(pwfx->nChannels != INPUTCHANNELS, "%i == %i", pwfx->nChannels, INPUTCHANNELS);
@@ -448,12 +448,12 @@ static	::llc::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::llc::a
 	unsigned int count = 0;
 	llc_hrcall(devices->get_Size(&count));
 
-	rees_if(!count);
+	if_true_fe(!count);
 
 	for( unsigned int j = 0; j < count; ++j ) {
 		::llc::pcom<IDeviceInformation>	deviceInfo;
 		HRESULT hr;
-		cef_if(FAILED(hr = devices->GetAt(j, &deviceInfo)), "0x%X", hr); 
+		if_true_cef(FAILED(hr = devices->GetAt(j, &deviceInfo)), "0x%X", hr); 
 
 		HString					id;
 		HString					name;
@@ -536,12 +536,12 @@ static	::llc::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::llc::a
 	return S_OK;
 }
 
-HRESULT					llc::SSoundState::PrepareAudio	(::llc::vcsc_c & wavname, IXAudio2*	XAudio2, IXAudio2MasteringVoice * pMasterVoice, IXAudio2SubmixVoice * pSubmixVoice) {
+HRESULT					llc::SSoundState::PrepareAudio	(::llc::vcst_t wavname, IXAudio2*	XAudio2, IXAudio2MasteringVoice * pMasterVoice, IXAudio2SubmixVoice * pSubmixVoice) {
 	safe_destroySourceVoice(SourceVoice);
 
 	// Search for media
 	sc_t						strFilePath[4096]	= {};
-	sprintf_s(strFilePath, "./%s", ::llc::toString(wavname).begin());
+	sprintf_s(strFilePath, "./%.*s", LLC_VIEW_ARGS(wavname));
 	wchar_t						wstrFilePath[4096]	= {};
 	size_t						count				= 0;
 	mbstowcs_s(&count, wstrFilePath, strFilePath, 4095);

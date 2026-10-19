@@ -651,7 +651,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	return 0;
 }
 
-::llc::error_t			llc::controlTextSet		(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::vcs & text)				{
+::llc::error_t			llc::controlTextSet		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::vcst_t text)				{
 	::llc::vcs					& oldText				= gui.Controls.Text[iControl].Text;
 	if(text != oldText) {
 		oldText					= text;

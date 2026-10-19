@@ -1,5 +1,6 @@
 #include "llc_array_ptr.h"
 #include "llc_label.h"
+#include "llc_string.h"
 
 #include "llc_apod_serialize.h"
 
@@ -90,9 +91,9 @@ namespace llc
 					Children[iEntity].create();
 
 				llc_necall(llc::loadView(input, *Children[iEntity]), "iEntity: %i", iEntity);
-				::llc::apod<sc_t>					name;
+				::llc::string					name;
 				llc_necall(llc::loadView(input, name), "iEntity: %i", iEntity);
-				Names[iEntity]					= ::llc::label(::llc::vcst_t{name});
+				Names[iEntity]					= ::llc::label(name);
 			}
 
 			return 0; 

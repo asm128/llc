@@ -1,4 +1,4 @@
-#include "DeviceResources.h"
+#include "llc_d3d_device_resources.h"
 #include "llc_engine_scene.h"
 
 #include "llc_file.h"
@@ -150,7 +150,7 @@ namespace llc
 				::llc::pcom<ID3D11InputLayout>				inputLayout;
 				::llc::pcom<ID3D11VertexShader>				vertexShader;
 
-				::llc::apod<int8_t>							fileVS;
+				::llc::string								fileVS;
 				llc_necs(llc::fileToMemory("SampleVertexShader.cso", fileVS));
 				stacxpr	D3D11_INPUT_ELEMENT_DESC			vertexDesc []			=
 					{	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 00, D3D11_INPUT_PER_VERTEX_DATA, 0 }

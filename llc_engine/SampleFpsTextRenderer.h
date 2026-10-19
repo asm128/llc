@@ -1,4 +1,4 @@
-#include "DeviceResources.h"
+#include "llc_d3d_device_resources.h"
 
 #include "llc_array_ptr.h"
 

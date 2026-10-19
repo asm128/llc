@@ -1,6 +1,6 @@
 #include "Sample3DSceneRenderer.h"
 #include "SampleFpsTextRenderer.h"
-#include "DeviceResources.h"
+#include "llc_d3d_device_resources.h"
 
 #include "llc_engine_d3d.h"
 
@@ -52,7 +52,7 @@ namespace llc
 		}
 
 		::llc::error_t			CreateSizeDependentResources(ID3D11Device3 * d3dDevice, ::llc::n2u1_t windowSize)	{
-			llc_necs(RenderTarget.resize(windowSize.u2_t(), {0, 0, 0, 0}));
+			llc_necs(RenderTarget.resize(windowSize.u2(), {0, 0, 0, 0}));
 			llc_necs(llc::d3dCreateTextureDynamic(d3dDevice, Texture2D, ShaderResourceView, RenderTarget));
 			return 0;
 		}
@@ -266,7 +266,7 @@ namespace llc
 		}
 
 		::llc::error_t			SetWindowSize			(::llc::n2u1_t windowSize)	{
-			llc_necs(DeviceResources->SetLogicalSize(windowSize.f2_t()));
+			llc_necs(DeviceResources->SetLogicalSize(windowSize.f2()));
 			llc_necs(CreateSizeDependentResources(windowSize));
 			return 0;
 		}

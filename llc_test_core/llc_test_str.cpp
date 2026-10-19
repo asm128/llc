@@ -131,14 +131,14 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 	if_fail_fe((testNumericStrValue<::llc::s3_t,  22>(errors, ::llc::s3_t( 9223372036854775807LL), LLC_CXS("9223372036854775807"))));
 	if_fail_fe((testNumericStrValue<::llc::s3_t,  22>(errors, ::llc::s3_t(-9223372036854775807LL - 1), LLC_CXS("-9223372036854775808"))));
 
-	if_fail_fe((testNumericStrValue<::llc::f2_t,  64>(errors, ::llc::f2_t(       0.0), LLC_CXS("0.000000"))));
-	if_fail_fe((testNumericStrValue<::llc::f2_t,  64>(errors, ::llc::f2_t(      1.25), LLC_CXS("1.250000"))));
-	if_fail_fe((testNumericStrValue<::llc::f2_t,  64>(errors, ::llc::f2_t(      -2.5), LLC_CXS("-2.500000"))));
-	if_fail_fe((testNumericStrValue<::llc::f2_t,  64>(errors, ::llc::f2_t(  123456.5), LLC_CXS("123456.500000"))));
-	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(         0.0), LLC_CXS("0.000000"))));
-	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(       1.125), LLC_CXS("1.125000"))));
-	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(       -2.25), LLC_CXS("-2.250000"))));
-	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(123456789.125), LLC_CXS("123456789.125000"))));
+	if_fail_fe((testNumericStrValue<::llc::f2_t,  64>(errors, ::llc::f2_t(       0.0), "0.000000")));
+	if_fail_fe((testNumericStrValue<::llc::f2_t,  64>(errors, ::llc::f2_t(      1.25), "1.250000")));
+	if_fail_fe((testNumericStrValue<::llc::f2_t,  64>(errors, ::llc::f2_t(      -2.5), "-2.500000")));
+	if_fail_fe((testNumericStrValue<::llc::f2_t,  64>(errors, ::llc::f2_t(  123456.5), "123456.500000")));
+	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(         0.0), "0.000000")));
+	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(       1.125), "1.125000")));
+	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(       -2.25), "-2.250000")));
+	if_fail_fe((testNumericStrValue<::llc::f3_t, 384>(errors, ::llc::f3_t(123456789.125), "123456789.125000")));
 	rtrn 0;
 }
 
@@ -259,8 +259,8 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_CONST_STRING_BEGIN			, constStringText   .begin() != constString  .begin	(), "Const string begin:%p, expected:%p."			, constStringText  .begin(), constString  .begin());
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_CONST_STRING_SIZE			, constStringText   .size () != constString  .size	(), "Const string size:%u, expected:%u."			, constStringText  .size (), constString  .size ());
 
-	::llc::astchar<8>	staticText		= {'s', 't', 'a', 't', 'i', 'c', 0};
-	cnst ::llc::astchar<8> & constStaticText	= staticText;
+	::llc::astchar<7>	staticText		= {'s', 't', 'a', 't', 'i', 'c'};
+	cnst ::llc::astchar<7> & constStaticText	= staticText;
 	auto				mutableStaticView	= ::llc::str(staticText);
 	auto				constStaticView		= ::llc::str(constStaticText);
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_MUTABLE_STATIC_TYPE, false == (::std::is_same_v<decltype(mutableStaticView), ::llc::vs>) , "Mutable static result type mismatch. size:%u." , mutableStaticView.size() );

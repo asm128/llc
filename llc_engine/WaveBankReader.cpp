@@ -432,14 +432,14 @@ HRESULT WaveBankReader::WaveBankReaderImpl::Open(const wchar_t* szFileName) noex
 	if (!result || (bytes != sizeof(m_header))) 
 		return HRESULT_FROM_WIN32(GetLastError());
 
-	rves_if(E_FAIL, m_header.dwSignature != HEADER::SIGNATURE && m_header.dwSignature != HEADER::BE_SIGNATURE);
+	if_true_ve(E_FAIL, m_header.dwSignature != HEADER::SIGNATURE && m_header.dwSignature != HEADER::BE_SIGNATURE);
 
 	const bool be = (m_header.dwSignature == HEADER::BE_SIGNATURE);
 	if (be) {
 		return E_FAIL;
 	}
 
-	rves_if(E_FAIL, m_header.dwHeaderVersion != HEADER::VERSION);
+	if_true_ve(E_FAIL, m_header.dwHeaderVersion != HEADER::VERSION);
 
 	// Load bank data
 	memset(&request, 0, sizeof(request));
@@ -480,15 +480,15 @@ HRESULT WaveBankReader::WaveBankReaderImpl::Open(const wchar_t* szFileName) noex
 		return E_FAIL;
 
 	if (m_data.dwFlags & BANKDATA::FLAGS_COMPACT) {
-		rves_if(E_FAIL, m_data.dwEntryMetaDataElementSize != sizeof(ENTRYCOMPACT));
-		rves_if(E_FAIL, m_header.Segments[HEADER::SEGIDX_ENTRYWAVEDATA].dwLength > (MAX_COMPACT_DATA_SEGMENT_SIZE * m_data.dwAlignment)); // Data segment is too large to be valid compact wavebank
+		if_true_ve(E_FAIL, m_data.dwEntryMetaDataElementSize != sizeof(ENTRYCOMPACT));
+		if_true_ve(E_FAIL, m_header.Segments[HEADER::SEGIDX_ENTRYWAVEDATA].dwLength > (MAX_COMPACT_DATA_SEGMENT_SIZE * m_data.dwAlignment)); // Data segment is too large to be valid compact wavebank
 	}
 	else {
-		rves_if(E_FAIL, m_data.dwEntryMetaDataElementSize != sizeof(ENTRY));
+		if_true_ve(E_FAIL, m_data.dwEntryMetaDataElementSize != sizeof(ENTRY));
 	}
 
 	const DWORD metadataBytes = m_header.Segments[HEADER::SEGIDX_ENTRYMETADATA].dwLength;
-	rves_if(E_FAIL, metadataBytes != (m_data.dwEntryCount * m_data.dwEntryMetaDataElementSize));
+	if_true_ve(E_FAIL, metadataBytes != (m_data.dwEntryCount * m_data.dwEntryMetaDataElementSize));
 
 	// Load names
 	const DWORD namesBytes = m_header.Segments[HEADER::SEGIDX_ENTRYNAMES].dwLength;
@@ -523,7 +523,7 @@ HRESULT WaveBankReader::WaveBankReaderImpl::Open(const wchar_t* szFileName) noex
 			result = GetOverlappedResult(hFile.get(), &request, &bytes, FALSE);
 		#endif
 
-			rves_if(HRESULT_FROM_WIN32(GetLastError()), !result || (namesBytes != bytes));
+			if_true_ve(HRESULT_FROM_WIN32(GetLastError()), !result || (namesBytes != bytes));
 				
 			for (uint32_t j = 0; j < m_data.dwEntryCount; ++j) {
 				const DWORD n = m_data.dwEntryNameElementSize * j;

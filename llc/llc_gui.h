@@ -61,7 +61,7 @@ namespace llc
 	::llc::cid_t			controlCreateChild				(::llc::SGUI & gui, cid_t iParent);
 	::llc::error_t			controlSetParent				(::llc::SGUI & gui, cid_t iControl, cid_t iParent);
 	::llc::error_t			controlDrawHierarchy			(::llc::SGUI & gui, cid_t iControl, ::llc::g8bgra target);
-	::llc::error_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, const ::llc::vcs & text);
+	::llc::error_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, vcst_t text);
 	::llc::error_t			controlFontSet					(::llc::SGUI & gui, cid_t iControl, int16_t iFont);
 	//::llc::error_t			controlUpdateMetrics			(::llc::SGUI & gui, int32_t iControl, const ::llc::n2<::llc::u2_t> & targetSize);
 	::llc::error_t			controlUpdateMetricsTopToDown	(::llc::SGUI & gui, cid_t iControl, const ::llc::n2u1_t & targetSize, bool forceUpdate);

@@ -581,6 +581,9 @@
     <ClCompile Include="llc_celestial_body.cpp" />
     <ClCompile Include="llc_d3d.cpp" />
     <ClCompile Include="llc_engine.cpp" />
+    <ClCompile Include="llc_engine_collision.cpp" />
+    <ClCompile Include="llc_engine_d3d.cpp" />
+    <ClCompile Include="llc_engine_d3d_app.cpp" />
     <ClCompile Include="llc_engine_orbit.cpp" />
     <ClCompile Include="llc_engine_planetary_system.cpp" />
     <ClCompile Include="llc_engine_renderbuffer.cpp" />
@@ -588,12 +591,18 @@
     <ClCompile Include="llc_engine_shader.cpp" />
     <ClCompile Include="llc_planetary_system.cpp" />
     <ClCompile Include="llc_rigid_body.cpp" />
+    <ClCompile Include="llc_sun.cpp" />
+    <ClCompile Include="llc_xaudio2.cpp" />
+    <ClCompile Include="WaveBankReader.cpp" />
+    <ClCompile Include="WAVFileReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="llc_celestial_body.h" />
     <ClInclude Include="llc_d3d.h" />
     <ClInclude Include="llc_d3d_device_resources.h" />
     <ClInclude Include="llc_engine.h" />
+    <ClInclude Include="llc_engine_d3d.h" />
+    <ClInclude Include="llc_engine_d3d_app.h" />
     <ClInclude Include="llc_engine_entity.h" />
     <ClInclude Include="llc_engine_geometry.h" />
     <ClInclude Include="llc_engine_orbit.h" />
@@ -612,6 +621,9 @@
     <ClInclude Include="llc_rigid_body.h" />
     <ClInclude Include="llc_spaceship.h" />
     <ClInclude Include="llc_weapon.h" />
+    <ClInclude Include="WaveBankReader.h" />
+    <ClInclude Include="WAVFileReader.h" />
+    <ClInclude Include="XAudio2Versions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

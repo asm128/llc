@@ -314,6 +314,9 @@ namespace llc
 		inln	sc_t*	end						()	nxpt	{ rtrn begin() + Count; }
 		ndin	oper	sc_t* 					()  nxpt	{ rtrn begin(); }
 	};
+	tydf	view_string			vstr_t, vs;
+	tdcs	vstr_t				vstr_c;
+
 	struct view_const_string : view<sc_c> {
 		inxp			view_const_string		()											: view(0, "") 							{}
 		inxp			view_const_string		(vcs0_c & other)					nxpt	: view(other)							{}
@@ -321,15 +324,13 @@ namespace llc
 		tplN2u	inxp	view_const_string		(sc_c (&storage)[N])				nxpt	: view(N-1, storage)					{}
 		tplN2u			view_const_string		(sc_c (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
 						view_const_string		(sc_c * storage, u2_t length)				: view(storage ? storage : "", length)	{ if(length == (u2_t)-1) Count = (u2_t)strlen(begin());					}
+		inxp			view_const_string		(vstr_c other)					nxpt	: view(other)							{}
 
 		inxp	sc_c*	begin					()	csnx	{ rtrn (Data && Count) ? Data : ""; }
 		inxp	sc_c*	end						()	csnx	{ rtrn (Data && Count) ? Data + Count : begin(); }
 		ndin	oper	sc_c* 					()  csnx	{ rtrn begin(); }
 	};
-
-	tydf	view_string			vstr_t, vs;
 	tydf	view_const_string	vcst_t, vcs;
-	tdcs	vstr_t				vstr_c;
 	tdcs	vcst_t				vcst_c;
 	tplt<tpnm _tVal>						using kvvcst_t	= kv<vcst_t, _tVal>;
 	// Use this to initialize a constexpr string view from a string literal.
