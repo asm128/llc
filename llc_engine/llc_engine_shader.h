@@ -14,7 +14,7 @@ namespace llc
 	::llc::error_t			psSolid				(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel);
 
 	tplt<tpnm _tCoord>
-	static	::llc::error_t	drawLine			(const ::llc::n2u1_t & targetMetrics, const ::llc::line3<_tCoord> & line, const ::llc::m4f32 & mWVP, ::llc::apod<::llc::n3f2_t>& out_Points, ::llc::gu32 depth) {
+	static	::llc::error_t	drawLine			(const ::llc::n2u1_t & targetMetrics, const ::llc::line3<_tCoord> & line, const ::llc::m4f2_t & mWVP, ::llc::apod<::llc::n3f2_t>& out_Points, ::llc::gu2_t depth) {
 		::llc::n3<_tCoord>			vA					= mWVP.Transform(line.A); 
 		::llc::n3<_tCoord>			vB					= mWVP.Transform(line.B);
 		return ::llc::drawLine(targetMetrics, ::llc::line3<_tCoord>{vA, vB}, out_Points, depth);

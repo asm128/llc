@@ -87,7 +87,7 @@ namespace llc
 				if(entity.Parent != -1)
 					continue;
 
-				e_if(failed(::llc::updateEntityTransforms(iEntity, entity, Entities, Integrator, Scene->RenderNodes)));
+				if_fail_e(::llc::updateEntityTransforms(iEntity, entity, Entities, Integrator, Scene->RenderNodes));
 			}
 			return 0;
 		}

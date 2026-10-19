@@ -209,7 +209,7 @@
 
 ::llc::error_t			llc::SEngine::CreateImageFromFile(const ::llc::vcs & fileFolder, const ::llc::vcs & fileName) {
 	sc_t						filePath	[2048]				= {};
-	sprintf_s(filePath, "%s/%s", ::llc::toString(fileFolder).begin(), ::llc::toString(fileName).begin());
+	if_fail_fe(sprintf_s(filePath, "%.*s/%.*s", (int)fileFolder.size(), fileFolder.begin(), (int)fileName.size(), fileName.begin()));
 	int32_t						index							= Images.Keys.find(filePath);
 	if(index != -1)
 		return Images.Values[index];
@@ -217,7 +217,7 @@
 	index					= Scene->Graphics->Surfaces.Create(::llc::label(filePath));
 	::llc::pobj<::llc::SSurface>	& surface					= Scene->Graphics->Surfaces[index];
 	llc_necs(llc::pngFileLoad(PNGCache, filePath, surface->Data));
-	surface->Desc.Dimensions	= PNGCache.Header.Size.u1_t();
+	surface->Desc.Dimensions	= PNGCache.Header.Size.u1();
 	surface->Desc.BitDepth		= PNGCache.Header.BitDepth;
 	surface->Desc.ColorType		= PNGCache.Header.ColorType;
 	return index; 

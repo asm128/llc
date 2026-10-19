@@ -13,7 +13,7 @@ LLC_USING_TYPEINT();
 stacxpr	double			ASTRONOMICAL_UNIT_SCALE		= 1.0 / 149597870700;
 
 ::llc::error_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, const ::llc::SJSONReader & jsonData)	{ 
-	llc_necall(llc::planetarySystemSetup(planetarySystem.PlanetarySystem, jsonData), "%s", ::llc::toString(jsonData.View[0]).begin());	
+	llc_necall(llc::planetarySystemSetup(planetarySystem.PlanetarySystem, jsonData), "%.*s", (int)jsonData.View[0].size(), jsonData.View[0].begin());
 	return ::llc::planetarySystemSetup(planetarySystem.PlanetarySystem, planetarySystem.EntityMap, engine); 
 }
 ::llc::error_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcst_t jsonFilePath)				{ 
@@ -145,7 +145,7 @@ static	::llc::error_t	initOrbit				(::llc::SEngine & engine, int32_t iOrbiter, i
 		scale					*= distanceScale * 2;
 	else
 		scale					= {.01f, .01f, .01f};
-	llc_necs(engine.SetMeshScale(iEntity, ::llc::n3f3_t{scale.x * 1.001, scale.y, scale.z * 1.001}.f2_t(), true));
+	llc_necs(engine.SetMeshScale(iEntity, ::llc::n3f3_t{scale.x * 1.001, scale.y, scale.z * 1.001}.f2(), true));
 	llc_necs(engine.SetHidden	(iEntity, false));
 	return 0;
 }
@@ -159,7 +159,7 @@ static	::llc::error_t	initGravityCenter		(::llc::SEngine & engine, int32_t iEnti
 	::llc::n3f3_t				scale					= {diameter, diameter, diameter};
 	scale					= isStar ? SUN_SCALE : scale * distanceScale;
 	scale					*= 2;
-	llc_necs(engine.SetMeshScale(iEntity, scale.f2_t(), true));
+	llc_necs(engine.SetMeshScale(iEntity, scale.f2(), true));
 	llc_necs(engine.SetHidden	(iEntity, false));
 	return 0;
 }
@@ -170,7 +170,7 @@ static	::llc::error_t	initBody				(::llc::SEngine & engine, int32_t iEntity, boo
 
 	::llc::n3f3_t				scale					= {diameter, diameter, diameter};
 	scale					= isStar ? SUN_SCALE : scale * distanceScale;
-	llc_necs(engine.SetMeshScale(iEntity, scale.f2_t(), true));
+	llc_necs(engine.SetMeshScale(iEntity, scale.f2(), true));
 	::llc::TFuncPixelShader		& ps					= isStar ? ::llc::psSphereAxis	: ringSystem ? ::llc::psSphereMeridian	: ::llc::psSphereSolid		;
 	const ::llc::vcst_t			psName					= isStar ? ::llc::vcs{"psSun"}	: ringSystem ? ::llc::vcs{"psGasGiant"}	: ::llc::vcs{"psTerrestrial"};
 	llc_necs(engine.SetShader	(iEntity, ps, psName));
@@ -181,9 +181,9 @@ static	::llc::error_t	initBody				(::llc::SEngine & engine, int32_t iEntity, boo
 static	::llc::error_t	textureNumber			(::llc::g8bgra view, uint32_t number, const ::llc::SRasterFont & font) { 
 	sc_t						strNumber[4]			= {};
 	sprintf_s(strNumber, "%i", number);
-	const ::llc::rect2i16		targetRect				= 
+	const ::llc::rect2s1_t		targetRect				=
 		{ {int16_t(view.metrics().x / 2 - (font.CharSize.x * strlen(strNumber)) / 2), int16_t(view.metrics().y / 2 - font.CharSize.y / 2)}
-		, font.CharSize.s1_t()
+		, font.CharSize.s1()
 		};
 	::llc::apod<::llc::n2u1_t>	coords;
 	::llc::textLineRaster(view.metrics(), font.CharSize, targetRect, font.Texture, strNumber, coords);
@@ -203,7 +203,7 @@ static	::llc::error_t	initSkin				(::llc::SEngine & engine, ::llc::rgbaf color, 
 	material.Color.Specular	= ::llc::GRAY;
 	material.Color.Diffuse	= color;
   	material.Color.Ambient	= color * .1f;
-	::llc::g8bgra				view					= {(::llc::bgra*)surface.Data.begin(), surface.Desc.Dimensions.u2_t()};
+	::llc::g8bgra				view					= {(::llc::bgra*)surface.Data.begin(), surface.Desc.Dimensions.u2()};
 	const ::llc::SRasterFont	& font					= *engine.Scene->Graphics->Fonts.Fonts[8];
 	textureNumber(view, iOrbiter, font);
 	return 0;
