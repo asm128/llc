@@ -12,19 +12,19 @@ tplt <tpnm _tIndex>
 static	::llc::error_t	transformTriangles					
 	( ::llc::SVSOutput		& output
 	, ::llc::view<const _tIndex>	indices			
-	, ::llc::vc3f32			positions	
-	, ::llc::vc3f32			normals		
-	, ::llc::vc2f32			uv			
-	, const ::llc::m4f32	& projection		
-	, const ::llc::m4f32	& worldTransform	
+	, ::llc::vcn3f2_t			positions	
+	, ::llc::vcn3f2_t			normals		
+	, ::llc::vcn2f2_t			uv			
+	, const ::llc::m4f2_t	& projection		
+	, const ::llc::m4f2_t	& worldTransform	
 	, const ::llc::n3f2_t	& cameraFront
 )	{ 
 	::llc::vctri<_tIndex>				view_indices			= {(const ::llc::tri<_tIndex>*)indices.begin(), indices.size() / 3};
-	const ::llc::m4f32			mWVPS					= worldTransform * projection;
+	const ::llc::m4f2_t			mWVPS					= worldTransform * projection;
 
-	for(uint32_t iTriangle = 0; iTriangle < view_indices.size(); ++iTriangle) {
+	for(::llc::u2_t iTriangle = 0; iTriangle < view_indices.size(); ++iTriangle) {
 		const ::llc::tri<_tIndex>	vertexIndices			= view_indices[iTriangle];
-		::llc::tri3f32				transformedNormals		= {normals[vertexIndices.A], normals[vertexIndices.B], normals[vertexIndices.C]};
+		::llc::tri3f2_t				transformedNormals		= {normals[vertexIndices.A], normals[vertexIndices.B], normals[vertexIndices.C]};
 		::llc::transformDirection(transformedNormals, worldTransform);
 		transformedNormals.A.Normalize();
 		transformedNormals.B.Normalize();
@@ -37,14 +37,14 @@ static	::llc::error_t	transformTriangles
 
 		output.Normals.push_back(transformedNormals);
 
-		::llc::tri3f32				transformedPositions	= {positions[vertexIndices.A], positions[vertexIndices.B], positions[vertexIndices.C]};
+		::llc::tri3f2_t				transformedPositions	= {positions[vertexIndices.A], positions[vertexIndices.B], positions[vertexIndices.C]};
 		::llc::transform(transformedPositions, worldTransform);
 		output.PositionsWorld.push_back(transformedPositions);
 		
 		::llc::transform(transformedPositions, projection);
 		output.PositionsScreen.push_back(transformedPositions);
 		
-		::llc::tri2f32				transformedUVs			= {uv[vertexIndices.A], uv[vertexIndices.B], uv[vertexIndices.C]};
+		::llc::tri2f2_t				transformedUVs			= {uv[vertexIndices.A], uv[vertexIndices.B], uv[vertexIndices.C]};
 		if( transformedUVs.A.x > 1.0f
 		 || transformedUVs.A.y > 1.0f
 		 || transformedUVs.B.x > 1.0f
@@ -73,26 +73,26 @@ static	::llc::error_t	transformTriangles
 
 	if(mesh.GeometryBuffers.size()) {
 		::llc::SRenderNodeConstants	transforms				= scene.RenderNodes.Transforms[iRenderNode];
-		const ::llc::m4f32			& worldTransform		= transforms.Model;
+		const ::llc::m4f2_t			& worldTransform		= transforms.Model;
 
-		const ::llc::vc3f32			positions				= (mesh.GeometryBuffers.size() > 1) ? ::llc::vc3f32	{(const ::llc::n3f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[1]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[1]]->Data.size() / (uint8_t)sizeof(const ::llc::n3f2_t)}	: ::llc::vc3f32{};
-		const ::llc::vc3f32			normals					= (mesh.GeometryBuffers.size() > 2) ? ::llc::vc3f32	{(const ::llc::n3f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[2]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[2]]->Data.size() / (uint8_t)sizeof(const ::llc::n3f2_t)}	: ::llc::vc3f32{};
-		const ::llc::vc2f32			uv						= (mesh.GeometryBuffers.size() > 3) ? ::llc::vc2f32	{(const ::llc::n2f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[3]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[3]]->Data.size() / (uint8_t)sizeof(const ::llc::n2f2_t)}	: ::llc::vc2f32{};
+		const ::llc::vcn3f2_t			positions				= (mesh.GeometryBuffers.size() > 1) ? ::llc::vcn3f2_t	{(const ::llc::n3f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[1]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[1]]->Data.size() / (u0_t)sizeof(const ::llc::n3f2_t)}	: ::llc::vcn3f2_t{};
+		const ::llc::vcn3f2_t			normals					= (mesh.GeometryBuffers.size() > 2) ? ::llc::vcn3f2_t	{(const ::llc::n3f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[2]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[2]]->Data.size() / (u0_t)sizeof(const ::llc::n3f2_t)}	: ::llc::vcn3f2_t{};
+		const ::llc::vcn2f2_t			uv						= (mesh.GeometryBuffers.size() > 3) ? ::llc::vcn2f2_t	{(const ::llc::n2f2_t*)scene.Graphics->Buffers[mesh.GeometryBuffers[3]]->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[3]]->Data.size() / (u0_t)sizeof(const ::llc::n2f2_t)}	: ::llc::vcn2f2_t{};
 
 		transforms.Model					= scene.RenderNodes.BaseTransforms[iRenderNode].Model * transforms.Model;
 		::llc::pobj<::llc::SRenderBuffer>	indexBuffer		= scene.Graphics->Buffers[mesh.GeometryBuffers[0]];
 		if(indexBuffer->Desc.Format.TotalBytes() == 1) {
-			const ::llc::vcu0_t			indices					= ::llc::vcu0_t{(const uint8_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (uint8_t)sizeof(const uint8_t)};
+			const ::llc::vcu0_t			indices					= ::llc::vcu0_t{(const u0_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (u0_t)sizeof(const u0_t)};
 			const ::llc::SGeometrySlice	slice					= (renderNode.Slice < mesh.GeometrySlices.size()) ? mesh.GeometrySlices[renderNode.Slice] : ::llc::SGeometrySlice{{0, indices.size() / 3}};
 			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraFront);
 		}
 		else if(indexBuffer->Desc.Format.TotalBytes() == 2) {
-			const ::llc::vcu1_t			indices					= ::llc::vcu1_t{(const uint16_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (uint8_t)sizeof(const uint16_t)};
+			const ::llc::vcu1_t			indices					= ::llc::vcu1_t{(const ::llc::u1_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (u0_t)sizeof(const ::llc::u1_t)};
 			const ::llc::SGeometrySlice	slice					= (renderNode.Slice < mesh.GeometrySlices.size()) ? mesh.GeometrySlices[renderNode.Slice] : ::llc::SGeometrySlice{{0, indices.size() / 3}};
 			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraFront);
 		}
 		else if(indexBuffer->Desc.Format.TotalBytes() == 4) {
-			const ::llc::vcu2_t			indices					= ::llc::vcu2_t{(const uint32_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (uint8_t)sizeof(const uint16_t)};
+			const ::llc::vcu2_t			indices					= ::llc::vcu2_t{(const ::llc::u2_t*)indexBuffer->Data.begin(), scene.Graphics->Buffers[mesh.GeometryBuffers[0]]->Data.size() / (u0_t)sizeof(const ::llc::u1_t)};
 			const ::llc::SGeometrySlice	slice					= (renderNode.Slice < mesh.GeometrySlices.size()) ? mesh.GeometrySlices[renderNode.Slice] : ::llc::SGeometrySlice{{0, indices.size() / 3}};
 			::transformTriangles(renderCache.VertexShaderOutput, indices, positions, normals, uv, constants.VPS, worldTransform, constants.CameraFront);
 		}
@@ -103,7 +103,7 @@ static	::llc::error_t	transformTriangles
 
 static	::llc::error_t	drawBuffers
 	( ::llc::g8bgra										& backBufferColors
-	, ::llc::gu32										backBufferDepth
+	, ::llc::gu2_t										backBufferDepth
 	, ::llc::SVSOutput									& outVS
 	, ::llc::SVSCache									& cacheVS
 	, const ::llc::SRenderMaterial						& material
@@ -112,32 +112,32 @@ static	::llc::error_t	drawBuffers
 	, const ::llc::SRenderNodeConstants					& nodeConstants
 	, const ::std::function<::llc::TFuncPixelShader>	& ps
 	) {	// 
-	::llc::atrif32				& triangleWeights			= cacheVS.TriangleWeights		;
-	::llc::an2i16				& trianglePixelCoords		= cacheVS.SolidPixelCoords		;
+	::llc::atrif2_t				& triangleWeights			= cacheVS.TriangleWeights		;
+	::llc::an2s1_t				& trianglePixelCoords		= cacheVS.SolidPixelCoords		;
 	const ::llc::n2u1_t			offscreenMetrics			= backBufferColors.metrics().u1_t();
 	const ::llc::n3f2_t			lightDirectionNormalized	= ::llc::n3f2_t{constants.LightDirection}.Normalize();
 	::llc::SPSIn				inPS						= {nodeConstants};
 	inPS.Surface			= surface;
 	inPS.Material			= material;
 
-	for(uint32_t iTriangle = 0; iTriangle < outVS.PositionsScreen.size(); ++iTriangle) {
-		const ::llc::tri3f32		& triPositions				= outVS.PositionsScreen	[iTriangle];
+	for(::llc::u2_t iTriangle = 0; iTriangle < outVS.PositionsScreen.size(); ++iTriangle) {
+		const ::llc::tri3f2_t		& triPositions				= outVS.PositionsScreen	[iTriangle];
 		if( triPositions.CulledZ({0, 0xFFFFFF})
 		 || triPositions.CulledX({0, (float)offscreenMetrics.x})
 		 || triPositions.CulledY({0, (float)offscreenMetrics.y})
 		)
 			continue;
 
-		const ::llc::tri3f32		& triPositionsWorld			= outVS.PositionsWorld	[iTriangle];
-		const ::llc::tri3f32		& triNormals				= outVS.Normals			[iTriangle];
-		const ::llc::tri2f32		& triUVs					= outVS.UVs				[iTriangle];
+		const ::llc::tri3f2_t		& triPositionsWorld			= outVS.PositionsWorld	[iTriangle];
+		const ::llc::tri3f2_t		& triNormals				= outVS.Normals			[iTriangle];
+		const ::llc::tri2f2_t		& triUVs					= outVS.UVs				[iTriangle];
 
 		trianglePixelCoords.clear();
 		triangleWeights.clear();
-		if_true_e_failed(::llc::drawTriangle(offscreenMetrics.u2_t(), triPositions, trianglePixelCoords, triangleWeights, backBufferDepth));
+		es_if_failed(::llc::drawTriangle(offscreenMetrics.u2_t(), triPositions, trianglePixelCoords, triangleWeights, backBufferDepth));
 		//const bool													stripped					= surface[0][0] == ::llc::bgra{llc::WHITE};
-		for(uint32_t iCoord = 0; iCoord < trianglePixelCoords.size(); ++iCoord) {
-			const ::llc::trif32							& vertexWeights				= triangleWeights[iCoord];
+		for(::llc::u2_t iCoord = 0; iCoord < trianglePixelCoords.size(); ++iCoord) {
+			const ::llc::trif2_t							& vertexWeights				= triangleWeights[iCoord];
 			inPS.WeightedPosition								= triPositionsWorld.A * vertexWeights.A + triPositionsWorld.B * vertexWeights.B + triPositionsWorld.C * vertexWeights.C;
 			inPS.WeightedNormal									= (triNormals.A * vertexWeights.A + triNormals.B * vertexWeights.B + triNormals.C * vertexWeights.C).Normalize();
 			inPS.WeightedUV										= triUVs.A * vertexWeights.A + triUVs.B * vertexWeights.B + triUVs.C * vertexWeights.C;
@@ -150,7 +150,7 @@ static	::llc::error_t	drawBuffers
 
 ::llc::error_t			llc::drawScene									
 	( ::llc::g8bgra				backBufferColors
-	, ::llc::gu32				backBufferDepth
+	, ::llc::gu2_t				backBufferDepth
 	, ::llc::SEngineRenderCache	& renderCache
 	, const ::llc::SEngineScene	& scene
 	, const ::llc::n3f2_t		& cameraPosition
@@ -172,7 +172,7 @@ static	::llc::error_t	drawBuffers
 	constants.VPS			= constants.VP * constants.Screen;
 
 	static ::std::function<::llc::TFuncPixelShader>	defaultShader			= {::llc::psSolid};
-	for(uint32_t iRenderNode = 0, countNodes = scene.RenderNodes.RenderNodes.size(); iRenderNode < countNodes; ++iRenderNode) {
+	for(::llc::u2_t iRenderNode = 0, countNodes = scene.RenderNodes.RenderNodes.size(); iRenderNode < countNodes; ++iRenderNode) {
 		const ::llc::SRenderNodeFlags	& renderNodeFlags		= scene.RenderNodes.Flags[iRenderNode];
 		if(renderNodeFlags.NoDraw)
 			continue;
@@ -185,15 +185,15 @@ static	::llc::error_t	drawBuffers
 		
 		::llc::SRenderNodeConstants		transforms			= scene.RenderNodes.Transforms[iRenderNode];
 		transforms.NodeSize	= scene.RenderNodes.BaseTransforms[iRenderNode].NodeSize;
-		const ::llc::m4f32				& worldTransform	= transforms.Model;
+		const ::llc::m4f2_t				& worldTransform	= transforms.Model;
 		if((worldTransform.GetTranslation() - constants.CameraPosition).Normalize().Dot(constants.CameraFront) <= 0)
 			return 0;
 
-		cif_true_ef(failed(::transformTriangles(renderCache, scene, constants, iRenderNode)), "iRenderNode %i", iRenderNode);
+		cef_if(failed(::transformTriangles(renderCache, scene, constants, iRenderNode)), "iRenderNode %i", iRenderNode);
 
 		const ::llc::SSkin				& skin				= *scene.Graphics->Skins.Elements[renderNode.Skin];
 		const ::llc::SRenderMaterial	& material			= skin.Material;
-		const uint32_t					tex					= skin.Textures[0];
+		const ::llc::u2_t					tex					= skin.Textures[0];
 		const ::llc::SSurface			& surface			= *scene.Graphics->Surfaces[tex];
 		const ::std::function<::llc::TFuncPixelShader>	& fx
 			= (renderNode.Shader >= scene.Graphics->Shaders.size()) ? defaultShader : *scene.Graphics->Shaders[renderNode.Shader];
@@ -215,10 +215,10 @@ static	::llc::error_t	drawBuffers
 		, ::llc::BLUE
 		};
 
-	for(uint32_t iVector = 0; iVector < 3; ++iVector) {
+	for(::llc::u2_t iVector = 0; iVector < 3; ++iVector) {
 		wireframePixelCoords.clear();
-		::llc::drawLine(offscreenMetrics, ::llc::line3f32{{}, xyz[iVector]}, constants.VPS, wireframePixelCoords, backBufferDepth);
-		for(uint32_t iCoord = 0; iCoord < wireframePixelCoords.size(); ++iCoord) {
+		::llc::drawLine(offscreenMetrics, ::llc::line3f2_t{{}, xyz[iVector]}, constants.VPS, wireframePixelCoords, backBufferDepth);
+		for(::llc::u2_t iCoord = 0; iCoord < wireframePixelCoords.size(); ++iCoord) {
 			::llc::n3u1_t									coord					= wireframePixelCoords[iCoord].u1_t();
 			backBufferColors[coord.y][coord.x]	= colorXYZ[iVector];
 		}
@@ -247,13 +247,13 @@ static	::llc::error_t	drawBuffers
 	}
 	else if(geometry.Positions.size() > 0xFF) {
 		pIndicesVertex->Data.resize(geometry.PositionIndices.byte_count() >> 1);
-		::llc::vu16					viewIndices					= ::llc::vu16{(uint16_t*)pIndicesVertex->Data.begin(), geometry.PositionIndices.size()};
-		viewIndices.enumerate([&geometry](uint32_t index, uint16_t & value){ value = (uint16_t)geometry.PositionIndices[index]; return 0; }, 0);
+		::llc::vu1_t					viewIndices					= ::llc::vu1_t{(::llc::u1_t*)pIndicesVertex->Data.begin(), geometry.PositionIndices.size()};
+		viewIndices.enumerate([&geometry](::llc::u2_t index, ::llc::u1_t & value){ value = (::llc::u1_t)geometry.PositionIndices[index]; return 0; }, 0);
 	}
 	else {
 		pIndicesVertex->Data.resize(geometry.PositionIndices.byte_count() >> 2);
-		::llc::vu8					viewIndices					= ::llc::vu8{(uint8_t*)pIndicesVertex->Data.begin(), geometry.PositionIndices.size()};
-		viewIndices.enumerate([&geometry](uint32_t index, uint8_t & value){ value = (uint8_t)geometry.PositionIndices[index]; return 0; }, 0);
+		::llc::vu0_t					viewIndices					= ::llc::vu0_t{(u0_t*)pIndicesVertex->Data.begin(), geometry.PositionIndices.size()};
+		viewIndices.enumerate([&geometry](::llc::u2_t index, u0_t & value){ value = (u0_t)geometry.PositionIndices[index]; return 0; }, 0);
 	}
 
 	return 0;
@@ -262,17 +262,17 @@ static	::llc::error_t	drawBuffers
 ::llc::error_t			llc::createBuffers
 	( ::llc::SRenderBufferManager	& bufferManager 
 	, const ::llc::SGeometryBuffers	& geometry
-	, uint32_t						& iIndicesVertex
-	, uint32_t						& iVertices
-	, uint32_t						& iNormals
-	, uint32_t						& iUV
+	, ::llc::u2_t						& iIndicesVertex
+	, ::llc::u2_t						& iVertices
+	, ::llc::u2_t						& iNormals
+	, ::llc::u2_t						& iUV
 	) {
 	::llc::pobj<::llc::SRenderBuffer>	pIndicesVertex, pVertices, pNormals, pUV;
 	llc_necs(llc::createBuffers(geometry, pIndicesVertex, pVertices, pNormals, pUV));
-	llc_necs(iIndicesVertex			= (uint32_t)bufferManager.push_back(pIndicesVertex));
-	llc_necs(iVertices				= (uint32_t)bufferManager.push_back(pVertices));
-	llc_necs(iNormals				= (uint32_t)bufferManager.push_back(pNormals));
-	llc_necs(iUV					= (uint32_t)bufferManager.push_back(pUV));
+	llc_necs(iIndicesVertex			= (::llc::u2_t)bufferManager.push_back(pIndicesVertex));
+	llc_necs(iVertices				= (::llc::u2_t)bufferManager.push_back(pVertices));
+	llc_necs(iNormals				= (::llc::u2_t)bufferManager.push_back(pNormals));
+	llc_necs(iUV					= (::llc::u2_t)bufferManager.push_back(pUV));
 	return 0;
 }
 
@@ -281,13 +281,13 @@ static	::llc::error_t	drawBuffers
 	, const ::llc::vcst_t				name 
 	, bool								createSkin
 	) {
-	uint32_t					iIndicesVertex			= 0;
-	uint32_t					iVertices				= 0;
-	uint32_t					iNormals				= 0;
-	uint32_t					iUV						= 0;
+	::llc::u2_t					iIndicesVertex			= 0;
+	::llc::u2_t					iVertices				= 0;
+	::llc::u2_t					iNormals				= 0;
+	::llc::u2_t					iUV						= 0;
 	::llc::createBuffers(Graphics->Buffers, geometry, iIndicesVertex, iVertices, iNormals, iUV);
 
-	uint32_t					iMesh					= (uint32_t)Graphics->Meshes.Create();
+	::llc::u2_t					iMesh					= (::llc::u2_t)Graphics->Meshes.Create();
 	::llc::pobj<::llc::SGeometryMesh>	& mesh			= Graphics->Meshes[iMesh];
 	Graphics->Meshes.Names[iMesh] = name;
 	mesh->GeometryBuffers.append({iIndicesVertex, iVertices, iNormals, iUV});
@@ -297,18 +297,18 @@ static	::llc::error_t	drawBuffers
 	mesh->Desc.NormalMode	= ::llc::NORMAL_MODE_Point;
 
 
-	uint32_t					iRenderNode				= RenderNodes.Create();
+	::llc::u2_t					iRenderNode				= RenderNodes.Create();
 	::llc::SRenderNode			& renderNode			= RenderNodes.RenderNodes[iRenderNode];
 	renderNode.Mesh			= iMesh;
 	if(createSkin) {
-		uint32_t					iSkin					= (uint32_t)Graphics->Skins.Create();
+		::llc::u2_t					iSkin					= (::llc::u2_t)Graphics->Skins.Create();
 		::llc::pobj<::llc::SSkin>	& skin					= Graphics->Skins.Elements[iSkin];
 		skin->Material.Color.Ambient	= ::llc::bgra(::llc::ASCII_PALETTE[3]) * .1f;
 		skin->Material.Color.Diffuse	= ::llc::bgra(::llc::ASCII_PALETTE[3]);
 		skin->Material.Color.Specular	= ::llc::WHITE;
 		skin->Material.SpecularPower	= 0.5f;
 
-		uint32_t					iSurface				= (uint32_t)Graphics->Surfaces.Create();
+		::llc::u2_t					iSurface				= (::llc::u2_t)Graphics->Surfaces.Create();
 		skin->Textures.push_back(iSurface);
 
 		skin->Material.Color.Ambient	*= .1f;
@@ -323,8 +323,8 @@ static	::llc::error_t	drawBuffers
 		memset(surface->Data.begin(), 0xFF, surface->Data.size());
 		::llc::g8bgra				view					= {(::llc::bgra*)surface->Data.begin(), surface->Desc.Dimensions.u2_t()};
 		::llc::rgba					color					= {::llc::ASCII_PALETTE[rand() % 16]};
-		for(uint32_t y = surface->Desc.Dimensions.y / 3; y < surface->Desc.Dimensions.y / 3U * 2U; ++y)
-		for(uint32_t x = 0; x < surface->Desc.Dimensions.x; ++x)
+		for(::llc::u2_t y = surface->Desc.Dimensions.y / 3; y < surface->Desc.Dimensions.y / 3U * 2U; ++y)
+		for(::llc::u2_t x = 0; x < surface->Desc.Dimensions.x; ++x)
 			view[y][x]				= color;
 
 

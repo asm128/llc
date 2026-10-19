@@ -5,19 +5,19 @@
 #include "llc_engine_shader.h"
 
 ::llc::error_t			llc::updateEntityTransforms			
-	( uint32_t								iEntity
+	( ::llc::u2_t								iEntity
 	, const ::llc::SEntity			& entity
 	, const ::llc::SVirtualEntityManager	& managedEntities	
 	, ::llc::SRigidBodyIntegrator			& integrator		
 	, ::llc::SRenderNodeManager				& renderNodes
 	)
 {
-	const ::llc::pau32			& children				= managedEntities.Children[iEntity];
+	const ::llc::pau2_t			& children				= managedEntities.Children[iEntity];
 	if(-1 != entity.RenderNode) {
 		::llc::SRenderNodeConstants	& transforms			= renderNodes.Transforms[entity.RenderNode];
-		::llc::m4f32				& worldTransform		= transforms.Model;
+		::llc::m4f2_t				& worldTransform		= transforms.Model;
 		if(-1 == entity.RigidBody)
-			worldTransform			= ::llc::m4f32::GetIdentity();
+			worldTransform			= ::llc::m4f2_t::GetIdentity();
 		else {
 			integrator.GetTransform(entity.RigidBody, worldTransform);
 		}
@@ -35,7 +35,7 @@
 		transforms.ModelInverseTranspose	= transforms.ModelInverse.GetTranspose();
 	}
 	else if(-1 != entity.RigidBody) {
-		::llc::m4f32							& worldTransform				= integrator.TransformsLocal[entity.RigidBody];
+		::llc::m4f2_t							& worldTransform				= integrator.TransformsLocal[entity.RigidBody];
 		integrator.GetTransform(entity.RigidBody, worldTransform);
 		if(-1 != entity.Parent) {
 			const ::llc::SEntity				& entityParent					= managedEntities.Entities[entity.Parent];
@@ -47,8 +47,8 @@
 		}
 	}
 	if(children) {
-		for(uint32_t iChild = 0; iChild < children->size(); ++iChild) {
-			const uint32_t								iChildEntity					= (*children)[iChild];
+		for(::llc::u2_t iChild = 0; iChild < children->size(); ++iChild) {
+			const ::llc::u2_t								iChildEntity					= (*children)[iChild];
 			::llc::updateEntityTransforms(iChildEntity, managedEntities.Entities[iChildEntity], managedEntities, integrator, renderNodes);
 		}
 	}
@@ -61,11 +61,11 @@
 	::llc::SEntity			& entity			= Entities[iEntity];
 	entity.RenderNode			= Scene->RenderNodes.Create();
 
-	uint16_t						indexLight			= (uint16_t)-1;
+	::llc::u1_t						indexLight			= (::llc::u1_t)-1;
 	switch(type) {
-	case ::llc::LIGHT_TYPE_Directional	: indexLight = (uint16_t)Scene->RenderNodes.LightsDirectional	.push_back({}); break;
-	case ::llc::LIGHT_TYPE_Point		: indexLight = (uint16_t)Scene->RenderNodes.LightsPoint			.push_back({}); break;
-	case ::llc::LIGHT_TYPE_Spot			: indexLight = (uint16_t)Scene->RenderNodes.LightsSpot			.push_back({}); break;
+	case ::llc::LIGHT_TYPE_Directional	: indexLight = (::llc::u1_t)Scene->RenderNodes.LightsDirectional	.push_back({}); break;
+	case ::llc::LIGHT_TYPE_Point		: indexLight = (::llc::u1_t)Scene->RenderNodes.LightsPoint			.push_back({}); break;
+	case ::llc::LIGHT_TYPE_Spot			: indexLight = (::llc::u1_t)Scene->RenderNodes.LightsSpot			.push_back({}); break;
 	default:
 		error_printf("Invalid light type: %i", (int)type);
 		return -1;
@@ -209,7 +209,7 @@
 
 ::llc::error_t			llc::SEngine::CreateImageFromFile(const ::llc::vcs & fileFolder, const ::llc::vcs & fileName) {
 	sc_t						filePath	[2048]				= {};
-	sprintf_s(filePath, "%.*s/%.*s", LLC_VIEW_ARGS(fileFolder), LLC_VIEW_ARGS(fileName));
+	sprintf_s(filePath, "%s/%s", ::llc::toString(fileFolder).begin(), ::llc::toString(fileName).begin());
 	int32_t						index							= Images.Keys.find(filePath);
 	if(index != -1)
 		return Images.Values[index];
@@ -217,7 +217,7 @@
 	index					= Scene->Graphics->Surfaces.Create(::llc::label(filePath));
 	::llc::pobj<::llc::SSurface>	& surface					= Scene->Graphics->Surfaces[index];
 	llc_necs(llc::pngFileLoad(PNGCache, filePath, surface->Data));
-	surface->Desc.Dimensions	= PNGCache.Header.Size.u1();
+	surface->Desc.Dimensions	= PNGCache.Header.Size.u1_t();
 	surface->Desc.BitDepth		= PNGCache.Header.BitDepth;
 	surface->Desc.ColorType		= PNGCache.Header.ColorType;
 	return index; 
@@ -228,17 +228,17 @@
 //	::llc::SEntity		& entity				= Entities[iEntity];
 //	::llc::SRenderNode			& renderNode			= Scene->RenderNodes[entity.RenderNode];
 //
-//	uint32_t					iMesh					= renderNode.Mesh;
+//	::llc::u2_t					iMesh					= renderNode.Mesh;
 //	::llc::pobj<::llc::SGeometryMesh>	& mesh			= Scene->Graphics->Meshes[iMesh];
 //	Scene->Graphics->Skins[renderNode.Skin]->Material.Color.Diffuse.a = .25f;
 //	mesh->GeometrySlices.resize(6);	// one per face
 //
-//	uint32_t					offsetIndex				= 0;
-//	for(uint32_t iFace = 0; iFace < 6; ++iFace) {
-//		uint32_t					iSkin					= (uint32_t)Scene->Graphics->Skins.Create();
+//	::llc::u2_t					offsetIndex				= 0;
+//	for(::llc::u2_t iFace = 0; iFace < 6; ++iFace) {
+//		::llc::u2_t					iSkin					= (::llc::u2_t)Scene->Graphics->Skins.Create();
 //		::llc::pobj<::llc::SSkin>	& skin					= Scene->Graphics->Skins.Elements[iSkin];
 //
-//		uint32_t					iSurface				= (uint32_t)Scene->Graphics->Surfaces.Create();
+//		::llc::u2_t					iSurface				= (::llc::u2_t)Scene->Graphics->Surfaces.Create();
 //		::llc::pobj<::llc::SSurface>& surface				= Scene->Graphics->Surfaces[iSurface];
 //		surface->Desc.ColorType				= ::llc::COLOR_TYPE_BGRA;
 //		surface->Desc.MethodCompression		= 0;
@@ -261,7 +261,7 @@
 //		offsetIndex				+= slice.Slice.Count;
 //
 //		int32_t						iFaceEntity				= Entities.Create();
-//		uint32_t					iFaceRenderNode			= Scene->RenderNodes.Create();
+//		::llc::u2_t					iFaceRenderNode			= Scene->RenderNodes.Create();
 //		::llc::SEntity		& faceEntity			= Entities[iFaceEntity];
 //		::llc::SRenderNode			& faceRenderNode		= Scene->RenderNodes.RenderNodes[iFaceRenderNode];
 //

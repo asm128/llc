@@ -1,6 +1,6 @@
 #include "llc_engine_orbit.h"
 
-::llc::error_t			llc::initOrbitRotation	(::llc::SBodyForces & orbitForces, ::llc::AXIS rotationAxis, const ::llc::quatf32 & orbitOrientation, double rotation_period, double rotation_unit) {
+::llc::error_t			llc::initOrbitRotation	(::llc::SBodyForces & orbitForces, ::llc::AXIS rotationAxis, const ::llc::quatf2_t & orbitOrientation, double rotation_period, double rotation_unit) {
 	orbitForces				= {};	
 	::llc::orbitRotation(rotationAxis, rotation_period, rotation_unit, orbitOrientation, orbitForces.Rotation);
 	return 0;

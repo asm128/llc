@@ -8,7 +8,7 @@
 
 namespace llc 
 {
-	GDEFINE_ENUM_TYPE(BUFFER_USAGE, uint8_t);
+	GDEFINE_ENUM_TYPE(BUFFER_USAGE, u0_t);
 	GDEFINE_ENUM_VALUE(BUFFER_USAGE, Position			,  0);
 	GDEFINE_ENUM_VALUE(BUFFER_USAGE, Index				,  1);
 	GDEFINE_ENUM_VALUE(BUFFER_USAGE, Color				,  2);
@@ -24,7 +24,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(BUFFER_USAGE, RasterDestination	, 12);
 	GDEFINE_ENUM_VALUE(BUFFER_USAGE, Bitfield			, 100);
 
-	GDEFINE_ENUM_TYPE(ELEMENT_FREQUENCY, uint8_t);
+	GDEFINE_ENUM_TYPE(ELEMENT_FREQUENCY, u0_t);
 	GDEFINE_ENUM_VALUED(ELEMENT_FREQUENCY, Element			,  0, "Each element of the buffer matches to an element of the indexed buffer");
 	GDEFINE_ENUM_VALUED(ELEMENT_FREQUENCY, Instance			,  1, "Each elements of the buffer matches to a whole primitive instance of the indexed buffer. "
 		"This means that for drawing a triangle, three indexed elements will be used while only one of the instance buffer will be used.");
@@ -37,16 +37,16 @@ namespace llc
 	struct SRenderBufferDescription {
 		::llc::SDataTypeID			Format			= {};
 		BUFFER_USAGE				Usage			= {};
-		uint8_t						PitchStride		= {};
-		uint16_t					PitchRow		: 15;
-		uint16_t					Frequency		: 1;
+		u0_t						PitchStride		= {};
+		::llc::u1_t					PitchRow		: 15;
+		::llc::u1_t					Frequency		: 1;
 	};
 #pragma pack(pop)
 	struct SRenderBuffer {
 		SRenderBufferDescription	Desc			= {};
 		::llc::au0_t				Data			= {};
 
-		::llc::error_t				Save			(::llc::apod<uint8_t> & output)	const	{ 			
+		::llc::error_t				Save			(::llc::apod<u0_t> & output)	const	{ 			
 			llc_necs(llc::savePOD	(output, Desc));
 			llc_necs(llc::saveView(output, Data));
 			return 0; 
@@ -60,7 +60,7 @@ namespace llc
 	};
 
 	::llc::error_t				createBuffers
-		( uint32_t						vertexCount
+		( ::llc::u2_t						vertexCount
 		, ::llc::pobj<SRenderBuffer>	& pIndicesVertex
 		, ::llc::pobj<SRenderBuffer>	& pVertices
 		, ::llc::pobj<SRenderBuffer>	& pNormals

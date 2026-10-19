@@ -10,28 +10,28 @@
 namespace llc 
 {
 
-	typedef	::llc::aobj<::llc::an3char	>	aan3c	, aan3char		;
-	typedef	::llc::aobj<::llc::an3uchar	>	aan3uc	, aan3uchar		;
-	typedef	::llc::aobj<::llc::an3f32	>	aan3f32	;
-	typedef	::llc::aobj<::llc::an3f64	>	aan3f64	;
-	typedef	::llc::aobj<::llc::an3u8	>	aan3u8	;
-	typedef	::llc::aobj<::llc::an3u16	>	aan3u16	;
-	typedef	::llc::aobj<::llc::an3u32	>	aan3u32	;
-	typedef	::llc::aobj<::llc::an3u64	>	aan3u64	;
-	typedef	::llc::aobj<::llc::an3i8	>	aan3i8	;
-	typedef	::llc::aobj<::llc::an3i16	>	aan3i16	;
-	typedef	::llc::aobj<::llc::an3i32	>	aan3i32	;
-	typedef	::llc::aobj<::llc::an3i64	>	aan3i64	;
+	typedef	::llc::aobj<::llc::an3sc_t	>	aan3c	, aan3sc_t		;
+	typedef	::llc::aobj<::llc::an3uc_t	>	aan3uc	, aan3uc_t		;
+	typedef	::llc::aobj<::llc::an3f2_t	>	aan3f2_t	;
+	typedef	::llc::aobj<::llc::an3f3_t	>	aan3f3_t	;
+	typedef	::llc::aobj<::llc::an3u0_t	>	aan3u0_t	;
+	typedef	::llc::aobj<::llc::an3u1_t	>	aan3u1_t	;
+	typedef	::llc::aobj<::llc::an3u2_t	>	aan3u2_t	;
+	typedef	::llc::aobj<::llc::an3u3_t	>	aan3u3_t	;
+	typedef	::llc::aobj<::llc::an3s0_t	>	aan3s0_t	;
+	typedef	::llc::aobj<::llc::an3s1_t	>	aan3s1_t	;
+	typedef	::llc::aobj<::llc::an3s2_t	>	aan3s2_t	;
+	typedef	::llc::aobj<::llc::an3s3_t	>	aan3s3_t	;
 
 	struct SShots	{
-		::llc::aan3f32				DistanceToTargets	= {};
+		::llc::aan3f2_t				DistanceToTargets	= {};
 		::llc::af2_t				Lifetime			= {};
 		::llc::af2_t				Brightness			= {};
-		::llc::an3f32				PositionDraw		= {};
-		::llc::an3f32				PositionPrev		= {};
+		::llc::an3f2_t				PositionDraw		= {};
+		::llc::an3f2_t				PositionPrev		= {};
 		::llc::SParticles3			Particles			= {};
 
-		int							Remove				(uint32_t iShot)			{
+		int							Remove				(::llc::u2_t iShot)			{
 			Particles.Remove(iShot);
 			DistanceToTargets	.remove_unordered(iShot);
 			Lifetime			.remove_unordered(iShot);
@@ -59,11 +59,11 @@ namespace llc
 		}
 
 		::llc::error_t				Update				(float secondsLastFrame)	{
-			stacxpr	uint32_t				maxRange			= 200;
-			stacxpr	uint32_t				maxRangeSquared		= maxRange * maxRange;
+			stacxpr	::llc::u2_t				maxRange			= 200;
+			stacxpr	::llc::u2_t				maxRangeSquared		= maxRange * maxRange;
 			memcpy(PositionPrev.begin(), Particles.Position.begin(), Particles.Position.size() * sizeof(::llc::n3f2_t));
 			Particles.IntegrateSpeed(secondsLastFrame);
-			for(uint32_t iShot = 0; iShot < Particles.Position.size(); ++iShot) {
+			for(::llc::u2_t iShot = 0; iShot < Particles.Position.size(); ++iShot) {
 				Lifetime[iShot] -= secondsLastFrame;
 				if(0 >= Lifetime[iShot])
 					Remove(iShot--);
@@ -79,7 +79,7 @@ namespace llc
 			llc_necs(llc::saveView(output, PositionPrev	));
 			llc_necs(llc::saveView(output, Brightness		));
 			llc_necs(llc::saveView(output, Lifetime		));
-			for(uint32_t iParticle = 0; iParticle < Particles.Position.size(); ++iParticle) 
+			for(::llc::u2_t iParticle = 0; iParticle < Particles.Position.size(); ++iParticle) 
 				llc_necs(llc::saveView(output, DistanceToTargets[iParticle]));
 			
 			return 0; 
@@ -92,7 +92,7 @@ namespace llc
 			llc_necs(llc::loadView(input, Brightness		));
 			llc_necs(llc::loadView(input, Lifetime		));
 			llc_necs(DistanceToTargets.resize(Particles.Position.size()));
-			for(uint32_t iParticle = 0; iParticle < DistanceToTargets.size(); ++iParticle)
+			for(::llc::u2_t iParticle = 0; iParticle < DistanceToTargets.size(); ++iParticle)
 				llc_necs(llc::loadView(input, DistanceToTargets[iParticle]));
 
 			return 0;
@@ -102,8 +102,8 @@ namespace llc
 #pragma pack(push, 1)
 
 	struct SWeaponTrigger {
-		gaugemaxf32		Delay				= {};	// Trigger delay
-		gaugemaxf32		Overheat			= {};	// Cooldown/Reload time in seconds
+		gaugemaxf2_t		Delay				= {};	// Trigger delay
+		gaugemaxf2_t		Overheat			= {};	// Cooldown/Reload time in seconds
 		float			OverheatPerShot		= {};	// 
 		bool			CoolingDown			= {};	// Reloading
 
@@ -136,7 +136,7 @@ namespace llc
 
 	};
 
-	GDEFINE_FLAG_TYPE(WEAPON_LOAD, uint32_t);
+	GDEFINE_FLAG_TYPE(WEAPON_LOAD, ::llc::u2_t);
 	// these are the ammo classes that I can think of right now
 	GDEFINE_FLAG_VALUE(WEAPON_LOAD, None		,	0);	
 	GDEFINE_FLAG_VALUE(WEAPON_LOAD, Arrow		,	0x1UL);	
@@ -169,12 +169,12 @@ namespace llc
 	GDEFINE_FLAG_VALUE(WEAPON_LOAD, Temporized	,	0x10000000UL);
 	GDEFINE_FLAG_VALUE(WEAPON_LOAD, Detonable	,	0x20000000UL);
 
-	GDEFINE_ENUM_TYPE(WEAPON_ACTION, uint16_t);
+	GDEFINE_ENUM_TYPE(WEAPON_ACTION, ::llc::u1_t);
 	GDEFINE_ENUM_VALUE(WEAPON_ACTION, Shoot		, 0x0);
 	GDEFINE_ENUM_VALUE(WEAPON_ACTION, Cooldown	, 0x1);
 	GDEFINE_ENUM_VALUE(WEAPON_ACTION, Target	, 0x2);
 
-	GDEFINE_ENUM_TYPE (DAMAGE_TYPE, uint16_t);
+	GDEFINE_ENUM_TYPE (DAMAGE_TYPE, ::llc::u1_t);
 	GDEFINE_ENUM_VALUE(DAMAGE_TYPE, Pierce		, 0x0);
 	GDEFINE_ENUM_VALUE(DAMAGE_TYPE, Impact		, 0x1);
 	GDEFINE_ENUM_VALUE(DAMAGE_TYPE, Wave		, 0x2);
@@ -189,7 +189,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(DAMAGE_TYPE, EMP			, 0x400);
 	GDEFINE_ENUM_VALUE(DAMAGE_TYPE, Gravity		, 0x800);
 
-	GDEFINE_ENUM_TYPE(WEAPON_TYPE, uint8_t);
+	GDEFINE_ENUM_TYPE(WEAPON_TYPE, u0_t);
 	GDEFINE_ENUM_VALUE(WEAPON_TYPE, Gun			, 0);
 	GDEFINE_ENUM_VALUE(WEAPON_TYPE, Cannon		, 1);
 	GDEFINE_ENUM_VALUE(WEAPON_TYPE, Rocket		, 2);
@@ -203,7 +203,7 @@ namespace llc
 	struct SWeaponShot {
 		WEAPON_LOAD		Type				= {};	//= WEAPON_LOAD_Bullet;
 		DAMAGE_TYPE		DamageType			= {};	//= WEAPON_DAMAGE_Pierce;
-		uint16_t		ParticleCount		= 1;	//= 1;
+		::llc::u1_t		ParticleCount		= 1;	//= 1;
 		int32_t			Damage				= 1;	//= 1;
 		float			Stability			= 1;	//= 1.0;
 		float			Lifetime			= .5f;	//= 0;
@@ -224,8 +224,8 @@ namespace llc
 				return shots.SpawnForcedDirected(Shot.Stability, position, direction, Shot.Speed, brightness, Shot.Lifetime);
 
 			const int32_t		indexFirst			= shots.SpawnForcedDirected(Shot.Stability, position, direction, Shot.Speed, brightness, Shot.Lifetime);
-			const uint32_t		stop				= uint32_t(Shot.ParticleCount - 1);
-			for(uint32_t iDebris = 0; iDebris < stop; ++iDebris)
+			const ::llc::u2_t		stop				= ::llc::u2_t(Shot.ParticleCount - 1);
+			for(::llc::u2_t iDebris = 0; iDebris < stop; ++iDebris)
 				shots.SpawnForcedDirected(Shot.Stability, position, direction, Shot.Speed, brightness, Shot.Lifetime);
 
 			return indexFirst;
@@ -249,17 +249,17 @@ namespace llc
 	struct SWeaponManager {
 		::llc::apod<::llc::SWeapon>	Weapons			= {};	// 
 		::llc::aobj<::llc::SShots >	Shots			= {};	// One per weapon
-		::llc::apobj<::llc::an3f32>	WeaponTargets	= {};	// One per weapon
+		::llc::apobj<::llc::an3f2_t>	WeaponTargets	= {};	// One per weapon
 
 		int32_t						Clear					()		{ ::llc::clear(Weapons, Shots, WeaponTargets); return 0; }
 		::llc::error_t				Save					(::llc::au0_t & output)	const	{ 
 			llc_necs(llc::saveView(output, Weapons));
 			info_printf("Saved %s, %i", "Weapons", Weapons.size());
-			for(uint32_t iWeapon = 0; iWeapon < Weapons.size(); ++iWeapon) {
+			for(::llc::u2_t iWeapon = 0; iWeapon < Weapons.size(); ++iWeapon) {
 				if(WeaponTargets[iWeapon] && WeaponTargets[iWeapon]->size())
 					llc_necall(llc::saveView(output, *WeaponTargets[iWeapon]), "iWeapon: %i", iWeapon);
 				else
-					llc_necall(llc::saveView(output, ::llc::vc3f32{}), "iWeapon: %i", iWeapon);
+					llc_necall(llc::saveView(output, ::llc::vcn3f2_t{}), "iWeapon: %i", iWeapon);
 				llc_necall(Shots[iWeapon].Save(output), "iWeapon: %i", iWeapon);
 			}
 			return 0;
@@ -269,7 +269,7 @@ namespace llc
 			llc_necs(llc::loadView(input, Weapons));
 			Shots.resize(Weapons.size());
 			llc_necs(WeaponTargets.reserve(Weapons.size()));
-			for(uint32_t iWeapon = 0; iWeapon < Weapons.size(); ++iWeapon) {
+			for(::llc::u2_t iWeapon = 0; iWeapon < Weapons.size(); ++iWeapon) {
 				llc_necs(llc::loadView(input, WeaponTargets, iWeapon));
 				llc_necall(Shots[iWeapon].Load(input), "iWeapon: %i", iWeapon);
 			}

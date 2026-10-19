@@ -5,7 +5,7 @@
 
 namespace llc
 {
-	GDEFINE_ENUM_TYPE(MATCH_TYPE, uint8_t);
+	GDEFINE_ENUM_TYPE(MATCH_TYPE, u0_t);
 	GDEFINE_ENUM_VALUE(MATCH_TYPE, Free			, 0);
 	GDEFINE_ENUM_VALUE(MATCH_TYPE, Survival		, 1);
 	GDEFINE_ENUM_VALUE(MATCH_TYPE, Campaign		, 2);
@@ -15,10 +15,10 @@ namespace llc
 #pragma pack(push, 1)
 	struct SStageSetup {
 		uint64_t		Seed					= {};
-		uint16_t		Players					= {};
+		::llc::u1_t		Players					= {};
 		MATCH_TYPE		MatchType				= {};
-		uint8_t			Padding1				= {};
-		uint32_t		Padding4				= {};
+		u0_t			Padding1				= {};
+		::llc::u2_t		Padding4				= {};
 	};
 	stacxpr	size_t SIZE_SSTAGESETUP = sizeof(SStageSetup);
 

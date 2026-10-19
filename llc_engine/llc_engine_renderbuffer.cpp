@@ -1,7 +1,7 @@
 #include "llc_engine_renderbuffer.h"
 
 ::llc::error_t			llc::createBuffers	
-	( uint32_t							vertexCount
+	( ::llc::u2_t							vertexCount
 	, ::llc::pobj<::llc::SRenderBuffer>	& pIndicesVertex
 	, ::llc::pobj<::llc::SRenderBuffer>	& pVertices
 	, ::llc::pobj<::llc::SRenderBuffer>	& pNormals

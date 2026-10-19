@@ -11,7 +11,7 @@
 namespace llc 
 {
 	::llc::error_t					updateEntityTransforms			
-		( uint32_t								iEntity
+		( ::llc::u2_t								iEntity
 		, const ::llc::SEntity			& entity
 		, const ::llc::SVirtualEntityManager	& managedEntities	
 		, ::llc::SRigidBodyIntegrator			& integrator		
@@ -23,21 +23,21 @@ namespace llc
 		::llc::SVirtualEntityManager		Entities		;
 		::llc::SRigidBodyIntegrator			Integrator		;
 
-		::llc::lmpod<SParamsBox			, uint32_t>	ParamsBox			;
-		::llc::lmpod<SParamsDisc		, uint32_t>	ParamsDisc			;
-		::llc::lmpod<SParamsCircle		, uint32_t>	ParamsCircleSide	;
-		::llc::lmpod<SParamsCylinderWall, uint32_t>	ParamsCylinderWall	;
-		::llc::lmpod<SParamsCylinderWall, uint32_t>	ParamsCylinder		;
-		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsFigure0		;
-		::llc::lmpod<SParamsGrid		, uint32_t>	ParamsGrid			;
-		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsHelixHalf		;
-		::llc::lmpod<SParamsHelix		, uint32_t>	ParamsHelix			;
-		::llc::lmpod<SParamsSphere		, uint32_t>	ParamsSphere		;
-		::llc::lmpod<SParamsTube		, uint32_t>	ParamsTube			;
-		::llc::lmpod<SParamsRingSide	, uint32_t>	ParamsRingSide		;
-		::llc::lmpod<SParamsRingSide	, uint32_t>	ParamsRingFlat		;
+		::llc::lmpod<SParamsBox			, ::llc::u2_t>	ParamsBox			;
+		::llc::lmpod<SParamsDisc		, ::llc::u2_t>	ParamsDisc			;
+		::llc::lmpod<SParamsCircle		, ::llc::u2_t>	ParamsCircleSide	;
+		::llc::lmpod<SParamsCylinderWall, ::llc::u2_t>	ParamsCylinderWall	;
+		::llc::lmpod<SParamsCylinderWall, ::llc::u2_t>	ParamsCylinder		;
+		::llc::lmpod<SParamsHelix		, ::llc::u2_t>	ParamsFigure0		;
+		::llc::lmpod<SParamsGrid		, ::llc::u2_t>	ParamsGrid			;
+		::llc::lmpod<SParamsHelix		, ::llc::u2_t>	ParamsHelixHalf		;
+		::llc::lmpod<SParamsHelix		, ::llc::u2_t>	ParamsHelix			;
+		::llc::lmpod<SParamsSphere		, ::llc::u2_t>	ParamsSphere		;
+		::llc::lmpod<SParamsTube		, ::llc::u2_t>	ParamsTube			;
+		::llc::lmpod<SParamsRingSide	, ::llc::u2_t>	ParamsRingSide		;
+		::llc::lmpod<SParamsRingSide	, ::llc::u2_t>	ParamsRingFlat		;
 
-		::llc::lmpod<::llc::vcst_t, uint32_t>	Images			= {};
+		::llc::lmpod<::llc::vcst_t, ::llc::u2_t>	Images			= {};
 
 		::llc::SPNGData						PNGCache		= {};
 
@@ -82,30 +82,30 @@ namespace llc
 
 		::llc::error_t				Update				(double secondsLastFrame)		{
 			Integrator.Integrate(secondsLastFrame);
-			for(uint32_t iEntity = 0; iEntity < Entities.size(); ++iEntity) {
+			for(::llc::u2_t iEntity = 0; iEntity < Entities.size(); ++iEntity) {
 				::llc::SEntity			& entity			= Entities[iEntity];
 				if(entity.Parent != -1)
 					continue;
 
-				if_true_e(failed(::llc::updateEntityTransforms(iEntity, entity, Entities, Integrator, Scene->RenderNodes)));
+				e_if(failed(::llc::updateEntityTransforms(iEntity, entity, Entities, Integrator, Scene->RenderNodes)));
 			}
 			return 0;
 		}
 
 		// This function messes up with the Entities array so be careful of not having any references to its contents or it may end up trying to access invalid memory
-		::llc::error_t				Clone				(uint32_t iEntitySource, bool cloneSkin, bool cloneSurfaces, bool cloneShaders) {
+		::llc::error_t				Clone				(::llc::u2_t iEntitySource, bool cloneSkin, bool cloneSurfaces, bool cloneShaders) {
 			const ::llc::SEntity		entitySource		= Entities[iEntitySource];
 			int32_t							iEntityNew			= Entities.Create();
 			::llc::SEntity			& entityNew			= Entities[iEntityNew];
 			entityNew.RenderNode		= Scene->Clone(entitySource.RenderNode, cloneSkin, cloneSurfaces, cloneShaders);
-			entityNew.RigidBody			= ((uint32_t)entitySource.RigidBody < Integrator.Flags.size()) ? Integrator.Clone(entitySource.RigidBody) : (uint32_t)-1;
+			entityNew.RigidBody			= ((::llc::u2_t)entitySource.RigidBody < Integrator.Flags.size()) ? Integrator.Clone(entitySource.RigidBody) : (::llc::u2_t)-1;
 			entityNew.Parent			= entitySource.Parent;
 
-			const ::llc::pau32				childrenSource		= Entities.Children[iEntitySource];
+			const ::llc::pau2_t				childrenSource		= Entities.Children[iEntitySource];
 			if(childrenSource && childrenSource->size()) {
-				::llc::pau32					childrenNew			= Entities.Children[iEntityNew];
-				for(uint32_t iChild = 0; iChild < childrenSource->size(); ++iChild) {
-					uint32_t						entityChild			= Clone((*childrenSource)[iChild], cloneSkin, cloneSurfaces, cloneShaders);
+				::llc::pau2_t					childrenNew			= Entities.Children[iEntityNew];
+				for(::llc::u2_t iChild = 0; iChild < childrenSource->size(); ++iChild) {
+					::llc::u2_t						entityChild			= Clone((*childrenSource)[iChild], cloneSkin, cloneSurfaces, cloneShaders);
 					Entities[entityChild].Parent= iEntityNew;
 					childrenNew->push_back(entityChild);
 				}
@@ -114,47 +114,47 @@ namespace llc
 			return iEntityNew;
 		}
 
-		inline	::llc::error_t		SetNodeSize			(uint32_t iEntity, const ::llc::n3f2_t & size)					{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].NodeSize = size; return 0; }
-		inline	::llc::error_t		SetMeshScale		(uint32_t iEntity, const ::llc::n3f2_t & scale, bool halfSizes)	{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].Model.Scale(scale, true); 
+		inline	::llc::error_t		SetNodeSize			(::llc::u2_t iEntity, const ::llc::n3f2_t & size)					{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].NodeSize = size; return 0; }
+		inline	::llc::error_t		SetMeshScale		(::llc::u2_t iEntity, const ::llc::n3f2_t & scale, bool halfSizes)	{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].Model.Scale(scale, true); 
 			if(halfSizes) {
 				llc_necs(SetHalfSizes(iEntity, scale * .5f));
 				llc_necs(SetNodeSize(iEntity, scale));
 			}
 			return 0; 
 		}
-		inline	::llc::error_t		SetMeshPosition		(uint32_t iEntity, const ::llc::n3f2_t & position)				{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].Model.SetTranslation(position, false); return 0; }
-		::llc::error_t				SetColorDiffuse		(uint32_t iEntity, const ::llc::rgbaf & diffuse)				{ Scene->Graphics->Skins[Scene->RenderNodes[GetRenderNode(iEntity)].Skin]->Material.Color.Diffuse = diffuse; return 0; }
-		::llc::error_t				SetShader			(uint32_t iEntity, const ::std::function<::llc::TFuncPixelShader> & shader, ::llc::vcs name) {
-			const uint32_t					iShader				= Scene->RenderNodes[GetRenderNode(iEntity)].Shader;
+		inline	::llc::error_t		SetMeshPosition		(::llc::u2_t iEntity, const ::llc::n3f2_t & position)				{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].Model.SetTranslation(position, false); return 0; }
+		::llc::error_t				SetColorDiffuse		(::llc::u2_t iEntity, const ::llc::rgbaf & diffuse)				{ Scene->Graphics->Skins[Scene->RenderNodes[GetRenderNode(iEntity)].Skin]->Material.Color.Diffuse = diffuse; return 0; }
+		::llc::error_t				SetShader			(::llc::u2_t iEntity, const ::std::function<::llc::TFuncPixelShader> & shader, ::llc::vcs name) {
+			const ::llc::u2_t					iShader				= Scene->RenderNodes[GetRenderNode(iEntity)].Shader;
 			Scene->Graphics->Shaders[iShader].create(shader);
 			Scene->Graphics->Shaders.Names[iShader] = name;
 			return 0;
 		}
-		inline	::llc::error_t		IsPhysicsActive		(uint32_t iEntity)										const	{ return Integrator.Active	(Entities[iEntity].RigidBody) ? 1 : 0; }
-		inline	float				GetMass				(uint32_t iEntity)										const	{ return Integrator.GetMass	(Entities[iEntity].RigidBody);	}
+		inline	::llc::error_t		IsPhysicsActive		(::llc::u2_t iEntity)										const	{ return Integrator.Active	(Entities[iEntity].RigidBody) ? 1 : 0; }
+		inline	float				GetMass				(::llc::u2_t iEntity)										const	{ return Integrator.GetMass	(Entities[iEntity].RigidBody);	}
 
-		inline	::llc::error_t		InvalidateTransform	(uint32_t iEntity)												{ Integrator.Flags[GetRigidBody(iEntity)].UpdatedTransform = false;		return 0; }
+		inline	::llc::error_t		InvalidateTransform	(::llc::u2_t iEntity)												{ Integrator.Flags[GetRigidBody(iEntity)].UpdatedTransform = false;		return 0; }
 
-		inline	::llc::error_t		GetPosition			(uint32_t iEntity, ::llc::n3f2_t & position)				const	{ Integrator.GetPosition	(GetRigidBody(iEntity), position);			return 0; }
-		inline	::llc::error_t		GetVelocity			(uint32_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		GetAcceleration		(uint32_t iEntity, ::llc::n3f2_t & acceleration)			const	{ Integrator.GetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
-		inline	::llc::error_t		GetRotation			(uint32_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		GetOrientation		(uint32_t iEntity, ::llc::quatf32 & orientation)		const	{ Integrator.GetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
-		inline	::llc::error_t		SetPhysicsActive	(uint32_t iEntity, bool active)									{ Integrator.SetActive		(GetRigidBody(iEntity), active);			return 0; }
-		inline	::llc::error_t		SetCollides			(uint32_t iEntity, bool collides)								{ Integrator.SetCollides	(GetRigidBody(iEntity), collides);			return 0; }
-		inline	::llc::error_t		SetHalfSizes		(uint32_t iEntity, const ::llc::n3f2_t & halfSizes)				{ Integrator.SetHalfSizes	(GetRigidBody(iEntity), halfSizes);			return 0; }
-		inline	::llc::error_t		SetMass				(uint32_t iEntity, float mass)									{ Integrator.SetMass		(GetRigidBody(iEntity), mass);				return 0; }
-		inline	::llc::error_t		SetMassInverse		(uint32_t iEntity, float inverseMass)							{ Integrator.SetMassInverse	(GetRigidBody(iEntity), inverseMass);		return 0; }
-		inline	::llc::error_t		SetPosition			(uint32_t iEntity, const ::llc::n3f2_t & position)				{ Integrator.SetPosition	(GetRigidBody(iEntity), position);			return 0; }
-		inline	::llc::error_t		SetVelocity			(uint32_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		SetAcceleration		(uint32_t iEntity, const ::llc::n3f2_t & acceleration)			{ Integrator.SetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
-		inline	::llc::error_t		SetRotation			(uint32_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		SetOrientation		(uint32_t iEntity, const ::llc::quatf32 & orientation)			{ Integrator.SetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
-		inline	::llc::error_t		SetDampingLinear	(uint32_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].LinearDamping	= damping;	return 0; }
-		inline	::llc::error_t		SetDampingAngular	(uint32_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].AngularDamping	= damping;	return 0; }
-		::llc::error_t				SetHidden			(uint32_t iEntity, bool hidden)									{ Scene->RenderNodes.Flags[GetRenderNode(iEntity)].NoDraw	= hidden;	return 0; }	
+		inline	::llc::error_t		GetPosition			(::llc::u2_t iEntity, ::llc::n3f2_t & position)				const	{ Integrator.GetPosition	(GetRigidBody(iEntity), position);			return 0; }
+		inline	::llc::error_t		GetVelocity			(::llc::u2_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
+		inline	::llc::error_t		GetAcceleration		(::llc::u2_t iEntity, ::llc::n3f2_t & acceleration)			const	{ Integrator.GetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
+		inline	::llc::error_t		GetRotation			(::llc::u2_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
+		inline	::llc::error_t		GetOrientation		(::llc::u2_t iEntity, ::llc::quatf2_t & orientation)		const	{ Integrator.GetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
+		inline	::llc::error_t		SetPhysicsActive	(::llc::u2_t iEntity, bool active)									{ Integrator.SetActive		(GetRigidBody(iEntity), active);			return 0; }
+		inline	::llc::error_t		SetCollides			(::llc::u2_t iEntity, bool collides)								{ Integrator.SetCollides	(GetRigidBody(iEntity), collides);			return 0; }
+		inline	::llc::error_t		SetHalfSizes		(::llc::u2_t iEntity, const ::llc::n3f2_t & halfSizes)				{ Integrator.SetHalfSizes	(GetRigidBody(iEntity), halfSizes);			return 0; }
+		inline	::llc::error_t		SetMass				(::llc::u2_t iEntity, float mass)									{ Integrator.SetMass		(GetRigidBody(iEntity), mass);				return 0; }
+		inline	::llc::error_t		SetMassInverse		(::llc::u2_t iEntity, float inverseMass)							{ Integrator.SetMassInverse	(GetRigidBody(iEntity), inverseMass);		return 0; }
+		inline	::llc::error_t		SetPosition			(::llc::u2_t iEntity, const ::llc::n3f2_t & position)				{ Integrator.SetPosition	(GetRigidBody(iEntity), position);			return 0; }
+		inline	::llc::error_t		SetVelocity			(::llc::u2_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
+		inline	::llc::error_t		SetAcceleration		(::llc::u2_t iEntity, const ::llc::n3f2_t & acceleration)			{ Integrator.SetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
+		inline	::llc::error_t		SetRotation			(::llc::u2_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
+		inline	::llc::error_t		SetOrientation		(::llc::u2_t iEntity, const ::llc::quatf2_t & orientation)			{ Integrator.SetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
+		inline	::llc::error_t		SetDampingLinear	(::llc::u2_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].LinearDamping	= damping;	return 0; }
+		inline	::llc::error_t		SetDampingAngular	(::llc::u2_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].AngularDamping	= damping;	return 0; }
+		::llc::error_t				SetHidden			(::llc::u2_t iEntity, bool hidden)									{ Scene->RenderNodes.Flags[GetRenderNode(iEntity)].NoDraw	= hidden;	return 0; }	
 
-		::llc::error_t				ToggleHidden		(uint32_t iEntity) {
+		::llc::error_t				ToggleHidden		(::llc::u2_t iEntity) {
 			::llc::SRenderNodeFlags			& flags				= Scene->RenderNodes.Flags[GetRenderNode(iEntity)];
 			flags.NoDraw				= !flags.NoDraw;
 			return 0;
@@ -188,7 +188,7 @@ namespace llc
 			, const ::llc::n3f2_t						halfSizes
 			, bool										createSkin
 			, const _tParams							& params
-			, ::llc::linear_map_pod<_tParams, uint32_t>	& recycleRenderNodeMap
+			, ::llc::linear_map_pod<_tParams, ::llc::u2_t>	& recycleRenderNodeMap
 			, const TGeometryFunc						& funcGeometry
 			) {
 			int32_t							iEntity				= Entities.Create();
@@ -198,7 +198,7 @@ namespace llc
 			Integrator.BoundingVolumes[entity.RigidBody = Integrator.Create()].HalfSizes = halfSizes;
 
 			int32_t							reuse				= recycleRenderNodeMap.Keys.find([params](const _tParams & value) { return params == value; }, 0);
-			if(recycleRenderNodeMap.size() > (uint32_t)reuse)
+			if(recycleRenderNodeMap.size() > (::llc::u2_t)reuse)
 				entity.RenderNode		= Scene->Clone(recycleRenderNodeMap.Values[reuse], true, true, true);
 			else {
 				::llc::SGeometryBuffers			geometry;
@@ -230,8 +230,8 @@ namespace llc
 
 	struct SContact {
 		double					Time							= {};
-		uint32_t				EntityA							= {};
-		uint32_t				EntityB							= {};
+		::llc::u2_t				EntityA							= {};
+		::llc::u2_t				EntityB							= {};
 		::llc::n3f2_t			CenterDistance					= {};
 		double					DistanceLength					= {};
 		::llc::SContactResult	Result							= {};

@@ -9,7 +9,7 @@
 
 namespace llc
 {
-	GDEFINE_ENUM_TYPE (SHIP_GEOMETRY, uint8_t);
+	GDEFINE_ENUM_TYPE (SHIP_GEOMETRY, u0_t);
 	GDEFINE_ENUM_VALUE(SHIP_GEOMETRY, Line			, 0);
 	GDEFINE_ENUM_VALUE(SHIP_GEOMETRY, Triangle		, 1);
 	GDEFINE_ENUM_VALUE(SHIP_GEOMETRY, Rectangle		, 2);
@@ -33,7 +33,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(SHIP_GEOMETRY, Shred			, 110);
 	GDEFINE_ENUM_VALUE(SHIP_GEOMETRY, Nitro			, 111);
 
-	GDEFINE_ENUM_TYPE(SHIP_PART_TYPE, uint8_t);
+	GDEFINE_ENUM_TYPE(SHIP_PART_TYPE, u0_t);
 	GDEFINE_ENUM_VALUE(SHIP_PART_TYPE, Cargo		, 0);
 	GDEFINE_ENUM_VALUE(SHIP_PART_TYPE, Cannon		, 1);
 	GDEFINE_ENUM_VALUE(SHIP_PART_TYPE, Wafer		, 2);
@@ -45,7 +45,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(SHIP_PART_TYPE, Silo			, 8);
 	GDEFINE_ENUM_VALUE(SHIP_PART_TYPE, Tractor		, 9);
 
-	GDEFINE_ENUM_TYPE (SHIP_ACTION, uint8_t);
+	GDEFINE_ENUM_TYPE (SHIP_ACTION, u0_t);
 	GDEFINE_ENUM_VALUE(SHIP_ACTION, Spawn		, 0);
 	GDEFINE_ENUM_VALUE(SHIP_ACTION, MoveLeft	, 1);
 	GDEFINE_ENUM_VALUE(SHIP_ACTION, MoveRight	, 2);
@@ -69,9 +69,9 @@ namespace llc
 #pragma pack(push, 1)
 	struct SSpaceshipOrbiter {
 		SHIP_PART_TYPE		Type			= SHIP_PART_TYPE_Cargo;
-		::llc::gaugemaxi32	Health			= {};
-		uint32_t			Weapon			= (uint32_t)-1;
-		uint32_t			ActiveAction	= ~0U;
+		::llc::gaugemaxs2_t	Health			= {};
+		::llc::u2_t			Weapon			= (::llc::u2_t)-1;
+		::llc::u2_t			ActiveAction	= ~0U;
 	};
 
 	struct SSpaceshipScore {
@@ -82,24 +82,24 @@ namespace llc
 		uint64_t			DamageDone		= 0;
 		uint64_t			DamageReceived	= 0;
 		uint64_t			HitsSurvived	= 0;
-		uint32_t			OrbitersLost	= 0;
-		uint32_t			KilledShips		= 0;
-		uint32_t			KilledOrbiters	= 0;
+		::llc::u2_t			OrbitersLost	= 0;
+		::llc::u2_t			KilledShips		= 0;
+		::llc::u2_t			KilledOrbiters	= 0;
 	};
 
 	struct SSpaceshipCore {
 		// Generally constants, little or no variation during level gameplay
 		int32_t				Team			= {};
-		::llc::gaugemaxf32	Nitro			= {};
+		::llc::gaugemaxf2_t	Nitro			= {};
 
 		// Variable, may change at any time during 
 		int32_t				Health			= {};
-		uint32_t			AvailableNitros	= {};
+		::llc::u2_t			AvailableNitros	= {};
 		double				TimePlayed		= {};
 	};
 #pragma pack(pop)
 	tplt<tpnm _tPOD> 
-	::llc::error_t			loadView			(::llc::vcu0_t & input, ::llc::apapod<_tPOD> & output, const uint32_t index) { 
+	::llc::error_t			loadView			(::llc::vcu0_t & input, ::llc::apapod<_tPOD> & output, const ::llc::u2_t index) { 
 		::llc::view<const _tPOD>	viewToLoad;
 		llc_necall(llc::loadView(input, viewToLoad), "index: %i", index);
 		if(0 == viewToLoad.size()) {
@@ -140,10 +140,10 @@ namespace llc
 			return 0;
 		}
 
-		int32_t						GetShipHealth		(uint32_t iShipCore)				{ 
+		int32_t						GetShipHealth		(::llc::u2_t iShipCore)				{ 
 			int32_t							totalHealth			= 0;
 			::llc::vcu1_t					shipCoreParts		= ShipParts[iShipCore];
-			for(uint32_t iShipCorePart = 0, countParts = shipCoreParts.size(); iShipCorePart < countParts; ++iShipCorePart)
+			for(::llc::u2_t iShipCorePart = 0, countParts = shipCoreParts.size(); iShipCorePart < countParts; ++iShipCorePart)
 				totalHealth += Orbiters[shipCoreParts[iShipCorePart]].Health.Value;
 
 			return totalHealth;
@@ -151,12 +151,12 @@ namespace llc
 
 		int32_t						GetTeamHealth		(int32_t teamId) {
 			int32_t							totalHealth			= 0;
-			for(uint32_t iShipCore = 0, countShips = ShipCores.size(); iShipCore < countShips; ++iShipCore) {
+			for(::llc::u2_t iShipCore = 0, countShips = ShipCores.size(); iShipCore < countShips; ++iShipCore) {
 				if(ShipCores[iShipCore].Team != teamId) 
 					continue;
 
 				::llc::vcu1_t					shipCoreParts		= ShipParts[iShipCore];
-				for(uint32_t iShipCorePart = 0, countParts = shipCoreParts.size(); iShipCorePart < countParts; ++iShipCorePart) 
+				for(::llc::u2_t iShipCorePart = 0, countParts = shipCoreParts.size(); iShipCorePart < countParts; ++iShipCorePart) 
 					totalHealth += Orbiters[shipCoreParts[iShipCorePart]].Health.Value;
 			}
 			return totalHealth;
@@ -166,8 +166,8 @@ namespace llc
 		::llc::error_t				Save				(::llc::au0_t & output)	const	{ 
 			llc_necs(llc::saveView(output, ShipScores	));
 			llc_necs(llc::saveView(output, ShipCores	));
-			uint32_t						totalEntityChildren	= 0;
-			for(uint32_t iShipCore = 0; iShipCore < ShipCores.size(); ++iShipCore) {
+			::llc::u2_t						totalEntityChildren	= 0;
+			for(::llc::u2_t iShipCore = 0; iShipCore < ShipCores.size(); ++iShipCore) {
 				::llc::vcu1_t					v		{ShipParts[iShipCore]};
 				llc_necall(llc::saveView(output, v), "iPart: %i", iShipCore);
 				totalEntityChildren += v.size();
@@ -179,11 +179,11 @@ namespace llc
 			// Orbiters
 			llc_necs(llc::saveView(output, Orbiters));
 			info_printf("Saved %s, %i", "Orbiters", Orbiters.size());
-			for(uint32_t iShipOrbiter = 0; iShipOrbiter < Orbiters.size(); ++iShipOrbiter) {
+			for(::llc::u2_t iShipOrbiter = 0; iShipOrbiter < Orbiters.size(); ++iShipOrbiter) {
 				if(ShipOrbiterActionQueue[iShipOrbiter] && ShipOrbiterActionQueue[iShipOrbiter]->size())
 					llc_necall(llc::saveView(output, *ShipOrbiterActionQueue[iShipOrbiter]), "iShipOrbiter: %i", iShipOrbiter);
 				else
-					llc_necall(llc::saveView(output, ::llc::vc3f32{}), "iShipOrbiter: %i", iShipOrbiter);
+					llc_necall(llc::saveView(output, ::llc::vcn3f2_t{}), "iShipOrbiter: %i", iShipOrbiter);
 			}
 			return 0; 
 		}
@@ -193,13 +193,13 @@ namespace llc
 			llc_necs(llc::loadView(input, ShipScores	));
 			llc_necs(llc::loadView(input, ShipCores	));
 			llc_necs(ShipParts.resize(ShipCores.size()));
-			for(uint32_t iPart = 0; iPart < ShipParts.size(); ++iPart) 
+			for(::llc::u2_t iPart = 0; iPart < ShipParts.size(); ++iPart) 
 				llc_necall(llc::loadView(input, ShipParts[iPart]), "iPart: %i", iPart);
 
 			Orbiters.clear();
 			llc_necs(llc::loadView(input, Orbiters));
 			llc_necs(ShipOrbiterActionQueue.reserve(Orbiters.size()));
-			for(uint32_t iShipOrbiter = 0; iShipOrbiter < Orbiters.size(); ++iShipOrbiter) {
+			for(::llc::u2_t iShipOrbiter = 0; iShipOrbiter < Orbiters.size(); ++iShipOrbiter) {
 				llc_necs(llc::loadView(input, ShipOrbiterActionQueue, iShipOrbiter));
 			}
 			return 0; 
