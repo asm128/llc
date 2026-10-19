@@ -130,9 +130,9 @@ namespace llc
 		inln		err_t	append_string		(cnst llc::function<err_t(TArray&)> & funcAppend)	noexcept	{ return funcAppend ? funcAppend(*this) : 0; }
 		
 		tplN2uinln	err_t	append_string		(cnst T (&newChain)[N])								noexcept	{ return append_string(vcst_t{newChain}); }
-		inln		err_t	append_string		(cnst vcst_t & newChain)						noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
+		inln		err_t	append_string		(vcst_t newChain)									noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
 		inln		err_t	append_string		(cnst T & element)									noexcept	{ llc_necs(push_back(element)); return 1; }
-		inln		err_t	append_strings		(cnst view<cnst vcst_t> & newChains)	noexcept	{ 
+		inln		err_t	append_strings		(cnst view<cnst vcst_t> & newChains)				noexcept	{ 
 			s2_t					appended				= 0;
 			for(u2_t i = 0, stop = newChains.size(); i < stop; ++i) {
 				cnst vcst_t & newChain = newChains[i];
@@ -141,9 +141,9 @@ namespace llc
 			}
 			return appended;
 		}
-		tplN2uinln	err_t	append				(cnst T (&newChain)[N])										noexcept	{ return append(newChain, (u2_t)N); }
+		tplN2uinln	err_t	append				(cnst T (&newChain)[N])								noexcept	{ return append(newChain, (u2_t)N); }
 		inln		err_t	append				(cnst view<cnst T> & newChain)						noexcept	{ return append(newChain.begin(), newChain.size());	}
-		inln		err_t	append				(cnst view<cnst view<cnst T>> & newChains)	noexcept	{ 
+		inln		err_t	append				(cnst view<cnst view<cnst T>> & newChains)			noexcept	{ 
 			s2_t					count				= 0;
 			for(u2_t i = 0, stop = newChains.size(); i < stop; ++i) {
 				cnst view<cnst T> & newChain		= newChains[i];
@@ -152,7 +152,7 @@ namespace llc
 			}
 			return count;
 		}
-		err_t				append				(cnst T * chainToAppend, u2_t chainLength)					noexcept	{
+		err_t				append				(cnst T * chainToAppend, u2_t chainLength)			noexcept	{
 			if(0 == chainLength)
 				return Count;
 			if_null_fe(chainToAppend);
