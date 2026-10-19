@@ -1,40 +1,40 @@
-#include "gpk_label_manager.h"
-#include "gpk_n2.h"
-#include "gpk_file.h"
+#include "llc_label_manager.h"
+#include "llc_n2.h"
+#include "llc_file.h"
 
-#ifndef GPK_ENGINE_FILE_H_23627
-#define GPK_ENGINE_FILE_H_23627
+#ifndef LLC_ENGINE_FILE_H_23627
+#define LLC_ENGINE_FILE_H_23627
 
-namespace gpk 
+namespace llc 
 {
 	struct SRAMFolder {
-		::gpk::aobj<::gpk::vcsc_t>		Names;
-		::gpk::apod<::gpk::rangeu2_t>	Ranges;
-		::gpk::au0_t					Contents;
-		::gpk::au0_t					LoadCache;
+		::llc::aobj<::llc::vcsc_t>		Names;
+		::llc::apod<::llc::rangeu2_t>	Ranges;
+		::llc::au0_t					Contents;
+		::llc::au0_t					LoadCache;
 
-		::gpk::error_t					AddFile			(::gpk::vcsc_t fileName, ::gpk::vu8 fileContents) {
+		::llc::error_t					AddFile			(::llc::vcsc_t fileName, ::llc::vu8 fileContents) {
 			const uint32_t						ssizes[]		= {Ranges.size(), Contents.size(), Names.size()};
 			uint32_t							itemIndex;
-			::gpk::resize(::gpk::min<const uint32_t>(ssizes), Ranges, Contents, Names);
-			gpk_necall(Ranges.push_back({Contents.size(), fileContents.size()})	, "Failed to store file: %s", toString(fileName).begin());
-			gpk_necall(Contents.append(fileContents)							, "Failed to store file: %s", toString(fileName).begin());
+			::llc::resize(::llc::min<const uint32_t>(ssizes), Ranges, Contents, Names);
+			llc_necall(Ranges.push_back({Contents.size(), fileContents.size()})	, "Failed to store file: %s", toString(fileName).begin());
+			llc_necall(Contents.append(fileContents)							, "Failed to store file: %s", toString(fileName).begin());
 			if(failed(itemIndex = Names.push_back(fileName))) {
 				error_printf("Failed to store file: %s", toString(fileName).begin());
-				gpk_necs(Contents.resize(Ranges[Ranges.size() - 1].Offset));
-				gpk_necs(Ranges.resize(Ranges.size() - 1));
+				llc_necs(Contents.resize(Ranges[Ranges.size() - 1].Offset));
+				llc_necs(Ranges.resize(Ranges.size() - 1));
 			}
 			return itemIndex;
 		}
-		::gpk::error_t					AddFile			(::gpk::vcsc_t filePath) {
+		::llc::error_t					AddFile			(::llc::vcsc_t filePath) {
 			LoadCache.clear();
-			gpk_necs(gpk::fileToMemory(filePath, LoadCache));
+			llc_necs(llc::fileToMemory(filePath, LoadCache));
 			return AddFile(filePath, LoadCache);
 		}
-		::gpk::error_t					GetFile			(uint32_t index, ::gpk::vcu0_t & view)		const	{ return (view = {&Contents[Ranges[index].Offset], Ranges[index].Count}).size(); }
-		::gpk::error_t					GetFile			(::gpk::vcsc_t filePath, ::gpk::vcu0_t & view)	const	{
-			::gpk::error_t						index			= -1;
-			gpk_necall(index = ::gpk::find(filePath, ::gpk::vcvcc{Names}), "File not found: '%s'", toString(filePath).begin());
+		::llc::error_t					GetFile			(uint32_t index, ::llc::vcu0_t & view)		const	{ return (view = {&Contents[Ranges[index].Offset], Ranges[index].Count}).size(); }
+		::llc::error_t					GetFile			(::llc::vcsc_t filePath, ::llc::vcu0_t & view)	const	{
+			::llc::error_t						index			= -1;
+			llc_necall(index = ::llc::find(filePath, ::llc::vcvcc{Names}), "File not found: '%s'", toString(filePath).begin());
 			return GetFile(index, view);
 		}
 	};
@@ -42,4 +42,4 @@ namespace gpk
 
 } // namespace
 
-#endif // GPK_ENGINE_FILE_H_23627
+#endif // LLC_ENGINE_FILE_H_23627

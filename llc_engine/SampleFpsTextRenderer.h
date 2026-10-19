@@ -1,61 +1,61 @@
-﻿#include "DeviceResources.h"
+#include "DeviceResources.h"
 
-#include "gpk_array_ptr.h"
+#include "llc_array_ptr.h"
 
 #include <string>
 
 #ifndef SAMPLEFPSTEXTRENDERER_H_23627
 #define SAMPLEFPSTEXTRENDERER_H_23627
 
-namespace gpk
+namespace llc
 {
 	// Renders the current FPS value in the bottom right corner of the screen using Direct2D and DirectWrite.
 	struct SampleFpsTextRenderer {
 		// Cached pointer to device resources.
-		::gpk::pobj<::DX::D3DDeviceResources>	DeviceResources					= {};
+		::llc::pobj<::DX::D3DDeviceResources>	DeviceResources					= {};
 
 		// Resources related to text rendering.
 		std::wstring							Text							= {};
 		DWRITE_TEXT_METRICS						TextMetrics						= {};
-		::gpk::pcom<ID2D1SolidColorBrush>		WhiteBrush						= {};
-		::gpk::pcom<ID2D1DrawingStateBlock1>	StateBlock						= {};
-		::gpk::pcom<IDWriteTextLayout3>			TextLayout						= {};
-		::gpk::pcom<IDWriteTextFormat2>			TextFormat						= {};
+		::llc::pcom<ID2D1SolidColorBrush>		WhiteBrush						= {};
+		::llc::pcom<ID2D1DrawingStateBlock1>	StateBlock						= {};
+		::llc::pcom<IDWriteTextLayout3>			TextLayout						= {};
+		::llc::pcom<IDWriteTextFormat2>			TextFormat						= {};
 
-		::gpk::error_t							CreateDeviceResources	(ID2D1DeviceContext * d2dContext) { WhiteBrush = {}; gpk_hrcall(d2dContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &WhiteBrush)); return 0; }
+		::llc::error_t							CreateDeviceResources	(ID2D1DeviceContext * d2dContext) { WhiteBrush = {}; llc_hrcall(d2dContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &WhiteBrush)); return 0; }
 		void									ReleaseDeviceResources	() { WhiteBrush = {}; }
 
 		// Initializes D2D resources used for text 
-		::gpk::error_t							Initialize		(const ::gpk::pobj<DX::D3DDeviceResources> & deviceResources)  {
+		::llc::error_t							Initialize		(const ::llc::pobj<DX::D3DDeviceResources> & deviceResources)  {
 			DeviceResources									= deviceResources;
 			// Create device independent resources
-			::gpk::pcom<IDWriteTextFormat>						textFormat						= {};
-			gpk_hrcall(DeviceResources->GetDWriteFactory()->CreateTextFormat(L"Segoe UI", nullptr, DWRITE_FONT_WEIGHT_LIGHT, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 32.0f, L"en-US", &textFormat));
-			gpk_necs(textFormat.as(TextFormat));
-			gpk_hrcall(TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
-			gpk_hrcall(DeviceResources->GetD2DFactory()->CreateDrawingStateBlock(&StateBlock));
+			::llc::pcom<IDWriteTextFormat>						textFormat						= {};
+			llc_hrcall(DeviceResources->GetDWriteFactory()->CreateTextFormat(L"Segoe UI", nullptr, DWRITE_FONT_WEIGHT_LIGHT, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 32.0f, L"en-US", &textFormat));
+			llc_necs(textFormat.as(TextFormat));
+			llc_hrcall(TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
+			llc_hrcall(DeviceResources->GetD2DFactory()->CreateDrawingStateBlock(&StateBlock));
 			return CreateDeviceResources(DeviceResources->GetD2DDeviceContext());
 		}
 
 		// Updates the text to be displayed.
-		::gpk::error_t									Update							(double /*frameSeconds*/, double /*totalSeconds*/, uint32_t framesPerSecond) {
+		::llc::error_t									Update							(double /*frameSeconds*/, double /*totalSeconds*/, uint32_t framesPerSecond) {
 			// Update display text.
 			uint32_t											fps								= framesPerSecond;
 			Text											= (fps > 0) ? std::to_wstring(fps) + L" FPS" : L" - FPS";
 
-			::gpk::pcom<IDWriteTextLayout>						textLayout;
+			::llc::pcom<IDWriteTextLayout>						textLayout;
 			constexpr float										w								= 240.0f; // Max width of the input text.
 			constexpr float										h								= 50.0f;// Max height of the input text.
-			gpk_hrcall(DeviceResources->GetDWriteFactory()->CreateTextLayout(Text.c_str(), (uint32_t) Text.length(), TextFormat, w, h, &textLayout));
-			gpk_necs(textLayout.as(TextLayout));
-			gpk_hrcall(TextLayout->GetMetrics(&TextMetrics));
+			llc_hrcall(DeviceResources->GetDWriteFactory()->CreateTextLayout(Text.c_str(), (uint32_t) Text.length(), TextFormat, w, h, &textLayout));
+			llc_necs(textLayout.as(TextLayout));
+			llc_hrcall(TextLayout->GetMetrics(&TextMetrics));
 			return 0;
 		}
 
 		// Renders a frame to the screen.
-		::gpk::error_t									Render							() {
+		::llc::error_t									Render							() {
 			ID2D1DeviceContext									* context						= DeviceResources->GetD2DDeviceContext();
-			const ::gpk::n2f2_t								logicalSize						= DeviceResources->GetLogicalSize();
+			const ::llc::n2f2_t								logicalSize						= DeviceResources->GetLogicalSize();
 
 			context->SaveDrawingState(StateBlock);
 			context->BeginDraw();
@@ -63,13 +63,13 @@ namespace gpk
 			// Position on the bottom right corner
 			D2D1::Matrix3x2F									screenTranslation				= D2D1::Matrix3x2F::Translation(0, logicalSize.y - TextMetrics.height);
 			context->SetTransform(screenTranslation * DeviceResources->GetOrientationTransform2D());
-			gpk_hrcall(TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
+			llc_hrcall(TextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING));
 
 			context->DrawTextLayout(D2D1::Point2F(0.f, 0.f), TextLayout, WhiteBrush);
 	
 			HRESULT												hr								= context->EndDraw();
 			if (hr != D2DERR_RECREATE_TARGET)	// Ignore D2DERR_RECREATE_TARGET here. This error indicates that the device is lost. It will be handled during the next call to Present.
-				gpk_hrcall(hr);
+				llc_hrcall(hr);
 
 			context->RestoreDrawingState(StateBlock);
 			return 0;

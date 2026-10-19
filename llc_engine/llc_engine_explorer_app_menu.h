@@ -1,9 +1,9 @@
-#include "gpk_enum.h"
+#include "llc_enum.h"
 
-#ifndef GPK_ENGINE_EXPLORER_MENU_H_23627
-#define GPK_ENGINE_EXPLORER_MENU_H_23627
+#ifndef LLC_ENGINE_EXPLORER_MENU_H_23627
+#define LLC_ENGINE_EXPLORER_MENU_H_23627
 
-namespace gpk
+namespace llc
 {	
 	GDEFINE_ENUM_TYPE(UI_FILE_OPTIONS, uint8_t);
 	GDEFINE_ENUM_VALUE(UI_FILE_OPTIONS, New , 0);
@@ -46,4 +46,4 @@ namespace gpk
 	GDEFINE_ENUM_VALUE(EDITOR_APP_HELP, About, 0);
 } // namespace
 
-#endif // GPK_ENGINE_EXPLORER_MENU_H_23627
+#endif // LLC_ENGINE_EXPLORER_MENU_H_23627

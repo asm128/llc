@@ -1,4 +1,4 @@
-#include "gpk_xaudio2.h"
+#include "llc_xaudio2.h"
 
 #include "WAVFileReader.h"
 
@@ -30,7 +30,7 @@ stacxpr	X3DAUDIO_DISTANCE_CURVE_POINT	Emitter_Reverb_CurvePoints[3]	= { 0.0f, 0.
 static	const X3DAUDIO_DISTANCE_CURVE	Emitter_Reverb_Curve			= { (X3DAUDIO_DISTANCE_CURVE_POINT*)&Emitter_Reverb_CurvePoints[0], 3 };
 
 // Must match order of g_PRESET_NAMES
-stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
+stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 {
 	XAUDIO2FX_I3DL2_PRESET_FOREST,
 	XAUDIO2FX_I3DL2_PRESET_DEFAULT,
@@ -67,8 +67,8 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 //-----------------------------------------------------------------------------------------
 // Initialize the audio by creating the XAudio2 device, mastering voice, etc.
 //-----------------------------------------------------------------------------------------
-::gpk::error_t			gpk::AUDIO_STATE::InitAudio() {
-	gpk_hrcall(CoInitializeEx( nullptr, COINIT_MULTITHREADED ));
+::llc::error_t			llc::AUDIO_STATE::InitAudio() {
+	llc_hrcall(CoInitializeEx( nullptr, COINIT_MULTITHREADED ));
 
 #ifdef USING_XAUDIO2_7_DIRECTX
 	// Workaround for XAudio 2.7 known issue
@@ -78,7 +78,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	mXAudioDLL = LoadLibraryEx(TEXT("XAudio2_7.DLL"), nullptr, 0x00000800 /* LOAD_LIBRARY_SEARCH_SYSTEM32 */);
 #endif
 	if (!mXAudioDLL) {
-		gpk_hrcall(HRESULT_FROM_WIN32(ERROR_NOT_FOUND));
+		llc_hrcall(HRESULT_FROM_WIN32(ERROR_NOT_FOUND));
 		return -1;
 	}
 #endif
@@ -87,7 +87,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
  #if defined(USING_XAUDIO2_7_DIRECTX) && defined(_DEBUG)
 	flags |= XAUDIO2_DEBUG_ENGINE;
  #endif
-	gpk_hrcall(XAudio2Create( &XAudio2, flags ));
+	llc_hrcall(XAudio2Create( &XAudio2, flags ));
 
 #if !defined(USING_XAUDIO2_7_DIRECTX) && defined(_DEBUG)
 	// To see the trace output, you need to view ETW logs for this application:
@@ -100,7 +100,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	debug.BreakMask			= XAUDIO2_LOG_ERRORS;
 	XAudio2->SetDebugConfiguration( &debug, 0 );
 #endif
-	gpk_hrcall(XAudio2->CreateMasteringVoice(&pMasterVoice));
+	llc_hrcall(XAudio2->CreateMasteringVoice(&pMasterVoice));
 
 	// Check device details to make sure it's within our sample supported parameters
 	DWORD						dwChannelMask	= 0;
@@ -113,7 +113,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 
 	rees_if(details.InputChannels > OUTPUTCHANNELS);
 
-	gpk_hrcall(pMasterVoice->GetChannelMask( &dwChannelMask ));
+	llc_hrcall(pMasterVoice->GetChannelMask( &dwChannelMask ));
 
 	nSampleRate				= details.InputSampleRate;
 	ChannelMask				= dwChannelMask;
@@ -124,7 +124,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 #else
 
 	XAUDIO2_DEVICE_DETAILS		details			= {};
-	gpk_hrcall(XAudio2->GetDeviceDetails(0, &details));
+	llc_hrcall(XAudio2->GetDeviceDetails(0, &details));
 
 	rees_if(details.OutputFormat.Format.nChannels > OUTPUTCHANNELS);
 
@@ -140,7 +140,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	params.Release			= FXMASTERINGLIMITER_DEFAULT_RELEASE;
 	params.Loudness			= FXMASTERINGLIMITER_DEFAULT_LOUDNESS;
 
-	gpk_hrcall(CreateFX(__uuidof(FXMasteringLimiter), &pVolumeLimiter, &params, sizeof(params)));
+	llc_hrcall(CreateFX(__uuidof(FXMasteringLimiter), &pVolumeLimiter, &params, sizeof(params)));
 
 	XAUDIO2_EFFECT_DESCRIPTOR	desc				= {};
 	desc.InitialState		= TRUE;
@@ -148,21 +148,21 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	desc.pEffect			= pVolumeLimiter.Get();
 
 	XAUDIO2_EFFECT_CHAIN		chain				= { 1, &desc };
-	gpk_hrcall(pMasterVoice->SetEffectChain(&chain));
+	llc_hrcall(pMasterVoice->SetEffectChain(&chain));
 #endif // MASTERING_LIMITER
 
 	UINT32						rflags				= 0;
  #if defined(USING_XAUDIO2_7_DIRECTX) && defined(_DEBUG)
 	rflags |= XAUDIO2FX_DEBUG;
  #endif
-	gpk_hrcall(XAudio2CreateReverb( (IUnknown**)&pReverbEffect, rflags ));
+	llc_hrcall(XAudio2CreateReverb( (IUnknown**)&pReverbEffect, rflags ));
 
 	// Performance tip: you need not run global FX with the sample number of channels as the final mix. 
 	// For example, this sample runs the reverb in mono mode, thus reducing CPU overhead.
 	XAUDIO2_EFFECT_DESCRIPTOR	effects[]			= { { pReverbEffect, TRUE, 1 } };
 	XAUDIO2_EFFECT_CHAIN		effectChain			= { 1, effects };
 
-	gpk_hrcall(XAudio2->CreateSubmixVoice(&pSubmixVoice, 1, nSampleRate, 0, 0, nullptr, &effectChain));
+	llc_hrcall(XAudio2->CreateSubmixVoice(&pSubmixVoice, 1, nSampleRate, 0, 0, nullptr, &effectChain));
 
 	// Set default FX params
 	XAUDIO2FX_REVERB_PARAMETERS	native		= {};
@@ -237,13 +237,13 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 //-----------------------------------------------------------------------------
 // Prepare a looping wave
 //-----------------------------------------------------------------------------
-::gpk::error_t			gpk::AUDIO_STATE::PrepareAudio(::gpk::vcsc_c & wavname) {
+::llc::error_t			llc::AUDIO_STATE::PrepareAudio(::llc::vcsc_c & wavname) {
 	safe_destroySourceVoice(SourceVoice);
 
 	// Read in the wave file
 	const WAVEFORMATEX			* pwfx				= 0;
-	::gpk::vcu0_t					audioView			= {};
-	gpk_necs(DirectX::LoadWAVAudioFromFile(wavname, WaveData, &pwfx, audioView));
+	::llc::vcu0_t					audioView			= {};
+	llc_necs(DirectX::LoadWAVAudioFromFile(wavname, WaveData, &pwfx, audioView));
 
 	ree_if(pwfx->nChannels != INPUTCHANNELS, "%i == %i", pwfx->nChannels, INPUTCHANNELS);
 
@@ -254,7 +254,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	const XAUDIO2_VOICE_SENDS	sendList			= {2, sendDescriptors};
 
 	// create the source voice
-	gpk_hrcall(XAudio2->CreateSourceVoice(&SourceVoice, pwfx, 0, 2.0f, nullptr, &sendList));
+	llc_hrcall(XAudio2->CreateSourceVoice(&SourceVoice, pwfx, 0, 2.0f, nullptr, &sendList));
 
 	// Submit the wave sample data using an XAUDIO2_BUFFER structure
 	XAUDIO2_BUFFER				buffer				= {};
@@ -263,8 +263,8 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	buffer.AudioBytes		= audioView.size();
 	buffer.LoopCount		= XAUDIO2_LOOP_INFINITE;
 
-	gpk_hrcall(SourceVoice->SubmitSourceBuffer(&buffer));
-	gpk_hrcall(SourceVoice->Start(0));
+	llc_hrcall(SourceVoice->SubmitSourceBuffer(&buffer));
+	llc_hrcall(SourceVoice->Start(0));
 	Playing					= true;
 
 	nFrameToApply3DAudio	= 0;
@@ -274,13 +274,13 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 //-----------------------------------------------------------------------------
 // Perform per-frame update of audio
 //-----------------------------------------------------------------------------
-::gpk::error_t			gpk::AUDIO_STATE::UpdateAudio(double fElapsedTime) {
+::llc::error_t			llc::AUDIO_STATE::UpdateAudio(double fElapsedTime) {
 	if( nFrameToApply3DAudio == 0 ) {
 		// Calculate listener orientation in x-z plane
 		if (vListenerPos.x != listener.Position.x
 		 || vListenerPos.z != listener.Position.z
 		) {
-			::gpk::n3f2_t				vDelta				= vListenerPos - ::gpk::n3f2_t{listener.Position.x, listener.Position.y, listener.Position.z};
+			::llc::n3f2_t				vDelta				= vListenerPos - ::llc::n3f2_t{listener.Position.x, listener.Position.y, listener.Position.z};
 
 			fListenerAngle			= float( atan2( vDelta.x, vDelta.z ) );
 
@@ -303,11 +303,11 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 		}
 
 		if( fElapsedTime > 0 ) {
-			::gpk::n3f2_t				lVelocity			= ( vListenerPos - ::gpk::n3f2_t{listener.Position.x, listener.Position.y, listener.Position.z} ) / fElapsedTime;
+			::llc::n3f2_t				lVelocity			= ( vListenerPos - ::llc::n3f2_t{listener.Position.x, listener.Position.y, listener.Position.z} ) / fElapsedTime;
 			listener.Position		= {vListenerPos.x, vListenerPos.y, vListenerPos.z};
 			listener.Velocity		= {lVelocity.x, lVelocity.y, lVelocity.z};
 
-			::gpk::n3f2_t				eVelocity			= ( vEmitterPos - ::gpk::n3f2_t{emitter.Position.x, emitter.Position.y, emitter.Position.z} ) / fElapsedTime;
+			::llc::n3f2_t				eVelocity			= ( vEmitterPos - ::llc::n3f2_t{emitter.Position.x, emitter.Position.y, emitter.Position.z} ) / fElapsedTime;
 			emitter.Position		= {vEmitterPos.x, vEmitterPos.y, vEmitterPos.z};
 			emitter.Velocity		= {eVelocity.x, eVelocity.y, eVelocity.z};
 		}
@@ -344,7 +344,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	return S_OK;
 }
 
-::gpk::error_t			gpk::AUDIO_STATE::SetReverb(int nReverb) {
+::llc::error_t			llc::AUDIO_STATE::SetReverb(int nReverb) {
 	if( nReverb < 0 || nReverb >= NUM_PRESETS )
 		return E_FAIL;
 
@@ -357,7 +357,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	return S_OK;
 }
 
-::gpk::error_t			gpk::AUDIO_STATE::PauseAudio(bool resume) { 
+::llc::error_t			llc::AUDIO_STATE::PauseAudio(bool resume) { 
 	if(resume && false == Playing) 
 		XAudio2->StartEngine();
 	else if(Playing && false == resume) 
@@ -367,7 +367,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	return 0; 
 }
 
-::gpk::error_t			gpk::AUDIO_STATE::CleanupAudio	()					{
+::llc::error_t			llc::AUDIO_STATE::CleanupAudio	()					{
 	safe_destroySourceVoice(SourceVoice);	
 	safe_destroyVoice(pSubmixVoice);	
 	safe_destroyVoice(pMasterVoice);
@@ -379,7 +379,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::gpk::NUM_PRESETS]	=
 	return 0;
 }
 
-static	::gpk::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::gpk::aobj<::gpk::AudioDevice> & list) {
+static	::llc::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::llc::aobj<::llc::AudioDevice> & list) {
 #if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 	UNREFERENCED_PARAMETER( pXaudio2 );
 
@@ -400,7 +400,7 @@ static	::gpk::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::gpk::a
  
 			DeviceInformation			^d			= devices->GetAt(i);
 
-			::gpk::AudioDevice			device;
+			::llc::AudioDevice			device;
 			device.Id			= d->Id->Data();
 			device.Description	= d->Name->Data();
 			list.emplace_back(device);
@@ -420,14 +420,14 @@ static	::gpk::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::gpk::a
 	using namespace ABI::Windows::Devices::Enumeration;
 
 	RoInitializeWrapper initialize(RO_INIT_MULTITHREADED);
-	gpk_hrcall(initialize);
+	llc_hrcall(initialize);
 
-	::gpk::pcom<IDeviceInformationStatics> diFactory;
-	gpk_hrcall(ABI::Windows::Foundation::GetActivationFactory( HStringReference(RuntimeClass_Windows_Devices_Enumeration_DeviceInformation).Get(), &diFactory));
+	::llc::pcom<IDeviceInformationStatics> diFactory;
+	llc_hrcall(ABI::Windows::Foundation::GetActivationFactory( HStringReference(RuntimeClass_Windows_Devices_Enumeration_DeviceInformation).Get(), &diFactory));
 
 	Event findCompleted( CreateEventEx( nullptr, nullptr, CREATE_EVENT_MANUAL_RESET, WRITE_OWNER | EVENT_ALL_ACCESS ) );
 	if(!findCompleted.IsValid()) {
-		gpk_hrcall(HRESULT_FROM_WIN32(GetLastError()));
+		llc_hrcall(HRESULT_FROM_WIN32(GetLastError()));
 		return -1;
 	}
 
@@ -437,21 +437,21 @@ static	::gpk::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::gpk::a
 		return S_OK;
 	});
 
-	::gpk::pcom<IAsyncOperation<DeviceInformationCollection*>> operation;
-	gpk_hrcall(diFactory->FindAllAsyncDeviceClass( DeviceClass_AudioRender, &operation));
+	::llc::pcom<IAsyncOperation<DeviceInformationCollection*>> operation;
+	llc_hrcall(diFactory->FindAllAsyncDeviceClass( DeviceClass_AudioRender, &operation));
 	operation->put_Completed( callback.Get() );
 	WaitForSingleObject( findCompleted.Get(), INFINITE );
 
-	::gpk::pcom<IVectorView<DeviceInformation*>> devices;
+	::llc::pcom<IVectorView<DeviceInformation*>> devices;
 	operation->GetResults( &devices);
 
 	unsigned int count = 0;
-	gpk_hrcall(devices->get_Size(&count));
+	llc_hrcall(devices->get_Size(&count));
 
 	rees_if(!count);
 
 	for( unsigned int j = 0; j < count; ++j ) {
-		::gpk::pcom<IDeviceInformation>	deviceInfo;
+		::llc::pcom<IDeviceInformation>	deviceInfo;
 		HRESULT hr;
 		cef_if(FAILED(hr = devices->GetAt(j, &deviceInfo)), "0x%X", hr); 
 
@@ -461,7 +461,7 @@ static	::gpk::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::gpk::a
 		deviceInfo->get_Id  (id  .GetAddressOf());
 		deviceInfo->get_Name(name.GetAddressOf());
 
-		::gpk::AudioDevice				device		= {};
+		::llc::AudioDevice				device		= {};
 		device.Id			= id.GetRawBuffer( nullptr );
 		device.Description	= name.GetRawBuffer( nullptr );
 		list.push_back(device);
@@ -474,36 +474,36 @@ static	::gpk::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::gpk::a
 #elif defined(USING_XAUDIO2_REDIST)
 
 	// Enumeration for XAudio 2.9 down-level on Windows 7
-	::gpk::pcom<IMMDeviceEnumerator> devEnum;
-	gpk_hrcall(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(devEnum.GetAddressOf())));
+	::llc::pcom<IMMDeviceEnumerator> devEnum;
+	llc_hrcall(CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(devEnum.GetAddressOf())));
 
-	::gpk::pcom<IMMDeviceCollection> devices;
-	gpk_hrcall(devEnum->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &devices));
+	::llc::pcom<IMMDeviceCollection> devices;
+	llc_hrcall(devEnum->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &devices));
 
 	UINT count = 0;
-	gpk_hrcall(devices->GetCount(&count));
+	llc_hrcall(devices->GetCount(&count));
 
 	if (!count)
 		return S_FALSE;
 
 	for (UINT j = 0; j < count; ++j) {
-		::gpk::pcom<IMMDevice> endpoint;
+		::llc::pcom<IMMDevice> endpoint;
 		ce_if(FAILED(hr = devices->Item(j, endpoint.GetAddressOf())), "0x%X", hr);
 
 		LPWSTR id = nullptr;
-		gpk_hrcall(endpoint->GetId(&id));
+		llc_hrcall(endpoint->GetId(&id));
 
 		AudioDevice device;
 		device.deviceId = id;
 		CoTaskMemFree(id);
 
-		::gpk::pcom<IPropertyStore> props;
-		gpk_hrcall(endpoint->OpenPropertyStore(STGM_READ, props.GetAddressOf()));
+		::llc::pcom<IPropertyStore> props;
+		llc_hrcall(endpoint->OpenPropertyStore(STGM_READ, props.GetAddressOf()));
 
 		PROPVARIANT var;
 		PropVariantInit(&var);
 
-		gpk_hrcall(hr = props->GetValue(PKEY_Device_FriendlyName, &var));
+		llc_hrcall(hr = props->GetValue(PKEY_Device_FriendlyName, &var));
 		if (var.vt != VT_LPWSTR)
 			return hr;
 
@@ -517,7 +517,7 @@ static	::gpk::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::gpk::a
 
 	// Enumerating with XAudio 2.7
 	uint32_t						count			= 0;
-	gpk_hrcall(pXaudio2->GetDeviceCount(&count));
+	llc_hrcall(pXaudio2->GetDeviceCount(&count));
 	if(!count)
 		return S_FALSE;
 
@@ -536,21 +536,21 @@ static	::gpk::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::gpk::a
 	return S_OK;
 }
 
-HRESULT					gpk::SSoundState::PrepareAudio	(::gpk::vcsc_c & wavname, IXAudio2*	XAudio2, IXAudio2MasteringVoice * pMasterVoice, IXAudio2SubmixVoice * pSubmixVoice) {
+HRESULT					llc::SSoundState::PrepareAudio	(::llc::vcsc_c & wavname, IXAudio2*	XAudio2, IXAudio2MasteringVoice * pMasterVoice, IXAudio2SubmixVoice * pSubmixVoice) {
 	safe_destroySourceVoice(SourceVoice);
 
 	// Search for media
 	sc_t						strFilePath[4096]	= {};
-	sprintf_s(strFilePath, "./%s", ::gpk::toString(wavname).begin());
+	sprintf_s(strFilePath, "./%s", ::llc::toString(wavname).begin());
 	wchar_t						wstrFilePath[4096]	= {};
 	size_t						count				= 0;
 	mbstowcs_s(&count, wstrFilePath, strFilePath, 4095);
 
 	// Read in the wave file
 	const WAVEFORMATEX			* pwfx				= 0;
-	::gpk::vcu0_t				audioView			= {};
+	::llc::vcu0_t				audioView			= {};
 	WaveData.create();
-	gpk_hrcall(DirectX::LoadWAVAudioFromFile(::gpk::vcs{strFilePath}, *WaveData, &pwfx, audioView));
+	llc_hrcall(DirectX::LoadWAVAudioFromFile(::llc::vcs{strFilePath}, *WaveData, &pwfx, audioView));
 
 	// Play the wave using a source voice that sends to both the submix and mastering voices
 	XAUDIO2_SEND_DESCRIPTOR		sendDescriptors[2]	= {};
@@ -559,7 +559,7 @@ HRESULT					gpk::SSoundState::PrepareAudio	(::gpk::vcsc_c & wavname, IXAudio2*	X
 	const XAUDIO2_VOICE_SENDS	sendList			= { 2, sendDescriptors };
 
 	// create the source voice
-	gpk_hrcall(XAudio2->CreateSourceVoice(&SourceVoice, pwfx, 0, 2.0f, nullptr, &sendList));
+	llc_hrcall(XAudio2->CreateSourceVoice(&SourceVoice, pwfx, 0, 2.0f, nullptr, &sendList));
 
 	// Submit the wave sample data using an XAUDIO2_BUFFER structure
 	XAUDIO2_BUFFER				buffer				= {};
@@ -568,8 +568,8 @@ HRESULT					gpk::SSoundState::PrepareAudio	(::gpk::vcsc_c & wavname, IXAudio2*	X
 	buffer.AudioBytes		= audioView.size();
 	buffer.LoopCount		= XAUDIO2_LOOP_INFINITE;
 
-	gpk_hrcall(SourceVoice->SubmitSourceBuffer(&buffer));
-	gpk_hrcall(SourceVoice->Start(0));
+	llc_hrcall(SourceVoice->SubmitSourceBuffer(&buffer));
+	llc_hrcall(SourceVoice->Start(0));
 	Playing					= true;
 	return S_OK;
 }

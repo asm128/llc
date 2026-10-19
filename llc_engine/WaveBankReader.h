@@ -20,7 +20,7 @@
 
 namespace DirectX
 {
-	GPK_USING_TYPEINT();
+	LLC_USING_TYPEINT();
 
 	class WaveBankReader {
 		class WaveBankReaderImpl;	// Private implementation.

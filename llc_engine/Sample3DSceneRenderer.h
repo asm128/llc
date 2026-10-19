@@ -1,43 +1,43 @@
-﻿#include "DeviceResources.h"
-#include "gpk_engine_scene.h"
+#include "DeviceResources.h"
+#include "llc_engine_scene.h"
 
-#include "gpk_file.h"
+#include "llc_file.h"
 
 #ifndef SAMPLE3DSCENERENDERER_H_23627
 #define SAMPLE3DSCENERENDERER_H_23627
 
-namespace gpk
+namespace llc
 {
 
 	// This sample renderer instantiates a basic rendering pipeline.
 	struct Sample3DSceneRenderer {
-		::gpk::pobj<DX::D3DDeviceResources>		DeviceResources;
+		::llc::pobj<DX::D3DDeviceResources>		DeviceResources;
 
 		// Direct3D resources for cube geometry
-		::gpk::acom<ID3D11Buffer		>		VertexBuffer;
-		::gpk::acom<ID3D11Buffer		>		IndexBuffer;
-		::gpk::acom<ID3D11InputLayout	>		InputLayout;
-		::gpk::acom<ID3D11VertexShader	>		VertexShader;
-		::gpk::acom<ID3D11PixelShader	>		PixelShader;
-		::gpk::acom<ID3D11Buffer		>		ConstantBuffer;
-		::gpk::acom<ID3D11SamplerState	>		SamplerStates;
-		::gpk::acom<ID3D11ShaderResourceView>	ShaderResourceView;
-		::gpk::acom<ID3D11BlendState>			BlendState;
-		::gpk::acom<ID3D11RasterizerState>		RasterizerState;
-		::gpk::acom<ID3D11DepthStencilState>	DepthStencilState;
+		::llc::acom<ID3D11Buffer		>		VertexBuffer;
+		::llc::acom<ID3D11Buffer		>		IndexBuffer;
+		::llc::acom<ID3D11InputLayout	>		InputLayout;
+		::llc::acom<ID3D11VertexShader	>		VertexShader;
+		::llc::acom<ID3D11PixelShader	>		PixelShader;
+		::llc::acom<ID3D11Buffer		>		ConstantBuffer;
+		::llc::acom<ID3D11SamplerState	>		SamplerStates;
+		::llc::acom<ID3D11ShaderResourceView>	ShaderResourceView;
+		::llc::acom<ID3D11BlendState>			BlendState;
+		::llc::acom<ID3D11RasterizerState>		RasterizerState;
+		::llc::acom<ID3D11DepthStencilState>	DepthStencilState;
 		
 		// System resources for cube geometry.
-		::gpk::SEngineSceneConstants			ConstantBufferScene				= {};
+		::llc::SEngineSceneConstants			ConstantBufferScene				= {};
 
 		// Variables used with the rendering loo
 		double									TotalSecondsElapsed				= 0;
 		
 												~Sample3DSceneRenderer			() { ReleaseDeviceResources(); }
 
-		::gpk::error_t							Initialize		(const ::gpk::pobj<DX::D3DDeviceResources> & deviceResources) {
+		::llc::error_t							Initialize		(const ::llc::pobj<DX::D3DDeviceResources> & deviceResources) {
 			DeviceResources							= deviceResources;
-			gpk_necs(CreateDeviceResources(DeviceResources->GetD3DDevice()));
-			gpk_necs(CreateSizeDependentResources(DeviceResources->GetLogicalSize(), DeviceResources->GetOrientationTransform3D()));
+			llc_necs(CreateDeviceResources(DeviceResources->GetD3DDevice()));
+			llc_necs(CreateSizeDependentResources(DeviceResources->GetLogicalSize(), DeviceResources->GetOrientationTransform3D()));
 			return 0;
 		}
 
@@ -55,17 +55,17 @@ namespace gpk
 			DepthStencilState	.clear();
 		}
 
-		void									Render							(uint32_t iMesh, ::gpk::rangeu2_t indexRange, uint32_t iTexture, uint32_t iShader, bool alpha, const::gpk::SRenderNodeConstants & constantBufferModel) {
+		void									Render							(uint32_t iMesh, ::llc::rangeu2_t indexRange, uint32_t iTexture, uint32_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel) {
 			auto										context							= DeviceResources->GetD3DDeviceContext();
 			context->UpdateSubresource1(ConstantBuffer[0], 0, NULL, &constantBufferModel, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
 			context->UpdateSubresource1(ConstantBuffer[1], 0, NULL, &ConstantBufferScene, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
 
 			// Each vertex is one instance of the VertexPositionColor struct.
-			UINT										stride							= sizeof(::gpk::n3f2_t) * 2 + sizeof(::gpk::n2f2_t);
+			UINT										stride							= sizeof(::llc::n3f2_t) * 2 + sizeof(::llc::n2f2_t);
 			UINT										offset							= 0;
 
-			::gpk::pcom<ID3D11Buffer>					vb								= VertexBuffer[iMesh];
-			::gpk::pcom<ID3D11Buffer>					ib								= IndexBuffer [iMesh];
+			::llc::pcom<ID3D11Buffer>					vb								= VertexBuffer[iMesh];
+			::llc::pcom<ID3D11Buffer>					ib								= IndexBuffer [iMesh];
 			context->IASetVertexBuffers		(0, 1, &vb, &stride, &offset);
 			context->IASetIndexBuffer		(ib, DXGI_FORMAT_R16_UINT, 0);// Each index is one 16-bit unsigned integer (short).
 			context->IASetPrimitiveTopology	(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -92,7 +92,7 @@ namespace gpk
 			context->DrawIndexed(indexRange.Count, indexRange.Offset, 0);	// Draw the objects.
 		}
 
-		::gpk::error_t							CreateSizeDependentResources	(const ::gpk::n2f2_t & outputSize, const DirectX::XMFLOAT4X4 & orientation) {
+		::llc::error_t							CreateSizeDependentResources	(const ::llc::n2f2_t & outputSize, const DirectX::XMFLOAT4X4 & orientation) {
 			const float									aspectRatio						= outputSize.x / outputSize.y;
 			float										fovAngleY						= 70.0f * DirectX::XM_PI / 180.0f;
 
@@ -115,7 +115,7 @@ namespace gpk
 			return 0;
 		}
 
-		::gpk::error_t							CreateDeviceResources			(ID3D11Device3 * d3dDevice)	{
+		::llc::error_t							CreateDeviceResources			(ID3D11Device3 * d3dDevice)	{
 			ReleaseDeviceResources();
 			{	// Create a point sampler state for fonts 
 				D3D11_SAMPLER_DESC							samDesc						= {};
@@ -127,8 +127,8 @@ namespace gpk
 				samDesc.ComparisonFunc					= D3D11_COMPARISON_ALWAYS;
 				samDesc.MaxLOD							= D3D11_FLOAT32_MAX;
 
-				::gpk::pcom<ID3D11SamplerState>				samplerState;
-				gpk_hrcall(d3dDevice->CreateSamplerState(&samDesc, &samplerState));
+				::llc::pcom<ID3D11SamplerState>				samplerState;
+				llc_hrcall(d3dDevice->CreateSamplerState(&samDesc, &samplerState));
 				SamplerStates.push_back(samplerState);
 			}
 			{	// Create a sampler state for diffuse map
@@ -141,48 +141,48 @@ namespace gpk
 				samDesc.ComparisonFunc					= D3D11_COMPARISON_ALWAYS;
 				samDesc.MaxLOD							= D3D11_FLOAT32_MAX;
 
-				::gpk::pcom<ID3D11SamplerState>				samplerState;
-				gpk_hrcall(d3dDevice->CreateSamplerState(&samDesc, &samplerState));
+				::llc::pcom<ID3D11SamplerState>				samplerState;
+				llc_hrcall(d3dDevice->CreateSamplerState(&samDesc, &samplerState));
 				SamplerStates.push_back(samplerState);
 			}
 			{
 				// Load shaders asynchronously.
-				::gpk::pcom<ID3D11InputLayout>				inputLayout;
-				::gpk::pcom<ID3D11VertexShader>				vertexShader;
+				::llc::pcom<ID3D11InputLayout>				inputLayout;
+				::llc::pcom<ID3D11VertexShader>				vertexShader;
 
-				::gpk::apod<int8_t>							fileVS;
-				gpk_necs(gpk::fileToMemory("SampleVertexShader.cso", fileVS));
+				::llc::apod<int8_t>							fileVS;
+				llc_necs(llc::fileToMemory("SampleVertexShader.cso", fileVS));
 				stacxpr	D3D11_INPUT_ELEMENT_DESC			vertexDesc []			=
 					{	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 00, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					,	{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					,	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					};
 				// After the vertex shader file is loaded, create the shader and input layout.
-				gpk_hrcall(d3dDevice->CreateVertexShader(&fileVS[0], fileVS.size(), nullptr, &vertexShader));
-				gpk_hrcall(d3dDevice->CreateInputLayout(vertexDesc, ARRAYSIZE(vertexDesc), &fileVS[0], fileVS.size(), &inputLayout)); 
+				llc_hrcall(d3dDevice->CreateVertexShader(&fileVS[0], fileVS.size(), nullptr, &vertexShader));
+				llc_hrcall(d3dDevice->CreateInputLayout(vertexDesc, ARRAYSIZE(vertexDesc), &fileVS[0], fileVS.size(), &inputLayout)); 
 				InputLayout		.push_back(inputLayout);
 				VertexShader	.push_back(vertexShader);
 			}
 			{
-				::gpk::pcom<ID3D11Buffer>					constantBuffer;
-				D3D11_BUFFER_DESC							constantBufferDesc		= {sizeof(::gpk::SRenderNodeConstants)};
+				::llc::pcom<ID3D11Buffer>					constantBuffer;
+				D3D11_BUFFER_DESC							constantBufferDesc		= {sizeof(::llc::SRenderNodeConstants)};
 				constantBufferDesc.BindFlags			= D3D11_BIND_CONSTANT_BUFFER;
-				gpk_hrcall(d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
+				llc_hrcall(d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
 				ConstantBuffer.push_back(constantBuffer);
 			}
 			{
-				::gpk::pcom<ID3D11Buffer>					constantBuffer;
-				D3D11_BUFFER_DESC							constantBufferDesc		= {sizeof(::gpk::SEngineSceneConstants)};
+				::llc::pcom<ID3D11Buffer>					constantBuffer;
+				D3D11_BUFFER_DESC							constantBufferDesc		= {sizeof(::llc::SEngineSceneConstants)};
 				constantBufferDesc.BindFlags			= D3D11_BIND_CONSTANT_BUFFER;
-				gpk_hrcall(d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
+				llc_hrcall(d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &constantBuffer));
 				ConstantBuffer.push_back(constantBuffer);
 			}
 			{
 				D3D11_BLEND_DESC				blendDesc		= {};
 				blendDesc.RenderTarget[0].BlendEnable			= 0;
 				blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-				::gpk::pcom<ID3D11BlendState>	blendState;
-				gpk_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
+				::llc::pcom<ID3D11BlendState>	blendState;
+				llc_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
 				BlendState.push_back(blendState);
 			}
 			{ // straight
@@ -195,8 +195,8 @@ namespace gpk
 				blendDesc.RenderTarget[0].BlendOp				=
 				blendDesc.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
 				blendDesc.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
-				::gpk::pcom<ID3D11BlendState>	blendState;
-				gpk_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
+				::llc::pcom<ID3D11BlendState>	blendState;
+				llc_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
 				BlendState.push_back(blendState);
 			}
 			{ // premultiplied
@@ -209,8 +209,8 @@ namespace gpk
 				blendDesc.RenderTarget[0].BlendOp				=
 				blendDesc.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
 				blendDesc.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
-				::gpk::pcom<ID3D11BlendState>	blendState;
-				gpk_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
+				::llc::pcom<ID3D11BlendState>	blendState;
+				llc_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
 				BlendState.push_back(blendState);
 			}
 			{ // additiv
@@ -223,8 +223,8 @@ namespace gpk
 				blendDesc.RenderTarget[0].BlendOp				=
 				blendDesc.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
 				blendDesc.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
-				::gpk::pcom<ID3D11BlendState>	blendState;
-				gpk_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
+				::llc::pcom<ID3D11BlendState>	blendState;
+				llc_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
 				BlendState.push_back(blendState);
 			}
 			{
@@ -232,8 +232,8 @@ namespace gpk
 				rsDesc.FillMode				= D3D11_FILL_SOLID; // D3D11_FILL_WIREFRAME; // 
 				rsDesc.CullMode				= D3D11_CULL_BACK;
 				rsDesc.DepthClipEnable		= false;
-				::gpk::pcom<ID3D11RasterizerState>	rasterizerState;
-				gpk_hrcall(d3dDevice->CreateRasterizerState(&rsDesc, &rasterizerState));
+				::llc::pcom<ID3D11RasterizerState>	rasterizerState;
+				llc_hrcall(d3dDevice->CreateRasterizerState(&rsDesc, &rasterizerState));
 				RasterizerState.push_back(rasterizerState);
 			}
 			{
@@ -241,8 +241,8 @@ namespace gpk
 				rsDesc.FillMode				= D3D11_FILL_SOLID; // D3D11_FILL_WIREFRAME; // 
 				rsDesc.CullMode				= D3D11_CULL_BACK;
 				rsDesc.DepthClipEnable		= false;
-				::gpk::pcom<ID3D11RasterizerState>	rasterizerState;
-				gpk_hrcall(d3dDevice->CreateRasterizerState(&rsDesc, &rasterizerState));
+				::llc::pcom<ID3D11RasterizerState>	rasterizerState;
+				llc_hrcall(d3dDevice->CreateRasterizerState(&rsDesc, &rasterizerState));
 				RasterizerState.push_back(rasterizerState);
 			}
 			{ // enabled
@@ -258,8 +258,8 @@ namespace gpk
 				depthStencilDesc.FrontFace.StencilDepthFailOp	= D3D11_STENCIL_OP_KEEP;
 				depthStencilDesc.FrontFace.StencilPassOp		= D3D11_STENCIL_OP_KEEP;
 				depthStencilDesc.FrontFace.StencilFailOp		= D3D11_STENCIL_OP_KEEP;
-				::gpk::pcom<ID3D11DepthStencilState>	depthStencilState;
-				gpk_hrcall(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
+				::llc::pcom<ID3D11DepthStencilState>	depthStencilState;
+				llc_hrcall(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
 				DepthStencilState.push_back(depthStencilState);
 			}
 			{ // alpha
@@ -275,8 +275,8 @@ namespace gpk
 				depthStencilDesc.FrontFace.StencilDepthFailOp	= D3D11_STENCIL_OP_KEEP;
 				depthStencilDesc.FrontFace.StencilPassOp		= D3D11_STENCIL_OP_KEEP;
 				depthStencilDesc.FrontFace.StencilFailOp		= D3D11_STENCIL_OP_KEEP;
-				::gpk::pcom<ID3D11DepthStencilState>	depthStencilState;
-				gpk_hrcall(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
+				::llc::pcom<ID3D11DepthStencilState>	depthStencilState;
+				llc_hrcall(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
 				DepthStencilState.push_back(depthStencilState);
 			}
 			{ // disabled
@@ -296,8 +296,8 @@ namespace gpk
 				depthStencilDesc.BackFace.StencilDepthFailOp	= D3D11_STENCIL_OP_KEEP;
 				depthStencilDesc.BackFace.StencilPassOp			= D3D11_STENCIL_OP_KEEP;
 				depthStencilDesc.BackFace.StencilFailOp			= D3D11_STENCIL_OP_KEEP;
-				::gpk::pcom<ID3D11DepthStencilState>	depthStencilState;
-				gpk_hrcall(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
+				::llc::pcom<ID3D11DepthStencilState>	depthStencilState;
+				llc_hrcall(d3dDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState));
 				DepthStencilState.push_back(depthStencilState);
 			}
 			return 0;

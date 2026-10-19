@@ -1,46 +1,46 @@
-#include "gpk_engine_explorer_app_menu.h"
-#include "gpk_engine_gui.h"
-#include "gpk_gui_inputbox.h"
+#include "llc_engine_explorer_app_menu.h"
+#include "llc_engine_gui.h"
+#include "llc_gui_inputbox.h"
 
-#ifndef GPK_ENGINE_EXPLORER_H_23627
-#define GPK_ENGINE_EXPLORER_H_23627
+#ifndef LLC_ENGINE_EXPLORER_H_23627
+#define LLC_ENGINE_EXPLORER_H_23627
 
-namespace gpk
+namespace llc
 {
-	struct SEditorRigidBody		{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorImage			{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorMesh			{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorScene			{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorBuffer		{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorSurface		{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorPalette		{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorControl		{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorControlText	{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorLayout		{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
-	struct SEditorSettings		{ ::gpk::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorRigidBody		{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorImage			{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorMesh			{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorScene			{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorBuffer		{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorSurface		{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorPalette		{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorControl		{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorControlText	{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorLayout		{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
+	struct SEditorSettings		{ ::llc::acid IdControl = {}; int32_t IdEditable = -1; };
 
 
 	struct SEditorProject {
-		::gpk::SGUI					GUI;
-		::gpk::SEngine				Engine;
+		::llc::SGUI					GUI;
+		::llc::SEngine				Engine;
 	};
 
 	struct SEditorUI {
-		::gpk::pobj<::gpk::SGUI>	GUI					= {};
-		::gpk::SInputBox			InputBox			= {};
-		::gpk::apachar				InputHistory;
+		::llc::pobj<::llc::SGUI>	GUI					= {};
+		::llc::SInputBox			InputBox			= {};
+		::llc::apachar				InputHistory;
 	};
 
 	struct SEditor {
-		::gpk::SEditorUI			UI;
-		::gpk::acid					Dialogs;
-		::gpk::acid					Menu;
+		::llc::SEditorUI			UI;
+		::llc::acid					Dialogs;
+		::llc::acid					Menu;
 	};
 
 	//struct SEditor : public SEditorApplication {
-	//	::gpk::acid			Hover;
-	//	::gpk::acid			Selection;
-	//	::gpk::acid			Expand;
+	//	::llc::acid			Hover;
+	//	::llc::acid			Selection;
+	//	::llc::acid			Expand;
 
 	//	SEditorRigidBody	EditorRigidBody		= {};
 
@@ -56,10 +56,10 @@ namespace gpk
 	//	SEditorControlText	EditorControlText	= {};
 	//};
 
-	::gpk::error_t				editorCreate	(::gpk::SEditor & editor);
-	::gpk::error_t				editorUpdate	(::gpk::SEditor & editor, ::gpk::SInput & input, ::gpk::vpobj<::gpk::SEventSystem> systemEvents);
-	//::gpk::error_t			editorCreate	(::gpk::SGUI & gui, ::gpk::SLayoutEditor & editor);
-	//::gpk::error_t			editorCreate	(::gpk::SGUI & gui, ::gpk::SPaletteEditor & editor);
+	::llc::error_t				editorCreate	(::llc::SEditor & editor);
+	::llc::error_t				editorUpdate	(::llc::SEditor & editor, ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> systemEvents);
+	//::llc::error_t			editorCreate	(::llc::SGUI & gui, ::llc::SLayoutEditor & editor);
+	//::llc::error_t			editorCreate	(::llc::SGUI & gui, ::llc::SPaletteEditor & editor);
 } // namespace
 
-#endif // GPK_ENGINE_EXPLORER_H_23627
+#endif // LLC_ENGINE_EXPLORER_H_23627

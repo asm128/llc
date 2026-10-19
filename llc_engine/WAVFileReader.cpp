@@ -13,7 +13,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include "WAVFileReader.h"
 
-#include "gpk_windows.h"
+#include "llc_windows.h"
 
 #include <Windows.h>
 #include <cassert>
@@ -123,7 +123,7 @@ namespace
 	static_assert(36 == sizeof(RIFFMIDISample)	, "structure size mismatch");
 
 	//---------------------------------------------------------------------------------
-	const RIFFChunk* FindChunk(::gpk::vcu0_t data, _In_ uint32_t tag) noexcept {
+	const RIFFChunk* FindChunk(::llc::vcu0_t data, _In_ uint32_t tag) noexcept {
 		const uint8_t* ptr = data.begin();
 		const uint8_t* end = data.end();
 		while (end > (ptr + sizeof(RIFFChunk))) {
@@ -140,7 +140,7 @@ namespace
 
 
 	//---------------------------------------------------------------------------------
-	HRESULT WaveFindFormatAndData(::gpk::vcu0_t wavData, _Outptr_ const WAVEFORMATEX* * pwfx, ::gpk::vcu0_t & data, _Out_ bool & dpds, _Out_ bool & seek) noexcept {
+	HRESULT WaveFindFormatAndData(::llc::vcu0_t wavData, _Outptr_ const WAVEFORMATEX* * pwfx, ::llc::vcu0_t & data, _Out_ bool & dpds, _Out_ bool & seek) noexcept {
 		dpds = seek = false;
 		rves_if(E_FAIL, wavData.size() < (sizeof(RIFFChunk) * 2 + sizeof(uint32_t) + sizeof(WAVEFORMAT)));
 
@@ -248,7 +248,7 @@ namespace
 
 
 	//---------------------------------------------------------------------------------
-	HRESULT WaveFindLoopInfo(::gpk::vcu0_t wavData, _Out_ uint32_t* pLoopStart, _Out_ uint32_t* pLoopLength) noexcept {
+	HRESULT WaveFindLoopInfo(::llc::vcu0_t wavData, _Out_ uint32_t* pLoopStart, _Out_ uint32_t* pLoopLength) noexcept {
 		if (wavData.size() < (sizeof(RIFFChunk) + sizeof(uint32_t)))
 			return E_FAIL;
 
@@ -325,7 +325,7 @@ namespace
 
 
 	//---------------------------------------------------------------------------------
-	HRESULT WaveFindTable(::gpk::vcu0_t wavData, _In_ uint32_t tag, _Outptr_result_maybenull_ const uint32_t* * pData, _Out_ uint32_t * dataCount) noexcept {
+	HRESULT WaveFindTable(::llc::vcu0_t wavData, _In_ uint32_t tag, _Outptr_result_maybenull_ const uint32_t* * pData, _Out_ uint32_t * dataCount) noexcept {
 		rves_if(E_FAIL, wavData.size() < (sizeof(RIFFChunk) + sizeof(uint32_t)));
 
 		*pData				= nullptr;
@@ -365,10 +365,10 @@ namespace
 
 
 	//---------------------------------------------------------------------------------
-	HRESULT LoadAudioFromFile(::gpk::vcsc_t szFileName, _Inout_ ::gpk::au0_t & wavData) noexcept { 
+	HRESULT LoadAudioFromFile(::llc::vcsc_t szFileName, _Inout_ ::llc::au0_t & wavData) noexcept { 
 		DWORD								bytesRead		   = 0;
-		::gpk::apod<wchar_t>				wszFileName		 = {};
-		::gpk::mbstowcs(wszFileName, szFileName);
+		::llc::apod<wchar_t>				wszFileName		 = {};
+		::llc::mbstowcs(wszFileName, szFileName);
 		// open the file
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
 		ScopedHandle						hFile				(safe_handle(CreateFile2(wszFileName.begin(), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, nullptr)));
@@ -376,11 +376,11 @@ namespace
 		ScopedHandle						hFile				(safe_handle(CreateFileW(wszFileName.begin(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)));
 #endif
 
-		rve_if(HRESULT_FROM_WIN32(GetLastError()), !hFile, "%s", ::gpk::toString(szFileName).begin());
+		rve_if(HRESULT_FROM_WIN32(GetLastError()), !hFile, "%s", ::llc::toString(szFileName).begin());
 
 		// Get the file size
 		FILE_STANDARD_INFO					fileInfo			= {};
-		rve_if(HRESULT_FROM_WIN32(GetLastError()), !GetFileInformationByHandleEx(hFile.get(), FileStandardInfo, &fileInfo, sizeof(fileInfo)), "File not found: '%s'", ::gpk::toString(szFileName).begin());
+		rve_if(HRESULT_FROM_WIN32(GetLastError()), !GetFileInformationByHandleEx(hFile.get(), FileStandardInfo, &fileInfo, sizeof(fileInfo)), "File not found: '%s'", ::llc::toString(szFileName).begin());
 		rve_if(E_FAIL, fileInfo.EndOfFile.HighPart > 0, "File is too big (%llu), so reject read", fileInfo.EndOfFile.QuadPart);
 		rve_if(E_FAIL, fileInfo.EndOfFile.LowPart < (sizeof(RIFFChunk) * 2 + sizeof(DWORD) + sizeof(WAVEFORMAT)), "Need at least %u bytes to have a valid minimal WAV file. Actual size: %u", sizeof(RIFFChunk) * 2 + sizeof(DWORD) + sizeof(WAVEFORMAT), fileInfo.EndOfFile.LowPart);
 
@@ -394,59 +394,59 @@ namespace
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-HRESULT DirectX::LoadWAVAudioInMemory(::gpk::vcu0_t wavData, _Outptr_ const WAVEFORMATEX* * wfx, ::gpk::vcu0_t & audioBytes) noexcept {
+HRESULT DirectX::LoadWAVAudioInMemory(::llc::vcu0_t wavData, _Outptr_ const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioBytes) noexcept {
 	rve_if(E_FAIL, (wavData.size() < (sizeof(RIFFChunk) * 2 + sizeof(DWORD) + sizeof(WAVEFORMAT))), "Need at least enough data to have a valid minimal WAV file. Size: %i", wavData.size());
 
 	bool dpds = true, seek = true;
-	gpk_hrcall(WaveFindFormatAndData(wavData, wfx, audioBytes, dpds, seek));
+	llc_hrcall(WaveFindFormatAndData(wavData, wfx, audioBytes, dpds, seek));
 
 	return (dpds || seek) ? E_FAIL : S_OK;
 }
 
 
 //-------------------------------------------------------------------------------------
-HRESULT DirectX::LoadWAVAudioFromFile(::gpk::vcsc_t szFileName, ::gpk::au0_t & wavData, const WAVEFORMATEX* * wfx, ::gpk::vcu0_t & audioBytes) noexcept {
-	gpk_hrcall(LoadAudioFromFile(szFileName, wavData));
+HRESULT DirectX::LoadWAVAudioFromFile(::llc::vcsc_t szFileName, ::llc::au0_t & wavData, const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioBytes) noexcept {
+	llc_hrcall(LoadAudioFromFile(szFileName, wavData));
 
 	bool dpds = true, seek = true;
-	gpk_hrcall(WaveFindFormatAndData(wavData, wfx, audioBytes, dpds, seek));
+	llc_hrcall(WaveFindFormatAndData(wavData, wfx, audioBytes, dpds, seek));
 
 	return (dpds || seek) ? E_FAIL : S_OK;
 }
 
 //-------------------------------------------------------------------------------------
-HRESULT DirectX::LoadWAVAudioInMemoryEx(::gpk::vcu0_t wavData, DirectX::WAVData & result) noexcept {
+HRESULT DirectX::LoadWAVAudioInMemoryEx(::llc::vcu0_t wavData, DirectX::WAVData & result) noexcept {
 	// Need at least enough data to have a valid minimal WAV file
 	if (wavData.size() < (sizeof(RIFFChunk) * 2 + sizeof(DWORD) + sizeof(WAVEFORMAT))) {
 		return E_FAIL;
 	}
 
 	bool dpds = false, seek = false;
-	gpk_hrcall(WaveFindFormatAndData(wavData, &result.WaveFormat, result.AudioView, dpds, seek));
-	gpk_hrcall(WaveFindLoopInfo(wavData, &result.LoopStart, &result.LoopLength));
+	llc_hrcall(WaveFindFormatAndData(wavData, &result.WaveFormat, result.AudioView, dpds, seek));
+	llc_hrcall(WaveFindLoopInfo(wavData, &result.LoopStart, &result.LoopLength));
 
 	if (dpds)
-		gpk_hrcall(WaveFindTable(wavData, FOURCC_XWMA_DPDS, &result.Seek, &result.SeekCount));
+		llc_hrcall(WaveFindTable(wavData, FOURCC_XWMA_DPDS, &result.Seek, &result.SeekCount));
 	else if (seek)
-		gpk_hrcall(WaveFindTable(wavData, FOURCC_XMA_SEEK, &result.Seek, &result.SeekCount));
+		llc_hrcall(WaveFindTable(wavData, FOURCC_XMA_SEEK, &result.Seek, &result.SeekCount));
 
 	return S_OK;
 }
 
 //-------------------------------------------------------------------------------------
-HRESULT DirectX::LoadWAVAudioFromFileEx(::gpk::vcsc_t szFileName, ::gpk::au0_t & wavData, DirectX::WAVData & result) noexcept {
+HRESULT DirectX::LoadWAVAudioFromFileEx(::llc::vcsc_t szFileName, ::llc::au0_t & wavData, DirectX::WAVData & result) noexcept {
 	DWORD bytesRead = LoadAudioFromFile(szFileName, wavData);
 	if (FAILED(bytesRead))
 		return bytesRead;
 
 	bool dpds = false, seek = false;
-	gpk_hrcall(WaveFindFormatAndData(wavData, &result.WaveFormat, result.AudioView, dpds, seek));
-	gpk_hrcall(WaveFindLoopInfo(wavData, &result.LoopStart, &result.LoopLength));
+	llc_hrcall(WaveFindFormatAndData(wavData, &result.WaveFormat, result.AudioView, dpds, seek));
+	llc_hrcall(WaveFindLoopInfo(wavData, &result.LoopStart, &result.LoopLength));
 
 	if (dpds)
-		gpk_hrcall(WaveFindTable(wavData, FOURCC_XWMA_DPDS, &result.Seek, &result.SeekCount));
+		llc_hrcall(WaveFindTable(wavData, FOURCC_XWMA_DPDS, &result.Seek, &result.SeekCount));
 	else if (seek)
-		gpk_hrcall(WaveFindTable(wavData, FOURCC_XMA_SEEK, &result.Seek, &result.SeekCount));
+		llc_hrcall(WaveFindTable(wavData, FOURCC_XMA_SEEK, &result.Seek, &result.SeekCount));
 
 	return S_OK;
 }

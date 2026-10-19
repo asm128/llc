@@ -10,9 +10,9 @@
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //-------------------------------------------------------------------------------------
 
-#include "gpk_complus.h"
+#include "llc_complus.h"
 
-#ifdef GPK_WINDOWS
+#ifdef LLC_WINDOWS
 
 #include <cassert>
 
@@ -22,7 +22,7 @@
 #include <string>
 #include <tuple>
 
-GPK_USING_TYPEINT();
+LLC_USING_TYPEINT();
 
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) \
@@ -1009,4 +1009,4 @@ void WaveBankReader::WaitOnPrepare() noexcept {
 	}
 }
 
-#endif // GPK_WINDOWS - ignore the whole thing if not a Windows build
+#endif // LLC_WINDOWS - ignore the whole thing if not a Windows build

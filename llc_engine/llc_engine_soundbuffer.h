@@ -1,11 +1,11 @@
-#include "gpk_datatype.h"
-#include "gpk_enum.h"
-#include "gpk_linear_map_pobj.h"
+#include "llc_datatype.h"
+#include "llc_enum.h"
+#include "llc_linear_map_pobj.h"
 
-#ifndef GPK_ENGINE_SOUNDBUFFER_H_23_05_08
-#define GPK_ENGINE_SOUNDBUFFER_H_23_05_08
+#ifndef LLC_ENGINE_SOUNDBUFFER_H_23_05_08
+#define LLC_ENGINE_SOUNDBUFFER_H_23_05_08
 
-namespace gpk
+namespace llc
 {
 	GDEFINE_ENUM_TYPE(SOUND_BUFFER_MODE, uint8_t);
 	GDEFINE_ENUM_VALUE(SOUND_BUFFER_MODE, Loop				,   0);
@@ -14,30 +14,30 @@ namespace gpk
 
 #pragma pack(push, 1)
 	struct SSoundBufferDescription {
-		::gpk::SDataTypeID							Format				= {};
+		::llc::SDataTypeID							Format				= {};
 		SOUND_BUFFER_MODE							Usage				= {};
 	};
 #pragma pack(pop)
 
 	struct SSoundBuffer {
 		SSoundBufferDescription						Desc			= {};
-		::gpk::au0_t									Data			= {};
+		::llc::au0_t									Data			= {};
 
-		::gpk::error_t								Save			(::gpk::apod<uint8_t> & output)	const	{ 
-			gpk_necs(gpk::savePOD	(output, Desc));
-			gpk_necs(gpk::saveView(output, Data));
+		::llc::error_t								Save			(::llc::apod<uint8_t> & output)	const	{ 
+			llc_necs(llc::savePOD	(output, Desc));
+			llc_necs(llc::saveView(output, Data));
 			return 0; 
 		}
 
-		::gpk::error_t								Load			(::gpk::vcu0_t & input)	{ 
-			gpk_necs(gpk::loadPOD (input, Desc));
-			gpk_necs(gpk::loadView(input, Data));
+		::llc::error_t								Load			(::llc::vcu0_t & input)	{ 
+			llc_necs(llc::loadPOD (input, Desc));
+			llc_necs(llc::loadView(input, Data));
 			return 0;
 		}
 	};
 
-	typedef	::gpk::gpk_linear_map_pobj<::gpk::SSoundBuffer>	SSoundBufferManager;
+	typedef	::llc::llc_linear_map_pobj<::llc::SSoundBuffer>	SSoundBufferManager;
 
 } // namespace
 
-#endif // GPK_ENGINE_SOUNDBUFFER_H_23_05_08
+#endif // LLC_ENGINE_SOUNDBUFFER_H_23_05_08

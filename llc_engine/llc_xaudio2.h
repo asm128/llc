@@ -1,9 +1,9 @@
-#include "gpk_complus.h"
+#include "llc_complus.h"
 
-#ifdef GPK_WINDOWS
+#ifdef LLC_WINDOWS
 
-#include "gpk_n3.h"
-#include "gpk_array_ptr.h"
+#include "llc_n3.h"
+#include "llc_array_ptr.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include "XAudio2Versions.h"
@@ -22,10 +22,10 @@
 #	include <Functiondiscoverykeys_devpkey.h>
 #endif
 
-#ifndef GPK_XAUDIO2_H_23627
-#define GPK_XAUDIO2_H_23627
+#ifndef LLC_XAUDIO2_H_23627
+#define LLC_XAUDIO2_H_23627
 
-namespace gpk
+namespace llc
 {
 	stacxpr uint8_t		INPUTCHANNELS	= 1;// number of source channels
 	stacxpr uint8_t		OUTPUTCHANNELS	= 8;// maximum number of destination channels supported in this sample
@@ -43,12 +43,12 @@ namespace gpk
 	};
 
 	struct SSoundState {
-		::gpk::pobj<::gpk::au0_t>	WaveData;
+		::llc::pobj<::llc::au0_t>	WaveData;
 		IXAudio2SourceVoice		* SourceVoice			= 0;
 
 		X3DAUDIO_EMITTER		Emitter					= {};
 		X3DAUDIO_CONE			EmitterCone				= {};
-		::gpk::n3f2_t			EmitterPos				= {};
+		::llc::n3f2_t			EmitterPos				= {};
 		float					EmitterAzimuths			[INPUTCHANNELS]                     = {};
 		float					MatrixCoefficients		[INPUTCHANNELS * OUTPUTCHANNELS]    = {};
 
@@ -57,7 +57,7 @@ namespace gpk
 		X3DAUDIO_DSP_SETTINGS	dspSettings				= {};
 		bool					Playing					= false;
 
-		HRESULT					PrepareAudio			(::gpk::vcsc_c & wavname, IXAudio2*	pXAudio2, IXAudio2MasteringVoice * pMasterVoice, IXAudio2SubmixVoice * pSubmixVoice);
+		HRESULT					PrepareAudio			(::llc::vcsc_c & wavname, IXAudio2*	pXAudio2, IXAudio2MasteringVoice * pMasterVoice, IXAudio2SubmixVoice * pSubmixVoice);
 	};
 
 	// Struct to hold audio game state
@@ -68,18 +68,18 @@ namespace gpk
 #ifdef USING_XAUDIO2_7_DIRECTX
 		HMODULE					mXAudioDLL;
 #endif
-		::gpk::pcom<IXAudio2>	XAudio2					= {};
+		::llc::pcom<IXAudio2>	XAudio2					= {};
 
 		IXAudio2MasteringVoice	* pMasterVoice			= 0;
 		IXAudio2SubmixVoice		* pSubmixVoice			= 0;
 
-		::gpk::pcom<IUnknown>	pVolumeLimiter;
-		::gpk::pcom<IUnknown>	pReverbEffect;
+		::llc::pcom<IUnknown>	pVolumeLimiter;
+		::llc::pcom<IUnknown>	pReverbEffect;
 		// 3D
 		X3DAUDIO_HANDLE			x3DInstance				= {};
 		int						nFrameToApply3DAudio	= 0;
 
-		::gpk::apod<uint8_t>	WaveData;
+		::llc::apod<uint8_t>	WaveData;
 		IXAudio2SourceVoice		* SourceVoice			= 0;
 
 
@@ -91,9 +91,9 @@ namespace gpk
 		X3DAUDIO_EMITTER		emitter					= {};
 		X3DAUDIO_CONE			emitterCone				= {};
 
-		::gpk::n3f2_t			vListenerPos			= {};
-		::gpk::n3f2_t			vEmitterPos				= {};
-		float					fListenerAngle			= (float)(::gpk::math_pi_2 * .5);
+		::llc::n3f2_t			vListenerPos			= {};
+		::llc::n3f2_t			vEmitterPos				= {};
+		float					fListenerAngle			= (float)(::llc::math_pi_2 * .5);
 		bool					fUseListenerCone		= true;
 		bool					fUseInnerRadius			= true;
 		bool					fUseRedirectToLFE		= 0;
@@ -108,17 +108,17 @@ namespace gpk
 		FLOAT32					matrixCoefficients		[INPUTCHANNELS * OUTPUTCHANNELS]    = {};
 
 
-		::gpk::error_t			InitAudio				();
-		::gpk::error_t			PrepareAudio			(::gpk::vcsc_c & wavname);
-		::gpk::error_t			UpdateAudio				(double fElapsedTime);
-		::gpk::error_t			SetReverb				(int nReverb);
-		::gpk::error_t			PauseAudio				(bool resume);
-		::gpk::error_t			CleanupAudio			();
+		::llc::error_t			InitAudio				();
+		::llc::error_t			PrepareAudio			(::llc::vcsc_c & wavname);
+		::llc::error_t			UpdateAudio				(double fElapsedTime);
+		::llc::error_t			SetReverb				(int nReverb);
+		::llc::error_t			PauseAudio				(bool resume);
+		::llc::error_t			CleanupAudio			();
 
-		::gpk::error_t			PlayWave				(::gpk::vcsc_c & wavname);
+		::llc::error_t			PlayWave				(::llc::vcsc_c & wavname);
 	};
 } // namespace
-#endif // GPK_XAUDIO2_H_23627
+#endif // LLC_XAUDIO2_H_23627
 
 
-#endif // GPK_WINDOWS
+#endif // LLC_WINDOWS
