@@ -365,7 +365,7 @@ namespace
 
 
 	//---------------------------------------------------------------------------------
-	HRESULT LoadAudioFromFile(::llc::vcsc_t szFileName, _Inout_ ::llc::au0_t & wavData) noexcept { 
+	HRESULT LoadAudioFromFile(::llc::vcst_t szFileName, _Inout_ ::llc::au0_t & wavData) noexcept { 
 		DWORD								bytesRead		   = 0;
 		::llc::apod<wchar_t>				wszFileName		 = {};
 		::llc::mbstowcs(wszFileName, szFileName);
@@ -405,7 +405,7 @@ HRESULT DirectX::LoadWAVAudioInMemory(::llc::vcu0_t wavData, _Outptr_ const WAVE
 
 
 //-------------------------------------------------------------------------------------
-HRESULT DirectX::LoadWAVAudioFromFile(::llc::vcsc_t szFileName, ::llc::au0_t & wavData, const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioBytes) noexcept {
+HRESULT DirectX::LoadWAVAudioFromFile(::llc::vcst_t szFileName, ::llc::au0_t & wavData, const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioBytes) noexcept {
 	llc_hrcall(LoadAudioFromFile(szFileName, wavData));
 
 	bool dpds = true, seek = true;
@@ -434,7 +434,7 @@ HRESULT DirectX::LoadWAVAudioInMemoryEx(::llc::vcu0_t wavData, DirectX::WAVData 
 }
 
 //-------------------------------------------------------------------------------------
-HRESULT DirectX::LoadWAVAudioFromFileEx(::llc::vcsc_t szFileName, ::llc::au0_t & wavData, DirectX::WAVData & result) noexcept {
+HRESULT DirectX::LoadWAVAudioFromFileEx(::llc::vcst_t szFileName, ::llc::au0_t & wavData, DirectX::WAVData & result) noexcept {
 	DWORD bytesRead = LoadAudioFromFile(szFileName, wavData);
 	if (FAILED(bytesRead))
 		return bytesRead;

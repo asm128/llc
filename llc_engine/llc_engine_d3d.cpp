@@ -95,7 +95,7 @@
 //
 ::llc::error_t			llc::d3dCreatePixelShadersFromEngineShaders	(ID3D11Device* pDevice, const ::llc::SShaderManager & engineShaders, ::llc::array_com<ID3D11PixelShader> & pixelShaders) {
 	for(uint32_t iShader = 0; iShader < engineShaders.size(); ++iShader) {
-		const ::llc::vcsc_t								shaderName				= engineShaders.Names[iShader];
+		const ::llc::vcst_t								shaderName				= engineShaders.Names[iShader];
 
 		// After the pixel shader file is loaded, create the shader.
 		sc_t											shaderFileName	[1024]	= {};

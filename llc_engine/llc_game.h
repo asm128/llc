@@ -15,7 +15,7 @@ namespace llc
 	};
 
 	struct SPlayer {
-		::llc::vcsc_t		Name				= "Player 1";
+		::llc::vcst_t		Name				= "Player 1";
 		uint32_t			Color				= 0xFFFF0000;
 		::llc::PLAYER_MODE	Mode				= (::llc::PLAYER_MODE)::llc::PLAYER_MODE_AI;
 	};

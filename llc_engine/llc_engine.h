@@ -37,7 +37,7 @@ namespace llc
 		::llc::lmpod<SParamsRingSide	, uint32_t>	ParamsRingSide		;
 		::llc::lmpod<SParamsRingSide	, uint32_t>	ParamsRingFlat		;
 
-		::llc::lmpod<::llc::vcsc_t, uint32_t>	Images			= {};
+		::llc::lmpod<::llc::vcst_t, uint32_t>	Images			= {};
 
 		::llc::SPNGData						PNGCache		= {};
 
@@ -164,18 +164,18 @@ namespace llc
 		::llc::error_t				CreateCamera		();
 
 
-		::llc::error_t				CreateBox			(const ::llc::SParamsBox			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 3, "Box"});
-		::llc::error_t				CreateSphere		(const ::llc::SParamsSphere			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 6, "Sphere"});
-		::llc::error_t				CreateCylinderWall	(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = ::llc::vcsc_t{13, "Cylinder Wall"});
-		::llc::error_t				CreateCylinder		(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = ::llc::vcsc_t{ 8, "Cylinder"});		
-		::llc::error_t				CreateCircleSide	(const ::llc::SParamsCircle			& params, ::llc::vcs entityName = ::llc::vcsc_t{11, "Circle Side"});
-		::llc::error_t				CreateDisc			(const ::llc::SParamsDisc			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 4, "Disc"});
-		::llc::error_t				CreateTube			(const ::llc::SParamsTube			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 4, "Tube"});
-		::llc::error_t				CreateRingSide		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = ::llc::vcsc_t{ 9, "Ring Side"});
-		::llc::error_t				CreateRingFlat		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = ::llc::vcsc_t{ 9, "Ring flat"});
-		::llc::error_t				CreateGrid			(const ::llc::SParamsGrid			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 4, "Grid"});
-		::llc::error_t				CreateHelixHalf		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcsc_t{10, "Helix half"});
-		::llc::error_t				CreateHelix			(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcsc_t{ 5, "Helix"});
+		::llc::error_t				CreateBox			(const ::llc::SParamsBox			& params, ::llc::vcs entityName = ::llc::vcst_t{ 3, "Box"});
+		::llc::error_t				CreateSphere		(const ::llc::SParamsSphere			& params, ::llc::vcs entityName = ::llc::vcst_t{ 6, "Sphere"});
+		::llc::error_t				CreateCylinderWall	(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = ::llc::vcst_t{13, "Cylinder Wall"});
+		::llc::error_t				CreateCylinder		(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = ::llc::vcst_t{ 8, "Cylinder"});		
+		::llc::error_t				CreateCircleSide	(const ::llc::SParamsCircle			& params, ::llc::vcs entityName = ::llc::vcst_t{11, "Circle Side"});
+		::llc::error_t				CreateDisc			(const ::llc::SParamsDisc			& params, ::llc::vcs entityName = ::llc::vcst_t{ 4, "Disc"});
+		::llc::error_t				CreateTube			(const ::llc::SParamsTube			& params, ::llc::vcs entityName = ::llc::vcst_t{ 4, "Tube"});
+		::llc::error_t				CreateRingSide		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = ::llc::vcst_t{ 9, "Ring Side"});
+		::llc::error_t				CreateRingFlat		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = ::llc::vcst_t{ 9, "Ring flat"});
+		::llc::error_t				CreateGrid			(const ::llc::SParamsGrid			& params, ::llc::vcs entityName = ::llc::vcst_t{ 4, "Grid"});
+		::llc::error_t				CreateHelixHalf		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcst_t{10, "Helix half"});
+		::llc::error_t				CreateHelix			(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcst_t{ 5, "Helix"});
 		::llc::error_t				CreateFigure0		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = ::llc::vcs{"Figure0"});
 
 		::llc::error_t				CreateImageFromFile	(const ::llc::vcst_t & fileFolder, const ::llc::vcst_t & fileName);
@@ -184,7 +184,7 @@ namespace llc
 
 		tplt<tpnm _tParams>
 		::llc::error_t				CreateEntityFromGeometry
-			( const ::llc::vcsc_t							name		
+			( const ::llc::vcst_t							name		
 			, const ::llc::n3f2_t						halfSizes
 			, bool										createSkin
 			, const _tParams							& params

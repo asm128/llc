@@ -278,7 +278,7 @@ static	::llc::error_t	drawBuffers
 
 ::llc::error_t			llc::SEngineScene::CreateRenderNode
 	( const ::llc::SGeometryBuffers		& geometry
-	, const ::llc::vcsc_t				name 
+	, const ::llc::vcst_t				name 
 	, bool								createSkin
 	) {
 	uint32_t					iIndicesVertex			= 0;

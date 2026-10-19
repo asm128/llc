@@ -8,7 +8,7 @@
 
 namespace llc
 {
-	typedef	::llc::lmpod<::llc::vcsc_t, ::llc::SCelestialBody>	SCelestialBodyMap;
+	typedef	::llc::lmpod<::llc::vcst_t, ::llc::SCelestialBody>	SCelestialBodyMap;
 
 	struct SPlanetarySystem {
 		::llc::SCelestialBodyMap			Body;
@@ -31,7 +31,7 @@ namespace llc
 	};
 
 	::llc::error_t			planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, const ::llc::SJSONReader & jsonData);
-	::llc::error_t			planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, ::llc::vcsc_t jsonFilePath);
+	::llc::error_t			planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, ::llc::vcst_t jsonFilePath);
 } // namespace
 
 #endif // LLC_PLANETARY_SYSTEM_H_23701

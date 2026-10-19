@@ -44,7 +44,7 @@ static	::llc::cid_t	menuInit		(::llc::SGUI & gui, ::llc::acid & idButtons) {
 	::llc::guiGetProcessableControls(gui, controlsToProcess);
 	if(int32_t result = editor.UI.InputBox.Update(gui, editor.UI.InputBox.VirtualKeyboard, queuedEvents, controlsToProcess)) {
 		if(result == INT_MAX) { // enter key pressed
-			::llc::vcsc_t					trimmed				= {};
+			::llc::vcst_t					trimmed				= {};
 			llc_necs(editor.UI.InputBox.Text.slice(trimmed, 0, ::llc::min(editor.UI.InputBox.Text.size(), 128U)));
 			llc_necs(llc::trim(trimmed));
 			if(trimmed.size()) {

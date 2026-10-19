@@ -58,7 +58,7 @@ namespace llc
 	::llc::error_t			planetarySystemCreateEntities	(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine);
 	::llc::error_t			planetarySystemSetup			(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine); 
 	::llc::error_t			planetarySystemSetup			(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, const ::llc::SJSONReader & jsonData);
-	::llc::error_t			planetarySystemSetup			(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcsc_t jsonFilePath);
+	::llc::error_t			planetarySystemSetup			(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcst_t jsonFilePath);
 } // namespace
 
 #endif // LLC_ENGINE_PLANETARY_SYSTEM_H_23701

@@ -1,6 +1,6 @@
 #include "llc_planetary_system.h"
 
-::llc::error_t			llc::planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, ::llc::vcsc_t jsonFilePath) { 
+::llc::error_t			llc::planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, ::llc::vcst_t jsonFilePath) { 
 	::llc::SJSONFile			jsonFile					= {};
 	llc_necs(llc::jsonFileRead(jsonFile, jsonFilePath));
 	return ::llc::planetarySystemSetup(planetarySystem, jsonFile.Reader);
@@ -28,7 +28,7 @@
 		// Load planet properties.
 		cws_if_failed(indexProperty = ::llc::jsonObjectValueGet(jsonData, jsonIndexStellarBody + 2, "type")); // ?? no type? shouldn't happen
 
-		const ::llc::vcsc_t			strType						= jsonData.View[indexProperty]; 
+		const ::llc::vcst_t			strType						= jsonData.View[indexProperty]; 
 		const ::llc::CELESTIAL_BODY	bodyType					= ::llc::bodyTypeFromString(strType);
 		::llc::SCelestialBody		bodyProperties				= {};
 		cws_if_failed(::llc::loadCelestialBody(bodyProperties, bodyType, jsonData, jsonIndexStellarBody + 2));

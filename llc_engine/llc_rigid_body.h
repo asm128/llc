@@ -81,7 +81,7 @@ namespace llc
 
 		::llc::error_t						Load							(::llc::vcu0_t & input);
 		::llc::error_t						Save							(::llc::au0_t & output)	const;
-		inline	::llc::error_t				Load							(::llc::vcsc_t & input)			{ return Load(*((::llc::vcu0_t*)&input)); }
+		inline	::llc::error_t				Load							(::llc::vcst_t & input)			{ return Load(*((::llc::vcu0_t*)&input)); }
 		inline	::llc::error_t				Save							(::llc::as0_t & output)	const	{ return Save(*((::llc::apod<uint8_t>*)&output)); }
 
 		int32_t 							ZeroCenters						()	{ return Centers.fill({}); }

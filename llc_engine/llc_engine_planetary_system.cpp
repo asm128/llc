@@ -16,7 +16,7 @@ stacxpr	double			ASTRONOMICAL_UNIT_SCALE		= 1.0 / 149597870700;
 	llc_necall(llc::planetarySystemSetup(planetarySystem.PlanetarySystem, jsonData), "%s", ::llc::toString(jsonData.View[0]).begin());	
 	return ::llc::planetarySystemSetup(planetarySystem.PlanetarySystem, planetarySystem.EntityMap, engine); 
 }
-::llc::error_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcsc_t jsonFilePath)				{ 
+::llc::error_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcst_t jsonFilePath)				{ 
 	llc_necall(llc::planetarySystemSetup(planetarySystem.PlanetarySystem, jsonFilePath), "%s", jsonFilePath.begin());						
 	return ::llc::planetarySystemSetup(planetarySystem.PlanetarySystem, planetarySystem.EntityMap, engine); 
 }
@@ -46,7 +46,7 @@ stacxpr	double			ASTRONOMICAL_UNIT_SCALE		= 1.0 / 149597870700;
 	return 0;
 }
 
-static	::llc::error_t	createOrbiterOrbit	(::llc::SEngine & engine, const ::llc::vcst_t shaderName = ::llc::vcsc_t(5, "psOrbit")) {	// Gravity cemters
+static	::llc::error_t	createOrbiterOrbit	(::llc::SEngine & engine, const ::llc::vcst_t shaderName = ::llc::vcst_t(5, "psOrbit")) {	// Gravity cemters
 	::llc::SParamsRingSide		params					= {{}, 32};
 	int32_t						iEntity;
 	llc_necs(iEntity = engine.CreateRingFlat(params));
@@ -55,7 +55,7 @@ static	::llc::error_t	createOrbiterOrbit	(::llc::SEngine & engine, const ::llc::
 	return iEntity;
 }
 
-static	::llc::error_t	createGravityCenter		(::llc::SEngine & engine, const ::llc::vcst_t shaderName = ::llc::vcsc_t(15, "psGravityCenter")) {	// Gravity cemters
+static	::llc::error_t	createGravityCenter		(::llc::SEngine & engine, const ::llc::vcst_t shaderName = ::llc::vcst_t(15, "psGravityCenter")) {	// Gravity cemters
 	::llc::SParamsSphere		params					= {{}, {8, 8}};
 	int32_t						iEntity;
 	llc_necs(iEntity = engine.CreateSphere(params));
@@ -64,7 +64,7 @@ static	::llc::error_t	createGravityCenter		(::llc::SEngine & engine, const ::llc
 	return iEntity;
 }
 
-static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::vcst_t shaderName = ::llc::vcsc_t(5, "psSun")) {	// Gravity cemters
+static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::vcst_t shaderName = ::llc::vcst_t(5, "psSun")) {	// Gravity cemters
 	::llc::SParamsSphere		params					= {{}, {32, 32}};
 	int32_t						iEntity;
 	llc_necs(iEntity = engine.CreateSphere(params));
@@ -172,7 +172,7 @@ static	::llc::error_t	initBody				(::llc::SEngine & engine, int32_t iEntity, boo
 	scale					= isStar ? SUN_SCALE : scale * distanceScale;
 	llc_necs(engine.SetMeshScale(iEntity, scale.f2_t(), true));
 	::llc::TFuncPixelShader		& ps					= isStar ? ::llc::psSphereAxis	: ringSystem ? ::llc::psSphereMeridian	: ::llc::psSphereSolid		;
-	const ::llc::vcsc_t			psName					= isStar ? ::llc::vcs{"psSun"}	: ringSystem ? ::llc::vcs{"psGasGiant"}	: ::llc::vcs{"psTerrestrial"};
+	const ::llc::vcst_t			psName					= isStar ? ::llc::vcs{"psSun"}	: ringSystem ? ::llc::vcs{"psGasGiant"}	: ::llc::vcs{"psTerrestrial"};
 	llc_necs(engine.SetShader	(iEntity, ps, psName));
 	llc_necs(engine.SetHidden	(iEntity, false));
 	return 0;

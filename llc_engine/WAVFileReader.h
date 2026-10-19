@@ -16,7 +16,7 @@
 namespace DirectX
 {
 	HRESULT					LoadWAVAudioInMemory	(::llc::vcu0_t wavData, _Outptr_ const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioView) noexcept;
-	HRESULT					LoadWAVAudioFromFile	(::llc::vcsc_t szFileName, ::llc::au0_t & wavData, const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioView) noexcept;
+	HRESULT					LoadWAVAudioFromFile	(::llc::vcst_t szFileName, ::llc::au0_t & wavData, const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioView) noexcept;
 							
 	struct WAVData {		
 		const WAVEFORMATEX		* WaveFormat			= 0;
@@ -28,7 +28,7 @@ namespace DirectX
 	};						
 							
 	HRESULT					LoadWAVAudioInMemoryEx	(::llc::vcu0_t wavData, WAVData & result) noexcept;
-	HRESULT					LoadWAVAudioFromFileEx	(::llc::vcsc_t szFileName, ::llc::au0_t & wavData, WAVData & result) noexcept;
+	HRESULT					LoadWAVAudioFromFileEx	(::llc::vcst_t szFileName, ::llc::au0_t & wavData, WAVData & result) noexcept;
 }
 
 #endif // LLC_WINDOWS

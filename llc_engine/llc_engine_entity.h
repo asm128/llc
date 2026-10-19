@@ -92,7 +92,7 @@ namespace llc
 				llc_necall(llc::loadView(input, *Children[iEntity]), "iEntity: %i", iEntity);
 				::llc::apod<sc_t>					name;
 				llc_necall(llc::loadView(input, name), "iEntity: %i", iEntity);
-				Names[iEntity]					= ::llc::label(::llc::vcsc_t{name});
+				Names[iEntity]					= ::llc::label(::llc::vcst_t{name});
 			}
 
 			return 0; 
