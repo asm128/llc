@@ -157,6 +157,7 @@ static	::llc::error_t	drawBuffers
 	, const ::llc::n3f2_t		& cameraTarget
 	, const ::llc::n3f2_t		& cameraUp
 	, const ::llc::minmaxf2_t	& nearFar
+	, const ::llc::n3f2_t		& lightPos
 ) {	//
 	const ::llc::n3f2_t			cameraFront			= (cameraTarget - cameraPosition).Normalize();
 	const ::llc::n2u1_t			offscreenMetrics	= backBufferColors.metrics16();
@@ -164,6 +165,7 @@ static	::llc::error_t	drawBuffers
 	::llc::SEngineSceneConstants	constants		= {};
 	constants.CameraPosition	= cameraPosition;
 	constants.CameraFront		= cameraFront;
+	constants.LightPosition	= lightPos;
 
 	constants.View.LookAt(cameraPosition, cameraTarget, cameraUp);
 	constants.Perspective.FieldOfView(.25 * ::llc::math_pi, offscreenMetrics.x / (double)offscreenMetrics.y, nearFar.Min, nearFar.Max);

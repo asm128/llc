@@ -181,6 +181,7 @@ namespace llc
 		, const ::llc::n3f2_t		& cameraTarget
 		, const ::llc::n3f2_t		& cameraUp
 		, const ::llc::minmaxf2_t	& nearFar
+		, const ::llc::n3f2_t		& lightPos = {}
 		);
 
 } // namespace

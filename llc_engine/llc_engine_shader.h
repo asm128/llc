@@ -12,6 +12,7 @@ namespace llc
 
 	::llc::error_t			psHidden			(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel);
 	::llc::error_t			psSolid				(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel);
+	::llc::error_t			psTerrestrial		(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel);
 
 	tplt<tpnm _tCoord>
 	static	::llc::error_t	drawLine			(const ::llc::n2u1_t & targetMetrics, const ::llc::line3<_tCoord> & line, const ::llc::m4f2_t & mWVP, ::llc::apod<::llc::n3f2_t>& out_Points, ::llc::gu2_t depth) {

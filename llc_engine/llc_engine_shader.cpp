@@ -30,6 +30,31 @@
 	return 0;
 }
 
+::llc::error_t			llc::psTerrestrial
+	( const ::llc::SEngineSceneConstants	& constants
+	, const ::llc::SPSIn					& inPS
+	, ::llc::bgra							& outputPixel
+	) {
+	const ::llc::n2u2_t		metrics					= inPS.Surface.metrics();
+	::llc::rgbaf				textureColor			= {};
+	if(metrics.x && metrics.y) {
+		const auto				wrap					= [](::llc::s2_t coord, ::llc::u2_t size) { const ::llc::s2_t wrapped = coord % (::llc::s2_t)size; return (::llc::u2_t)(wrapped < 0 ? wrapped + size : wrapped); };
+		textureColor			= ::llc::rgbaf{inPS.Surface
+			[wrap((::llc::s2_t)(inPS.WeightedUV.y * metrics.y), metrics.y)]
+			[wrap((::llc::s2_t)(inPS.WeightedUV.x * metrics.x), metrics.x)]};
+	}
+	const ::llc::n3f2_t		lightDelta				= constants.LightPosition - inPS.WeightedPosition;
+	const ::llc::n3f2_t		lightVecW				= lightDelta.Normalized();
+	const ::llc::n3f2_t		normal					= inPS.WeightedNormal.Normalized();
+	const ::llc::f2_t		diffuseFactor			= ::llc::max(0.0f, (::llc::f2_t)normal.Dot(lightVecW));
+	const ::llc::rgbaf		ambient					= inPS.Material.Color.Ambient * ::llc::rgbaf{.05f, .05f, .07f, 1};
+	const ::llc::rgbaf		diffuse					= inPS.Material.Color.Diffuse * diffuseFactor;
+	::llc::rgbaf				finalColor				= ((ambient + diffuse) * textureColor).Clamp();
+	finalColor.a			= inPS.Material.Color.Diffuse.a;
+	outputPixel				= finalColor;
+	return 0;
+}
+
 ::llc::error_t			llc::psHidden
 	( const ::llc::SEngineSceneConstants	& /*constants*/
 	, const ::llc::SPSIn					& /*inPS*/
