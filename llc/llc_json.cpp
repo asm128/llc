@@ -63,7 +63,7 @@ llc::err_t			llc::jsonFileRead			(llc::SJSONFile & file, llc::vcst_t filename) {
 
 llc::err_t			llc::jsonArraySplit			(cnst llc::SJSONNode & jsonArrayToSplit, llc::view<cnst vcst_t> jsonViews, u2_c blockSize, llc::aobj<llc::string> & outputJsons)		{
 	u2_c				remainder					= jsonArrayToSplit.Children.size() % blockSize;
-	u2_c				countParts					= jsonArrayToSplit.Children.size() / blockSize + onif_true_e(remainder);
+	u2_c				countParts					= jsonArrayToSplit.Children.size() / blockSize + one_if(remainder);
 	if_fail_fe(outputJsons.resize(countParts));
 	u2_t					iSourceRecord						= 0;
 	for(u2_t iPart = 0; iPart < outputJsons.size(); ++iPart) {
@@ -726,8 +726,8 @@ llc::err_t	llc::jsonObjectGetIntegerAsBoolean(cnst SJSONReader & reader, u2_t iN
 llc::err_t	llc::jsonObjectGetIntegerAsDecimal(cnst SJSONReader & reader, u2_t iNode, f3_t & value)	{ s3_t	integer; jsonObjectGetInteger(reader, iNode, integer); value = f3_t(integer); rtrn iNode; }
 llc::err_t	llc::jsonObjectGetDecimalAsInteger(cnst SJSONReader & reader, u2_t iNode, s3_t & value)	{ f3_t	decimal; jsonObjectGetDecimal(reader, iNode, decimal); value = s3_t (decimal); rtrn iNode; }
 llc::err_t	llc::jsonObjectGetDecimalAsBoolean(cnst SJSONReader & reader, u2_t iNode, b8_t & value)	{ f3_t	decimal; jsonObjectGetDecimal(reader, iNode, decimal); value = 0 != decimal; rtrn iNode; }
-llc::err_t	llc::jsonObjectGetBooleanAsInteger(cnst SJSONReader & reader, u2_t iNode, s3_t & value)	{ b8_t	boolean; jsonObjectGetBoolean(reader, iNode, boolean); value = onif_true_e(boolean); rtrn iNode; }
-llc::err_t	llc::jsonObjectGetBooleanAsDecimal(cnst SJSONReader & reader, u2_t iNode, f3_t & value)	{ b8_t	boolean; jsonObjectGetBoolean(reader, iNode, boolean); value = onif_true_e(boolean); rtrn iNode; }
+llc::err_t	llc::jsonObjectGetBooleanAsInteger(cnst SJSONReader & reader, u2_t iNode, s3_t & value)	{ b8_t	boolean; jsonObjectGetBoolean(reader, iNode, boolean); value = one_if(boolean); rtrn iNode; }
+llc::err_t	llc::jsonObjectGetBooleanAsDecimal(cnst SJSONReader & reader, u2_t iNode, f3_t & value)	{ b8_t	boolean; jsonObjectGetBoolean(reader, iNode, boolean); value = one_if(boolean); rtrn iNode; }
 //llc::err_t	llc::jsonObjectGetIntegerAsString (cnst SJSONReader & reader, u2_t iNode, vcst_t 	& value)	{ s3_t	integer; jsonObjectGetInteger(reader, iNode, integer); sc_t tmp[64]; sprintf_s(tmp, "%lli", integer); value = llc::label(tmp); rtrn iNode; }
 //llc::err_t	llc::jsonObjectGetDecimalAsString (cnst SJSONReader & reader, u2_t iNode, vcst_t 	& value)	{ f3_t	decimal; jsonObjectGetDecimal(reader, iNode, decimal); value = decimal; rtrn iNode; }
 //llc::err_t	llc::jsonObjectGetBooleanAsString (cnst SJSONReader & reader, u2_t iNode, vcst_t 	& value)	{ b8_t		boolean; jsonObjectGetBoolean(reader, iNode, boolean); value = boolean; rtrn iNode; }

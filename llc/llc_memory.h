@@ -59,7 +59,7 @@ namespace llc
 	tplTsinx	u2_t	get_page_size			()							nxpt	{ rtrn (u2_t)(szof(T) <= GREF_PAGE_SIZE_MAX) ? GREF_PAGE_SIZE_MAX/szof(T) : 1; };
 	tplTsinx	u2_t	get_type_size			()							nxpt	{ rtrn (u2_t) szof(T); }
 	tplTsinx	u2_t	get_type_size			(const T&)					nxpt	{ rtrn (u2_t) szof(T); }
-	tplTsinx	u2_t	get_type_size_padded	(u2_t paddingInBytes)		nxpt	{ rtrn paddingInBytes ? (u2_t) ( (szof(T) / paddingInBytes) + onif_true_e(szof(T) % paddingInBytes) ) * paddingInBytes : szof(T); }
+	tplTsinx	u2_t	get_type_size_padded	(u2_t paddingInBytes)		nxpt	{ rtrn paddingInBytes ? (u2_t) ( (szof(T) / paddingInBytes) + one_if(szof(T) % paddingInBytes) ) * paddingInBytes : szof(T); }
 	tplTsinx	u2_t	get_type_align			()							nxpt	{
 		return (u2_t)
 			(	(0 == (szof(T) % 32))	? 32

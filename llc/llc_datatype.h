@@ -56,7 +56,7 @@ namespace llc
 #define	GTYPEID_ELEMENTSIZE(	_dataTypeID )	(::llc::u2_t( 0x7FU		& _dataTypeID) + 1U)								// returns the element size in bits (up to 128 bits)
 
 // Return the byte count of the element type (ElementSize/8). Note: this funcion pads leading bits to next byte size.
-#define	GTYPEID_ELEMENTBYTES( _dataTypeID )		((GTYPEID_ELEMENTSIZE( _dataTypeID )/8)	+ onif_true_e(GTYPEID_ELEMENTSIZE( _dataTypeID ) % 8))
+#define	GTYPEID_ELEMENTBYTES( _dataTypeID )		((GTYPEID_ELEMENTSIZE( _dataTypeID )/8)	+ one_if(GTYPEID_ELEMENTSIZE( _dataTypeID ) % 8))
 
 // Return the byte count of the data type (ElementCount*(ElementSize/8))
 #define	GTYPEID_TOTALBYTES( _dataTypeID )																		\
@@ -64,7 +64,7 @@ namespace llc
 		(GTYPEID_ELEMENTBYTES( _dataTypeID )*GTYPEID_ELEMENTCOUNT( _dataTypeID )) :								\
 		(							\
 			( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(::llc::u2_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) / 8 )			\
-			+ onif_true_e( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(::llc::u2_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) % 8 )	\
+			+ one_if( (GTYPEID_ELEMENTSIZE( _dataTypeID )*(::llc::u2_t)GTYPEID_ELEMENTCOUNT( _dataTypeID )) % 8 )	\
 		)							\
 	)
 
@@ -77,8 +77,8 @@ namespace llc
 		u2_t			IsNorm			:  1	;
 		u2_t			IsSigned		:  1	;
 
-		inxp	u2_t	ElementBytes	()							csnx	{ u2_c elementBits = SizeInBits + 1; return elementBits / 8 + onif_true_e(elementBits % 8); }
-		inxp	u2_t	TotalBytes		()							csnx	{ u2_c elementBits = SizeInBits + 1, elementCount = ElementCount + 1; return ElementPad ? ElementBytes() * elementCount : elementBits * elementCount / 8 + onif_true_e(elementBits * elementCount % 8); }
+		inxp	u2_t	ElementBytes	()							csnx	{ u2_c elementBits = SizeInBits + 1; return elementBits / 8 + one_if(elementBits % 8); }
+		inxp	u2_t	TotalBytes		()							csnx	{ u2_c elementBits = SizeInBits + 1, elementCount = ElementCount + 1; return ElementPad ? ElementBytes() * elementCount : elementBits * elementCount / 8 + one_if(elementBits * elementCount % 8); }
 		inxp	bool	IsSTL			()							csnx	{ return (0 == SizeInBits) && (0 == ElementPad) && (0 == IsSigned) && IsFloat			&& IsNorm			&& (IsBigEndian == 0); }
 		inxp	bool	IsNonUniform	()							csnx	{ return (0 == SizeInBits) && (0 == ElementPad) && (0 == IsSigned) && (IsFloat == 0)	&& (IsNorm == 0)	&& (IsBigEndian == 0); }
 		inxp	bool	IsUniform		()							csnx	{ return !IsNonUniform() && !IsSTL(); }

@@ -122,9 +122,9 @@ namespace llc
 			llc_necall(Cameras	.resize(RenderNodes.size()), "size: %i", RenderNodes.size());
 			for(::llc::u2_t iEntity = 0; iEntity < RenderNodes.size(); ++iEntity) {
 				if(!Lights	[iEntity]) 
-					ree_if(0 == Lights	[iEntity].create(), "iEntity: %i", iEntity);
+					if_true_fef(0 == Lights	[iEntity].create(), "iEntity: %i", iEntity);
 				if(!Cameras	[iEntity]) 
-					ree_if(0 == Cameras	[iEntity].create(), "iEntity: %i", iEntity);
+					if_true_fef(0 == Cameras	[iEntity].create(), "iEntity: %i", iEntity);
 				llc_necall(llc::loadView(input, *Lights	[iEntity]), "iEntity: %i", iEntity);
 				llc_necall(llc::loadView(input, *Cameras	[iEntity]), "iEntity: %i", iEntity);
 			}
@@ -133,7 +133,7 @@ namespace llc
 			input								= {input.begin() + sizeof(::llc::u2_t), input.size() - 4};
 			for(::llc::u2_t iEntity = 0; iEntity < LightsDirectional.size(); ++iEntity) {
 				if(!LightsDirectional[iEntity])
-					ree_if(0 == LightsDirectional[iEntity].create(), "iEntity: %i", iEntity);
+					if_true_fef(0 == LightsDirectional[iEntity].create(), "iEntity: %i", iEntity);
 				llc_necall(llc::loadView(input, *LightsDirectional[iEntity]), "iEntity: %i", iEntity);
 			}
 
@@ -141,7 +141,7 @@ namespace llc
 			input								= {input.begin() + sizeof(::llc::u2_t), input.size() - 4};
 			for(::llc::u2_t iEntity = 0; iEntity < LightsPoint.size(); ++iEntity) {
 				if(!LightsPoint[iEntity])
-					ree_if(0 == LightsPoint[iEntity].create(), "iEntity: %i", iEntity);
+					if_true_fef(0 == LightsPoint[iEntity].create(), "iEntity: %i", iEntity);
 				llc_necall(llc::loadView(input, *LightsPoint[iEntity]), "iEntity: %i", iEntity);
 			}
 
@@ -149,7 +149,7 @@ namespace llc
 			input								= {input.begin() + sizeof(::llc::u2_t), input.size() - 4};
 			for(::llc::u2_t iEntity = 0; iEntity < LightsSpot.size(); ++iEntity) {
 				if(!LightsSpot[iEntity])
-					ree_if(0 == LightsSpot[iEntity].create(), "iEntity: %i", iEntity);
+					if_true_fef(0 == LightsSpot[iEntity].create(), "iEntity: %i", iEntity);
 				llc_necall(llc::loadView(input, *LightsSpot[iEntity]), "iEntity: %i", iEntity);
 			}
 			return 0;

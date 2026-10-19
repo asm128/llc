@@ -102,7 +102,7 @@ namespace llc
 		err_t		resize		(u2_t newSizeX, u2_t newSizeY) nxpt {
 			u3_c bitCount = u3_t(newSizeX) * newSizeY;
 			if_true_fef(bitCount > 0xFFFFFFFFULL, "Monochrome image dimensions exceed the supported bit count: %u x %u.", newSizeX, newSizeY);
-			u2_c cellCount = u2_t(bitCount / TView::ELEMENT_BITS + onif_true_e(bitCount % TView::ELEMENT_BITS));
+			u2_c cellCount = u2_t(bitCount / TView::ELEMENT_BITS + one_if(bitCount % TView::ELEMENT_BITS));
 			if_fail_fef(Texels.resize(cellCount), "Cannot resize monochrome image to %u x %u.", newSizeX, newSizeY);
 			View	= {Texels.begin(), u2_t(bitCount)};
 			Pitch	= newSizeX;

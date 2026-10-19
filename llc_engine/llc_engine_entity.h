@@ -26,7 +26,7 @@ namespace llc
 
 	struct SVirtualEntityManager {
 		::llc::apod<SEntity>			Entities		= {};
-		::llc::avcst_t					Names			= {};
+		::llc::aobj<vcst_t>				Names			= {};
 
 		::llc::aobj<::llc::paeid>		Children		= {};
 
@@ -60,7 +60,7 @@ namespace llc
 
 
 		::llc::error_t					SetParent		(::llc::eid_t id, ::llc::eid_t idParent)		{
-			ree_if(idParent != ::llc::EID_INVALID && idParent >= Entities.size(), "Invalid parent for entity %i, %i", id, idParent);
+			if_true_fef(idParent != ::llc::EID_INVALID && idParent >= Entities.size(), "Invalid parent for entity %i, %i", id, idParent);
 			::llc::eid_t						& oldParent		= Entities[id].Parent;
 			if(oldParent < Entities.size() && Children[oldParent]) {
 				const int32_t						oldIndex		= Children[oldParent]->find(id);

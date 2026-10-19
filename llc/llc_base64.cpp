@@ -49,7 +49,7 @@ static	::llc::error_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::
 	cnst ::llc::vcst_t	& base64Symbols									= symbolMap.Symbols;
 	cnst char				base64PadSymbol									= symbolMap.Pad;
 	if_null_vif(0, inputBytes.size(), "%s", "Empty input stream.");
-	u2_c						packsNeeded												= inputBytes.size() / 3 + onif_true_e(inputBytes.size() % 3);
+	u2_c						packsNeeded												= inputBytes.size() / 3 + one_if(inputBytes.size() % 3);
 	::llc::u2_t					iOutput64												= out_base64.size();
 	llc_necall(out_base64.resize(out_base64.size() + packsNeeded * 4), "Out of memory? out_base64.size() : %" LLC_FMT_U2 ". packsNeeded : %" LLC_FMT_U2 ".", iOutput64, packsNeeded);
 	for(::llc::u2_t iInputByte = 0, inputByteCount = inputBytes.size(); iInputByte < inputByteCount; iInputByte += 3) { // process each byte triplet and turn it into 4 bytes padded with 2 bit

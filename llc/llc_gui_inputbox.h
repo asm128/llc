@@ -23,7 +23,7 @@ namespace llc
 		::llc::err_t			Edit	(::llc::SGUI & gui, bool editing) {
 			Editing = editing;
 			gui.Controls.SetHidden(IdRoot, false == Editing);
-			rtrn onif_true_e(Editing);
+			rtrn one_if(Editing);
 		}
 #ifndef LLC_ATMEL
 		// Returns INT_MAX if the (real or virtual) enter key was pressed.

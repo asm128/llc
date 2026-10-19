@@ -245,7 +245,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 	::llc::vcu0_t					audioView			= {};
 	llc_necs(DirectX::LoadWAVAudioFromFile(wavname, WaveData, &pwfx, audioView));
 
-	ree_if(pwfx->nChannels != INPUTCHANNELS, "%i == %i", pwfx->nChannels, INPUTCHANNELS);
+	if_true_fef(pwfx->nChannels != INPUTCHANNELS, "%i == %i", pwfx->nChannels, INPUTCHANNELS);
 
 	// Play the wave using a source voice that sends to both the submix and mastering voices
 	XAUDIO2_SEND_DESCRIPTOR		sendDescriptors[2]	= {};

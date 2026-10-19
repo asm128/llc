@@ -120,7 +120,7 @@ static	llc::err_t	fileSplitSmall	(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
 	if_fail_fef(llc::fileToMemory(fileNameSrc, fileInMemory), "Failed to load '%.*s'.", (int)fileNameSrc.size(), fileNameSrc.begin());
 
 	// -- Write parts to disk.
-	::llc::u2_t			countParts			= fileInMemory.size() / sizePartMax + onif_true_e(fileInMemory.size() % sizePartMax);
+	::llc::u2_t			countParts			= fileInMemory.size() / sizePartMax + one_if(fileInMemory.size() % sizePartMax);
 	llc::string			fileNameDst			= {};
 	::llc::u2_t			iPart				= 0;
 	for(; iPart < countParts; ++iPart) {
@@ -153,7 +153,7 @@ static	llc::err_t	fileSplitLarge				(llc::vcst_t /*fileNameSrc*/, u2_c /*sizePar
 	//llc_necall(partInMemory.resize(sizePartMax), "Failed to allocate buffer for file part. Out of memory? File part size: %" LLC_FMT_U2 ".", sizePartMax);
 	//
 	//// -- Write parts to disk.
-	//::llc::u2_t			countParts					= (::llc::u2_t)(sizeFile / sizePartMax + onif_true_e(sizeFile % sizePartMax));
+	//::llc::u2_t			countParts					= (::llc::u2_t)(sizeFile / sizePartMax + one_if(sizeFile % sizePartMax));
 	//char				fileNameDst	[1024]			= {};
 	//::llc::u2_t			iPart				= 0;
 	//for(; iPart < countParts; ++iPart) { //

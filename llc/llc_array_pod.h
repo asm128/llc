@@ -187,7 +187,7 @@ namespace llc
 		}
 		inln	err_t		resize_bits			(u2_t newBitCount)						noexcept	{
 			stxp u2_t					elementBits			= (u2_t)szof(T) * 8U;
-			return resize(newBitCount / elementBits + onif_true_e(newBitCount % elementBits));
+			return resize(newBitCount / elementBits + one_if(newBitCount % elementBits));
 		}
 		// Returns the new size of the array.
 		err_t				resize				(u2_t newCount)							noexcept	{

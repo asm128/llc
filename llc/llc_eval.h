@@ -55,11 +55,11 @@ namespace llc
 #ifndef truif_true_e 
 #	define truif_true_e(expression)				((expression) ? true : false)	// returns true  if the parameter evaluates to true
 #	define falsif_true_e(expression)				((expression) ? false : true)	// returns false if the parameter evaluates to true
-#	define onif_true_e(expression)				((expression) ? 1 : 0)			// returns one   if the parameter evaluates to true
+#	define one_if(expression)				((expression) ? 1 : 0)			// returns one   if the parameter evaluates to true
 #	define zero_if(expression)				((expression) ? 0 : 1)			// returns zero  if the parameter evaluates to true
 #	define is_one(your_int)					(1 == (your_int))				// returns true if the parameter is equal to one
 #	define is_zero(your_int)				(0 == (your_int))				// returns true if the parameter is equal to zero
-#	define onif_true_e_false(expression)			onif_true_e(false == (expression))
+#	define onif_true_e_false(expression)			one_if(false == (expression))
 //
 #	define round_up(count, denominator)		(((count) + (denominator) - 1) / (denominator))	// 
 #endif
