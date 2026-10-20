@@ -216,11 +216,6 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 }
 ::llc::error_t			llc::controlDrawHierarchy		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra target)								{
 	llc_necall(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
-	if(gui.LastSize != target.metrics16()) {
-		for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
-			gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
-		gui.LastSize			= target.metrics().u1();
-	}
 	if(false == ::llc::controlHidden(gui, iControl)) {
 		llc_necs(::actualControlDraw(gui, iControl, target));
 		::llc::vccid				children						= gui.Controls.Children[iControl];
@@ -230,13 +225,6 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 	return 0;
 }
 ::llc::error_t			llc::guiDraw					(::llc::SGUI & gui, ::llc::g8bgra target)													{
-	if(gui.LastSize != target.metrics().u1() || gui.LastZoom != gui.Zoom) {
-		for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
-			gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
-		gui.LastSize			= target.metrics().u1();
-		gui.LastZoom			= gui.Zoom;
-	}
-	llc_necs(llc::guiUpdateMetrics(gui, gui.LastSize, false));;
 	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
 		if(false == ::llc::controlInvalid(gui, (::llc::cid_t)iControl) && ::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent))
 			if_true_e(::llc::failed(::llc::controlDrawHierarchy(gui, (::llc::cid_t)iControl, target)));

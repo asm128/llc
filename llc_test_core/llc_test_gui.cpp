@@ -74,6 +74,53 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, KEYBOARD_MOVE      , 63, "Moving the virtua
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, VIEWPORT_PRESS     , 64, "Viewport press aggregation ignored the root, title, or target control.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, VIEWPORT_ACTIVATE  , 65, "Viewport activation did not update display order or selection.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, VIEWPORT_FOLD      , 66, "Viewport folding did not preserve and restore client geometry or visibility.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, UPDATE_INITIALIZE  , 67, "GUI initialization must belong to metrics update, not drawing.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_LAYOUT_STATE  , 68, "Drawing changed the last updated GUI layout state.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, UPDATE_RESIZE      , 69, "Target resize did not invalidate metrics during update.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, UPDATE_ZOOM        , 70, "Zoom change did not invalidate metrics during update.");
+
+sttc ::llc::err_t testGUIUpdateDrawOrder(ATestError & errors) {
+	::llc::SGUI gui = {};
+	::llc::SInput input = {};
+	::llc::img8bgra target = {};
+	if_fail_fe(target.resize(::llc::n2u2_t{100, 80}));
+	if_fail_fe(::llc::guiDraw(gui, target.View));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_UPDATE_INITIALIZE, gui.LastSize.LengthSquared());
+	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control:%i.", control);
+	auto & placement = gui.Controls.Placement[control];
+	placement.Area = {{4, 4}, {20, 16}};
+	placement.Align = ::llc::ALIGN_BOTTOM_RIGHT;
+	(void)::llc::guiProcessInput(gui, input);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_UPDATE_INITIALIZE, gui.Controls.IsHovered(control));
+	if_fail_fe(::llc::guiUpdateMetrics(gui, {80, 60}, false));
+	cnst auto oldArea = gui.Controls.Area[control].Total.Global;
+	cnst auto oldZoom = gui.LastZoom;
+	cnst ::llc::n2u1_t oldSize = {80, 60};
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_UPDATE_INITIALIZE, gui.LastSize != oldSize);
+	input.MouseCurrent.Position = oldArea.Offset + ::llc::n2s1_t{1, 1};
+	placement.Area.Offset += ::llc::n2s1_t{10, 10};
+	if_fail_fe(::llc::controlMetricsInvalidate(gui, control));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_PENDING_METRICS, ::llc::guiProcessInput(gui, input) != control || gui.Controls.Area[control].Total.Global != oldArea);
+	if_fail_fe(::llc::guiDraw(gui, target.View));
+	if_fail_fe(::llc::controlDrawHierarchy(gui, control, target.View));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_LAYOUT_STATE, gui.LastSize != oldSize || gui.LastZoom != oldZoom || gui.Controls.Area[control].Total.Global != oldArea || gui.Controls.IsUpdated(control));
+	if_fail_fe(::llc::guiUpdateMetrics(gui, target.metrics().u1(), false));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_UPDATE_RESIZE, gui.LastSize != target.metrics().u1() || gui.Controls.Area[control].Total.Global == oldArea);
+	cnst auto resizedArea = gui.Controls.Area[control].Total.Global;
+	if_fail_fe(target.resize(::llc::n2u2_t{120, 100}));
+	if_fail_fe(::llc::guiDraw(gui, target.View));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_LAYOUT_STATE, gui.Controls.Area[control].Total.Global != resizedArea);
+	if_fail_fe(::llc::guiUpdateMetrics(gui, target.metrics().u1(), false));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_UPDATE_RESIZE, gui.Controls.Area[control].Total.Global == resizedArea);
+	cnst auto beforeZoom = gui.Controls.Area[control].Total.Global;
+	gui.Zoom.ZoomLevel *= 2;
+	if_fail_fe(::llc::guiDraw(gui, target.View));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_LAYOUT_STATE, gui.LastZoom != oldZoom || gui.Controls.Area[control].Total.Global != beforeZoom);
+	if_fail_fe(::llc::guiUpdateMetrics(gui, target.metrics().u1(), false));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_UPDATE_ZOOM, gui.LastZoom != gui.Zoom || gui.Controls.Area[control].Total.Global == beforeZoom);
+	rtrn 0;
+}
 
 sttc ::llc::err_t testGUITextFontCreate(::llc::po<::llc::SRasterFont> & font, ::llc::n2u0_c & charSize) {
 	font->CharSize = charSize;
@@ -520,6 +567,7 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
 	for(::llc::u2_t iState = 0; iState < ::llc::size(states); ++iState) {
 		target.View.fill({});
 		gui.Controls.States[parent].Flag = states[iState];
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_PALETTE, 0 > ::llc::guiDraw(gui, target.View), "State:%u.", iState);
 		cnst ::llc::bgra expected = gui.Colors->Palettes[palettes[iState]][::llc::UI_CONTROL_AREA_CLIENT];
 		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_DRAW_PALETTE, target.View[6][7] != expected, "State:%u.", iState);
@@ -528,12 +576,14 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
 	cnst ::llc::bgra untouched = {1, 2, 3, 4};
 	target.View.fill(untouched);
 	gui.Controls.Draw[parent].NoClient = true;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_CLIENT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Client suppression failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIENT, target.View[6][7] != untouched);
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_BORDER, target.View[2][7] == untouched);
 	target.View.fill(untouched);
 	gui.Controls.Draw[parent].NoClient = false;
 	gui.Controls.Draw[parent].NoBorder = true;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_BORDER, 0 > ::llc::guiDraw(gui, target.View), "%s", "Border suppression failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_BORDER, target.View[2][7] != untouched);
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIENT, target.View[6][7] == untouched);
@@ -541,6 +591,7 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
 	gui.Controls.SetHidden(child, false);
 	gui.Controls.Draw[child].Palettes[::llc::GUI_CONTROL_PALETTE_NORMAL] = ::llc::GUI_CONTROL_PALETTE_HOVER;
 	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_ORDER, 0 > ::llc::guiDraw(gui, target.View), "%s", "Hierarchy drawing failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_ORDER, target.View[6][6] != gui.Colors->Palettes[::llc::GUI_CONTROL_PALETTE_HOVER][::llc::UI_CONTROL_AREA_CLIENT]);
 	gui.Controls.SetHidden(child, true);
@@ -548,6 +599,7 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
 	gui.Controls.Placement[parent].Margin = gui.Controls.Placement[parent].Border = {};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_CLIP, 0 > ::llc::controlMetricsInvalidate(gui, parent), "%s", "Clip invalidation failed.");
 	target.View.fill(untouched);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_CLIP, 0 > ::llc::guiDraw(gui, target.View), "%s", "Clipped drawing failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIP, target.View[0][0] == untouched || target.View[3][3] == untouched || target.View[3][4] != untouched || target.View[4][3] != untouched);
 	rtrn 0;
@@ -611,6 +663,7 @@ sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
 	for(::llc::u2_t iState = 0; iState < ::llc::size(states); ++iState) {
 		target.View.fill({});
 		gui.Controls.States[control].Flag = states[iState];
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_PALETTE, 0 > ::llc::guiDraw(gui, target.View), "State:%u.", iState);
 		cnst ::llc::n2u1_t offset = (states[iState] & (::llc::GUI_CONTROL_FLAG_Hovered | ::llc::GUI_CONTROL_FLAG_Pressed)) ? ::llc::n2u1_t{1, 1} : ::llc::n2u1_t{};
 		cnst ::llc::n2u1_t pixel = gui.Controls.Area[control].Text.Offset.u1() + offset;
@@ -621,10 +674,12 @@ sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
 	target.View.fill({});
 	gui.Controls.States[control].Flag = {};
 	gui.Controls.Text[control].FontSelected = 1;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_FONT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Explicit font draw failed.");
 	cnst ::llc::n2u1_t textOffset = gui.Controls.Area[control].Text.Offset.u1();
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_FONT, target.View[textOffset.y][textOffset.x] != ::llc::bgra{});
 	gui.Controls.Text[control].FontSelected = -1;
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_FONT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Default font draw failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_FONT, target.View[textOffset.y][textOffset.x] != colors[::llc::GUI_CONTROL_PALETTE_NORMAL]);
 	rtrn 0;
@@ -656,6 +711,7 @@ sttc ::llc::err_t testGUIDrawImage(ATestError & errors) {
 	for(::llc::u2_t iAlign = 0; iAlign < ::llc::size(alignments); ++iAlign) {
 		target.View.fill({});
 		gui.Controls.Images[control].ImageAlign = alignments[iAlign];
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_ALIGN, 0 > ::llc::guiDraw(gui, target.View), "Alignment:%s.", ::llc::get_value_namep(alignments[iAlign]));
 		::llc::rect2s1_t expected = {{}, sourceSize.s1()};
 		::llc::realignRectangle(gui.Controls.Area[control].Client.Global.Size, expected, expected, alignments[iAlign]);
@@ -668,6 +724,7 @@ sttc ::llc::err_t testGUIDrawImage(ATestError & errors) {
 	gui.Controls.Images[control].ImageAlign = ::llc::ALIGN_TOP_LEFT;
 	gui.Controls.Images[control].ImageOffset = {1, 0};
 	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_OFFSET, 0 > ::llc::guiDraw(gui, target.View), "%s", "Offset draw failed.");
 	cnst ::llc::n2s1_t imageOrigin = gui.Controls.Area[control].Client.Global.Offset;
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_OFFSET, target.View[imageOrigin.y][imageOrigin.x] != drawnColors[1]);
@@ -675,17 +732,20 @@ sttc ::llc::err_t testGUIDrawImage(ATestError & errors) {
 	gui.Controls.Images[control].ImageOffset = {};
 	gui.Controls.States[control].Flag = ::llc::GUI_CONTROL_FLAG_Hovered;
 	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_STATE, 0 > ::llc::guiDraw(gui, target.View), "%s", "Hovered draw failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_STATE, target.View[imageOrigin.y][imageOrigin.x] != ::llc::bgra{} || target.View[imageOrigin.y + 1][imageOrigin.x + 1] != drawnColors[0]);
 	gui.Controls.States[control].Flag = {};
 	gui.Controls.Images[control].ImageInvertY = true;
 	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_INVERT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Inverted draw failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_INVERT, target.View[imageOrigin.y][imageOrigin.x] != drawnColors[2] || target.View[imageOrigin.y + 1][imageOrigin.x + 1] != drawnColors[1]);
 	gui.Controls.Images[control].ImageInvertY = false;
 	gui.Controls.Placement[control].Area = {{-1, -1}, {2, 2}};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_CLIP, 0 > ::llc::controlMetricsInvalidate(gui, control), "%s", "Clip invalidation failed.");
 	target.View.fill({});
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_IMAGE_CLIP, 0 > ::llc::guiDraw(gui, target.View), "%s", "Clipped draw failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_IMAGE_CLIP, target.View[0][0] != drawnColors[3] || target.View[0][1] != ::llc::bgra{} || target.View[1][0] != ::llc::bgra{});
 	rtrn 0;
@@ -783,12 +843,14 @@ sttc ::llc::err_t testGUIDraw(ATestError & errors) {
 	for(::llc::u2_t y = 0; y < target.View.metrics().y; ++y)
 		for(::llc::u2_t x = 0; x < target.View.metrics().x; ++x)
 			target.View[y][x] = {};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW, 0 > ::llc::guiDraw(gui, target.View), "%s", "GUI draw failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW, target.View[8][8] == ::llc::bgra{});
 	for(::llc::u2_t y = 0; y < target.View.metrics().y; ++y)
 		for(::llc::u2_t x = 0; x < target.View.metrics().x; ++x)
 			target.View[y][x] = {};
 	gui.Controls.SetHidden(control, true);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_HIDDEN_DRAW, 0 > ::llc::guiDraw(gui, target.View), "%s", "Hidden draw failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_HIDDEN_DRAW, target.View[8][8] != ::llc::bgra{});
 	rtrn 0;
@@ -855,6 +917,7 @@ sttc ::llc::err_t testGUIViewportOperations(ATestError & errors) {
 }
 
 ::llc::err_t testGUI(ATestError & errors) {
+	if_fail_fe(::testGUIUpdateDrawOrder(errors));
 	if_fail_fe(::testGUITextCore(errors));
 	if_fail_fe(::testGUIControlStateQueries(errors));
 	if_fail_fe(::testGUIControlStateMutations(errors));
