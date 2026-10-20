@@ -921,7 +921,68 @@ sttc ::llc::err_t testGUIViewportOperations(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIVisualScene(ATestError & errors, ::llc::vcst_t outputFolder) {
+	::llc::SGUI gui = {};
+	stxp ::llc::vcst_t labels[] = {"Normal", "Hovered", "Selected", "Pressed", "Disabled"};
+	stxp ::llc::GUI_CONTROL_FLAG states[] = {{}, ::llc::GUI_CONTROL_FLAG_Hovered, ::llc::GUI_CONTROL_FLAG_Selected, ::llc::GUI_CONTROL_FLAG_Pressed, ::llc::GUI_CONTROL_FLAG_Disabled};
+	for(::llc::u2_t iState = 0; iState < ::llc::size(states); ++iState) {
+		cnst ::llc::cid_t control = ::llc::controlCreate(gui);
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Visual state:%u.", iState);
+		gui.Controls.Placement[control].Area = {{(::llc::s1_t)(20 + 184 * iState), 64}, {176, 160}};
+		gui.Controls.Text[control].Text = labels[iState];
+		gui.Controls.Text[control].Align = ::llc::ALIGN_CENTER;
+		gui.Controls.States[control].Flag = states[iState];
+	}
+	cnst ::llc::cid_t panel = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIRE(errors, GUI_TEST_RESULT_CREATE, panel < 0);
+	gui.Controls.Placement[panel].Area = {{20, 250}, {912, 330}};
+	gui.Controls.Text[panel].Text = "Nested controls - production palette and font";
+	gui.Controls.Text[panel].Align = ::llc::ALIGN_CENTER_TOP;
+	stxp ::llc::vcst_t childLabels[] = {"Top-left text", "Centered text", "Bottom-right text"};
+	stxp ::llc::ALIGN childAlignments[] = {::llc::ALIGN_TOP_LEFT, ::llc::ALIGN_CENTER, ::llc::ALIGN_BOTTOM_RIGHT};
+	for(::llc::u2_t iChild = 0; iChild < ::llc::size(childLabels); ++iChild) {
+		cnst ::llc::cid_t child = ::llc::controlCreateChild(gui, panel);
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, child < 0, "Visual child:%u.", iChild);
+		gui.Controls.Placement[child].Area = {{(::llc::s1_t)(16 + 292 * iChild), 64}, {280, 220}};
+		gui.Controls.Text[child].Text = childLabels[iChild];
+		gui.Controls.Text[child].Align = childAlignments[iChild];
+	}
+	for(::llc::u2_t iControl = 0; iControl < gui.Controls.Placement.size(); ++iControl) {
+		gui.Controls.Placement[iControl].Margin = {4, 4, 4, 4};
+		gui.Controls.Placement[iControl].Border = {6, 6, 6, 6};
+		gui.Controls.Draw[iControl].UseNewPalettes = true;
+		gui.Controls.Draw[iControl].ColorMode = ::llc::GUI_COLOR_MODE_Default;
+	}
+	cnst ::llc::cid_t title = ::llc::controlCreate(gui);
+	LLC_TEST_REQUIRE(errors, GUI_TEST_RESULT_CREATE, title < 0);
+	gui.Controls.Placement[title].Area = {{20, 16}, {912, 32}};
+	gui.Controls.Placement[title].Margin = gui.Controls.Placement[title].Border = {};
+	gui.Controls.Draw[title].UseNewPalettes = true;
+	gui.Controls.Draw[title].NoClient = gui.Controls.Draw[title].NoBorder = true;
+	gui.Controls.Text[title].Align = ::llc::ALIGN_CENTER;
+	::llc::img8bgra target;
+	if_fail_fe(target.resize(::llc::n2u2_t{960, 600}));
+	::llc::string folder;
+	if_fail_fe(::llc::append_strings(folder, outputFolder, "/VISUAL_SCENE"));
+	if_fail_fe(::llc::pathCreate(folder));
+	stxp ::llc::GUI_COLOR_MODE modes[] = {::llc::GUI_COLOR_MODE_Flat, ::llc::GUI_COLOR_MODE_3D};
+	stxp ::llc::vcst_t titles[] = {"GUI default palettes - Flat", "GUI default palettes - 3D"};
+	stxp ::llc::vcst_t files[] = {"flat.png", "3d.png"};
+	for(::llc::u2_t iMode = 0; iMode < ::llc::size(modes); ++iMode) {
+		gui.ColorModeDefault = modes[iMode];
+		if_fail_fe(::llc::controlTextSet(gui, title, titles[iMode]));
+		if_fail_fe(target.View.fill({32, 32, 32, 255}));
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), true), "Visual mode:%u.", iMode);
+		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW, 0 > ::llc::guiDraw(gui, target.View), "Visual mode:%u.", iMode);
+		::llc::au0_t bytes;
+		if_fail_fe(::llc::pngFileWrite(target.View, bytes));
+		if_fail_fe(::llc::fileFromMemory(folder, files[iMode], bytes));
+	}
+	rtrn 0;
+}
+
 ::llc::err_t testGUI(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+	if_fail_fe(::testGUIVisualScene(errors, outputFolder));
 	if_fail_fe(::testGUIUpdateDrawOrder(errors));
 	if_fail_fe(::testGUITextCore(errors));
 	if_fail_fe(::testGUIControlStateQueries(errors));
