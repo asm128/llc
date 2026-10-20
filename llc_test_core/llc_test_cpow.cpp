@@ -24,89 +24,75 @@ sttc ::llc::err_t testCPowValue(ATestError & errors, T base, T expected, CPOW_TE
 	rtrn 0;
 }
 
-tplt<tpnm T>
-sttc ::llc::err_t testCPowType(ATestError & errors) {
-	stxp T compileTimeValue = ::llc::cpow<6>(T(2));
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_CONSTEXPR_VALUE, compileTimeValue != T(64) , "constexpr cpow<6>(2) mismatch. actual:%f, expected:64." , (::llc::f3_t)compileTimeValue );
-	if_fail_fe(testCPowValue<0>(errors, T(0), T(1)));
-	if_fail_fe(testCPowValue<1>(errors, T(0), T(0)));
-	if_fail_fe(testCPowValue<6>(errors, T(1), T(1)));
-	if_fail_fe(testCPowValue<1>(errors, T(2), T(2)));
-	if_fail_fe(testCPowValue<3>(errors, T(2), T(8)));
-	if_fail_fe(testCPowValue<6>(errors, T(2), T(64)));
+struct SCPowCase { size_t Exponent; ::llc::f3_t Base, Expected; };
+stxp SCPowCase CPowCases[]			= {{0, 0, 1}, {1, 0, 0}, {6, 1, 1}, {1, 2, 2}, {3, 2, 8}, {6, 2, 64}};
+stxp SCPowCase CPowSignedCases[]		= {{1, -2, -2}, {2, -2, 4}, {3, -2, -8}, {6, -2, 64}};
+stxp SCPowCase CPowFractionalCases[]	= {{1, .5, .5}, {2, .5, .25}, {4, .5, .0625}};
+
+tplt<tpnm T, auto & cases, CPOW_TEST_RESULT result = CPOW_TEST_RESULT_VALUE, size_t iCase = 0>
+sttc ::llc::err_t testCPowCases(ATestError & errors) {
+	stxp auto testCase = cases[iCase];
+	static_assert(::std::is_same_v<decltype(::llc::cpow<testCase.Exponent>(T{})), T>);
+	stxp T compileTimeValue = ::llc::cpow<testCase.Exponent>(T(testCase.Base));
+	static_assert(compileTimeValue == T(testCase.Expected));
+	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_CONSTEXPR_VALUE, compileTimeValue != T(testCase.Expected) , "constexpr cpow<%u>(%f) mismatch. actual:%f, expected:%f." , (::llc::u2_t)testCase.Exponent, testCase.Base, (::llc::f3_t)compileTimeValue, testCase.Expected );
+	if_fail_fe(testCPowValue<testCase.Exponent>(errors, T(testCase.Base), T(testCase.Expected), result));
+	if constexpr(iCase + 1 < ::llc::size(cases))
+		if_fail_fe((testCPowCases<T, cases, result, iCase + 1>(errors)));
 	rtrn 0;
 }
 
-tplt<tpnm T>
-sttc ::llc::err_t testCPowSignedType(ATestError & errors) {
-	if_fail_fe(testCPowValue<1>(errors, T(-2), T(-2), CPOW_TEST_RESULT_NEGATIVE_BASE));
-	if_fail_fe(testCPowValue<2>(errors, T(-2), T( 4), CPOW_TEST_RESULT_NEGATIVE_BASE));
-	if_fail_fe(testCPowValue<3>(errors, T(-2), T(-8), CPOW_TEST_RESULT_NEGATIVE_BASE));
-	if_fail_fe(testCPowValue<6>(errors, T(-2), T(64), CPOW_TEST_RESULT_NEGATIVE_BASE));
+tplt<::llc::u0_t exp = 0, tpnm T, size_t count>
+sttc ::llc::err_t testDigits(ATestError & errors, T value, T base, cnst char (&expected)[count]) {
+	cnst char actual = (base == T(10)) ? ::llc::digit<exp>(value) : ::llc::digit<exp>(value, base);
+	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_POSITION, actual != expected[exp] , "digit<%u>(%" LLC_FMT_U3 ", base:%u) mismatch. actual:'%c', expected:'%c'." , (::llc::u2_t)exp, (::llc::u3_t)value, (::llc::u2_t)base, actual, expected[exp] );
+	if constexpr(exp + 2 < count)
+		if_fail_fe(testDigits<exp + 1>(errors, value, base, expected));
 	rtrn 0;
 }
 
-tplt<tpnm T>
-sttc ::llc::err_t testCPowFractionalType(ATestError & errors) {
-	if_fail_fe(testCPowValue<1>(errors, T(.5), T(.5), CPOW_TEST_RESULT_FRACTIONAL_BASE));
-	if_fail_fe(testCPowValue<2>(errors, T(.5), T(.25), CPOW_TEST_RESULT_FRACTIONAL_BASE));
-	if_fail_fe(testCPowValue<4>(errors, T(.5), T(.0625), CPOW_TEST_RESULT_FRACTIONAL_BASE));
-	rtrn 0;
-}
-
-tplt<::llc::u0_t exp, tpnm T>
-sttc ::llc::err_t testDigitValue(ATestError & errors, T value, char expected) {
-	cnst char actual = ::llc::digit<exp>(value);
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_POSITION, actual != expected , "digit<%u>(%" LLC_FMT_U3 ") mismatch. actual:'%c', expected:'%c'." , (::llc::u2_t)exp, (::llc::u3_t)value, actual, expected );
-	rtrn 0;
-}
-
-tplt<tpnm T>
-sttc ::llc::err_t testDigitType(ATestError & errors) {
-	if_fail_fe(testDigitValue<0>(errors, T(123), '3'));
-	if_fail_fe(testDigitValue<1>(errors, T(123), '2'));
-	if_fail_fe(testDigitValue<2>(errors, T(123), '1'));
-	if_fail_fe(testDigitValue<3>(errors, T(123), '0'));
+tplt<tpnm T, tpnm... TRest>
+sttc ::llc::err_t testCPowTypes(ATestError & errors) {
+	if_fail_fe((testCPowCases<T, CPowCases>(errors)));
+	if constexpr(::std::is_signed_v<T>)
+		if_fail_fe((testCPowCases<T, CPowSignedCases, CPOW_TEST_RESULT_NEGATIVE_BASE>(errors)));
+	if constexpr(::std::is_floating_point_v<T>)
+		if_fail_fe((testCPowCases<T, CPowFractionalCases, CPOW_TEST_RESULT_FRACTIONAL_BASE>(errors)));
+	if constexpr(::std::is_unsigned_v<T>) {
+		if constexpr(sizeof(T) <= 2) {
+			stxp SCPowCase narrowCases[] = {{2, ::llc::u2_t(1) << (sizeof(T) * 4), 0}};
+			if_fail_fe((testCPowCases<T, narrowCases>(errors)));
+		}
+		if_fail_fe(testDigits(errors, T(123), T(10), "3210"));
+	}
+	if constexpr(sizeof...(TRest))
+		if_fail_fe((testCPowTypes<TRest...>(errors)));
 	rtrn 0;
 }
 
 ::llc::err_t testCPow(ATestError & errors) {
-	if_fail_fe(testCPowType<::llc::i0u_t>(errors));
-	if_fail_fe(testCPowType<::llc::i1u_t>(errors));
-	if_fail_fe(testCPowType<::llc::i2u_t>(errors));
-	if_fail_fe(testCPowType<::llc::i3u_t>(errors));
-	if_fail_fe(testCPowType<::llc::i0s_t>(errors));
-	if_fail_fe(testCPowType<::llc::i1s_t>(errors));
-	if_fail_fe(testCPowType<::llc::i2s_t>(errors));
-	if_fail_fe(testCPowType<::llc::i3s_t>(errors));
-	if_fail_fe(testCPowType<::llc::f2s_t>(errors));
-	if_fail_fe(testCPowType<::llc::f3s_t>(errors));
+	if_fail_fe((testCPowTypes<
+		::llc::i0u_t, ::llc::i1u_t, ::llc::i2u_t, ::llc::i3u_t,
+		::llc::i0s_t, ::llc::i1s_t, ::llc::i2s_t, ::llc::i3s_t,
+		::llc::f2s_t, ::llc::f3s_t
+	>(errors)));
 
-	if_fail_fe(testCPowSignedType<::llc::i0s_t>(errors));
-	if_fail_fe(testCPowSignedType<::llc::i1s_t>(errors));
-	if_fail_fe(testCPowSignedType<::llc::i2s_t>(errors));
-	if_fail_fe(testCPowSignedType<::llc::i3s_t>(errors));
-	if_fail_fe(testCPowSignedType<::llc::f2s_t>(errors));
-	if_fail_fe(testCPowSignedType<::llc::f3s_t>(errors));
-	if_fail_fe(testCPowFractionalType<::llc::f2s_t>(errors));
-	if_fail_fe(testCPowFractionalType<::llc::f3s_t>(errors));
-
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL, ::llc::digit_ascii(0) != '0' , "Decimal digit 0:'%c', expected:'0'.", ::llc::digit_ascii(0) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL, ::llc::digit_ascii(9) != '9' , "Decimal digit 9:'%c', expected:'9'.", ::llc::digit_ascii(9) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER, ::llc::digit_ascii(10) != 'A' , "Alphabetic digit 10:'%c', expected:'A'.", ::llc::digit_ascii(10) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER, ::llc::digit_ascii(35) != 'Z' , "Alphabetic digit 35:'%c', expected:'Z'.", ::llc::digit_ascii(35) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER, ::llc::digit_ascii(36) != 'a' , "Alphabetic digit 36:'%c', expected:'a'.", ::llc::digit_ascii(36) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_LETTER, ::llc::digit_ascii(61) != 'z' , "Alphabetic digit 61:'%c', expected:'z'.", ::llc::digit_ascii(61) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_BASE, ::llc::digit_ascii(255, 16) != 'F' , "Digit 255 in base 16:'%c', expected:'F'.", ::llc::digit_ascii(255, 16) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_BASE, ::llc::digit_ascii(61, ::llc::ASCII_DIGIT_COUNT) != 'z' , "Digit 61 in base %u:'%c', expected:'z'.", ::llc::ASCII_DIGIT_COUNT, ::llc::digit_ascii(61, ::llc::ASCII_DIGIT_COUNT) );
-
-	if_fail_fe(testDigitType<::llc::i0u_t>(errors));
-	if_fail_fe(testDigitType<::llc::i1u_t>(errors));
-	if_fail_fe(testDigitType<::llc::i2u_t>(errors));
-	if_fail_fe(testDigitType<::llc::i3u_t>(errors));
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_POSITION, ::llc::digit<0>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'F' , "Hex digit position 0:'%c', expected:'F'.", ::llc::digit<0>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_POSITION, ::llc::digit<1>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'E' , "Hex digit position 1:'%c', expected:'E'.", ::llc::digit<1>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_POSITION, ::llc::digit<2>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'E' , "Hex digit position 2:'%c', expected:'E'.", ::llc::digit<2>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) );
-	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_POSITION, ::llc::digit<3>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) != 'B' , "Hex digit position 3:'%c', expected:'B'.", ::llc::digit<3>(::llc::u2_t(0xBEEF), ::llc::u2_t(16)) );
+	stxp struct { char Remainder, Expected; CPOW_TEST_RESULT Result; } asciiCases[] = {
+		{ 0, '0', CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL}, { 9, '9', CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL},
+		{10, 'A', CPOW_TEST_RESULT_DIGIT_ASCII_LETTER }, {35, 'Z', CPOW_TEST_RESULT_DIGIT_ASCII_LETTER },
+		{36, 'a', CPOW_TEST_RESULT_DIGIT_ASCII_LETTER }, {61, 'z', CPOW_TEST_RESULT_DIGIT_ASCII_LETTER },
+	};
+	for(cnst auto & testCase : asciiCases) {
+		cnst char actual = ::llc::digit_ascii(testCase.Remainder);
+		LLC_TEST_CHECKF(errors, testCase.Result, actual != testCase.Expected , "digit_ascii(%u) mismatch. actual:'%c', expected:'%c'." , (::llc::u2_t)testCase.Remainder, actual, testCase.Expected );
+	}
+	stxp struct { ::llc::u3_t Value; ::llc::u0_t Base; char Expected; } baseCases[] = {
+		{255, 16, 'F'}, {61, ::llc::ASCII_DIGIT_COUNT, 'z'},
+	};
+	for(cnst auto & testCase : baseCases) {
+		cnst char actual = ::llc::digit_ascii(testCase.Value, testCase.Base);
+		LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_DIGIT_ASCII_BASE, actual != testCase.Expected , "digit_ascii(%" LLC_FMT_U3 ", base:%u) mismatch. actual:'%c', expected:'%c'." , testCase.Value, (::llc::u2_t)testCase.Base, actual, testCase.Expected );
+	}
+	if_fail_fe(testDigits(errors, ::llc::u2_t(0xBEEF), ::llc::u2_t(16), "FEEB"));
 	rtrn 0;
 }
