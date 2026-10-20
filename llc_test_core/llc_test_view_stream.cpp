@@ -99,12 +99,10 @@ sttc ::llc::err_t testViewStreamType(ATestError & errors) {
 	::llc::u0_t originalArrayStorage[szof(arraySource)] = {};
 	memcpy(originalArrayStorage, truncatedArrayStorage, szof(originalArrayStorage));
 	::llc::view_stream<::llc::u0_t> truncatedArrayWriter{::llc::u2_t(szof(arraySource) - 1), truncatedArrayStorage};
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t truncatedScalarReadResult = truncatedScalarReader.read_pod(truncatedScalarOutput);
 	cnst ::llc::err_t truncatedArrayReadResult = truncatedArrayReader.read_pod(truncatedArrayOutput);
 	cnst ::llc::err_t truncatedScalarWriteResult = truncatedScalarWriter.write_pod(scalarSource);
 	cnst ::llc::err_t truncatedArrayWriteResult = truncatedArrayWriter.write_pod(arraySource);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, VIEW_STREAM_TEST_RESULT_TRUNCATED_READ_RESULT, 0 <= truncatedScalarReadResult , "%u-bit scalar read accepted %u/%u bytes. result:%i." , bcof(T), ::llc::u2_t(szof(T) - 1), ::llc::u2_t(szof(T)), truncatedScalarReadResult );
 	LLC_TEST_CHECKF(errors, VIEW_STREAM_TEST_RESULT_TRUNCATED_READ_OUTPUT, 0 != memcmp(&truncatedScalarOutput, &originalScalarOutput, szof(T)) , "%u-bit truncated scalar read modified output." , bcof(T) );
 	LLC_TEST_CHECKF(errors, VIEW_STREAM_TEST_RESULT_TRUNCATED_READ_CURSOR, truncatedScalarReader.CursorPosition , "%u-bit truncated scalar read cursor:%u, expected:0." , bcof(T), truncatedScalarReader.CursorPosition );
@@ -124,7 +122,7 @@ sttc ::llc::err_t testViewStreamType(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testViewStream(ATestError & errors) {
+::llc::err_t testViewStream(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_READ_CONST_ACCESS, (false == canViewStreamRead<::llc::view_stream<cnst ::llc::u0_t>, ::llc::u2_t>));
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_WRITE_MUTABLE_ACCESS, (false == canViewStreamWrite<::llc::view_stream<::llc::u0_t>, ::llc::u2_t>));
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_WRITE_CONST_ACCESS, (canViewStreamWrite<::llc::view_stream<cnst ::llc::u0_t>, ::llc::u2_t>));

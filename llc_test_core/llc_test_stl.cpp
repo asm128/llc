@@ -20,7 +20,7 @@ GDEFINE_ENUM_VALUED(STL_TEST_RESULT, TRUNCATED_TRIANGLES		, 13, "A failed STL lo
 static_assert(requires(::llc::vu0_t input, ::llc::vcu0_t & header, ::llc::view<::llc::SSTLTriangle> & triangles) { ::llc::stlFileLoad(input, header, triangles); });
 static_assert(requires(::llc::vcu0_t input, ::llc::vcu0_t & header, ::llc::view<cnst ::llc::SSTLTriangle> & triangles) { ::llc::stlFileLoad(input, header, triangles); });
 
-::llc::err_t testSTL(ATestError & errors) {
+::llc::err_t testSTL(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	stxp ::llc::u2_t				HEADER_SIZE				= 80;
 	::llc::SSTLTriangle			expected[2]				= {};
 	expected[0].Normal										= {1, 2, 3};
@@ -71,9 +71,7 @@ static_assert(requires(::llc::vcu0_t input, ::llc::vcu0_t & header, ::llc::view<
 	for(::llc::u2_t byteCount = 0; byteCount < serialized.size(); ++byteCount) {
 		::llc::vcu0_t					headerSentinel				= headerSentinelStorage;
 		::llc::view<cnst ::llc::SSTLTriangle>	triangleSentinel		= triangleSentinelStorage;
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t				result						= ::llc::stlFileLoad(::llc::vcu0_t{serialized.begin(), byteCount}, headerSentinel, triangleSentinel);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, STL_TEST_RESULT_TRUNCATED_RESULT, 0 <= result , "Accepted bytes:%u of %u. Result:%i." , byteCount, serialized.size(), result );
 		LLC_TEST_CHECKF(errors, STL_TEST_RESULT_TRUNCATED_HEADER, headerSentinel.begin() != headerSentinelStorage , "Bytes:%u, begin:%p, expected:%p." , byteCount, headerSentinel.begin(), headerSentinelStorage );
 		LLC_TEST_CHECKF(errors, STL_TEST_RESULT_TRUNCATED_HEADER, headerSentinel.size() != ::llc::size(headerSentinelStorage) , "Bytes:%u, count:%u, expected:%u." , byteCount, headerSentinel.size(), ::llc::u2_t(::llc::size(headerSentinelStorage)) );

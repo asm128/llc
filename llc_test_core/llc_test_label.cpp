@@ -15,9 +15,7 @@ GDEFINE_ENUM_VALUED(LABEL_TEST_RESULT, MANAGER_FAILURE_STATE	, 7, "A failed CLab
 
 tplt<tpnm TCall>
 sttc ::llc::err_t labelExpectedFailure(TCall call) {
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t result = call();
-	::llc::setupDefaultLogCallbacks();
 	rtrn result;
 }
 
@@ -123,7 +121,7 @@ sttc ::llc::err_t testLabels(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testLabel(ATestError & errors) {
+::llc::err_t testLabel(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testLabelManager(errors));
 	rtrn ::testLabels(errors);
 }

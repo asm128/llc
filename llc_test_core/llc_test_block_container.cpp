@@ -13,9 +13,7 @@ GDEFINE_ENUM_VALUED(BLOCK_CONTAINER_TEST_RESULT, NTS_TERMINATOR		, 6, "block_con
 
 tplt<tpnm TCall>
 sttc ::llc::err_t blockContainerExpectedFailure(TCall call) {
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t result = call();
-	::llc::setupDefaultLogCallbacks();
 	rtrn result;
 }
 
@@ -121,7 +119,7 @@ sttc ::llc::err_t testBlockContainerNTS(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBlockContainer(ATestError & errors) {
+::llc::err_t testBlockContainer(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u1_t>(errors));
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u2_t>(errors));

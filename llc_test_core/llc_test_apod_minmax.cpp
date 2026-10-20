@@ -74,7 +74,7 @@ sttc ::llc::err_t testMinMaxType(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testArrayMinMax(ATestError & errors) {
+::llc::err_t testArrayMinMax(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECK(errors, ARRAY_MINMAX_TEST_RESULT_ALIAS_TYPE, (false == ::std::is_same_v<::llc::aminmaxsc_t, ::llc::aminmax<::llc::sc_t>>));
 	LLC_TEST_CHECK(errors, ARRAY_MINMAX_TEST_RESULT_ALIAS_TYPE, (false == ::std::is_same_v<::llc::aminmaxuc_t, ::llc::aminmax<::llc::uc_t>>));
 	LLC_TEST_CHECK(errors, ARRAY_MINMAX_TEST_RESULT_ALIAS_TYPE, (false == ::std::is_same_v<::llc::aminmaxu0_t, ::llc::aminmax<::llc::u0_t>>));

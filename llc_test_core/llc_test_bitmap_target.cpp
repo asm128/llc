@@ -202,9 +202,7 @@ sttc ::llc::err_t testBitmapLineOutput(ATestError& errors) {
 
 	cnst ::llc::n2u1_t oversized = {0x8001U, 1};
 	cnst ::llc::u2_t oldSize = points.size();
-	::llc::setupLogCallbacks(0, 0);
 	result = ::llc::drawLine(oversized, ::llc::line2s2_t{{0, 0}, {1, 0}}, points);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, BITMAP_TARGET_TEST_RESULT_LINE_OUTPUT_RANGE, false == ::llc::failed(result), "Result:%i, expected failure.", result);
 	LLC_TEST_CHECKF(errors, BITMAP_TARGET_TEST_RESULT_LINE_OUTPUT_PRESERVED, points.size() != oldSize, "Output size:%u, expected:%u.", points.size(), oldSize);
 	rtrn 0;
@@ -300,9 +298,7 @@ sttc ::llc::err_t testBitmapCircles(ATestError& errors) {
 
 	cnst ::llc::n2u2_t oversized = {0x80000001U, 1};
 	cnst ::llc::u2_t oldSize = points.size();
-	::llc::setupLogCallbacks(0, 0);
 	result = ::llc::drawCircle(oversized, circle, points);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, BITMAP_TARGET_TEST_RESULT_CIRCLE_OUTPUT_RANGE, false == ::llc::failed(result), "Result:%i, expected failure.", result);
 	LLC_TEST_CHECKF(errors, BITMAP_TARGET_TEST_RESULT_CIRCLE_OUTPUT_PRESERVED, points.size() != oldSize, "Output size:%u, expected:%u.", points.size(), oldSize);
 	rtrn 0;
@@ -355,9 +351,7 @@ sttc ::llc::err_t testBitmapTriangles(ATestError& errors) {
 
 	cnst ::llc::n2u2_t oversized = {0x8001U, 1};
 	cnst ::llc::u2_t oldSize = points.size();
-	::llc::setupLogCallbacks(0, 0);
 	result = ::llc::drawTriangle(oversized, triangle, points);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, BITMAP_TARGET_TEST_RESULT_TRIANGLE_OUTPUT_RANGE, false == ::llc::failed(result), "Result:%i, expected failure.", result);
 	LLC_TEST_CHECKF(errors, BITMAP_TARGET_TEST_RESULT_TRIANGLE_OUTPUT_PRESERVED, points.size() != oldSize, "Output size:%u, expected:%u.", points.size(), oldSize);
 	rtrn 0;
@@ -396,7 +390,7 @@ sttc ::llc::err_t testBitmapLight(ATestError& errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBitmapTarget(ATestError& errors) {
+::llc::err_t testBitmapTarget(ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testBitmapAxisLines(errors));
 	if_fail_fe(::testBitmapLines(errors));
 	if_fail_fe(::testBitmapLineOutput(errors));

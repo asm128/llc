@@ -1,6 +1,10 @@
 #include "llc_base64.h"
 #include "llc_noise.h"
 #include "llc_font_defaults.h"
+#include "llc_png.h"
+#include "llc_file.h"
+#include "llc_path.h"
+#include "llc_string_compose.h"
 
 #include "llc_test_core.h"
 #include "llc_test_base64_font_data.h"
@@ -349,7 +353,30 @@ sttc ::llc::err_t testBase64InvalidAlphabet(ATestError & errors) {
 	rtrn testBase64AlphabetRejected(errors, ::llc::b64Symbols, 'A', "pad conflict");
 }
 
-sttc ::llc::err_t testBase64Fonts(ATestError & errors) {
+sttc ::llc::err_t testBase64FontImage(::llc::vcst_t outputFolder, cnst SBase64FontFixture & font, ::llc::vcu0_t bitmap, ::llc::u2_t index) {
+	::llc::string folder;
+	if_fail_fe(::llc::append_strings(folder, outputFolder, "/FONT_CONTENT"));
+	if_fail_fe(::llc::pathCreate(folder));
+	::llc::img8bgra image;
+	stxp ::llc::u2_t scale = 3;
+	if_fail_fe(image.resize(::llc::n2u2_t{font.Width * 16U * scale, font.Height * 16U * scale}));
+	for(::llc::u2_t character = 0; character < 256; ++character)
+		for(::llc::u2_t y = 0; y < font.Height; ++y)
+			for(::llc::u2_t x = 0; x < font.Width; ++x) {
+				cnst ::llc::u2_t bit = character * font.Width * font.Height + y * font.Width + x;
+				cnst ::llc::u0_t color = (bitmap[bit / 8] & (1U << (bit % 8))) ? 255 : 0;
+				for(::llc::u2_t sy = 0; sy < scale; ++sy)
+					for(::llc::u2_t sx = 0; sx < scale; ++sx)
+						image.View[(character / 16 * font.Height + y) * scale + sy][(character % 16 * font.Width + x) * scale + sx] = {color, color, color, 255};
+			}
+	::llc::au0_t bytes;
+	if_fail_fe(::llc::pngFileWrite(image.View, bytes));
+	char name[64] = {};
+	if_fail_fe(::llc::sprintf_s(name, "font_%02u_%ux%u.png", index, (::llc::u2_t)font.Width, (::llc::u2_t)font.Height));
+	rtrn ::llc::fileFromMemory(folder, ::llc::vcst_t{name}, bytes);
+}
+
+sttc ::llc::err_t testBase64Fonts(ATestError & errors, ::llc::vcst_t outputFolder) {
 	stct SLetterRange { ::llc::u0_t Begin, End; };
 	static_assert(::llc::size(BASE64_FONT_FIXTURES) == ::llc::size(::llc::RASTER_FONT_DEFAULTS));
 	stxp SLetterRange LETTER_RANGES[] = {{'A', 'Z'}, {'a', 'z'}};
@@ -363,6 +390,7 @@ sttc ::llc::err_t testBase64Fonts(ATestError & errors) {
 		::llc::u2_c logicalByteCount = font.Width * font.Height * 256U / 8U;
 		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_FONT_SIZE, decoded.size() != font.DecodedCount , "CP437 font:%u decoded bytes:%u, expected:%u." , iFont, decoded.size(), font.DecodedCount);
 		LLC_TEST_REQUIREF(errors, BASE64_TEST_RESULT_FONT_LOGICAL_SIZE, logicalByteCount > decoded.size() , "CP437 font:%u logical bytes:%u, available:%u." , iFont, logicalByteCount, decoded.size());
+		if_fail_fe(testBase64FontImage(outputFolder, font, decoded, iFont));
 		cnst ::llc::u2_t decodedHash = hashBytes(decoded);
 		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_FONT_CONTENT, decodedHash != font.DecodedHash , "CP437 font bitmap mismatch. font:%u, size:%ux%u, actual:0x%08X, expected:0x%08X." , iFont, font.Width, font.Height, decodedHash, font.DecodedHash );
 
@@ -404,7 +432,7 @@ sttc ::llc::err_t testBase64Random(ATestError & errors, bool fileSafe) {
 	rtrn 0;
 }
 
-::llc::err_t testBase64(ATestError & errors) {
+::llc::err_t testBase64(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testBase64Vectors			(errors));
 	if_fail_fe(testBase64Append			(errors));
 	if_fail_fe(testBase64Alphabets		(errors));
@@ -413,7 +441,7 @@ sttc ::llc::err_t testBase64Random(ATestError & errors, bool fileSafe) {
 	if_fail_fe(testBase64CountedTerminator(errors));
 	if_fail_fe(testBase64InvalidInput		(errors));
 	if_fail_fe(testBase64InvalidAlphabet	(errors));
-	if_fail_fe(testBase64Fonts				(errors));
+	if_fail_fe(testBase64Fonts				(errors, outputFolder));
 	if_fail_fe(testBase64Random			(errors, false));
 	rtrn testBase64Random				(errors, true);
 }

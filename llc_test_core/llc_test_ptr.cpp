@@ -313,7 +313,7 @@ sttc ::llc::err_t testPointerReferenceBoundary(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testPointers(ATestError & errors) {
+::llc::err_t testPointers(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testPointerDefaultState(errors));
 	if_fail_fe(testPointerPOD(errors));
 	if_fail_fe(testPointerObject(errors));

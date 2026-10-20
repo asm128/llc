@@ -12,7 +12,7 @@ GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EMPTY_BLOCK			, 7, "environmentBlockVie
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, UNTERMINATED_RESULT	, 8, "environmentBlockViews() accepted an unterminated variable.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, UNTERMINATED_OUTPUT	, 9, "environmentBlockViews() modified output after rejecting an unterminated variable.");
 
-::llc::err_t testProcess(ATestError & errors) {
+::llc::err_t testProcess(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::sc_t environment[] = {'A', '=', '1', 0, 'B', '=', 't', 'w', 'o', 0, 0};
 	::llc::aobj<::llc::kv<::llc::vcst_t>> variables = {};
 	cnst ::llc::err_t result = ::llc::environmentBlockViews(environment, variables);
@@ -41,9 +41,7 @@ GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, UNTERMINATED_OUTPUT	, 9, "environmentBl
 
 	cnst ::llc::sc_t unterminated[] = {'X', '=', '9', 0, 'Y', '=', '8'};
 	cnst ::llc::u2_t countBeforeInvalid = variables.size();
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t invalidResult = ::llc::environmentBlockViews(unterminated, variables);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, PROCESS_TEST_RESULT_UNTERMINATED_RESULT, 0 <= invalidResult, "Result:%i.", invalidResult);
 	LLC_TEST_CHECKF(errors, PROCESS_TEST_RESULT_UNTERMINATED_OUTPUT, variables.size() != countBeforeInvalid, "Variable count:%u, expected:%u.", variables.size(), countBeforeInvalid);
 	return 0;

@@ -328,9 +328,7 @@
 //GDEFINE_ENUM_VALUED(APP_TEST_RESULT, MT_CLEANUP_TIMEOUT			, 88, "Multithread runtime stalled before cleanup failure.");
 //
 //sttc ::llc::err_t appTestRunSilenced(::llc::err_t (*runner)(::llc::SRuntimeValues &), ::llc::SRuntimeValues & runtimeValues) {
-//	::llc::setupLogCallbacks(0, 0);
 //	cnst ::llc::err_t result = runner(runtimeValues);
-//	::llc::setupDefaultLogCallbacks();
 //	rtrn result;
 //}
 //
@@ -497,7 +495,7 @@
 //	rtrn 0;
 //}
 //
-//::llc::err_t testApp(ATestError & errors) {
+//::llc::err_t testApp(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 //	::llc::SRuntimeValues runtimeValues = {};
 //	if_fail_fe(testAppEntryPoint(errors));
 //	if_fail_fe(testAppModule(errors, runtimeValues));

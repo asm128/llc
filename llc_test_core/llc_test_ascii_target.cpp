@@ -176,7 +176,7 @@ sttc ::llc::err_t testASCIITargetResizeGuards(ATestError& errors, ::llc::SASCIIT
 	rtrn 0;
 }
 
-::llc::err_t testASCIITarget(ATestError& errors) {
+::llc::err_t testASCIITarget(ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testASCIITargetDefaults(errors));
 	::llc::SASCIITarget target = {};
 	if_fail_fe(::testASCIITargetClear(errors, target));

@@ -427,9 +427,7 @@
     <ClCompile Include="llc_noise.cpp" />
     <ClCompile Include="llc_parse.cpp" />
     <ClCompile Include="llc_png.cpp" />
-    <ClCompile Include="llc_png_write.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_png_write.cpp" />
     <ClCompile Include="llc_rsa.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>

@@ -29,6 +29,7 @@ namespace llc
 #	define log_print_F(text) ::llc::log_print_P(F(text))
 #endif
 	error_t			setupDefaultLogCallbacks();
+	error_t			getLogCallbacks(log_print_t & funcLogPrint, log_write_t & funcLogWrite);
 	error_t			setupLogCallbacks
 		( log_print_t	funcLogPrint
 		, log_write_t	funcLogWrite

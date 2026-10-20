@@ -70,7 +70,7 @@ sttc ::llc::err_t testCPowTypes(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testCPow(ATestError & errors) {
+::llc::err_t testCPow(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe((testCPowTypes<
 		::llc::i0u_t, ::llc::i1u_t, ::llc::i2u_t, ::llc::i3u_t,
 		::llc::i0s_t, ::llc::i1s_t, ::llc::i2s_t, ::llc::i3s_t,

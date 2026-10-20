@@ -84,9 +84,7 @@ GDEFINE_ENUM_VALUED(ARRAY_STATIC_TEST_RESULT, ARRAY_BYTE_COUNT		, 75, "byte_coun
 
 tplt<tpnm TSource, tpnm TOutput>
 sttc ::llc::err_t staticSliceExpectedFailure(TSource & source, TOutput & output, ::llc::u2_t offset, ::llc::u2_t count = (::llc::u2_t)-1) {
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t result = source.slice(output, offset, count);
-	::llc::setupDefaultLogCallbacks();
 	rtrn result;
 }
 
@@ -270,7 +268,7 @@ sttc ::llc::err_t testStaticTypeLogged(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testArrayStatic(ATestError & errors) {
+::llc::err_t testArrayStatic(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testStaticTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testStaticTypeLogged<::llc::u1_t>(errors));

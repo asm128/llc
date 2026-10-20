@@ -91,9 +91,7 @@ sttc ::llc::err_t testLinearMapOperations(ATestError & errors, TLinearMap & map)
 
 	cnst ::llc::u2_t originalKeyCount = map.Keys.size();
 	cnst ::llc::u2_t originalValueCount = map.Values.size();
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t duplicateResult = map.push_back(10, 200);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_DUPLICATE_RESULT, 0 <= duplicateResult, "Duplicate result:%i.", duplicateResult);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_DUPLICATE_PRESERVATION, map.Keys.size() != originalKeyCount, "Key count:%u, expected:%u.", map.Keys.size(), originalKeyCount);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_DUPLICATE_PRESERVATION, map.Values.size() != originalValueCount, "Value count:%u, expected:%u.", map.Values.size(), originalValueCount);
@@ -110,9 +108,7 @@ sttc ::llc::err_t testLinearMapOperations(ATestError & errors, TLinearMap & map)
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_CLONE_VALUE, map.Values[clonedIndex] != map.Values[firstIndex], "Cloned value:%" LLC_FMT_U3 ", source:%" LLC_FMT_U3 ".", map.Values[clonedIndex], map.Values[firstIndex]);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_PUSH_SIZE, map.Keys.size() != map.Values.size(), "Key count:%u, value count:%u after Clone().", map.Keys.size(), map.Values.size());
 	cnst ::llc::u2_t countBeforeInvalidClone = map.size();
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t invalidCloneResult = map.Clone(40, map.size());
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_CLONE_INVALID_RESULT, 0 <= invalidCloneResult, "Invalid clone result:%i.", invalidCloneResult);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_CLONE_INVALID_RESULT, map.size() != countBeforeInvalidClone, "Size after invalid clone:%u, expected:%u.", map.size(), countBeforeInvalidClone);
 
@@ -124,9 +120,7 @@ sttc ::llc::err_t testLinearMapOperations(ATestError & errors, TLinearMap & map)
 	LLC_TEST_REQUIREF(errors, LINEAR_MAP_TEST_RESULT_DELETE_VALUE, 0 > map.Keys.find(30), "%s", "Cloned key 30 disappeared during unordered deletion.");
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_DELETE_VALUE, map[30] != 100, "Cloned value after deletion:%" LLC_FMT_U3 ", expected:100.", map[30]);
 	cnst ::llc::u2_t countBeforeMissingDelete = map.size();
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t missingDeleteResult = map.Delete(20);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_DELETE_MISSING_RESULT, 0 <= missingDeleteResult, "Missing-key delete result:%i.", missingDeleteResult);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_DELETE_MISSING_RESULT, map.size() != countBeforeMissingDelete, "Size after missing-key delete:%u, expected:%u.", map.size(), countBeforeMissingDelete);
 	return 0;
@@ -162,9 +156,7 @@ sttc ::llc::err_t testLinearMapSerialization(ATestError & errors, cnst TLinearMa
 		cnst ::llc::vcu0_t originalInput = truncated;
 		TLinearMap preserved = {};
 		LLC_TEST_REQUIREF(errors, LINEAR_MAP_TEST_RESULT_TRUNCATED_OUTPUT, 0 > prepareMapSentinel(preserved), "Could not prepare sentinel map at byte:%u.", byteCount);
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t truncatedResult = preserved.Load(truncated);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_TRUNCATED_RESULT, 0 <= truncatedResult, "Load accepted %u/%u bytes. result:%i.", byteCount, mapSize, truncatedResult);
 		LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_TRUNCATED_CURSOR, truncated.begin() != originalInput.begin(), "Byte:%u, cursor begin:%p, expected:%p.", byteCount, truncated.begin(), originalInput.begin());
 		LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_TRUNCATED_CURSOR, truncated.size() != originalInput.size(), "Byte:%u, cursor size:%u, expected:%u.", byteCount, truncated.size(), originalInput.size());
@@ -183,9 +175,7 @@ sttc ::llc::err_t testLinearMapInvalidSerialization(ATestError & errors) {
 	cnst ::llc::vcu0_t originalMismatchInput = mismatchInput;
 	TLinearMap mismatchOutput = {};
 	if_fail_fe(prepareMapSentinel(mismatchOutput));
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t mismatchResult = mismatchOutput.Load(mismatchInput);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_COUNT_MISMATCH_RESULT, 0 <= mismatchResult, "Load accepted %u keys and %u values. result:%i.", ::llc::u2_t(::llc::size(keys)), ::llc::u2_t(::llc::size(oneValue)), mismatchResult);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_COUNT_MISMATCH_CURSOR, mismatchInput.begin() != originalMismatchInput.begin(), "Cursor begin:%p, expected:%p.", mismatchInput.begin(), originalMismatchInput.begin());
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_COUNT_MISMATCH_CURSOR, mismatchInput.size() != originalMismatchInput.size(), "Cursor size:%u, expected:%u.", mismatchInput.size(), originalMismatchInput.size());
@@ -199,9 +189,7 @@ sttc ::llc::err_t testLinearMapInvalidSerialization(ATestError & errors) {
 	::llc::vcu0_t duplicateInput = duplicate;
 	TLinearMap duplicateOutput = {};
 	if_fail_fe(prepareMapSentinel(duplicateOutput));
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t duplicateResult = duplicateOutput.Load(duplicateInput);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_DUPLICATE_LOAD_RESULT, 0 <= duplicateResult, "Load accepted duplicate key 7. result:%i.", duplicateResult);
 	if_fail_fe(checkMapSentinel(errors, LINEAR_MAP_TEST_RESULT_DUPLICATE_LOAD_OUTPUT, duplicateOutput, 0));
 
@@ -209,9 +197,7 @@ sttc ::llc::err_t testLinearMapInvalidSerialization(ATestError & errors) {
 	if_fail_fe(invalidSave.push_back(1, 10));
 	invalidSave.Values.pop_back();
 	::llc::au0_t output = LINEAR_MAP_PREFIX;
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t invalidSaveResult = invalidSave.Save(output);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_INVALID_SAVE_RESULT, 0 <= invalidSaveResult, "Save accepted %u keys and %u values. result:%i.", invalidSave.Keys.size(), invalidSave.Values.size(), invalidSaveResult);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_INVALID_SAVE_OUTPUT, output.size() != ::llc::size(LINEAR_MAP_PREFIX), "Output size:%u, expected:%u.", output.size(), ::llc::u2_t(::llc::size(LINEAR_MAP_PREFIX)));
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_INVALID_SAVE_OUTPUT, 0 != memcmp(output.begin(), LINEAR_MAP_PREFIX, ::llc::size(LINEAR_MAP_PREFIX)), "%s", "Rejected Save changed existing output bytes.");
@@ -295,9 +281,7 @@ sttc ::llc::err_t testObjectLinearMap(ATestError & errors) {
 		cnst ::llc::vcu0_t originalInput = truncated;
 		TObjectLinearMap preserved = {};
 		LLC_TEST_REQUIREF(errors, LINEAR_MAP_TEST_RESULT_POBJ_TRUNCATED_OUTPUT, 0 > prepareObjectMapSentinel(preserved), "Could not prepare object-map sentinel at byte:%u.", byteCount);
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t truncatedResult = preserved.Load(truncated);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_POBJ_TRUNCATED_RESULT, 0 <= truncatedResult, "Load accepted %u/%u bytes. result:%i.", byteCount, mapSize, truncatedResult);
 		LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_POBJ_TRUNCATED_CURSOR, truncated.begin() != originalInput.begin(), "Byte:%u, cursor begin:%p, expected:%p.", byteCount, truncated.begin(), originalInput.begin());
 		LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_POBJ_TRUNCATED_CURSOR, truncated.size() != originalInput.size(), "Byte:%u, cursor size:%u, expected:%u.", byteCount, truncated.size(), originalInput.size());
@@ -307,16 +291,14 @@ sttc ::llc::err_t testObjectLinearMap(ATestError & errors) {
 	TObjectLinearMap nullMap = {};
 	if_fail_fe(nullMap.Create("null"));
 	::llc::au0_t output = LINEAR_MAP_PREFIX;
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t nullSaveResult = nullMap.Save(output);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_POBJ_NULL_SAVE_RESULT, 0 <= nullSaveResult, "Save accepted a null element. result:%i.", nullSaveResult);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_POBJ_NULL_SAVE_OUTPUT, output.size() != ::llc::size(LINEAR_MAP_PREFIX), "Output size:%u, expected:%u.", output.size(), ::llc::u2_t(::llc::size(LINEAR_MAP_PREFIX)));
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_POBJ_NULL_SAVE_OUTPUT, 0 != memcmp(output.begin(), LINEAR_MAP_PREFIX, ::llc::size(LINEAR_MAP_PREFIX)), "%s", "Rejected Save changed existing output bytes.");
 	return 0;
 }
 
-::llc::err_t testLinearMap(ATestError & errors) {
+::llc::err_t testLinearMap(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	TLinearMap map = {};
 	if_fail_fe(testLinearMapOperations(errors, map));
 	if_fail_fe(testLinearMapSerialization(errors, map));

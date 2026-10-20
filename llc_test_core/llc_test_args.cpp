@@ -63,10 +63,8 @@ sttc ::llc::err_t testArgsAccessors(ATestError & errors, cnst ::llc::SCommandLin
 
 	::llc::vcst_t ambiguousValue = "stale";
 	::llc::vcst_t missingValue = "stale";
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t ambiguous = ::llc::argsOptionValue(args, "include", ambiguousValue);
 	cnst ::llc::err_t missing = ::llc::argsOptionValue(args, "missing", missingValue);
-	::llc::setupDefaultLogCallbacks();
 	cnst ::llc::err_t missingCount = ::llc::argsOptionValues(args, "missing", values);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_AMBIGUOUS_VALUE, ambiguous != -2 , "Repeated --include single-value result:%i, expected:-2.", ambiguous);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_AMBIGUOUS_VALUE, ambiguousValue.size() , "Repeated --include single-value output size:%u, expected:0.", ambiguousValue.size());
@@ -77,7 +75,7 @@ sttc ::llc::err_t testArgsAccessors(ATestError & errors, cnst ::llc::SCommandLin
 	rtrn 0;
 }
 
-::llc::err_t testArgs(ATestError & errors) {
+::llc::err_t testArgs(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::vcst_t argv[] =
 		{ "app"
 		, "first"

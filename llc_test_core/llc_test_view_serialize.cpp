@@ -90,9 +90,7 @@ sttc ::llc::err_t testPOD(ATestError & errors) {
 		::llc::vcu0_t truncated{&serialized[::llc::size(PRECEDING_FIELD)], byteCount};
 		cnst ::llc::vcu0_t originalInput = truncated;
 		T unchanged = sentinel;
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t truncatedResult = ::llc::loadPOD(truncated, unchanged);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_POD, 0 <= truncatedResult , "%u-bit loadPOD() accepted truncated input. supplied:%u, required:%u, result:%i." , bcof(T), byteCount, ::llc::u2_t(szof(T)), truncatedResult );
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_POD, unchanged != sentinel , "%u-bit loadPOD() modified output on truncated input. supplied:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "." , bcof(T), byteCount, ::llc::u3_t(unchanged), ::llc::u3_t(sentinel) );
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_POD, truncated != originalInput , "%u-bit loadPOD() moved cursor on truncated input. supplied:%u, remaining:%u, expected:%u." , bcof(T), byteCount, truncated.size(), originalInput.size() );
@@ -169,9 +167,7 @@ sttc ::llc::err_t testTruncatedUInt(ATestError & errors) {
 		cnst ::llc::vcu0_t originalInput = input;
 		cnst T sentinel = (T)~T(0);
 		T loaded = sentinel;
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, 0 <= loadResult , "%u-bit loadUInt() accepted truncated input. supplied:%u, required:%u, result:%i." , bcof(T), byteCount, bytes.size(), loadResult );
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, loaded != sentinel , "%u-bit loadUInt() modified output on truncated input. supplied:%u, loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "." , bcof(T), byteCount, ::llc::u3_t(loaded), ::llc::u3_t(sentinel) );
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_UINT, input != originalInput , "%u-bit loadUInt() moved cursor on truncated input. supplied:%u, remaining:%u, expected:%u." , bcof(T), byteCount, input.size(), originalInput.size() );
@@ -276,9 +272,7 @@ sttc ::llc::err_t testTruncatedView(ATestError & errors) {
 		::llc::vcu0_t input{serialized.begin(), byteCount};
 		cnst ::llc::vcu0_t originalInput = input;
 		::llc::view<cnst T> loaded{&sentinel, 1};
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t loadResult = ::llc::loadView(input, loaded);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, 0 <= loadResult , "%u-bit loadView() accepted truncated input. supplied:%u, required:%u, header:%u, result:%i." , bcof(T), byteCount, serialized.size(), headerWidth, loadResult );
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, input != originalInput , "%u-bit loadView() moved cursor on truncated input. supplied:%u, remaining:%u, expected:%u." , bcof(T), byteCount, input.size(), originalInput.size() );
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_VIEW, loaded.size() != 1 , "%u-bit loadView() changed output count on truncated input. supplied:%u, count:%u, expected:1." , bcof(T), byteCount, loaded.size() );
@@ -286,9 +280,7 @@ sttc ::llc::err_t testTruncatedView(ATestError & errors) {
 		::llc::vcu0_t ownedInput{serialized.begin(), byteCount};
 		cnst ::llc::vcu0_t originalOwnedInput = ownedInput;
 		::llc::apod<T> owned = {sentinel};
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t ownedResult = ::llc::loadView(ownedInput, owned);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_OWNED_VIEW, 0 <= ownedResult , "%u-bit owned loadView() accepted truncated input. supplied:%u, required:%u, header:%u, result:%i." , bcof(T), byteCount, serialized.size(), headerWidth, ownedResult );
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_OWNED_VIEW, ownedInput != originalOwnedInput , "%u-bit owned loadView() moved cursor on truncated input. supplied:%u, remaining:%u, expected:%u." , bcof(T), byteCount, ownedInput.size(), originalOwnedInput.size() );
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_TRUNCATED_OWNED_VIEW, owned.size() != 1 , "%u-bit owned loadView() changed output count on truncated input. supplied:%u, count:%u, expected:1." , bcof(T), byteCount, owned.size() );
@@ -312,9 +304,7 @@ sttc ::llc::err_t testMalformedViewCount(ATestError & errors) {
 	cnst ::llc::vcu0_t originalInput = input;
 	cnst T sentinel = (T)~T(0);
 	::llc::view<cnst T> loaded{&sentinel, 1};
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t loadResult = ::llc::loadView(input, loaded);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, 0 <= loadResult , "%u-bit loadView() accepted overflowing count. declared elements:%u, supplied bytes:%u, result:%i." , bcof(T), ELEMENT_COUNT, serialized.size(), loadResult );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, input != originalInput , "%u-bit loadView() moved cursor for overflowing count. remaining:%u, expected:%u." , bcof(T), input.size(), originalInput.size() );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_MALFORMED_VIEW_COUNT, loaded.begin() != &sentinel , "%u-bit loadView() changed output alias for overflowing count. begin:%p, expected:%p." , bcof(T), loaded.begin(), &sentinel );
@@ -361,17 +351,13 @@ sttc ::llc::err_t testLegacyView(ATestError & errors) {
 	cnst T sentinel = mutableSentinel;
 	for(::llc::u2_t byteCount = 0; byteCount < expectedSize; ++byteCount) {
 		::llc::view<T> preservedMutable = {&mutableSentinel, 1};
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t truncatedMutableResult = ::llc::viewPascal(preservedMutable, ::llc::vu0_t{serialized.begin(), byteCount});
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_MUTABLE_RESULT, 0 <= truncatedMutableResult, "%u-bit mutable legacy read accepted %u/%u bytes. result:%i.", bcof(T), byteCount, expectedSize, truncatedMutableResult);
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_MUTABLE_OUTPUT, preservedMutable.begin() != &mutableSentinel, "%u-bit mutable legacy read changed output begin at byte:%u. begin:%p, expected:%p.", bcof(T), byteCount, preservedMutable.begin(), &mutableSentinel);
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_MUTABLE_OUTPUT, preservedMutable.size() != 1, "%u-bit mutable legacy read changed output count at byte:%u. count:%u.", bcof(T), byteCount, preservedMutable.size());
 
 		::llc::view<cnst T> preservedConst = {&sentinel, 1};
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t truncatedConstResult = ::llc::viewPascal(preservedConst, ::llc::vcu0_t{serialized.begin(), byteCount});
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_CONST_RESULT, 0 <= truncatedConstResult, "%u-bit const legacy read accepted %u/%u bytes. result:%i.", bcof(T), byteCount, expectedSize, truncatedConstResult);
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_CONST_OUTPUT, preservedConst.begin() != &sentinel, "%u-bit const legacy read changed output begin at byte:%u. begin:%p, expected:%p.", bcof(T), byteCount, preservedConst.begin(), &sentinel);
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_TRUNCATED_CONST_OUTPUT, preservedConst.size() != 1, "%u-bit const legacy read changed output count at byte:%u. count:%u.", bcof(T), byteCount, preservedConst.size());
@@ -381,9 +367,7 @@ sttc ::llc::err_t testLegacyView(ATestError & errors) {
 	cnst ::llc::u2_t impossibleCount = (::llc::u2_t)-1;
 	memcpy(malformed, &impossibleCount, szof(impossibleCount));
 	::llc::view<cnst T> preserved = {&sentinel, 1};
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t malformedResult = ::llc::viewPascal(preserved, ::llc::vcu0_t{malformed});
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MALFORMED_COUNT_RESULT, 0 <= malformedResult, "%u-bit legacy read accepted count:%u without a payload. result:%i.", bcof(T), impossibleCount, malformedResult);
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MALFORMED_COUNT_OUTPUT, preserved.begin() != &sentinel, "%u-bit malformed legacy read changed output begin to:%p, expected:%p.", bcof(T), preserved.begin(), &sentinel);
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MALFORMED_COUNT_OUTPUT, preserved.size() != 1, "%u-bit malformed legacy read changed output count to:%u.", bcof(T), preserved.size());
@@ -412,7 +396,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testViewSerialize(ATestError & errors) {
+::llc::err_t testViewSerialize(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));

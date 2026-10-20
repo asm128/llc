@@ -87,9 +87,7 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, RESIZE_INVALID_FILLED_COUNT, 81, "arr
 
 tplt<tpnm TCall>
 sttc ::llc::err_t podExpectedFailure(TCall call) {
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t result = call();
-	::llc::setupDefaultLogCallbacks();
 	rtrn result;
 }
 
@@ -632,7 +630,7 @@ sttc ::llc::err_t testPodTypeLogged(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testArrayPod(ATestError & errors) {
+::llc::err_t testArrayPod(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testPodTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testPodTypeLogged<::llc::u1_t>(errors));

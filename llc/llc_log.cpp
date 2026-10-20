@@ -57,6 +57,12 @@ static	::llc::error_t	default_log_print		(const char * text)						{ return (::ll
 ::llc::log_write_t		llc_log_write					= default_log_write;
 ::llc::log_print_t		llc_log_print					= default_log_print;
 
+::llc::error_t llc::getLogCallbacks(log_print_t & funcLogPrint, log_write_t & funcLogWrite) {
+	funcLogPrint = ::llc_log_print;
+	funcLogWrite = ::llc_log_write;
+	return 0;
+}
+
 ::llc::error_t			llc::log_print					(const char * text)						{ return (llc_log_print && text) ? ::llc_log_print(text) : 0; }
 ::llc::error_t			llc::log_write					(const char * text, ::llc::u2_t textLen)	{ return (llc_log_write && text && textLen) ? ::llc_log_write(text, textLen) : 0; }
 #ifdef LLC_LOG_ARDUINO_FLASHSTRINGHELPER

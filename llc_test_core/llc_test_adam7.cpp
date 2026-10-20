@@ -98,7 +98,7 @@ sttc ::llc::err_t testAdam7Interlace(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testAdam7(ATestError & errors) {
+::llc::err_t testAdam7(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testAdam7Scale(errors));
 	if_fail_fe(::testAdam7Sizes(errors));
 	rtrn ::testAdam7Interlace(errors);

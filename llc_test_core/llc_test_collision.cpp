@@ -297,7 +297,7 @@ sttc ::llc::err_t testCollisionConsumerTypes(ATestError& errors) {
 	rtrn collisionCheckPoint3(errors, COLLISION_TEST_RESULT_CONSUMER_RAY_F2_POINT, sphereIntersection, ::llc::n3f2_t{-1, 0, 0}, "intersection");
 }
 
-::llc::err_t testCollision(ATestError& errors) {
+::llc::err_t testCollision(ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testCollisionCoordinates(errors));
 	if_fail_fe(testCollisionLines(errors));
 	if_fail_fe(testCollisionSegments(errors));

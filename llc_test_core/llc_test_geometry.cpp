@@ -460,7 +460,7 @@ sttc ::llc::err_t testGeometryMatrix(ATestError & errors) {
 	rtrn ::testGeometryMatrixTransposeAndInertia(errors);
 }
 
-::llc::err_t testGeometry(ATestError & errors) {
+::llc::err_t testGeometry(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testGeometryTypeFamily(errors));
 	if_fail_fe(::testGeometryVectorsAndLines(errors));
 	if_fail_fe(::testGeometryTrianglesAndRegions(errors));

@@ -5,6 +5,7 @@
 #include "llc_parse.h"
 #include "llc_timer.h"
 #include "llc_runtime.h"
+#include "llc_test_report.h"
 
 sttc ::llc::u3_t TestSeedOverride = {};
 sttc bool TestSeedOverrideEnabled = false;
@@ -14,52 +15,81 @@ sttc bool TestSeedOverrideEnabled = false;
 tplt<tpnm TFunction>
 stct STestSuite {
 	TFunction		& Function;
-	::llc::vcst_t	Name;
+	::llc::vcst_t	Name, Folder;
 };
 
 tplt<tpnm TFunction>
-sinx	STestSuite<TFunction>	testSuite			(TFunction & function, ::llc::vcst_t name) nxpt { rtrn {function, name}; }
+sinx	STestSuite<TFunction>	testSuite			(TFunction & function, ::llc::vcst_t name, ::llc::vcst_t folder) nxpt { rtrn {function, name, folder}; }
 
 tplt<tpnm TFunction>
-sttc	::llc::err_t	testSuiteRun				(ATestError & results, ::llc::view<cnst ::llc::vcst_t> selectedSuites, cnst STestSuite<TFunction> & testSuite) {
-	if(selectedSuites.size() && -1 == selectedSuites.find(testSuite.Name))
+sttc ::llc::err_t testSuiteRun(ATestError & results, STestRunReport & run, ::llc::view<cnst ::llc::vcst_t> selectedSuites, cnst STestSuite<TFunction> & suite) {
+	if(selectedSuites.size() && -1 == selectedSuites.find(suite.Name))
 		rtrn 0;
-	::llc::u2_c		checkCountBefore	= testCheckCount(results);
-	::llc::u2_c		failureCountBefore	= testErrorCount(results);
-	::llc::STimer	suiteTimer;
-	::llc::err_t	tempResult			= testSuite.Function(results);
-	suiteTimer.Frame();
-
-	::llc::u2_c		checkCount			= testCheckCount(results) - checkCountBefore;
-	::llc::u2_c		failureCount		= testErrorCount(results) - failureCountBefore;
-	if_true_fef(::llc::failed(tempResult), "%.*s() failed with result:%i after %" LLC_FMT_U3 " us.", (int)testSuite.Name.size(), testSuite.Name.begin(), tempResult, suiteTimer.LastTimeMicroseconds);
-	if_true_fef(failureCount, "%.*s() completed in %" LLC_FMT_U3 " us: %u/%u checks passed, %u failed.", (int)testSuite.Name.size(), testSuite.Name.begin(), suiteTimer.LastTimeMicroseconds, checkCount - failureCount, checkCount, failureCount);
-	always_printf("%.*s() result OK in %" LLC_FMT_U3 " us: %u checks passed.", (int)testSuite.Name.size(), testSuite.Name.begin(), suiteTimer.LastTimeMicroseconds, checkCount);
-	rtrn 0;
+	STestSuiteReport report = {suite.Name, suite.Folder};
+	cnst ::std::string folder = run.Folder + "/" + ::std::string(suite.Folder.begin(), suite.Folder.size());
+	::std::error_code error;
+	if(!::std::filesystem::create_directory(folder, error)) {
+		report.Status = report.ReportStatus = -1;
+		run.Suites.push_back(report);
+		error_printf("Cannot create suite folder '%s': %s.", folder.c_str(), error.message().c_str());
+		rtrn -1;
+	}
+	ATestError suiteResults;
+	STestLogBuffer log;
+	{
+		STestLogCapture capture(log);
+		::llc::STimer timer;
+		try { report.Status = suite.Function(suiteResults, testText(folder)); }
+		catch(cnst ::std::exception & exception) { report.Status = -1; error_printf("Unhandled suite exception: %s.", exception.what()); }
+		catch(...) { report.Status = -1; error_printf("%s", "Unhandled suite exception."); }
+		timer.Frame();
+		report.Microseconds = timer.LastTimeMicroseconds;
+		report.Checks = testCheckCount(suiteResults);
+		report.Failures = testErrorCount(suiteResults);
+		report.Groups = suiteResults.size();
+		for(cnst auto & item : suiteResults) {
+			if(run.SuccessDetails && item.SuccessCount)
+				always_printf("PASS %.*s::%.*s(%" LLC_FMT_S3 ") x %u: %.*s", LLC_VIEW_ARGS(item.EnumName), LLC_VIEW_ARGS(item.ValueName), item.Value, item.SuccessCount, LLC_VIEW_ARGS(item.Description));
+			if(item.Count)
+				error_printf("FAIL %.*s::%.*s(%" LLC_FMT_S3 ") x %u: %.*s", LLC_VIEW_ARGS(item.EnumName), LLC_VIEW_ARGS(item.ValueName), item.Value, item.Count, LLC_VIEW_ARGS(item.Description));
+		}
+		if(::llc::failed(report.Status) || report.Failures)
+			error_printf("%.*s() failed: result:%i, %u/%u checks passed.", LLC_VIEW_ARGS(suite.Name), report.Status, report.Checks - report.Failures, report.Checks);
+		else
+			always_printf("%.*s() result OK in %" LLC_FMT_U3 " us: %u checks passed.", LLC_VIEW_ARGS(suite.Name), report.Microseconds, report.Checks);
+	}
+	if(log.Failed) report.ReportStatus = -1;
+	try { report.ReportStatus = ::llc::min(report.ReportStatus, testSuiteReportWrite(folder, report, suiteResults, log)); }
+	catch(...) { report.ReportStatus = -1; error_printf("Could not serialize suite '%.*s'.", LLC_VIEW_ARGS(suite.Name)); }
+	run.Suites.push_back(report);
+	for(cnst auto & item : suiteResults)
+		if_fail_fe(results.push_back(item));
+	always_printf("Suite %.*s: %u checks, %u failures, status:%i, reporting:%i.", LLC_VIEW_ARGS(suite.Name), report.Checks, report.Failures, report.Status, report.ReportStatus);
+	rtrn (::llc::failed(report.Status) || ::llc::failed(report.ReportStatus) || report.Failures) ? -1 : 0;
 }
 
 tplt<tpnm... TSuites>
-sttc	::llc::err_t	testSuitesRun				(ATestError & results, ::llc::view<cnst ::llc::vcst_t> selectedSuites, cnst TSuites &... suites) {
+sttc	::llc::err_t	testSuitesRun				(ATestError & results, STestRunReport & run, ::llc::view<cnst ::llc::vcst_t> selectedSuites, cnst TSuites &... suites) {
 	for(cnst ::llc::vcst_t & selectedSuite : selectedSuites) {
 		cnst bool found = ((suites.Name == selectedSuite) || ...);
 		if_zero_fef(found, "Unknown test suite:'%.*s'.", (int)selectedSuite.size(), selectedSuite.begin());
 	}
 	::llc::err_t	result				= 0;
-	((result = ::llc::min(result, ::testSuiteRun(results, selectedSuites, suites))), ...);
+	((result = ::llc::min(result, ::testSuiteRun(results, run, selectedSuites, suites))), ...);
 	rtrn result;
 }
 
-#define LLC_TEST_SUITE(funcSuite) ::testSuite(funcSuite, #funcSuite)
+#define LLC_TEST_SUITE(funcSuite, folder) ::testSuite(funcSuite, #funcSuite, folder)
 
 sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues);
 LLC_OS_ENTRY_POINT(::test_core_entry_point);
 
 
-sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues) {
+sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunReport & run) {
 	//_CrtSetBreakAlloc(12390);
 	ATestError		results;
 	llc::err_t		result				= 0;
-	cnst bool		logSuccessDetails	= 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "success-details");
+	run.SuccessDetails	= 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "success-details");
 	::llc::aobj<::llc::vcst_t> selectedSuites;
 	if_fail_fe(::llc::argsOptionValues(runtimeValues.EntryPointArgs, "test", selectedSuites));
 	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "seed")) {
@@ -86,82 +116,95 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 	}
 
 	::llc::STimer	testTimer;
-	result = testSuitesRun(results, selectedSuites
-		, LLC_TEST_SUITE(testSPRNG         )
-		, LLC_TEST_SUITE(testSTL           )
-		, LLC_TEST_SUITE(testAdam7        )
-		//, LLC_TEST_SUITE(testApp          )
-		, LLC_TEST_SUITE(testASCIIColor   )
-		, LLC_TEST_SUITE(testASCIITarget  )
-		, LLC_TEST_SUITE(testArgs          )
-		, LLC_TEST_SUITE(testBitField      )
-		, LLC_TEST_SUITE(testBitmapTarget  )
-		, LLC_TEST_SUITE(testBlock         )
-		, LLC_TEST_SUITE(testBlockContainer)
-		, LLC_TEST_SUITE(testCamera        )
-		, LLC_TEST_SUITE(testCollision     )
-		, LLC_TEST_SUITE(testCOMPlus       )
-		, LLC_TEST_SUITE(testCPow          )
-		, LLC_TEST_SUITE(testCTTIParser    )
-		, LLC_TEST_SUITE(testD3D           )
-		, LLC_TEST_SUITE(testDeflate       )
-		, LLC_TEST_SUITE(testEnum          )
-		, LLC_TEST_SUITE(testExpression    )
-		, LLC_TEST_SUITE(testGeometry      )
-		, LLC_TEST_SUITE(testGridImage     )
-		, LLC_TEST_SUITE(testGridOperations)
-		, LLC_TEST_SUITE(testGUI           )
-		, LLC_TEST_SUITE(testInput         )
-		, LLC_TEST_SUITE(testStr           )
-		, LLC_TEST_SUITE(testSystemKey     )
-		, LLC_TEST_SUITE(testTypeMetadata  )
-		, LLC_TEST_SUITE(testArrayStatic   )
-		, LLC_TEST_SUITE(testArrayBit      )
-		, LLC_TEST_SUITE(testArrayMinMax   )
-		, LLC_TEST_SUITE(testArrayObj      )
-		, LLC_TEST_SUITE(testArrayPod      )
-		, LLC_TEST_SUITE(testBase64       )
-		, LLC_TEST_SUITE(testJSONExpression)
-		, LLC_TEST_SUITE(testJSONReader    )
-		, LLC_TEST_SUITE(testKeyVal        )
-		, LLC_TEST_SUITE(testLabel         )
-		, LLC_TEST_SUITE(testLinearMap     )
-		, LLC_TEST_SUITE(testXMLReader     )
-		, LLC_TEST_SUITE(testMSBuildXML    )
-		, LLC_TEST_SUITE(testPath          )
-		, LLC_TEST_SUITE(testPointers      )
-		, LLC_TEST_SUITE(testPNG           )
-		, LLC_TEST_SUITE(testProcess       )
-		//, LLC_TEST_SUITE(testRuntimeModule )
-		, LLC_TEST_SUITE(testView          )
-		, LLC_TEST_SUITE(testViewAliases   )
-		, LLC_TEST_SUITE(testViewBit       )
-		, LLC_TEST_SUITE(testPackedUInt    )
-		, LLC_TEST_SUITE(testViewSerialize )
-		, LLC_TEST_SUITE(testViewStream    )
-		, LLC_TEST_SUITE(testVOX           )
-		, LLC_TEST_SUITE(testVoxel         )
+	result = testSuitesRun(results, run, selectedSuites
+		, LLC_TEST_SUITE(testSPRNG, "noise")
+		, LLC_TEST_SUITE(testSTL, "stl")
+		, LLC_TEST_SUITE(testAdam7, "adam7")
+		//, LLC_TEST_SUITE(testApp, "app")
+		, LLC_TEST_SUITE(testASCIIColor, "ascii_color")
+		, LLC_TEST_SUITE(testASCIITarget, "ascii_target")
+		, LLC_TEST_SUITE(testArgs, "args")
+		, LLC_TEST_SUITE(testBitField, "bit")
+		, LLC_TEST_SUITE(testBitmapTarget, "bitmap_target")
+		, LLC_TEST_SUITE(testBlock, "block")
+		, LLC_TEST_SUITE(testBlockContainer, "block_container")
+		, LLC_TEST_SUITE(testCamera, "camera")
+		, LLC_TEST_SUITE(testCollision, "collision")
+		, LLC_TEST_SUITE(testCOMPlus, "complus")
+		, LLC_TEST_SUITE(testCPow, "cpow")
+		, LLC_TEST_SUITE(testCTTIParser, "ctti")
+		, LLC_TEST_SUITE(testD3D, "d3d")
+		, LLC_TEST_SUITE(testDeflate, "deflate")
+		, LLC_TEST_SUITE(testEnum, "enum")
+		, LLC_TEST_SUITE(testExpression, "expression")
+		, LLC_TEST_SUITE(testGeometry, "geometry")
+		, LLC_TEST_SUITE(testGridImage, "grid_image")
+		, LLC_TEST_SUITE(testGridOperations, "grid_operations")
+		, LLC_TEST_SUITE(testGUI, "gui")
+		, LLC_TEST_SUITE(testInput, "input")
+		, LLC_TEST_SUITE(testStr, "str")
+		, LLC_TEST_SUITE(testSystemKey, "system_key")
+		, LLC_TEST_SUITE(testTypeMetadata, "type_metadata")
+		, LLC_TEST_SUITE(testArrayStatic, "array_static")
+		, LLC_TEST_SUITE(testArrayBit, "array_bit")
+		, LLC_TEST_SUITE(testArrayMinMax, "apod_minmax")
+		, LLC_TEST_SUITE(testArrayObj, "array_obj")
+		, LLC_TEST_SUITE(testArrayPod, "array_pod")
+		, LLC_TEST_SUITE(testBase64, "base64")
+		, LLC_TEST_SUITE(testJSONExpression, "json_expression")
+		, LLC_TEST_SUITE(testJSONReader, "json")
+		, LLC_TEST_SUITE(testKeyVal, "keyval")
+		, LLC_TEST_SUITE(testLabel, "label")
+		, LLC_TEST_SUITE(testLinearMap, "linear_map")
+		, LLC_TEST_SUITE(testXMLReader, "xml")
+		, LLC_TEST_SUITE(testMSBuildXML, "msbuild_xml")
+		, LLC_TEST_SUITE(testPath, "path")
+		, LLC_TEST_SUITE(testPointers, "ptr")
+		, LLC_TEST_SUITE(testPNG, "png")
+		, LLC_TEST_SUITE(testProcess, "process")
+		//, LLC_TEST_SUITE(testRuntimeModule, "runtime_module")
+		, LLC_TEST_SUITE(testView, "view")
+		, LLC_TEST_SUITE(testViewAliases, "view_aliases")
+		, LLC_TEST_SUITE(testViewBit, "view_bit")
+		, LLC_TEST_SUITE(testPackedUInt, "packed_int")
+		, LLC_TEST_SUITE(testViewSerialize, "view_serialize")
+		, LLC_TEST_SUITE(testViewStream, "view_stream")
+		, LLC_TEST_SUITE(testVOX, "vox")
+		, LLC_TEST_SUITE(testVoxel, "voxel")
 		);
 	testTimer.Frame();
 
 	::llc::u2_c		successCount		= testSuccessCount(results);
 	::llc::u2_c		failureCount		= testErrorCount(results);
 
+	if_true_ef(::llc::failed(result), "Test run has suite execution or reporting failures. Result:%i.", result);
 	if_true_ef(failureCount, "Test run completed in %" LLC_FMT_U3 " us: %u/%u checks passed, %u failed across %u result groups.", testTimer.LastTimeMicroseconds, successCount, successCount + failureCount, failureCount, results.size())
 	else { 
 		always_printf("Test run completed in %" LLC_FMT_U3 " us: all %u checks passed across %u result groups.", testTimer.LastTimeMicroseconds, successCount, results.size());
 	}
-	for(::llc::u2_t iResult = 0; iResult < results.size(); ++iResult) {
-		cnst STestError & testResult = results[iResult];
-		if(logSuccessDetails && testResult.SuccessCount)
-			always_printf("PASS %.*s::%.*s(%" LLC_FMT_S3 ") x %u - validated against failure: %.*s"
-				, (int)testResult.EnumName.size(), testResult.EnumName.begin(), (int)testResult.ValueName.size(), testResult.ValueName.begin()
-				, testResult.Value, testResult.SuccessCount, (int)testResult.Description.size(), testResult.Description.begin()
-				);
-		if_true_ef(testResult.Count, "FAIL %.*s::%.*s(%" LLC_FMT_S3 ") x %u: %.*s"
-			, (int)testResult.EnumName.size(), testResult.EnumName.begin(), (int)testResult.ValueName.size(), testResult.ValueName.begin()
-			, testResult.Value, testResult.Count, (int)testResult.Description.size(), testResult.Description.begin()
-			);
-	}
 	rtrn ::llc::failed(result) ? result : failureCount ? ::llc::OS_ERROR : 0;
+}
+
+sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
+	STestRunReport run;
+	::llc::vcst_t parent = ".";
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "output"))
+		if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "output", parent));
+	try { if_fail_fe(testRunFolder(parent, run.Folder)); }
+	catch(cnst ::std::exception & exception) { error_printf("Cannot create run folder: %s.", exception.what()); rtrn -1; }
+	STestLogBuffer log;
+	::llc::err_t status = 0;
+	::llc::STimer timer;
+	{
+		STestLogCapture capture(log);
+		always_printf("Test output: %s", run.Folder.c_str());
+		try { status = testCoreRun(runtimeValues, run); }
+		catch(cnst ::std::exception & exception) { status = -1; error_printf("Runner exception: %s.", exception.what()); }
+		catch(...) { status = -1; error_printf("%s", "Unknown runner exception."); }
+		timer.Frame();
+		if(log.Failed) status = -1;
+	}
+	try { if_fail_fe(testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride, log)); }
+	catch(cnst ::std::exception & exception) { error_printf("Cannot write run reports: %s.", exception.what()); rtrn -1; }
+	rtrn status;
 }

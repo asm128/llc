@@ -26,7 +26,7 @@ GDEFINE_ENUM_VALUED(VIEW_ALIAS_TEST_RESULT, TEXT_VIEW_IDENTITY	, 6, "A semantic 
 	LLC_TEST_CHECKF(errors, VIEW_ALIAS_TEST_RESULT_CONST_TOP_CONST	, (false == ::std::is_same_v<::llc::constConstAlias, cnst ::llc::constAlias>)		, "Alias:%s.", #constConstAlias); \
 } while(0)
 
-::llc::err_t testViewAliases(ATestError & errors) {
+::llc::err_t testViewAliases(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECK(errors, VIEW_ALIAS_TEST_RESULT_SIGNED_CHAR_IDENTITY, (false == ::std::is_same_v<::llc::s0_t, ::llc::sc_t>));
 	LLC_TEST_CHECK(errors, VIEW_ALIAS_TEST_RESULT_SIGNED_BYTE_VIEW, (false == ::std::is_same_v<::llc::vs0_t, ::llc::view<::llc::s0_t>>));
 	LLC_TEST_CHECK(errors, VIEW_ALIAS_TEST_RESULT_SIGNED_BYTE_VIEW, (false == ::std::is_same_v<::llc::vcs0_t, ::llc::view<cnst ::llc::s0_t>>));

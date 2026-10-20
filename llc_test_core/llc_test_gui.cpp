@@ -3,6 +3,10 @@
 #include "llc_gui_viewport.h"
 #include "llc_gui_text.h"
 #include "llc_rect_align.h"
+#include "llc_png.h"
+#include "llc_file.h"
+#include "llc_path.h"
+#include "llc_string_compose.h"
 
 #include "llc_test_core.h"
 
@@ -533,23 +537,16 @@ sttc ::llc::err_t testGUILayoutAndInput(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
+sttc ::llc::err_t testGUIDrawCore(ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t parent = ::llc::controlCreate(gui);
 	cnst ::llc::cid_t child = ::llc::controlCreateChild(gui, parent);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, parent < 0 || child < 0, "Parent:%i child:%i.", parent, child);
-	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_PALETTE, 0 == gui.Colors.create() || 0 > gui.Colors->Palettes.resize(::llc::GUI_CONTROL_PALETTE_COUNT), "%s", "Palette allocation failed.");
-	for(::llc::u0_t iState = 0; iState < ::llc::GUI_CONTROL_PALETTE_COUNT; ++iState) {
-		::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT> & palette = gui.Colors->Palettes[iState];
-		for(::llc::u2_t iArea = 0; iArea < palette.size(); ++iArea)
-			palette[iArea] = {(::llc::u0_t)(10 + iState), (::llc::u0_t)(20 + iArea), (::llc::u0_t)(30 + iState + iArea), 0xFF};
-	}
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_PALETTE, 0 == gui.Colors || gui.Colors->Palettes.size() < ::llc::GUI_CONTROL_PALETTE_COUNT, "%s", "Default palettes missing.");
 	for(::llc::cid_t control : {parent, child}) {
 		gui.Controls.Draw[control].UseNewPalettes = true;
 		gui.Controls.Draw[control].ColorMode = ::llc::GUI_COLOR_MODE_Flat;
 		gui.Controls.Text[control].Text = {};
-		for(::llc::u0_t iState = 0; iState < ::llc::GUI_CONTROL_PALETTE_COUNT; ++iState)
-			gui.Controls.Draw[control].Palettes[iState] = iState;
 	}
 	gui.Controls.Placement[parent].Area = {{2, 2}, {12, 10}};
 	gui.Controls.Placement[parent].Margin = {};
@@ -569,8 +566,16 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
 		gui.Controls.States[parent].Flag = states[iState];
 		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_PALETTE, 0 > ::llc::guiDraw(gui, target.View), "State:%u.", iState);
-		cnst ::llc::bgra expected = gui.Colors->Palettes[palettes[iState]][::llc::UI_CONTROL_AREA_CLIENT];
+		cnst ::llc::bgra expected = gui.Colors->Palettes[gui.Controls.Draw[parent].Palettes[palettes[iState]]][::llc::UI_CONTROL_AREA_CLIENT];
 		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_DRAW_PALETTE, target.View[6][7] != expected, "State:%u.", iState);
+		::llc::string folder;
+		if_fail_fe(::llc::append_strings(folder, outputFolder, "/DRAW_PALETTE"));
+		if_fail_fe(::llc::pathCreate(folder));
+		::llc::au0_t bytes;
+		if_fail_fe(::llc::pngFileWrite(target.View, bytes));
+		char name[64] = {};
+		if_fail_fe(::llc::sprintf_s(name, "state_%u.png", iState));
+		if_fail_fe(::llc::fileFromMemory(folder, ::llc::vcst_t{name}, bytes));
 	}
 	gui.Controls.States[parent].Flag = {};
 	cnst ::llc::bgra untouched = {1, 2, 3, 4};
@@ -589,11 +594,11 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors) {
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIENT, target.View[6][7] == untouched);
 	gui.Controls.Draw[parent].NoBorder = false;
 	gui.Controls.SetHidden(child, false);
-	gui.Controls.Draw[child].Palettes[::llc::GUI_CONTROL_PALETTE_NORMAL] = ::llc::GUI_CONTROL_PALETTE_HOVER;
+	gui.Controls.Draw[child].Palettes[::llc::GUI_CONTROL_PALETTE_NORMAL] = gui.Colors->DefaultColors[::llc::GUI_CONTROL_PALETTE_HOVER];
 	target.View.fill({});
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_ORDER, 0 > ::llc::guiDraw(gui, target.View), "%s", "Hierarchy drawing failed.");
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_ORDER, target.View[6][6] != gui.Colors->Palettes[::llc::GUI_CONTROL_PALETTE_HOVER][::llc::UI_CONTROL_AREA_CLIENT]);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_ORDER, target.View[6][6] != gui.Colors->Palettes[gui.Colors->DefaultColors[::llc::GUI_CONTROL_PALETTE_HOVER]][::llc::UI_CONTROL_AREA_CLIENT]);
 	gui.Controls.SetHidden(child, true);
 	gui.Controls.Placement[parent].Area = {{-4, -3}, {8, 7}};
 	gui.Controls.Placement[parent].Margin = gui.Controls.Placement[parent].Border = {};
@@ -916,7 +921,7 @@ sttc ::llc::err_t testGUIViewportOperations(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testGUI(ATestError & errors) {
+::llc::err_t testGUI(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testGUIUpdateDrawOrder(errors));
 	if_fail_fe(::testGUITextCore(errors));
 	if_fail_fe(::testGUIControlStateQueries(errors));
@@ -930,7 +935,7 @@ sttc ::llc::err_t testGUIViewportOperations(ATestError & errors) {
 	if_fail_fe(::testGUIHitTesting(errors));
 	if_fail_fe(::testGUIInputSequence(errors));
 	if_fail_fe(::testGUILayoutAndInput(errors));
-	if_fail_fe(::testGUIDrawCore(errors));
+	if_fail_fe(::testGUIDrawCore(errors, outputFolder));
 	if_fail_fe(::testGUIDrawText(errors));
 	if_fail_fe(::testGUIDrawImage(errors));
 	if_fail_fe(::testGUIDraw(errors));

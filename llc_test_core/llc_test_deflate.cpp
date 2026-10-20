@@ -12,7 +12,7 @@ GDEFINE_ENUM_VALUED(DEFLATE_TEST_RESULT, EMPTY_REJECTED	, 4, "arrayInflate() acc
 GDEFINE_ENUM_VALUED(DEFLATE_TEST_RESULT, TRUNCATED_REJECTED, 5, "arrayInflate() accepted a truncated compressed stream.");
 GDEFINE_ENUM_VALUED(DEFLATE_TEST_RESULT, CORRUPT_REJECTED	, 6, "arrayInflate() accepted a corrupted compressed stream.");
 
-::llc::err_t testDeflate(ATestError & errors) {
+::llc::err_t testDeflate(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::u0_t source[1025] = {};
 	for(::llc::u2_t iByte = 0; iByte < ::llc::size(source); ++iByte)
 		source[iByte] = (::llc::u0_t)((iByte * 73U) ^ (iByte >> 3));

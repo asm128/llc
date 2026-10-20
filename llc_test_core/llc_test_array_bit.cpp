@@ -139,7 +139,7 @@ sttc ::llc::err_t testArrayBitType(ATestError & errors) {
 	return testArrayBitPreservation<T>(errors);
 }
 
-::llc::err_t testArrayBit(ATestError & errors) {
+::llc::err_t testArrayBit(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	static_assert(::std::is_same_v<::llc::abitu0_t, ::llc::array_bit<::llc::u0_t>>);
 	static_assert(::std::is_same_v<::llc::abitu1_t, ::llc::array_bit<::llc::u1_t>>);
 	static_assert(::std::is_same_v<::llc::abitu2_t, ::llc::array_bit<::llc::u2_t>>);

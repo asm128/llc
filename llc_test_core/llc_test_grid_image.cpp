@@ -253,9 +253,7 @@ sttc ::llc::err_t testImageSerialization(ATestError & errors) {
 		::llc::img<T> preserved = {};
 		LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_OUTPUT, 0 > preserved.resize(sentinelMetrics, sentinelValue), "%u-bit truncation sentinel image could not be prepared at byte:%u.", bcof(T), byteCount);
 		cnst ::llc::vcu0_t originalTexels = preserved.Texels.cu8();
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t truncatedResult = ::llc::loadImage(truncated, preserved);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_RESULT, 0 <= truncatedResult, "%u-bit loadImage() accepted %u/%u bytes. result:%i.", bcof(T), byteCount, imageSize, truncatedResult);
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_CURSOR, truncated.begin() != originalInput.begin(), "%u-bit truncated cursor begin:%p, expected:%p at byte:%u.", bcof(T), truncated.begin(), originalInput.begin(), byteCount);
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_CURSOR, truncated.size() != originalInput.size(), "%u-bit truncated cursor size:%u, expected:%u at byte:%u.", bcof(T), truncated.size(), originalInput.size(), byteCount);
@@ -274,9 +272,7 @@ sttc ::llc::err_t testImageSerialization(ATestError & errors) {
 	::llc::img<T> preserved = {};
 	LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_OUTPUT, 0 > preserved.resize(sentinelMetrics, sentinelValue), "%u-bit inconsistent-metrics sentinel image could not be prepared.", bcof(T));
 	cnst ::llc::vcu0_t originalTexels = preserved.Texels.cu8();
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t inconsistentResult = ::llc::loadImage(inconsistentInput, preserved);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_RESULT, 0 <= inconsistentResult, "%u-bit loadImage() accepted metrics:%u x %u for %u texels. result:%i.", bcof(T), inconsistentMetrics.x, inconsistentMetrics.y, source.size(), inconsistentResult);
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_CURSOR, inconsistentInput.begin() != originalInconsistentInput.begin(), "%u-bit inconsistent-metrics cursor begin:%p, expected:%p.", bcof(T), inconsistentInput.begin(), originalInconsistentInput.begin());
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_CURSOR, inconsistentInput.size() != originalInconsistentInput.size(), "%u-bit inconsistent-metrics cursor size:%u, expected:%u.", bcof(T), inconsistentInput.size(), originalInconsistentInput.size());
@@ -288,7 +284,7 @@ sttc ::llc::err_t testImageSerialization(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testGridImage(ATestError & errors) {
+::llc::err_t testGridImage(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	static_assert(::std::is_same_v<::llc::gsc_t, ::llc::grid<::llc::sc_t>>);
 	static_assert(::std::is_same_v<::llc::guc_t, ::llc::grid<::llc::uc_t>>);
 	static_assert(::std::is_same_v<::llc::gu0_t, ::llc::grid<::llc::u0_t>>);

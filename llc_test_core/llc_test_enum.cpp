@@ -25,7 +25,7 @@ GDEFINE_ENUM_VALUED(ENUM_TEST_RESULT, ALIGN_Y_ALIAS	, 15, "ALIGN_YCENTER did not
 GDEFINE_ENUM_VALUED(ENUM_TEST_RESULT, ALIGN_Z_ALIAS	, 16, "ALIGN_ZCENTER did not resolve to ALIGN_DCENTER.");
 GDEFINE_ENUM_VALUED(ENUM_TEST_RESULT, WIFI_AUTH_ALIAS	, 17, "WIFI_AUTH_WPA2_ENTERPRISE did not resolve to WIFI_AUTH_ENTERPRISE.");
 
-::llc::err_t testEnum(ATestError & errors) {
+::llc::err_t testEnum(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ENUM_ALIAS_SAMPLE sampleValue = (ENUM_ALIAS_SAMPLE)7;
 	::llc::enum_definition<ENUM_ALIAS_SAMPLE> definition = {};
 	definition.Name = "ENUM_ALIAS_SAMPLE";

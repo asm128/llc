@@ -87,7 +87,7 @@ sttc ::llc::err_t testBlockFullWidth(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBlock(ATestError & errors) {
+::llc::err_t testBlock(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_TYPE_LAYOUT, sizeof(::llc::SRecordMap) != sizeof(::llc::u2_t) * 2, "SRecordMap size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SRecordMap), (::llc::u2_t)(sizeof(::llc::u2_t) * 2));
 	cnst ::llc::SRecordMap defaultMap = {};
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_DEFAULT_VALUE, defaultMap.IdBlock, "Default block:%u, expected:0.", defaultMap.IdBlock);

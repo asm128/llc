@@ -281,7 +281,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testViewBit(ATestError & errors) {
+::llc::err_t testViewBit(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));

@@ -51,10 +51,8 @@ stin ::llc::u2_t testCheckCount		(cnst ATestError & errors) { return testErrorCo
 tplt<tpnm TCall>
 bool testThrows(TCall call) {
 	bool didThrow = false;
-	::llc::setupLogCallbacks(0, 0);
 	try { call(); }
 	catch(...) { didThrow = true; }
-	::llc::setupDefaultLogCallbacks();
 	return didThrow;
 }
 #endif

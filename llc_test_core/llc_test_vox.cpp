@@ -204,7 +204,7 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	rtrn 0;
 }
 
-::llc::err_t testVOX(ATestError & errors) {
+::llc::err_t testVOX(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::view<cnst ::llc::bgra> defaultPalette = ::llc::SVOXData{}.GetBGRA();
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_DEFAULT_PALETTE_COUNT, defaultPalette.size() != 256, "Count:%u, expected:256.", defaultPalette.size());
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_DEFAULT_PALETTE_VALUE, defaultPalette[1] != ::llc::VOX_PALETTE_DEFAULT[1], "Value:0x%08X, expected:0x%08X.", (::llc::u2_t)defaultPalette[1], (::llc::u2_t)::llc::VOX_PALETTE_DEFAULT[1]);
@@ -303,9 +303,7 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 		::llc::vcu0_t truncated = {file.begin(), iByte};
 		::llc::SVOXData truncatedData = {};
 		truncatedData.Header.Version = 9;
-		::llc::setupLogCallbacks(0, 0);
 		cnst ::llc::err_t truncatedResult = truncatedData.Load(truncated);
-		::llc::setupDefaultLogCallbacks();
 		LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRUNCATION_RESULT, 0 <= truncatedResult, "Prefix:%u, result:%i.", iByte, truncatedResult);
 		LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRUNCATION_ADDRESS, truncated.begin() != file.begin(), "Prefix:%u changed the input address.", iByte);
 		LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRUNCATION_SIZE, truncated.size() != iByte, "Prefix:%u left size:%u.", iByte, truncated.size());
@@ -315,9 +313,7 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	::llc::au0_t invalidMagic = file;
 	invalidMagic[0] = 'B';
 	::llc::vcu0_t invalidInput = invalidMagic;
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t invalidResult = data.Load(invalidInput);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_INVALID_MAGIC, 0 <= invalidResult, "Result:%i.", invalidResult);
 
 	file.fill(0);

@@ -138,7 +138,7 @@ sttc ::llc::err_t testASCIIColorInvert(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testASCIIColor(ATestError & errors) {
+::llc::err_t testASCIIColor(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECK(errors, ASCII_COLOR_TEST_RESULT_INDEX_UNDERLYING_TYPE, (false == std::is_same_v<std::underlying_type_t<::llc::ASCII_COLOR_INDEX>, ::llc::u2_t>));
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_INDEX_SIZE, sizeof(::llc::ASCII_COLOR_INDEX) != sizeof(::llc::u2_t), "Size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::ASCII_COLOR_INDEX), (::llc::u2_t)sizeof(::llc::u2_t));
 	LLC_TEST_CHECK(errors, ASCII_COLOR_TEST_RESULT_COLOR_UNDERLYING_TYPE, (false == std::is_same_v<std::underlying_type_t<::llc::ASCII_COLOR>, ::llc::u1_t>));

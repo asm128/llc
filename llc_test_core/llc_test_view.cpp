@@ -214,9 +214,7 @@ sttc ::llc::err_t testRepresentation(ATestError & errors) {
 
 tplt<tpnm TSource, tpnm TOutput>
 sttc ::llc::err_t sliceExpectedFailure(TSource & source, TOutput & output, ::llc::u2_c offset, ::llc::u2_c count = (::llc::u2_t)-1) {
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t result = source.slice(output, offset, count);
-	::llc::setupDefaultLogCallbacks();
 	return result;
 }
 
@@ -622,7 +620,6 @@ sttc ::llc::err_t testTraversalFailures(ATestError & errors) {
 	::llc::TFuncEnumerate<T> mutableEnumerateRange = [&mutableEnumerateRangeVisits](::llc::u2_t &, T &) { return (++mutableEnumerateRangeVisits == 2) ? -1 : 0; };
 	::llc::TFuncEnumerateConst<T> constEnumerateRange = [&constEnumerateRangeVisits](::llc::u2_t &, cnst T &) { return (++constEnumerateRangeVisits == 2) ? -1 : 0; };
 
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t mutableForEachResult = mutableView.for_each(mutableForEach);
 	cnst ::llc::err_t constForEachResult = constView.for_each(constForEach);
 	cnst ::llc::err_t mutableRangeResult = mutableView.for_each(mutableRange, 1, 5);
@@ -631,7 +628,6 @@ sttc ::llc::err_t testTraversalFailures(ATestError & errors) {
 	cnst ::llc::err_t constEnumerateResult = constView.enumerate(constEnumerate);
 	cnst ::llc::err_t mutableEnumerateRangeResult = mutableView.enumerate(mutableEnumerateRange, 1, 5);
 	cnst ::llc::err_t constEnumerateRangeResult = constView.enumerate(constEnumerateRange, 1, 5);
-	::llc::setupDefaultLogCallbacks();
 
 	if_fail_fe(viewFailureCheck(errors, VIEW_TEST_RESULT_FAILURE_MUTABLE_FOR_EACH, mutableForEachResult, mutableForEachVisits, 3));
 	if_fail_fe(viewFailureCheck(errors, VIEW_TEST_RESULT_FAILURE_CONST_FOR_EACH, constForEachResult, constForEachVisits, 3));
@@ -769,12 +765,10 @@ sttc ::llc::err_t testExtrema(ATestError & errors) {
 	minimum = 456;
 	::llc::u2_t transformed = 0;
 	::llc::FTransform<::llc::s3_t, cnst T&> countTransform = [&transformed](cnst T & value) { ++transformed; return (::llc::s3_t)value; };
-	::llc::setupLogCallbacks(0, 0);
 	iMaximum = empty.max(maximum, countTransform);
 	iMinimum = empty.min(minimum, countTransform);
 	cnst ::llc::err_t convenienceMaximum = empty.max(countTransform);
 	cnst ::llc::err_t convenienceMinimum = empty.min(countTransform);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_EXTREMA_EMPTY, iMaximum != -1 , "Empty maximum index:%i, expected:-1.", iMaximum );
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_EXTREMA_EMPTY, iMinimum != -1 , "Empty minimum index:%i, expected:-1.", iMinimum );
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_EXTREMA_EMPTY, maximum != 123 , "Empty maximum changed output:%" LLC_FMT_S3 ", expected:123.", maximum );
@@ -1039,7 +1033,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testView(ATestError & errors) {
+::llc::err_t testView(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));

@@ -419,7 +419,7 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testPath(ATestError & errors) {
+::llc::err_t testPath(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testFindLastSlash(errors));
 	if_fail_fe(testPathBegin(errors));
 	if_fail_fe(testPathNameCompose(errors));

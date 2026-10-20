@@ -106,7 +106,7 @@ sttc ::llc::err_t testCameraAggregates(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testCamera(ATestError & errors) {
+::llc::err_t testCamera(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_POINTS_SIZE, sizeof(::llc::SCameraPoints) != sizeof(::llc::n3f2_t) * 2, "SCameraPoints size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SCameraPoints), (::llc::u2_t)(sizeof(::llc::n3f2_t) * 2));
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_VECTORS_SIZE, sizeof(::llc::SCameraVectors) != sizeof(::llc::n3f2_t) * 3, "SCameraVectors size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SCameraVectors), (::llc::u2_t)(sizeof(::llc::n3f2_t) * 3));
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_RANGE_SIZE, sizeof(::llc::SCameraRange) != sizeof(::llc::minmaxf2_t) + sizeof(::llc::f3_t) * 2, "SCameraRange size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SCameraRange), (::llc::u2_t)(sizeof(::llc::minmaxf2_t) + sizeof(::llc::f3_t) * 2));

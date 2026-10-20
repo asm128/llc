@@ -145,18 +145,16 @@ sttc ::llc::err_t testGridStatic(ATestError & errors) {
 		for(::llc::u2_t x = 0; x < loaded.metrics().x; ++x)
 			LLC_TEST_CHECKF(errors, GRID_OPERATIONS_TEST_RESULT_STATIC_READ_VALUE, loaded[y][x] != source[y][x], "Cell:%u,%u, value:%u, expected:%u.", x, y, loaded[y][x], source[y][x]);
 
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t missingSourceResult = loaded.read(nullptr, &bytesRead);
 	cnst ::llc::err_t missingCounterResult = loaded.read(serialized, nullptr);
 	cnst ::llc::err_t missingWriteResult = source.write(nullptr, nullptr);
-	::llc::setupDefaultLogCallbacks();
 	LLC_TEST_CHECKF(errors, GRID_OPERATIONS_TEST_RESULT_STATIC_INVALID_READ, 0 <= missingSourceResult, "read() accepted a missing source. result:%i.", missingSourceResult);
 	LLC_TEST_CHECKF(errors, GRID_OPERATIONS_TEST_RESULT_STATIC_INVALID_READ, 0 <= missingCounterResult, "read() accepted a missing byte counter. result:%i.", missingCounterResult);
 	LLC_TEST_CHECKF(errors, GRID_OPERATIONS_TEST_RESULT_STATIC_INVALID_WRITE, 0 <= missingWriteResult, "write() accepted no destination and no byte counter. result:%i.", missingWriteResult);
 	return 0;
 }
 
-::llc::err_t testGridOperations(ATestError & errors) {
+::llc::err_t testGridOperations(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testGridCopy(errors));
 	if_fail_fe(testGridScale(errors));
 	return testGridStatic(errors);

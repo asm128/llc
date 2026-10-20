@@ -73,9 +73,7 @@ namespace llc {
 
 tplt<tpnm TCall>
 sttc ::llc::err_t typeMetadataExpectedFailure(TCall call) {
-	::llc::setupLogCallbacks(0, 0);
 	cnst ::llc::err_t result = call();
-	::llc::setupDefaultLogCallbacks();
 	rtrn result;
 }
 
@@ -264,7 +262,7 @@ sttc ::llc::err_t testPODDefinition(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testTypeMetadata(ATestError & errors) {
+::llc::err_t testTypeMetadata(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testDataTypeMatrix(errors));
 	if_fail_fe(::testDataTypeConstants(errors));
 	if_fail_fe(::testTypeIdentifier(errors));

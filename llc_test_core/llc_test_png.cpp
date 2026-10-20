@@ -122,7 +122,7 @@ sttc ::llc::err_t testPNGLoadPairs(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testPNG(ATestError & errors) {
+::llc::err_t testPNG(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testPNGInvalidSource(errors));
 	rtrn ::testPNGLoadPairs(errors);
 }
