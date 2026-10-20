@@ -79,6 +79,7 @@
     <ClInclude Include="llc_test_base64_font_data.h" />
     <ClInclude Include="llc_test_core_suites.h" />
     <ClInclude Include="llc_test_report.h" />
+    <ClInclude Include="llc_test_trace.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>

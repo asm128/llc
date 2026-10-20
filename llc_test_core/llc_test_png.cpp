@@ -65,7 +65,18 @@ sttc ::llc::err_t testPNGInvalidSource(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPNGLoadPairs(ATestError & errors) {
+sttc ::llc::err_t testPNGLoadPairs(ATestError & errors, ::llc::vcst_t outputFolder) {
+	::llc::string imageFolder;
+	if_fail_fe(::llc::pathNameCompose(outputFolder, ::llc::get_value_namev(PNG_TEST_RESULT_INTERLACED_TEXEL), imageFolder));
+	if_fail_fe(::llc::pathCreate(imageFolder));
+	for(::llc::vcst_t notice : {::llc::vcst_t{"PngSuite.LICENSE"}, ::llc::vcst_t{"PngSuite.README"}}) {
+		::llc::string sourcePath;
+		if_fail_fe(::llc::pathNameCompose(PNG_SUITE_DIRECTORY, notice, sourcePath));
+		::llc::au0_t contents;
+		if_fail_fe(::llc::fileToMemory(sourcePath, contents));
+		if_fail_fe(::llc::fileFromMemory(imageFolder, notice, contents));
+	}
+	always_printf("PNG fixtures: PngSuite, (c) Willem van Schaik, 1996, 2011. Original license and README accompany %.*s outputs. Filenames identify source fixtures; saved PNGs are LLC-decoded pixels re-encoded by LLC, not byte-identical originals. Expected: interlaced/non-interlaced/memory decodes have identical pixels.", LLC_VIEW_ARGS(::llc::get_value_namev(PNG_TEST_RESULT_INTERLACED_TEXEL)));
 	::llc::SPNGData pngData = {};
 	for(::llc::u2_t iPair = 0; iPair < ::llc::size(PNG_TEST_PAIRS); ++iPair) {
 		cnst SPNGTestPair & pair = PNG_TEST_PAIRS[iPair];
@@ -109,6 +120,13 @@ sttc ::llc::err_t testPNGLoadPairs(ATestError & errors) {
 		if(32 * 32 != interlacedImage.size() || interlacedImage.size() != nonInterlacedImage.size() || interlacedImage.size() != sourceImage.size())
 			continue;
 
+		::llc::au0_t imageBytes;
+		if_fail_fe(::llc::pngFileWrite(interlacedImage.View, imageBytes));
+		if_fail_fe(::llc::fileFromMemory(imageFolder, pair.Interlaced, imageBytes));
+		imageBytes.clear();
+		if_fail_fe(::llc::pngFileWrite(nonInterlacedImage.View, imageBytes));
+		if_fail_fe(::llc::fileFromMemory(imageFolder, pair.NonInterlaced, imageBytes));
+		cnst ::llc::u2_t failuresBefore = testErrorCount(errors);
 		for(::llc::u2_t y = 0; y < interlacedImage.metrics().y; ++y) {
 			for(::llc::u2_t x = 0; x < interlacedImage.metrics().x; ++x) {
 				cnst ::llc::u2_t interlacedTexel = interlacedImage[y][x];
@@ -118,11 +136,12 @@ sttc ::llc::err_t testPNGLoadPairs(ATestError & errors) {
 				LLC_TEST_CHECKF(errors, PNG_TEST_RESULT_SOURCE_TEXEL, interlacedTexel != sourceTexel , "File:'%.*s', cell:{%u,%u}, file:0x%08X, source:0x%08X." , (int)pair.Interlaced.size(), pair.Interlaced.begin() , x, y, interlacedTexel, sourceTexel );
 			}
 		}
+		always_printf("PNG pair '%.*s' / '%.*s': expected 32x32, color type:%u, bit depth:%i; actual:%ux%u / %ux%u; file-load returns:%i/%i, memory-load:%i; pixel comparison:%s. Images: %.*s.", LLC_VIEW_ARGS(pair.Interlaced), LLC_VIEW_ARGS(pair.NonInterlaced), (::llc::u2_t)pair.ColorType, pair.BitDepth, interlacedImage.metrics().x, interlacedImage.metrics().y, nonInterlacedImage.metrics().x, nonInterlacedImage.metrics().y, interlacedResult, nonInterlacedResult, sourceResult, testErrorCount(errors) == failuresBefore ? "PASS" : "FAIL", LLC_VIEW_ARGS(::llc::get_value_namev(PNG_TEST_RESULT_INTERLACED_TEXEL)));
 	}
 	rtrn 0;
 }
 
 ::llc::err_t testPNG(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testPNGInvalidSource(errors));
-	rtrn ::testPNGLoadPairs(errors);
+	rtrn ::testPNGLoadPairs(errors, outputFolder);
 }

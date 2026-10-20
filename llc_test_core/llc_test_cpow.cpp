@@ -19,6 +19,7 @@ GDEFINE_ENUM_VALUED(CPOW_TEST_RESULT, DIGIT_POSITION		, 9, "digit<>() did not ex
 tplt<size_t exp, tpnm T>
 sttc ::llc::err_t testCPowValue(ATestError & errors, T base, T expected, CPOW_TEST_RESULT result = CPOW_TEST_RESULT_VALUE) {
 	cnst T actual = ::llc::cpow<exp>(base);
+	always_printf("CPOW type:%u-bit %s; exponent:%u; base:%.17g; expected:%.17g; actual:%.17g; %s.", (::llc::u2_t)bcof(T), ::std::is_floating_point_v<T> ? "floating" : ::std::is_signed_v<T> ? "signed" : "unsigned", (::llc::u2_t)exp, (::llc::f3_t)base, (::llc::f3_t)expected, (::llc::f3_t)actual, actual == expected ? "PASS" : "FAIL");
 	LLC_TEST_CHECKF(errors, CPOW_TEST_RESULT_RETURN_TYPE, false == (::std::is_same_v<decltype(::llc::cpow<exp>(base)), T>) , "cpow<%u>() return type mismatch. base:%f." , (::llc::u2_t)exp, (::llc::f3_t)base );
 	LLC_TEST_CHECKF(errors, result, actual != expected , "cpow<%u>(%f) mismatch. actual:%f, expected:%f." , (::llc::u2_t)exp, (::llc::f3_t)base, (::llc::f3_t)actual, (::llc::f3_t)expected );
 	rtrn 0;

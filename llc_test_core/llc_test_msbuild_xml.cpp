@@ -20,6 +20,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader
 		;
 	::llc::SXMLReader reader;
 	cnst ::llc::err_t parseResult = ::llc::xmlParse(reader, input);
+	always_printf("MSBUILD XML fixture (parsing only, not a build):\n%.*s\nExpected parse success; result:%i.", LLC_VIEW_ARGS(input), parseResult);
 	LLC_TEST_REQUIREF(errors, MSBUILD_XML_TEST_RESULT_PARSE, ::llc::failed(parseResult) , "Valid MSBuild XML parse failed. result:%i, input:'%.*s'." , parseResult, (int)input.size(), input.begin() );
 
 	cnst ::llc::err_t iProject = ::llc::xmlNodeChild(reader, input, 0, "Project");
@@ -29,6 +30,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader
 
 	::llc::vcst_t condition = {};
 	cnst ::llc::err_t iCondition = ::llc::xmlNodeAttribute(reader, input, (::llc::u2_t)iPropertyGroup, "Condition", condition);
+	always_printf("Condition attribute: return:%i; actual:'%.*s'; expected: '$(Configuration)|$(Platform)'=='Debug|x64'.", iCondition, LLC_VIEW_ARGS(condition));
 	LLC_TEST_CHECKF(errors, MSBUILD_XML_TEST_RESULT_PROJECT_ATTRIBUTE, ::llc::failed(iCondition) , "Condition attribute result:%i, expected success.", iCondition );
 	if(0 <= iCondition) {
 		LLC_TEST_CHECKF(errors, MSBUILD_XML_TEST_RESULT_PROJECT_ATTRIBUTE, condition != "'$(Configuration)|$(Platform)'=='Debug|x64'" , "Condition value:'%.*s', expected Debug|x64." , (int)condition.size(), condition.begin() );
@@ -37,6 +39,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader
 	cnst ::llc::err_t iOutDir = ::llc::xmlNodeChild(reader, input, (::llc::u2_t)iPropertyGroup, "OutDir");
 	::llc::vcst_t outDir = {};
 	cnst ::llc::err_t iOutText = ::llc::failed(iOutDir) ? -1 : ::llc::xmlNodeText(reader, input, (::llc::u2_t)iOutDir, outDir);
+	always_printf("OutDir text: return:%i; actual:'%.*s'; expected: $(SolutionDir)../$(Platform).$(Configuration)/.", iOutText, LLC_VIEW_ARGS(outDir));
 	LLC_TEST_CHECKF(errors, MSBUILD_XML_TEST_RESULT_PROJECT_NODE, ::llc::failed(iOutDir) , "OutDir node result:%i, expected success.", iOutDir );
 	if(0 <= iOutDir) {
 		LLC_TEST_CHECKF(errors, MSBUILD_XML_TEST_RESULT_PROJECT_VALUE, ::llc::failed(iOutText) , "OutDir text result:%i, expected success.", iOutText );
@@ -48,6 +51,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader
 	cnst ::llc::err_t iIntDir = ::llc::xmlNodeChild(reader, input, (::llc::u2_t)iPropertyGroup, "IntDir");
 	::llc::vcst_t intDir = {};
 	cnst ::llc::err_t iIntText = ::llc::failed(iIntDir) ? -1 : ::llc::xmlNodeText(reader, input, (::llc::u2_t)iIntDir, intDir);
+	always_printf("IntDir text: return:%i; actual:'%.*s'; expected: $(SolutionDir)../obj/$(Platform).$(Configuration)/$(ProjectName)/.", iIntText, LLC_VIEW_ARGS(intDir));
 	LLC_TEST_CHECKF(errors, MSBUILD_XML_TEST_RESULT_PROJECT_NODE, ::llc::failed(iIntDir) , "IntDir node result:%i, expected success.", iIntDir );
 	if(0 <= iIntDir) {
 		LLC_TEST_CHECKF(errors, MSBUILD_XML_TEST_RESULT_PROJECT_VALUE, ::llc::failed(iIntText) , "IntDir text result:%i, expected success.", iIntText );

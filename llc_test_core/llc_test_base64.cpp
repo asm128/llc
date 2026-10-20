@@ -116,6 +116,7 @@ static_assert( 0 == BASE64_REVERSED_MAP.Decode.Storage[(::llc::u0_t)'/']);
 static_assert(63 == BASE64_REVERSED_MAP.Decode.Storage[(::llc::u0_t)'A']);
 
 sttc ::llc::err_t testBase64Vectors(ATestError & errors) {
+	always_printf("%s", "BASE64 reference vectors: input -> encoded text -> decoded bytes; lengths exclude terminators.");
 	stxp SBase64Vector vectors[] =
 		{ {{0, ""}		, ""}
 		, {{1, "f"}		, "Zg=="}
@@ -129,6 +130,7 @@ sttc ::llc::err_t testBase64Vectors(ATestError & errors) {
 		cnst SBase64Vector & vector = vectors[iVector];
 		::llc::au0_t encoded;
 		cnst ::llc::err_t encodeResult = ::llc::base64Encode(vector.Binary, encoded);
+		always_printf("Vector:%u input:'%.*s' (%u bytes)\nEncoded:'%.*s'\nExpected:'%.*s'\nReturn:%i.", iVector, (int)vector.Binary.size(), vector.Binary.begin(), vector.Binary.size(), (int)encoded.size(), encoded.begin(), LLC_VIEW_ARGS(vector.Encoded), encodeResult);
 		LLC_TEST_REQUIREF(errors, BASE64_TEST_RESULT_ENCODE_VECTOR, ::llc::failed(encodeResult) , "Reference encode failed. vector:%u, input:%u, result:%i." , iVector, vector.Binary.size(), encodeResult );
 		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_ENCODE_SIZE, encoded.size() != vector.Encoded.size() , "Encoded size mismatch. vector:%u, input:%u, actual:%u, expected:%u." , iVector, vector.Binary.size(), encoded.size(), vector.Encoded.size() );
 		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_ENCODE_VECTOR, bytesMismatch(encoded.cu8(), vector.Encoded.cu8()) , "Encoded value mismatch. vector:%u, input:'%.*s', actual:'%.*s', expected:'%.*s'." , iVector, (int)vector.Binary.size(), vector.Binary.begin(), (int)encoded.size(), encoded.begin(), (int)vector.Encoded.size(), vector.Encoded.begin() );
@@ -137,6 +139,7 @@ sttc ::llc::err_t testBase64Vectors(ATestError & errors) {
 
 		::llc::au0_t decoded;
 		cnst ::llc::err_t decodeResult = ::llc::base64Decode(vector.Encoded, decoded);
+		always_printf("Decoded:'%.*s' (%u bytes); expected:'%.*s' (%u bytes); return:%i; bytes:%s.", (int)decoded.size(), decoded.begin(), decoded.size(), (int)vector.Binary.size(), vector.Binary.begin(), vector.Binary.size(), decodeResult, bytesMismatch(decoded.cu8(), vector.Binary.cu8()) ? "FAIL" : "PASS");
 		LLC_TEST_REQUIREF(errors, BASE64_TEST_RESULT_DECODE_VECTOR, ::llc::failed(decodeResult) , "Reference decode failed. vector:%u, input:%u, result:%i." , iVector, vector.Encoded.size(), decodeResult );
 		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_DECODE_SIZE, decoded.size() != vector.Binary.size() , "Decoded size mismatch. vector:%u, input:%u, actual:%u, expected:%u." , iVector, vector.Encoded.size(), decoded.size(), vector.Binary.size() );
 		LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_DECODE_VECTOR, bytesMismatch(decoded.cu8(), vector.Binary.cu8()) , "Decoded value mismatch. vector:%u, encoded:'%.*s', actual:%u bytes, expected:%u bytes." , iVector, (int)vector.Encoded.size(), vector.Encoded.begin(), decoded.size(), vector.Binary.size() );
@@ -355,7 +358,7 @@ sttc ::llc::err_t testBase64InvalidAlphabet(ATestError & errors) {
 
 sttc ::llc::err_t testBase64FontImage(::llc::vcst_t outputFolder, cnst SBase64FontFixture & font, ::llc::vcu0_t bitmap, ::llc::u2_t index) {
 	::llc::string folder;
-	if_fail_fe(::llc::append_strings(folder, outputFolder, "/FONT_CONTENT"));
+	if_fail_fe(::llc::pathNameCompose(outputFolder, ::llc::get_value_namev(BASE64_TEST_RESULT_FONT_CONTENT), folder));
 	if_fail_fe(::llc::pathCreate(folder));
 	::llc::img8bgra image;
 	stxp ::llc::u2_t scale = 3;

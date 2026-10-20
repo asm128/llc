@@ -5,6 +5,7 @@
 #include "llc_label.h"
 
 #include "llc_test_core.h"
+#include "llc_test_trace.h"
 
 #include <type_traits>
 
@@ -138,6 +139,8 @@ tplt<tpnm T, ::llc::u2_t N>
 sttc ::llc::err_t testNumericStrValue(ATestError & errors, T value, ::llc::vcst_t expected) {
 	auto				storage	= ::llc::str(value);
 	auto				text	= ::llc::str(storage);
+	always_printf("STR numeric conversion: source width:%u bits; expected:'%.*s'; actual:'%.*s' (%u bytes); text:%s.", (::llc::u2_t)bcof(T), LLC_VIEW_ARGS(expected), (int)text.size(), text.begin(), text.size(), stringMismatch(text, expected) ? "FAIL" : "PASS");
+	::testTraceBytes("Numeric source representation", ::llc::view<cnst T>{&value, 1}.cu8());
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RESULT_TYPE, false == (::std::is_same_v<decltype(storage), ::llc::astchar<N>>) , "result type mismatch. capacity:%u, expected:%u." , storage.size(), N );
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_TEXT, stringMismatch(text, expected) , "actual:'%.*s'/%u, expected:'%.*s'/%u." , (int)text.size(), text.begin(), text.size(), (int)expected.size(), expected.begin(), expected.size());
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RANGE, text.begin() != storage.begin() , "numeric text begin:%p, expected:%p.", text.begin(), storage.begin());

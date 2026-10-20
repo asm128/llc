@@ -1,6 +1,7 @@
 #include "llc_test_core.h"
 #include "llc_view_serialize.h"
 #include "llc_noise.h"
+#include "llc_test_trace.h"
 
 static_assert(1 == ::llc::uint_width_field_size<::llc::u0_t>(), "u8 width field");
 static_assert(1 == ::llc::uint_width_field_size<::llc::u1_t>(), "u16 width field");
@@ -48,7 +49,7 @@ sttc ::llc::err_t testInvalidValue(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c expectedTailWidth) {
+sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c expectedTailWidth, bool trace = true) {
 	cnst T value = (T)source;
 	cnst ::llc::packed_uint<T> packed{value};
 	::llc::u3_c expectedMultiplier = source >> (expectedTailWidth * 8);
@@ -73,6 +74,10 @@ sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c
 	::llc::vcu0_t input = bytes;
 	T loaded = {};
 	cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
+	if(trace) {
+		always_printf("PACKED %u-bit input:%" LLC_FMT_U3 "; tail width actual:%u expected:%u; multiplier actual:%" LLC_FMT_U3 " expected:%" LLC_FMT_U3 "; bytes:%u expected:%u; restored:%" LLC_FMT_U3 "; load:%i; remaining:%u expected:0.", typeBits, source, (::llc::u2_t)packed.TailWidth, (::llc::u2_t)expectedTailWidth, (::llc::u3_t)packed.Multiplier, expectedMultiplier, bytes.size(), (::llc::u2_t)expectedValueWidth, (::llc::u3_t)loaded, loadResult, input.size());
+		::testTraceBytes("Packed representation", bytes);
+	}
 	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_LOAD_RESULT, loadResult != expectedValueWidth , "%u-bit load result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u." , typeBits, source, loadResult, ::llc::u2_t(expectedValueWidth) );
 	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_LOAD_VALUE, ::llc::u3_t(loaded) != source , "%u-bit loaded-value mismatch. source:%" LLC_FMT_U3 ", loaded:%" LLC_FMT_U3 "." , typeBits, source, ::llc::u3_t(loaded) );
 	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_LOAD_CONSUMPTION, input.size() , "%u-bit load left bytes behind for value:%" LLC_FMT_U3 ". remaining:%u, expected:0." , typeBits, source, input.size() );
@@ -99,13 +104,14 @@ sttc ::llc::err_t testType(ATestError & errors) {
 		previousMaximum = maximum;
 	}
 	cnst ::llc::u3_t seed = testSeed(PACKED_RANDOM_SEED);
+	always_printf("PACKED generated coverage: %u-bit, seed:%" LLC_FMT_U3 ", cases:%u; individual failures retain counterexamples.", (::llc::u2_t)bcof(T), seed, PACKED_RANDOM_COUNT);
 	::llc::SPRNG random = {seed};
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
 	stxp ::llc::u3_t VALUE_MASK = (::llc::u3_t(1) << VALUE_BITS) - 1;
 	for(::llc::u2_t iRandom = 0; iRandom < PACKED_RANDOM_COUNT; ++iRandom) {
 		cnst T value = T(random.Next() & VALUE_MASK);
 		cnst ::llc::u2_t failureCount = testErrorCount(errors);
-		if_fail_fe(testValue<T>(errors, value, ::llc::uint_tail_width(value)));
+		if_fail_fe(testValue<T>(errors, value, ::llc::uint_tail_width(value), false));
 		if(failureCount != testErrorCount(errors))
 			error_printf("%u-bit randomized packed_uint<> case failed. seed:%" LLC_FMT_U3 ", iteration:%u, value:%" LLC_FMT_U3 "."
 				, ::llc::u2_t(szof(T) * 8), seed, iRandom, ::llc::u3_t(value)

@@ -1,6 +1,7 @@
 #include "llc_test_core.h"
 #include "llc_apod_serialize.h"
 #include "llc_noise.h"
+#include "llc_test_trace.h"
 
 GDEFINE_ENUM_TYPE(VIEW_SERIALIZE_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, OK					,  0, "All view-serialization tests passed.");
@@ -82,6 +83,8 @@ sttc ::llc::err_t testPOD(ATestError & errors) {
 	::llc::vcu0_t input{&serialized[::llc::size(PRECEDING_FIELD)], serialized.size() - ::llc::size(PRECEDING_FIELD)};
 	T loaded = {};
 	cnst ::llc::err_t loadResult = ::llc::loadPOD(input, loaded);
+	always_printf("SERIALIZE POD %u-bit input:%" LLC_FMT_U3 "; save:%i load:%i; expected/restored:%" LLC_FMT_U3 "/%" LLC_FMT_U3 "; trailing bytes:%u expected:%u.", (::llc::u2_t)bcof(T), (::llc::u3_t)source, saveResult, loadResult, (::llc::u3_t)source, (::llc::u3_t)loaded, input.size(), (::llc::u2_t)::llc::size(FOLLOWING_FIELD));
+	::testTraceBytes("Complete stream (preceding field + POD + following field)", serialized);
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_RESULT, loadResult != szof(T) , "%u-bit loadPOD() result mismatch. result:%i, expected:%u." , bcof(T), loadResult, ::llc::u2_t(szof(T)) );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_VALUE, loaded != source , "%u-bit loadPOD() value mismatch. loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "." , bcof(T), ::llc::u3_t(loaded), ::llc::u3_t(source) );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_POSITION, !isFollowingField(input) , "%u-bit loadPOD() cursor mismatch. remaining:%u, expected:%u." , bcof(T), input.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD)) );
@@ -99,7 +102,7 @@ sttc ::llc::err_t testPOD(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testUIntValue(ATestError & errors, ::llc::u3_c source) {
+sttc ::llc::err_t testUIntValue(ATestError & errors, ::llc::u3_c source, bool trace = true) {
 	cnst T value = (T)source;
 	cnst ::llc::packed_uint<T> packed{value};
 	cnst ::llc::u2_t expectedWidth = packed.ValueWidth();
@@ -121,6 +124,10 @@ sttc ::llc::err_t testUIntValue(ATestError & errors, ::llc::u3_c source) {
 	::llc::vcu0_t input{&serialized[::llc::size(PRECEDING_FIELD)], serialized.size() - ::llc::size(PRECEDING_FIELD)};
 	T loaded = {};
 	cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
+	if(trace) {
+		always_printf("SERIALIZE UINT %u-bit input:%" LLC_FMT_U3 "; expected width:%u; save:%i load:%i; restored:%" LLC_FMT_U3 "; trailing bytes:%u expected:%u.", (::llc::u2_t)bcof(T), source, expectedWidth, saveResult, loadResult, (::llc::u3_t)loaded, input.size(), (::llc::u2_t)::llc::size(FOLLOWING_FIELD));
+		::testTraceBytes("Complete stream (preceding + packed integer + following)", serialized);
+	}
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_RESULT, loadResult != (::llc::err_t)expectedWidth , "%u-bit loadUInt() result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u." , bcof(T), source, loadResult, expectedWidth );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_VALUE, ::llc::u3_t(loaded) != source , "%u-bit loadUInt() value mismatch. loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "." , bcof(T), ::llc::u3_t(loaded), source );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_POSITION, !isFollowingField(input) , "%u-bit loadUInt() cursor mismatch for value:%" LLC_FMT_U3 ". remaining:%u, expected:%u." , bcof(T), source, input.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD)) );
@@ -141,13 +148,14 @@ sttc ::llc::err_t testUIntType(ATestError & errors) {
 		previousMaximum = maximum;
 	}
 	cnst ::llc::u3_t seed = testSeed(SERIALIZE_UINT_RANDOM_SEED);
+	always_printf("SERIALIZE generated integer coverage: %u-bit, seed:%" LLC_FMT_U3 ", cases:%u; failures retain counterexamples.", (::llc::u2_t)bcof(T), seed, SERIALIZE_UINT_RANDOM_COUNT);
 	::llc::SPRNG random = {seed};
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
 	stxp ::llc::u3_t VALUE_MASK = (::llc::u3_t(1) << VALUE_BITS) - 1;
 	for(::llc::u2_t iRandom = 0; iRandom < SERIALIZE_UINT_RANDOM_COUNT; ++iRandom) {
 		cnst T value = T(random.Next() & VALUE_MASK);
 		cnst ::llc::u2_t failureCount = testErrorCount(errors);
-		if_fail_fe(testUIntValue<T>(errors, value));
+		if_fail_fe(testUIntValue<T>(errors, value, false));
 		if(failureCount != testErrorCount(errors))
 			error_printf("%u-bit randomized integer serialization case failed. seed:%" LLC_FMT_U3 ", iteration:%u, value:%" LLC_FMT_U3 "."
 				, bcof(T), seed, iRandom, ::llc::u3_t(value)

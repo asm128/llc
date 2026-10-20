@@ -34,9 +34,13 @@ sttc ::llc::err_t testXMLDocument
 	(ATestError & errors, ::llc::vcst_t input, XML_READER_TEST_RESULT parseTest = XML_READER_TEST_RESULT_PARSE) {
 	::llc::SXMLReader reader;
 	cnst ::llc::err_t parseResult = ::llc::xmlParse(reader, input);
+	always_printf("XML input (%u bytes):\n%.*s\nExpected parse success; return:%i, tokens:%u.", input.size(), LLC_VIEW_ARGS(input), parseResult, reader.Token.size());
 	LLC_TEST_REQUIREF(errors, parseTest, ::llc::failed(parseResult) , "Valid XML parse failed. result:%i, input:'%.*s'." , parseResult, (int)input.size(), input.begin() );
 	for(::llc::u2_t iToken = 0; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SXMLToken & token = reader.Token[iToken];
+		always_printf("XML token:%u parent:%i offset:%u count:%u.", iToken, token.Parent, token.Range.Offset, token.Range.Count);
+		if(token.Range.Offset <= input.size() && token.Range.Count <= input.size() - token.Range.Offset)
+			always_printf("Token text:'%.*s'.", (int)token.Range.Count, input.begin() + token.Range.Offset);
 		LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_TOKEN_RANGE, token.Range.Offset > input.size() , "Token:%u offset:%u exceeds input:%u. Document:'%.*s'." , iToken, token.Range.Offset, input.size(), (int)input.size(), input.begin() );
 		if(token.Range.Offset <= input.size()) {
 			LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_TOKEN_RANGE, token.Range.Count > input.size() - token.Range.Offset , "Token:%u count:%u exceeds remaining input:%u. Document:'%.*s'." , iToken, token.Range.Count, input.size() - token.Range.Offset, (int)input.size(), input.begin() );
@@ -75,6 +79,7 @@ sttc ::llc::err_t testXMLDocuments(ATestError & errors) {
 sttc ::llc::err_t testXMLFailures(ATestError & errors) {
 	::llc::SXMLReader reader;
 	cnst ::llc::err_t result = ::llc::xmlParse(reader, "<Root><Child></Root>");
+	always_printf("XML mismatched tags: '<Root><Child></Root>'; expected rejection; result:%i.", result);
 	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_CLOSING_TAG, false == ::llc::failed(result), "Mismatched closing tag accepted. result:%i.", result);
 	rtrn 0;
 }

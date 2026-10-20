@@ -27,6 +27,7 @@ sttc ::llc::err_t testArgsParsedValues(ATestError & errors, cnst ::llc::SCommand
 		};
 	LLC_TEST_REQUIREF(errors, ARGS_TEST_RESULT_OPTIONS, args.Options.size() != ::llc::size(expectedOptions) , "Option count:%u, expected:%u." , args.Options.size(), (::llc::u2_t)::llc::size(expectedOptions) );
 	for(::llc::u2_t iOption = 0; iOption < args.Options.size(); ++iOption) {
+		always_printf("ARGS option:%u expected:'%.*s'='%.*s'; actual:'%.*s'='%.*s'.", iOption, LLC_VIEW_ARGS(expectedOptions[iOption].Key), LLC_VIEW_ARGS(expectedOptions[iOption].Val), LLC_VIEW_ARGS(args.Options[iOption].Key), LLC_VIEW_ARGS(args.Options[iOption].Val));
 		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_OPTIONS, args.Options[iOption].Key != expectedOptions[iOption].Key , "Option:%u key:'%.*s', expected:'%.*s'." , iOption, (int)args.Options[iOption].Key.size(), args.Options[iOption].Key.begin() , (int)expectedOptions[iOption].Key.size(), expectedOptions[iOption].Key.begin());
 		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_OPTIONS, args.Options[iOption].Val != expectedOptions[iOption].Val , "Option:%u value:'%.*s', expected:'%.*s'." , iOption, (int)args.Options[iOption].Val.size(), args.Options[iOption].Val.begin() , (int)expectedOptions[iOption].Val.size(), expectedOptions[iOption].Val.begin());
 	}
@@ -88,6 +89,11 @@ sttc ::llc::err_t testArgsAccessors(ATestError & errors, cnst ::llc::SCommandLin
 	::llc::vcst_t envp[] = {"A=B"};
 	::llc::SCommandLineArgs args = {};
 	cnst ::llc::err_t parsed = ::llc::argsParse(args, argv, envp);
+	for(::llc::u2_t iArg = 0; iArg < ::llc::size(argv); ++iArg)
+		always_printf("ARGS input[%u] (%u bytes): '%.*s'.", iArg, argv[iArg].size(), LLC_VIEW_ARGS(argv[iArg]));
+	always_printf("ARGS parse result:%i; program:'%.*s'; options:%u; positionals:%u.", parsed, LLC_VIEW_ARGS(args.ProgramName), args.Options.size(), args.Positionals.size());
+	for(::llc::u2_t iArg = 0; iArg < args.Positionals.size(); ++iArg)
+		always_printf("ARGS positional[%u]:'%.*s'.", iArg, LLC_VIEW_ARGS(args.Positionals[iArg]));
 	LLC_TEST_REQUIREF(errors, ARGS_TEST_RESULT_PARSE_RESULT, 0 > parsed , "Initial argsParse() failed with result:%i.", parsed);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_PARSE_RESULT, parsed != 9 , "Parse result:%i, expected:9." , parsed );
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_PROGRAM_NAME, args.ProgramName != "app" , "Program:'%.*s', expected:'app'." , (int)args.ProgramName.size(), args.ProgramName.begin() );

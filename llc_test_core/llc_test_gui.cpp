@@ -569,7 +569,7 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors, ::llc::vcst_t outputFolde
 		cnst ::llc::bgra expected = gui.Colors->Palettes[gui.Controls.Draw[parent].Palettes[palettes[iState]]][::llc::UI_CONTROL_AREA_CLIENT];
 		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_DRAW_PALETTE, target.View[6][7] != expected, "State:%u.", iState);
 		::llc::string folder;
-		if_fail_fe(::llc::append_strings(folder, outputFolder, "/DRAW_PALETTE"));
+		if_fail_fe(::llc::pathNameCompose(outputFolder, ::llc::get_value_namev(GUI_TEST_RESULT_DRAW_PALETTE), folder));
 		if_fail_fe(::llc::pathCreate(folder));
 		::llc::au0_t bytes;
 		if_fail_fe(::llc::pngFileWrite(target.View, bytes));
@@ -963,7 +963,7 @@ sttc ::llc::err_t testGUIVisualScene(ATestError & errors, ::llc::vcst_t outputFo
 	::llc::img8bgra target;
 	if_fail_fe(target.resize(::llc::n2u2_t{960, 600}));
 	::llc::string folder;
-	if_fail_fe(::llc::append_strings(folder, outputFolder, "/VISUAL_SCENE"));
+	if_fail_fe(::llc::pathNameCompose(outputFolder, ::llc::get_value_namev(GUI_TEST_RESULT_DRAW), folder));
 	if_fail_fe(::llc::pathCreate(folder));
 	stxp ::llc::GUI_COLOR_MODE modes[] = {::llc::GUI_COLOR_MODE_Flat, ::llc::GUI_COLOR_MODE_3D};
 	stxp ::llc::vcst_t titles[] = {"GUI default palettes - Flat", "GUI default palettes - 3D"};

@@ -18,12 +18,14 @@ GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, UNCLOSED_LEVEL			, 10, "expressionRe
 	cnst ::llc::vcst_t			validExpression			= "application.test_udp";
 	::llc::SExpressionReader	validReader				= {};
 	cnst ::llc::err_t			validResult				= ::llc::expressionReaderParse(validReader, validExpression);
+	always_printf("EXPRESSION input:'%.*s'; expected parse success; result:%i, tokens:%u.", LLC_VIEW_ARGS(validExpression), validResult, validReader.Token.size());
 	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_RESULT, ::llc::failed(validResult) , "Result:%i." , validResult );
 	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_TOKEN_COUNT, 0 == validReader.Token.size() , "Expression:%.*s." , LLC_VIEW_ARGS(validExpression) );
 	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_VIEW_COUNT, validReader.View.size() != validReader.Token.size() , "Views:%u, tokens:%u." , validReader.View.size(), validReader.Token.size() );
 	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_COUNT, validReader.Tree.size() != validReader.Token.size() , "Tree nodes:%u, tokens:%u." , validReader.Tree.size(), validReader.Token.size() );
 	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_ROOT_VIEW, validReader.View[0] != validExpression , "Root:%.*s, expected:%.*s." , LLC_VIEW_ARGS(validReader.View[0]), LLC_VIEW_ARGS(validExpression) );
 	for(::llc::u2_t iNode = 0; iNode < validReader.Tree.size(); ++iNode) {
+		always_printf("Token:%u type:%s parent:%i span:%u..%u text:'%.*s'.", iNode, ::llc::get_value_namep(validReader.Token[iNode].Type), validReader.Token[iNode].ParentIndex, validReader.Token[iNode].Span.Begin, validReader.Token[iNode].Span.End, LLC_VIEW_ARGS(validReader.View[iNode]));
 		LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_NODE, 0 == validReader.Tree[iNode].get_ref() , "Null node:%u." , iNode );
 		if(validReader.Tree[iNode])
 			LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_NODE, validReader.Tree[iNode]->Token != &validReader.Token[iNode] , "Node:%u, token:%p, expected:%p." , iNode, validReader.Tree[iNode]->Token, &validReader.Token[iNode] );
@@ -47,6 +49,7 @@ GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, UNCLOSED_LEVEL			, 10, "expressionRe
 	cnst ::llc::vcst_t			unclosedLevel				= "application[";
 	invalidReader										= {};
 	cnst ::llc::err_t			unclosedLevelResult			= ::llc::expressionReaderParse(invalidReader, unclosedLevel);
+	always_printf("EXPRESSION rejection cases (expected negative): empty parse-step=%i; quoted byte 01=%i; '%.*s'=%i; '%.*s'=%i.", emptyStepResult, invalidCharacterResult, LLC_VIEW_ARGS(truncatedCodepoint), truncatedCodepointResult, LLC_VIEW_ARGS(unclosedLevel), unclosedLevelResult);
 	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_UNCLOSED_LEVEL, 0 <= unclosedLevelResult , "Result:%i, expression:%.*s." , unclosedLevelResult, LLC_VIEW_ARGS(unclosedLevel) );
 	return 0;
 }

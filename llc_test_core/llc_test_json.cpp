@@ -106,6 +106,7 @@ sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader
 	for(::llc::u2_t iToken = 0; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SJSONToken & token = reader.Token[iToken];
 		cnst ::llc::vcst_t & tokenView = reader.View[iToken];
+		always_printf("JSON token:%u type:%s parent:%i span:%u..%u text:'%.*s'.", iToken, ::llc::get_value_namep(token.Type), token.ParentIndex, token.Span.Begin, token.Span.End, LLC_VIEW_ARGS(tokenView));
 		cnst ::llc::pobj<::llc::SJSONNode> & node = reader.Tree[iToken];
 		cnst bool hasParent = token.ParentIndex >= 0 && (::llc::u2_t)token.ParentIndex < reader.Tree.size();
 		LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_TOKEN_SPAN_ORDER, token.Span.Begin > token.Span.End , "Token:%u span:%u..%u." , iToken, token.Span.Begin, token.Span.End );
@@ -124,6 +125,7 @@ sttc ::llc::err_t testJSONDocument
 	(ATestError & errors, ::llc::vcst_t input, ::llc::vcst_t expected, ::llc::JSON_TYPE expectedType, JSON_READER_TEST_RESULT parseResult = JSON_READER_TEST_RESULT_PARSE) {
 	::llc::SJSONReader reader;
 	cnst ::llc::err_t result = ::llc::jsonParse(reader, input);
+	always_printf("JSON parse: expected type:%s; return:%i; input (%u bytes):\n%.*s", ::llc::get_value_namep(expectedType), result, input.size(), LLC_VIEW_ARGS(input));
 	LLC_TEST_REQUIREF(errors, parseResult, ::llc::failed(result) , "Valid JSON parse failed. result:%i, input:'%.*s'." , result, (int)input.size(), input.begin() );
 	cnst ::llc::u2_t structureFailures = testErrorCount(errors);
 	if_fail_fe(testJSONStructure(errors, reader, input));
@@ -141,6 +143,7 @@ sttc ::llc::err_t testJSONDocument
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_ROOT_TYPE, root->Token->Type != expectedType , "Root type mismatch. actual:%i, expected:%i, tree nodes:%u." , (::llc::s2_t)root->Token->Type, (::llc::s2_t)expectedType, reader.Tree.size() );
 	::llc::string output;
 	cnst ::llc::err_t writeResult = ::llc::jsonWrite(reader.Tree[0], reader.View, output);
+	always_printf("JSON write result:%i\nExpected:\n%.*s\nActual:\n%.*s\nText comparison:%s.", writeResult, LLC_VIEW_ARGS(expected), (int)output.size(), output.begin(), jsonTextMismatch(output, expected) ? "FAIL" : "PASS");
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_WRITE, ::llc::failed(writeResult) , "JSON write failed. result:%i, root type:%i." , writeResult, (::llc::s2_t)root->Token->Type );
 	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_ROUND_TRIP, jsonTextMismatch(output, expected) , "Round-trip mismatch. input:'%.*s', actual:'%.*s', expected:'%.*s'." , (int)input.size(), input.begin(), (int)output.size(), output.begin(), (int)expected.size(), expected.begin() );
 	rtrn 0;
