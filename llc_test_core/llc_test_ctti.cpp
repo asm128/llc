@@ -32,7 +32,7 @@ static_assert(CTTI_ALL_TYPES.Success() && 13 == CTTI_ALL_TYPES.Count, "Every ini
 	LLC_TEST_CHECKF(errors, CTTI_TEST_RESULT_COMPILE_TIME, false == CTTI_COORD.Success() , "Compile-time parse failed. error:%u, state:%u, offset:%u." , (::llc::u2_t)CTTI_COORD.Error, (::llc::u2_t)CTTI_COORD.State, CTTI_COORD.ErrorOffset );
 	LLC_TEST_CHECKF(errors, CTTI_TEST_RESULT_STRUCT_NAME, false == ::llc::cttiSpanEquals(CTTI_COORD.StructName, {0, 5}, "coord") , "Structure name mismatch: '%s'." , CTTI_COORD.StructName );
 	LLC_TEST_CHECKF(errors, CTTI_TEST_RESULT_MEMBER_COUNT, 4 != CTTI_COORD.Count , "Member count mismatch. actual:%u, expected:4." , CTTI_COORD.Count );
-	stxp ::llc::vcst_t expectedNames[] = {LLC_CXS("x"), LLC_CXS("y"), LLC_CXS("z"), LLC_CXS("weight")};
+	stxp ::llc::vcst_t expectedNames[] = {"x", "y", "z", "weight"};
 	for(::llc::u2_t iMember = 0; iMember < CTTI_COORD.Count; ++iMember) {
 		cnst ::llc::SCTTISpan & nameSpan = CTTI_COORD.Members[iMember].Name;
 		cnst ::llc::vcst_t actualName = {&CTTI_COORD.MemberText[nameSpan.Offset], nameSpan.Count};

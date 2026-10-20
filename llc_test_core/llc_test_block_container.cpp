@@ -108,8 +108,8 @@ sttc ::llc::err_t testBlockContainerNTS(ATestError & errors) {
 	LLC_TEST_REQUIREF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, second.size() != 1 , "Second NTS view size:%u, expected:1." , second.size() );
 	LLC_TEST_REQUIREF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, !first.begin() , "%s", "First NTS view has no storage." );
 	LLC_TEST_REQUIREF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, !second.begin() , "%s", "Second NTS view has no storage." );
-	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, first != LLC_CXS("four") , "First NTS view:'%.*s', expected:'four'." , (int)first.size(), first.begin() );
-	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, second != LLC_CXS("x") , "Second NTS view:'%.*s', expected:'x'." , (int)second.size(), second.begin() );
+	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, first != "four" , "First NTS view:'%.*s', expected:'four'." , (int)first.size(), first.begin() );
+	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, second != "x" , "Second NTS view:'%.*s', expected:'x'." , (int)second.size(), second.begin() );
 	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, first.begin()[first.size()] , "First NTS terminator:%i, expected:0." , first.begin()[first.size()] );
 	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, second.begin()[second.size()] , "Second NTS terminator:%i, expected:0." , second.begin()[second.size()] );
 

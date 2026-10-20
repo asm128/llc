@@ -156,9 +156,9 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 		while(iChar < path.size() && false == ::pathSeparator(path[iChar]))
 			++iChar;
 		::llc::vcst_c			segment					= {path.begin() + segmentStart, iChar - segmentStart};
-		if(segment == LLC_CXS(".")) {}
-		else if(segment == LLC_CXS("..")) {
-			if(segments.size() > protectedSegments && segments[segments.size() - 1] != LLC_CXS("..")) {
+		if(segment == ".") {}
+		else if(segment == "..") {
+			if(segments.size() > protectedSegments && segments[segments.size() - 1] != "..") {
 				if_fail_fe(segments.pop_back());
 			}
 			else if(false == isAbsolute) {
@@ -337,7 +337,7 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	::llc::err_t				result						= 0;
 #ifdef LLC_WINDOWS
 	::llc::string				sPath						= {};
-	if_fail_fef(::llc::pathNameCompose(pathToList, LLC_CXS("*.*"), sPath), "Invalid path: '%.*s'.", (int)pathToList.size(), pathToList.begin());
+	if_fail_fef(::llc::pathNameCompose(pathToList, "*.*", sPath), "Invalid path: '%.*s'.", (int)pathToList.size(), pathToList.begin());
 	WIN32_FIND_DATAA			fdFile						= {};
 	HANDLE						hFind						= FindFirstFile(sPath.begin(), &fdFile);
 	if_true_fef(hFind == INVALID_HANDLE_VALUE, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());

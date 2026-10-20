@@ -22,9 +22,14 @@ namespace llc
 				bool	oper==			(vcst_t other)				csnx;
 				bool	oper==			(cnst label  & other)		csnx;
 		inln	bool	oper!=			(cnst label  & other)		csnx	{ return !oper==(other); }
+		tplN2u	bool	oper==			(sc_c (&other)[N])			cnst	{ rtrn vcst_t::operator==(other); }
+		tplN2u	bool	oper!=			(sc_c (&other)[N])			cnst	{ rtrn !operator==(other); }
 
 		inln	oper	vcst_t			()							cnst	{ return {Data, Count}; }
 	};
+
+	tplN2u	inln bool	oper==	(sc_c (&left)[N], cnst label & right)	{ rtrn right.operator==(left); }
+	tplN2u	inln bool	oper!=	(sc_c (&left)[N], cnst label & right)	{ rtrn !right.operator==(left); }
 
 	stin err_t		loadLabel		(vcu0_t & input, vcst_t & output) {
 		vcs0_t				serialized		= {};

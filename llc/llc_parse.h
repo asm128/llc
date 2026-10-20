@@ -6,8 +6,8 @@
 
 namespace llc
 {
-	stxp	vcst_t	DIGITS_HEX						= LLC_CXS("0123456789abcdef");
-	stxp	vcst_t	DIGITS_DECIMAL					= LLC_CXS("0123456789");
+	stxp	vcst_t	DIGITS_HEX						= "0123456789abcdef";
+	stxp	vcst_t	DIGITS_DECIMAL					= "0123456789";
 	err_t			parseArbitraryBaseInteger		(u2_t base, vcst_t symbolList, vcst_t sourceChars, u3_t * number_);
 	tplt<tpnm _tInt>	
 	inline	err_t	parseIntegerDecimal				(vcst_t sourceChars, _tInt & number_)	{

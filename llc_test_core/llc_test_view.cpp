@@ -972,14 +972,14 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 
 sttc ::llc::err_t testStringSplitCollection(ATestError & errors) {
 	::llc::aobj<::llc::vcst_t> output;
-	cnst ::llc::err_t result = ::llc::split(LLC_CXS(",a,,b,"), ',', output);
+	cnst ::llc::err_t result = ::llc::split(::llc::vcst_t{",a,,b,"}, ',', output);
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, result != 2 , "String collection result:%i, expected:2.", result );
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, output.size() != 2 , "String collection count:%u, expected:2.", output.size() );
 	if(1 <= output.size()) {
-		LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, output[0] != LLC_CXS("a") , "String collection field 0:'%.*s', expected:'a'." , (int)output[0].size(), output[0].begin() );
+		LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, output[0] != "a" , "String collection field 0:'%.*s', expected:'a'." , (int)output[0].size(), output[0].begin() );
 	}
 	if(2 <= output.size()) {
-		LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, output[1] != LLC_CXS("b") , "String collection field 1:'%.*s', expected:'b'." , (int)output[1].size(), output[1].begin() );
+		LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, output[1] != "b" , "String collection field 1:'%.*s', expected:'b'." , (int)output[1].size(), output[1].begin() );
 	}
 
 	rtrn 0;

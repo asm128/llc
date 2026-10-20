@@ -49,7 +49,7 @@ sttc	::llc::err_t	testSuitesRun				(ATestError & results, ::llc::view<cnst ::llc
 	rtrn result;
 }
 
-#define LLC_TEST_SUITE(funcSuite) ::testSuite(funcSuite, LLC_CXS(#funcSuite))
+#define LLC_TEST_SUITE(funcSuite) ::testSuite(funcSuite, #funcSuite)
 
 sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues);
 LLC_OS_ENTRY_POINT(::test_core_entry_point);
@@ -61,13 +61,13 @@ sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues)
 	llc::err_t		result				= 0;
 	cnst bool		logSuccessDetails	= 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "success-details");
 	::llc::aobj<::llc::vcst_t> selectedSuites;
-	if_fail_fe(::llc::argsOptionValues(runtimeValues.EntryPointArgs, LLC_CXS("test"), selectedSuites));
-	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, LLC_CXS("seed"))) {
+	if_fail_fe(::llc::argsOptionValues(runtimeValues.EntryPointArgs, "test", selectedSuites));
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "seed")) {
 		::llc::vcst_t seedText = {};
-		if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, LLC_CXS("seed"), seedText));
+		if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "seed", seedText));
 		::llc::u3_t seed = {};
 		cnst ::llc::err_t digits = ::llc::parseIntegerDecimal(seedText, seed);
-		stxp ::llc::vcst_t seedMaximum = LLC_CXS("18446744073709551615");
+		stxp ::llc::vcst_t seedMaximum = "18446744073709551615";
 		::llc::u2_t significantOffset = 0;
 		while(significantOffset < seedText.size() && '0' == seedText[significantOffset])
 			++significantOffset;

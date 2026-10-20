@@ -272,7 +272,7 @@ namespace llc
 			vcu0_t					remaining				= input;
 			SVOXData					loaded					= {};
 			if_fail_fe(loadPOD(remaining, loaded.Header));
-			if_true_fe(vcst_t{loaded.Header.MagicNumber} != LLC_CXS("VOX "));
+			if_true_fe(vcst_t{loaded.Header.MagicNumber} != "VOX ");
 			bool						mainFound				= false;
 			while(remaining.size()) {
 				SVOXChunkHeader			readChunkHeader			= {};
@@ -401,16 +401,16 @@ namespace llc
 						for(u2_t iAttribute = 0; iAttribute < frameAttributes.size(); ++iAttribute) {
 							vcst_t						key						= frameAttributes[iAttribute].Key;
 							vcst_t						value					= frameAttributes[iAttribute].Val;
-							if(key == LLC_CXS("_r")) {
+							if(key == "_r") {
 								u2_t						rotation					= 0;
 								if_fail_fe(voxUnsignedLoad(value, rotation));
 								if_true_fe(rotation > 0xFFU);
 								newFrame.Rotation			= (u0_t)rotation;
 							}
-							else if(key == LLC_CXS("_t")) {
+							else if(key == "_t") {
 								if_fail_fe(voxTranslationLoad(value, newFrame.Translation));
 							}
-							else if(key == LLC_CXS("_f")) {
+							else if(key == "_f") {
 								if_fail_fe(voxUnsignedLoad(value, newFrame.IndexFrame));
 							}
 						}

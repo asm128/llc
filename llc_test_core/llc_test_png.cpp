@@ -24,31 +24,31 @@ stct SPNGTestPair {
 	::llc::s0_t		BitDepth		= {};
 };
 
-stxp ::llc::vcst_t PNG_SUITE_DIRECTORY = LLC_CXS("../llc_data/pngsuite");
+stxp ::llc::vcst_t PNG_SUITE_DIRECTORY = "../llc_data/pngsuite";
 stxp ::llc::vcst_t PNG_INVALID_SIGNATURES[] =
-	{ LLC_CXS("xcrn0g04.png")
-	, LLC_CXS("xlfn0g04.png")
-	, LLC_CXS("xs1n0g01.png")
-	, LLC_CXS("xs2n0g01.png")
-	, LLC_CXS("xs4n0g01.png")
-	, LLC_CXS("xs7n0g01.png")
+	{ "xcrn0g04.png"
+	, "xlfn0g04.png"
+	, "xs1n0g01.png"
+	, "xs2n0g01.png"
+	, "xs4n0g01.png"
+	, "xs7n0g01.png"
 	};
 stxp SPNGTestPair PNG_TEST_PAIRS[] =
-	{ {LLC_CXS("basi0g01.png"), LLC_CXS("basn0g01.png"), ::llc::COLOR_TYPE_GRAYSCALE		,  1}
-	, {LLC_CXS("basi0g02.png"), LLC_CXS("basn0g02.png"), ::llc::COLOR_TYPE_GRAYSCALE		,  2}
-	, {LLC_CXS("basi0g04.png"), LLC_CXS("basn0g04.png"), ::llc::COLOR_TYPE_GRAYSCALE		,  4}
-	, {LLC_CXS("basi0g08.png"), LLC_CXS("basn0g08.png"), ::llc::COLOR_TYPE_GRAYSCALE		,  8}
-	, {LLC_CXS("basi0g16.png"), LLC_CXS("basn0g16.png"), ::llc::COLOR_TYPE_GRAYSCALE		, 16}
-	, {LLC_CXS("basi2c08.png"), LLC_CXS("basn2c08.png"), ::llc::COLOR_TYPE_RGB				,  8}
-	, {LLC_CXS("basi2c16.png"), LLC_CXS("basn2c16.png"), ::llc::COLOR_TYPE_RGB				, 16}
-	, {LLC_CXS("basi3p01.png"), LLC_CXS("basn3p01.png"), ::llc::COLOR_TYPE_PALETTE			,  1}
-	, {LLC_CXS("basi3p02.png"), LLC_CXS("basn3p02.png"), ::llc::COLOR_TYPE_PALETTE			,  2}
-	, {LLC_CXS("basi3p04.png"), LLC_CXS("basn3p04.png"), ::llc::COLOR_TYPE_PALETTE			,  4}
-	, {LLC_CXS("basi3p08.png"), LLC_CXS("basn3p08.png"), ::llc::COLOR_TYPE_PALETTE			,  8}
-	, {LLC_CXS("basi4a08.png"), LLC_CXS("basn4a08.png"), ::llc::COLOR_TYPE_GRAYSCALE_ALPHA	,  8}
-	, {LLC_CXS("basi4a16.png"), LLC_CXS("basn4a16.png"), ::llc::COLOR_TYPE_GRAYSCALE_ALPHA	, 16}
-	, {LLC_CXS("basi6a08.png"), LLC_CXS("basn6a08.png"), ::llc::COLOR_TYPE_RGBA				,  8}
-	, {LLC_CXS("basi6a16.png"), LLC_CXS("basn6a16.png"), ::llc::COLOR_TYPE_RGBA				, 16}
+	{ {"basi0g01.png", "basn0g01.png", ::llc::COLOR_TYPE_GRAYSCALE		,  1}
+	, {"basi0g02.png", "basn0g02.png", ::llc::COLOR_TYPE_GRAYSCALE		,  2}
+	, {"basi0g04.png", "basn0g04.png", ::llc::COLOR_TYPE_GRAYSCALE		,  4}
+	, {"basi0g08.png", "basn0g08.png", ::llc::COLOR_TYPE_GRAYSCALE		,  8}
+	, {"basi0g16.png", "basn0g16.png", ::llc::COLOR_TYPE_GRAYSCALE		, 16}
+	, {"basi2c08.png", "basn2c08.png", ::llc::COLOR_TYPE_RGB				,  8}
+	, {"basi2c16.png", "basn2c16.png", ::llc::COLOR_TYPE_RGB				, 16}
+	, {"basi3p01.png", "basn3p01.png", ::llc::COLOR_TYPE_PALETTE			,  1}
+	, {"basi3p02.png", "basn3p02.png", ::llc::COLOR_TYPE_PALETTE			,  2}
+	, {"basi3p04.png", "basn3p04.png", ::llc::COLOR_TYPE_PALETTE			,  4}
+	, {"basi3p08.png", "basn3p08.png", ::llc::COLOR_TYPE_PALETTE			,  8}
+	, {"basi4a08.png", "basn4a08.png", ::llc::COLOR_TYPE_GRAYSCALE_ALPHA	,  8}
+	, {"basi4a16.png", "basn4a16.png", ::llc::COLOR_TYPE_GRAYSCALE_ALPHA	, 16}
+	, {"basi6a08.png", "basn6a08.png", ::llc::COLOR_TYPE_RGBA				,  8}
+	, {"basi6a16.png", "basn6a16.png", ::llc::COLOR_TYPE_RGBA				, 16}
 	};
 
 sttc ::llc::err_t testPNGInvalidSource(ATestError & errors) {

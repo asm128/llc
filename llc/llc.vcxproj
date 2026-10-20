@@ -117,6 +117,7 @@
     <ClInclude Include="llc_geometry_buffers.h" />
     <ClInclude Include="llc_geometry_draw.h" />
     <ClInclude Include="llc_font.h" />
+    <ClInclude Include="llc_font_defaults.h" />
     <ClInclude Include="llc_gltf.h" />
     <ClInclude Include="llc_grid_color.h" />
     <ClInclude Include="llc_gui_control.h" />

@@ -285,15 +285,15 @@ sttc ::llc::err_t testPodStringAppend(ATestError & errors) {
 	::llc::asc_t text = {'s', 'e', 'e', 'd'};
 	::llc::err_t result = text.append_string("ab");
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, result != 2 , "Array string append written:%i, expected:2.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, text, {LLC_CXS("seedab")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, text, ::llc::vcst_t{"seedab"}));
 
 	result = text.append_string(::llc::vcst_t{"xyz"});
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, result != 3 , "View string append written:%i, expected:3.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, text, {LLC_CXS("seedabxyz")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, text, ::llc::vcst_t{"seedabxyz"}));
 
 	result = text.append_string('!');
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, result != 1 , "Element string append written:%i, expected:1.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, text, {LLC_CXS("seedabxyz!")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, text, ::llc::vcst_t{"seedabxyz!"}));
 
 	::llc::function<::llc::err_t(::llc::asc_t&)> formatter = [](::llc::asc_t & output) {
 		if_fail_fe(output.append_string("ok"));
@@ -301,32 +301,32 @@ sttc ::llc::err_t testPodStringAppend(ATestError & errors) {
 	};
 	result = text.append_string(formatter);
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_FUNCTION, result != 2 , "Function string append written:%i, expected:2.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_FUNCTION, text, {LLC_CXS("seedabxyz!ok")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_FUNCTION, text, ::llc::vcst_t{"seedabxyz!ok"}));
 
 	::llc::function<::llc::err_t(::llc::asc_t&)> emptyFormatter;
 	result = text.append_string(emptyFormatter);
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_EMPTY_FUNCTION, result , "Empty function string append written:%i, expected:0.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_EMPTY_FUNCTION, text, {LLC_CXS("seedabxyz!ok")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_EMPTY_FUNCTION, text, ::llc::vcst_t{"seedabxyz!ok"}));
 
 	::llc::vcst_t strings[] = {"12", "", "345"};
 	result = text.append_strings(::llc::view<cnst ::llc::vcst_t>{strings});
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRINGS, result != 5 , "Multiple string append written:%i, expected:5.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRINGS, text, {LLC_CXS("seedabxyz!ok12345")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRINGS, text, ::llc::vcst_t{"seedabxyz!ok12345"}));
 
-	::llc::string joined = LLC_CXS("seed:");
+	::llc::string joined = "seed:";
 	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{});
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, result , "Empty join written:%i, expected:0.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, joined, {LLC_CXS("seed:")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, joined, ::llc::vcst_t{"seed:"}));
 
-	cnst ::llc::vcst_t single[] = {LLC_CXS("one")};
+	cnst ::llc::vcst_t single[] = {"one"};
 	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{single});
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_JOIN_SINGLE, result != 3 , "Single join written:%i, expected:3.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_SINGLE, joined, {LLC_CXS("seed:one")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_SINGLE, joined, ::llc::vcst_t{"seed:one"}));
 
-	cnst ::llc::vcst_t multiple[] = {LLC_CXS(""), LLC_CXS("two"), LLC_CXS("")};
+	cnst ::llc::vcst_t multiple[] = {"", "two", ""};
 	result = ::llc::join(joined, '|', ::llc::view<cnst ::llc::vcst_t>{multiple});
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, result != 5 , "Multiple join written:%i, expected:5.", result );
-	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, joined, {LLC_CXS("seed:one|two|")}));
+	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_MULTIPLE, joined, ::llc::vcst_t{"seed:one|two|"}));
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(text) , "String append terminator:%i, expected:0.", text.begin()[text.size()] );
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_TERMINATOR, podTerminatorMismatch(joined) , "Joined string terminator:%i, expected:0.", joined.begin()[joined.size()] );
 	rtrn 0;

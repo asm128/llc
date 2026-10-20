@@ -15,8 +15,8 @@
 
 LLC_USING_TYPEINT();
 
-stxp ::llc::vcst_c	HEX_DIGITS_UPPER	= LLC_CXS("0123456789ABCDEF");
-stxp ::llc::vcst_c	HEX_DIGITS_LOWER	= LLC_CXS("0123456789abcdef");
+stxp ::llc::vcst_c	HEX_DIGITS_UPPER	= "0123456789ABCDEF";
+stxp ::llc::vcst_c	HEX_DIGITS_LOWER	= "0123456789abcdef";
 
 llc::err_t			llc::saltDataSalt				(vcu0_c & binary, ::llc::au0_t & salted)				{
 	llc_necs(salted.resize(binary.size() * 2));

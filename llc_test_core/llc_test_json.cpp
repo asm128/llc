@@ -147,23 +147,23 @@ sttc ::llc::err_t testJSONDocument
 }
 
 sttc ::llc::err_t testJSONValidDocuments(ATestError & errors) {
-	if_fail_fe(testJSONDocument(errors, LLC_CXS("true"), LLC_CXS("true"), ::llc::JSON_TYPE_BOOLEAN));
-	if_fail_fe(testJSONDocument(errors, LLC_CXS("-42"), LLC_CXS("-42"), ::llc::JSON_TYPE_INTEGER));
-	if_fail_fe(testJSONDocument(errors, LLC_CXS("12.5"), LLC_CXS("12.5"), ::llc::JSON_TYPE_DECIMAL));
-	if_fail_fe(testJSONDocument(errors, LLC_CXS("\"text\""), LLC_CXS("\"text\""), ::llc::JSON_TYPE_STRING));
-	if_fail_fe(testJSONDocument(errors, LLC_CXS("[]"), LLC_CXS("[]"), ::llc::JSON_TYPE_ARRAY));
-	if_fail_fe(testJSONDocument(errors, LLC_CXS("{}"), LLC_CXS("{}"), ::llc::JSON_TYPE_OBJECT));
-	if_fail_fe(testJSONDocument(errors, LLC_CXS("[1,true,null,\"x\"]"), LLC_CXS("[1,true,null,\"x\"]"), ::llc::JSON_TYPE_ARRAY));
-	if_fail_fe(testJSONDocument(errors, LLC_CXS("{\"name\":\"llc\",\"count\":3,\"enabled\":true}"), LLC_CXS("{\"name\":\"llc\",\"count\":3,\"enabled\":true}"), ::llc::JSON_TYPE_OBJECT));
-	if_fail_fe(testJSONDocument(errors, LLC_CXS(" \n { \"a\" : [ 1, 2 ] } \t"), LLC_CXS("{\"a\":[1,2]}"), ::llc::JSON_TYPE_OBJECT));
+	if_fail_fe(testJSONDocument(errors, "true", "true", ::llc::JSON_TYPE_BOOLEAN));
+	if_fail_fe(testJSONDocument(errors, "-42", "-42", ::llc::JSON_TYPE_INTEGER));
+	if_fail_fe(testJSONDocument(errors, "12.5", "12.5", ::llc::JSON_TYPE_DECIMAL));
+	if_fail_fe(testJSONDocument(errors, "\"text\"", "\"text\"", ::llc::JSON_TYPE_STRING));
+	if_fail_fe(testJSONDocument(errors, "[]", "[]", ::llc::JSON_TYPE_ARRAY));
+	if_fail_fe(testJSONDocument(errors, "{}", "{}", ::llc::JSON_TYPE_OBJECT));
+	if_fail_fe(testJSONDocument(errors, "[1,true,null,\"x\"]", "[1,true,null,\"x\"]", ::llc::JSON_TYPE_ARRAY));
+	if_fail_fe(testJSONDocument(errors, "{\"name\":\"llc\",\"count\":3,\"enabled\":true}", "{\"name\":\"llc\",\"count\":3,\"enabled\":true}", ::llc::JSON_TYPE_OBJECT));
+	if_fail_fe(testJSONDocument(errors, " \n { \"a\" : [ 1, 2 ] } \t", "{\"a\":[1,2]}", ::llc::JSON_TYPE_OBJECT));
 
 	cnst ::llc::sc_t countedInput[] = {'t', 'r', 'u', 'e'};
-	rtrn testJSONDocument(errors, {countedInput}, LLC_CXS("true"), ::llc::JSON_TYPE_BOOLEAN, JSON_READER_TEST_RESULT_COUNTED_INPUT);
+	rtrn testJSONDocument(errors, {countedInput}, "true", ::llc::JSON_TYPE_BOOLEAN, JSON_READER_TEST_RESULT_COUNTED_INPUT);
 }
 
 sttc ::llc::err_t testJSONReset(ATestError & errors) {
 	::llc::SJSONReader reader;
-	if_fail_fe(::llc::jsonParse(reader, LLC_CXS("{\"values\":[1,2,3],\"flag\":true}")));
+	if_fail_fe(::llc::jsonParse(reader, "{\"values\":[1,2,3],\"flag\":true}"));
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_RESET_ROOT_PRESENT, 0 == reader.Tree.size() , "Cached tree nodes:%u, expected at least one." , reader.Tree.size() );
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_RESET_ROOT_REFERENCE, 0 == reader.Tree[0].get_ref() , "Cached root reference:%p, expected non-null." , reader.Tree[0].get_ref() );
 	::llc::u2_c treeSize = reader.Tree.size();
@@ -193,7 +193,7 @@ sttc ::llc::err_t testJSONReset(ATestError & errors) {
 	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_SEPARATOR, reader.StateRead.ExpectingSeparator , "Expecting separator after reset:%u." , (::llc::u2_t)reader.StateRead.ExpectingSeparator );
 	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_DONE, reader.StateRead.DoneReading , "Done reading after reset:%u." , (::llc::u2_t)reader.StateRead.DoneReading );
 
-	::llc::vcst_t input = LLC_CXS("{\"value\":-2}");
+	::llc::vcst_t input = "{\"value\":-2}";
 	if_fail_fe(::llc::jsonParse(reader, input));
 	cnst ::llc::u2_t structureFailures = testErrorCount(errors);
 	if_fail_fe(testJSONStructure(errors, reader, input));
@@ -207,7 +207,7 @@ sttc ::llc::err_t testJSONReset(ATestError & errors) {
 
 sttc ::llc::err_t testJSONSignedInteger(ATestError & errors) {
 	::llc::SJSONReader reader;
-	if_fail_fe(::llc::jsonParse(reader, LLC_CXS("-42")));
+	if_fail_fe(::llc::jsonParse(reader, "-42"));
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_INTEGER_ROOT_PRESENT, 0 == reader.Tree.size() , "Missing signed-integer root. tree nodes:%u." , reader.Tree.size() );
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_INTEGER_ROOT_REFERENCE, 0 == reader.Tree[0].get_ref() , "Signed-integer root reference:%p, expected non-null." , reader.Tree[0].get_ref() );
 	cnst ::llc::pobj<::llc::SJSONNode> & treeRoot = reader.Tree[0];
@@ -250,7 +250,7 @@ sttc ::llc::err_t testJSONOptions(ATestError & errors) {
 
 	::llc::SJSONReader reader;
 	cnst ::llc::SJSONParseOptions noOutputs = ::llc::JSON_PARSE_OPTION_FINAL_INPUT;
-	cnst ::llc::err_t parseResult = ::llc::jsonParse(reader, LLC_CXS("{}"), noOutputs);
+	cnst ::llc::err_t parseResult = ::llc::jsonParse(reader, "{}", noOutputs);
 	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_PARSE, ::llc::failed(parseResult) , "No-output parse result:%i." , parseResult );
 	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_VIEW, reader.View.size() != 1 , "No-output view count:%u, expected:1." , reader.View.size() );
 	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_OPTION_OUTPUT_TREE, reader.Tree.size() , "No-output tree count:%u, expected:0." , reader.Tree.size() );

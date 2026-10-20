@@ -41,8 +41,8 @@ sttc ::llc::err_t testKeyValCombination
 
 sttc ::llc::err_t testKeyValTypes(ATestError & errors) {
 	if_fail_fe(::testKeyValCombination(errors, ::llc::u0_t{1}, ::llc::u0_t{2}, ::llc::u0_t{3}, ::llc::u3_t{11}, ::llc::u3_t{22}));
-	if_fail_fe(::testKeyValCombination(errors, ::llc::s3_t{-7}, ::llc::s3_t{9}, ::llc::s3_t{0}, LLC_CXS("negative"), LLC_CXS("positive")));
-	if_fail_fe(::testKeyValCombination(errors, LLC_CXS("alpha"), LLC_CXS("beta"), LLC_CXS("missing")
+	if_fail_fe((::testKeyValCombination<::llc::s3_t, ::llc::vcst_t>(errors, ::llc::s3_t{-7}, ::llc::s3_t{9}, ::llc::s3_t{0}, "negative", "positive")));
+	if_fail_fe(::testKeyValCombination<::llc::vcst_t>(errors, "alpha", "beta", "missing"
 		, SKeyValTestValue{1, 11}, SKeyValTestValue{2, 22}
 		));
 	if_fail_fe(::testKeyValCombination(errors, SKeyValTestKey{0x1234}, SKeyValTestKey{0x5678}, SKeyValTestKey{0x9ABC}, ::llc::u0_t{1}, ::llc::u0_t{2}));

@@ -10,11 +10,11 @@
 
 namespace llc
 {
-	//stxp	vcst_c		UNDEFINED_ENUM_TYPE_STR					= LLC_CXS("Undefined enumeration type.");
-	stxp	vcst_c		INVALID_ENUM_VALUE_STR		= LLC_CXS("INVALID");
-	stxp	vcst_c		UNDEFINED_ENUM_VALUE_STR	= LLC_CXS("Undefined enumeration value.");
-	stxp	vcst_c		UNRESOLVED_ENUM_LABEL_STR	= LLC_CXS("Unresolved enumeration value name.");
-	stxp	vcst_c		UNRESOLVED_ENUM_NAME_STR	= LLC_CXS("Enum definition name not set.");
+	//stxp	vcst_c		UNDEFINED_ENUM_TYPE_STR					= "Undefined enumeration type.";
+	stxp	vcst_c		INVALID_ENUM_VALUE_STR		= "INVALID";
+	stxp	vcst_c		UNDEFINED_ENUM_VALUE_STR	= "Undefined enumeration value.";
+	stxp	vcst_c		UNRESOLVED_ENUM_LABEL_STR	= "Unresolved enumeration value name.";
+	stxp	vcst_c		UNRESOLVED_ENUM_NAME_STR	= "Enum definition name not set.";
 
 	// This tplt is intended to store the name of an enumeration, the values of such enumeration and a string representing each value.
 	// The implementation separates names from values for improving search speed by reducing the memory usage when performing searches for names/values.
@@ -284,7 +284,7 @@ namespace llc
 // Defines the enumeration type, the invalid value (-1) and the flag operators
 #define GDEFINE_ENUM_TYPE(EnumName, IntType)																							\
 	enum EnumName : IntType {};																											\
-	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(LLC_CXS(#EnumName));					\
+	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(#EnumName);					\
 	sinx	EnumName		oper &	(EnumName  a, EnumName b)	noexcept	{ return (EnumName)		(a & (IntType)b);				}	\
 	sinx	EnumName		oper ~	(EnumName  a)				noexcept	{ return (EnumName)		(~(IntType)a);					}	\
 	sinx	EnumName		oper ^	(EnumName  a, EnumName b)	noexcept	{ return (EnumName)		(a ^ (IntType)b);				}	\
@@ -299,7 +299,7 @@ namespace llc
 		inline	oper		IntType&		()			nxpt	{ return Value; }															\
 		inxp	oper		const IntType&	()	const	nxpt	{ return Value; }															\
 	};																																		\
-	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(LLC_CXS(#EnumName));								\
+	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(#EnumName);								\
 	sinx	EnumName		oper &	(EnumName  a, EnumName b)	noexcept	{ return {a & (IntType)b};				}	\
 	sinx	EnumName		oper ~	(EnumName  a)				noexcept	{ return {~(IntType)a};					}	\
 	sinx	EnumName		oper ^	(EnumName  a, EnumName b)	noexcept	{ return {a ^ (IntType)b};				}	\
@@ -324,17 +324,17 @@ namespace llc
 #else
 #	define GDEFINE_ENUM_VALUE(EnumName, ValueName, EnumValue)							\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), LLC_CXS(#ValueName))
+	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName)
 
-#	define GDEFINE_ENUM_AVALUE(EnumName, ValueName) static	const EnumName	EnumName##_##ValueName	= (EnumName)::llc::genum_value_auto<EnumName>(LLC_CXS(#ValueName))
+#	define GDEFINE_ENUM_AVALUE(EnumName, ValueName) static	const EnumName	EnumName##_##ValueName	= (EnumName)::llc::genum_value_auto<EnumName>(#ValueName)
 
 #	define GDEFINE_ENUM_VALUED(EnumName, ValueName, EnumValue, EnumDescription)				\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), LLC_CXS(#ValueName), LLC_CXS(EnumDescription))
+	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName, EnumDescription)
 
 #	define GDEFINE_ENUM_VALTD(EnumName, ValueName, EnumValue, EnumTitle, EnumDescription)				\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), LLC_CXS(#ValueName), LLC_CXS(EnumTitle), LLC_CXS(EnumDescription))
+	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName, EnumTitle, EnumDescription)
 #endif
 
 #define GDEFINE_FLAG_TYPE		GDEFINE_ENUM_TYPE
@@ -363,7 +363,7 @@ namespace llc
 #define LLC_ENUM_BEGIN(EnumName, IntType)																							\
 	struct EnumName {																												\
 		IntType									Value; 																				\
-		stxp	vcst_c							Name	= LLC_CXS(#EnumName);														\
+		stxp	vcst_c							Name	= #EnumName;														\
 																																	\
 		inxp									EnumName(IntType value = -1)		: Value(value) {}								\
 																																	\
@@ -388,7 +388,7 @@ namespace llc
 		}																															\
 		stxp 	::llc::SLLCEnumValue<IntType> 	Values	[]	= {
 
-#define LLC_ENUM_VALUE(ValueName, IntegerValue) { IntegerValue, LLC_CXS(#ValueName) },
+#define LLC_ENUM_VALUE(ValueName, IntegerValue) { IntegerValue, #ValueName },
 
 #define LLC_ENUM_END() \
 			};	\

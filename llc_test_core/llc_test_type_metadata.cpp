@@ -136,9 +136,9 @@ sttc ::llc::err_t testDataTypeConstants(ATestError & errors) {
 }
 
 sttc ::llc::err_t testTypeIdentifier(ATestError & errors) {
-	cnst ::llc::STypeIdentifier type = {LLC_CXS("llc"), LLC_CXS("u2_t")}, equal = {LLC_CXS("llc"), LLC_CXS("u2_t")}, otherNamespace = {LLC_CXS("std"), LLC_CXS("u2_t")}, otherName = {LLC_CXS("llc"), LLC_CXS("u3_t")};
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAMESPACE, type.NameSpace != LLC_CXS("llc"), "Namespace:'%.*s'.", LLC_VIEW_ARGS(type.NameSpace));
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAME, type.Name != LLC_CXS("u2_t"), "Name:'%.*s'.", LLC_VIEW_ARGS(type.Name));
+	cnst ::llc::STypeIdentifier type = {"llc", "u2_t"}, equal = {"llc", "u2_t"}, otherNamespace = {"std", "u2_t"}, otherName = {"llc", "u3_t"};
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAMESPACE, type.NameSpace != "llc", "Namespace:'%.*s'.", LLC_VIEW_ARGS(type.NameSpace));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAME, type.Name != "u2_t", "Name:'%.*s'.", LLC_VIEW_ARGS(type.Name));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_TERMINATOR, type.NameSpace.begin()[type.NameSpace.size()], "Namespace terminator:%i.", type.NameSpace.begin()[type.NameSpace.size()]);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_TERMINATOR, type.Name.begin()[type.Name.size()], "Name terminator:%i.", type.Name.begin()[type.Name.size()]);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_EQUALITY, false == (type == equal), "%s", "Equal identifiers compared different.");
@@ -164,9 +164,9 @@ sttc ::llc::err_t testMemberRegistry(ATestError & errors) {
 	LLC_TEST_REQUIRE(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_DESCRIPTIONS, 2 != registry.get_descriptions().size());
 	LLC_TEST_REQUIRE(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_DATA_TYPES, 2 != registry.get_data_type_ids().size());
 	LLC_TEST_REQUIRE(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_SIZES, 2 != registry.get_member_sizes().size());
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[0].NameSpace != LLC_CXS("::llc"), "Namespace:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[0].NameSpace));
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[0].Name != LLC_CXS("u0_t"), "First type:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[0].Name));
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[1].Name != LLC_CXS("f2_t"), "Second type:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[1].Name));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[0].NameSpace != "::llc", "Namespace:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[0].NameSpace));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[0].Name != "u0_t", "First type:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[0].Name));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[1].Name != "f2_t", "Second type:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[1].Name));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_NAMES, registry.get_names()[0] != ::llc::label{"Index"}, "First name:'%.*s'.", LLC_VIEW_ARGS(registry.get_names()[0]));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_NAMES, registry.get_names()[1] != ::llc::label{"Weight"}, "Second name:'%.*s'.", LLC_VIEW_ARGS(registry.get_names()[1]));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_DISPLAY_NAMES, registry.get_display_names()[0] != ::llc::label{"Index display"}, "First display:'%.*s'.", LLC_VIEW_ARGS(registry.get_display_names()[0]));
@@ -203,28 +203,28 @@ sttc ::llc::err_t testPODValue(ATestError & errors, ::llc::SPODDefinition & defi
 
 sttc ::llc::err_t testPODDefinition(ATestError & errors) {
 	::llc::SPODDefinition definition = {};
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("bool"), ::llc::b8_t{true}, ::llc::DATA_TYPE_BOOL));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("u8"), ::llc::u0_t{0xA5}, ::llc::DATA_TYPE_UINT8));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("u16"), ::llc::u1_t{0xA55A}, ::llc::DATA_TYPE_UINT16));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("u32"), ::llc::u2_t{0xA55AA55A}, ::llc::DATA_TYPE_UINT32));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("u64"), ::llc::u3_t{0xA55AA55AA55AA55A}, ::llc::DATA_TYPE_UINT64));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("char"), ::llc::sc_t{'z'}, ::llc::DATA_TYPE_INT8));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("i8"), ::llc::s0_t{-12}, ::llc::DATA_TYPE_INT8));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("i16"), ::llc::s1_t{-1234}, ::llc::DATA_TYPE_INT16));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("i32"), ::llc::s2_t{-1234567}, ::llc::DATA_TYPE_INT32));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("i64"), ::llc::s3_t{-1234567890123LL}, ::llc::DATA_TYPE_INT64));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("f32"), ::llc::f2_t{0.25f}, ::llc::DATA_TYPE_FLOAT32));
-	if_fail_fe(::testPODValue(errors, definition, LLC_CXS("f64"), ::llc::f3_t{-0.5}, ::llc::DATA_TYPE_FLOAT64));
+	if_fail_fe(::testPODValue(errors, definition, "bool", ::llc::b8_t{true}, ::llc::DATA_TYPE_BOOL));
+	if_fail_fe(::testPODValue(errors, definition, "u8", ::llc::u0_t{0xA5}, ::llc::DATA_TYPE_UINT8));
+	if_fail_fe(::testPODValue(errors, definition, "u16", ::llc::u1_t{0xA55A}, ::llc::DATA_TYPE_UINT16));
+	if_fail_fe(::testPODValue(errors, definition, "u32", ::llc::u2_t{0xA55AA55A}, ::llc::DATA_TYPE_UINT32));
+	if_fail_fe(::testPODValue(errors, definition, "u64", ::llc::u3_t{0xA55AA55AA55AA55A}, ::llc::DATA_TYPE_UINT64));
+	if_fail_fe(::testPODValue(errors, definition, "char", ::llc::sc_t{'z'}, ::llc::DATA_TYPE_INT8));
+	if_fail_fe(::testPODValue(errors, definition, "i8", ::llc::s0_t{-12}, ::llc::DATA_TYPE_INT8));
+	if_fail_fe(::testPODValue(errors, definition, "i16", ::llc::s1_t{-1234}, ::llc::DATA_TYPE_INT16));
+	if_fail_fe(::testPODValue(errors, definition, "i32", ::llc::s2_t{-1234567}, ::llc::DATA_TYPE_INT32));
+	if_fail_fe(::testPODValue(errors, definition, "i64", ::llc::s3_t{-1234567890123LL}, ::llc::DATA_TYPE_INT64));
+	if_fail_fe(::testPODValue(errors, definition, "f32", ::llc::f2_t{0.25f}, ::llc::DATA_TYPE_FLOAT32));
+	if_fail_fe(::testPODValue(errors, definition, "f64", ::llc::f3_t{-0.5}, ::llc::DATA_TYPE_FLOAT64));
 
 	::llc::sc_t mutableName[] = {'o', 'w', 'n', 'e', 'd', 0};
 	cnst ::llc::vcst_t mutableNameView = {mutableName, 5};
 	cnst ::llc::err_t ownedResult = definition.push_any(mutableNameView, ::llc::u0_t{7});
 	LLC_TEST_REQUIREF(errors, TYPE_METADATA_TEST_RESULT_POD_PUSH_RESULT, ::llc::failed(ownedResult), "Owned-label result:%i.", ownedResult);
 	mutableName[0] = 'x';
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_LABEL_OWNERSHIP, false == (definition.Labels[ownedResult] == LLC_CXS("owned")), "Stored:'%.*s'.", LLC_VIEW_ARGS(definition.Labels[ownedResult]));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_LABEL_OWNERSHIP, false == (definition.Labels[ownedResult] == "owned"), "Stored:'%.*s'.", LLC_VIEW_ARGS(definition.Labels[ownedResult]));
 
 	cnst ::llc::u2_t memberCountBeforeFailure = definition.Labels.size(), byteCountBeforeFailure = definition.DefaultData.size();
-	cnst ::llc::err_t duplicateResult = ::typeMetadataExpectedFailure([&]() { rtrn definition.push_any(LLC_CXS("u8"), ::llc::u0_t{9}); });
+	cnst ::llc::err_t duplicateResult = ::typeMetadataExpectedFailure([&]() { rtrn definition.push_any("u8", ::llc::u0_t{9}); });
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_DUPLICATE_REJECTION, false == ::llc::failed(duplicateResult), "Result:%i.", duplicateResult);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_DUPLICATE_STATE, memberCountBeforeFailure != definition.Labels.size(), "Labels:%u expected:%u.", definition.Labels.size(), memberCountBeforeFailure);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_DUPLICATE_STATE, memberCountBeforeFailure != definition.Types.size(), "Types:%u expected:%u.", definition.Types.size(), memberCountBeforeFailure);
@@ -233,7 +233,7 @@ sttc ::llc::err_t testPODDefinition(ATestError & errors) {
 
 	cnst ::llc::u0_t shortDefault[] = {0x11};
 	cnst ::llc::vcu0_t shortDefaultView = shortDefault;
-	cnst ::llc::err_t widthResult = ::typeMetadataExpectedFailure([&]() { rtrn definition.push_any(::llc::DATA_TYPE_UINT32, LLC_CXS("bad width"), shortDefaultView); });
+	cnst ::llc::err_t widthResult = ::typeMetadataExpectedFailure([&]() { rtrn definition.push_any(::llc::DATA_TYPE_UINT32, "bad width", shortDefaultView); });
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_WIDTH_REJECTION, false == ::llc::failed(widthResult), "Result:%i.", widthResult);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_WIDTH_STATE, memberCountBeforeFailure != definition.Labels.size(), "Labels:%u expected:%u.", definition.Labels.size(), memberCountBeforeFailure);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_WIDTH_STATE, memberCountBeforeFailure != definition.Types.size(), "Types:%u expected:%u.", definition.Types.size(), memberCountBeforeFailure);
@@ -242,22 +242,22 @@ sttc ::llc::err_t testPODDefinition(ATestError & errors) {
 
 	cnst ::llc::u0_t packedDefault[] = {0xAA, 0x55};
 	cnst ::llc::vcu0_t packedDefaultView = packedDefault;
-	cnst ::llc::err_t packedResult = definition.push_any(::llc::DATA_TYPE_UINT5_3, LLC_CXS("packed"), packedDefaultView);
+	cnst ::llc::err_t packedResult = definition.push_any(::llc::DATA_TYPE_UINT5_3, "packed", packedDefaultView);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_PACKED_WIDTH, ::llc::failed(packedResult), "Result:%i.", packedResult);
 	cnst ::llc::DATA_TYPE paddedType = ::llc::SDataTypeID{5, 3, false, false, false, true};
 	cnst ::llc::u0_t paddedDefault[] = {0x01, 0x02, 0x03};
 	cnst ::llc::vcu0_t paddedDefaultView = paddedDefault;
-	cnst ::llc::err_t paddedResult = definition.push_any(paddedType, LLC_CXS("padded"), paddedDefaultView);
+	cnst ::llc::err_t paddedResult = definition.push_any(paddedType, "padded", paddedDefaultView);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_PADDED_WIDTH, ::llc::failed(paddedResult), "Result:%i.", paddedResult);
 
 	::llc::SPODDefinition largeDefinition = {};
 	::llc::au0_t arbitraryDefault = {};
 	if_fail_fe(arbitraryDefault.resize(70000, 0x5A));
 	cnst ::llc::vcu0_t arbitraryDefaultView = arbitraryDefault;
-	cnst ::llc::err_t customResult = largeDefinition.push_any(::llc::DATA_TYPE_CUSTOM, LLC_CXS("custom"), arbitraryDefaultView);
+	cnst ::llc::err_t customResult = largeDefinition.push_any(::llc::DATA_TYPE_CUSTOM, "custom", arbitraryDefaultView);
 	LLC_TEST_REQUIREF(errors, TYPE_METADATA_TEST_RESULT_POD_NON_UNIFORM, ::llc::failed(customResult), "Result:%i.", customResult);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_NON_UNIFORM, 70000 != largeDefinition.DefaultData.size(), "Bytes:%u expected:70000.", largeDefinition.DefaultData.size());
-	cnst ::llc::err_t followingResult = largeDefinition.push_any(LLC_CXS("following"), ::llc::u0_t{3});
+	cnst ::llc::err_t followingResult = largeDefinition.push_any("following", ::llc::u0_t{3});
 	LLC_TEST_REQUIREF(errors, TYPE_METADATA_TEST_RESULT_POD_LARGE_OFFSET, ::llc::failed(followingResult), "Result:%i.", followingResult);
 	LLC_TEST_REQUIRE(errors, TYPE_METADATA_TEST_RESULT_POD_LARGE_OFFSET, 2 != largeDefinition.Offsets.size());
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_LARGE_OFFSET, 70000 != largeDefinition.Offsets[1], "Offset:%u expected:70000.", largeDefinition.Offsets[1]);

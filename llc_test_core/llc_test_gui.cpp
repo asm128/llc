@@ -129,7 +129,7 @@ sttc ::llc::err_t testGUITextFontCreate(::llc::po<::llc::SRasterFont> & font, ::
 }
 
 sttc ::llc::err_t testGUITextCore(ATestError & errors) {
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_WIDTH, ::llc::textLineCalcWidth({3, 5}, LLC_CXS("TEXT")) != 12);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_WIDTH, ::llc::textLineCalcWidth({3, 5}, "TEXT") != 12);
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_WIDTH, ::llc::textLineCalcWidth({3, 5}, {}) != 0);
 	::llc::po<::llc::SRasterFont> font = {};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_RASTER, 0 > ::testGUITextFontCreate(font, {2, 2}), "%s", "Font creation failed.");
@@ -138,13 +138,13 @@ sttc ::llc::err_t testGUITextCore(ATestError & errors) {
 	font->Texture.View[(cell.y + 0U) * font->Texture.Pitch + cell.x + 1U] = true;
 	font->Texture.View[(cell.y + 1U) * font->Texture.Pitch + cell.x + 0U] = true;
 	::llc::apod<::llc::n2u1_t> coordinates = {{99, 98}};
-	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_RASTER, 0 > ::llc::textLineRaster({8, 6}, font->CharSize, {{2, 1}, {4, 2}}, font->Texture, LLC_CXS("AA"), coordinates), "%s", "Raster failed.");
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_RASTER, 0 > ::llc::textLineRaster({8, 6}, font->CharSize, {{2, 1}, {4, 2}}, font->Texture, "AA", coordinates), "%s", "Raster failed.");
 	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_RASTER, coordinates.size() != 5, "Coordinate count:%u expected:5.", coordinates.size());
 	stxp ::llc::n2u1_t expected[] = {{99, 98}, {3, 1}, {2, 2}, {5, 1}, {4, 2}};
 	for(::llc::u2_t iCoord = 0; iCoord < ::llc::size(expected) && iCoord < coordinates.size(); ++iCoord)
 		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_RASTER, coordinates[iCoord] != expected[iCoord], "Coordinate:%u actual:{%u,%u} expected:{%u,%u}.", iCoord, coordinates[iCoord].x, coordinates[iCoord].y, expected[iCoord].x, expected[iCoord].y);
 	coordinates.clear();
-	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_CLIP, 0 > ::llc::textLineRaster({3, 2}, font->CharSize, {{-1, -1}, {4, 2}}, font->Texture, LLC_CXS("AA"), coordinates), "%s", "Clipped raster failed.");
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_CLIP, 0 > ::llc::textLineRaster({3, 2}, font->CharSize, {{-1, -1}, {4, 2}}, font->Texture, "AA", coordinates), "%s", "Clipped raster failed.");
 	cnst ::llc::n2u1_t clipped = {1, 0};
 	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_CLIP, coordinates.size() != 1 || coordinates[0] != clipped, "Coordinate count:%u.", coordinates.size());
 	rtrn 0;
@@ -285,7 +285,7 @@ sttc ::llc::err_t testGUIControlLifecycle(ATestError & errors) {
 	cnst ::llc::cid_t reusedParent = ::llc::controlCreate(gui);
 	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_REUSE, reusedParent != parentNew, "Reused:%i expected:%i.", reusedParent, parentNew);
 	gui.Controls.Placement[reusedParent].Area = {{7, 9}, {31, 27}};
-	gui.Controls.Text[reusedParent].Text = LLC_CXS("STALE");
+	gui.Controls.Text[reusedParent].Text = "STALE";
 	gui.Controls.Draw[reusedParent].FrameOut = true;
 	gui.Controls.SetSelected(reusedParent, true);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DELETE, 0 > ::llc::controlDelete(gui, reusedParent, true), "%s", "Prepared-slot delete failed.");
@@ -629,7 +629,7 @@ sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
 	gui.Controls.Draw[control].NoClient = gui.Controls.Draw[control].NoBorder = true;
 	gui.Controls.Placement[control].Area = {{2, 2}, {10, 8}};
 	gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
-	gui.Controls.Text[control].Text = LLC_CXS("A");
+	gui.Controls.Text[control].Text = "A";
 	::llc::img8bgra target = {};
 	cnst ::llc::n2u2_t targetSize = {16, 12};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_PALETTE, 0 > target.resize(targetSize), "%s", "Target allocation failed.");
@@ -862,8 +862,8 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	LLC_TEST_REQUIREF	(errors, GUI_TEST_RESULT_INPUTBOX, 0 > ::llc::inputBoxCreate(inputBox, gui), "%s", "Input box creation failed.");
 	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, gui.Controls.States[inputBox.IdText].Parent != inputBox.IdRoot || gui.Controls.States[inputBox.VirtualKeyboard.IdRoot].Parent != inputBox.IdRoot);
 	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, false == gui.Controls.IsHidden(inputBox.IdRoot));
-	LLC_TEST_REQUIREF	(errors, GUI_TEST_RESULT_INPUTBOX, 0 > inputBox.SetText(gui, LLC_CXS("TEST")), "%s", "Input text failed.");
-	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, inputBox.Text != LLC_CXS("TEST"));
+	LLC_TEST_REQUIREF	(errors, GUI_TEST_RESULT_INPUTBOX, 0 > inputBox.SetText(gui, "TEST"), "%s", "Input text failed.");
+	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, inputBox.Text != "TEST");
 	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, 1 != inputBox.Edit(gui, true) || gui.Controls.IsHidden(inputBox.IdRoot));
 
 	::llc::SViewport	viewport = {};

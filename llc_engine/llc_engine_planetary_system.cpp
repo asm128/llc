@@ -75,7 +75,7 @@ static	::llc::error_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::
 
 ::llc::error_t			llc::planetarySystemCreateEntities(const ::llc::SPlanetarySystem & solarSystem, ::llc::SPlanetarySystemEntityMap & entityMap, ::llc::SEngine & engine) {
 	::llc::SPNGData				pngCache				= {};
-	stxp vcst_t					fileFolder				= LLC_CXS("../llc_data/images");
+	stxp vcst_t					fileFolder				= "../llc_data/images";
 	::llc::string				fileName				= {};
 	int32_t						iBackground				= 0;
 

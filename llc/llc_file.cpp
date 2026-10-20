@@ -44,9 +44,9 @@ llc::err_t		llc::with			(vcst_t filepath, vcst_t mode, const llc::function<llc::
 	return result;
 }
 
-stxp llc::vcst_t	LLC_OPEN_MODE_READ		= LLC_CXS("rb");
-stxp llc::vcst_t	LLC_OPEN_MODE_WRITE		= LLC_CXS("wb");
-stxp llc::vcst_t	LLC_OPEN_MODE_APPEND	= LLC_CXS("ab+");
+stxp llc::vcst_t	LLC_OPEN_MODE_READ		= "rb";
+stxp llc::vcst_t	LLC_OPEN_MODE_WRITE		= "wb";
+stxp llc::vcst_t	LLC_OPEN_MODE_APPEND	= "ab+";
 
 #ifdef LLC_ARDUINO
 #	if defined(LLC_ESP32) || defined(LLC_ESP8266)

@@ -44,13 +44,13 @@ sttc ::llc::err_t xmlAttributesParse
 	while(offset < xmlDoc.size()) {
 		if_fail_fe(::xmlSkipSpaces(xmlDoc, offset));
 		if(processingInstruction) {
-			if(::xmlStartsWith(xmlDoc, offset, LLC_CXS("?>"))) {
+			if(::xmlStartsWith(xmlDoc, offset, "?>")) {
 				offset					+= 2;
 				rtrn 0;
 			}
 		}
 		else {
-			if(::xmlStartsWith(xmlDoc, offset, LLC_CXS("/>"))) {
+			if(::xmlStartsWith(xmlDoc, offset, "/>")) {
 				selfClosing				= true;
 				offset					+= 2;
 				rtrn 0;
@@ -98,18 +98,18 @@ sttc ::llc::err_t xmlOpeningName(cnst ::llc::SXMLReader & reader, ::llc::vcst_t 
 sttc ::llc::err_t xmlSpecialParse(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc, ::llc::u2_t iParent, ::llc::u2_t & offset) {
 	cnst ::llc::u2_t iBegin		= offset;
 	::llc::XML_TOKEN type			= ::llc::XML_TOKEN_DOCTYPE;
-	::llc::vcst_t terminator		= LLC_CXS(">");
-	if(::xmlStartsWith(xmlDoc, offset, LLC_CXS("<!--"))) {
+	::llc::vcst_t terminator		= ">";
+	if(::xmlStartsWith(xmlDoc, offset, "<!--")) {
 		type						= ::llc::XML_TOKEN_COMMENT;
-		terminator					= LLC_CXS("-->");
+		terminator					= "-->";
 		offset						+= 4;
 	}
-	else if(::xmlStartsWith(xmlDoc, offset, LLC_CXS("<![CDATA["))) {
+	else if(::xmlStartsWith(xmlDoc, offset, "<![CDATA[")) {
 		type						= ::llc::XML_TOKEN_CDATA;
-		terminator					= LLC_CXS("]]>");
+		terminator					= "]]>";
 		offset						+= 9;
 	}
-	else if(::xmlStartsWith(xmlDoc, offset, LLC_CXS("<!DOCTYPE")))
+	else if(::xmlStartsWith(xmlDoc, offset, "<!DOCTYPE"))
 		offset						+= 9;
 	else
 		rtrn -1;
@@ -202,11 +202,11 @@ llc::err_t llc::xmlParse(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
 				if_fail_fe(::xmlTokenAdd(reader, ::llc::XML_TOKEN_TAG_TEXT, iText, offset - iText, (::llc::s2_t)iCurrentNode));
 			continue;
 		}
-		if(::xmlStartsWith(xmlDoc, offset, LLC_CXS("<!"))) {
+		if(::xmlStartsWith(xmlDoc, offset, "<!")) {
 			if_fail_fef(::xmlSpecialParse(reader, xmlDoc, iCurrentNode, offset), "Invalid XML special token at offset:%u.", offset);
 			continue;
 		}
-		if(::xmlStartsWith(xmlDoc, offset, LLC_CXS("<?"))) {
+		if(::xmlStartsWith(xmlDoc, offset, "<?")) {
 			cnst ::llc::u2_t iBegin	= offset;
 			offset					+= 2;
 			::llc::u2_t iNameEnd		= {};
@@ -220,7 +220,7 @@ llc::err_t llc::xmlParse(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
 			reader.Token[iPI].Range.Count = offset - iBegin;
 			continue;
 		}
-		if(::xmlStartsWith(xmlDoc, offset, LLC_CXS("</"))) {
+		if(::xmlStartsWith(xmlDoc, offset, "</")) {
 			if_true_fef(iCurrentNode == (::llc::u2_t)iDocument, "Closing XML tag without an open node at offset:%u.", offset);
 			cnst ::llc::u2_t iBegin	= offset;
 			offset					+= 2;

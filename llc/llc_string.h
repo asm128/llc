@@ -15,6 +15,10 @@ namespace llc
         using   asc_t  ::Size;
         using   asc_t  ::operator=;
         using   asc_t  ::asc_t;
+        using   asc_t  ::operator==;
+        using   asc_t  ::operator!=;
+        tplN2u bool oper== (sc_c (&other)[N]) cnst { rtrn asc_t::operator==(vcst_t{other}); }
+        tplN2u bool oper!= (sc_c (&other)[N]) cnst { rtrn !operator==(other); }
 
         tplt<size_t buflen>
         inline  string      (sc_c (&other)[buflen])         : asc_t(vcst_t{other})                                  { initialize(); }
@@ -44,6 +48,8 @@ namespace llc
             return Count;
         }
     }; // struct
+    tplN2u inln bool oper== (sc_c (&left)[N], cnst string & right) { rtrn right.operator==(left); }
+    tplN2u inln bool oper!= (sc_c (&left)[N], cnst string & right) { rtrn !right.operator==(left); }
 
 #ifdef LLC_ARDUINO
     ndsi string  str (const IPAddress & s)   { return s.toString(); }

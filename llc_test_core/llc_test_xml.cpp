@@ -62,10 +62,10 @@ sttc ::llc::err_t testXMLDocument
 sttc ::llc::err_t testXMLDocuments(ATestError & errors) {
 	cnst ::llc::sc_t countedInput[] = {'<', 'A', '/', '>'};
 	cnst ::llc::vcst_t documents[] =
-		{ LLC_CXS("<Root/>")
-		, LLC_CXS("<?xml version=\"1.0\"?><Root attribute=\"value\"><Child>text</Child><Child/></Root>")
-		, LLC_CXS("<Root single='quoted'><!--comment--><![CDATA[<raw>]]></Root>")
-		, LLC_CXS("<!DOCTYPE Root><Root/>")
+		{ "<Root/>"
+		, "<?xml version=\"1.0\"?><Root attribute=\"value\"><Child>text</Child><Child/></Root>"
+		, "<Root single='quoted'><!--comment--><![CDATA[<raw>]]></Root>"
+		, "<!DOCTYPE Root><Root/>"
 		};
 	for(::llc::u2_t iDocument = 0; iDocument < ::llc::size(documents); ++iDocument)
 		if_fail_fe(::testXMLDocument(errors, documents[iDocument]));
@@ -74,7 +74,7 @@ sttc ::llc::err_t testXMLDocuments(ATestError & errors) {
 
 sttc ::llc::err_t testXMLFailures(ATestError & errors) {
 	::llc::SXMLReader reader;
-	cnst ::llc::err_t result = ::llc::xmlParse(reader, LLC_CXS("<Root><Child></Root>"));
+	cnst ::llc::err_t result = ::llc::xmlParse(reader, "<Root><Child></Root>");
 	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_CLOSING_TAG, false == ::llc::failed(result), "Mismatched closing tag accepted. result:%i.", result);
 	rtrn 0;
 }

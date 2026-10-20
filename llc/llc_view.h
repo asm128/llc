@@ -303,9 +303,17 @@ namespace llc
 	struct view_string : view<sc_t> {
 		inxp			view_string				()											= dflt;
 		inxp			view_string				(vs0_c & other)						nxpt	: view(other)							{}
-		tplN2u			view_string				(sc_t (&storage)[N])				nxpt	: view(storage)							{ Count = (u2_t)strnlen(storage, (u2_t)N);							}
+		tplN2u	inxp	view_string				(sc_t (&storage)[N])				nxpt	: view(storage)							{
+			for(u2_t i = 0; i < N; ++i)
+				if(0 == storage[i]) { Count = i; break; }
+		}
 		tplN2u			view_string				(sc_t (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
 						view_string				(sc_t * storage, u2_t length)				: view(storage, length)					{ Count = (length == (u2_t)-1) ? (u2_t)strlen(storage) : length;		}
+
+		using view<sc_t>::operator==;
+		using view<sc_t>::operator!=;
+		tplN2u	bool	oper==	(sc_c (&other)[N])	cnst;
+		tplN2u	bool	oper!=	(sc_c (&other)[N])	cnst	{ rtrn !operator==(other); }
 
 		inxp	sc_c*	begin					()	csnx	{ rtrn (Data && Count) ? Data : ""; }
 		inxp	sc_c*	end						()	csnx	{ rtrn (Data && Count) ? Data + Count : begin(); }
@@ -321,24 +329,35 @@ namespace llc
 		inxp			view_const_string		()											: view(0, "") 							{}
 		inxp			view_const_string		(vcs0_c & other)					nxpt	: view(other)							{}
 		tplN2u	inxp	view_const_string		(u2_t length, sc_c (&storage)[N])			: view(length, storage)					{}
-		tplN2u	inxp	view_const_string		(sc_c (&storage)[N])				nxpt	: view(N-1, storage)					{}
+		tplN2u	inxp	view_const_string		(sc_c (&storage)[N])				nxpt	: view(storage)							{
+			for(u2_t i = 0; i < N; ++i)
+				if(0 == storage[i]) { Count = i; break; }
+		}
 		tplN2u			view_const_string		(sc_c (&storage)[N], u2_t length)			: view(storage, length)					{ if(length == (u2_t)-1) Count = (u2_t)strnlen(storage, (u2_t)N);	}
 						view_const_string		(sc_c * storage, u2_t length)				: view(storage ? storage : "", length)	{ if(length == (u2_t)-1) Count = (u2_t)strlen(begin());					}
 		inxp			view_const_string		(vstr_c other)					nxpt	: view(other)							{}
+
+		using view<sc_c>::operator==;
+		using view<sc_c>::operator!=;
+		tplN2u	bool	oper==	(sc_c (&other)[N])	cnst	{ rtrn view<sc_c>::operator==(view_const_string(other)); }
+		tplN2u	bool	oper!=	(sc_c (&other)[N])	cnst	{ rtrn !operator==(other); }
 
 		inxp	sc_c*	begin					()	csnx	{ rtrn (Data && Count) ? Data : ""; }
 		inxp	sc_c*	end						()	csnx	{ rtrn (Data && Count) ? Data + Count : begin(); }
 		ndin	oper	sc_c* 					()  csnx	{ rtrn begin(); }
 	};
+	tplN2u	bool	view_string::oper==	(sc_c (&other)[N])	cnst	{ rtrn view<sc_t>::operator==(view_const_string(other)); }
 	tydf	view_const_string	vcst_t, vcs;
 	tdcs	vcst_t				vcst_c;
+	tplN2u	inln bool	oper==	(sc_c (&left)[N], vstr_c & right)	{ rtrn right.operator==(left); }
+	tplN2u	inln bool	oper!=	(sc_c (&left)[N], vstr_c & right)	{ rtrn !right.operator==(left); }
+	tplN2u	inln bool	oper==	(sc_c (&left)[N], vcst_c & right)	{ rtrn right.operator==(left); }
+	tplN2u	inln bool	oper!=	(sc_c (&left)[N], vcst_c & right)	{ rtrn !right.operator==(left); }
 	tplt<tpnm _tVal>						using kvvcst_t	= kv<vcst_t, _tVal>;
-	// Use this to initialize a constexpr string view from a string literal.
-#define LLC_CXS(constexpr_string_literal) ::llc::vcst_t{::llc::size(constexpr_string_literal) - 1U, constexpr_string_literal}
 #define LLC_VIEW_ARGS(view) (int)view.size(), view.begin() // Parenthesizing the argument does not merely tolerate expressions—it legitimizes and conceals them. Without those parentheses, the macro enforces its intended use.
-	stxp	vcst_t	VCC_NULL		= LLC_CXS("null");
-	stxp	vcst_t	VCC_TRUE		= LLC_CXS("true");
-	stxp	vcst_t	VCC_FALSE		= LLC_CXS("false");
+	stxp	vcst_t	VCC_NULL		= "null";
+	stxp	vcst_t	VCC_TRUE		= "true";
+	stxp	vcst_t	VCC_FALSE		= "false";
 
 	nsix	vcst_t	bool2vcc		(bool b)							{ rtrn b ? VCC_TRUE : VCC_FALSE; }
 	nsix	sc_c*	bool2char		(bool b)							{ rtrn b ? VCC_TRUE.begin() : VCC_FALSE.begin(); }
@@ -356,12 +375,12 @@ namespace llc
 	tplN2usinx		vcst_t	str	(sc_c (&arg)[N])						{ rtrn arg; }
 	sinx			vcst_t	str	(cnst bool arg)							{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
 	//
-	tplTnsix		vcst_t	get_type_namev	()					nxpt	{ rtrn LLC_CXS("unknown"); }
+	tplTnsix		vcst_t	get_type_namev	()					nxpt	{ rtrn "unknown"; }
 	tplTnsix		sc_c*	get_type_namep	()					nxpt	{ rtrn get_type_namev<T>().begin(); }
 
 #define GDEFINE_TYPE_NAME_STR(typeIdentifier)																										\
-			nsix	::llc::vcst_t	get_type_namev					(typeIdentifier &)	nxpt	{ rtrn LLC_CXS(#typeIdentifier); }					\
-	tplt<>	ndix	::llc::vcst_t	get_type_namev<typeIdentifier>	()					nxpt	{ rtrn LLC_CXS(#typeIdentifier); }					\
+			nsix	::llc::vcst_t	get_type_namev					(typeIdentifier &)	nxpt	{ rtrn #typeIdentifier; }					\
+	tplt<>	ndix	::llc::vcst_t	get_type_namev<typeIdentifier>	()					nxpt	{ rtrn #typeIdentifier; }					\
 			nsix	::llc::sc_c*	get_type_namep					(typeIdentifier &)	nxpt	{ rtrn get_type_namev<typeIdentifier>().begin(); }	\
 	tplt<>	ndix	::llc::sc_c*	get_type_namep<typeIdentifier>	()					nxpt	{ rtrn get_type_namev<typeIdentifier>().begin(); }
 
@@ -393,7 +412,7 @@ namespace llc
 	tydf	view<cnst vs	>	vcvs;
 	tydf	view<cnst vcst_t	>	vcvcs;
 
-	stxp	vcst_t		TRIM_CHARACTERS		= LLC_CXS(" \t\b\n\r");
+	stxp	vcst_t		TRIM_CHARACTERS		= " \t\b\n\r";
 
 	err_t			rtrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
 	err_t			ltrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);

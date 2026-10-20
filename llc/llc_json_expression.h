@@ -6,11 +6,11 @@
 
 namespace llc
 {
-	stxp	vcst_c			strEmptyObj				= LLC_CXS("{}");
-	stxp	vcst_c			strEmptyArr				= LLC_CXS("[]");
-	stxp	vcst_c			strNull					= LLC_CXS("null");
-	stxp	vcst_c			strBool		[2]			= {LLC_CXS("false"), LLC_CXS("true")};
-	stxp	vcst_c			strZero					= LLC_CXS("0");
+	stxp	vcst_c			strEmptyObj				= "{}";
+	stxp	vcst_c			strEmptyArr				= "[]";
+	stxp	vcst_c			strNull					= "null";
+	stxp	vcst_c			strBool		[2]			= {"false", "true"};
+	stxp	vcst_c			strZero					= "0";
 	struct SEvaluationStepResult {
 		u2_t					IndexRootJSONNode		;
 		s2_t					IndexJSONResult			;

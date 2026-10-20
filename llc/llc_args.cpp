@@ -77,7 +77,7 @@ sttc ::llc::err_t	argsOptionName			(::llc::vcst_c & argument, ::llc::kvvcst_t<::
 			if_fail_fe(output.Positionals.push_back(argument));
 			continue;
 		}
-		if(argument == LLC_CXS("--")) {
+		if(argument == "--") {
 			if(option.Key.size() && false == hasOptionValues) {
 				if_fail_fe(output.Options.push_back(option));
 			}

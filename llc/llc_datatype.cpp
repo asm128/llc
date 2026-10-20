@@ -6,16 +6,16 @@
 
 //
 llc::err_t	llc::getStringFromDataType		( ::llc::DATA_TYPE dataType, string & output) {
-	vcst_c		typeUINT						= LLC_CXS("UINT");
-	vcst_c		typeINT							= LLC_CXS("INT");
-	vcst_c		typeFLOAT						= LLC_CXS("FLOAT");
-	vcst_c		typeUFLOAT						= LLC_CXS("UFLOAT");
-	vcst_c		typeNORM						= LLC_CXS("_NORM");
-	vcst_c		typeUNORM						= LLC_CXS("");
-	vcst_c		typePAD							= LLC_CXS("_P");
-	vcst_c		typeNOPAD						= LLC_CXS("");
-	vcst_c		typeString						= GTYPEID_ISFLOAT(dataType) ? (GTYPEID_ISSIGNED(dataType) ? typeFLOAT : typeUFLOAT) : (GTYPEID_ISSIGNED(dataType) ? typeINT : typeUINT);
-	u2_c		elementCount					= GTYPEID_ELEMENTCOUNT(dataType);
+	stxp	vcst_c	typeUINT						= "UINT";
+	stxp	vcst_c	typeINT							= "INT";
+	stxp	vcst_c	typeFLOAT						= "FLOAT";
+	stxp	vcst_c	typeUFLOAT						= "UFLOAT";
+	stxp	vcst_c	typeNORM						= "_NORM";
+	stxp	vcst_c	typeUNORM						= "";
+	stxp	vcst_c	typePAD							= "_P";
+	stxp	vcst_c	typeNOPAD						= "";
+			vcst_c	typeString						= GTYPEID_ISFLOAT(dataType) ? (GTYPEID_ISSIGNED(dataType) ? typeFLOAT : typeUFLOAT) : (GTYPEID_ISSIGNED(dataType) ? typeINT : typeUINT);
+			u2_c	elementCount					= GTYPEID_ELEMENTCOUNT(dataType);
 	if_fail_fe(append_strings(output, typeString, GTYPEID_ELEMENTSIZE(dataType), GTYPEID_ISNORMALIZED(dataType) ? typeNORM : typeUNORM, str(elementCount), GTYPEID_ELEMENTPAD(dataType) ? typePAD : typeNOPAD));
 	rtrn 0;
 }

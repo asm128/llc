@@ -217,7 +217,7 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_LOAD_RESULT, ::llc::failed(loadResult), "Result:%i.", loadResult);
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_INPUT_CONSUMED, input.size(), "Remaining bytes:%u.", input.size());
 	cnst ::llc::vcst_t loadedMagic{data.Header.MagicNumber};
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_HEADER_MAGIC, loadedMagic != LLC_CXS("VOX "), "Magic:%.*s.", LLC_VIEW_ARGS(loadedMagic));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_HEADER_MAGIC, loadedMagic != "VOX ", "Magic:%.*s.", LLC_VIEW_ARGS(loadedMagic));
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_HEADER_VERSION, data.Header.Version != 150, "Version:%u, expected:150.", data.Header.Version);
 
 	cnst ::llc::n3u0_t parsedDimensions = data.GetDimensions();
@@ -250,28 +250,28 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_MATERIAL_ID, data.ChunksMaterial[0].Id != 11, "Id:%i, expected:11.", data.ChunksMaterial[0].Id);
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_MATERIAL_ATTRIBUTE_COUNT, data.ChunksMaterial[0].Attributes.size() != 1, "Count:%u, expected:1.", data.ChunksMaterial[0].Attributes.size());
 	cnst ::llc::vcst_t materialValue = data.ChunksMaterial[0].Attributes[0].Val;
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_MATERIAL_VALUE, materialValue != LLC_CXS("_diffuse"), "Value:%.*s.", LLC_VIEW_ARGS(materialValue));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_MATERIAL_VALUE, materialValue != "_diffuse", "Value:%.*s.", LLC_VIEW_ARGS(materialValue));
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_CAMERA_COUNT, data.ChunksCamera.size() != 1, "Count:%u, expected:1.", data.ChunksCamera.size());
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_CAMERA_ID, data.ChunksCamera[0].Id != 12, "Id:%i, expected:12.", data.ChunksCamera[0].Id);
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_CAMERA_ATTRIBUTE_COUNT, data.ChunksCamera[0].Attributes.size() != 1, "Count:%u, expected:1.", data.ChunksCamera[0].Attributes.size());
 	cnst ::llc::vcst_t cameraValue = data.ChunksCamera[0].Attributes[0].Val;
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_CAMERA_VALUE, cameraValue != LLC_CXS("pers"), "Value:%.*s.", LLC_VIEW_ARGS(cameraValue));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_CAMERA_VALUE, cameraValue != "pers", "Value:%.*s.", LLC_VIEW_ARGS(cameraValue));
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_LAYER_COUNT, data.ChunksLayer.size() != 1, "Count:%u, expected:1.", data.ChunksLayer.size());
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_LAYER_ID, data.ChunksLayer[0].Id != 13, "Id:%i, expected:13.", data.ChunksLayer[0].Id);
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_LAYER_RESERVED, data.ChunksLayer[0].IdReserved != -1, "Reserved:%i, expected:-1.", data.ChunksLayer[0].IdReserved);
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_LAYER_ATTRIBUTE_COUNT, data.ChunksLayer[0].Attributes.size() != 1, "Count:%u, expected:1.", data.ChunksLayer[0].Attributes.size());
 	cnst ::llc::vcst_t layerValue = data.ChunksLayer[0].Attributes[0].Val;
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_LAYER_VALUE, layerValue != LLC_CXS("Layer"), "Value:%.*s.", LLC_VIEW_ARGS(layerValue));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_LAYER_VALUE, layerValue != "Layer", "Value:%.*s.", LLC_VIEW_ARGS(layerValue));
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_RENDER_COUNT, data.ChunksRenderAttributes.size() != 1, "Count:%u, expected:1.", data.ChunksRenderAttributes.size());
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_RENDER_ATTRIBUTE_COUNT, data.ChunksRenderAttributes[0].Attributes.size() != 1, "Count:%u, expected:1.", data.ChunksRenderAttributes[0].Attributes.size());
 	cnst ::llc::vcst_t renderValue = data.ChunksRenderAttributes[0].Attributes[0].Val;
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_RENDER_VALUE, renderValue != LLC_CXS("_sky"), "Value:%.*s.", LLC_VIEW_ARGS(renderValue));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_RENDER_VALUE, renderValue != "_sky", "Value:%.*s.", LLC_VIEW_ARGS(renderValue));
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_NOTE_CHUNK_COUNT, data.ChunksNote.size() != 1, "Count:%u, expected:1.", data.ChunksNote.size());
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_NOTE_COUNT, data.ChunksNote[0].ColorNames.size() != 2, "Count:%u, expected:2.", data.ChunksNote[0].ColorNames.size());
 	cnst ::llc::vcst_t firstNote = data.ChunksNote[0].ColorNames[0];
 	cnst ::llc::vcst_t secondNote = data.ChunksNote[0].ColorNames[1];
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_NOTE_FIRST, firstNote != LLC_CXS("red"), "Value:%.*s.", LLC_VIEW_ARGS(firstNote));
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_NOTE_SECOND, secondNote != LLC_CXS("blue"), "Value:%.*s.", LLC_VIEW_ARGS(secondNote));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_NOTE_FIRST, firstNote != "red", "Value:%.*s.", LLC_VIEW_ARGS(firstNote));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_NOTE_SECOND, secondNote != "blue", "Value:%.*s.", LLC_VIEW_ARGS(secondNote));
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_GROUP_COUNT, data.ChunksNode.size() != 1, "Count:%u, expected:1.", data.ChunksNode.size());
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_GROUP_ID, data.ChunksNode[0].Id != 14, "Id:%i, expected:14.", data.ChunksNode[0].Id);
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_GROUP_CHILD_COUNT, data.ChunksNode[0].IdChildren.size() != 2, "Count:%u, expected:2.", data.ChunksNode[0].IdChildren.size());
@@ -283,7 +283,7 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_SHAPE_MODEL_ID, data.ChunksShape[0].Models[0].Id != 16, "Id:%i, expected:16.", data.ChunksShape[0].Models[0].Id);
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_MODEL_ATTRIBUTE_COUNT, data.ChunksShape[0].Models[0].Attributes.size() != 1, "Count:%u, expected:1.", data.ChunksShape[0].Models[0].Attributes.size());
 	cnst ::llc::vcst_t modelValue = data.ChunksShape[0].Models[0].Attributes[0].Val;
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_MODEL_VALUE, modelValue != LLC_CXS("Model"), "Value:%.*s.", LLC_VIEW_ARGS(modelValue));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_MODEL_VALUE, modelValue != "Model", "Value:%.*s.", LLC_VIEW_ARGS(modelValue));
 
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_TRANSFORM_COUNT, data.ChunksTransform.size() != 1, "Count:%u, expected:1.", data.ChunksTransform.size());
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_TRANSFORM_FRAME_COUNT, data.ChunksTransform[0].Frames.size() != 1, "Count:%u, expected:1.", data.ChunksTransform[0].Frames.size());
@@ -292,7 +292,7 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRANSFORM_LAYER, data.ChunksTransform[0].IdLayer != 13, "Layer:%i, expected:13.", data.ChunksTransform[0].IdLayer);
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_TRANSFORM_ATTRIBUTE_COUNT, data.ChunksTransform[0].Attributes.size() != 1, "Count:%u, expected:1.", data.ChunksTransform[0].Attributes.size());
 	cnst ::llc::vcst_t transformValue = data.ChunksTransform[0].Attributes[0].Val;
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRANSFORM_VALUE, transformValue != LLC_CXS("Root"), "Value:%.*s.", LLC_VIEW_ARGS(transformValue));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRANSFORM_VALUE, transformValue != "Root", "Value:%.*s.", LLC_VIEW_ARGS(transformValue));
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRANSFORM_ROTATION, data.ChunksTransform[0].Frames[0].Rotation != 17, "Rotation:%u, expected:17.", data.ChunksTransform[0].Frames[0].Rotation);
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRANSFORM_TRANSLATION_X, data.ChunksTransform[0].Frames[0].Translation.x != -1, "X:%i, expected:-1.", data.ChunksTransform[0].Frames[0].Translation.x);
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_TRANSFORM_TRANSLATION_Y, data.ChunksTransform[0].Frames[0].Translation.y != -3, "Y:%i, expected:-3.", data.ChunksTransform[0].Frames[0].Translation.y);
@@ -323,8 +323,8 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	file.fill(0);
 	cnst ::llc::vcst_t ownedMaterialValue = data.ChunksMaterial[0].Attributes[0].Val;
 	cnst ::llc::vcst_t ownedNoteValue = data.ChunksNote[0].ColorNames[1];
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_OWNED_DICTIONARY, ownedMaterialValue != LLC_CXS("_diffuse"), "Value:%.*s.", LLC_VIEW_ARGS(ownedMaterialValue));
-	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_OWNED_NOTE, ownedNoteValue != LLC_CXS("blue"), "Value:%.*s.", LLC_VIEW_ARGS(ownedNoteValue));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_OWNED_DICTIONARY, ownedMaterialValue != "_diffuse", "Value:%.*s.", LLC_VIEW_ARGS(ownedMaterialValue));
+	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_OWNED_NOTE, ownedNoteValue != "blue", "Value:%.*s.", LLC_VIEW_ARGS(ownedNoteValue));
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_OWNED_VOXEL, voxels[0].x != 2, "X:%u, expected:2.", voxels[0].x);
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_OWNED_PALETTE, palette[0].b != 3, "Blue:%u, expected:3.", palette[0].b);
 	rtrn 0;

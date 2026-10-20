@@ -146,7 +146,7 @@ stct SPathListCounts {
 };
 
 stct SPathListFixture {
-	::llc::vcst_t			Root		= LLC_CXS("./llc_test_path_list");
+	::llc::vcst_t			Root		= "./llc_test_path_list";
 						~SPathListFixture	() { std::error_code error; std::filesystem::remove_all(Root.begin(), error); }
 };
 
@@ -162,26 +162,26 @@ sttc SPathListCounts pathListCounts(const ::llc::SPathContents & pathContents) {
 
 sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 	cnst SPathSlashCase cases[] =
-		{ {LLC_CXS("")						, -1, PATH_TEST_RESULT_LAST_SLASH_NONE}
-		, {LLC_CXS("file.txt")				, -1, PATH_TEST_RESULT_LAST_SLASH_NONE}
-		, {LLC_CXS("folder/file.txt")		,  6, PATH_TEST_RESULT_LAST_SLASH_POSITION}
-		, {LLC_CXS("folder\\file.txt")		,  6, PATH_TEST_RESULT_LAST_SLASH_POSITION}
-		, {LLC_CXS("root/child\\file.txt")	, 10, PATH_TEST_RESULT_LAST_SLASH_POSITION}
-		, {LLC_CXS("/file.txt")				,  0, PATH_TEST_RESULT_LAST_SLASH_POSITION}
-		, {LLC_CXS("folder/")				,  6, PATH_TEST_RESULT_LAST_SLASH_TRAILING}
-		, {LLC_CXS("folder\\")				,  6, PATH_TEST_RESULT_LAST_SLASH_TRAILING}
+		{ {""						, -1, PATH_TEST_RESULT_LAST_SLASH_NONE}
+		, {"file.txt"				, -1, PATH_TEST_RESULT_LAST_SLASH_NONE}
+		, {"folder/file.txt"		,  6, PATH_TEST_RESULT_LAST_SLASH_POSITION}
+		, {"folder\\file.txt"		,  6, PATH_TEST_RESULT_LAST_SLASH_POSITION}
+		, {"root/child\\file.txt"	, 10, PATH_TEST_RESULT_LAST_SLASH_POSITION}
+		, {"/file.txt"				,  0, PATH_TEST_RESULT_LAST_SLASH_POSITION}
+		, {"folder/"				,  6, PATH_TEST_RESULT_LAST_SLASH_TRAILING}
+		, {"folder\\"				,  6, PATH_TEST_RESULT_LAST_SLASH_TRAILING}
 		};
 	for(cnst SPathSlashCase & testCase : cases) {
 		cnst ::llc::err_t actual = ::llc::findLastSlash(testCase.Path);
 		LLC_TEST_CHECKF(errors, testCase.Result, actual != testCase.Expected , "Path:'%.*s' returned:%" LLC_FMT_S2 ", expected:%" LLC_FMT_S2 "." , (int)testCase.Path.size(), testCase.Path.begin(), actual, testCase.Expected );
 	}
 	cnst SPathPartsCase partCases[] =
-		{ {LLC_CXS("file.txt")					, LLC_CXS("")			, LLC_CXS("file.txt")			, LLC_CXS("file")}
-		, {LLC_CXS("folder/archive.test.cpp")	, LLC_CXS("folder/")	, LLC_CXS("archive.test.cpp")	, LLC_CXS("archive.test")}
-		, {LLC_CXS("C:\\folder\\archive.test.cpp"), LLC_CXS("C:\\folder\\"), LLC_CXS("archive.test.cpp")	, LLC_CXS("archive.test")}
-		, {LLC_CXS("/file")						, LLC_CXS("/")		, LLC_CXS("file")				, LLC_CXS("file")}
-		, {LLC_CXS("README")						, LLC_CXS("")			, LLC_CXS("README")			, LLC_CXS("README")}
-		, {LLC_CXS(".profile")					, LLC_CXS("")			, LLC_CXS(".profile")			, LLC_CXS(".profile")}
+		{ {"file.txt"					, ""			, "file.txt"			, "file"}
+		, {"folder/archive.test.cpp"	, "folder/"	, "archive.test.cpp"	, "archive.test"}
+		, {"C:\\folder\\archive.test.cpp", "C:\\folder\\", "archive.test.cpp"	, "archive.test"}
+		, {"/file"						, "/"		, "file"				, "file"}
+		, {"README"						, ""			, "README"			, "README"}
+		, {".profile"					, ""			, ".profile"			, ".profile"}
 		};
 	for(cnst SPathPartsCase & testCase : partCases) {
 		::llc::vcst_t directory = {};
@@ -199,22 +199,22 @@ sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 
 sttc ::llc::err_t testPathBegin(ATestError & errors) {
 	cnst SPathBeginCase cases[] =
-		{ {LLC_CXS("")						, LLC_CXS("")}
-		, {LLC_CXS("folder/file")			, LLC_CXS("")}
-		, {LLC_CXS("/a/b")					, LLC_CXS("/")}
-		, {LLC_CXS("/folder/file")			, LLC_CXS("/")}
-		, {LLC_CXS("\\folder\\file")			, LLC_CXS("\\")}
-		, {LLC_CXS("C:a")					, LLC_CXS("C:")}
-		, {LLC_CXS("C:folder\\file")			, LLC_CXS("C:")}
-		, {LLC_CXS("C:/a")					, LLC_CXS("C:/")}
-		, {LLC_CXS("D:/folder/file")			, LLC_CXS("D:/")}
-		, {LLC_CXS("z:\\folder\\file")			, LLC_CXS("z:\\")}
-		, {LLC_CXS("C:")						, LLC_CXS("C:")}
-		, {LLC_CXS("C:/")					, LLC_CXS("C:/")}
-		, {LLC_CXS("//server/share/a")		, LLC_CXS("//server/share/")}
-		, {LLC_CXS("//server/share/folder")	, LLC_CXS("//server/share/")}
-		, {LLC_CXS("\\\\server\\share\\folder")	, LLC_CXS("\\\\server\\share\\")}
-		, {LLC_CXS("1:/folder")					, LLC_CXS("")}
+		{ {""						, ""}
+		, {"folder/file"			, ""}
+		, {"/a/b"					, "/"}
+		, {"/folder/file"			, "/"}
+		, {"\\folder\\file"			, "\\"}
+		, {"C:a"					, "C:"}
+		, {"C:folder\\file"			, "C:"}
+		, {"C:/a"					, "C:/"}
+		, {"D:/folder/file"			, "D:/"}
+		, {"z:\\folder\\file"			, "z:\\"}
+		, {"C:"						, "C:"}
+		, {"C:/"					, "C:/"}
+		, {"//server/share/a"		, "//server/share/"}
+		, {"//server/share/folder"	, "//server/share/"}
+		, {"\\\\server\\share\\folder"	, "\\\\server\\share\\"}
+		, {"1:/folder"					, ""}
 		};
 	for(cnst SPathBeginCase & testCase : cases) {
 		::llc::vcst_t		actual;
@@ -227,18 +227,18 @@ sttc ::llc::err_t testPathBegin(ATestError & errors) {
 
 sttc ::llc::err_t testPathNameCompose(ATestError & errors) {
 	cnst SPathComposeCase cases[] =
-		{ {LLC_CXS("")		, LLC_CXS("")				, LLC_CXS("")			, LLC_CXS("")					, PATH_TEST_RESULT_COMPOSE_EMPTY}
-		, {LLC_CXS("")		, LLC_CXS("")				, LLC_CXS("file.txt")	, LLC_CXS("file.txt")			, PATH_TEST_RESULT_COMPOSE_TEXT}
-		, {LLC_CXS("")		, LLC_CXS("folder")			, LLC_CXS("file.txt")	, LLC_CXS("folder/file.txt")		, PATH_TEST_RESULT_COMPOSE_TEXT}
-		, {LLC_CXS("")		, LLC_CXS("folder/")		, LLC_CXS("file.txt")	, LLC_CXS("folder/file.txt")		, PATH_TEST_RESULT_COMPOSE_TEXT}
-		, {LLC_CXS("")		, LLC_CXS("folder\\")		, LLC_CXS("file.txt")	, LLC_CXS("folder/file.txt")		, PATH_TEST_RESULT_COMPOSE_SEPARATOR}
-		, {LLC_CXS("")		, LLC_CXS("folder/")		, LLC_CXS("/file.txt")	, LLC_CXS("folder/file.txt")		, PATH_TEST_RESULT_COMPOSE_BOUNDARY}
-		, {LLC_CXS("")		, LLC_CXS("folder")			, LLC_CXS("\\file.txt")	, LLC_CXS("folder/file.txt")		, PATH_TEST_RESULT_COMPOSE_BOUNDARY}
-		, {LLC_CXS("")		, LLC_CXS("folder")			, LLC_CXS("")			, LLC_CXS("folder")				, PATH_TEST_RESULT_COMPOSE_PATH_ONLY}
-		, {LLC_CXS("")		, LLC_CXS("/")				, LLC_CXS("/file.txt")	, LLC_CXS("/file.txt")			, PATH_TEST_RESULT_COMPOSE_ROOT}
-		, {LLC_CXS("")		, LLC_CXS("C:\\root")			, LLC_CXS("file.txt")	, LLC_CXS("C:/root/file.txt")		, PATH_TEST_RESULT_COMPOSE_SEPARATOR}
-		, {LLC_CXS("")		, LLC_CXS("\\\\server\\share")	, LLC_CXS("file.txt")	, LLC_CXS("//server/share/file.txt")	, PATH_TEST_RESULT_COMPOSE_ROOT}
-		, {LLC_CXS("prefix:")	, LLC_CXS("folder")			, LLC_CXS("file.txt")	, LLC_CXS("prefix:folder/file.txt"), PATH_TEST_RESULT_COMPOSE_APPEND}
+		{ {""		, ""				, ""			, ""					, PATH_TEST_RESULT_COMPOSE_EMPTY}
+		, {""		, ""				, "file.txt"	, "file.txt"			, PATH_TEST_RESULT_COMPOSE_TEXT}
+		, {""		, "folder"			, "file.txt"	, "folder/file.txt"		, PATH_TEST_RESULT_COMPOSE_TEXT}
+		, {""		, "folder/"		, "file.txt"	, "folder/file.txt"		, PATH_TEST_RESULT_COMPOSE_TEXT}
+		, {""		, "folder\\"		, "file.txt"	, "folder/file.txt"		, PATH_TEST_RESULT_COMPOSE_SEPARATOR}
+		, {""		, "folder/"		, "/file.txt"	, "folder/file.txt"		, PATH_TEST_RESULT_COMPOSE_BOUNDARY}
+		, {""		, "folder"			, "\\file.txt"	, "folder/file.txt"		, PATH_TEST_RESULT_COMPOSE_BOUNDARY}
+		, {""		, "folder"			, ""			, "folder"				, PATH_TEST_RESULT_COMPOSE_PATH_ONLY}
+		, {""		, "/"				, "/file.txt"	, "/file.txt"			, PATH_TEST_RESULT_COMPOSE_ROOT}
+		, {""		, "C:\\root"			, "file.txt"	, "C:/root/file.txt"		, PATH_TEST_RESULT_COMPOSE_SEPARATOR}
+		, {""		, "\\\\server\\share"	, "file.txt"	, "//server/share/file.txt"	, PATH_TEST_RESULT_COMPOSE_ROOT}
+		, {"prefix:"	, "folder"			, "file.txt"	, "prefix:folder/file.txt", PATH_TEST_RESULT_COMPOSE_APPEND}
 		};
 	for(cnst SPathComposeCase & testCase : cases) {
 		::llc::string		output		= testCase.Prefix;
@@ -252,11 +252,11 @@ sttc ::llc::err_t testPathNameCompose(ATestError & errors) {
 
 sttc ::llc::err_t testPathNameComposeInvalid(ATestError & errors) {
 	cnst SPathComposeCase cases[] =
-		{ {LLC_CXS("preserved:")	, LLC_CXS("root//folder")	, LLC_CXS("file.txt")		, LLC_CXS("preserved:")	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
-		, {LLC_CXS("preserved:")	, LLC_CXS("root\\\\folder")	, LLC_CXS("file.txt")		, LLC_CXS("preserved:")	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
-		, {LLC_CXS("preserved:")	, LLC_CXS("root\\/folder")	, LLC_CXS("file.txt")		, LLC_CXS("preserved:")	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
-		, {LLC_CXS("preserved:")	, LLC_CXS("root")			, LLC_CXS("child//file")	, LLC_CXS("preserved:")	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
-		, {LLC_CXS("preserved:")	, LLC_CXS("///server/share")	, LLC_CXS("file.txt")		, LLC_CXS("preserved:")	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
+		{ {"preserved:"	, "root//folder"	, "file.txt"		, "preserved:"	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
+		, {"preserved:"	, "root\\\\folder"	, "file.txt"		, "preserved:"	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
+		, {"preserved:"	, "root\\/folder"	, "file.txt"		, "preserved:"	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
+		, {"preserved:"	, "root"			, "child//file"	, "preserved:"	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
+		, {"preserved:"	, "///server/share"	, "file.txt"		, "preserved:"	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
 		};
 	for(cnst SPathComposeCase & testCase : cases) {
 		::llc::string		output		= testCase.Prefix;
@@ -269,28 +269,28 @@ sttc ::llc::err_t testPathNameComposeInvalid(ATestError & errors) {
 
 sttc ::llc::err_t testPathNormalize(ATestError & errors) {
 	cnst SPathNormalizeCase cases[] =
-		{ {LLC_CXS("")							, LLC_CXS("")						, '/', PATH_TEST_RESULT_NORMALIZE_EMPTY}
-		, {LLC_CXS(".")							, LLC_CXS(".")						, '/', PATH_TEST_RESULT_NORMALIZE_DOT}
-		, {LLC_CXS("./folder/./file")			, LLC_CXS("folder/file")			, '/', PATH_TEST_RESULT_NORMALIZE_DOT}
-		, {LLC_CXS("folder\\child/file")			, LLC_CXS("folder/child/file")		, '/', PATH_TEST_RESULT_NORMALIZE_SEPARATOR}
-		, {LLC_CXS("folder/child/")				, LLC_CXS("folder/child")			, '/', PATH_TEST_RESULT_NORMALIZE_TRAILING}
-		, {LLC_CXS("folder/child/../file")		, LLC_CXS("folder/file")			, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
-		, {LLC_CXS("folder/../../file")			, LLC_CXS("../file")				, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
-		, {LLC_CXS("folder/..")					, LLC_CXS(".")						, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
-		, {LLC_CXS("/a/b")						, LLC_CXS("/a/b")					, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
-		, {LLC_CXS("/folder/../")				, LLC_CXS("/")						, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
-		, {LLC_CXS("C:/a")						, LLC_CXS("C:/a")					, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
-		, {LLC_CXS("C:a")						, LLC_CXS("C:a")					, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
-		, {LLC_CXS("C:\\folder\\..\\file")		, LLC_CXS("C:/file")				, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
-		, {LLC_CXS("C:folder\\..\\file")			, LLC_CXS("C:file")				, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
-		, {LLC_CXS("C:\\")						, LLC_CXS("C:/")					, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
-		, {LLC_CXS("//server/share/a")			, LLC_CXS("//server/share/a")		, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
-		, {LLC_CXS("\\\\server\\share\\folder\\..\\file"), LLC_CXS("//server/share/file")	, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
-		, {LLC_CXS("\\\\server\\share\\")			, LLC_CXS("//server/share/")		, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
-		, {LLC_CXS("C:/folder/file")				, LLC_CXS("C:\\folder\\file")		, '\\', PATH_TEST_RESULT_NORMALIZE_SEPARATOR}
+		{ {""							, ""						, '/', PATH_TEST_RESULT_NORMALIZE_EMPTY}
+		, {"."							, "."						, '/', PATH_TEST_RESULT_NORMALIZE_DOT}
+		, {"./folder/./file"			, "folder/file"			, '/', PATH_TEST_RESULT_NORMALIZE_DOT}
+		, {"folder\\child/file"			, "folder/child/file"		, '/', PATH_TEST_RESULT_NORMALIZE_SEPARATOR}
+		, {"folder/child/"				, "folder/child"			, '/', PATH_TEST_RESULT_NORMALIZE_TRAILING}
+		, {"folder/child/../file"		, "folder/file"			, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
+		, {"folder/../../file"			, "../file"				, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
+		, {"folder/.."					, "."						, '/', PATH_TEST_RESULT_NORMALIZE_PARENT}
+		, {"/a/b"						, "/a/b"					, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
+		, {"/folder/../"				, "/"						, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
+		, {"C:/a"						, "C:/a"					, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
+		, {"C:a"						, "C:a"					, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
+		, {"C:\\folder\\..\\file"		, "C:/file"				, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
+		, {"C:folder\\..\\file"			, "C:file"				, '/', PATH_TEST_RESULT_NORMALIZE_DRIVE}
+		, {"C:\\"						, "C:/"					, '/', PATH_TEST_RESULT_NORMALIZE_ROOT}
+		, {"//server/share/a"			, "//server/share/a"		, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
+		, {"\\\\server\\share\\folder\\..\\file", "//server/share/file"	, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
+		, {"\\\\server\\share\\"			, "//server/share/"		, '/', PATH_TEST_RESULT_NORMALIZE_UNC}
+		, {"C:/folder/file"				, "C:\\folder\\file"		, '\\', PATH_TEST_RESULT_NORMALIZE_SEPARATOR}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
-		::llc::string		output		= LLC_CXS("stale");
+		::llc::string		output		= "stale";
 		cnst ::llc::err_t result		= ::llc::pathNormalize(testCase.Path, output, testCase.Separator);
 		LLC_TEST_CHECKF(errors, testCase.Result, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', separator:'%c' produced:'%.*s'/%u, expected:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size() );
 		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_NORMALIZE_REPLACE, output.size() >= 5 && 0 == memcmp(output.begin(), "stale", 5) , "Path:'%.*s' retained stale output:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), (int)output.size(), output.begin(), output.size() );
@@ -302,13 +302,13 @@ sttc ::llc::err_t testPathNormalize(ATestError & errors) {
 
 sttc ::llc::err_t testPathNormalizeInvalid(ATestError & errors) {
 	cnst SPathNormalizeCase cases[] =
-		{ {LLC_CXS("a//b")			, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
-		, {LLC_CXS("root//folder")	, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
-		, {LLC_CXS("C://a")			, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
-		, {LLC_CXS("//server/share//a"), LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
-		, {LLC_CXS("///server/share")	, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
-		, {LLC_CXS("//server")		, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
-		, {LLC_CXS("folder/file")		, LLC_CXS("preserved")	, ':', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		{ {"a//b"			, "preserved"	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {"root//folder"	, "preserved"	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {"C://a"			, "preserved"	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {"//server/share//a", "preserved"	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {"///server/share"	, "preserved"	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {"//server"		, "preserved"	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
+		, {"folder/file"		, "preserved"	, ':', PATH_TEST_RESULT_NORMALIZE_INVALID}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
 		::llc::string		output		= testCase.Expected;
@@ -325,14 +325,14 @@ sttc bool pathIsAbsolute(::llc::vcst_t path) {
 
 sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 	::llc::string		current;
-	cnst ::llc::err_t currentResult	= ::llc::pathAbsolute(LLC_CXS("."), current);
+	cnst ::llc::err_t currentResult	= ::llc::pathAbsolute(".", current);
 	LLC_TEST_REQUIREF(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT, ::llc::failed(currentResult) , "Current directory resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u." , currentResult, (int)current.size(), current.begin(), current.size() );
 	LLC_TEST_REQUIREF(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT_PATH, false == ::pathIsAbsolute(current) , "Current directory resolution produced:'%.*s'/%u, expected an absolute path." , (int)current.size(), current.begin(), current.size() );
 
 	::llc::string		expected;
-	if_fail_fe(::llc::pathNameCompose(current, LLC_CXS("llc_test_path_nonexistent"), expected));
+	if_fail_fe(::llc::pathNameCompose(current, "llc_test_path_nonexistent", expected));
 	::llc::string		resolved;
-	cnst ::llc::err_t resolvedResult = ::llc::pathAbsolute(LLC_CXS("./llc/../llc_test_path_nonexistent"), resolved);
+	cnst ::llc::err_t resolvedResult = ::llc::pathAbsolute("./llc/../llc_test_path_nonexistent", resolved);
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_RELATIVE, pathTextMismatch(resolved, expected) , "Relative resolution produced:'%.*s'/%u, expected:'%.*s'/%u." , (int)resolved.size(), resolved.begin(), resolved.size(), (int)expected.size(), expected.begin(), expected.size() );
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_NONEXISTENT, ::llc::failed(resolvedResult) , "Nonexistent target resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u." , resolvedResult, (int)resolved.size(), resolved.begin(), resolved.size() );
 
@@ -347,7 +347,7 @@ sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_IDEMPOTENT_TERMINATOR, idempotent.size() && idempotent.begin()[idempotent.size()] , "Idempotent path terminator:%i, expected:0." , idempotent.size() ? idempotent.begin()[idempotent.size()] : 0 );
 
 	::llc::string		backslash;
-	if_fail_fe(::llc::pathAbsolute(LLC_CXS("."), backslash, '\\'));
+	if_fail_fe(::llc::pathAbsolute(".", backslash, '\\'));
 	::llc::string		backslashAsSlash;
 	if_fail_fe(::llc::pathNormalize(backslash, backslashAsSlash));
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_SEPARATOR, pathTextMismatch(backslashAsSlash, current) , "Backslash path:'%.*s' normalized to:'%.*s', expected:'%.*s'." , (int)backslash.size(), backslash.begin(), (int)backslashAsSlash.size(), backslashAsSlash.begin(), (int)current.size(), current.begin() );
@@ -356,9 +356,9 @@ sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 
 sttc ::llc::err_t testPathAbsoluteInvalid(ATestError & errors) {
 	cnst SPathNormalizeCase cases[] =
-		{ {LLC_CXS("")				, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_ABSOLUTE_INVALID}
-		, {LLC_CXS("root//folder")	, LLC_CXS("preserved")	, '/', PATH_TEST_RESULT_ABSOLUTE_INVALID}
-		, {LLC_CXS("folder/file")		, LLC_CXS("preserved")	, ':', PATH_TEST_RESULT_ABSOLUTE_INVALID}
+		{ {""				, "preserved"	, '/', PATH_TEST_RESULT_ABSOLUTE_INVALID}
+		, {"root//folder"	, "preserved"	, '/', PATH_TEST_RESULT_ABSOLUTE_INVALID}
+		, {"folder/file"		, "preserved"	, ':', PATH_TEST_RESULT_ABSOLUTE_INVALID}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
 		::llc::string		output		= testCase.Expected;
@@ -376,15 +376,15 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 	if_true_fef(filesystemError.value(), "Failed to clear pathList() test fixture:'%s'. Error:%i.", fixture.Root.begin(), filesystemError.value());
 	std::filesystem::create_directories("./llc_test_path_list/child/grandchild", filesystemError);
 	if_true_fef(filesystemError.value(), "Failed to create pathList() test fixture:'%s'. Error:%i.", fixture.Root.begin(), filesystemError.value());
-	if_fail_fe(::llc::fileFromMemory(LLC_CXS("./llc_test_path_list/root.bin"), ::llc::vcu0_c{}));
-	if_fail_fe(::llc::fileFromMemory(LLC_CXS("./llc_test_path_list/child/child.bin"), ::llc::vcu0_c{}));
-	if_fail_fe(::llc::fileFromMemory(LLC_CXS("./llc_test_path_list/child/grandchild/deep.bin"), ::llc::vcu0_c{}));
+	if_fail_fe(::llc::fileFromMemory("./llc_test_path_list/root.bin", ::llc::vcu0_c{}));
+	if_fail_fe(::llc::fileFromMemory("./llc_test_path_list/child/child.bin", ::llc::vcu0_c{}));
+	if_fail_fe(::llc::fileFromMemory("./llc_test_path_list/child/grandchild/deep.bin", ::llc::vcu0_c{}));
 
 	cnst ::llc::vcst_t	rootPath		= fixture.Root;
 	::llc::u2_t			callbackFiles	= 0;
 	::llc::u2_t			callbackFolders	= 0;
 	bool					deepFileSeen	= false;
-	stxp ::llc::vcst_t	deepFileName	= LLC_CXS("deep.bin");
+	stxp ::llc::vcst_t	deepFileName	= "deep.bin";
 	::llc::SPathContents	callbackTree;
 	cnst ::llc::err_t	callbackResult	= ::llc::pathList(rootPath, callbackTree
 		, [&](::llc::b8_t isFolder, ::llc::vcst_c & path) -> ::llc::err_t {
@@ -412,7 +412,7 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_TREE_FOLDER_EQUIVALENT, callbackCounts.Folders != plainCounts.Folders , "Root:'%.*s' callback folders:%u, plain folders:%u." , (int)rootPath.size(), rootPath.begin(), callbackCounts.Folders, plainCounts.Folders );
 
 	::llc::SPathContents	filteredTree;
-	if_fail_fe(::llc::pathList(rootPath, filteredTree, LLC_CXS(".txt")));
+	if_fail_fe(::llc::pathList(rootPath, filteredTree, ".txt"));
 	cnst SPathListCounts	filteredCounts	= ::pathListCounts(filteredTree);
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_EXTENSION_FILTER, filteredCounts.Files , "Root:'%.*s' filtered files:%u, expected:0." , (int)rootPath.size(), rootPath.begin(), filteredCounts.Files );
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_EXTENSION_FOLDER_COUNT, 2 != filteredCounts.Folders , "Root:'%.*s' filtered folders:%u, expected:2." , (int)rootPath.size(), rootPath.begin(), filteredCounts.Folders );
