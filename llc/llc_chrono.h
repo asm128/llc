@@ -1,4 +1,6 @@
 #include "llc_typeint.h"
+#include "llc_parse.h"
+#include "llc_array_pod.h"
 
 #ifndef LLC_CHRONO_H_23627
 #define LLC_CHRONO_H_23627
@@ -14,6 +16,9 @@ namespace llc
 	int64_t					timeCurrentInMs		();
 	int64_t					timeCurrentInUs		();
 #endif
+	// Local calendar bindings: yy, MM, dd, hh, mm, ss, ff (hundredths), all two digits.
+	err_t					timeStringFormat	(vcst_t format, s3_t timeInMs, asc_t & output);
+	err_t					timeStringFormat	(vcst_t format, view<cnst SStripLiteralType> tokens, s3_t timeInMs, asc_t & output);
 #pragma pack(push, 1)
 	stct STimestamps {	
 		uint64_t				Created				= 0;

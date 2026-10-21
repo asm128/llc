@@ -26,12 +26,12 @@ sttc ::llc::err_t testSuiteRun(ATestError & results, STestRunReport & run, ::llc
 	if(selectedSuites.size() && -1 == selectedSuites.find(suite.Name))
 		rtrn 0;
 	STestSuiteReport report = {suite.Name, suite.Folder};
-	cnst ::std::string folder = run.Folder + "/" + ::std::string(suite.Folder.begin(), suite.Folder.size());
-	::std::error_code error;
-	if(!::std::filesystem::create_directory(folder, error)) {
+	::llc::string folder;
+	if_fail_fe(::llc::pathNameCompose(run.Folder, suite.Folder, folder));
+	if(::llc::failed(report.Status = ::llc::pathCreate(folder))) {
 		report.Status = report.ReportStatus = -1;
-		run.Suites.push_back(report);
-		error_printf("Cannot create suite folder '%s': %s.", folder.c_str(), error.message().c_str());
+		if_fail_fe(run.Suites.push_back(report));
+		error_printf("Cannot create suite folder '%.*s'.", LLC_VIEW_ARGS(folder));
 		rtrn -1;
 	}
 	ATestError suiteResults;
@@ -39,8 +39,7 @@ sttc ::llc::err_t testSuiteRun(ATestError & results, STestRunReport & run, ::llc
 	{
 		STestLogCapture capture(log);
 		::llc::STimer timer;
-		try { report.Status = suite.Function(suiteResults, testText(folder)); }
-		catch(cnst ::std::exception & exception) { report.Status = -1; error_printf("Unhandled suite exception: %s.", exception.what()); }
+		try { report.Status = suite.Function(suiteResults, folder); }
 		catch(...) { report.Status = -1; error_printf("%s", "Unhandled suite exception."); }
 		timer.Frame();
 		report.Microseconds = timer.LastTimeMicroseconds;
@@ -61,7 +60,7 @@ sttc ::llc::err_t testSuiteRun(ATestError & results, STestRunReport & run, ::llc
 	if(log.Failed) report.ReportStatus = -1;
 	try { report.ReportStatus = ::llc::min(report.ReportStatus, testSuiteReportWrite(folder, report, suiteResults, log)); }
 	catch(...) { report.ReportStatus = -1; error_printf("Could not serialize suite '%.*s'.", LLC_VIEW_ARGS(suite.Name)); }
-	run.Suites.push_back(report);
+	if_fail_fe(run.Suites.push_back(report));
 	for(cnst auto & item : suiteResults)
 		if_fail_fe(results.push_back(item));
 	always_printf("Suite %.*s: %u checks, %u failures, status:%i, reporting:%i.", LLC_VIEW_ARGS(suite.Name), report.Checks, report.Failures, report.Status, report.ReportStatus);
@@ -135,6 +134,8 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 		, LLC_TEST_SUITE(testCTTIParser, "ctti")
 		, LLC_TEST_SUITE(testD3D, "d3d")
 		, LLC_TEST_SUITE(testDeflate, "deflate")
+		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
+		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
 		, LLC_TEST_SUITE(testEnum, "enum")
 		, LLC_TEST_SUITE(testExpression, "expression")
 		, LLC_TEST_SUITE(testGeometry, "geometry")
@@ -191,20 +192,19 @@ sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
 	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "output"))
 		if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "output", parent));
 	try { if_fail_fe(testRunFolder(parent, run.Folder)); }
-	catch(cnst ::std::exception & exception) { error_printf("Cannot create run folder: %s.", exception.what()); rtrn -1; }
+	catch(...) { error_printf("%s", "Cannot create run folder."); rtrn -1; }
 	STestLogBuffer log;
 	::llc::err_t status = 0;
 	::llc::STimer timer;
 	{
 		STestLogCapture capture(log);
-		always_printf("Test output: %s", run.Folder.c_str());
+		always_printf("Test output: %.*s", LLC_VIEW_ARGS(run.Folder));
 		try { status = testCoreRun(runtimeValues, run); }
-		catch(cnst ::std::exception & exception) { status = -1; error_printf("Runner exception: %s.", exception.what()); }
 		catch(...) { status = -1; error_printf("%s", "Unknown runner exception."); }
 		timer.Frame();
 		if(log.Failed) status = -1;
 	}
 	try { if_fail_fe(testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride, log)); }
-	catch(cnst ::std::exception & exception) { error_printf("Cannot write run reports: %s.", exception.what()); rtrn -1; }
+	catch(...) { error_printf("%s", "Cannot write run reports."); rtrn -1; }
 	rtrn status;
 }

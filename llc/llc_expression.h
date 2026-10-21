@@ -1,6 +1,8 @@
 #include "llc_enum.h"
 #include "llc_array_ptr.h"
 #include "llc_slice.h"
+#include "llc_parse.h"
+#include "llc_functional.h"
 
 #ifndef LLC_EXPRESSION_H_23627
 #define LLC_EXPRESSION_H_23627
@@ -59,6 +61,10 @@ namespace llc
 
 	error_t					expressionReaderParse			(SExpressionReader & reader, vcst_t expression);
 	error_t					expressionReaderParseStep		(SExpressionReader & reader, vcst_t expression);
+
+	// Token spans refer to format. Resolved views must survive the callback until the formatter copies them.
+	err_t					expressionStringFormat		(vcst_t format, view<cnst SStripLiteralType> tokens, cnst FError<vcst_c &, vcst_t &> & resolve, asc_t & output);
+	err_t					expressionStringFormat		(vcst_t format, cnst FError<vcst_c &, vcst_t &> & resolve, asc_t & output);
 } // namespace
 
 #endif // LLC_EXPRESSION_H_23627

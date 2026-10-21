@@ -4,7 +4,7 @@ LLC_USING_TYPEINT();
 
 #define llc_expression_info_printf(...) //info_printf
 
-static	::llc::error_t	expressionReaderViews					(::llc::apod<::llc::SExpressionToken> & tokens, ::llc::aobj<::llc::vcst_t> & views, ::llc::vcst_t expression) {
+sttc	llc::err_t	expressionReaderViews					(::llc::apod<::llc::SExpressionToken> & tokens, ::llc::aobj<::llc::vcst_t> & views, ::llc::vcst_t expression) {
 	for(::llc::u2_t iTag = 0; iTag < tokens.size(); ++iTag) {
 		const ::llc::SExpressionToken								& type									 = tokens[iTag];
 		if(iTag && (::llc::EXPRESSION_READER_TYPE_TERM_INDEX == type.Type || ::llc::EXPRESSION_READER_TYPE_TERM_KEY == type.Type || ::llc::EXPRESSION_READER_TYPE_LITERAL
@@ -16,7 +16,7 @@ static	::llc::error_t	expressionReaderViews					(::llc::apod<::llc::SExpressionT
 	return 0;
 }
 
-static	::llc::error_t	expressionTreeRebuild					(::llc::view<::llc::SExpressionToken> & in_object, ::llc::apobj<::llc::SExpressionNode> & out_nodes)								{
+sttc	llc::err_t	expressionTreeRebuild					(::llc::view<::llc::SExpressionToken> & in_object, ::llc::apobj<::llc::SExpressionNode> & out_nodes)								{
 	::llc::apobj<::llc::SExpressionNode>		& tree									= out_nodes;
 	llc_necall(tree.resize(in_object.size()), "Out of memory? Object count: %u.", in_object.size());
 
@@ -39,7 +39,7 @@ static	::llc::error_t	expressionTreeRebuild					(::llc::view<::llc::SExpressionT
 	return 0;
 }
 
-static	::llc::error_t	expressionReaderCloseType				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type, int32_t indexCurrentChar) {
+sttc	llc::err_t	expressionReaderCloseType				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type, int32_t indexCurrentChar) {
 	if_true_fef(type != stateReader.CurrentElement->Type, "Invalid type to close: %s. Current type: %s.", ::llc::get_value_label(type).begin(), ::llc::get_value_label(stateReader.CurrentElement->Type).begin());
 	stateReader.CurrentElement->Span.End						= indexCurrentChar;
 	stateReader.IndexCurrentElement								= stateReader.CurrentElement->ParentIndex;
@@ -49,7 +49,7 @@ static	::llc::error_t	expressionReaderCloseType				(::llc::SExpressionReaderStat
 	return 0;
 }
 
-static	::llc::error_t	expressionReaderCloseIfType				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type)	{
+sttc	llc::err_t	expressionReaderCloseIfType				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type)	{
 	if_null_vif(0, stateReader.CurrentElement, "Cannot close %s. Nothing to close.", ::llc::get_value_label(type).begin());
 	if(type == stateReader.CurrentElement->Type) {
 		llc_necall(::expressionReaderCloseType(stateReader, tokens, type, stateReader.IndexCurrentChar), "Failed to close type: %s. Why would this happen?", ::llc::get_value_label(type).begin());
@@ -58,7 +58,7 @@ static	::llc::error_t	expressionReaderCloseIfType				(::llc::SExpressionReaderSt
 	return 0;
 }
 
-static	::llc::error_t	expressionReaderOpenLevel				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type, ::llc::u2_t iChar)	{
+sttc	llc::err_t	expressionReaderOpenLevel				(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, ::llc::EXPRESSION_READER_TYPE type, ::llc::u2_t iChar)	{
 	stateReader.IndexCurrentElement								= tokens.push_back({stateReader.IndexCurrentElement, type, {iChar, iChar}});
 	stateReader.CurrentElement									= &tokens[stateReader.IndexCurrentElement];
 	++stateReader.NestLevel;
@@ -74,12 +74,12 @@ static	::llc::error_t	expressionReaderOpenLevel				(::llc::SExpressionReaderStat
 	}
 
 #define seterr_if(condition, format, ...)	\
-	if(condition) {								\
-		errVal					= -1;			\
-		error_printf(format, __VA_ARGS__);		\
+	if(condition) {							\
+		errVal					= -1;		\
+		error_printf(format, __VA_ARGS__);	\
 	}
 
-static	::llc::error_t	expressionReaderCloseTerm							(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens)	{
+sttc	llc::err_t	expressionReaderCloseTerm							(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens)	{
 	llc_necall(::expressionReaderCloseIfType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_KEY			), "%s", "Failed to close type.");
 	while(::llc::EXPRESSION_READER_TYPE_UNARY_NOT == stateReader.CurrentElement->Type)
 		llc_necall(::expressionReaderCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_UNARY_NOT	, stateReader.IndexCurrentChar), "%s", "Failed to close type.");
@@ -158,7 +158,7 @@ static	bool												isSpaceCharacter		(const sc_t characterToTest)		{
 //	return false;
 //}
 
-static	::llc::error_t	skipToNextCharacter						(::llc::u2_t & indexCurrentChar, const ::llc::vcst_t & expression)		{
+sttc	llc::err_t	skipToNextCharacter						(::llc::u2_t & indexCurrentChar, const ::llc::vcst_t & expression)		{
 	while(indexCurrentChar < expression.size()) {
 		if(::isSpaceCharacter(expression[indexCurrentChar]))
 			++indexCurrentChar;
@@ -168,7 +168,7 @@ static	::llc::error_t	skipToNextCharacter						(::llc::u2_t & indexCurrentChar, 
 	return 0;
 }
 
-static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, const ::llc::vcst_t & expression)	{
+sttc	llc::err_t	expressionReaderProcessDocCharacter		(::llc::SExpressionReaderState & stateReader, ::llc::apod<::llc::SExpressionToken> & tokens, const ::llc::vcst_t & expression)	{
 	if(0 == tokens.size())
 		llc_necall(::expressionReaderOpenLevel(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_ANY, stateReader.IndexCurrentChar), "Failed to open expression at index %i", stateReader.IndexCurrentChar);
 
@@ -330,7 +330,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 	return 0;
 }
 
-::llc::error_t			llc::expressionReaderParseStep			(::llc::SExpressionReader & reader, ::llc::vcst_t expression)	{
+llc::err_t			llc::expressionReaderParseStep			(::llc::SExpressionReader & reader, ::llc::vcst_t expression)	{
 	::llc::apod<::llc::SExpressionToken>					& tokens								= reader.Token;
 	::llc::SExpressionReaderState									& stateReader							= reader.StateRead;
 	if_true_fef(stateReader.IndexCurrentChar >= expression.size(), "Invalid expression index: %u. Expression size: %u.", stateReader.IndexCurrentChar, expression.size());
@@ -371,7 +371,7 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 	return result;
 }
 
-::llc::error_t			llc::expressionReaderParse			(::llc::SExpressionReader & reader, ::llc::vcst_t expression)	{
+llc::err_t			llc::expressionReaderParse			(::llc::SExpressionReader & reader, ::llc::vcst_t expression)	{
 	::llc::SExpressionReaderState				& stateReader						= reader.StateRead;
 	::llc::apod<::llc::SExpressionToken>		& tokens							= reader.Token;
 	for(stateReader.IndexCurrentChar = 0; stateReader.IndexCurrentChar < expression.size(); ++stateReader.IndexCurrentChar) {
@@ -384,4 +384,34 @@ static	::llc::error_t	expressionReaderProcessDocCharacter		(::llc::SExpressionRe
 	llc_necall(::expressionReaderViews(tokens, reader.View, expression), "%s", "Failed to build views. Corrupt info?");
 	llc_necall(::expressionTreeRebuild(tokens, reader.Tree), "%s", "Failed to rebuild tree. Corrupt tree?");
 	return 0;
+}
+
+::llc::err_t llc::expressionStringFormat(::llc::vcst_t format, ::llc::view<cnst ::llc::SStripLiteralType> tokens, cnst ::llc::FError<::llc::vcst_c &, ::llc::vcst_t &> & resolve, ::llc::asc_t & output) {
+	::llc::asc_t					formatted;
+	for(::llc::u2_t iType = 0; iType < tokens.size(); ++iType) {
+		cnst ::llc::SStripLiteralType	& type			= tokens[iType];
+		cnst bool						isToken			= ::llc::STRIP_LITERAL_TYPE_TOKEN == type.Type;
+		if_true_fef(type.Span.Begin > type.Span.End || type.Span.End > format.size(), "Invalid format span: %u..%u, size:%u.", type.Span.Begin, type.Span.End, format.size());
+		if_true_fef(isToken && type.Span.End - type.Span.Begin < 2, "Invalid token span: %u..%u.", type.Span.Begin, type.Span.End);
+		::llc::u2_c						offsetView		= isToken ? type.Span.Begin + 1 : type.Span.Begin;
+		::llc::u2_c						lengthView		= isToken ? type.Span.End - type.Span.Begin - 2 : type.Span.End - type.Span.Begin;
+		if(0 == lengthView)
+			continue;
+		::llc::vcst_t					viewToAppend	= {&format[offsetView], lengthView};
+		if(isToken) {
+			::llc::vcst_t					resolved;
+			if_fail_fef(resolve(viewToAppend, resolved), "Failed to resolve expression: %.*s.", LLC_VIEW_ARGS(viewToAppend));
+			viewToAppend				= resolved;
+		}
+		if_fail_fef(formatted.append(viewToAppend), "iType: %u", iType);
+	}
+	if_fail_fe(output.append(formatted));
+	rtrn 0;
+}
+
+::llc::err_t llc::expressionStringFormat(::llc::vcst_t format, cnst ::llc::FError<::llc::vcst_c &, ::llc::vcst_t &> & resolve, ::llc::asc_t & output) {
+	::llc::apod<::llc::SStripLiteralType>	tokens;
+	::llc::SStripLiteralState				state;
+	if_fail_fef(::llc::stripLiteralParse(state, tokens, format), "%.*s", LLC_VIEW_ARGS(format));
+	rtrn ::llc::expressionStringFormat(format, tokens, resolve, output);
 }

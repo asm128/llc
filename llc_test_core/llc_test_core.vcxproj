@@ -58,6 +58,8 @@
     <ClCompile Include="llc_test_ctti.cpp" />
     <ClCompile Include="llc_test_d3d.cpp" />
     <ClCompile Include="llc_test_deflate.cpp" />
+    <ClCompile Include="llc_test_engine_managers.cpp" />
+    <ClCompile Include="llc_test_engine_serialization.cpp" />
     <ClCompile Include="llc_test_enum.cpp" />
     <ClCompile Include="llc_test_expression.cpp" />
     <ClCompile Include="llc_test_geometry.cpp" />
@@ -94,6 +96,7 @@
   <ItemGroup>
     <ClInclude Include="llc_test_base64_font_data.h" />
     <ClInclude Include="llc_test_core_suites.h" />
+    <ClInclude Include="llc_test_engine_fixture.h" />
     <ClInclude Include="llc_test_report.h" />
     <ClInclude Include="llc_test_trace.h" />
   </ItemGroup>

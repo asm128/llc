@@ -310,28 +310,7 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 }
 
 ::llc::error_t			llc::jsonStringFormat					(::llc::vcst_t format, const ::llc::SJSONReader& inputJSON, ::llc::u2_t indexNodeJSON, ::llc::asc_t & output)					{
-	::llc::apod<::llc::SStripLiteralType>	typesLiteral				= {};
-	{
-		::llc::SStripLiteralState	stateLiteralStripper					= {};
-		llc_necs(llc::stripLiteralParse(stateLiteralStripper, typesLiteral, format));	// strip root literals
-	}
-
-	::llc::asc_t						formatted								= {};
-	for(::llc::u2_t iType = 0; iType < typesLiteral.size(); ++iType) {
-		const ::llc::SStripLiteralType	& type								= typesLiteral[iType];
-		const bool							isToken								= ::llc::STRIP_LITERAL_TYPE_TOKEN == type.Type;
-		const ::llc::u2_t				offsetView							= isToken ? type.Span.Begin + 1 : type.Span.Begin;
-		const ::llc::u2_t				lengthView							= isToken ? type.Span.End - type.Span.Begin - 2 : type.Span.End - type.Span.Begin;
-		if(0 == lengthView)
-			continue;
-		::llc::vcst_t					viewToAppend							= {&format[offsetView], lengthView};
-		if(isToken) {
-			::llc::vcst_t				resolved								= {};
-			llc_necall(llc::jsonExpressionResolve(viewToAppend, inputJSON, indexNodeJSON, resolved), "Failed to resolve expression: %.*s.", LLC_VIEW_ARGS(viewToAppend));
-			viewToAppend												= resolved;
-		}
-		llc_necall(formatted.append(viewToAppend), "iType: %u", iType);
-	}
-	llc_necall(output.append(formatted), "%s", "Failed to append formatted string.");
-	return 0;
+	rtrn ::llc::expressionStringFormat(format, [&](::llc::vcst_c & expression, ::llc::vcst_t & resolved) {
+		rtrn ::llc::jsonExpressionResolve(expression, inputJSON, indexNodeJSON, resolved);
+	}, output);
 }
