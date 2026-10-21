@@ -161,7 +161,9 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 			::llc::guiUpdateMetrics(gui, framework.RootWindow.Size, true);
 		}
 	}
-	return ::updateDPI(framework);
+	if_fail_fe(::updateDPI(framework));
+	::std::lock_guard lock(framework.LockGUI);
+	return ::llc::guiUpdateMetrics(gui, mainWindow.Size, false);
 }
 
 #if defined(LLC_WINDOWS)
