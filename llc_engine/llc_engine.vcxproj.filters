@@ -40,6 +40,9 @@
     <Filter Include="physics">
       <UniqueIdentifier>{0838e94a-49aa-4c82-8cb6-ac45d3c7a882}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ragnarok">
+      <UniqueIdentifier>{93e8bb0c-39c2-422e-a4ec-4e78e2c666db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="llc_engine.h">

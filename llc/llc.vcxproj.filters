@@ -837,6 +837,9 @@
     <ClInclude Include="llc_test_report.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="llc_test_trace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
