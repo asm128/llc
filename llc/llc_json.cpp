@@ -686,22 +686,26 @@ llc::err_t			llc::jsonCompareArray		(cnst llc::SJSONNode & node, llc::view<cnst 
 //
 //	Furthermore, the possible characters '0'..'9', 'A'..'F', and 'a'..'f' must be converted to the integers 0x0..0x9, 0xA..0xF, 0xA..0xF, resp.
 //	The conversion is done by subtracting the offset (0x30, 0x37, and 0x57) between the ASCII value of the character and the desired integer value.
-//	Returns codepoint (0x0000..0xFFFF) or -1 in case of an error (e.g. EOF or non-hex character)
+//	Decodes exactly four hexadecimal digits into ret_unicode. Returns 0 on success or -1 on error.
 sttc	llc::err_t	decodeUnicodeEscapeSequence	(llc::vcst_t  input, u2_t & ret_unicode)		{
 	if_true_fef(input.size() < 4, "Invalid escape sequence: %.*s.", int(input.size()), input.begin());
-	rtrn llc::parseIntegerHexadecimal(input, ret_unicode);
+	cnst llc::err_t			digitsDecoded				= llc::parseIntegerHexadecimal({input.begin(), 4U}, ret_unicode);
+	if_true_fef(4 != digitsDecoded, "Invalid escape sequence: %.*s.", 4, input.begin());
+	rtrn 0;
 }
 
 // this function only makes sense after reading the first `\u`
 llc::err_t			jsonToCodePoint				(llc::vcst_t  input, u2_t & unicode)			{
 	llc_necall(::decodeUnicodeEscapeSequence(input, unicode), "Invalid escape sequence: %.*s.", int(input.size()), input.begin());
-	if (unicode < 0xD800 || unicode > 0xDBFF)
+	if(unicode < 0xD800 || unicode > 0xDFFF)
 		rtrn 0;
+	if_true_fef(unicode > 0xDBFF, "Unexpected low surrogate: 0x%04X.", unicode);
 	// surrogate pairs
-	if_true_fef(input.size() < 7, "expecting a \\u token for the second half of the surrogate pair. input.size(): %u", input.size());
-	if_true_fef(input[4] != '\\' || input[5] == 'u', "expecting a \\u token for the second half of the surrogate pair. input[4]: %c, input[5]: %c", input[4], input[5]);
+	if_true_fef(input.size() < 10, "expecting a \\u token for the second half of the surrogate pair. input.size(): %u", input.size());
+	if_true_fef(input[4] != '\\' || input[5] != 'u', "expecting a \\u token for the second half of the surrogate pair. input[4]: %c, input[5]: %c", input[4], input[5]);
 	u2_t						surrogatePair;
 	llc_necall(::decodeUnicodeEscapeSequence({&input[6], 4U}, surrogatePair), "Invalid escape sequence: %.*s.", int(input.size()), input.begin());
+	if_true_fef(surrogatePair < 0xDC00 || surrogatePair > 0xDFFF, "Invalid low surrogate: 0x%04X.", surrogatePair);
 	unicode														= 0x10000 + ((unicode & 0x3FF) << 10) + (surrogatePair & 0x3FF);
 	rtrn 0;
 }
