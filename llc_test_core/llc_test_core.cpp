@@ -12,6 +12,61 @@ sttc bool TestSeedOverrideEnabled = false;
 
 ::llc::u3_t testSeed(::llc::u3_t fallback) { rtrn TestSeedOverrideEnabled ? TestSeedOverride : fallback; }
 
+GDEFINE_ENUM_TYPE(TEST_REPORT_RESULT, ::llc::u0_t);
+GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, CAPTURE, 0, "Log capture must preserve print/write bytes and restore the enclosing buffer.");
+GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, QUIET, 1, "File-only capture must not forward to the console writer.");
+GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, CONSOLE, 2, "Opt-in console capture must forward each byte once.");
+GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, ROOT_ERROR, 3, "Report-writing errors must survive in the root log.");
+
+sttc ::llc::err_t testReporting(ATestError & errors, ::llc::vcst_t outputFolder) {
+	STestLogBuffer captured;
+	cnst STestLogWriters previousWriters = TestConsoleWriters;
+	cnst bool previousConsole = TestConsoleEnabled;
+	STestLogBuffer * previousBuffer = TestActiveLog;
+	sttc ::llc::u2_t forwarded = 0;
+	forwarded = 0;
+	::llc::u2_t quietForwarded = 0;
+	::llc::err_t captureResult = 0;
+	TestConsoleWriters.Write = [](const char *, ::llc::u2_t length) -> ::llc::err_t { forwarded += length; rtrn 0; };
+	{
+		STestLogCapture capture(captured);
+		TestConsoleEnabled = false;
+		captureResult = ::llc::log_print("quiet");
+		captureResult = ::llc::min(captureResult, ::llc::log_write(":raw", 4));
+		quietForwarded = forwarded;
+		TestConsoleEnabled = true;
+		captureResult = ::llc::min(captureResult, ::llc::log_print("echo"));
+		captureResult = ::llc::min(captureResult, ::llc::log_write(":raw", 4));
+	}
+	TestConsoleEnabled = previousConsole;
+	TestConsoleWriters = previousWriters;
+	STestLogWriters restored;
+	if_fail_fe(::llc::getLogCallbacks(restored.Print, restored.Write));
+	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_CAPTURE, ::llc::failed(captureResult) || captured.Failed || captured.Text != "quiet:rawecho:raw" || TestActiveLog != previousBuffer || restored.Print != testCapturePrint || restored.Write != testCaptureWrite);
+	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_QUIET, quietForwarded != 0);
+	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_CONSOLE, forwarded != 8);
+
+	STestRunReport failedRun;
+	::llc::string blockedFile;
+	if_fail_fe(::llc::pathNameCompose(outputFolder, "report_write_failure", failedRun.Folder));
+	if_fail_fe(::llc::pathCreate(failedRun.Folder));
+	if_fail_fe(::llc::pathNameCompose(failedRun.Folder, "results.json", blockedFile));
+	if_fail_fe(::llc::pathCreate(blockedFile)); // A directory cannot be replaced with the JSON file.
+	STestLogBuffer failureLog;
+	::llc::string expected;
+	::llc::err_t reportResult, logResult;
+	{
+		STestLogCapture capture(failureLog);
+		reportResult = testRunReportWrite(failedRun, -1, 0, false, 0);
+		if_fail_fe(expected.append(failureLog.Text));
+		logResult = testRootLogWrite(failedRun.Folder, failureLog);
+	}
+	::llc::au0_t saved;
+	if_fail_fe(::llc::fileToMemory(failedRun.Folder, "console.log", saved));
+	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_ROOT_ERROR, 0 <= reportResult || ::llc::failed(logResult) || failureLog.Failed || !expected.size() || saved != expected.cc().cu8());
+	rtrn 0;
+}
+
 tplt<tpnm TFunction>
 stct STestSuite {
 	TFunction		& Function;
@@ -163,6 +218,7 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 		, LLC_TEST_SUITE(testPointers, "ptr")
 		, LLC_TEST_SUITE(testPNG, "png")
 		, LLC_TEST_SUITE(testProcess, "process")
+		, LLC_TEST_SUITE(testReporting, "reporting")
 		//, LLC_TEST_SUITE(testRuntimeModule, "runtime_module")
 		, LLC_TEST_SUITE(testView, "view")
 		, LLC_TEST_SUITE(testViewAliases, "view_aliases")
@@ -187,24 +243,31 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 }
 
 sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
-	STestRunReport run;
-	::llc::vcst_t parent = ".";
-	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "output"))
-		if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "output", parent));
-	try { if_fail_fe(testRunFolder(parent, run.Folder)); }
-	catch(...) { error_printf("%s", "Cannot create run folder."); rtrn -1; }
+	TestConsoleEnabled = 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "console");
 	STestLogBuffer log;
+	STestLogCapture capture(log);
+	if(!TestConsoleEnabled) capture.Previous = {}; // Keep callback teardown silent when this runner exits.
+	STestRunReport run;
 	::llc::err_t status = 0;
 	::llc::STimer timer;
-	{
-		STestLogCapture capture(log);
-		always_printf("Test output: %.*s", LLC_VIEW_ARGS(run.Folder));
-		try { status = testCoreRun(runtimeValues, run); }
-		catch(...) { status = -1; error_printf("%s", "Unknown runner exception."); }
-		timer.Frame();
-		if(log.Failed) status = -1;
+	try {
+		status = [&]() -> ::llc::err_t {
+			::llc::vcst_t parent = ".";
+			if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "output"))
+				if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "output", parent));
+			if_fail_fe(testRunFolder(parent, run.Folder));
+			always_printf("Test output: %.*s", LLC_VIEW_ARGS(run.Folder));
+			rtrn testCoreRun(runtimeValues, run);
+		}();
 	}
-	try { if_fail_fe(testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride, log)); }
-	catch(...) { error_printf("%s", "Cannot write run reports."); rtrn -1; }
-	rtrn status;
+	catch(...) { status = -1; error_printf("%s", "Runner setup or execution exception."); }
+	timer.Frame();
+	if(log.Failed) status = -1;
+	if(run.Folder.size()) {
+		try { status = ::llc::min(status, testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride)); }
+		catch(...) { status = -1; error_printf("%s", "Cannot write run reports."); }
+	}
+	try { status = ::llc::min(status, testRootLogWrite(run.Folder, log)); }
+	catch(...) { status = -1; }
+	rtrn log.Failed ? -1 : status;
 }

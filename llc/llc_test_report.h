@@ -21,6 +21,7 @@ struct STestLogBuffer {
 };
 sttc STestLogBuffer * TestActiveLog = {};
 sttc STestLogWriters TestConsoleWriters;
+sttc bool TestConsoleEnabled = false;
 
 sttc ::llc::err_t testCaptureWrite(const char * text, ::llc::u2_t length) {
 	// LLC allocation failures can log through this same callback.
@@ -34,7 +35,7 @@ sttc ::llc::err_t testCaptureWrite(const char * text, ::llc::u2_t length) {
 		catch(...) { TestActiveLog->Failed = true; }
 		writing = false;
 	}
-	rtrn 0; // TestConsoleWriters.Write ? TestConsoleWriters.Write(text, length) : 0;
+	rtrn TestConsoleEnabled && TestConsoleWriters.Write ? TestConsoleWriters.Write(text, length) : 0;
 }
 sttc ::llc::err_t testCapturePrint(const char * text) { rtrn testCaptureWrite(text, (::llc::u2_t)strlen(text)); }
 
@@ -46,11 +47,13 @@ struct STestLogCapture {
 		if(!PreviousBuffer)
 			TestConsoleWriters = Previous;
 		TestActiveLog = &buffer;
-		::llc::setupLogCallbacks(testCapturePrint, testCaptureWrite);
+		if(Previous.Print != testCapturePrint || Previous.Write != testCaptureWrite)
+			::llc::setupLogCallbacks(testCapturePrint, testCaptureWrite);
 	}
 	~STestLogCapture() {
 		TestActiveLog = PreviousBuffer;
-		::llc::setupLogCallbacks(Previous.Print, Previous.Write);
+		if(Previous.Print != testCapturePrint || Previous.Write != testCaptureWrite)
+			::llc::setupLogCallbacks(Previous.Print, Previous.Write);
 	}
 };
 
@@ -131,7 +134,7 @@ sttc ::llc::err_t testRunFolder(::llc::vcst_t parent, ::llc::string & folder) {
 	rtrn ::llc::pathCreate(folder);
 }
 
-sttc ::llc::err_t testRunReportWrite(cnst STestRunReport & run, ::llc::err_t status, ::llc::u3_t duration, bool seedEnabled, ::llc::u3_t seed, cnst STestLogBuffer & log) {
+sttc ::llc::err_t testRunReportWrite(cnst STestRunReport & run, ::llc::err_t status, ::llc::u3_t duration, bool seedEnabled, ::llc::u3_t seed) {
 	::llc::u3_t checks = 0, failures = 0;
 	::llc::string suites;
 	for(cnst auto & suite : run.Suites) {
@@ -157,8 +160,18 @@ sttc ::llc::err_t testRunReportWrite(cnst STestRunReport & run, ::llc::err_t sta
 	else { if_fail_fe(json.append_string("null")); }
 	if_fail_fe(::llc::append_strings(json, ",\"checks\":", ::llc::str(checks), ",\"passed\":", ::llc::str(checks - failures)
 		, ",\"failed\":", ::llc::str(failures), ",\"suites\":[", suites, "]}\n"));
-	cnst ::llc::err_t jsonResult = testReportWrite(run.Folder, "results.json", json);
-	cnst ::llc::err_t logResult = testReportWrite(run.Folder, "console.log", log.Text);
-	rtrn ::llc::min(jsonResult, logResult);
+	rtrn testReportWrite(run.Folder, "results.json", json);
+}
+
+sttc ::llc::err_t testRootLogWrite(::llc::vcst_t folder, cnst STestLogBuffer & log) {
+	// File diagnostics append to the active log; write from separate storage.
+	::llc::string snapshot;
+	if_fail_fe(snapshot.append(log.Text));
+	if(folder.size() && !::llc::failed(testReportWrite(folder, "console.log", snapshot)))
+		rtrn 0;
+	snapshot.clear();
+	if_fail_fe(snapshot.append(log.Text));
+	if_fail_fe(testReportWrite(".", "llc_test_core.log", snapshot));
+	rtrn -1;
 }
 #endif // LLC_TEST_REPORT_H
