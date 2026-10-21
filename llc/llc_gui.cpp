@@ -492,10 +492,6 @@ static	::llc::error_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iCon
 }
 
 ::llc::error_t			llc::guiUpdateMetrics									(::llc::SGUI & gui, const ::llc::n2<::llc::u1_t> & targetSize, bool forceUpdate)								{
-	if(gui.LastSize != targetSize || gui.LastZoom != gui.Zoom) {
-		for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
-			gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
-	}
 	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
 		if(::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent) && false == ::llc::controlInvalid(gui, (::llc::cid_t)iControl))
 			llc_necall(llc::controlUpdateMetricsTopToDown(gui, (::llc::cid_t)iControl, targetSize, forceUpdate), "Failed to update metrics for control %i", iControl);

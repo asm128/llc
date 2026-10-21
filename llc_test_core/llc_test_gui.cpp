@@ -82,6 +82,7 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, UPDATE_INITIALIZE  , 67, "GUI initializatio
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, DRAW_LAYOUT_STATE  , 68, "Drawing changed the last updated GUI layout state.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, UPDATE_RESIZE      , 69, "Target resize did not invalidate metrics during update.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, UPDATE_ZOOM        , 70, "Zoom change did not invalidate metrics during update.");
+GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_RESIZE_EVENTS, 71, "Forced metric updates emitted redundant control-state events.");
 
 sttc ::llc::err_t testGUIUpdateDrawOrder(ATestError & errors) {
 	::llc::SGUI gui = {};
@@ -115,14 +116,19 @@ sttc ::llc::err_t testGUIUpdateDrawOrder(ATestError & errors) {
 	if_fail_fe(target.resize(::llc::n2u2_t{120, 100}));
 	if_fail_fe(::llc::guiDraw(gui, target.View));
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_LAYOUT_STATE, gui.Controls.Area[control].Total.Global != resizedArea);
-	if_fail_fe(::llc::guiUpdateMetrics(gui, target.metrics().u1(), false));
+	if_fail_fe(::llc::guiUpdateMetrics(gui, target.metrics().u1(), true));
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_UPDATE_RESIZE, gui.Controls.Area[control].Total.Global == resizedArea);
 	cnst auto beforeZoom = gui.Controls.Area[control].Total.Global;
 	gui.Zoom.ZoomLevel *= 2;
 	if_fail_fe(::llc::guiDraw(gui, target.View));
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_LAYOUT_STATE, gui.LastZoom != oldZoom || gui.Controls.Area[control].Total.Global != beforeZoom);
-	if_fail_fe(::llc::guiUpdateMetrics(gui, target.metrics().u1(), false));
+	if_fail_fe(::llc::guiUpdateMetrics(gui, target.metrics().u1(), true));
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_UPDATE_ZOOM, gui.LastZoom != gui.Zoom || gui.Controls.Area[control].Total.Global == beforeZoom);
+	gui.Controls.EventQueue.clear();
+	for(::llc::u1_t width = 121; width < 140; ++width) {
+		if_fail_fe(::llc::guiUpdateMetrics(gui, {width, 100}, true));
+		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_METRIC_RESIZE_EVENTS, gui.Controls.EventQueue.size(), "Width:%u events:%u.", width, gui.Controls.EventQueue.size());
+	}
 	rtrn 0;
 }
 

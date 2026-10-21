@@ -162,8 +162,14 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 		}
 	}
 	if_fail_fe(::updateDPI(framework));
-	::std::lock_guard lock(framework.LockGUI);
-	return ::llc::guiUpdateMetrics(gui, mainWindow.Size, false);
+	if(gui.LastSize != mainWindow.Size || gui.LastZoom != gui.Zoom) {
+		for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
+			gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
+	}
+	{
+		::std::lock_guard lock(framework.LockGUI);
+		return ::llc::guiUpdateMetrics(gui, mainWindow.Size, false);
+	}
 }
 
 #if defined(LLC_WINDOWS)
