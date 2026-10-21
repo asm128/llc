@@ -43,7 +43,7 @@ namespace llc
 		::llc::n3f2_t			WeightedNormal		;
 		::llc::n2f2_t			WeightedUV			;
 		::llc::SRenderMaterial	Material			;
-		::llc::gc8bgra			Surface				; 
+		::llc::view<const ::llc::gc8bgra>	Surfaces		;
 	};
 
 	stacxpr size_t		SPSINSIZE = sizeof(SPSIn);
@@ -122,11 +122,17 @@ namespace llc
 		}
 	};
 
+	struct SRenderNodeList {
+		::llc::au2_t					Solid					= {};
+		::llc::au2_t					Alpha					= {};
+	};
+
 	struct SEngineScene {
 		::llc::pobj<SEngineGraphics>	Graphics				= {};
 		::llc::SRenderNodeManager		RenderNodes				= {};
 		::llc::SEngineRenderCache		RenderCache				= {};
 
+		::llc::error_t					BuildRenderList			(const ::llc::n3f2_t & cameraPosition, const ::llc::n3f2_t & cameraFront, ::llc::SRenderNodeList & renderList) const;
 		::llc::error_t					CreateRenderNode		(const ::llc::SGeometryBuffers & geometry, ::llc::vcst_c name, bool createSkin);
 
 		::llc::error_t					Load					(::llc::vcu0_t & input) {
@@ -182,6 +188,7 @@ namespace llc
 		, const ::llc::n3f2_t		& cameraUp
 		, const ::llc::minmaxf2_t	& nearFar
 		, const ::llc::n3f2_t		& lightPos = {}
+		, ::llc::f3_t				time = 0
 		);
 
 } // namespace

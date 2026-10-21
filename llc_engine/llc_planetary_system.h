@@ -14,11 +14,23 @@ namespace llc
 		::llc::SCelestialBodyMap			Body;
 		::llc::apod<::llc::CELESTIAL_BODY>	Type;
 		::llc::as2_t						Parent;
+		::llc::aobj<::llc::vcst_t>			ImageColor;
+		::llc::aobj<::llc::vcst_t>			ImageLight;
+		::llc::aobj<::llc::vcst_t>			ImageCloudColor;
+		::llc::aobj<::llc::vcst_t>			ImageCloudAlpha;
+		::llc::aobj<::llc::vcst_t>			Shader;
 
 		::llc::error_t				Save			(::llc::au0_t & output)	const	{ 
 			llc_necs(Body.Save(output));
 			llc_necs(llc::saveView(output, Type));
 			llc_necs(llc::saveView(output, Parent));
+			for(uint32_t iBody = 0; iBody < Body.size(); ++iBody) {
+				llc_necs(llc::saveView(output, ImageColor[iBody]));
+				llc_necs(llc::saveView(output, ImageLight[iBody]));
+				llc_necs(llc::saveView(output, ImageCloudColor[iBody]));
+				llc_necs(llc::saveView(output, ImageCloudAlpha[iBody]));
+				llc_necs(llc::saveView(output, Shader[iBody]));
+			}
 			return 0;
 		}
 
@@ -26,6 +38,19 @@ namespace llc
 			llc_necs(Body.Load(input));
 			llc_necs(llc::loadView(input, Type));
 			llc_necs(llc::loadView(input, Parent));
+			for(uint32_t iBody = 0; iBody < Body.size(); ++iBody) {
+				::llc::vcst_t imageColor = {}, imageLight = {}, imageCloudColor = {}, imageCloudAlpha = {}, shader = {};
+				llc_necs(llc::loadLabel(input, imageColor));
+				llc_necs(llc::loadLabel(input, imageLight));
+				llc_necs(llc::loadLabel(input, imageCloudColor));
+				llc_necs(llc::loadLabel(input, imageCloudAlpha));
+				llc_necs(llc::loadLabel(input, shader));
+				llc_necs(ImageColor.push_back(imageColor));
+				llc_necs(ImageLight.push_back(imageLight));
+				llc_necs(ImageCloudColor.push_back(imageCloudColor));
+				llc_necs(ImageCloudAlpha.push_back(imageCloudAlpha));
+				llc_necs(Shader.push_back(shader));
+			}
 			return 0;
 		}
 	};

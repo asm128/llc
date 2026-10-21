@@ -25,6 +25,7 @@ namespace llc
 		::llc::acom<ID3D11BlendState>			BlendState;
 		::llc::acom<ID3D11RasterizerState>		RasterizerState;
 		::llc::acom<ID3D11DepthStencilState>	DepthStencilState;
+		UINT									BoundShaderResourceCount		= 0;
 		
 		// System resources for cube geometry.
 		::llc::SEngineSceneConstants			ConstantBufferScene				= {};
@@ -53,9 +54,12 @@ namespace llc
 			BlendState			.clear();
 			RasterizerState		.clear();
 			DepthStencilState	.clear();
+			BoundShaderResourceCount = 0;
 		}
 
-		void									Render							(uint32_t iMesh, ::llc::rangeu2_t indexRange, uint32_t iTexture, uint32_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel) {
+		::llc::error_t						Render							(uint32_t iMesh, ::llc::rangeu2_t indexRange, ::llc::vcu2_t iTextures, uint32_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel) {
+			if(iTextures.size() > D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT)
+				return ::llc::OS_INVALID_PARAMETER;
 			auto										context							= DeviceResources->GetD3DDeviceContext();
 			context->UpdateSubresource1(ConstantBuffer[0], 0, NULL, &constantBufferModel, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
 			context->UpdateSubresource1(ConstantBuffer[1], 0, NULL, &ConstantBufferScene, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
@@ -82,7 +86,16 @@ namespace llc
 			ib->GetDesc(&desc);
 
 		    context->PSSetSamplers( 0, 1, &SamplerStates[0] );
-			context->PSSetShaderResources( 0, 1, &ShaderResourceView[iTexture] );
+			ID3D11ShaderResourceView					* resources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+			for(UINT iTexture = 0; iTexture < iTextures.size(); ++iTexture) {
+				if(iTextures[iTexture] >= ShaderResourceView.size())
+					return ::llc::OS_INVALID_PARAMETER;
+				resources[iTexture]						= ShaderResourceView[iTextures[iTexture]].get();
+			}
+			const UINT								resourceCount					= ::llc::max((UINT)iTextures.size(), BoundShaderResourceCount);
+			if(resourceCount)
+				context->PSSetShaderResources(0, resourceCount, resources);
+			BoundShaderResourceCount					= (UINT)iTextures.size();
 
 			context->RSSetState(RasterizerState[alpha ? 1 : 0]);
 	
@@ -90,6 +103,7 @@ namespace llc
 			context->OMSetDepthStencilState(DepthStencilState[alpha ? 1 : 0], 0xFF);
 
 			context->DrawIndexed(indexRange.Count, indexRange.Offset, 0);	// Draw the objects.
+			return 0;
 		}
 
 		::llc::error_t							CreateSizeDependentResources	(const ::llc::n2f2_t & outputSize, const DirectX::XMFLOAT4X4 & orientation) {
