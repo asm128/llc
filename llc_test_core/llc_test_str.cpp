@@ -114,6 +114,8 @@ sttc ::llc::err_t testStringArrayScan(::llc::ATestError & errors) {
 	::llc::sc_t padded[64] = "hello";
 	cnst ::llc::string owned = ::llc::vcst_t{padded};
 	cnst ::llc::vcst_t expectedOwned = "hello";
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(expectedOwned == owned) || expectedOwned != owned);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, (::llc::vcst_t{"world"} == owned) || !(::llc::vcst_t{"world"} != owned));
 	cnst ::llc::label interned = expectedOwned;
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(owned == "hello") || owned != "hello" || owned == "hell" || !(owned != "world"));
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !("hello" == owned) || "hello" != owned || "hell" == owned || !("world" != owned));
