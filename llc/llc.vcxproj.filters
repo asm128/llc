@@ -834,9 +834,6 @@
     <ClInclude Include="llc_test_report.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="llc_test_trace.h">
-      <Filter>test</Filter>
-    </ClInclude>
     <ClInclude Include="llc_mutex.h">
       <Filter>base</Filter>
     </ClInclude>

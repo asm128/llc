@@ -60,8 +60,10 @@
     <ClCompile Include="llc_test_enum.cpp" />
     <ClCompile Include="llc_test_expression.cpp" />
     <ClCompile Include="llc_test_geometry.cpp" />
+    <ClCompile Include="llc_test_grid.cpp" />
     <ClCompile Include="llc_test_grid_image.cpp" />
     <ClCompile Include="llc_test_grid_operations.cpp" />
+    <ClCompile Include="llc_test_grid_serialize.cpp" />
     <ClCompile Include="llc_test_gui.cpp" />
     <ClCompile Include="llc_test_input.cpp" />
     <ClCompile Include="llc_test_json.cpp" />

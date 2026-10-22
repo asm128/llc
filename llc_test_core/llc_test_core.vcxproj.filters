@@ -177,6 +177,12 @@
     <ClCompile Include="llc_test_array_bit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="llc_test_grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_grid_serialize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="llc_test_core_suites.h">

@@ -175,7 +175,6 @@
     <ClInclude Include="llc_rect_align.h" />
     <ClInclude Include="llc_ref.h" />
     <ClInclude Include="llc_test_report.h" />
-    <ClInclude Include="llc_test_trace.h" />
     <ClInclude Include="llc_tri.h" />
     <ClInclude Include="llc_tri2.h" />
     <ClInclude Include="llc_tri3.h" />

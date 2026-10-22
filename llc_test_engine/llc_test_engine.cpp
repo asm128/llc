@@ -122,17 +122,12 @@ sttc ::llc::err_t testEngineRun(::llc::SRuntimeValues & runtimeValues, STestRunR
 
 	::llc::STimer	testTimer;
 	result = testSuitesRun(results, run, selectedSuites
-<<<<<<< Updated upstream
 		, LLC_TEST_SUITE(testD3D, "d3d")
 		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
 		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
 		//, LLC_TEST_SUITE(testRORSM, "ro_rsm")
-=======
-		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
-		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
 		, LLC_TEST_SUITE(testRagnarokGAT, "ragnarok_gat")
 		, LLC_TEST_SUITE(testRagnarokGND, "ragnarok_gnd")
->>>>>>> Stashed changes
 		);
 	testTimer.Frame();
 
@@ -147,11 +142,37 @@ sttc ::llc::err_t testEngineRun(::llc::SRuntimeValues & runtimeValues, STestRunR
 	rtrn ::llc::failed(result) ? result : failureCount ? ::llc::OS_ERROR : 0;
 }
 
+#if defined(LLC_WINDOWS) || defined(LLC_LINUX)
+extern ::llc::err_t testProcessEchoChild();
+#endif
+#ifdef LLC_LINUX
+extern ::llc::err_t testProcessMarkerChild();
+extern ::llc::err_t testProcessSignalChild();
+#endif
+
 sttc ::llc::err_t test_engine_entry_point(::llc::SRuntimeValues & runtimeValues) {
+#ifdef LLC_WINDOWS
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-echo"))
+		rtrn ::testProcessEchoChild();
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-child")) {
+		stxp ::llc::sc_t childOutput[] = "llc process child";
+		DWORD written = 0;
+		if(FALSE == WriteFile(GetStdHandle(STD_ERROR_HANDLE), childOutput, ::llc::size(childOutput) - 1, &written, 0) || written != ::llc::size(childOutput) - 1)
+			rtrn -1;
+		rtrn -1;
+	}
+#elif defined(LLC_LINUX)
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-signal"))
+		rtrn ::testProcessSignalChild();
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-echo"))
+		rtrn ::testProcessEchoChild();
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-child"))
+		rtrn ::testProcessMarkerChild();
+#endif
 	TestConsoleEnabled = 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "console");
 	STestLogBuffer log;
 	STestLogCapture capture(log);
-	if(!TestConsoleEnabled) capture.Previous = {};
+	if(!TestConsoleEnabled) capture.Previous = {}; // Keep callback teardown silent when this runner exits.
 	STestRunReport run;
 	::llc::err_t status = 0;
 	::llc::STimer timer;
@@ -162,16 +183,9 @@ sttc ::llc::err_t test_engine_entry_point(::llc::SRuntimeValues & runtimeValues)
 				if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "output", parent));
 			if_fail_fe(testRunFolder(parent, run.Folder));
 			always_printf("Test output: %.*s", LLC_VIEW_ARGS(run.Folder));
-			rtrn testEngineRun(runtimeValues, run);
+			rtrn testCoreRun(runtimeValues, run);
 		}();
 	}
-<<<<<<< Updated upstream
-	try { status = ::llc::min(status, testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride)); }
-	catch(...) { status = -1; error_printf("%s", "Cannot write run reports."); }
-	try { status = ::llc::min(status, testRootLogWrite(run.Folder, log)); }
-	catch(...) { status = -1; }
-	rtrn status;
-=======
 	catch(...) { status = -1; error_printf("%s", "Runner setup or execution exception."); }
 	timer.Frame();
 	if(log.Failed) status = -1;
@@ -182,5 +196,4 @@ sttc ::llc::err_t test_engine_entry_point(::llc::SRuntimeValues & runtimeValues)
 	try { status = ::llc::min(status, testRootLogWrite(run.Folder, log)); }
 	catch(...) { status = -1; }
 	rtrn log.Failed ? -1 : status;
->>>>>>> Stashed changes
 }

@@ -1,7 +1,7 @@
 #include "llc_test_core.h"
 #include "llc_stl.h"
 #include "llc_file.h"
-#include "llc_test_trace.h"
+
 #include "llc_geometry.h"
 #include "llc_path.h"
 

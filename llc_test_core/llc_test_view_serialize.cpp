@@ -1,7 +1,7 @@
 #include "llc_test_core.h"
 #include "llc_apod_serialize.h"
 #include "llc_noise.h"
-#include "llc_test_trace.h"
+
 
 GDEFINE_ENUM_TYPE(VIEW_SERIALIZE_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, OK					,  0, "All view-serialization tests passed.");
