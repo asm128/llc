@@ -9,6 +9,7 @@
 	llc_necs(llc::loadView(input, Masses			));
 	llc_necs(llc::loadView(input, Centers			));
 	llc_necs(llc::loadView(input, TransformsLocal	));
+	llc_necs(llc::loadView(input, BoundingVolumes	));
 	return 0;											
 }
 
@@ -19,6 +20,7 @@
 	llc_necs(llc::saveView(output, Masses			));
 	llc_necs(llc::saveView(output, Centers		));
 	llc_necs(llc::saveView(output, TransformsLocal));
+	llc_necs(llc::saveView(output, BoundingVolumes));
 
 	info_printf("Saved %s, %i", "Frames"			, Frames			.size());
 	info_printf("Saved %s, %i", "Flags"				, Flags				.size());
@@ -26,6 +28,7 @@
 	info_printf("Saved %s, %i", "Masses"			, Masses			.size());
 	info_printf("Saved %s, %i", "Transforms"		, Centers			.size());
 	info_printf("Saved %s, %i", "TransformsLocal"	, TransformsLocal	.size());
+	info_printf("Saved %s, %i", "BoundingVolumes"	, BoundingVolumes	.size());
 	return 0; 
 }
 
