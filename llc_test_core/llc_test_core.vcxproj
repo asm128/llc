@@ -56,7 +56,6 @@
     <ClCompile Include="llc_test_core.cpp" />
     <ClCompile Include="llc_test_cpow.cpp" />
     <ClCompile Include="llc_test_ctti.cpp" />
-    <ClCompile Include="llc_test_d3d.cpp" />
     <ClCompile Include="llc_test_deflate.cpp" />
     <ClCompile Include="llc_test_enum.cpp" />
     <ClCompile Include="llc_test_expression.cpp" />
@@ -166,14 +165,14 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -189,14 +188,14 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -210,14 +209,14 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -233,14 +232,14 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; zlibvc.lib; user32.lib; d3d11.lib; dxgi.lib; d2d1.lib; dwrite.lib; windowscodecs.lib; ole32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>

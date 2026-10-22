@@ -63,6 +63,8 @@ GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, REUSE_TREE_STORAGE		, 66, "Reparsin
 GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, REUSE_ROOT_STORAGE		, 67, "Reparsing changed the cached JSON root reference.");
 GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, REUSE_CHILD_STORAGE	, 68, "Reparsing changed the cached JSON child storage.");
 GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, RESET_ROOT_REFERENCE_AFTER, 69, "The cached JSON root reference is null after reset.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, CODEPOINT_RESULT		, 70, "jsonToCodePoint() returned the wrong status.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, CODEPOINT_VALUE		, 71, "jsonToCodePoint() returned the wrong Unicode code point.");
 
 static_assert(szof(::llc::JSON_PARSE_OPTION) == szof(::llc::u1_t), "JSON parse options must use one uniform 16-bit field.");
 static_assert(szof(::llc::SJSONParseOptions) == szof(::llc::JSON_PARSE_OPTION), "bit_field<> must not add storage overhead.");
@@ -223,6 +225,47 @@ sttc ::llc::err_t testJSONSignedInteger(ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testJSONCodePoints(ATestError & errors) {
+	stct SCodePointTest {
+		::llc::vcst_t	Input;
+		::llc::u2_t		Expected;
+	};
+	cnst SCodePointTest valid[] =
+		{ {"0041"		, 0x000041U}
+		, {"0041F"		, 0x000041U}
+		, {"D7FF"		, 0x00D7FFU}
+		, {"E000"		, 0x00E000U}
+		, {"D83D\\uDE00"	, 0x01F600U}
+		, {"DBFF\\uDFFF"	, 0x10FFFFU}
+		};
+	for(::llc::u2_t iTest = 0; iTest < ::llc::size(valid); ++iTest) {
+		::llc::u2_t codePoint = {};
+		cnst ::llc::err_t result = ::llc::jsonToCodePoint(valid[iTest].Input, codePoint);
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_CODEPOINT_RESULT, ::llc::failed(result), "Valid input rejected. input:'%.*s', result:%i.", LLC_VIEW_ARGS(valid[iTest].Input), result);
+		if(::llc::failed(result))
+			continue;
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_CODEPOINT_VALUE, codePoint != valid[iTest].Expected, "Code point mismatch. input:'%.*s', actual:0x%08X, expected:0x%08X.", LLC_VIEW_ARGS(valid[iTest].Input), codePoint, valid[iTest].Expected);
+	}
+
+	cnst ::llc::vcst_t invalid[] =
+		{ ""
+		, "123"
+		, "12G4"
+		, "DC00"
+		, "D800"
+		, "D83D\\xDE00"
+		, "D83D\\uDE0"
+		, "D83D\\u0041"
+		, "D83D\\uE000"
+		};
+	for(::llc::u2_t iTest = 0; iTest < ::llc::size(invalid); ++iTest) {
+		::llc::u2_t codePoint = {};
+		cnst ::llc::err_t result = ::llc::jsonToCodePoint(invalid[iTest], codePoint);
+		LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_CODEPOINT_RESULT, false == ::llc::failed(result), "Invalid input accepted. input:'%.*s', code point:0x%08X.", LLC_VIEW_ARGS(invalid[iTest]), codePoint);
+	}
+	rtrn 0;
+}
+
 sttc ::llc::err_t testJSONOptions(ATestError & errors) {
 	cnst ::llc::JSON_PARSE_OPTION individual[] =
 		{ ::llc::JSON_PARSE_OPTION_BUILD_TREE, ::llc::JSON_PARSE_OPTION_BUILD_VIEWS, ::llc::JSON_PARSE_OPTION_FINAL_INPUT
@@ -264,5 +307,6 @@ sttc ::llc::err_t testJSONOptions(ATestError & errors) {
 	if_fail_fe(testJSONOptions(errors));
 	if_fail_fe(testJSONValidDocuments(errors));
 	if_fail_fe(testJSONSignedInteger(errors));
+	if_fail_fe(testJSONCodePoints(errors));
 	rtrn testJSONReset(errors);
 }

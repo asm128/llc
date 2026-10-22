@@ -28,7 +28,6 @@
 ::llc::err_t testPackedUInt		(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testCPow			(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testCTTIParser		(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
-::llc::err_t testD3D			(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testDeflate		(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testEnum			(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testExpression		(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);

@@ -126,6 +126,21 @@
     <ClInclude Include="WaveBankReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_ro_model.h">
+      <Filter>ragnarok</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ro.h">
+      <Filter>ragnarok</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ro_actor.h">
+      <Filter>ragnarok</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ro_defines.h">
+      <Filter>ragnarok</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_ro_map.h">
+      <Filter>ragnarok</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_engine.cpp">
@@ -178,6 +193,24 @@
     </ClCompile>
     <ClCompile Include="WAVFileReader.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ro_model.cpp">
+      <Filter>ragnarok</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ro_rsm.cpp">
+      <Filter>ragnarok</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ro_actor.cpp">
+      <Filter>ragnarok</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ro_gnd.cpp">
+      <Filter>ragnarok</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ro_map.cpp">
+      <Filter>ragnarok</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ro_spr.cpp">
+      <Filter>ragnarok</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

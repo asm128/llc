@@ -1,6 +1,6 @@
 // llc_test_core.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-#include "llc_test_core_suites.h"
+#include "llc_test_engine_suites.h"
 #include "llc_log.h"
 #include "llc_parse.h"
 #include "llc_timer.h"
@@ -133,7 +133,6 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 		, LLC_TEST_SUITE(testCPow, "cpow")
 		, LLC_TEST_SUITE(testCTTIParser, "ctti")
 		, LLC_TEST_SUITE(testD3D, "d3d")
-		, LLC_TEST_SUITE(testDeflate, "deflate")
 		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
 		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
 		, LLC_TEST_SUITE(testEnum, "enum")

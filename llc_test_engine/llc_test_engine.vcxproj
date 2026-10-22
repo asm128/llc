@@ -35,6 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="llc_test_d3d.cpp" />
     <ClCompile Include="llc_test_engine.cpp" />
     <ClCompile Include="llc_test_engine_managers.cpp" />
     <ClCompile Include="llc_test_engine_serialization.cpp" />
