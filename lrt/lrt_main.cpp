@@ -85,8 +85,8 @@ static	int					lrt_Main						(::llc::SRuntimeValues& globalRuntimeValues)						{
 	::llc::SRuntimeState			runtimeState					= {};
 	{
 		::llc::vcst_t					fileName						= "gme";
-		if(globalRuntimeValues.EntryPointArgs.Positionals.size() > 1)
-			fileName					= {globalRuntimeValues.EntryPointArgs.Positionals[0], (uint32_t)-1};
+		if(globalRuntimeValues.EntryPointArgs.Positionals.size())
+			fileName					= globalRuntimeValues.EntryPointArgs.Positionals[0];
 		char							mainModuleName	[512]			= {};
 		snprintf(mainModuleName, ::llc::size(mainModuleName) - 2, "%s.%s", fileName.begin(), LLC_MODULE_EXTENSION);
 		::llc::SRuntimeModule			mainModule						= {};
