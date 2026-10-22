@@ -695,7 +695,7 @@ sttc	llc::err_t	decodeUnicodeEscapeSequence	(llc::vcst_t  input, u2_t & ret_unic
 }
 
 // this function only makes sense after reading the first `\u`
-llc::err_t			jsonToCodePoint				(llc::vcst_t  input, u2_t & unicode)			{
+llc::err_t			llc::jsonToCodePoint		(llc::vcst_t  input, u2_t & unicode)			{
 	llc_necall(::decodeUnicodeEscapeSequence(input, unicode), "Invalid escape sequence: %.*s.", int(input.size()), input.begin());
 	if(unicode < 0xD800 || unicode > 0xDFFF)
 		rtrn 0;

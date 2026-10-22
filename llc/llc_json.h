@@ -205,6 +205,7 @@ namespace llc
 
 	err_t			jsonMapToFields			(as2_t & indicesOfFields, view<cnst SJSONFieldBinding> fields, view<cnst TKeyValConstChar> fieldMaps);
 	err_t			jsonFieldsToMap			(as2_t & indicesOfFields, view<cnst SJSONFieldBinding> fields, view<cnst TKeyValConstChar> fieldMaps);
+	err_t			jsonToCodePoint			(vcst_t input, u2_t & unicode);
 } // namespace
 
 #endif // LLC_JSON_H_23627
