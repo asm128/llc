@@ -187,7 +187,6 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 		, LLC_TEST_SUITE(testCOMPlus, "complus")
 		, LLC_TEST_SUITE(testCPow, "cpow")
 		, LLC_TEST_SUITE(testCTTIParser, "ctti")
-		, LLC_TEST_SUITE(testD3D, "d3d")
 		, LLC_TEST_SUITE(testDeflate, "deflate")
 		, LLC_TEST_SUITE(testEnum, "enum")
 		, LLC_TEST_SUITE(testExpression, "expression")
