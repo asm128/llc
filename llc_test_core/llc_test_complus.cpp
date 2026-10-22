@@ -105,7 +105,7 @@ stct SCOMTestMissing final : ICOMTestMissing {
 	ULONG STDMETHODCALLTYPE Release() override { rtrn --References; }
 };
 
-sttc ::llc::err_t testCOMSafeFunctions(ATestError& errors) {
+sttc ::llc::err_t testCOMSafeFunctions(::llc::ATestError& errors) {
 	SCOMTestUnknown released;
 	IUnknown* pointer = &released;
 	::llc::u2_c releaseResult = ::llc::safe_release(&pointer);
@@ -127,7 +127,7 @@ sttc ::llc::err_t testCOMSafeFunctions(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCOMOwnership(ATestError& errors) {
+sttc ::llc::err_t testCOMOwnership(::llc::ATestError& errors) {
 	cnst ::llc::pcom<IUnknown> empty;
 	LLC_TEST_CHECKF(errors, COMPLUS_TEST_RESULT_DEFAULT_POINTER, empty.get_ref(), "Default pointer:%p, expected:null.", empty.get_ref());
 
@@ -157,7 +157,7 @@ sttc ::llc::err_t testCOMOwnership(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCOMReplacement(ATestError& errors) {
+sttc ::llc::err_t testCOMReplacement(::llc::ATestError& errors) {
 	SCOMTestUnknown source, replaced;
 	::llc::pcom<IUnknown> sourceOwner = &source;
 	::llc::pcom<IUnknown> destination = &replaced;
@@ -185,7 +185,7 @@ sttc ::llc::err_t testCOMReplacement(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCOMQuery(ATestError& errors) {
+sttc ::llc::err_t testCOMQuery(::llc::ATestError& errors) {
 	SCOMTestUnknown source, rawReplaced;
 	::llc::pcom<IUnknown> sourceOwner = &source;
 	IUnknown* rawOutput = &rawReplaced;
@@ -229,7 +229,7 @@ sttc ::llc::err_t testCOMQuery(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCOMArray(ATestError& errors) {
+sttc ::llc::err_t testCOMArray(::llc::ATestError& errors) {
 	SCOMTestUnknown element;
 	::llc::pcom<IUnknown> owner = &element;
 	::llc::acom<IUnknown> array;
@@ -248,7 +248,7 @@ sttc ::llc::err_t testCOMArray(ATestError& errors) {
 	rtrn 0;
 }
 
-::llc::err_t testCOMPlus(ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testCOMPlus(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testCOMSafeFunctions(errors));
 	if_fail_fe(testCOMOwnership(errors));
 	if_fail_fe(testCOMReplacement(errors));
@@ -258,6 +258,6 @@ sttc ::llc::err_t testCOMArray(ATestError& errors) {
 
 #else
 
-::llc::err_t testCOMPlus(ATestError&, [[maybe_unused]] ::llc::vcst_t outputFolder) { rtrn 0; }
+::llc::err_t testCOMPlus(::llc::ATestError&, [[maybe_unused]] ::llc::vcst_t outputFolder) { rtrn 0; }
 
 #endif

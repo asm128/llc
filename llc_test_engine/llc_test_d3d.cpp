@@ -28,7 +28,7 @@ GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, WINDOW_RESOURCES			, 15, "The consumer coul
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, HARDWARE_SELECTED			, 16, "The consumer fell back to WARP although a hardware D3D device is available.");
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, DEVICE_PRESERVED			, 17, "Validation rebuilt a healthy consumer device.");
 
-::llc::err_t testD3D(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testD3D(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	struct SWindowGuard { HWND Handle = {}; ~SWindowGuard() { if(Handle) ::DestroyWindow(Handle); } } window;
 	struct SComGuard { HRESULT Result = ::CoInitializeEx(nullptr, COINIT_MULTITHREADED); ~SComGuard() { if(SUCCEEDED(Result)) ::CoUninitialize(); } } com;
 	llc_hrcall(com.Result);
@@ -115,6 +115,6 @@ GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, DEVICE_PRESERVED			, 17, "Validation rebuil
 
 #else
 
-::llc::err_t testD3D(ATestError &) { rtrn 0; }
+::llc::err_t testD3D(::llc::ATestError &) { rtrn 0; }
 
 #endif

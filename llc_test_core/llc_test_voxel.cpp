@@ -27,7 +27,7 @@ GDEFINE_ENUM_VALUED(VOXEL_TEST_RESULT, FACE_BOTTOM_MAXIMUM	, 22, "SVoxel<>::Limi
 GDEFINE_ENUM_VALUED(VOXEL_TEST_RESULT, FACE_BACK_MAXIMUM		, 23, "SVoxel<>::Limits() accepted the back face at the maximum X coordinate.");
 GDEFINE_ENUM_VALUED(VOXEL_TEST_RESULT, FACE_LEFT_MAXIMUM		, 24, "SVoxel<>::Limits() accepted the left face at the maximum Z coordinate.");
 
-::llc::err_t testVoxel(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testVoxel(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::SVoxelMap<::llc::u0_t> map = {};
 	cnst ::llc::n3u0_t position = {1, 2, 3};
 	cnst ::llc::err_t firstChunk = map.SetValue(position, 7);

@@ -8,7 +8,7 @@ GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_NODE		, 1, "The XML reader 
 GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_ATTRIBUTE	, 2, "The XML reader did not expose the expected MSBuild project attribute.");
 GDEFINE_ENUM_VALUED(MSBUILD_XML_TEST_RESULT, PROJECT_VALUE		, 3, "The XML reader did not expose the expected MSBuild project value.");
 
-::llc::err_t testMSBuildXML(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testMSBuildXML(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::vcst_t input = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 		"<Project DefaultTargets=\"Build\">"
 		"<PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">"

@@ -65,7 +65,7 @@ GDEFINE_ENUM_VALUED(INPUT_TEST_RESULT, FRAME_HISTORY_MOUSE			, 56, "inputNextFra
 GDEFINE_ENUM_VALUED(INPUT_TEST_RESULT, FRAME_TIMESTAMP_KEYBOARD		, 57, "inputNextFrame() changed keyboard timestamps.");
 GDEFINE_ENUM_VALUED(INPUT_TEST_RESULT, FRAME_TIMESTAMP_MOUSE			, 58, "inputNextFrame() changed mouse timestamps.");
 
-sttc ::llc::err_t testInputTypes(ATestError & errors) {
+sttc ::llc::err_t testInputTypes(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, INPUT_TEST_RESULT_JOYSTICK_BUTTON_TYPE, false == (::std::is_same_v<decltype(::llc::SInputJoystick{}.ButtonState), ::llc::u2_t>));
 	LLC_TEST_CHECK(errors, INPUT_TEST_RESULT_MOUSE_BUTTON_TYPE, false == (::std::is_same_v<decltype(::llc::SInputMouse{}.ButtonState), ::llc::astu0_t<32>>));
 	LLC_TEST_CHECK(errors, INPUT_TEST_RESULT_MOUSE_TIME_TYPE, false == (::std::is_same_v<decltype(::llc::SInputMouse{}.ButtonTime), ::llc::astf3_t<32>>));
@@ -79,7 +79,7 @@ sttc ::llc::err_t testInputTypes(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testInputDefaults(ATestError & errors) {
+sttc ::llc::err_t testInputDefaults(::llc::ATestError & errors) {
 	cnst ::llc::SInput input = {};
 	for(::llc::u2_t iKey = 0; iKey < input.KeyboardCurrent.KeyState.size(); ++iKey) {
 		LLC_TEST_CHECKF(errors, INPUT_TEST_RESULT_DEFAULT_KEY_STATE, input.KeyboardCurrent.KeyState[iKey], "Key:%u state:%u.", iKey, input.KeyboardCurrent.KeyState[iKey]);
@@ -94,7 +94,7 @@ sttc ::llc::err_t testInputDefaults(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testInputTransitions(ATestError & errors) {
+sttc ::llc::err_t testInputTransitions(::llc::ATestError & errors) {
 	::llc::SInput input = {};
 	for(::llc::u2_t iKey = 0; iKey < input.KeyboardCurrent.KeyState.size(); ++iKey) {
 		::llc::u0_c key = (::llc::u0_t)iKey;
@@ -135,7 +135,7 @@ sttc ::llc::err_t testInputTransitions(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testInputFrame(ATestError & errors) {
+sttc ::llc::err_t testInputFrame(::llc::ATestError & errors) {
 	::llc::SInput input = {};
 	for(::llc::u2_t iKey = 0; iKey < input.KeyboardCurrent.KeyState.size(); ++iKey) {
 		input.KeyboardCurrent.KeyState[iKey] = (::llc::u0_t)(iKey & 1U);
@@ -222,7 +222,7 @@ sttc ::llc::err_t testInputFrame(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testInput(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testInput(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testInputTypes(errors));
 	if_fail_fe(::testInputDefaults(errors));
 	if_fail_fe(::testInputTransitions(errors));

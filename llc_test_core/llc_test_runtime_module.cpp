@@ -37,7 +37,7 @@
 //GDEFINE_ENUM_VALUED(RUNTIME_MODULE_TEST_RESULT, UNLOAD_FUNCTIONS		, 33, "unloadRuntimeModule() retained function pointers.");
 //GDEFINE_ENUM_VALUED(RUNTIME_MODULE_TEST_RESULT, UNLOAD_EMPTY			, 34, "unloadRuntimeModule() rejected an empty module.");
 //
-//::llc::err_t testRuntimeModule(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+//::llc::err_t testRuntimeModule(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 //	::llc::SRuntimeModule module = {};
 //	cnst ::llc::err_t missingResult = ::llc::loadRuntimeModule(module, "llc_test_module_missing.dll");
 //	LLC_TEST_CHECKF(errors, RUNTIME_MODULE_TEST_RESULT_MISSING_RESULT, ::llc::OS_NOT_FOUND != missingResult, "Result:%i, expected:%i.", missingResult, ::llc::OS_NOT_FOUND);

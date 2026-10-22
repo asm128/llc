@@ -332,7 +332,7 @@
 //	rtrn result;
 //}
 //
-//sttc ::llc::err_t testAppEntryPoint(ATestError & errors) {
+//sttc ::llc::err_t testAppEntryPoint(::llc::ATestError & errors) {
 //	appTestReset(APP_TEST_MODE_DIRECT);
 //	::llc::sc_t executable[] = "llc_test_core";
 //	::llc::sc_t* arguments[] = {executable, 0};
@@ -344,7 +344,7 @@
 //	rtrn 0;
 //}
 //
-//sttc ::llc::err_t testAppModule(ATestError & errors, ::llc::SRuntimeValues & runtimeValues) {
+//sttc ::llc::err_t testAppModule(::llc::ATestError & errors, ::llc::SRuntimeValues & runtimeValues) {
 //	::llc::u2_t version = {};
 //	LLC_TEST_CHECK(errors, APP_TEST_RESULT_MODULE_VERSION_NULL, ::llc::OS_INVALID_PARAMETER != appTestMTModuleVersion(0));
 //	LLC_TEST_CHECK(errors, APP_TEST_RESULT_MODULE_VERSION_RESULT, ::llc::failed(appTestMTModuleVersion(&version)));
@@ -404,7 +404,7 @@
 //	rtrn 0;
 //}
 //
-//sttc ::llc::err_t testAppSingleThread(ATestError & errors, ::llc::SRuntimeValues & runtimeValues) {
+//sttc ::llc::err_t testAppSingleThread(::llc::ATestError & errors, ::llc::SRuntimeValues & runtimeValues) {
 //	appTestReset(APP_TEST_MODE_NORMAL);
 //	::llc::err_t result = appTestRunSilenced(appTestSingleMain, runtimeValues);
 //	LLC_TEST_CHECKF(errors, APP_TEST_RESULT_SINGLE_NORMAL_RESULT, ::llc::failed(result), "Result:%i.", result);
@@ -439,7 +439,7 @@
 //	rtrn 0;
 //}
 //
-//sttc ::llc::err_t testAppMultiThread(ATestError & errors, ::llc::SRuntimeValues & runtimeValues) {
+//sttc ::llc::err_t testAppMultiThread(::llc::ATestError & errors, ::llc::SRuntimeValues & runtimeValues) {
 //	for(::llc::u0_t iRun = 0; iRun < 64; ++iRun) {
 //		appTestReset(APP_TEST_MODE_NORMAL);
 //		cnst ::llc::err_t result = appTestRunSilenced(appTestMTMain, runtimeValues);
@@ -495,7 +495,7 @@
 //	rtrn 0;
 //}
 //
-//::llc::err_t testApp(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+//::llc::err_t testApp(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 //	::llc::SRuntimeValues runtimeValues = {};
 //	if_fail_fe(testAppEntryPoint(errors));
 //	if_fail_fe(testAppModule(errors, runtimeValues));

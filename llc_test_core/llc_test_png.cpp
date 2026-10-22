@@ -51,7 +51,7 @@ stxp SPNGTestPair PNG_TEST_PAIRS[] =
 	, {"basi6a16.png", "basn6a16.png", ::llc::COLOR_TYPE_RGBA				, 16}
 	};
 
-sttc ::llc::err_t testPNGInvalidSource(ATestError & errors) {
+sttc ::llc::err_t testPNGInvalidSource(::llc::ATestError & errors) {
 	::llc::SPNGData pngData = {};
 	LLC_TEST_CHECKF(errors, PNG_TEST_RESULT_INVALID_SOURCE, 0 <= ::llc::pngFileLoad(pngData, ::llc::vcu0_t{}), "%s", "Empty source was accepted.");
 	cnst ::llc::u0_t signature[] = {0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A};
@@ -65,7 +65,7 @@ sttc ::llc::err_t testPNGInvalidSource(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPNGLoadPairs(ATestError & errors, ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testPNGLoadPairs(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::string imageFolder;
 	if_fail_fe(::llc::pathNameCompose(outputFolder, ::llc::get_value_namev(PNG_TEST_RESULT_INTERLACED_TEXEL), imageFolder));
 	if_fail_fe(::llc::pathCreate(imageFolder));
@@ -141,7 +141,7 @@ sttc ::llc::err_t testPNGLoadPairs(ATestError & errors, ::llc::vcst_t outputFold
 	rtrn 0;
 }
 
-::llc::err_t testPNG(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testPNG(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testPNGInvalidSource(errors));
 	rtrn ::testPNGLoadPairs(errors, outputFolder);
 }

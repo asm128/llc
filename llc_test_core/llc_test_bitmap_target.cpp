@@ -86,7 +86,7 @@ sttc bool pointFound(::llc::apod<T> const& points, T const& point, ::llc::u2_t o
 	rtrn false;
 }
 
-sttc ::llc::err_t testBitmapAxisLines(ATestError& errors) {
+sttc ::llc::err_t testBitmapAxisLines(::llc::ATestError& errors) {
 	::llc::u2_t cells[7][7] = {};
 	::llc::grid<::llc::u2_t> target = {cells};
 	::llc::err_t result = ::llc::drawLineVertical(target, 7U, 2, 5, -2);
@@ -115,7 +115,7 @@ sttc ::llc::err_t testBitmapAxisLines(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBitmapLines(ATestError& errors) {
+sttc ::llc::err_t testBitmapLines(::llc::ATestError& errors) {
 	::llc::u0_t cells[7][7] = {};
 	::llc::grid<::llc::u0_t> target = {cells};
 	cnst ::llc::line2s2_t diagonal = {{0, 0}, {6, 6}};
@@ -179,7 +179,7 @@ sttc ::llc::err_t testBitmapLines(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBitmapLineOutput(ATestError& errors) {
+sttc ::llc::err_t testBitmapLineOutput(::llc::ATestError& errors) {
 	cnst ::llc::n2u1_t metrics = {7, 7};
 	::llc::apod<::llc::n2s1_t> points = {{99, 99}};
 	::llc::err_t result = ::llc::drawLine(metrics, ::llc::line2s2_t{{0, 0}, {6, 6}}, points);
@@ -208,7 +208,7 @@ sttc ::llc::err_t testBitmapLineOutput(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBitmapRectangles(ATestError& errors) {
+sttc ::llc::err_t testBitmapRectangles(::llc::ATestError& errors) {
 	::llc::u0_t cells[6][7] = {};
 	::llc::grid<::llc::u0_t> target = {cells};
 	::llc::err_t result = ::llc::drawRectangleBorder(target, ::llc::u0_t(3), ::llc::rect2s2_t{{1, 1}, {4, 3}});
@@ -248,7 +248,7 @@ sttc ::llc::err_t testBitmapRectangles(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBitmapCircles(ATestError& errors) {
+sttc ::llc::err_t testBitmapCircles(::llc::ATestError& errors) {
 	::llc::u0_t cells[7][7] = {};
 	::llc::grid<::llc::u0_t> target = {cells};
 	cnst ::llc::circles2_t circle = {2, {3, 3}};
@@ -304,7 +304,7 @@ sttc ::llc::err_t testBitmapCircles(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBitmapTriangles(ATestError& errors) {
+sttc ::llc::err_t testBitmapTriangles(::llc::ATestError& errors) {
 	::llc::u0_t cells[7][7] = {};
 	::llc::grid<::llc::u0_t> target = {cells};
 	cnst ::llc::tri2s2_t triangle = {{1, 1}, {5, 1}, {1, 5}};
@@ -357,7 +357,7 @@ sttc ::llc::err_t testBitmapTriangles(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBitmapLight(ATestError& errors) {
+sttc ::llc::err_t testBitmapLight(::llc::ATestError& errors) {
 	::llc::u2_t cells[5][5] = {};
 	::llc::grid<::llc::u2_t> target = {cells};
 	::llc::err_t result = ::llc::drawPixelLight(target, ::llc::n2s2_t{2, 2}, 100U, 1.0F, 1.0);
@@ -390,7 +390,7 @@ sttc ::llc::err_t testBitmapLight(ATestError& errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBitmapTarget(ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testBitmapTarget(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testBitmapAxisLines(errors));
 	if_fail_fe(::testBitmapLines(errors));
 	if_fail_fe(::testBitmapLineOutput(errors));

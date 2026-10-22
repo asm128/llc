@@ -27,7 +27,7 @@ GDEFINE_ENUM_VALUED(ARRAY_BIT_TEST_RESULT, RESIZE_PRESERVATION	, 21, "Shrinking 
 GDEFINE_ENUM_VALUED(ARRAY_BIT_TEST_RESULT, EMPTY_ASSIGNMENT		, 22, "Assigning an empty bit view did not clear array_bit<>.");
 
 tplt<tpnm T>
-sttc ::llc::err_t testArrayBitResize(ATestError & errors) {
+sttc ::llc::err_t testArrayBitResize(::llc::ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS = ::llc::view_bit<T>::ELEMENT_BITS;
 	stxp ::llc::u2_t BIT_COUNTS[] = {0, 1, ELEMENT_BITS - 1, ELEMENT_BITS, ELEMENT_BITS + 1, ELEMENT_BITS * 2, ELEMENT_BITS * 2 + 3};
 	::llc::array_bit<T> bits;
@@ -54,7 +54,7 @@ sttc ::llc::err_t testArrayBitResize(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testArrayBitViewCopy(ATestError & errors) {
+sttc ::llc::err_t testArrayBitViewCopy(::llc::ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS = ::llc::view_bit<T>::ELEMENT_BITS;
 	stxp ::llc::u2_t BIT_COUNT = ELEMENT_BITS * 2 + 3;
 	T source[3] = {T(~T(0)), T(0x5A), T(5)};
@@ -116,7 +116,7 @@ sttc ::llc::err_t testArrayBitViewCopy(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testArrayBitPreservation(ATestError & errors) {
+sttc ::llc::err_t testArrayBitPreservation(::llc::ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS = ::llc::view_bit<T>::ELEMENT_BITS;
 	stxp ::llc::u2_t LARGE_COUNT = ELEMENT_BITS * 2 + 3;
 	stxp ::llc::u2_t SMALL_COUNT = ELEMENT_BITS + 2;
@@ -133,13 +133,13 @@ sttc ::llc::err_t testArrayBitPreservation(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testArrayBitType(ATestError & errors) {
+sttc ::llc::err_t testArrayBitType(::llc::ATestError & errors) {
 	if_fail_fe(testArrayBitResize<T>(errors));
 	if_fail_fe(testArrayBitViewCopy<T>(errors));
 	return testArrayBitPreservation<T>(errors);
 }
 
-::llc::err_t testArrayBit(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testArrayBit(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	static_assert(::std::is_same_v<::llc::abitu0_t, ::llc::array_bit<::llc::u0_t>>);
 	static_assert(::std::is_same_v<::llc::abitu1_t, ::llc::array_bit<::llc::u1_t>>);
 	static_assert(::std::is_same_v<::llc::abitu2_t, ::llc::array_bit<::llc::u2_t>>);

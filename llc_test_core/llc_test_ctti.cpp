@@ -28,7 +28,7 @@ stxp auto CTTI_ALL_TYPES = ::llc::cttiParseStruct("all_types"
 	);
 static_assert(CTTI_ALL_TYPES.Success() && 13 == CTTI_ALL_TYPES.Count, "Every initial llc_typeint.h spelling must parse at compile time.");
 
-::llc::err_t testCTTIParser(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testCTTIParser(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECKF(errors, CTTI_TEST_RESULT_COMPILE_TIME, false == CTTI_COORD.Success() , "Compile-time parse failed. error:%u, state:%u, offset:%u." , (::llc::u2_t)CTTI_COORD.Error, (::llc::u2_t)CTTI_COORD.State, CTTI_COORD.ErrorOffset );
 	LLC_TEST_CHECKF(errors, CTTI_TEST_RESULT_STRUCT_NAME, false == ::llc::cttiSpanEquals(CTTI_COORD.StructName, {0, 5}, "coord") , "Structure name mismatch: '%s'." , CTTI_COORD.StructName );
 	LLC_TEST_CHECKF(errors, CTTI_TEST_RESULT_MEMBER_COUNT, 4 != CTTI_COORD.Count , "Member count mismatch. actual:%u, expected:4." , CTTI_COORD.Count );

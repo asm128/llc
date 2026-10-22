@@ -90,7 +90,7 @@ static_assert([]() constexpr {
 }());
 static_assert([](::llc::vcst_t text) constexpr { rtrn text.size(); }("hello") == 5);
 
-sttc ::llc::err_t testStringArrayScan(ATestError & errors) {
+sttc ::llc::err_t testStringArrayScan(::llc::ATestError & errors) {
 	for(auto testCase : StringArrayCases) {
 		cnst auto & constCase = testCase;
 		cnst ::llc::vcst_t expected = {testCase.Storage, testCase.Length};
@@ -136,11 +136,11 @@ sttc bool stringMismatch(cnst TString & value, ::llc::vcst_t expected) {
 }
 
 tplt<tpnm T, ::llc::u2_t N>
-sttc ::llc::err_t testNumericStrValue(ATestError & errors, T value, ::llc::vcst_t expected) {
+sttc ::llc::err_t testNumericStrValue(::llc::ATestError & errors, T value, ::llc::vcst_t expected) {
 	auto				storage	= ::llc::str(value);
 	auto				text	= ::llc::str(storage);
 	always_printf("STR numeric conversion: source width:%u bits; expected:'%.*s'; actual:'%.*s' (%u bytes); text:%s.", (::llc::u2_t)bcof(T), LLC_VIEW_ARGS(expected), (int)text.size(), text.begin(), text.size(), stringMismatch(text, expected) ? "FAIL" : "PASS");
-	::testTraceBytes("Numeric source representation", ::llc::view<cnst T>{&value, 1}.cu8());
+	::llc::testTraceBytes("Numeric source representation", ::llc::view<cnst T>{&value, 1}.cu8());
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RESULT_TYPE, false == (::std::is_same_v<decltype(storage), ::llc::astchar<N>>) , "result type mismatch. capacity:%u, expected:%u." , storage.size(), N );
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_TEXT, stringMismatch(text, expected) , "actual:'%.*s'/%u, expected:'%.*s'/%u." , (int)text.size(), text.begin(), text.size(), (int)expected.size(), expected.begin(), expected.size());
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RANGE, text.begin() != storage.begin() , "numeric text begin:%p, expected:%p.", text.begin(), storage.begin());
@@ -149,7 +149,7 @@ sttc ::llc::err_t testNumericStrValue(ATestError & errors, T value, ::llc::vcst_
 	rtrn 0;
 }
 
-sttc ::llc::err_t testNumericStr(ATestError & errors) {
+sttc ::llc::err_t testNumericStr(::llc::ATestError & errors) {
 	if_fail_fe((testNumericStrValue<::llc::u0_t,   5>(errors,   0, "0")));
 	if_fail_fe((testNumericStrValue<::llc::u0_t,   5>(errors,   9, "9")));
 	if_fail_fe((testNumericStrValue<::llc::u0_t,   5>(errors,  10, "10")));
@@ -206,7 +206,7 @@ sttc ::llc::err_t testNumericStr(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCharacterCase(ATestError & errors) {
+sttc ::llc::err_t testCharacterCase(::llc::ATestError & errors) {
 	::llc::sc_t		lowerCharacter		= 'a';
 	::llc::sc_t		upperCharacter		= 'Z';
 	::llc::sc_t		digitCharacter		= '7';
@@ -251,7 +251,7 @@ sttc ::llc::err_t testCharacterCase(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testStringFunctions(ATestError & errors) {
+sttc ::llc::err_t testStringFunctions(::llc::ATestError & errors) {
 	::llc::sc_c		digits[]			= {'4', '2', '9', 'x'};
 	::llc::u3_t		parsedValue		= {};
 	cnst ::llc::err_t parsedCount		= ::llc::stoull({digits}, parsedValue);
@@ -279,7 +279,7 @@ sttc ::llc::err_t testStringFunctions(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testStr(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testStr(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testStringArrayScan(errors));
 	::llc::sc_t		mutableArray[]		= "alpha";
 	::llc::sc_c		constArray[]		= "beta";

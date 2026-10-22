@@ -45,7 +45,7 @@ sttc ::llc::err_t testProcessScopeReturn(STestProcessOwner & owner) {
 	rtrn -19;
 }
 
-sttc ::llc::err_t testProcessScope(ATestError & errors) {
+sttc ::llc::err_t testProcessScope(::llc::ATestError & errors) {
 	STestProcessOwner owner;
 	{
 		::llc::SProcessScope<STestProcessOwner> scope{owner, 1};
@@ -79,7 +79,7 @@ sttc ::llc::err_t testProcessScope(ATestError & errors) {
 }
 
 #if defined(LLC_WINDOWS) || defined(LLC_LINUX)
-sttc ::llc::err_t testProcessManager(ATestError & errors, ::llc::vcst_t application, ::llc::vcst_t commandLine) {
+sttc ::llc::err_t testProcessManager(::llc::ATestError & errors, ::llc::vcst_t application, ::llc::vcst_t commandLine) {
 	::llc::SProcessManager<> manager;
 	::llc::string ownedCommand = commandLine;
 	cnst ::llc::err_t id = manager.Create(application, ownedCommand);
@@ -218,7 +218,7 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 }
 #endif
 
-::llc::err_t testProcess(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testProcess(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	llc_necs(::testProcessScope(errors));
 	::llc::SProcessCreationFlags copiedFlags = {};
 	cnst ::llc::u2_t originalFlags = 0x08000004U;

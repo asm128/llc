@@ -34,7 +34,7 @@ GDEFINE_ENUM_VALUED(ARRAY_MINMAX_TEST_RESULT, ARRAY_COPY_INDEPENDENCE, 26, "Muta
 GDEFINE_ENUM_VALUED(ARRAY_MINMAX_TEST_RESULT, CONST_ALIAS_TYPE		, 27, "An aminmax<> const alias did not preserve constness.");
 
 tplt<tpnm T>
-sttc ::llc::err_t testMinMaxType(ATestError & errors) {
+sttc ::llc::err_t testMinMaxType(::llc::ATestError & errors) {
 	static_assert(::std::is_same_v<::llc::aminmax<T>, ::llc::apod<::llc::minmax<T>>>);
 	cnst ::llc::minmax<T> single = ::llc::minmax<T>::from(T(7));
 	LLC_TEST_CHECKF(errors, ARRAY_MINMAX_TEST_RESULT_FROM_MIN, single.Min != T(7), "Scalar bits:%u, minimum:%g, expected:7.", bcof(T), ::llc::f3_t(single.Min));
@@ -74,7 +74,7 @@ sttc ::llc::err_t testMinMaxType(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testArrayMinMax(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testArrayMinMax(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECK(errors, ARRAY_MINMAX_TEST_RESULT_ALIAS_TYPE, (false == ::std::is_same_v<::llc::aminmaxsc_t, ::llc::aminmax<::llc::sc_t>>));
 	LLC_TEST_CHECK(errors, ARRAY_MINMAX_TEST_RESULT_ALIAS_TYPE, (false == ::std::is_same_v<::llc::aminmaxuc_t, ::llc::aminmax<::llc::uc_t>>));
 	LLC_TEST_CHECK(errors, ARRAY_MINMAX_TEST_RESULT_ALIAS_TYPE, (false == ::std::is_same_v<::llc::aminmaxu0_t, ::llc::aminmax<::llc::u0_t>>));

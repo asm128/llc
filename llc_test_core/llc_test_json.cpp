@@ -102,7 +102,7 @@ sttc bool jsonTextMismatch(::llc::vcst_t actual, ::llc::vcst_t expected) {
 	rtrn actual.size() != expected.size() || (actual.size() && 0 != memcmp(actual.begin(), expected.begin(), actual.size()));
 }
 
-sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader & reader, ::llc::vcst_t input) {
+sttc ::llc::err_t testJSONStructure(::llc::ATestError & errors, cnst ::llc::SJSONReader & reader, ::llc::vcst_t input) {
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_STORAGE_VIEW_COUNT, reader.Token.size() != reader.View.size() , "Tokens:%u, views:%u." , reader.Token.size(), reader.View.size() );
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_STORAGE_TREE_COUNT, reader.Token.size() != reader.Tree.size() , "Tokens:%u, tree nodes:%u." , reader.Token.size(), reader.Tree.size() );
 	for(::llc::u2_t iToken = 0; iToken < reader.Token.size(); ++iToken) {
@@ -124,7 +124,7 @@ sttc ::llc::err_t testJSONStructure(ATestError & errors, cnst ::llc::SJSONReader
 }
 
 sttc ::llc::err_t testJSONDocument
-	(ATestError & errors, ::llc::vcst_t input, ::llc::vcst_t expected, ::llc::JSON_TYPE expectedType, JSON_READER_TEST_RESULT parseResult = JSON_READER_TEST_RESULT_PARSE) {
+	(::llc::ATestError & errors, ::llc::vcst_t input, ::llc::vcst_t expected, ::llc::JSON_TYPE expectedType, JSON_READER_TEST_RESULT parseResult = JSON_READER_TEST_RESULT_PARSE) {
 	::llc::SJSONReader reader;
 	cnst ::llc::err_t result = ::llc::jsonParse(reader, input);
 	always_printf("JSON parse: expected type:%s; return:%i; input (%u bytes):\n%.*s", ::llc::get_value_namep(expectedType), result, input.size(), LLC_VIEW_ARGS(input));
@@ -151,7 +151,7 @@ sttc ::llc::err_t testJSONDocument
 	rtrn 0;
 }
 
-sttc ::llc::err_t testJSONValidDocuments(ATestError & errors) {
+sttc ::llc::err_t testJSONValidDocuments(::llc::ATestError & errors) {
 	if_fail_fe(testJSONDocument(errors, "true", "true", ::llc::JSON_TYPE_BOOLEAN));
 	if_fail_fe(testJSONDocument(errors, "-42", "-42", ::llc::JSON_TYPE_INTEGER));
 	if_fail_fe(testJSONDocument(errors, "12.5", "12.5", ::llc::JSON_TYPE_DECIMAL));
@@ -166,7 +166,7 @@ sttc ::llc::err_t testJSONValidDocuments(ATestError & errors) {
 	rtrn testJSONDocument(errors, {countedInput}, "true", ::llc::JSON_TYPE_BOOLEAN, JSON_READER_TEST_RESULT_COUNTED_INPUT);
 }
 
-sttc ::llc::err_t testJSONReset(ATestError & errors) {
+sttc ::llc::err_t testJSONReset(::llc::ATestError & errors) {
 	::llc::SJSONReader reader;
 	if_fail_fe(::llc::jsonParse(reader, "{\"values\":[1,2,3],\"flag\":true}"));
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_RESET_ROOT_PRESENT, 0 == reader.Tree.size() , "Cached tree nodes:%u, expected at least one." , reader.Tree.size() );
@@ -210,7 +210,7 @@ sttc ::llc::err_t testJSONReset(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testJSONSignedInteger(ATestError & errors) {
+sttc ::llc::err_t testJSONSignedInteger(::llc::ATestError & errors) {
 	::llc::SJSONReader reader;
 	if_fail_fe(::llc::jsonParse(reader, "-42"));
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_INTEGER_ROOT_PRESENT, 0 == reader.Tree.size() , "Missing signed-integer root. tree nodes:%u." , reader.Tree.size() );
@@ -225,7 +225,7 @@ sttc ::llc::err_t testJSONSignedInteger(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testJSONCodePoints(ATestError & errors) {
+sttc ::llc::err_t testJSONCodePoints(::llc::ATestError & errors) {
 	stct SCodePointTest {
 		::llc::vcst_t	Input;
 		::llc::u2_t		Expected;
@@ -266,7 +266,7 @@ sttc ::llc::err_t testJSONCodePoints(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testJSONOptions(ATestError & errors) {
+sttc ::llc::err_t testJSONOptions(::llc::ATestError & errors) {
 	cnst ::llc::JSON_PARSE_OPTION individual[] =
 		{ ::llc::JSON_PARSE_OPTION_BUILD_TREE, ::llc::JSON_PARSE_OPTION_BUILD_VIEWS, ::llc::JSON_PARSE_OPTION_FINAL_INPUT
 		, ::llc::JSON_PARSE_OPTION_ALLOW_LINE_COMMENTS, ::llc::JSON_PARSE_OPTION_ALLOW_TRAILING_COMMAS, ::llc::JSON_PARSE_OPTION_ALLOW_LEADING_PLUS
@@ -303,7 +303,7 @@ sttc ::llc::err_t testJSONOptions(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testJSONReader(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testJSONReader(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testJSONOptions(errors));
 	if_fail_fe(testJSONValidDocuments(errors));
 	if_fail_fe(testJSONSignedInteger(errors));

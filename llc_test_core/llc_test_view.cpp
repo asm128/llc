@@ -172,7 +172,7 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, TEXT_SUBSCRIPT			, 176, "Semantic text vie
 
 // The expected addresses verify begin()/end() boundaries; they are never dereferenced.
 tplt<tpnm T>
-sttc ::llc::err_t viewRangeCheck(ATestError & errors, VIEW_TEST_RESULT result, ::llc::view<T> actual, ::llc::u2_t expectedCount, cnst void * expectedBegin, cnst void * expectedEnd) {
+sttc ::llc::err_t viewRangeCheck(::llc::ATestError & errors, VIEW_TEST_RESULT result, ::llc::view<T> actual, ::llc::u2_t expectedCount, cnst void * expectedBegin, cnst void * expectedEnd) {
 	LLC_TEST_CHECKF(errors, result, actual.size() != expectedCount , "Count:%u, expected:%u." , actual.size(), expectedCount );
 	LLC_TEST_CHECKF(errors, result, actual.begin() != expectedBegin , "Begin:%p, expected:%p." , actual.begin(), expectedBegin );
 	if(actual.size() == expectedCount && actual.begin() == expectedBegin) {
@@ -182,7 +182,7 @@ sttc ::llc::err_t viewRangeCheck(ATestError & errors, VIEW_TEST_RESULT result, :
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testRepresentation(ATestError & errors) {
+sttc ::llc::err_t testRepresentation(::llc::ATestError & errors) {
 	T data[5] = {};
 	::llc::view<T> empty;
 	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_DEFAULT_VIEW, empty, 0, nullptr, nullptr));
@@ -219,7 +219,7 @@ sttc ::llc::err_t sliceExpectedFailure(TSource & source, TOutput & output, ::llc
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testMutableSlice(ATestError & errors) {
+sttc ::llc::err_t testMutableSlice(::llc::ATestError & errors) {
 	T data[5] = {};
 	::llc::view<T> source{data};
 	::llc::view<T> output;
@@ -264,7 +264,7 @@ sttc ::llc::err_t testMutableSlice(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testConstSlice(ATestError & errors) {
+sttc ::llc::err_t testConstSlice(::llc::ATestError & errors) {
 	T data[5] = {};
 	cnst ::llc::view<T> source{data};
 	::llc::view<cnst T> output;
@@ -305,7 +305,7 @@ sttc ::llc::err_t testConstSlice(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testSubscript(ATestError & errors) {
+sttc ::llc::err_t testSubscript(::llc::ATestError & errors) {
 	T data[4] = {T(1), T(2), T(3), T(4)};
 	::llc::view<T> mutableView{data};
 	cnst ::llc::view<T> & constView = mutableView;
@@ -318,17 +318,17 @@ sttc ::llc::err_t testSubscript(ATestError & errors) {
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SUBSCRIPT_WRITE, mutableView[2] != T(9) , "Mutable subscript read after write:%" LLC_FMT_S3 ", expected:9." , ::llc::s3_t(mutableView[2]) );
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SUBSCRIPT_WRITE, constView[2] != T(9) , "Const subscript read after mutable write:%" LLC_FMT_S3 ", expected:9." , ::llc::s3_t(constView[2]) );
 #ifdef LLC_WINDOWS
-	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)mutableView[mutableView.size()]; }) , "mutable view accepted index:%u at size:%u." , mutableView.size(), mutableView.size() );
-	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)constView[constView.size()]; }) , "const view accepted index:%u at size:%u." , constView.size(), constView.size() );
+	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !::llc::testThrows([&]() { (void)mutableView[mutableView.size()]; }) , "mutable view accepted index:%u at size:%u." , mutableView.size(), mutableView.size() );
+	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !::llc::testThrows([&]() { (void)constView[constView.size()]; }) , "const view accepted index:%u at size:%u." , constView.size(), constView.size() );
 
-	::llc::view<T>		empty		; LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_SUBSCRIPT, !testThrows([&]() { (void)empty		[0]; }));
-	cnst ::llc::view<T> constEmpty	; LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_SUBSCRIPT, !testThrows([&]() { (void)constEmpty [0]; }));
+	::llc::view<T>		empty		; LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_SUBSCRIPT, !::llc::testThrows([&]() { (void)empty		[0]; }));
+	cnst ::llc::view<T> constEmpty	; LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_EMPTY_SUBSCRIPT, !::llc::testThrows([&]() { (void)constEmpty [0]; }));
 #endif
 	return 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testEquality(ATestError & errors) {
+sttc ::llc::err_t testEquality(::llc::ATestError & errors) {
 	T valuesA[4] = {T(1), T(2), T(3), T(4)};
 	T valuesB[4] = {T(1), T(2), T(3), T(4)};
 	T valuesDifferent[4] = {T(1), T(2), T(3), T(5)};
@@ -357,7 +357,7 @@ sttc ::llc::err_t testEquality(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testRepresentationViews(ATestError & errors) {
+sttc ::llc::err_t testRepresentationViews(::llc::ATestError & errors) {
 	T data[3] = {};
 	::llc::view<T> mutableView{data};
 	cnst ::llc::view<T> & constView = mutableView;
@@ -411,14 +411,14 @@ sttc ::llc::err_t testRepresentationViews(ATestError & errors) {
 }
 
 tplt<tpnm T, ::llc::u2_t N>
-sttc ::llc::err_t testMutationValues(ATestError & errors, VIEW_TEST_RESULT result, cnst T (&actual)[N], cnst T (&expected)[N]) {
+sttc ::llc::err_t testMutationValues(::llc::ATestError & errors, VIEW_TEST_RESULT result, cnst T (&actual)[N], cnst T (&expected)[N]) {
 	for(::llc::u2_t iElement = 0; iElement < N; ++iElement)
 		LLC_TEST_CHECKF(errors, result, actual[iElement] != expected[iElement] , "Mutation mismatch. index:%u, value:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , iElement, ::llc::s3_t(actual[iElement]), ::llc::s3_t(expected[iElement]) );
 	return 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testFill(ATestError & errors) {
+sttc ::llc::err_t testFill(::llc::ATestError & errors) {
 	T full[6] = {T(0), T(1), T(2), T(3), T(4), T(5)};
 	T fullExpected[6] = {T(9), T(9), T(9), T(9), T(9), T(9)};
 	::llc::err_t result = ::llc::view<T>{full}.fill(T(9));
@@ -453,7 +453,7 @@ sttc ::llc::err_t testFill(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testReverse(ATestError & errors) {
+sttc ::llc::err_t testReverse(::llc::ATestError & errors) {
 	T odd[5] = {T(0), T(1), T(2), T(3), T(4)};
 	T oddExpected[5] = {T(4), T(3), T(2), T(1), T(0)};
 	::llc::err_t result = ::llc::view<T>{odd}.revert();
@@ -499,7 +499,7 @@ sttc ::llc::err_t testReverse(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testForEach(ATestError & errors) {
+sttc ::llc::err_t testForEach(::llc::ATestError & errors) {
 	T full[5] = {T(0), T(1), T(2), T(3), T(4)};
 	T fullExpected[5] = {T(10), T(11), T(12), T(13), T(14)};
 	::llc::u2_t visited = 0;
@@ -556,7 +556,7 @@ sttc ::llc::err_t testForEach(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testEnumerate(ATestError & errors) {
+sttc ::llc::err_t testEnumerate(::llc::ATestError & errors) {
 	T full[5] = {};
 	T fullExpected[5] = {T(10), T(11), T(12), T(13), T(14)};
 	::llc::u2_t visited = 0, indices = 0;
@@ -598,14 +598,14 @@ sttc ::llc::err_t testEnumerate(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t viewFailureCheck(ATestError & errors, VIEW_TEST_RESULT result, ::llc::err_t callResult, ::llc::u2_t visited, ::llc::u2_t expectedVisits) {
+sttc ::llc::err_t viewFailureCheck(::llc::ATestError & errors, VIEW_TEST_RESULT result, ::llc::err_t callResult, ::llc::u2_t visited, ::llc::u2_t expectedVisits) {
 	LLC_TEST_CHECKF(errors, result, !::llc::failed(callResult) , "Result:%i, expected failure." , callResult );
 	LLC_TEST_CHECKF(errors, result, visited != expectedVisits , "Visited:%u, expected:%u." , visited, expectedVisits );
 	rtrn 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testTraversalFailures(ATestError & errors) {
+sttc ::llc::err_t testTraversalFailures(::llc::ATestError & errors) {
 	T data[5] = {T(0), T(1), T(2), T(3), T(4)};
 	::llc::view<T> mutableView{data};
 	cnst ::llc::view<T> & constView = mutableView;
@@ -641,7 +641,7 @@ sttc ::llc::err_t testTraversalFailures(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testFind(ATestError & errors) {
+sttc ::llc::err_t testFind(::llc::ATestError & errors) {
 	T mutableData[5] = {T(0), T(1), T(2), T(3), T(2)};
 	T mutableExpected[5] = {T(10), T(11), T(12), T(3), T(2)};
 	::llc::u2_t visited = 0;
@@ -715,7 +715,7 @@ sttc ::llc::err_t testFind(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testExtrema(ATestError & errors) {
+sttc ::llc::err_t testExtrema(::llc::ATestError & errors) {
 	T data[6] = {T(3), T(7), T(1), T(7), T(2), T(6)};
 	cnst ::llc::view<T> values{data};
 	::llc::FTransform<::llc::s3_t, cnst T&> transform = [](cnst T & value) { return (::llc::s3_t)value; };
@@ -780,7 +780,7 @@ sttc ::llc::err_t testExtrema(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testSplit(ATestError & errors) {
+sttc ::llc::err_t testSplit(::llc::ATestError & errors) {
 	T values[5] = {T(1), T(2), T(3), T(2), T(4)};
 	::llc::view<T> source{values};
 	::llc::view<T> left = source, right;
@@ -869,7 +869,7 @@ sttc ::llc::err_t testSplit(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testSplitCollections(ATestError & errors) {
+sttc ::llc::err_t testSplitCollections(::llc::ATestError & errors) {
 	{
 		T values[3] = {T(1), T(0), T(2)};
 		::llc::aobj<::llc::view<cnst T>> output;
@@ -964,7 +964,7 @@ sttc ::llc::err_t testSplitCollections(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testStringSplitCollection(ATestError & errors) {
+sttc ::llc::err_t testStringSplitCollection(::llc::ATestError & errors) {
 	::llc::aobj<::llc::vcst_t> output;
 	cnst ::llc::err_t result = ::llc::split(::llc::vcst_t{",a,,b,"}, ',', output);
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_SPLIT_STRING_COLLECTION, result != 2 , "String collection result:%i, expected:2.", result );
@@ -979,7 +979,7 @@ sttc ::llc::err_t testStringSplitCollection(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testStringSubscript(ATestError & errors) {
+sttc ::llc::err_t testStringSubscript(::llc::ATestError & errors) {
 	::llc::sc_t storage[] = "abc";
 	::llc::vstr_t mutableText = storage;
 	cnst ::llc::vcst_t constText = storage;
@@ -993,9 +993,9 @@ sttc ::llc::err_t testStringSubscript(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
+sttc ::llc::err_t testInvalidConstruction(::llc::ATestError & errors) {
 #ifdef LLC_WINDOWS
-	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { cnst ::llc::view<T> invalid{nullptr, 1}; (void)invalid; }));
+	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !::llc::testThrows([&]() { cnst ::llc::view<T> invalid{nullptr, 1}; (void)invalid; }));
 #else
 	(void)errors;
 #endif
@@ -1003,7 +1003,7 @@ sttc ::llc::err_t testInvalidConstruction(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testType(ATestError & errors) {
+sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	if_fail_fe(testRepresentation<T>(errors));
 	if_fail_fe(testMutableSlice<T>(errors));
 	if_fail_fe(testConstSlice<T>(errors));
@@ -1023,7 +1023,7 @@ sttc ::llc::err_t testType(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testTypeLogged(ATestError & errors) {
+sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testType<T>(errors));
@@ -1033,7 +1033,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testView(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testView(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));

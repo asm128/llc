@@ -216,7 +216,7 @@ stxp SExpectedSystemKey SYSTEM_KEYS[] = {
 	{::llc::SYSTEM_KEY_OEM_FJ_jisho, 0x92, "OEM_FJ_jisho"},
 };
 
-::llc::err_t testSystemKey(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testSystemKey(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	stacxpr bool correctUnderlyingType = ::std::is_same_v<::std::underlying_type_t<::llc::SYSTEM_KEY>, ::llc::u0_t>;
 	LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_STORAGE, false == correctUnderlyingType || sizeof(::llc::SYSTEM_KEY) != sizeof(::llc::u0_t), "Enum bytes:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SYSTEM_KEY), (::llc::u2_t)sizeof(::llc::u0_t));
 

@@ -119,7 +119,7 @@ stct SPtrObject {
 ::llc::u2_t SPtrObject::Constructions = 0;
 ::llc::u2_t SPtrObject::Destructions = 0;
 
-sttc ::llc::err_t testPointerDefaultState(ATestError & errors) {
+sttc ::llc::err_t testPointerDefaultState(::llc::ATestError & errors) {
 	cnst ::llc::pnco<SPtrObject>	nco;
 	cnst ::llc::ppod<SPtrPodValue>	pod;
 	cnst ::llc::pobj<SPtrObject>	obj;
@@ -129,7 +129,7 @@ sttc ::llc::err_t testPointerDefaultState(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPointerPOD(ATestError & errors) {
+sttc ::llc::err_t testPointerPOD(::llc::ATestError & errors) {
 	::llc::ppod<SPtrPodValue>	pointer;
 	SPtrPodValue					* instance			= pointer.operator->();
 	LLC_TEST_REQUIREF(errors, PTR_TEST_RESULT_POD_INSTANCE, 0 == instance, "Lazy POD instance:%p.", instance);
@@ -174,7 +174,7 @@ sttc ::llc::err_t testPointerPOD(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPointerObject(ATestError & errors) {
+sttc ::llc::err_t testPointerObject(::llc::ATestError & errors) {
 	SPtrObject::reset();
 	::llc::pobj<SPtrObject>	pointer;
 	SPtrObject					* instance			= pointer.operator->();
@@ -214,7 +214,7 @@ sttc ::llc::err_t testPointerObject(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPointerNCO(ATestError & errors) {
+sttc ::llc::err_t testPointerNCO(::llc::ATestError & errors) {
 	SPtrObject::reset();
 	::llc::pobj<SPtrObject>	owner;
 	SPtrObject					* instance			= owner.create(0x77U);
@@ -251,7 +251,7 @@ sttc ::llc::err_t testPointerNCO(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPointerReferenceBoundary(ATestError & errors) {
+sttc ::llc::err_t testPointerReferenceBoundary(::llc::ATestError & errors) {
 	SPtrObject::reset();
 	::llc::pnco<SPtrObject>	pointer;
 	SPtrObject					* instance			= ::llc::ref_create(&pointer, 0x11U);
@@ -313,7 +313,7 @@ sttc ::llc::err_t testPointerReferenceBoundary(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testPointers(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testPointers(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testPointerDefaultState(errors));
 	if_fail_fe(testPointerPOD(errors));
 	if_fail_fe(testPointerObject(errors));

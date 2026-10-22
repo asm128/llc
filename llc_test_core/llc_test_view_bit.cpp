@@ -39,7 +39,7 @@ stxp ::llc::u2_t BIT_RANDOM_COUNT	= 128;
 // Pointer arithmetic in this suite verifies the element and one-past storage boundaries exposed by bit_iterator<>.
 
 tplt<tpnm T>
-sttc ::llc::err_t testPartialWidth(ATestError & errors) {
+sttc ::llc::err_t testPartialWidth(::llc::ATestError & errors) {
 	T					data[2]		= {};
 	::llc::u2_c			bitCount	= szof(T) * 8 + 3;
 	::llc::view_bit<T>	bits		{data, bitCount};
@@ -63,7 +63,7 @@ sttc ::llc::err_t testPartialWidth(ATestError & errors) {
 }
 
 tplt<tpnm _dataValues, size_t _dataSize>
-sttc ::llc::err_t testPartial(ATestError & errors, _dataValues (&data)[_dataSize]) {
+sttc ::llc::err_t testPartial(::llc::ATestError & errors, _dataValues (&data)[_dataSize]) {
 	stxp ::llc::u2_t ELEMENT_BITS			= szof(_dataValues) * 8;
 	stxp ::llc::u2_t BIT_COUNT				= 10;
 	static_assert(_dataSize * ELEMENT_BITS >= BIT_COUNT, "10-bit view exceeds its backing storage.");
@@ -91,7 +91,7 @@ sttc ::llc::err_t testPartial(ATestError & errors, _dataValues (&data)[_dataSize
 }
 
 tplt<tpnm _dataValues, size_t _dataSize>
-sttc ::llc::err_t testSixBits(ATestError & errors, _dataValues (&data)[_dataSize]) {
+sttc ::llc::err_t testSixBits(::llc::ATestError & errors, _dataValues (&data)[_dataSize]) {
 	stxp ::llc::u2_t ELEMENT_BITS = szof(_dataValues) * 8;
 	::llc::view_bit<_dataValues> sixBits{data, 6};
 	auto it = sixBits.begin();
@@ -108,7 +108,7 @@ sttc ::llc::err_t testSixBits(ATestError & errors, _dataValues (&data)[_dataSize
 }
 
 tplt<tpnm _dataValues, size_t _dataSize>
-sttc ::llc::err_t testEmpty(ATestError & errors, _dataValues (&data)[_dataSize]) {
+sttc ::llc::err_t testEmpty(::llc::ATestError & errors, _dataValues (&data)[_dataSize]) {
 	{
 		::llc::view_bit<_dataValues> empty;
 		cnst auto begin = empty.begin();
@@ -129,7 +129,7 @@ sttc ::llc::err_t testEmpty(ATestError & errors, _dataValues (&data)[_dataSize])
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testIteratorPosition(ATestError & errors) {
+sttc ::llc::err_t testIteratorPosition(::llc::ATestError & errors) {
 	T equalBits = 0;
 	::llc::view_bit<T> positions{&equalBits, 2};
 	auto first = positions.begin();
@@ -142,7 +142,7 @@ sttc ::llc::err_t testIteratorPosition(ATestError & errors) {
 }
 
 tplt<tpnm _dataValues, size_t _dataSize>
-sttc ::llc::err_t testConstIteration(ATestError & errors, _dataValues (&data)[_dataSize]) {
+sttc ::llc::err_t testConstIteration(::llc::ATestError & errors, _dataValues (&data)[_dataSize]) {
 	cnst ::llc::view_bit<_dataValues> readOnly{data, 10};
 	auto read = readOnly.begin();
 	::llc::u2_t count = 0;
@@ -153,12 +153,12 @@ sttc ::llc::err_t testConstIteration(ATestError & errors, _dataValues (&data)[_d
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testRandom(ATestError & errors) {
+sttc ::llc::err_t testRandom(::llc::ATestError & errors) {
 	stxp ::llc::u2_t DATA_COUNT	= 8;
 	stxp ::llc::u2_t ELEMENT_BITS	= szof(T) * 8;
 	stxp ::llc::u2_t MAX_BITS		= DATA_COUNT * ELEMENT_BITS;
 	T data[DATA_COUNT] = {};
-	cnst ::llc::u3_t seed = testSeed(BIT_RANDOM_SEED);
+	cnst ::llc::u3_t seed = ::llc::testSeed(BIT_RANDOM_SEED);
 	::llc::SPRNG random = {seed};
 	for(::llc::u2_t iRandom = 0; iRandom < BIT_RANDOM_COUNT; ++iRandom) {
 		for(::llc::u2_t iData = 0; iData < DATA_COUNT; ++iData)
@@ -197,7 +197,7 @@ sttc ::llc::err_t testRandom(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testReverseBits(ATestError & errors) {
+sttc ::llc::err_t testReverseBits(::llc::ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS	= szof(T) * 8;
 	T data[2]		= {T(0x5AU), T(0xC3U)};
 	T original[2]	= {data[0], data[1]};
@@ -228,28 +228,28 @@ sttc ::llc::err_t testReverseBits(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testInvalid(ATestError & errors) {
+sttc ::llc::err_t testInvalid(::llc::ATestError & errors) {
 #ifdef LLC_WINDOWS
 	stxp ::llc::u2_t ELEMENT_BITS = szof(T) * 8;
 	T data[2] = {};
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { ::llc::view_bit<T> invalid{nullptr, 1}; (void)invalid; }) , "%u-bit view accepted a null pointer with a nonzero count." , ELEMENT_BITS );
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !testThrows([&]() { ::llc::view_bit<T> invalid{::llc::u2_t(::llc::size(data) * ELEMENT_BITS + 1), data}; (void)invalid; }) , "%u-bit array view accepted a count beyond its %u-bit capacity." , ELEMENT_BITS, ::llc::u2_t(::llc::size(data) * ELEMENT_BITS) );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !::llc::testThrows([&]() { ::llc::view_bit<T> invalid{nullptr, 1}; (void)invalid; }) , "%u-bit view accepted a null pointer with a nonzero count." , ELEMENT_BITS );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !::llc::testThrows([&]() { ::llc::view_bit<T> invalid{::llc::u2_t(::llc::size(data) * ELEMENT_BITS + 1), data}; (void)invalid; }) , "%u-bit array view accepted a count beyond its %u-bit capacity." , ELEMENT_BITS, ::llc::u2_t(::llc::size(data) * ELEMENT_BITS) );
 	::llc::view_bit<T> bits{data, 1};
 	cnst ::llc::view_bit<T> readOnly{data, 1};
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)bits[bits.size()]; }) , "%u-bit mutable view accepted index:%u for size:%u." , ELEMENT_BITS, bits.size(), bits.size() );
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)readOnly[readOnly.size()]; }) , "%u-bit const view accepted index:%u for size:%u." , ELEMENT_BITS, readOnly.size(), readOnly.size() );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !::llc::testThrows([&]() { (void)bits[bits.size()]; }) , "%u-bit mutable view accepted index:%u for size:%u." , ELEMENT_BITS, bits.size(), bits.size() );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_SUBSCRIPT, !::llc::testThrows([&]() { (void)readOnly[readOnly.size()]; }) , "%u-bit const view accepted index:%u for size:%u." , ELEMENT_BITS, readOnly.size(), readOnly.size() );
 	auto mutableEnd = bits.end();
 	cnst auto constEnd = readOnly.end();
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { (void)*mutableEnd; }) , "%u-bit mutable iterator dereferenced end index:%u, limit:%u." , ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit() );
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { (void)*constEnd; }) , "%u-bit const iterator dereferenced end index:%u, limit:%u." , ELEMENT_BITS, constEnd.Index(), constEnd.Limit() );
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { (void)(bool)mutableEnd; }) , "%u-bit iterator converted end index:%u to bool." , ELEMENT_BITS, mutableEnd.Index() );
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { ++mutableEnd; }) , "%u-bit iterator incremented end index:%u, limit:%u." , ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit() );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !::llc::testThrows([&]() { (void)*mutableEnd; }) , "%u-bit mutable iterator dereferenced end index:%u, limit:%u." , ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit() );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !::llc::testThrows([&]() { (void)*constEnd; }) , "%u-bit const iterator dereferenced end index:%u, limit:%u." , ELEMENT_BITS, constEnd.Index(), constEnd.Limit() );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !::llc::testThrows([&]() { (void)(bool)mutableEnd; }) , "%u-bit iterator converted end index:%u to bool." , ELEMENT_BITS, mutableEnd.Index() );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !::llc::testThrows([&]() { ++mutableEnd; }) , "%u-bit iterator incremented end index:%u, limit:%u." , ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit() );
 	auto mutableBegin = bits.begin();
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { --mutableBegin; }) , "%u-bit iterator decremented begin index:%u." , ELEMENT_BITS, mutableBegin.Index() );
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { mutableEnd = true; }) , "%u-bit iterator assigned through end index:%u, limit:%u." , ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit() );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !::llc::testThrows([&]() { --mutableBegin; }) , "%u-bit iterator decremented begin index:%u." , ELEMENT_BITS, mutableBegin.Index() );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !::llc::testThrows([&]() { mutableEnd = true; }) , "%u-bit iterator assigned through end index:%u, limit:%u." , ELEMENT_BITS, mutableEnd.Index(), mutableEnd.Limit() );
 	::llc::view_bit<T> empty;
 	auto emptyBegin = empty.begin();
-	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !testThrows([&]() { (void)*emptyBegin; }) , "%u-bit default empty iterator was dereferenceable." , ELEMENT_BITS );
+	LLC_TEST_CHECKF(errors, BIT_VIEW_TEST_RESULT_INVALID_ITERATOR, !::llc::testThrows([&]() { (void)*emptyBegin; }) , "%u-bit default empty iterator was dereferenceable." , ELEMENT_BITS );
 #else
 	(void)errors;
 #endif
@@ -257,7 +257,7 @@ sttc ::llc::err_t testInvalid(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testType(ATestError & errors) {
+sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	T data[2] = {(T)0xA5U, (T)0x02U};
 	if_fail_fe(testPartial			(errors, data));
 	if_fail_fe(testSixBits			(errors, data));
@@ -271,7 +271,7 @@ sttc ::llc::err_t testType(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testTypeLogged(ATestError & errors) {
+sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testType<T>(errors));
@@ -281,7 +281,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testViewBit(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testViewBit(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));

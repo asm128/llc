@@ -831,9 +831,6 @@
     <ClInclude Include="llc_test_core.h">
       <Filter>test</Filter>
     </ClInclude>
-    <ClInclude Include="llc_test_report.h">
-      <Filter>test</Filter>
-    </ClInclude>
     <ClInclude Include="llc_mutex.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -1009,6 +1006,9 @@
     </ClCompile>
     <ClCompile Include="llc_runtime_module.cpp">
       <Filter>module</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_core.cpp">
+      <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="llc_timer.cpp">
       <Filter>time</Filter>

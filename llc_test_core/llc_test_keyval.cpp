@@ -23,7 +23,7 @@ stct SKeyValTestValue {
 
 tplt<tpnm TKey, tpnm TVal>
 sttc ::llc::err_t testKeyValCombination
-	(ATestError & errors, cnst TKey & firstKey, cnst TKey & secondKey, cnst TKey & missingKey, cnst TVal & firstValue, cnst TVal & secondValue) {
+	(::llc::ATestError & errors, cnst TKey & firstKey, cnst TKey & secondKey, cnst TKey & missingKey, cnst TVal & firstValue, cnst TVal & secondValue) {
 	cnst ::llc::keyval<TKey, TVal> values[] = {{firstKey, firstValue}, {secondKey, secondValue}, {firstKey, secondValue}};
 	cnst ::llc::view<cnst ::llc::keyval<TKey, TVal>> keyvals = {values};
 	llc_rmcnst(TVal) output = {};
@@ -39,7 +39,7 @@ sttc ::llc::err_t testKeyValCombination
 	rtrn 0;
 }
 
-sttc ::llc::err_t testKeyValTypes(ATestError & errors) {
+sttc ::llc::err_t testKeyValTypes(::llc::ATestError & errors) {
 	if_fail_fe(::testKeyValCombination(errors, ::llc::u0_t{1}, ::llc::u0_t{2}, ::llc::u0_t{3}, ::llc::u3_t{11}, ::llc::u3_t{22}));
 	if_fail_fe((::testKeyValCombination<::llc::s3_t, ::llc::vcst_t>(errors, ::llc::s3_t{-7}, ::llc::s3_t{9}, ::llc::s3_t{0}, "negative", "positive")));
 	if_fail_fe(::testKeyValCombination<::llc::vcst_t>(errors, "alpha", "beta", "missing"
@@ -49,7 +49,7 @@ sttc ::llc::err_t testKeyValTypes(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testKeyValConstTypes(ATestError & errors) {
+sttc ::llc::err_t testKeyValConstTypes(::llc::ATestError & errors) {
 	if_fail_fe((::testKeyValCombination<     ::llc::u2_t,      ::llc::u3_t>(errors, 1, 2, 3, 11, 22)));
 	if_fail_fe((::testKeyValCombination<cnst ::llc::u2_t,      ::llc::u3_t>(errors, 1, 2, 3, 11, 22)));
 	if_fail_fe((::testKeyValCombination<     ::llc::u2_t, cnst ::llc::u3_t>(errors, 1, 2, 3, 11, 22)));
@@ -57,7 +57,7 @@ sttc ::llc::err_t testKeyValConstTypes(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testKeyValViewConstness(ATestError & errors) {
+sttc ::llc::err_t testKeyValViewConstness(::llc::ATestError & errors) {
 	cnst ::llc::u1_t keyData[] = {1, 2, 3};
 	::llc::u1_t mutableData[] = {4, 5, 6};
 	tydf ::llc::keyval<cnst ::llc::view<cnst ::llc::u1_t>, cnst ::llc::view<::llc::u1_t>> TMutableViewKeyVal;
@@ -85,7 +85,7 @@ sttc ::llc::err_t testKeyValViewConstness(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testKeyValBoundaries(ATestError & errors) {
+sttc ::llc::err_t testKeyValBoundaries(::llc::ATestError & errors) {
 	cnst ::llc::view<cnst ::llc::keyval<::llc::u2_t, ::llc::u3_t>> empty = {};
 	::llc::u3_t output = 1;
 	cnst ::llc::err_t emptyResult = ::llc::find(::llc::u2_t{0}, empty, output);
@@ -100,7 +100,7 @@ sttc ::llc::err_t testKeyValBoundaries(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testKeyVal(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testKeyVal(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testKeyValTypes(errors));
 	if_fail_fe(::testKeyValConstTypes(errors));
 	if_fail_fe(::testKeyValViewConstness(errors));

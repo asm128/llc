@@ -16,7 +16,7 @@ GDEFINE_ENUM_VALUED(ENGINE_MANAGER_RESULT, BUILD_GRAPH     , 12, "Engine builder
 GDEFINE_ENUM_VALUED(ENGINE_MANAGER_RESULT, CLONE_GRAPH     , 13, "Engine cloning must reproduce child relationships and requested resource sharing.");
 
 tplt<tpnm TManager>
-sttc ::llc::err_t testEngineResourceManager(ATestError & errors) {
+sttc ::llc::err_t testEngineResourceManager(::llc::ATestError & errors) {
 	TManager manager;
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CREATE, manager.size() || manager.Elements.size());
 	llc_necs(::engine_test::resources(manager));
@@ -49,7 +49,7 @@ sttc ::llc::err_t testEngineResourceManager(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testEngineEntityManager(ATestError & errors) {
+sttc ::llc::err_t testEngineEntityManager(::llc::ATestError & errors) {
 	::llc::SVirtualEntityManager manager;
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create() != 0);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DEFAULTS, manager[0].Parent != ::llc::EID_INVALID || manager[0].RenderNode != (::llc::u2_t)-1 || manager[0].RigidBody != (::llc::u2_t)-1 || manager.GetChildCount(0));
@@ -78,7 +78,7 @@ sttc ::llc::err_t testEngineEntityManager(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testEngineNodeManager(ATestError & errors) {
+sttc ::llc::err_t testEngineNodeManager(::llc::ATestError & errors) {
 	::llc::SRenderNodeManager manager;
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create() != 0);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DEFAULTS, manager[0].Mesh != (::llc::u2_t)-1 || manager[0].Skin != (::llc::u2_t)-1 || manager[0].Shader != (::llc::u2_t)-1 || manager.Lights[0] || manager.Cameras[0]);
@@ -99,7 +99,7 @@ sttc ::llc::err_t testEngineNodeManager(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testEngineBodyManager(ATestError & errors) {
+sttc ::llc::err_t testEngineBodyManager(::llc::ATestError & errors) {
 	::llc::SRigidBodyIntegrator manager;
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create(0) != 0 || manager.Centers.size());
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create(2) != 0);
@@ -131,7 +131,7 @@ sttc ::llc::err_t testEngineBodyManager(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testEngineBufferFormats(ATestError & errors) {
+sttc ::llc::err_t testEngineBufferFormats(::llc::ATestError & errors) {
 	cnst ::llc::u2_t counts[] = {0, 1, 255, 256, 65535, 65536};
 	cnst ::llc::u2_t widths[] = {1, 1, 1, 2, 2, 4};
 	::llc::pobj<::llc::SRenderBuffer> indices, positions, normals, uv;
@@ -145,7 +145,7 @@ sttc ::llc::err_t testEngineBufferFormats(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testEngineShaderManager(ATestError & errors) {
+sttc ::llc::err_t testEngineShaderManager(::llc::ATestError & errors) {
 	::llc::SShaderManager manager;
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create("shader") != 0);
 	if_null_fe(manager[0U].create([](cnst ::llc::SEngineSceneConstants &, cnst ::llc::SPSIn &, ::llc::bgra & output) -> ::llc::err_t { output = {1, 2, 3, 255}; return 0; }));
@@ -167,7 +167,7 @@ sttc ::llc::err_t testEngineShaderManager(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testEngineGraph(ATestError & errors) {
+sttc ::llc::err_t testEngineGraph(::llc::ATestError & errors) {
 	::llc::SEngine engine;
 	llc_necs(::engine_test::engine(engine));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_BUILD_GRAPH, engine.Entities.size() != 4 || engine.Integrator.Centers.size() != 3 || engine.Scene->RenderNodes.size() != 4 || engine.Scene->Graphics->Meshes.size() != 1);
@@ -189,7 +189,7 @@ sttc ::llc::err_t testEngineGraph(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testEngineManagers(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testEngineManagers(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	always_printf("Engine resource operations: buffers."); llc_necs(testEngineResourceManager<::llc::SRenderBufferManager>(errors));
 	always_printf("Engine resource operations: surfaces."); llc_necs(testEngineResourceManager<::llc::SSurfaceManager>(errors));
 	always_printf("Engine resource operations: meshes."); llc_necs(testEngineResourceManager<::llc::SMeshManager>(errors));

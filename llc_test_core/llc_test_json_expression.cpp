@@ -262,7 +262,7 @@ sttc void testJSONExpressionTrace(const ::llc::SJSONReader & reader, ::llc::u2_t
 		always_printf("Root context:\n%.*s\n", LLC_VIEW_ARGS(reader.View[root]));
 }
 
-sttc ::llc::err_t testJSONExpressionResolve(ATestError & errors, const ::llc::SJSONReader & reader, ::llc::u2_t indexNodeJSON, ::llc::vcst_t expression, ::llc::vcst_t expected, JSON_EXPRESSION_TEST_RESULT resultCase, JSON_EXPRESSION_TEST_RESULT valueCase, ::llc::err_t & indexResult) {
+sttc ::llc::err_t testJSONExpressionResolve(::llc::ATestError & errors, const ::llc::SJSONReader & reader, ::llc::u2_t indexNodeJSON, ::llc::vcst_t expression, ::llc::vcst_t expected, JSON_EXPRESSION_TEST_RESULT resultCase, JSON_EXPRESSION_TEST_RESULT valueCase, ::llc::err_t & indexResult) {
 	::llc::vcst_t output = "unchanged";
 	indexResult = ::llc::jsonExpressionResolve(expression, reader, indexNodeJSON, output);
 	::testJSONExpressionTrace(reader, indexNodeJSON, expression, expected, output, indexResult);
@@ -271,7 +271,7 @@ sttc ::llc::err_t testJSONExpressionResolve(ATestError & errors, const ::llc::SJ
 	rtrn 0;
 }
 
-sttc ::llc::err_t testJSONExpressionHistorical(ATestError & errors, ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	cnst ::llc::vcst_t document = "\n{\t \"name\"           : \"Carlos\""
 		  "\n\t, \"height\"         : 1.60"
 		  "\n\t, \"color\"          : \"brown\""
@@ -338,7 +338,7 @@ sttc ::llc::err_t testJSONExpressionHistorical(ATestError & errors, ::llc::vcst_
 	rtrn 0;
 }
 
-::llc::err_t testJSONExpression(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testJSONExpression(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testJSONExpressionHistorical(errors, outputFolder));
 	cnst ::llc::vcst_t document = "{\"application\":{\"blitter\":{\"database\":{\"name\":\"main\",\"enabled\":true,\"disabled\":false,\"negativeZero\":-0.0,\"path\":{\"database\":\"data\"},\"bind\":[\"id\",\"name\"]}}},\"selector\":\"selectorName\",\"selectorName\":\"name\"}";
 	if_fail_fe(::llc::fileFromMemory(outputFolder, "focused_input.json", document.cu8()));

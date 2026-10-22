@@ -84,7 +84,7 @@ GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, UPDATE_RESIZE      , 69, "Target resize did
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, UPDATE_ZOOM        , 70, "Zoom change did not invalidate metrics during update.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, METRIC_RESIZE_EVENTS, 71, "Forced metric updates emitted redundant control-state events.");
 
-sttc ::llc::err_t testGUIUpdateDrawOrder(ATestError & errors) {
+sttc ::llc::err_t testGUIUpdateDrawOrder(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	::llc::SInput input = {};
 	::llc::img8bgra target = {};
@@ -138,7 +138,7 @@ sttc ::llc::err_t testGUITextFontCreate(::llc::po<::llc::SRasterFont> & font, ::
 	rtrn font->Texture.Texels.fill(0);
 }
 
-sttc ::llc::err_t testGUITextCore(ATestError & errors) {
+sttc ::llc::err_t testGUITextCore(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_WIDTH, ::llc::textLineCalcWidth({3, 5}, "TEXT") != 12);
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_TEXT_WIDTH, ::llc::textLineCalcWidth({3, 5}, {}) != 0);
 	::llc::po<::llc::SRasterFont> font = {};
@@ -160,7 +160,7 @@ sttc ::llc::err_t testGUITextCore(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIStateEvent(ATestError & errors, cnst ::llc::TQueueSystemEvent & queue, ::llc::u2_c iEvent, ::llc::cid_t expectedId, ::llc::GUI_CONTROL_FLAG expectedClear, ::llc::GUI_CONTROL_FLAG expectedSet) {
+sttc ::llc::err_t testGUIStateEvent(::llc::ATestError & errors, cnst ::llc::TQueueSystemEvent & queue, ::llc::u2_c iEvent, ::llc::cid_t expectedId, ::llc::GUI_CONTROL_FLAG expectedClear, ::llc::GUI_CONTROL_FLAG expectedSet) {
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_STATE_EVENT, queue.size() <= iEvent || 0 == queue[iEvent].get_ref(), "Event:%u queue size:%u.", iEvent, queue.size());
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_STATE_EVENT, queue[iEvent]->Type != ::llc::SYSTEM_EVENT_GUI, "Event:%u parent type:%u.", iEvent, (::llc::u2_t)queue[iEvent]->Type);
 	::llc::SEView<::llc::EVENT_GUI_CONTROL> childEvent = {};
@@ -174,7 +174,7 @@ sttc ::llc::err_t testGUIStateEvent(ATestError & errors, cnst ::llc::TQueueSyste
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIControlStateQueries(ATestError & errors) {
+sttc ::llc::err_t testGUIControlStateQueries(::llc::ATestError & errors) {
 	for(::llc::u2_t iFlag = 0; iFlag < 0x100U; ++iFlag)
 	for(::llc::u2_t iMask = 0; iMask < 0x100U; ++iMask) {
 		::llc::SControlState state = {};
@@ -194,7 +194,7 @@ sttc ::llc::err_t testGUIControlStateQueries(ATestError & errors) {
 }
 
 tplt<tpnm TSetter>
-sttc ::llc::err_t testGUIControlStateSetter(ATestError & errors, ::llc::GUI_CONTROL_FLAG bit, TSetter setter) {
+sttc ::llc::err_t testGUIControlStateSetter(::llc::ATestError & errors, ::llc::GUI_CONTROL_FLAG bit, TSetter setter) {
 	for(::llc::u2_t iFlag = 0; iFlag < 0x100U; ++iFlag)
 	for(::llc::u2_t iMask = 0; iMask < 0x100U; ++iMask)
 	for(::llc::u2_t iValue = 0; iValue < 2; ++iValue) {
@@ -207,7 +207,7 @@ sttc ::llc::err_t testGUIControlStateSetter(ATestError & errors, ::llc::GUI_CONT
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIControlStateMutations(ATestError & errors) {
+sttc ::llc::err_t testGUIControlStateMutations(::llc::ATestError & errors) {
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Hidden  , ::llc::setHidden));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Disabled, ::llc::setDisabled));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Hovered , ::llc::setHovered));
@@ -236,7 +236,7 @@ sttc ::llc::err_t testGUIControlStateMutations(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIControlStateEvents(ATestError & errors) {
+sttc ::llc::err_t testGUIControlStateEvents(::llc::ATestError & errors) {
 	::llc::SControlTable controls = {};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_STATE_EVENT, 0 > controls.States.resize(1), "%s", "State allocation failed.");
 	controls.SetHovered(0, true);
@@ -259,7 +259,7 @@ sttc ::llc::err_t testGUIControlStateEvents(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIControlLifecycle(ATestError & errors) {
+sttc ::llc::err_t testGUIControlLifecycle(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t root = ::llc::controlCreate(gui);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, root < 0, "Root result:%i.", root);
@@ -316,7 +316,7 @@ sttc ::llc::err_t testGUIControlLifecycle(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIMetricAlignment(ATestError & errors) {
+sttc ::llc::err_t testGUIMetricAlignment(::llc::ATestError & errors) {
 	stxp ::llc::ALIGN alignments[] =
 		{ ::llc::ALIGN_TOP_LEFT, ::llc::ALIGN_TOP_RIGHT, ::llc::ALIGN_BOTTOM_LEFT, ::llc::ALIGN_BOTTOM_RIGHT
 		, ::llc::ALIGN_CENTER_TOP, ::llc::ALIGN_CENTER_BOTTOM, ::llc::ALIGN_CENTER_LEFT, ::llc::ALIGN_CENTER_RIGHT, ::llc::ALIGN_CENTER
@@ -339,7 +339,7 @@ sttc ::llc::err_t testGUIMetricAlignment(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIMetricAreas(ATestError & errors) {
+sttc ::llc::err_t testGUIMetricAreas(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
@@ -359,7 +359,7 @@ sttc ::llc::err_t testGUIMetricAreas(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIMetricHierarchy(ATestError & errors) {
+sttc ::llc::err_t testGUIMetricHierarchy(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t parent = ::llc::controlCreate(gui);
 	cnst ::llc::cid_t child = ::llc::controlCreateChild(gui, parent);
@@ -392,7 +392,7 @@ sttc ::llc::err_t testGUIMetricHierarchy(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIMetricConstraints(ATestError & errors) {
+sttc ::llc::err_t testGUIMetricConstraints(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t reference = ::llc::controlCreate(gui);
 	cnst ::llc::cid_t constrained = ::llc::controlCreate(gui);
@@ -420,7 +420,7 @@ sttc ::llc::err_t testGUIMetricConstraints(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIHitTesting(ATestError & errors) {
+sttc ::llc::err_t testGUIHitTesting(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t back = ::llc::controlCreate(gui);
 	cnst ::llc::cid_t front = ::llc::controlCreate(gui);
@@ -459,7 +459,7 @@ sttc ::llc::err_t testGUIHitTesting(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIInputSequence(ATestError & errors) {
+sttc ::llc::err_t testGUIInputSequence(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
@@ -496,7 +496,7 @@ sttc ::llc::err_t testGUIInputSequence(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUILayoutAndInput(ATestError & errors) {
+sttc ::llc::err_t testGUILayoutAndInput(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t parent = ::llc::controlCreate(gui);
 	cnst ::llc::cid_t child = ::llc::controlCreateChild(gui, parent);
@@ -543,7 +543,7 @@ sttc ::llc::err_t testGUILayoutAndInput(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIDrawCore(ATestError & errors, ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testGUIDrawCore(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t parent = ::llc::controlCreate(gui);
 	cnst ::llc::cid_t child = ::llc::controlCreateChild(gui, parent);
@@ -616,7 +616,7 @@ sttc ::llc::err_t testGUIDrawCore(ATestError & errors, ::llc::vcst_t outputFolde
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
+sttc ::llc::err_t testGUIDrawText(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
@@ -696,7 +696,7 @@ sttc ::llc::err_t testGUIDrawText(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIDrawImage(ATestError & errors) {
+sttc ::llc::err_t testGUIDrawImage(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
@@ -762,7 +762,7 @@ sttc ::llc::err_t testGUIDrawImage(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIVirtualKeyboard(ATestError & errors) {
+sttc ::llc::err_t testGUIVirtualKeyboard(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	::llc::SVirtualKeyboard keyboard = {};
 	cnst ::llc::u1_t keys[] = {'A', 'B', 'C', 'D', 'E'};
@@ -843,7 +843,7 @@ sttc ::llc::err_t testGUIVirtualKeyboard(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIDraw(ATestError & errors) {
+sttc ::llc::err_t testGUIDraw(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
@@ -867,7 +867,7 @@ sttc ::llc::err_t testGUIDraw(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIComponents(ATestError & errors) {
+sttc ::llc::err_t testGUIComponents(::llc::ATestError & errors) {
 	::llc::SGUI			gui			= {};
 	::llc::SInputBox	inputBox	= {};
 	LLC_TEST_REQUIREF	(errors, GUI_TEST_RESULT_INPUTBOX, 0 > ::llc::inputBoxCreate(inputBox, gui), "%s", "Input box creation failed.");
@@ -887,7 +887,7 @@ sttc ::llc::err_t testGUIComponents(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIViewportOperations(ATestError & errors) {
+sttc ::llc::err_t testGUIViewportOperations(::llc::ATestError & errors) {
 	::llc::SGUI						gui					= {};
 	cnst ::llc::cid_t				idParent				= ::llc::controlCreate(gui);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_VIEWPORT_ACTIVATE, idParent < 0, "Parent result:%i.", idParent);
@@ -927,7 +927,7 @@ sttc ::llc::err_t testGUIViewportOperations(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGUIVisualScene(ATestError & errors, ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testGUIVisualScene(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::SGUI gui = {};
 	stxp ::llc::vcst_t labels[] = {"Normal", "Hovered", "Selected", "Pressed", "Disabled"};
 	stxp ::llc::GUI_CONTROL_FLAG states[] = {{}, ::llc::GUI_CONTROL_FLAG_Hovered, ::llc::GUI_CONTROL_FLAG_Selected, ::llc::GUI_CONTROL_FLAG_Pressed, ::llc::GUI_CONTROL_FLAG_Disabled};
@@ -987,7 +987,7 @@ sttc ::llc::err_t testGUIVisualScene(ATestError & errors, ::llc::vcst_t outputFo
 	rtrn 0;
 }
 
-::llc::err_t testGUI(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testGUI(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testGUIVisualScene(errors, outputFolder));
 	if_fail_fe(::testGUIUpdateDrawOrder(errors));
 	if_fail_fe(::testGUITextCore(errors));

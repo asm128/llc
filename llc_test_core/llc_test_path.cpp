@@ -160,7 +160,7 @@ sttc SPathListCounts pathListCounts(const ::llc::SPathContents & pathContents) {
 	rtrn counts;
 }
 
-sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
+sttc ::llc::err_t testFindLastSlash(::llc::ATestError & errors) {
 	cnst SPathSlashCase cases[] =
 		{ {""						, -1, PATH_TEST_RESULT_LAST_SLASH_NONE}
 		, {"file.txt"				, -1, PATH_TEST_RESULT_LAST_SLASH_NONE}
@@ -197,7 +197,7 @@ sttc ::llc::err_t testFindLastSlash(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPathBegin(ATestError & errors) {
+sttc ::llc::err_t testPathBegin(::llc::ATestError & errors) {
 	cnst SPathBeginCase cases[] =
 		{ {""						, ""}
 		, {"folder/file"			, ""}
@@ -225,7 +225,7 @@ sttc ::llc::err_t testPathBegin(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPathNameCompose(ATestError & errors) {
+sttc ::llc::err_t testPathNameCompose(::llc::ATestError & errors) {
 	cnst SPathComposeCase cases[] =
 		{ {""		, ""				, ""			, ""					, PATH_TEST_RESULT_COMPOSE_EMPTY}
 		, {""		, ""				, "file.txt"	, "file.txt"			, PATH_TEST_RESULT_COMPOSE_TEXT}
@@ -251,7 +251,7 @@ sttc ::llc::err_t testPathNameCompose(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPathNameComposeInvalid(ATestError & errors) {
+sttc ::llc::err_t testPathNameComposeInvalid(::llc::ATestError & errors) {
 	cnst SPathComposeCase cases[] =
 		{ {"preserved:"	, "root//folder"	, "file.txt"		, "preserved:"	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
 		, {"preserved:"	, "root\\\\folder"	, "file.txt"		, "preserved:"	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
@@ -268,7 +268,7 @@ sttc ::llc::err_t testPathNameComposeInvalid(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPathNormalize(ATestError & errors) {
+sttc ::llc::err_t testPathNormalize(::llc::ATestError & errors) {
 	cnst SPathNormalizeCase cases[] =
 		{ {""							, ""						, '/', PATH_TEST_RESULT_NORMALIZE_EMPTY}
 		, {"."							, "."						, '/', PATH_TEST_RESULT_NORMALIZE_DOT}
@@ -302,7 +302,7 @@ sttc ::llc::err_t testPathNormalize(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPathNormalizeInvalid(ATestError & errors) {
+sttc ::llc::err_t testPathNormalizeInvalid(::llc::ATestError & errors) {
 	cnst SPathNormalizeCase cases[] =
 		{ {"a//b"			, "preserved"	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
 		, {"root//folder"	, "preserved"	, '/', PATH_TEST_RESULT_NORMALIZE_INVALID}
@@ -325,7 +325,7 @@ sttc bool pathIsAbsolute(::llc::vcst_t path) {
 	rtrn path.size() && ('/' == path[0] || '\\' == path[0] || (path.size() > 2 && ':' == path[1] && ('/' == path[2] || '\\' == path[2])));
 }
 
-sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
+sttc ::llc::err_t testPathAbsolute(::llc::ATestError & errors) {
 	::llc::string		current;
 	cnst ::llc::err_t currentResult	= ::llc::pathAbsolute(".", current);
 	LLC_TEST_REQUIREF(errors, PATH_TEST_RESULT_ABSOLUTE_CURRENT, ::llc::failed(currentResult) , "Current directory resolution returned:%" LLC_FMT_S2 ", path:'%.*s'/%u." , currentResult, (int)current.size(), current.begin(), current.size() );
@@ -356,7 +356,7 @@ sttc ::llc::err_t testPathAbsolute(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPathAbsoluteInvalid(ATestError & errors) {
+sttc ::llc::err_t testPathAbsoluteInvalid(::llc::ATestError & errors) {
 	cnst SPathNormalizeCase cases[] =
 		{ {""				, "preserved"	, '/', PATH_TEST_RESULT_ABSOLUTE_INVALID}
 		, {"root//folder"	, "preserved"	, '/', PATH_TEST_RESULT_ABSOLUTE_INVALID}
@@ -371,7 +371,7 @@ sttc ::llc::err_t testPathAbsoluteInvalid(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
+sttc ::llc::err_t testPathListRecursive(::llc::ATestError & errors) {
 	SPathListFixture		fixture;
 	std::error_code		filesystemError;
 	std::filesystem::remove_all(fixture.Root.begin(), filesystemError);
@@ -421,7 +421,7 @@ sttc ::llc::err_t testPathListRecursive(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testPath(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testPath(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testFindLastSlash(errors));
 	if_fail_fe(testPathBegin(errors));
 	if_fail_fe(testPathNameCompose(errors));

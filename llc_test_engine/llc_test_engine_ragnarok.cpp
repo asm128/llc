@@ -47,7 +47,7 @@ sttc bool gatIsSentinel(cnst ::llc::SROGAT & output) {
 		&& 0 == memcmp(&output.Tiles[0], &sentinel, szof(sentinel));
 }
 
-::llc::err_t testRagnarokGAT(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testRagnarokGAT(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::au0_t bytes;
 	::llc::SROGATTile expectedTiles[2] = {};
 	LLC_TEST_REQUIRE(errors, RAGNAROK_GAT_RESULT_FIXTURE, ::llc::failed(gatFixture(bytes, expectedTiles)));
@@ -68,8 +68,8 @@ sttc bool gatIsSentinel(cnst ::llc::SROGAT & output) {
 	invalid = bytes;
 	invalid[4] = 2;
 	llc_necs(gatSentinel(rejected));
-	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_VERSION, 0 <= ::llc::roGATLoad(rejected, invalid) || rejected.Version.Major != 2 || rejected.Version.Minor != 2
-		|| rejected.Dimensions != ::llc::n2u2_t{7, 6} || rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5);
+	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_VERSION, (0 <= ::llc::roGATLoad(rejected, invalid) || rejected.Version.Major != 2 || rejected.Version.Minor != 2
+		|| rejected.Dimensions != ::llc::n2u2_t{7, 6} || rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5));
 
 	for(::llc::u2_t byteCount = 0; byteCount < bytes.size(); ++byteCount) {
 		llc_necs(gatSentinel(rejected));
@@ -78,8 +78,8 @@ sttc bool gatIsSentinel(cnst ::llc::SROGAT & output) {
 	}
 	llc_necs(gatSentinel(rejected));
 	cnst ::llc::err_t partialResult = ::llc::roGATLoad(rejected, {bytes.begin(), bytes.size() - 1});
-	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_TRUNCATED, 0 <= partialResult || rejected.Version.Major != 1 || rejected.Version.Minor != 2
-		|| rejected.Dimensions != ::llc::n2u2_t{2, 1} || rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5);
+	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_TRUNCATED, (0 <= partialResult || rejected.Version.Major != 1 || rejected.Version.Minor != 2
+		|| rejected.Dimensions != ::llc::n2u2_t{2, 1} || rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5));
 
 	::llc::SROGAT reused;
 	LLC_TEST_REQUIRE(errors, RAGNAROK_GAT_RESULT_REUSE, ::llc::failed(::llc::roGATLoad(reused, bytes)));
@@ -102,8 +102,8 @@ sttc bool gatIsSentinel(cnst ::llc::SROGAT & output) {
 	::llc::SROGAT corpusLoaded;
 	cnst ::llc::err_t corpusResult = ::llc::roGATLoad(corpusLoaded, corpusBytes);
 	LLC_TEST_REQUIRE(errors, RAGNAROK_GAT_RESULT_CORPUS_LOAD, corpusResult != (::llc::err_t)corpusBytes.size());
-	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_CORPUS_LAYOUT, corpusLoaded.Version.Major != 1 || corpusLoaded.Version.Minor != 2
-		|| corpusLoaded.Dimensions != ::llc::n2u2_t{60, 60} || corpusLoaded.Tiles.size() != 3600);
+	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_CORPUS_LAYOUT, (corpusLoaded.Version.Major != 1 || corpusLoaded.Version.Minor != 2
+		|| corpusLoaded.Dimensions != ::llc::n2u2_t{60, 60} || corpusLoaded.Tiles.size() != 3600));
 	return 0;
 }
 
@@ -227,7 +227,7 @@ sttc ::llc::err_t gndSentinel(::llc::SROGND & output) {
 	output.TextureNameSize = 8;
 	llc_necs(output.TextureNames.resize(1));
 	output.TextureNames[0].clear();
-	llc_necs(output.TextureNames[0].append_string(LLC_CXS("sentinel")));
+	llc_necs(output.TextureNames[0].append_string("sentinel"));
 	output.LightmapDimensions = {4, 3};
 	output.LightmapTiles = 2;
 	llc_necs(output.Lightmaps.resize(1));
@@ -255,7 +255,7 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 		&& output.Tiles.size() == 1 && output.Tiles[0].Height[0] == 5 && output.Tiles[0].SkinIndexTop == 3 && output.Tiles[0].Flags == 0x4321;
 }
 
-::llc::err_t testRagnarokGND(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testRagnarokGND(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::au0_t bytes15, bytes17;
 	SGNDFixtureOffsets offsets15 = {}, offsets17 = {};
 	LLC_TEST_REQUIRE(errors, RAGNAROK_GND_RESULT_FIXTURE, ::llc::failed(gndFixture(bytes15, 5, offsets15)) || ::llc::failed(gndFixture(bytes17, 7, offsets17)));
@@ -266,10 +266,10 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 		cnst ::llc::err_t loadResult = ::llc::roGNDLoad(loaded, bytes);
 		cnst RAGNAROK_GND_RESULT loadCode = iFixture ? RAGNAROK_GND_RESULT_LOAD_17 : RAGNAROK_GND_RESULT_LOAD_15;
 		LLC_TEST_REQUIREF(errors, loadCode, loadResult != (::llc::err_t)bytes.size(), "Result:%i, expected:%u.", loadResult, bytes.size());
-		LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_HEADER, loaded.Version.Major != 1 || loaded.Version.Minor != (iFixture ? 7 : 5) || loaded.Dimensions != ::llc::n2u2_t{1, 1} || loaded.TileScale != 10);
+		LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_HEADER, (loaded.Version.Major != 1 || loaded.Version.Minor != (iFixture ? 7 : 5) || loaded.Dimensions != ::llc::n2u2_t{1, 1} || loaded.TileScale != 10));
 		LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_TEXTURES, loaded.TextureNameSize != 8 || loaded.TextureNames.size() != 1 || loaded.TextureNames[0].size() != 8 || 0 != memcmp(loaded.TextureNames[0].begin(), "grass.bm", 8));
-		LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_LIGHTMAPS, loaded.LightmapDimensions != ::llc::n2u2_t{8, 8} || loaded.LightmapTiles != 1 || loaded.Lightmaps.size() != 1
-			|| loaded.Lightmaps[0].Brightness[0][0] != 17 || loaded.Lightmaps[0].Brightness[7][7] != 29 || loaded.Lightmaps[0].ColorRGB[0][0] != ::llc::n3u0_t{1, 2, 3} || loaded.Lightmaps[0].ColorRGB[7][7] != ::llc::n3u0_t{4, 5, 6});
+		LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_LIGHTMAPS, (loaded.LightmapDimensions != ::llc::n2u2_t{8, 8} || loaded.LightmapTiles != 1 || loaded.Lightmaps.size() != 1
+			|| loaded.Lightmaps[0].Brightness[0][0] != 17 || loaded.Lightmaps[0].Brightness[7][7] != 29 || loaded.Lightmaps[0].ColorRGB[0][0] != ::llc::n3u0_t{1, 2, 3} || loaded.Lightmaps[0].ColorRGB[7][7] != ::llc::n3u0_t{4, 5, 6}));
 		LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_SKINS, loaded.Skins.size() != 1 || loaded.Skins[0].U[1] != 1 || loaded.Skins[0].V[2] != 1 || loaded.Skins[0].TextureIndex != 0 || loaded.Skins[0].LightmapIndex != 0 || loaded.Skins[0].Color != 0xAABBCCDDU);
 		LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_TILES, loaded.Tiles.size() != 1 || loaded.Tiles[0].Height[0] != 1 || loaded.Tiles[0].Height[3] != 4 || loaded.Tiles[0].SkinIndexTop != 0 || loaded.Tiles[0].SkinIndexRight != -1 || loaded.Tiles[0].SkinIndexFront != -1 || loaded.Tiles[0].Flags != (iFixture ? 0 : 0x1234));
 	}
@@ -285,11 +285,11 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 		LLC_TEST_REQUIREF(errors, RAGNAROK_GND_RESULT_CORPUS_FILE, ::llc::failed(::llc::fileToMemory(corpusCase.Path, corpusBytes)), "File:'%.*s'.", LLC_VIEW_ARGS(corpusCase.Path));
 		cnst ::llc::err_t corpusResult = ::llc::roGNDLoad(corpusLoaded, corpusBytes);
 		LLC_TEST_REQUIREF(errors, RAGNAROK_GND_RESULT_CORPUS_LOAD, corpusResult != (::llc::err_t)corpusBytes.size(), "File:'%.*s', result:%i, expected:%u.", LLC_VIEW_ARGS(corpusCase.Path), corpusResult, corpusBytes.size());
-		LLC_TEST_REQUIREF(errors, RAGNAROK_GND_RESULT_CORPUS_LAYOUT, corpusLoaded.Version.Major != corpusCase.Version.Major || corpusLoaded.Version.Minor != corpusCase.Version.Minor
+		LLC_TEST_REQUIREF(errors, RAGNAROK_GND_RESULT_CORPUS_LAYOUT, (corpusLoaded.Version.Major != corpusCase.Version.Major || corpusLoaded.Version.Minor != corpusCase.Version.Minor
 			|| corpusLoaded.Dimensions != corpusCase.Dimensions || corpusLoaded.TileScale != 10 || corpusLoaded.TextureNameSize != 80
 			|| corpusLoaded.TextureNames.size() != corpusCase.TextureCount || corpusLoaded.LightmapDimensions != ::llc::n2u2_t{8, 8}
 			|| corpusLoaded.LightmapTiles != 1 || corpusLoaded.Lightmaps.size() != corpusCase.LightmapCount || corpusLoaded.Skins.size() != corpusCase.SkinCount
-			|| corpusLoaded.Tiles.size() != corpusCase.Dimensions.x * corpusCase.Dimensions.y, "File:'%.*s'.", LLC_VIEW_ARGS(corpusCase.Path));
+			|| corpusLoaded.Tiles.size() != corpusCase.Dimensions.x * corpusCase.Dimensions.y), "File:'%.*s'.", LLC_VIEW_ARGS(corpusCase.Path));
 		if(0 == iCase) {
 			corpusNameAllocation = corpusLoaded.TextureNames[0].begin();
 			corpusLightmapAllocation = corpusLoaded.Lightmaps.begin();
@@ -310,8 +310,8 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 	invalid = bytes15;
 	invalid[5] = 6;
 	llc_necs(gndSentinel(rejected));
-	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_VERSION, 0 <= ::llc::roGNDLoad(rejected, invalid) || rejected.Version.Major != 1 || rejected.Version.Minor != 6
-		|| rejected.Dimensions != ::llc::n2u2_t{7, 6} || rejected.TextureNames.size() != 1 || 0 != memcmp(rejected.TextureNames[0].begin(), "sentinel", 8));
+	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_VERSION, (0 <= ::llc::roGNDLoad(rejected, invalid) || rejected.Version.Major != 1 || rejected.Version.Minor != 6
+		|| rejected.Dimensions != ::llc::n2u2_t{7, 6} || rejected.TextureNames.size() != 1 || 0 != memcmp(rejected.TextureNames[0].begin(), "sentinel", 8)));
 
 	for(::llc::u2_t iFixture = 0; iFixture < 2; ++iFixture) {
 		cnst ::llc::au0_t & bytes = iFixture ? bytes17 : bytes15;
@@ -323,16 +323,16 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 	}
 	llc_necs(gndSentinel(rejected));
 	cnst ::llc::err_t partialResult = ::llc::roGNDLoad(rejected, {bytes15.begin(), bytes15.size() - 1});
-	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_TRUNCATED, 0 <= partialResult || rejected.Version.Major != 1 || rejected.Version.Minor != 5 || rejected.Dimensions != ::llc::n2u2_t{1, 1}
+	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_TRUNCATED, (0 <= partialResult || rejected.Version.Major != 1 || rejected.Version.Minor != 5 || rejected.Dimensions != ::llc::n2u2_t{1, 1}
 		|| rejected.TextureNames.size() != 1 || 0 != memcmp(rejected.TextureNames[0].begin(), "grass.bm", 8) || rejected.Lightmaps.size() != 1 || rejected.Skins.size() != 1
-		|| rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5 || rejected.Tiles[0].Flags != 0x4321);
+		|| rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5 || rejected.Tiles[0].Flags != 0x4321));
 
 	invalid = bytes15;
 	invalid[offsets15.LightmapWidth] = 7;
 	llc_necs(gndSentinel(rejected));
-	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_LIGHTMAPS, 0 <= ::llc::roGNDLoad(rejected, invalid) || rejected.Version.Minor != 5 || rejected.Dimensions != ::llc::n2u2_t{1, 1}
+	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_LIGHTMAPS, (0 <= ::llc::roGNDLoad(rejected, invalid) || rejected.Version.Minor != 5 || rejected.Dimensions != ::llc::n2u2_t{1, 1}
 		|| rejected.TextureNames.size() != 1 || 0 != memcmp(rejected.TextureNames[0].begin(), "grass.bm", 8) || rejected.LightmapDimensions != ::llc::n2u2_t{7, 8}
-		|| rejected.Lightmaps.size() != 1 || rejected.Lightmaps[0].Brightness[0][0] != 0xA5);
+		|| rejected.Lightmaps.size() != 1 || rejected.Lightmaps[0].Brightness[0][0] != 0xA5));
 
 	::llc::au0_t detached;
 	LLC_TEST_REQUIRE(errors, RAGNAROK_GND_RESULT_FIXTURE, ::llc::failed(gndDetachedFixture(detached)));

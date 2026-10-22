@@ -64,7 +64,7 @@ GDEFINE_ENUM_VALUED(ASCII_COLOR_TEST_RESULT, INVERT_FOREGROUND		, 55, "ascii_col
 GDEFINE_ENUM_VALUED(ASCII_COLOR_TEST_RESULT, INVERT_BACKGROUND		, 56, "ascii_color_invert() did not move the foreground into the background nibble.");
 GDEFINE_ENUM_VALUED(ASCII_COLOR_TEST_RESULT, INVERT_ROUND_TRIP		, 57, "Two calls to ascii_color_invert() did not restore the attribute.");
 
-sttc ::llc::err_t testASCIIColorIndices(ATestError & errors) {
+sttc ::llc::err_t testASCIIColorIndices(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_INDEX_0 , ::llc::ASCII_COLOR_INDEX_0  != 0x000000U, "Value:0x%08X, expected:0x00000000.", (::llc::u2_t)::llc::ASCII_COLOR_INDEX_0 );
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_INDEX_1 , ::llc::ASCII_COLOR_INDEX_1  != 0x800000U, "Value:0x%08X, expected:0x00800000.", (::llc::u2_t)::llc::ASCII_COLOR_INDEX_1 );
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_INDEX_2 , ::llc::ASCII_COLOR_INDEX_2  != 0x008000U, "Value:0x%08X, expected:0x00008000.", (::llc::u2_t)::llc::ASCII_COLOR_INDEX_2 );
@@ -84,7 +84,7 @@ sttc ::llc::err_t testASCIIColorIndices(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testASCIIPalette(ATestError & errors) {
+sttc ::llc::err_t testASCIIPalette(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_PALETTE_0 , ::llc::ASCII_PALETTE[ 0] != 0xFF000000U, "Value:0x%08X, expected:0xFF000000.", ::llc::ASCII_PALETTE[ 0]);
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_PALETTE_1 , ::llc::ASCII_PALETTE[ 1] != 0xFF800000U, "Value:0x%08X, expected:0xFF800000.", ::llc::ASCII_PALETTE[ 1]);
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_PALETTE_2 , ::llc::ASCII_PALETTE[ 2] != 0xFF008000U, "Value:0x%08X, expected:0xFF008000.", ::llc::ASCII_PALETTE[ 2]);
@@ -104,7 +104,7 @@ sttc ::llc::err_t testASCIIPalette(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testASCIIColorValues(ATestError & errors) {
+sttc ::llc::err_t testASCIIColorValues(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_COLOR_BLACK		, ::llc::ASCII_COLOR_BLACK		!=  0, "Value:%u, expected:0.", (::llc::u2_t)::llc::ASCII_COLOR_BLACK);
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_COLOR_DARKBLUE	, ::llc::ASCII_COLOR_DARKBLUE	!=  1, "Value:%u, expected:1.", (::llc::u2_t)::llc::ASCII_COLOR_DARKBLUE);
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_COLOR_DARKGREEN	, ::llc::ASCII_COLOR_DARKGREEN	!=  2, "Value:%u, expected:2.", (::llc::u2_t)::llc::ASCII_COLOR_DARKGREEN);
@@ -124,7 +124,7 @@ sttc ::llc::err_t testASCIIColorValues(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testASCIIColorInvert(ATestError & errors) {
+sttc ::llc::err_t testASCIIColorInvert(::llc::ATestError & errors) {
 	for(::llc::u2_t background = 0; background < 16; ++background)
 	for(::llc::u2_t foreground = 0; foreground < 16; ++foreground) {
 		cnst ::llc::u1_t attribute = (::llc::u1_t)((background << 4) | foreground);
@@ -138,7 +138,7 @@ sttc ::llc::err_t testASCIIColorInvert(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testASCIIColor(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testASCIIColor(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECK(errors, ASCII_COLOR_TEST_RESULT_INDEX_UNDERLYING_TYPE, (false == std::is_same_v<std::underlying_type_t<::llc::ASCII_COLOR_INDEX>, ::llc::u2_t>));
 	LLC_TEST_CHECKF(errors, ASCII_COLOR_TEST_RESULT_INDEX_SIZE, sizeof(::llc::ASCII_COLOR_INDEX) != sizeof(::llc::u2_t), "Size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::ASCII_COLOR_INDEX), (::llc::u2_t)sizeof(::llc::u2_t));
 	LLC_TEST_CHECK(errors, ASCII_COLOR_TEST_RESULT_COLOR_UNDERLYING_TYPE, (false == std::is_same_v<std::underlying_type_t<::llc::ASCII_COLOR>, ::llc::u1_t>));

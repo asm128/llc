@@ -15,7 +15,7 @@ GDEFINE_ENUM_VALUED(DEFLATE_TEST_RESULT, EMPTY_REJECTED	, 4, "arrayInflate() acc
 GDEFINE_ENUM_VALUED(DEFLATE_TEST_RESULT, TRUNCATED_REJECTED, 5, "arrayInflate() accepted a truncated compressed stream.");
 GDEFINE_ENUM_VALUED(DEFLATE_TEST_RESULT, CORRUPT_REJECTED	, 6, "arrayInflate() accepted a corrupted compressed stream.");
 
-::llc::err_t testDeflate(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testDeflate(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::u0_t source[1025] = {};
 	for(::llc::u2_t iByte = 0; iByte < ::llc::size(source); ++iByte)
 		source[iByte] = (::llc::u0_t)((iByte * 73U) ^ (iByte >> 3));
@@ -29,14 +29,14 @@ GDEFINE_ENUM_VALUED(DEFLATE_TEST_RESULT, CORRUPT_REJECTED	, 6, "arrayInflate() a
 			::llc::au0_t compressed = {}, restored = {};
 			cnst ::llc::err_t compression = ::llc::arrayDeflate({source, length}, compressed, chunkSize);
 			always_printf("DEFLATE input:%u bytes, chunk:%u; compression result:%i, compressed:%u bytes; expected successful round trip.", length, chunkSize, compression, compressed.size());
-			::testTraceBytes("Input", {source, length});
-			::testTraceBytes("Compressed", compressed);
+			::llc::testTraceBytes("Input", {source, length});
+			::llc::testTraceBytes("Compressed", compressed);
 			LLC_TEST_CHECKF(errors, DEFLATE_TEST_RESULT_COMPRESS_RESULT, ::llc::failed(compression), "Input:%u, chunk:%u, result:%i.", length, chunkSize, compression);
 			if(::llc::failed(compression))
 				continue;
 			cnst ::llc::err_t inflation = ::llc::arrayInflate(compressed, restored, chunkSize);
 			always_printf("Inflation result:%i; restored:%u, expected:%u bytes; byte equality:%s.", inflation, restored.size(), length, restored.size() == length && (!length || 0 == ::memcmp(restored.begin(), source, length)) ? "PASS" : "FAIL");
-			::testTraceBytes("Restored", restored);
+			::llc::testTraceBytes("Restored", restored);
 			char name[96] = {};
 			if_fail_fe(::llc::sprintf_s(name, "input_%u_chunk_%u.deflate", length, chunkSize));
 			if_fail_fe(::llc::fileFromMemory(outputFolder, ::llc::vcst_t{name}, compressed));

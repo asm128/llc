@@ -48,17 +48,6 @@ GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_TRUNCATED_CONST_RESULT	, 
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_TRUNCATED_CONST_OUTPUT	, 41, "Const viewPascal() modified its output after rejecting truncated input.");
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MALFORMED_COUNT_RESULT	, 42, "viewPascal() accepted a count larger than the available payload.");
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MALFORMED_COUNT_OUTPUT	, 43, "viewPascal() modified its output after rejecting a malformed count.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_MUTABLE_RESULT			, 44, "Mutable gridPascal() reported the wrong consumed byte count.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_MUTABLE_ALIAS			, 45, "Mutable gridPascal() returned the wrong dimensions or alias.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_MUTABLE_VALUE			, 46, "Mutable gridPascal() returned different cell values.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_MUTABLE_WRITE			, 47, "Mutable gridPascal() did not expose writable source storage.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_CONST_RESULT			, 48, "Const gridPascal() reported the wrong consumed byte count.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_CONST_ALIAS			, 49, "Const gridPascal() returned the wrong dimensions or alias.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_CONST_VALUE			, 50, "Const gridPascal() returned different cell values.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_TRUNCATED_RESULT		, 51, "gridPascal() accepted truncated input.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_TRUNCATED_OUTPUT		, 52, "gridPascal() modified its output after rejecting truncated input.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_MALFORMED_RESULT		, 53, "gridPascal() accepted overflowing dimensions.");
-GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, GRID_MALFORMED_OUTPUT		, 54, "gridPascal() modified its output after rejecting overflowing dimensions.");
 
 stxp ::llc::u0_t PRECEDING_FIELD[] = {0x91U, 0xE4U, 0x2BU};
 stxp ::llc::u0_t FOLLOWING_FIELD[] = {0xC3U, 0x5AU, 0x7EU, 0x19U};
@@ -70,26 +59,19 @@ stxp ::llc::u2_t SERIALIZE_VIEW_RANDOM_COUNT	= 32;
 tplt<tpnm TOutput, tpnm TInput>
 concept canViewReadLegacy = requires(TOutput & output, TInput input) { ::llc::viewPascal(output, input); };
 
-tplt<tpnm TOutput, tpnm TInput>
-concept canGridReadLegacy = requires(TOutput & output, TInput input) { ::llc::gridPascal(output, input); };
 
 static_assert( canViewReadLegacy<::llc::view<::llc::u2_t>, ::llc::vu0_t>);
 static_assert( canViewReadLegacy<::llc::view<cnst ::llc::u2_t>, ::llc::vcu0_t>);
 static_assert( canViewReadLegacy<::llc::view<cnst ::llc::u2_t>, ::llc::vu0_t>);
 static_assert(false == canViewReadLegacy<::llc::view<::llc::u2_t>, ::llc::vcu0_t>);
 static_assert(false == canViewReadLegacy<::llc::view<::llc::u2_t>, ::llc::vcst_t>);
-static_assert( canGridReadLegacy<::llc::grid<::llc::u2_t>, ::llc::vu0_t>);
-static_assert( canGridReadLegacy<::llc::grid<cnst ::llc::u2_t>, ::llc::vcu0_t>);
-static_assert( canGridReadLegacy<::llc::grid<cnst ::llc::u2_t>, ::llc::vu0_t>);
-static_assert(false == canGridReadLegacy<::llc::grid<::llc::u2_t>, ::llc::vcu0_t>);
-static_assert(false == canGridReadLegacy<::llc::grid<::llc::u2_t>, ::llc::vcst_t>);
 
 sttc bool isFollowingField(cnst ::llc::vcu0_t & input) {
 	return input.size() == ::llc::size(FOLLOWING_FIELD) && 0 == memcmp(input.begin(), FOLLOWING_FIELD, ::llc::size(FOLLOWING_FIELD));
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPOD(ATestError & errors) {
+sttc ::llc::err_t testPOD(::llc::ATestError & errors) {
 	cnst T source = T(0x5AU);
 	::llc::au0_t serialized;
 	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_POD_SIZE, 0 > serialized.append(PRECEDING_FIELD) , "%u-bit savePOD() test could not append its preceding field." , bcof(T) );
@@ -103,7 +85,7 @@ sttc ::llc::err_t testPOD(ATestError & errors) {
 	T loaded = {};
 	cnst ::llc::err_t loadResult = ::llc::loadPOD(input, loaded);
 	always_printf("SERIALIZE POD %u-bit input:%" LLC_FMT_U3 "; save:%i load:%i; expected/restored:%" LLC_FMT_U3 "/%" LLC_FMT_U3 "; trailing bytes:%u expected:%u.", (::llc::u2_t)bcof(T), (::llc::u3_t)source, saveResult, loadResult, (::llc::u3_t)source, (::llc::u3_t)loaded, input.size(), (::llc::u2_t)::llc::size(FOLLOWING_FIELD));
-	::testTraceBytes("Complete stream (preceding field + POD + following field)", serialized);
+	::llc::testTraceBytes("Complete stream (preceding field + POD + following field)", serialized);
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_RESULT, loadResult != szof(T) , "%u-bit loadPOD() result mismatch. result:%i, expected:%u." , bcof(T), loadResult, ::llc::u2_t(szof(T)) );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_VALUE, loaded != source , "%u-bit loadPOD() value mismatch. loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "." , bcof(T), ::llc::u3_t(loaded), ::llc::u3_t(source) );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_POSITION, !isFollowingField(input) , "%u-bit loadPOD() cursor mismatch. remaining:%u, expected:%u." , bcof(T), input.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD)) );
@@ -121,7 +103,7 @@ sttc ::llc::err_t testPOD(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testUIntValue(ATestError & errors, ::llc::u3_c source, bool trace = true) {
+sttc ::llc::err_t testUIntValue(::llc::ATestError & errors, ::llc::u3_c source, bool trace = true) {
 	cnst T value = (T)source;
 	cnst ::llc::packed_uint<T> packed{value};
 	cnst ::llc::u2_t expectedWidth = packed.ValueWidth();
@@ -145,7 +127,7 @@ sttc ::llc::err_t testUIntValue(ATestError & errors, ::llc::u3_c source, bool tr
 	cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
 	if(trace) {
 		always_printf("SERIALIZE UINT %u-bit input:%" LLC_FMT_U3 "; expected width:%u; save:%i load:%i; restored:%" LLC_FMT_U3 "; trailing bytes:%u expected:%u.", (::llc::u2_t)bcof(T), source, expectedWidth, saveResult, loadResult, (::llc::u3_t)loaded, input.size(), (::llc::u2_t)::llc::size(FOLLOWING_FIELD));
-		::testTraceBytes("Complete stream (preceding + packed integer + following)", serialized);
+		::llc::testTraceBytes("Complete stream (preceding + packed integer + following)", serialized);
 	}
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_RESULT, loadResult != (::llc::err_t)expectedWidth , "%u-bit loadUInt() result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u." , bcof(T), source, loadResult, expectedWidth );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_UINT_VALUE, ::llc::u3_t(loaded) != source , "%u-bit loadUInt() value mismatch. loaded:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 "." , bcof(T), ::llc::u3_t(loaded), source );
@@ -154,7 +136,7 @@ sttc ::llc::err_t testUIntValue(ATestError & errors, ::llc::u3_c source, bool tr
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testUIntType(ATestError & errors) {
+sttc ::llc::err_t testUIntType(::llc::ATestError & errors) {
 	stxp ::llc::u0_t MULTIPLIER_BITS = 8 - ::llc::uint_width_field_size<T>();
 	::llc::u3_t previousMaximum = 0;
 	for(::llc::u0_t tailWidth = 0; tailWidth < szof(T); ++tailWidth) {
@@ -166,7 +148,7 @@ sttc ::llc::err_t testUIntType(ATestError & errors) {
 			if_fail_fe(testUIntValue<T>(errors, maximum));
 		previousMaximum = maximum;
 	}
-	cnst ::llc::u3_t seed = testSeed(SERIALIZE_UINT_RANDOM_SEED);
+	cnst ::llc::u3_t seed = ::llc::testSeed(SERIALIZE_UINT_RANDOM_SEED);
 	always_printf("SERIALIZE generated integer coverage: %u-bit, seed:%" LLC_FMT_U3 ", cases:%u; failures retain counterexamples.", (::llc::u2_t)bcof(T), seed, SERIALIZE_UINT_RANDOM_COUNT);
 	::llc::SPRNG random = {seed};
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
@@ -184,7 +166,7 @@ sttc ::llc::err_t testUIntType(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testTruncatedUInt(ATestError & errors) {
+sttc ::llc::err_t testTruncatedUInt(::llc::ATestError & errors) {
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
 	cnst T value = (T)((::llc::u3_t(1) << VALUE_BITS) - 1);
 	cnst ::llc::packed_uint<T> packed{value};
@@ -203,7 +185,7 @@ sttc ::llc::err_t testTruncatedUInt(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testViewCount(ATestError & errors, ::llc::u2_c elementCount) {
+sttc ::llc::err_t testViewCount(::llc::ATestError & errors, ::llc::u2_c elementCount) {
 	::llc::apod<T> source;
 	cnst ::llc::err_t resizeResult = source.resize(elementCount);
 	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_SOURCE_RESIZE, resizeResult != (::llc::err_t)elementCount , "%u-bit source resize mismatch. result:%i, expected:%u." , bcof(T), resizeResult, elementCount );
@@ -261,11 +243,11 @@ sttc ::llc::err_t testViewCount(ATestError & errors, ::llc::u2_c elementCount) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testViewType(ATestError & errors) {
+sttc ::llc::err_t testViewType(::llc::ATestError & errors) {
 	stxp ::llc::u2_t COUNTS[] = {0, 1, 2, 63, 64, 255, 16383, 16384};
 	for(::llc::u2_c count : COUNTS)
 		if_fail_fe(testViewCount<T>(errors, count));
-	cnst ::llc::u3_t seed = testSeed(SERIALIZE_VIEW_RANDOM_SEED);
+	cnst ::llc::u3_t seed = ::llc::testSeed(SERIALIZE_VIEW_RANDOM_SEED);
 	::llc::SPRNG random = {seed};
 	for(::llc::u2_t iRandom = 0; iRandom < SERIALIZE_VIEW_RANDOM_COUNT; ++iRandom) {
 		cnst ::llc::u2_t elementCount = random.Next() & 0xFFFU;
@@ -280,7 +262,7 @@ sttc ::llc::err_t testViewType(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testTruncatedView(ATestError & errors) {
+sttc ::llc::err_t testTruncatedView(::llc::ATestError & errors) {
 	::llc::apod<T> source;
 	cnst ::llc::u2_t elementCount = 64;
 	cnst ::llc::err_t resizeResult = source.resize(elementCount);
@@ -319,7 +301,7 @@ sttc ::llc::err_t testTruncatedView(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testMalformedViewCount(ATestError & errors) {
+sttc ::llc::err_t testMalformedViewCount(::llc::ATestError & errors) {
 	if(8 != szof(T))
 		return 0;
 	stxp ::llc::u2_t ELEMENT_COUNT = 0x20000000U;
@@ -340,7 +322,7 @@ sttc ::llc::err_t testMalformedViewCount(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testLegacyView(ATestError & errors) {
+sttc ::llc::err_t testLegacyView(::llc::ATestError & errors) {
 	T source[] = {T(0x11U), T(0x22U), T(0x33U), T(0x44U)};
 	cnst ::llc::u2_t elementCount = ::llc::size(source);
 	::llc::au0_t serialized = {};
@@ -402,58 +384,7 @@ sttc ::llc::err_t testLegacyView(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testLegacyGrid(ATestError & errors) {
-	stxp ::llc::u2_t WIDTH = 3;
-	stxp ::llc::u2_t HEIGHT = 2;
-	stxp ::llc::u2_t CELL_COUNT = WIDTH * HEIGHT;
-	stxp ::llc::n2u2_t metrics = {WIDTH, HEIGHT};
-	T source[HEIGHT][WIDTH] = {
-		{T(0x11U), T(0x22U), T(0x33U)},
-		{T(0x44U), T(0x55U), T(0x66U)},
-	};
-	::llc::au0_t serialized;
-	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, ::llc::savePOD(serialized, metrics) != szof(metrics), "%u-bit grid test could not serialize its dimensions.", bcof(T));
-	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, 0 > serialized.append(::llc::view<cnst T>{&source[0][0], CELL_COUNT}.cu8()), "%u-bit grid test could not serialize its cells.", bcof(T));
-	cnst ::llc::u2_t expectedSize = szof(metrics) + szof(source);
-
-	::llc::grid<T> mutableGrid;
-	cnst ::llc::err_t mutableResult = ::llc::gridPascal(mutableGrid, (::llc::vu0_t)serialized);
-	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, mutableResult != (::llc::err_t)expectedSize, "%u-bit mutable grid result:%i, expected:%u.", bcof(T), mutableResult, expectedSize);
-	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MUTABLE_ALIAS, mutableGrid.metrics() != metrics || mutableGrid.begin() != reinterpret_cast<T*>(&serialized[szof(metrics)]), "%u-bit mutable grid dimensions or alias differ.", bcof(T));
-	for(::llc::u2_t iCell = 0; iCell < CELL_COUNT; ++iCell)
-		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MUTABLE_VALUE, mutableGrid.begin()[iCell] != (&source[0][0])[iCell], "%u-bit mutable grid cell:%u differs.", bcof(T), iCell);
-	mutableGrid[{1, 1}] = T(0x7AU);
-	T storedValue = {};
-	memcpy(&storedValue, &serialized[szof(metrics) + (metrics.x + 1) * szof(T)], szof(T));
-	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MUTABLE_WRITE, storedValue != T(0x7AU), "%u-bit mutable grid write was not reflected in source storage.", bcof(T));
-
-	::llc::grid<cnst T> constGrid;
-	cnst ::llc::err_t constResult = ::llc::gridPascal(constGrid, (::llc::vcu0_t)serialized);
-	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_CONST_RESULT, constResult != (::llc::err_t)expectedSize, "%u-bit const grid result:%i, expected:%u.", bcof(T), constResult, expectedSize);
-	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_CONST_ALIAS, constGrid.metrics() != metrics || constGrid.begin() != reinterpret_cast<cnst T*>(&serialized[szof(metrics)]), "%u-bit const grid dimensions or alias differ.", bcof(T));
-	for(::llc::u2_t iCell = 0; iCell < CELL_COUNT; ++iCell)
-		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_CONST_VALUE, constGrid.begin()[iCell] != mutableGrid.begin()[iCell], "%u-bit const grid cell:%u differs.", bcof(T), iCell);
-
-	cnst T sentinel = T(0x6BU);
-	for(::llc::u2_t byteCount = 0; byteCount < expectedSize; ++byteCount) {
-		::llc::grid<cnst T> preserved = {&sentinel, 1, 1};
-		cnst ::llc::err_t truncatedResult = ::llc::gridPascal(preserved, ::llc::vcu0_t{serialized.begin(), byteCount});
-		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_TRUNCATED_RESULT, 0 <= truncatedResult, "%u-bit grid read accepted %u/%u bytes. result:%i.", bcof(T), byteCount, expectedSize, truncatedResult);
-		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_TRUNCATED_OUTPUT, (preserved.begin() != &sentinel || preserved.metrics() != ::llc::n2u2_t{1, 1}), "%u-bit grid read changed output at byte:%u.", bcof(T), byteCount);
-	}
-
-	::llc::au0_t malformed;
-	cnst ::llc::n2u2_t impossibleMetrics = {(::llc::u2_t)-1, (::llc::u2_t)-1};
-	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MALFORMED_RESULT, ::llc::savePOD(malformed, impossibleMetrics) != szof(impossibleMetrics), "%u-bit grid test could not serialize malformed dimensions.", bcof(T));
-	::llc::grid<cnst T> preserved = {&sentinel, 1, 1};
-	cnst ::llc::err_t malformedResult = ::llc::gridPascal(preserved, (::llc::vcu0_t)malformed);
-	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MALFORMED_RESULT, 0 <= malformedResult, "%u-bit grid read accepted dimensions:%u x %u. result:%i.", bcof(T), impossibleMetrics.x, impossibleMetrics.y, malformedResult);
-	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_GRID_MALFORMED_OUTPUT, (preserved.begin() != &sentinel || preserved.metrics() != ::llc::n2u2_t{1, 1}), "%u-bit malformed grid read changed output.", bcof(T));
-	return 0;
-}
-
-tplt<tpnm T>
-sttc ::llc::err_t testType(ATestError & errors) {
+sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	if_fail_fe(testPOD<T>			(errors));
 	if_fail_fe(testUIntType<T>		(errors));
 	if_fail_fe(testTruncatedUInt<T>	(errors));
@@ -461,11 +392,11 @@ sttc ::llc::err_t testType(ATestError & errors) {
 	if_fail_fe(testTruncatedView<T>	(errors));
 	if_fail_fe(testMalformedViewCount<T>(errors));
 	if_fail_fe(testLegacyView<T>		(errors));
-	return testLegacyGrid<T>(errors);
+	return 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testTypeLogged(ATestError & errors) {
+sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testType<T>(errors));
@@ -475,7 +406,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testViewSerialize(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testViewSerialize(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));

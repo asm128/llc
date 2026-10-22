@@ -38,7 +38,7 @@ tplt<tpnm TStream, tpnm T>
 concept canViewStreamWrite = requires(TStream & stream, cnst T & input) { stream.write_pod(input); };
 
 tplt<tpnm T>
-sttc ::llc::err_t testViewStreamType(ATestError & errors) {
+sttc ::llc::err_t testViewStreamType(::llc::ATestError & errors) {
 	cnst T scalarSource = T(0x35);
 	::llc::u0_t scalarStorage[szof(T)] = {};
 	::llc::view_stream<::llc::u0_t> scalarWriter{scalarStorage};
@@ -122,7 +122,7 @@ sttc ::llc::err_t testViewStreamType(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testViewStream(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testViewStream(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_READ_CONST_ACCESS, (false == canViewStreamRead<::llc::view_stream<cnst ::llc::u0_t>, ::llc::u2_t>));
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_WRITE_MUTABLE_ACCESS, (false == canViewStreamWrite<::llc::view_stream<::llc::u0_t>, ::llc::u2_t>));
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_WRITE_CONST_ACCESS, (canViewStreamWrite<::llc::view_stream<cnst ::llc::u0_t>, ::llc::u2_t>));

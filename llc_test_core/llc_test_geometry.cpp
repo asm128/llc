@@ -62,14 +62,14 @@ sttc bool geometryDiffers(::llc::f3_t left, ::llc::f3_t right, ::llc::f3_t toler
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n2<T> & actual, cnst ::llc::n2<T> & expected) {
+sttc ::llc::err_t geometryCheck(::llc::ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n2<T> & actual, cnst ::llc::n2<T> & expected) {
 	LLC_TEST_CHECKF(errors, result, actual.x != expected.x , "x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.x, (::llc::s3_t)expected.x );
 	LLC_TEST_CHECKF(errors, result, actual.y != expected.y , "y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.y, (::llc::s3_t)expected.y );
 	rtrn 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n3<T> & actual, cnst ::llc::n3<T> & expected) {
+sttc ::llc::err_t geometryCheck(::llc::ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n3<T> & actual, cnst ::llc::n3<T> & expected) {
 	LLC_TEST_CHECKF(errors, result, actual.x != expected.x , "x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.x, (::llc::s3_t)expected.x );
 	LLC_TEST_CHECKF(errors, result, actual.y != expected.y , "y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.y, (::llc::s3_t)expected.y );
 	LLC_TEST_CHECKF(errors, result, actual.z != expected.z , "z:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.z, (::llc::s3_t)expected.z );
@@ -77,7 +77,7 @@ sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t geometryCheck(ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::rect2<T> & actual, cnst ::llc::rect2<T> & expected) {
+sttc ::llc::err_t geometryCheck(::llc::ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::rect2<T> & actual, cnst ::llc::rect2<T> & expected) {
 	LLC_TEST_CHECKF(errors, result, actual.Offset.x != expected.Offset.x , "Offset.x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Offset.x, (::llc::s3_t)expected.Offset.x );
 	LLC_TEST_CHECKF(errors, result, actual.Offset.y != expected.Offset.y , "Offset.y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Offset.y, (::llc::s3_t)expected.Offset.y );
 	LLC_TEST_CHECKF(errors, result, actual.Size.x != expected.Size.x , "Size.x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Size.x, (::llc::s3_t)expected.Size.x );
@@ -98,7 +98,7 @@ tplt<tpnm T>
 stct SGeometryTransformsPoint2<T, std::void_t<decltype(std::declval<cnst T &>().TransformPoint(std::declval<cnst ::llc::n2f2_t &>()))>> : std::true_type {};
 
 tplt<tpnm T>
-sttc ::llc::err_t testGeometryScalar(ATestError & errors) {
+sttc ::llc::err_t testGeometryScalar(::llc::ATestError & errors) {
 	static_assert(sizeof(::llc::line<T>) == sizeof(T) * 2);
 	static_assert(sizeof(::llc::quad<T>) == sizeof(T) * 4);
 	static_assert(sizeof(::llc::rect<T>) == sizeof(T) * 4);
@@ -128,7 +128,7 @@ sttc ::llc::err_t testGeometryScalar(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGeometryTypeFamily(ATestError & errors) {
+sttc ::llc::err_t testGeometryTypeFamily(::llc::ATestError & errors) {
 	static_assert(std::is_same_v<::llc::tri2s2_t, ::llc::tri2<::llc::s2_t>>);
 	static_assert(std::is_same_v<::llc::tri3s2_t, ::llc::tri3<::llc::s2_t>>);
 	static_assert(std::is_same_v<::llc::line2f2_t, ::llc::line2<::llc::f2_t>>);
@@ -177,7 +177,7 @@ sttc ::llc::err_t testGeometryTypeFamily(ATestError & errors) {
 	rtrn ::testGeometryScalar<::llc::f3_t>(errors);
 }
 
-sttc ::llc::err_t testGeometryVectorsAndLines(ATestError & errors) {
+sttc ::llc::err_t testGeometryVectorsAndLines(::llc::ATestError & errors) {
 	cnst ::llc::n3s2_t leftVector = {1, 2, 3};
 	cnst ::llc::n3s2_t rightVector = {4, 5, 6};
 	cnst ::llc::n3s2_t crossProduct = leftVector.Cross(rightVector);
@@ -195,7 +195,7 @@ sttc ::llc::err_t testGeometryVectorsAndLines(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGeometryTrianglesAndRegions(ATestError & errors) {
+sttc ::llc::err_t testGeometryTrianglesAndRegions(::llc::ATestError & errors) {
 	::llc::tri3s2_t triangle = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
 	triangle.Translate({1, 2, 3}).Scale({2, 3, 4});
 	cnst ::llc::n3s2_t expectedA = {4, 12, 24};
@@ -231,7 +231,7 @@ sttc ::llc::err_t testGeometryTrianglesAndRegions(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGeometryRectangleAlignment(ATestError & errors) {
+sttc ::llc::err_t testGeometryRectangleAlignment(::llc::ATestError & errors) {
 	stct SRectangleAlignmentCase {
 		::llc::ALIGN				Align;
 		::llc::rect2s2_t		Expected;
@@ -259,7 +259,7 @@ sttc ::llc::err_t testGeometryRectangleAlignment(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGeometryGaugeAndSphere(ATestError & errors) {
+sttc ::llc::err_t testGeometryGaugeAndSphere(::llc::ATestError & errors) {
 	::llc::gaugemaxs2_t maximum = {100, 25};
 	::llc::gaugeminmaxs2_t interval = {{-20, 20}, 0};
 	maximum.SetWeighted(.75);
@@ -278,7 +278,7 @@ sttc ::llc::err_t testGeometryGaugeAndSphere(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGeometryQuaternion(ATestError & errors) {
+sttc ::llc::err_t testGeometryQuaternion(::llc::ATestError & errors) {
 	cnst ::llc::quatf2_t identity = {0, 0, 0, 1};
 	::llc::quatf2_t quarterTurn = {};
 	quarterTurn.CreateFromAxisAngle({0, 0, 1}, ::llc::math_pi_2).Normalize();
@@ -313,7 +313,7 @@ sttc ::llc::err_t testGeometryQuaternion(ATestError & errors) {
 }
 
 tplt<::llc::MATRIX_MATH _math, ::llc::MATRIX_LAYOUT _layout>
-sttc ::llc::err_t testGeometryMatrixPolicy(ATestError & errors) {
+sttc ::llc::err_t testGeometryMatrixPolicy(::llc::ATestError & errors) {
 	::llc::m2<::llc::f2_t, _math, _layout> linear2 = {};
 	linear2.Rotation(::llc::math_pi_2);
 	cnst ::llc::n2f2_t rotated2 = linear2.Transform({1, 0});
@@ -382,7 +382,7 @@ sttc ::llc::err_t testGeometryMatrixPolicy(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGeometryMatrixStorage(ATestError & errors) {
+sttc ::llc::err_t testGeometryMatrixStorage(::llc::ATestError & errors) {
 	::llc::m2<::llc::f2_t, ::llc::MATRIX_MATH_ROW_VECTOR, ::llc::MATRIX_LAYOUT_ROW_MAJOR> rowVectorRowMajor = {};
 	::llc::m2<::llc::f2_t, ::llc::MATRIX_MATH_ROW_VECTOR, ::llc::MATRIX_LAYOUT_COLUMN_MAJOR> rowVectorColumnMajor = {};
 	::llc::m2<::llc::f2_t, ::llc::MATRIX_MATH_COLUMN_VECTOR, ::llc::MATRIX_LAYOUT_ROW_MAJOR> columnVectorRowMajor = {};
@@ -403,7 +403,7 @@ sttc ::llc::err_t testGeometryMatrixStorage(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGeometryMatrixTransposeAndInertia(ATestError & errors) {
+sttc ::llc::err_t testGeometryMatrixTransposeAndInertia(::llc::ATestError & errors) {
 	::llc::m4f2_t matrix4Source = {};
 	::llc::m3a3f2_t matrix3Source = {};
 	for(::llc::u0_t row = 0; row < 4; ++row) {
@@ -451,7 +451,7 @@ sttc ::llc::err_t testGeometryMatrixTransposeAndInertia(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testGeometryMatrix(ATestError & errors) {
+sttc ::llc::err_t testGeometryMatrix(::llc::ATestError & errors) {
 	if_fail_fe((::testGeometryMatrixPolicy<::llc::MATRIX_MATH_ROW_VECTOR, ::llc::MATRIX_LAYOUT_ROW_MAJOR>(errors)));
 	if_fail_fe((::testGeometryMatrixPolicy<::llc::MATRIX_MATH_ROW_VECTOR, ::llc::MATRIX_LAYOUT_COLUMN_MAJOR>(errors)));
 	if_fail_fe((::testGeometryMatrixPolicy<::llc::MATRIX_MATH_COLUMN_VECTOR, ::llc::MATRIX_LAYOUT_ROW_MAJOR>(errors)));
@@ -460,7 +460,7 @@ sttc ::llc::err_t testGeometryMatrix(ATestError & errors) {
 	rtrn ::testGeometryMatrixTransposeAndInertia(errors);
 }
 
-::llc::err_t testGeometry(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testGeometry(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testGeometryTypeFamily(errors));
 	if_fail_fe(::testGeometryVectorsAndLines(errors));
 	if_fail_fe(::testGeometryTrianglesAndRegions(errors));

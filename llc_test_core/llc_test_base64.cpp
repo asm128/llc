@@ -115,7 +115,7 @@ static_assert(-3 == BASE64_DUPLICATE_MAP.Error);
 static_assert( 0 == BASE64_REVERSED_MAP.Decode.Storage[(::llc::u0_t)'/']);
 static_assert(63 == BASE64_REVERSED_MAP.Decode.Storage[(::llc::u0_t)'A']);
 
-sttc ::llc::err_t testBase64Vectors(ATestError & errors) {
+sttc ::llc::err_t testBase64Vectors(::llc::ATestError & errors) {
 	always_printf("%s", "BASE64 reference vectors: input -> encoded text -> decoded bytes; lengths exclude terminators.");
 	stxp SBase64Vector vectors[] =
 		{ {{0, ""}		, ""}
@@ -149,7 +149,7 @@ sttc ::llc::err_t testBase64Vectors(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64Append(ATestError & errors) {
+sttc ::llc::err_t testBase64Append(::llc::ATestError & errors) {
 	::llc::au0_t encoded = {'p', 'r', 'e', ':'};
 	cnst ::llc::u0_t expectedEncoded[] = {'p', 'r', 'e', ':', 'T', 'Q', '=', '='};
 	cnst ::llc::err_t encodeResult = ::llc::base64Encode(::llc::vcst_t{"M"}, encoded);
@@ -173,7 +173,7 @@ sttc ::llc::err_t testBase64Append(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64Alphabets(ATestError & errors) {
+sttc ::llc::err_t testBase64Alphabets(::llc::ATestError & errors) {
 	cnst ::llc::u0_t binary[] = {0xFB, 0xFF};
 	::llc::au0_t encoded;
 	cnst ::llc::err_t encodeResult = ::llc::base64EncodeFS({binary}, encoded);
@@ -205,7 +205,7 @@ sttc ::llc::err_t testBase64Alphabets(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
+sttc ::llc::err_t testBase64Overloads(::llc::ATestError & errors, bool fileSafe) {
 	cnst ::llc::u0_t binary[] = {'M', 'a', 'n'};
 	cnst ::llc::u0_t encodedBytes[] = {'T', 'W', 'F', 'u'};
 	cnst ::llc::s0_t binarySigned[] = {'M', 'a', 'n'};
@@ -256,7 +256,7 @@ sttc ::llc::err_t testBase64Overloads(ATestError & errors, bool fileSafe) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64CountedTerminator(ATestError & errors) {
+sttc ::llc::err_t testBase64CountedTerminator(::llc::ATestError & errors) {
 	cnst ::llc::u0_t counted[] = {'T', 'Q', '=', '=', 0};
 	::llc::au0_t decoded;
 	cnst ::llc::err_t result = ::llc::base64Decode({counted}, decoded);
@@ -265,14 +265,14 @@ sttc ::llc::err_t testBase64CountedTerminator(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64DecodeRejected(ATestError & errors, ::llc::vcu0_c & input, BASE64_TEST_RESULT rejection, ::llc::vcst_t name) {
+sttc ::llc::err_t testBase64DecodeRejected(::llc::ATestError & errors, ::llc::vcu0_c & input, BASE64_TEST_RESULT rejection, ::llc::vcst_t name) {
 	::llc::au0_t output = {0xA5, 0x5A, 0xC3};
 	if_fail_fe(output.reserve(64));
 	cnst ::llc::u0_t expected[] = {0xA5, 0x5A, 0xC3};
 	cnst ::llc::vcu0_t outputBefore = output;
 	cnst ::llc::u2_t capacityBefore = output.Size;
 	::llc::err_t decodeResult = 0;
-	cnst bool threw = testThrows([&]() { decodeResult = ::llc::base64Decode(input, output); });
+	cnst bool threw = ::llc::testThrows([&]() { decodeResult = ::llc::base64Decode(input, output); });
 	LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_REJECT_THROW, threw , "Invalid decode threw. case:%.*s, input:%u." , (int)name.size(), name.begin(), input.size());
 	LLC_TEST_CHECKF(errors, rejection, false == ::llc::failed(decodeResult) , "Invalid decode returned success. case:%.*s, input:%u, result:%i." , (int)name.size(), name.begin(), input.size(), decodeResult);
 	LLC_TEST_CHECKF(errors, BASE64_TEST_RESULT_PRESERVE_ADDRESS, output.begin() != outputBefore.begin() , "Rejected decode address. case:%.*s, actual:%p, expected:%p." , (int)name.size(), name.begin(), output.begin(), outputBefore.begin());
@@ -285,7 +285,7 @@ sttc ::llc::err_t testBase64DecodeRejected(ATestError & errors, ::llc::vcu0_c & 
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64InvalidInput(ATestError & errors) {
+sttc ::llc::err_t testBase64InvalidInput(::llc::ATestError & errors) {
 	if_fail_fe(testBase64DecodeRejected(errors, ::llc::vcst_t{"A"}.cu8(), BASE64_TEST_RESULT_INVALID_LENGTH, "one symbol"));
 	if_fail_fe(testBase64DecodeRejected(errors, ::llc::vcst_t{"AA"}.cu8(), BASE64_TEST_RESULT_INVALID_LENGTH, "two symbols"));
 	if_fail_fe(testBase64DecodeRejected(errors, ::llc::vcst_t{"AAA"}.cu8(), BASE64_TEST_RESULT_INVALID_LENGTH, "three symbols"));
@@ -312,7 +312,7 @@ sttc ::llc::err_t testBase64InvalidInput(ATestError & errors) {
 	rtrn testBase64DecodeRejected(errors, ::llc::vcst_t{"TWF="}.cu8(), BASE64_TEST_RESULT_NONCANONICAL_PADDING, "nonzero two pad bits");
 }
 
-sttc ::llc::err_t testBase64AlphabetRejected(ATestError & errors, ::llc::vcst_t alphabet, char pad, ::llc::vcst_t name) {
+sttc ::llc::err_t testBase64AlphabetRejected(::llc::ATestError & errors, ::llc::vcst_t alphabet, char pad, ::llc::vcst_t name) {
 	for(::llc::u0_t iOperation = 0; iOperation < 2; ++iOperation) {
 		::llc::au0_t output = {0xA5, 0x5A};
 		if_fail_fe(output.reserve(64));
@@ -321,7 +321,7 @@ sttc ::llc::err_t testBase64AlphabetRejected(ATestError & errors, ::llc::vcst_t 
 		cnst ::llc::u2_t capacityBefore = output.Size;
 		::llc::err_t result = 0;
 		cnst bool decode = 0 != iOperation;
-		cnst bool threw = testThrows([&]() {
+		cnst bool threw = ::llc::testThrows([&]() {
 			result = decode
 				? ::llc::base64Decode(alphabet, pad, ::llc::vcst_t{"TQ=="}.cu8(), output)
 				: ::llc::base64Encode(alphabet, pad, ::llc::vcst_t{"M"}.cu8(), output)
@@ -340,7 +340,7 @@ sttc ::llc::err_t testBase64AlphabetRejected(ATestError & errors, ::llc::vcst_t 
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64InvalidAlphabet(ATestError & errors) {
+sttc ::llc::err_t testBase64InvalidAlphabet(::llc::ATestError & errors) {
 	stxp ::llc::vcst_t alphabets[] =
 		{ "ABC"
 		, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+A"
@@ -379,7 +379,7 @@ sttc ::llc::err_t testBase64FontImage(::llc::vcst_t outputFolder, cnst SBase64Fo
 	rtrn ::llc::fileFromMemory(folder, ::llc::vcst_t{name}, bytes);
 }
 
-sttc ::llc::err_t testBase64Fonts(ATestError & errors, ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testBase64Fonts(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	stct SLetterRange { ::llc::u0_t Begin, End; };
 	static_assert(::llc::size(BASE64_FONT_FIXTURES) == ::llc::size(::llc::RASTER_FONT_DEFAULTS));
 	stxp SLetterRange LETTER_RANGES[] = {{'A', 'Z'}, {'a', 'z'}};
@@ -411,9 +411,9 @@ sttc ::llc::err_t testBase64Fonts(ATestError & errors, ::llc::vcst_t outputFolde
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBase64Random(ATestError & errors, bool fileSafe) {
+sttc ::llc::err_t testBase64Random(::llc::ATestError & errors, bool fileSafe) {
 	stxp ::llc::u3_t SEED = 0xB6405EEDULL;
-	cnst ::llc::u3_t seed = testSeed(SEED);
+	cnst ::llc::u3_t seed = ::llc::testSeed(SEED);
 	::llc::SPRNG random = {seed};
 	::llc::au0_t binary, encoded, decoded;
 	for(::llc::u2_t byteCount = 1; byteCount <= 256; ++byteCount) {
@@ -435,7 +435,7 @@ sttc ::llc::err_t testBase64Random(ATestError & errors, bool fileSafe) {
 	rtrn 0;
 }
 
-::llc::err_t testBase64(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testBase64(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testBase64Vectors			(errors));
 	if_fail_fe(testBase64Append			(errors));
 	if_fail_fe(testBase64Alphabets		(errors));

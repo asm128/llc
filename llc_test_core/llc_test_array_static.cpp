@@ -89,7 +89,7 @@ sttc ::llc::err_t staticSliceExpectedFailure(TSource & source, TOutput & output,
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testStaticStructure(ATestError & errors) {
+sttc ::llc::err_t testStaticStructure(::llc::ATestError & errors) {
 	::llc::array_static<T, 5> data = {T(1), T(2), T(3), T(4), T(5)};
 	cnst ::llc::array_static<T, 5> & constData = data;
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_EXTENT, data.N != 5 , "extent mismatch. N:%u, expected:5." , data.N );
@@ -123,7 +123,7 @@ sttc ::llc::err_t testStaticStructure(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testStaticSubscript(ATestError & errors) {
+sttc ::llc::err_t testStaticSubscript(::llc::ATestError & errors) {
 	::llc::array_static<T, 5> data = {T(1), T(2), T(3), T(4), T(5)};
 	cnst ::llc::array_static<T, 5> & constData = data;
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SUBSCRIPT_READ, data[2] != T(3) , "mutable[2]:%" LLC_FMT_S3 ", expected:3.", (::llc::s3_t)data[2]);
@@ -131,14 +131,14 @@ sttc ::llc::err_t testStaticSubscript(ATestError & errors) {
 	data[2] = T(9);
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_SUBSCRIPT_WRITE, data.Storage[2] != T(9) , "subscript write mismatch. storage[2]:%" LLC_FMT_S3 ", expected:9." , (::llc::s3_t)data.Storage[2] );
 #ifdef LLC_WINDOWS
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)data[5]; }));
-	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INVALID_SUBSCRIPT, !testThrows([&]() { (void)constData[5]; }));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INVALID_SUBSCRIPT, !::llc::testThrows([&]() { (void)data[5]; }));
+	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_INVALID_SUBSCRIPT, !::llc::testThrows([&]() { (void)constData[5]; }));
 #endif
 	rtrn 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testStaticEquality(ATestError & errors) {
+sttc ::llc::err_t testStaticEquality(::llc::ATestError & errors) {
 	::llc::array_static<T, 5> first		= {T(1), T(2), T(3), T(4), T(5)};
 	::llc::array_static<T, 5> equal		= {T(1), T(2), T(3), T(4), T(5)};
 	::llc::array_static<T, 5> different	= {T(1), T(2), T(3), T(4), T(6)};
@@ -151,7 +151,7 @@ sttc ::llc::err_t testStaticEquality(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testStaticRepresentations(ATestError & errors) {
+sttc ::llc::err_t testStaticRepresentations(::llc::ATestError & errors) {
 	::llc::array_static<T, 5> data = {T(1), T(2), T(3), T(4), T(5)};
 	cnst ::llc::array_static<T, 5> & constData = data;
 	auto mutableBytes	= data.u8();
@@ -184,7 +184,7 @@ sttc ::llc::err_t testStaticRepresentations(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testStaticSlice(ATestError & errors) {
+sttc ::llc::err_t testStaticSlice(::llc::ATestError & errors) {
 	::llc::array_static<T, 5> data = {T(1), T(2), T(3), T(4), T(5)};
 	::llc::view<T> output;
 	::llc::err_t result = data.slice(output, 0);
@@ -236,7 +236,7 @@ sttc ::llc::err_t testStaticSlice(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testStaticFind(ATestError & errors) {
+sttc ::llc::err_t testStaticFind(::llc::ATestError & errors) {
 	cnst ::llc::array_static<T, 5> data = {T(2), T(3), T(2), T(4), T(2)};
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FIND_FIRST, ::llc::find(T(2), data) != 0 , "first value 2 index:%i, expected:0.", ::llc::find(T(2), data));
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_FIND_THREE, ::llc::find(T(3), data) != 1 , "first value 3 index:%i, expected:1.", ::llc::find(T(3), data));
@@ -248,7 +248,7 @@ sttc ::llc::err_t testStaticFind(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testStaticType(ATestError & errors) {
+sttc ::llc::err_t testStaticType(::llc::ATestError & errors) {
 	if_fail_fe(testStaticStructure<T>(errors));
 	if_fail_fe(testStaticSubscript<T>(errors));
 	if_fail_fe(testStaticEquality<T>(errors));
@@ -258,7 +258,7 @@ sttc ::llc::err_t testStaticType(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testStaticTypeLogged(ATestError & errors) {
+sttc ::llc::err_t testStaticTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testStaticType<T>(errors));
@@ -268,7 +268,7 @@ sttc ::llc::err_t testStaticTypeLogged(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testArrayStatic(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testArrayStatic(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testStaticTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testStaticTypeLogged<::llc::u1_t>(errors));

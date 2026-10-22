@@ -58,7 +58,7 @@ GDEFINE_ENUM_VALUED(ASCII_TARGET_TEST_RESULT, ZERO_COLOR_METRICS_Y			, 49, "A ze
 GDEFINE_ENUM_VALUED(ASCII_TARGET_TEST_RESULT, ZERO_CHARACTER_COUNT			, 50, "A zero-area resize left characters in the target.");
 GDEFINE_ENUM_VALUED(ASCII_TARGET_TEST_RESULT, ZERO_COLOR_COUNT				, 51, "A zero-area resize left colors in the target.");
 
-sttc ::llc::err_t testASCIITargetDefaults(ATestError& errors) {
+sttc ::llc::err_t testASCIITargetDefaults(::llc::ATestError& errors) {
 	LLC_TEST_CHECK(errors, ASCII_TARGET_TEST_RESULT_CELL_CHARACTER_TYPE, (false == ::std::is_same_v<decltype(::llc::SASCIICell::Character), ::llc::u0_t>));
 	LLC_TEST_CHECK(errors, ASCII_TARGET_TEST_RESULT_CELL_COLOR_TYPE, (false == ::std::is_same_v<decltype(::llc::SASCIICell::Color), ::llc::u1_t>));
 	LLC_TEST_CHECKF(errors, ASCII_TARGET_TEST_RESULT_CELL_SIZE, sizeof(::llc::SASCIICell) != 3, "Size:%u, expected:3.", (::llc::u2_t)sizeof(::llc::SASCIICell));
@@ -73,7 +73,7 @@ sttc ::llc::err_t testASCIITargetDefaults(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testASCIITargetClear(ATestError& errors, ::llc::SASCIITarget& target) {
+sttc ::llc::err_t testASCIITargetClear(::llc::ATestError& errors, ::llc::SASCIITarget& target) {
 	cnst ::llc::n2u2_t metrics = {64, 33};
 	::llc::err_t result = target.resize(metrics);
 	LLC_TEST_REQUIREF(errors, ASCII_TARGET_TEST_RESULT_RESIZE_RESULT, ::llc::failed(result), "Result:%i, expected success.", result);
@@ -108,7 +108,7 @@ sttc ::llc::err_t testASCIITargetClear(ATestError& errors, ::llc::SASCIITarget& 
 	rtrn 0;
 }
 
-sttc ::llc::err_t testASCIITargetCopy(ATestError& errors, ::llc::SASCIITarget& target) {
+sttc ::llc::err_t testASCIITargetCopy(::llc::ATestError& errors, ::llc::SASCIITarget& target) {
 	for(::llc::u2_t iCell = 0; iCell < target.size(); ++iCell) {
 		target.Characters.begin()[iCell] = ::llc::u0_t(iCell);
 		target.Colors.begin()[iCell] = ::llc::u1_t(iCell * 17U);
@@ -130,7 +130,7 @@ sttc ::llc::err_t testASCIITargetCopy(ATestError& errors, ::llc::SASCIITarget& t
 	rtrn 0;
 }
 
-sttc ::llc::err_t testASCIITargetMismatch(ATestError& errors) {
+sttc ::llc::err_t testASCIITargetMismatch(::llc::ATestError& errors) {
 	::llc::SASCIITarget target = {};
 	cnst ::llc::n2u2_t characterMetrics = {6, 5};
 	cnst ::llc::n2u2_t colorMetrics = {5, 5};
@@ -146,7 +146,7 @@ sttc ::llc::err_t testASCIITargetMismatch(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testASCIITargetResizeGuards(ATestError& errors, ::llc::SASCIITarget& target) {
+sttc ::llc::err_t testASCIITargetResizeGuards(::llc::ATestError& errors, ::llc::SASCIITarget& target) {
 	cnst ::llc::n2u2_t oldMetrics = target.metrics();
 	cnst ::llc::u0_t* oldCharacters = target.Characters.begin();
 	cnst ::llc::u1_t* oldColors = target.Colors.begin();
@@ -176,7 +176,7 @@ sttc ::llc::err_t testASCIITargetResizeGuards(ATestError& errors, ::llc::SASCIIT
 	rtrn 0;
 }
 
-::llc::err_t testASCIITarget(ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testASCIITarget(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testASCIITargetDefaults(errors));
 	::llc::SASCIITarget target = {};
 	if_fail_fe(::testASCIITargetClear(errors, target));

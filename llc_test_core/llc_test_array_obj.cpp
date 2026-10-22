@@ -61,7 +61,7 @@ stct SArrayObjTestValue {
 ::llc::u2_t SArrayObjTestValue::CopyCount			= {};
 ::llc::u2_t SArrayObjTestValue::DestructorCount		= {};
 
-sttc ::llc::err_t arrayObjCheck(ATestError & errors, ARRAY_OBJ_TEST_RESULT result, cnst ::llc::aobj<SArrayObjTestValue> & actual, ::llc::view<cnst ::llc::u2_t> expected) {
+sttc ::llc::err_t arrayObjCheck(::llc::ATestError & errors, ARRAY_OBJ_TEST_RESULT result, cnst ::llc::aobj<SArrayObjTestValue> & actual, ::llc::view<cnst ::llc::u2_t> expected) {
 	LLC_TEST_CHECKF(errors, result, actual.size() != expected.size() , "Count:%u, expected:%u." , actual.size(), expected.size() );
 	for(::llc::u2_t iValue = 0; iValue < actual.size() && iValue < expected.size(); ++iValue) {
 		LLC_TEST_CHECKF(errors, result, actual[iValue].Index != expected[iValue] , "Element:%u index:%u, expected:%u." , iValue, actual[iValue].Index, expected[iValue] );
@@ -70,7 +70,7 @@ sttc ::llc::err_t arrayObjCheck(ATestError & errors, ARRAY_OBJ_TEST_RESULT resul
 	rtrn 0;
 }
 
-sttc ::llc::err_t testArrayObjEmplace(ATestError & errors) {
+sttc ::llc::err_t testArrayObjEmplace(::llc::ATestError & errors) {
 	cnst ::llc::u2_t constructorsBefore	= SArrayObjTestValue::ConstructorCount;
 	cnst ::llc::u2_t copiesBefore		= SArrayObjTestValue::CopyCount;
 	cnst ::llc::u2_t liveBefore			= SArrayObjTestValue::LiveCount;
@@ -101,7 +101,7 @@ sttc ::llc::err_t testArrayObjEmplace(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testArrayObjConstruction(ATestError & errors) {
+sttc ::llc::err_t testArrayObjConstruction(::llc::ATestError & errors) {
 	::llc::aobj<SArrayObjTestValue> empty = {};
 	LLC_TEST_CHECKF(errors, ARRAY_OBJ_TEST_RESULT_DEFAULT_STATE, empty.size() , "Default count:%u, expected:0." , empty.size() );
 	LLC_TEST_CHECKF(errors, ARRAY_OBJ_TEST_RESULT_DEFAULT_STATE, empty.begin() , "Default begin:%p, expected:null." , empty.begin() );
@@ -134,7 +134,7 @@ sttc ::llc::err_t testArrayObjConstruction(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testArrayObjReserveResize(ATestError & errors) {
+sttc ::llc::err_t testArrayObjReserveResize(::llc::ATestError & errors) {
 	SArrayObjTestValue source[] = {SArrayObjTestValue{1}, SArrayObjTestValue{2}};
 	::llc::aobj<SArrayObjTestValue> values{source};
 	cnst ::llc::u2_t expectedInitial[] = {1, 2};
@@ -166,7 +166,7 @@ sttc ::llc::err_t testArrayObjReserveResize(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testArrayObjAppendInsert(ATestError & errors) {
+sttc ::llc::err_t testArrayObjAppendInsert(::llc::ATestError & errors) {
 	::llc::aobj<SArrayObjTestValue> values = {SArrayObjTestValue{1}, SArrayObjTestValue{2}};
 	SArrayObjTestValue third{3};
 	::llc::err_t result = values.push_back(third);
@@ -219,7 +219,7 @@ sttc ::llc::err_t testArrayObjAppendInsert(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testArrayObjRemoveClear(ATestError & errors) {
+sttc ::llc::err_t testArrayObjRemoveClear(::llc::ATestError & errors) {
 	::llc::aobj<SArrayObjTestValue> values = {SArrayObjTestValue{1}, SArrayObjTestValue{2}, SArrayObjTestValue{3}, SArrayObjTestValue{4}, SArrayObjTestValue{5}};
 	SArrayObjTestValue removed = {};
 	::llc::err_t result = values.pop_back(removed);
@@ -262,7 +262,7 @@ sttc ::llc::err_t testArrayObjRemoveClear(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testArrayObjFind(ATestError & errors) {
+sttc ::llc::err_t testArrayObjFind(::llc::ATestError & errors) {
 	::llc::sc_t targetA0[] = {'a'};
 	::llc::sc_t targetB0[] = {'b'};
 	::llc::sc_t targetA1[] = {'a'};
@@ -281,7 +281,7 @@ sttc ::llc::err_t testArrayObjFind(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testArrayObj(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testArrayObj(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	SArrayObjTestValue::LiveCount			= {};
 	SArrayObjTestValue::ConstructorCount	= {};
 	SArrayObjTestValue::CopyCount			= {};

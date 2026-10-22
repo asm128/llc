@@ -18,7 +18,7 @@ sttc ::llc::err_t blockContainerExpectedFailure(TCall call) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testBlockContainerType(ATestError & errors) {
+sttc ::llc::err_t testBlockContainerType(::llc::ATestError & errors) {
 	::llc::block_container<T, 4> blocks = {};
 	cnst T firstData[]	= {T(1), T(2)};
 	cnst T secondData[]	= {T(3)};
@@ -82,7 +82,7 @@ sttc ::llc::err_t testBlockContainerType(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testBlockContainerTypeLogged(ATestError & errors) {
+sttc ::llc::err_t testBlockContainerTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(::testBlockContainerType<T>(errors));
@@ -93,7 +93,7 @@ sttc ::llc::err_t testBlockContainerTypeLogged(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBlockContainerNTS(ATestError & errors) {
+sttc ::llc::err_t testBlockContainerNTS(::llc::ATestError & errors) {
 	::llc::block_container_nts<5> strings = {};
 	::llc::vcst_t first = {}, second = {};
 	cnst ::llc::err_t firstBlock = strings.push_sequence("four", 4, first);
@@ -119,7 +119,7 @@ sttc ::llc::err_t testBlockContainerNTS(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBlockContainer(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testBlockContainer(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u1_t>(errors));
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u2_t>(errors));

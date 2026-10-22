@@ -174,7 +174,6 @@
     <ClInclude Include="llc_rect3.h" />
     <ClInclude Include="llc_rect_align.h" />
     <ClInclude Include="llc_ref.h" />
-    <ClInclude Include="llc_test_report.h" />
     <ClInclude Include="llc_tri.h" />
     <ClInclude Include="llc_tri2.h" />
     <ClInclude Include="llc_tri3.h" />
@@ -442,6 +441,7 @@
     <ClCompile Include="llc_file.cpp" />
     <ClCompile Include="llc_tcpip.cpp" />
     <ClCompile Include="llc_timer.cpp" />
+    <ClCompile Include="llc_test_core.cpp" />
     <ClCompile Include="llc_view.cpp" />
     <ClCompile Include="llc_windows.cpp" />
     <ClCompile Include="llc_xml_reader.cpp" />

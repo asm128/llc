@@ -50,7 +50,7 @@ GDEFINE_ENUM_VALUED(CAMERA_TEST_RESULT, FAR_AGGREGATE		, 41, "Aggregate initiali
 GDEFINE_ENUM_VALUED(CAMERA_TEST_RESULT, ANGLE_AGGREGATE		, 42, "Aggregate initialization changed SCameraRange::Angle.");
 GDEFINE_ENUM_VALUED(CAMERA_TEST_RESULT, ZOOM_AGGREGATE		, 43, "Aggregate initialization changed SCameraRange::Zoom.");
 
-sttc ::llc::err_t testCameraDefaults(ATestError & errors) {
+sttc ::llc::err_t testCameraDefaults(::llc::ATestError & errors) {
 	cnst ::llc::SCameraPoints points = {};
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_POSITION_X_DEFAULT, points.Position.x != -0.45f, "Position.x:%g, expected:-0.45.", points.Position.x);
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_POSITION_Y_DEFAULT, points.Position.y !=  0.05f, "Position.y:%g, expected:0.05.", points.Position.y);
@@ -78,7 +78,7 @@ sttc ::llc::err_t testCameraDefaults(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCameraAggregates(ATestError & errors) {
+sttc ::llc::err_t testCameraAggregates(::llc::ATestError & errors) {
 	cnst ::llc::SCameraPoints points = {{1, 2, 3}, {4, 5, 6}};
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_POSITION_X_AGGREGATE, points.Position.x != 1, "Position.x:%g, expected:1.", points.Position.x);
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_POSITION_Y_AGGREGATE, points.Position.y != 2, "Position.y:%g, expected:2.", points.Position.y);
@@ -106,7 +106,7 @@ sttc ::llc::err_t testCameraAggregates(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testCamera(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testCamera(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_POINTS_SIZE, sizeof(::llc::SCameraPoints) != sizeof(::llc::n3f2_t) * 2, "SCameraPoints size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SCameraPoints), (::llc::u2_t)(sizeof(::llc::n3f2_t) * 2));
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_VECTORS_SIZE, sizeof(::llc::SCameraVectors) != sizeof(::llc::n3f2_t) * 3, "SCameraVectors size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SCameraVectors), (::llc::u2_t)(sizeof(::llc::n3f2_t) * 3));
 	LLC_TEST_CHECKF(errors, CAMERA_TEST_RESULT_RANGE_SIZE, sizeof(::llc::SCameraRange) != sizeof(::llc::minmaxf2_t) + sizeof(::llc::f3_t) * 2, "SCameraRange size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SCameraRange), (::llc::u2_t)(sizeof(::llc::minmaxf2_t) + sizeof(::llc::f3_t) * 2));

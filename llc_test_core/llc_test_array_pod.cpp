@@ -92,7 +92,7 @@ sttc ::llc::err_t podExpectedFailure(TCall call) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t podCheck(ATestError & errors, ARRAY_POD_TEST_RESULT result, cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected) {
+sttc ::llc::err_t podCheck(::llc::ATestError & errors, ARRAY_POD_TEST_RESULT result, cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected) {
 	LLC_TEST_CHECKF(errors, result, actual.size() != expected.size() , "Count:%u, expected:%u." , actual.size(), expected.size() );
 	for(::llc::u2_t iValue = 0; iValue < actual.size() && iValue < expected.size(); ++iValue) {
 		LLC_TEST_CHECKF(errors, result, actual[iValue] != expected[iValue] , "Element:%u value:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , iValue, (::llc::s3_t)actual[iValue], (::llc::s3_t)expected[iValue] );
@@ -101,7 +101,7 @@ sttc ::llc::err_t podCheck(ATestError & errors, ARRAY_POD_TEST_RESULT result, cn
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t podFailureCheck(ATestError & errors, ARRAY_POD_TEST_RESULT result, ::llc::err_t callResult, cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected, ::llc::view<cnst T> originalStorage) {
+sttc ::llc::err_t podFailureCheck(::llc::ATestError & errors, ARRAY_POD_TEST_RESULT result, ::llc::err_t callResult, cnst ::llc::apod<T> & actual, ::llc::view<cnst T> expected, ::llc::view<cnst T> originalStorage) {
 	LLC_TEST_CHECKF(errors, result, false == ::llc::failed(callResult) , "Result:%i, expected failure." , callResult );
 	LLC_TEST_CHECKF(errors, result, actual.begin() != originalStorage.begin() , "Moved storage. begin:%p, expected:%p." , actual.begin(), originalStorage.begin() );
 	rtrn podCheck(errors, result, actual, expected);
@@ -113,7 +113,7 @@ sttc bool podTerminatorMismatch(cnst ::llc::apod<T> & value) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodConstruction(ATestError & errors) {
+sttc ::llc::err_t testPodConstruction(::llc::ATestError & errors) {
 	::llc::apod<T> empty;
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_DEFAULT_STATE, empty.size() , "Default count:%u, expected:0.", empty.size() );
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_DEFAULT_STATE, empty.begin() , "Default begin:%p, expected:null.", empty.begin() );
@@ -156,7 +156,7 @@ sttc ::llc::err_t testPodConstruction(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodAssignment(ATestError & errors) {
+sttc ::llc::err_t testPodAssignment(::llc::ATestError & errors) {
 	T firstExpected[]	= {T(1), T(2), T(3)};
 	T secondExpected[]	= {T(4), T(5)};
 	::llc::apod<T> source{firstExpected};
@@ -181,7 +181,7 @@ sttc ::llc::err_t testPodAssignment(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodReserveResize(ATestError & errors) {
+sttc ::llc::err_t testPodReserveResize(::llc::ATestError & errors) {
 	T expected[] = {T(1), T(2), T(3)};
 	::llc::apod<T> values{expected};
 	cnst ::llc::err_t capacity = values.reserve(32);
@@ -226,7 +226,7 @@ sttc ::llc::err_t testPodReserveResize(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodAppend(ATestError & errors) {
+sttc ::llc::err_t testPodAppend(::llc::ATestError & errors) {
 	::llc::apod<T> values = {T(1), T(2)};
 	::llc::err_t result = values.push_back(T(3));
 	T expectedPush[] = {T(1), T(2), T(3)};
@@ -279,7 +279,7 @@ sttc ::llc::err_t testPodAppend(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPodStringAppend(ATestError & errors) {
+sttc ::llc::err_t testPodStringAppend(::llc::ATestError & errors) {
 	::llc::asc_t text = {'s', 'e', 'e', 'd'};
 	::llc::err_t result = text.append_string("ab");
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, result != 2 , "Array string append written:%i, expected:2.", result );
@@ -331,7 +331,7 @@ sttc ::llc::err_t testPodStringAppend(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodPopBack(ATestError & errors) {
+sttc ::llc::err_t testPodPopBack(::llc::ATestError & errors) {
 	::llc::apod<T> values = {T(1), T(2), T(3)};
 	T removed = {};
 	::llc::err_t result = values.pop_back(removed);
@@ -350,7 +350,7 @@ sttc ::llc::err_t testPodPopBack(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodInsert(ATestError & errors) {
+sttc ::llc::err_t testPodInsert(::llc::ATestError & errors) {
 	::llc::apod<T> values = {T(2), T(4)};
 	values.reserve(16);
 	cnst ::llc::view<T> reservedStorage = values;
@@ -421,7 +421,7 @@ sttc ::llc::err_t testPodInsert(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodRemove(ATestError & errors) {
+sttc ::llc::err_t testPodRemove(::llc::ATestError & errors) {
 	::llc::apod<T> ordered = {T(1), T(2), T(3), T(4), T(5)};
 	::llc::err_t result = ordered.remove(0);
 	T expectedFront[] = {T(2), T(3), T(4), T(5)};
@@ -458,7 +458,7 @@ sttc ::llc::err_t testPodRemove(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodFailures(ATestError & errors) {
+sttc ::llc::err_t testPodFailures(::llc::ATestError & errors) {
 	::llc::apod<T> empty;
 	T removed = T(7);
 	::llc::err_t result = podExpectedFailure([&empty]() { rtrn empty.pop_back(); });
@@ -512,7 +512,7 @@ sttc ::llc::err_t testPodFailures(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodAliasing(ATestError & errors) {
+sttc ::llc::err_t testPodAliasing(::llc::ATestError & errors) {
 	::llc::apod<T> pushed = {T(1), T(2)};
 	cnst ::llc::u2_t pushCapacity = pushed.reserve(pushed.size());
 	if_fail_fe(pushed.resize(pushCapacity, T(8)));
@@ -571,7 +571,7 @@ sttc ::llc::err_t testPodAliasing(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodClear(ATestError & errors) {
+sttc ::llc::err_t testPodClear(::llc::ATestError & errors) {
 	::llc::apod<T> values = {T(1), T(2), T(3)};
 	cnst ::llc::view<T> allocatedStorage = values;
 	cnst ::llc::err_t result = values.clear();
@@ -589,7 +589,7 @@ sttc ::llc::err_t testPodClear(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodFind(ATestError & errors) {
+sttc ::llc::err_t testPodFind(::llc::ATestError & errors) {
 	::llc::apod<T> values = {T(1), T(2), T(1), T(2)};
 	T sequenceData[] = {T(1), T(2)};
 	cnst ::llc::view<cnst T> sequence{sequenceData};
@@ -605,7 +605,7 @@ sttc ::llc::err_t testPodFind(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodType(ATestError & errors) {
+sttc ::llc::err_t testPodType(::llc::ATestError & errors) {
 	if_fail_fe(testPodConstruction<T>(errors));
 	if_fail_fe(testPodAssignment<T>(errors));
 	if_fail_fe(testPodReserveResize<T>(errors));
@@ -620,7 +620,7 @@ sttc ::llc::err_t testPodType(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPodTypeLogged(ATestError & errors) {
+sttc ::llc::err_t testPodTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testPodType<T>(errors));
@@ -630,7 +630,7 @@ sttc ::llc::err_t testPodTypeLogged(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testArrayPod(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testArrayPod(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testPodTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testPodTypeLogged<::llc::u1_t>(errors));

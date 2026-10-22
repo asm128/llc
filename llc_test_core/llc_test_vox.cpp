@@ -204,7 +204,7 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	rtrn 0;
 }
 
-::llc::err_t testVOX(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testVOX(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::view<cnst ::llc::bgra> defaultPalette = ::llc::SVOXData{}.GetBGRA();
 	LLC_TEST_REQUIREF(errors, VOX_TEST_RESULT_DEFAULT_PALETTE_COUNT, defaultPalette.size() != 256, "Count:%u, expected:256.", defaultPalette.size());
 	LLC_TEST_CHECKF(errors, VOX_TEST_RESULT_DEFAULT_PALETTE_VALUE, defaultPalette[1] != ::llc::VOX_PALETTE_DEFAULT[1], "Value:0x%08X, expected:0x%08X.", (::llc::u2_t)defaultPalette[1], (::llc::u2_t)::llc::VOX_PALETTE_DEFAULT[1]);

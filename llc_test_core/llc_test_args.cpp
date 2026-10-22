@@ -17,7 +17,7 @@ GDEFINE_ENUM_VALUED(ARGS_TEST_RESULT, MISSING_VALUE		, 9, "The option accessors 
 GDEFINE_ENUM_VALUED(ARGS_TEST_RESULT, REUSE				, 10, "argsParse() retained state from an earlier parse.");
 GDEFINE_ENUM_VALUED(ARGS_TEST_RESULT, EMPTY_VALUE		, 11, "argsParse() did not preserve empty inline and valueless options.");
 
-sttc ::llc::err_t testArgsParsedValues(ATestError & errors, cnst ::llc::SCommandLineArgs & args) {
+sttc ::llc::err_t testArgsParsedValues(::llc::ATestError & errors, cnst ::llc::SCommandLineArgs & args) {
 	cnst ::llc::keyval<::llc::vcst_t> expectedOptions[] =
 		{ {"include", "a"}
 		, {"include", "b"}
@@ -39,7 +39,7 @@ sttc ::llc::err_t testArgsParsedValues(ATestError & errors, cnst ::llc::SCommand
 	rtrn 0;
 }
 
-sttc ::llc::err_t testArgsAccessors(ATestError & errors, cnst ::llc::SCommandLineArgs & args) {
+sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCommandLineArgs & args) {
 	cnst ::llc::err_t firstInclude	= ::llc::argsOptionIndex(args, "include");
 	cnst ::llc::err_t secondInclude	= ::llc::argsOptionIndex(args, "include", 1);
 	cnst ::llc::err_t thirdInclude	= ::llc::argsOptionIndex(args, "include", 2);
@@ -76,7 +76,7 @@ sttc ::llc::err_t testArgsAccessors(ATestError & errors, cnst ::llc::SCommandLin
 	rtrn 0;
 }
 
-::llc::err_t testArgs(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testArgs(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::vcst_t argv[] =
 		{ "app"
 		, "first"

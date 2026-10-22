@@ -26,7 +26,7 @@ GDEFINE_ENUM_VALUED(STL_TEST_RESULT, GEOMETRY_ROUNDTRIP		, 15, "Generated geomet
 static_assert(requires(::llc::vu0_t input, ::llc::vcu0_t & header, ::llc::view<::llc::SSTLTriangle> & triangles) { ::llc::stlFileLoad(input, header, triangles); });
 static_assert(requires(::llc::vcu0_t input, ::llc::vcu0_t & header, ::llc::view<cnst ::llc::SSTLTriangle> & triangles) { ::llc::stlFileLoad(input, header, triangles); });
 
-sttc ::llc::err_t testSTLGeometry(ATestError & errors, ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testSTLGeometry(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::string folder;
 	if_fail_fe(::llc::pathNameCompose(outputFolder, ::llc::get_value_namev(STL_TEST_RESULT_GEOMETRY_ROUNDTRIP), folder));
 	if_fail_fe(::llc::pathCreate(folder));
@@ -82,7 +82,7 @@ sttc ::llc::err_t testSTLGeometry(ATestError & errors, ::llc::vcst_t outputFolde
 	rtrn 0;
 }
 
-::llc::err_t testSTL(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testSTL(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testSTLGeometry(errors, outputFolder));
 	stxp ::llc::u2_t				HEADER_SIZE				= 80;
 	::llc::SSTLTriangle			expected[2]				= {};
@@ -105,7 +105,7 @@ sttc ::llc::err_t testSTLGeometry(ATestError & errors, ::llc::vcst_t outputFolde
 	memcpy(&serialized[HEADER_SIZE + COUNT_SIZE], expected, payloadSize);
 	if_fail_fe(::llc::fileFromMemory(outputFolder, "input.stl", serialized));
 	always_printf("STL fixture input.stl: %u bytes, header:%u, expected triangles:%u. Triangle geometry is synthetic loader data, not a display model.", serialized.size(), HEADER_SIZE, triangleCount);
-	::testTraceBytes("Input header", {serialized.begin(), HEADER_SIZE});
+	::llc::testTraceBytes("Input header", {serialized.begin(), HEADER_SIZE});
 
 	::llc::vcu0_t					mutableHeader				= {};
 	::llc::view<::llc::SSTLTriangle>	mutableTriangles			= {};
@@ -118,8 +118,8 @@ sttc ::llc::err_t testSTLGeometry(ATestError & errors, ::llc::vcst_t outputFolde
 	LLC_TEST_CHECK(errors, STL_TEST_RESULT_MUTABLE_TRIANGLE_VALUE, 0 != memcmp(mutableTriangles.begin(), expected, payloadSize));
 	for(::llc::u2_t iTriangle = 0; iTriangle < triangleCount; ++iTriangle) {
 		always_printf("STL triangle:%u; normal actual:{%g,%g,%g}, expected:{%g,%g,%g}; attribute actual:0x%04X expected:0x%04X.", iTriangle, (double)mutableTriangles[iTriangle].Normal.x, (double)mutableTriangles[iTriangle].Normal.y, (double)mutableTriangles[iTriangle].Normal.z, (double)expected[iTriangle].Normal.x, (double)expected[iTriangle].Normal.y, (double)expected[iTriangle].Normal.z, mutableTriangles[iTriangle].Attribute, expected[iTriangle].Attribute);
-		::testTraceBytes("Expected triangle", ::llc::view<cnst ::llc::SSTLTriangle>{&expected[iTriangle], 1}.cu8());
-		::testTraceBytes("Actual triangle", ::llc::view<cnst ::llc::SSTLTriangle>{&mutableTriangles[iTriangle], 1}.cu8());
+		::llc::testTraceBytes("Expected triangle", ::llc::view<cnst ::llc::SSTLTriangle>{&expected[iTriangle], 1}.cu8());
+		::llc::testTraceBytes("Actual triangle", ::llc::view<cnst ::llc::SSTLTriangle>{&mutableTriangles[iTriangle], 1}.cu8());
 	}
 	mutableTriangles[0].Attribute								= 0xA55AU;
 	::llc::SSTLTriangle			storedTriangle			= {};

@@ -48,7 +48,7 @@
 	llc_necs(inputStream.read_pod(lightmapCount));
 	llc_necs(inputStream.read_pod(output.LightmapDimensions));
 	llc_necs(inputStream.read_pod(output.LightmapTiles));
-	if_true_fef(lightmapCount && output.LightmapDimensions != ::llc::n2u2_t{8, 8}
+	if_true_fef((lightmapCount && output.LightmapDimensions != ::llc::n2u2_t{8, 8})
 		, "Unsupported GND lightmap dimensions: %" LLC_FMT_U2 " x %" LLC_FMT_U2 ".", output.LightmapDimensions.x, output.LightmapDimensions.y);
 	if_true_fef(lightmapCount > inputStream.remaining() / szof(::llc::SROGNDLightmap)
 		, "GND lightmap payload exceeds the remaining input: %" LLC_FMT_U2 " > %" LLC_FMT_U2 ".", lightmapCount, inputStream.remaining() / szof(::llc::SROGNDLightmap));

@@ -26,7 +26,7 @@ stxp ::llc::u3_t PACKED_RANDOM_SEED	= 0x5041434B45445549ULL;
 stxp ::llc::u2_t PACKED_RANDOM_COUNT	= 256;
 
 tplt<tpnm T>
-sttc ::llc::err_t testDefault(ATestError & errors) {
+sttc ::llc::err_t testDefault(::llc::ATestError & errors) {
 	cnst ::llc::packed_uint<T> packed{};
 	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.TailWidth , "%u-bit default tail width:%u, expected:0.", bcof(T), ::llc::u2_t(packed.TailWidth));
 	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.Multiplier , "%u-bit default multiplier:%u, expected:0.", bcof(T), ::llc::u2_t(packed.Multiplier));
@@ -36,12 +36,12 @@ sttc ::llc::err_t testDefault(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testInvalidValue(ATestError & errors) {
+sttc ::llc::err_t testInvalidValue(::llc::ATestError & errors) {
 #ifdef LLC_WINDOWS
 	stxp ::llc::u0_t WIDTH_FIELD = ::llc::uint_width_field_size<T>();
 	cnst T maximum = T(-1) >> WIDTH_FIELD;
 	cnst T invalid = maximum + 1;
-	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_INVALID_VALUE, !testThrows([&]() { cnst ::llc::packed_uint<T> packed{invalid}; (void)packed; }) , "%u-bit packed_uint<> accepted value:%" LLC_FMT_U3 " above maximum:%" LLC_FMT_U3 "." , ::llc::u2_t(szof(T) * 8), ::llc::u3_t(invalid), ::llc::u3_t(maximum) );
+	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_INVALID_VALUE, !::llc::testThrows([&]() { cnst ::llc::packed_uint<T> packed{invalid}; (void)packed; }) , "%u-bit packed_uint<> accepted value:%" LLC_FMT_U3 " above maximum:%" LLC_FMT_U3 "." , ::llc::u2_t(szof(T) * 8), ::llc::u3_t(invalid), ::llc::u3_t(maximum) );
 #else
 	(void)errors;
 #endif
@@ -49,7 +49,7 @@ sttc ::llc::err_t testInvalidValue(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c expectedTailWidth, bool trace = true) {
+sttc ::llc::err_t testValue(::llc::ATestError & errors, ::llc::u3_c source, ::llc::u0_c expectedTailWidth, bool trace = true) {
 	cnst T value = (T)source;
 	cnst ::llc::packed_uint<T> packed{value};
 	::llc::u3_c expectedMultiplier = source >> (expectedTailWidth * 8);
@@ -76,7 +76,7 @@ sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c
 	cnst ::llc::err_t loadResult = ::llc::loadUInt(input, loaded);
 	if(trace) {
 		always_printf("PACKED %u-bit input:%" LLC_FMT_U3 "; tail width actual:%u expected:%u; multiplier actual:%" LLC_FMT_U3 " expected:%" LLC_FMT_U3 "; bytes:%u expected:%u; restored:%" LLC_FMT_U3 "; load:%i; remaining:%u expected:0.", typeBits, source, (::llc::u2_t)packed.TailWidth, (::llc::u2_t)expectedTailWidth, (::llc::u3_t)packed.Multiplier, expectedMultiplier, bytes.size(), (::llc::u2_t)expectedValueWidth, (::llc::u3_t)loaded, loadResult, input.size());
-		::testTraceBytes("Packed representation", bytes);
+		::llc::testTraceBytes("Packed representation", bytes);
 	}
 	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_LOAD_RESULT, loadResult != expectedValueWidth , "%u-bit load result mismatch for value:%" LLC_FMT_U3 ". result:%i, expected:%u." , typeBits, source, loadResult, ::llc::u2_t(expectedValueWidth) );
 	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_LOAD_VALUE, ::llc::u3_t(loaded) != source , "%u-bit loaded-value mismatch. source:%" LLC_FMT_U3 ", loaded:%" LLC_FMT_U3 "." , typeBits, source, ::llc::u3_t(loaded) );
@@ -85,7 +85,7 @@ sttc ::llc::err_t testValue(ATestError & errors, ::llc::u3_c source, ::llc::u0_c
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testType(ATestError & errors) {
+sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	if_fail_fe(testDefault<T>(errors));
 	if_fail_fe(testInvalidValue<T>(errors));
 
@@ -103,7 +103,7 @@ sttc ::llc::err_t testType(ATestError & errors) {
 			if_fail_fe(testValue<T>(errors, maximum, tailWidth));
 		previousMaximum = maximum;
 	}
-	cnst ::llc::u3_t seed = testSeed(PACKED_RANDOM_SEED);
+	cnst ::llc::u3_t seed = ::llc::testSeed(PACKED_RANDOM_SEED);
 	always_printf("PACKED generated coverage: %u-bit, seed:%" LLC_FMT_U3 ", cases:%u; individual failures retain counterexamples.", (::llc::u2_t)bcof(T), seed, PACKED_RANDOM_COUNT);
 	::llc::SPRNG random = {seed};
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
@@ -121,7 +121,7 @@ sttc ::llc::err_t testType(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testTypeLogged(ATestError & errors) {
+sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testType<T>(errors));
@@ -131,7 +131,7 @@ sttc ::llc::err_t testTypeLogged(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testPackedUInt(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testPackedUInt(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));

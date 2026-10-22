@@ -31,7 +31,7 @@ static_assert(requires {
 	}, "XML operations must preserve their string-view contracts.");
 
 sttc ::llc::err_t testXMLDocument
-	(ATestError & errors, ::llc::vcst_t input, XML_READER_TEST_RESULT parseTest = XML_READER_TEST_RESULT_PARSE) {
+	(::llc::ATestError & errors, ::llc::vcst_t input, XML_READER_TEST_RESULT parseTest = XML_READER_TEST_RESULT_PARSE) {
 	::llc::SXMLReader reader;
 	cnst ::llc::err_t parseResult = ::llc::xmlParse(reader, input);
 	always_printf("XML input (%u bytes):\n%.*s\nExpected parse success; return:%i, tokens:%u.", input.size(), LLC_VIEW_ARGS(input), parseResult, reader.Token.size());
@@ -63,7 +63,7 @@ sttc ::llc::err_t testXMLDocument
 	rtrn 0;
 }
 
-sttc ::llc::err_t testXMLDocuments(ATestError & errors) {
+sttc ::llc::err_t testXMLDocuments(::llc::ATestError & errors) {
 	cnst ::llc::sc_t countedInput[] = {'<', 'A', '/', '>'};
 	cnst ::llc::vcst_t documents[] =
 		{ "<Root/>"
@@ -76,7 +76,7 @@ sttc ::llc::err_t testXMLDocuments(ATestError & errors) {
 	rtrn ::testXMLDocument(errors, {countedInput}, XML_READER_TEST_RESULT_COUNTED_INPUT);
 }
 
-sttc ::llc::err_t testXMLFailures(ATestError & errors) {
+sttc ::llc::err_t testXMLFailures(::llc::ATestError & errors) {
 	::llc::SXMLReader reader;
 	cnst ::llc::err_t result = ::llc::xmlParse(reader, "<Root><Child></Root>");
 	always_printf("XML mismatched tags: '<Root><Child></Root>'; expected rejection; result:%i.", result);
@@ -84,7 +84,7 @@ sttc ::llc::err_t testXMLFailures(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testXMLStorage(ATestError & errors) {
+sttc ::llc::err_t testXMLStorage(::llc::ATestError & errors) {
 	cnst ::llc::sc_t countedInput[] = {'<', 'A', '/', '>'};
 	::llc::SXMLReader reader;
 	if_fail_fe(::llc::xmlParse(reader, {countedInput}));
@@ -100,7 +100,7 @@ sttc ::llc::err_t testXMLStorage(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testXMLReader(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testXMLReader(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCountBefore = testErrorCount(errors);
 	if_fail_fe(::testXMLDocuments(errors));
 	if_fail_fe(::testXMLFailures(errors));

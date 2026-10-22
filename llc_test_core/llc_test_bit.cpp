@@ -88,7 +88,7 @@ stxp ::llc::bit_field<T, 3, 4, 1> makePackedFields() {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testBitType(ATestError & errors) {
+sttc ::llc::err_t testBitType(::llc::ATestError & errors) {
 	cnst ::llc::u2_t typeBits = szof(T) * ::llc::BYTE_SIZE;
 	T state = {};
 	LLC_TEST_CHECKF(errors, BIT_FIELD_TEST_RESULT_TYPE_WIDTH, ::llc::bitsof<T>() != typeBits , "type width:%u, expected:%u.", ::llc::bitsof<T>(), typeBits);
@@ -112,7 +112,7 @@ sttc ::llc::err_t testBitType(ATestError & errors) {
 		LLC_TEST_CHECKF(errors, BIT_FIELD_TEST_RESULT_SET_CLEAR, state , "%u-bit clear mismatch at bit %u. state:%" LLC_FMT_U3 "." , typeBits, iBit, (::llc::u3_t)state );
 	}
 #if defined(LLC_DEBUG_ENABLED) && defined(LLC_WINDOWS)
-	LLC_TEST_CHECKF(errors, BIT_FIELD_TEST_RESULT_BIT_MAKE_RANGE, false == testThrows([typeBits]() { (void)::llc::bit_make<T>((::llc::u0_t)typeBits); }) , "%u-bit type accepted index:%u." , typeBits, typeBits );
+	LLC_TEST_CHECKF(errors, BIT_FIELD_TEST_RESULT_BIT_MAKE_RANGE, false == ::llc::testThrows([typeBits]() { (void)::llc::bit_make<T>((::llc::u0_t)typeBits); }) , "%u-bit type accepted index:%u." , typeBits, typeBits );
 #endif
 
 	cnst T mask = T(0x55U);
@@ -212,7 +212,7 @@ sttc ::llc::err_t testBitType(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testEnumFlags(ATestError & errors) {
+sttc ::llc::err_t testEnumFlags(::llc::ATestError & errors) {
 	::llc::bit_field<BIT_FIELD_TEST_FLAG> flags;
 	flags.Set(BIT_FIELD_TEST_FLAG_FIRST | BIT_FIELD_TEST_FLAG_THIRD);
 	LLC_TEST_CHECKF(errors, BIT_FIELD_TEST_RESULT_ENUM_FLAGS, szof(flags) != szof(BIT_FIELD_TEST_FLAG) , "Generated flag bytes:%u, expected:%u." , (::llc::u2_t)szof(flags), (::llc::u2_t)szof(BIT_FIELD_TEST_FLAG));
@@ -225,7 +225,7 @@ sttc ::llc::err_t testEnumFlags(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testBitTypeLogged(ATestError & errors) {
+sttc ::llc::err_t testBitTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testBitType<T>(errors));
@@ -235,7 +235,7 @@ sttc ::llc::err_t testBitTypeLogged(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBitField(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testBitField(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testBitTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testBitTypeLogged<::llc::u1_t>(errors));

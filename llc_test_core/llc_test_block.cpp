@@ -18,7 +18,7 @@ GDEFINE_ENUM_VALUED(BLOCK_TEST_RESULT, BLOCK_RANGE			, 11, "blockRecordIndices()
 GDEFINE_ENUM_VALUED(BLOCK_TEST_RESULT, OUTPUT_STABILITY		, 12, "A failed record-address conversion changed its output.");
 GDEFINE_ENUM_VALUED(BLOCK_TEST_RESULT, FULL_WIDTH			, 13, "Record-address conversion discarded high identifier bits.");
 
-sttc ::llc::err_t testBlockRoundTrips(ATestError & errors) {
+sttc ::llc::err_t testBlockRoundTrips(::llc::ATestError & errors) {
 	cnst ::llc::u2_t blockSizes[] = {1, 2, 3, 7, 255, 256, 65535, ::llc::u2_t(-1)};
 	cnst ::llc::u2_t blockIds[] = {0, 1, 2, 255, 65535, 0x7FFFFFFF, ::llc::u2_t(-1)};
 	for(::llc::u2_t iSize = 0; iSize < ::llc::size(blockSizes); ++iSize)
@@ -48,7 +48,7 @@ sttc ::llc::err_t testBlockRoundTrips(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBlockFailures(ATestError & errors) {
+sttc ::llc::err_t testBlockFailures(::llc::ATestError & errors) {
 	cnst ::llc::SRecordMap originalMap = {17, 19};
 	::llc::SRecordMap outputMap = originalMap;
 	cnst ::llc::err_t zeroDecodeResult = ::llc::blockRecordIndices(37, 0, outputMap);
@@ -74,7 +74,7 @@ sttc ::llc::err_t testBlockFailures(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testBlockFullWidth(ATestError & errors) {
+sttc ::llc::err_t testBlockFullWidth(::llc::ATestError & errors) {
 	cnst ::llc::u3_t expectedId = 0x8000000000001234ULL;
 	cnst ::llc::u2_t blockSize = ::llc::u2_t(-1);
 	::llc::SRecordMap indices = {};
@@ -87,7 +87,7 @@ sttc ::llc::err_t testBlockFullWidth(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBlock(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testBlock(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_TYPE_LAYOUT, sizeof(::llc::SRecordMap) != sizeof(::llc::u2_t) * 2, "SRecordMap size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SRecordMap), (::llc::u2_t)(sizeof(::llc::u2_t) * 2));
 	cnst ::llc::SRecordMap defaultMap = {};
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_DEFAULT_VALUE, defaultMap.IdBlock, "Default block:%u, expected:0.", defaultMap.IdBlock);

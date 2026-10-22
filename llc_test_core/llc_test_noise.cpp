@@ -8,7 +8,7 @@ GDEFINE_ENUM_VALUED(PRNG_TEST_RESULT, STATE		, 2, "SPRNG did not track its posit
 GDEFINE_ENUM_VALUED(PRNG_TEST_RESULT, RESET		, 3, "SPRNG reset did not restore its initial state and sequence.");
 GDEFINE_ENUM_VALUED(PRNG_TEST_RESULT, SEED		, 4, "Different SPRNG seeds produced the same first value.");
 
-::llc::err_t testSPRNG(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testSPRNG(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	stxp ::llc::u3_t EXPECTED[] =
 		{ 0xE220A8397B1DCDAFULL
 		, 0x6E789E6AA1B965F4ULL

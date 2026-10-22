@@ -72,7 +72,7 @@ sttc ::llc::err_t prepareMapSentinel(TLinearMap & map) {
 	return map.push_back(99, 999);
 }
 
-sttc ::llc::err_t checkMapSentinel(ATestError & errors, LINEAR_MAP_TEST_RESULT result, cnst TLinearMap & map, ::llc::u2_c caseIndex) {
+sttc ::llc::err_t checkMapSentinel(::llc::ATestError & errors, LINEAR_MAP_TEST_RESULT result, cnst TLinearMap & map, ::llc::u2_c caseIndex) {
 	LLC_TEST_CHECKF(errors, result, map.Keys.size() != 1, "Case:%u, key count:%u, expected:1.", caseIndex, map.Keys.size());
 	LLC_TEST_CHECKF(errors, result, map.Values.size() != 1, "Case:%u, value count:%u, expected:1.", caseIndex, map.Values.size());
 	if(map.Keys.size())
@@ -82,7 +82,7 @@ sttc ::llc::err_t checkMapSentinel(ATestError & errors, LINEAR_MAP_TEST_RESULT r
 	return 0;
 }
 
-sttc ::llc::err_t testLinearMapOperations(ATestError & errors, TLinearMap & map) {
+sttc ::llc::err_t testLinearMapOperations(::llc::ATestError & errors, TLinearMap & map) {
 	cnst ::llc::err_t firstIndex = map.push_back(10, 100);
 	LLC_TEST_REQUIREF(errors, LINEAR_MAP_TEST_RESULT_PUSH_INDEX, firstIndex != 0, "First index:%i, expected:0.", firstIndex);
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_PUSH_SIZE, map.Keys.size() != map.Values.size(), "Key count:%u, value count:%u.", map.Keys.size(), map.Values.size());
@@ -126,7 +126,7 @@ sttc ::llc::err_t testLinearMapOperations(ATestError & errors, TLinearMap & map)
 	return 0;
 }
 
-sttc ::llc::err_t testLinearMapSerialization(ATestError & errors, cnst TLinearMap & source) {
+sttc ::llc::err_t testLinearMapSerialization(::llc::ATestError & errors, cnst TLinearMap & source) {
 	::llc::au0_t serialized = {};
 	LLC_TEST_REQUIREF(errors, LINEAR_MAP_TEST_RESULT_SAVE_RESULT, 0 > serialized.append(LINEAR_MAP_PREFIX), "%s", "Could not append map prefix.");
 	cnst ::llc::u2_t mapOffset = serialized.size();
@@ -165,7 +165,7 @@ sttc ::llc::err_t testLinearMapSerialization(ATestError & errors, cnst TLinearMa
 	return 0;
 }
 
-sttc ::llc::err_t testLinearMapInvalidSerialization(ATestError & errors) {
+sttc ::llc::err_t testLinearMapInvalidSerialization(::llc::ATestError & errors) {
 	cnst ::llc::u2_t keys[] = {1, 2};
 	cnst ::llc::u3_t oneValue[] = {10};
 	::llc::au0_t mismatched = {};
@@ -211,7 +211,7 @@ sttc ::llc::err_t prepareObjectMapSentinel(TObjectLinearMap & map) {
 	return index;
 }
 
-sttc ::llc::err_t checkObjectMapSentinel(ATestError & errors, cnst TObjectLinearMap & map, ::llc::u2_c byteCount) {
+sttc ::llc::err_t checkObjectMapSentinel(::llc::ATestError & errors, cnst TObjectLinearMap & map, ::llc::u2_c byteCount) {
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_POBJ_TRUNCATED_OUTPUT, map.Names.size() != 1, "Byte:%u, name count:%u, expected:1.", byteCount, map.Names.size());
 	LLC_TEST_CHECKF(errors, LINEAR_MAP_TEST_RESULT_POBJ_TRUNCATED_OUTPUT, map.Elements.size() != 1, "Byte:%u, element count:%u, expected:1.", byteCount, map.Elements.size());
 	if(map.Names.size())
@@ -224,7 +224,7 @@ sttc ::llc::err_t checkObjectMapSentinel(ATestError & errors, cnst TObjectLinear
 	return 0;
 }
 
-sttc ::llc::err_t testObjectLinearMap(ATestError & errors) {
+sttc ::llc::err_t testObjectLinearMap(::llc::ATestError & errors) {
 	TObjectLinearMap source = {};
 	cnst ::llc::err_t firstIndex = source.Create("first");
 	LLC_TEST_REQUIREF(errors, LINEAR_MAP_TEST_RESULT_POBJ_CREATE_INDEX, firstIndex != 0, "First index:%i, expected:0.", firstIndex);
@@ -298,7 +298,7 @@ sttc ::llc::err_t testObjectLinearMap(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testLinearMap(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testLinearMap(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	TLinearMap map = {};
 	if_fail_fe(testLinearMapOperations(errors, map));
 	if_fail_fe(testLinearMapSerialization(errors, map));

@@ -30,7 +30,7 @@ GDEFINE_ENUM_VALUED(GRID_OPERATIONS_TEST_RESULT, STATIC_READ_VALUE	, 23, "grid_s
 GDEFINE_ENUM_VALUED(GRID_OPERATIONS_TEST_RESULT, STATIC_INVALID_READ	, 24, "grid_static<>::read() accepted a missing source or byte counter.");
 GDEFINE_ENUM_VALUED(GRID_OPERATIONS_TEST_RESULT, STATIC_INVALID_WRITE	, 25, "grid_static<>::write() accepted no destination and no byte counter.");
 
-sttc ::llc::err_t testGridCopy(ATestError & errors) {
+sttc ::llc::err_t testGridCopy(::llc::ATestError & errors) {
 	::llc::u2_t sourceCells[2][3] = {{1, 2, 3}, {4, 5, 6}};
 	cnst ::llc::grid<::llc::u2_t> source = {sourceCells};
 	::llc::u2_t copiedCells[2][3] = {};
@@ -92,7 +92,7 @@ sttc ::llc::err_t testGridCopy(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testGridScale(ATestError & errors) {
+sttc ::llc::err_t testGridScale(::llc::ATestError & errors) {
 	::llc::u2_t sourceCells[2][3] = {{1, 2, 3}, {4, 5, 6}};
 	cnst ::llc::grid<::llc::u2_t> source = {sourceCells};
 	::llc::u2_t scaledCells[2][6] = {};
@@ -114,7 +114,7 @@ sttc ::llc::err_t testGridScale(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testGridStatic(ATestError & errors) {
+sttc ::llc::err_t testGridStatic(::llc::ATestError & errors) {
 	::llc::grid_static<::llc::u2_t, 3, 2> source = {};
 	LLC_TEST_CHECKF(errors, GRID_OPERATIONS_TEST_RESULT_STATIC_METRICS, source.metrics().x != 3, "Width:%u, expected:3.", source.metrics().x);
 	LLC_TEST_CHECKF(errors, GRID_OPERATIONS_TEST_RESULT_STATIC_METRICS, source.metrics().y != 2, "Height:%u, expected:2.", source.metrics().y);
@@ -154,7 +154,7 @@ sttc ::llc::err_t testGridStatic(ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testGridOperations(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testGridOperations(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testGridCopy(errors));
 	if_fail_fe(testGridScale(errors));
 	return testGridStatic(errors);

@@ -18,7 +18,7 @@ stxp ::llc::n2u2_t ADAM7_MULTIPLIER[] = {{8, 8}, {8, 8}, {4, 8}, {4, 4}, {2, 4},
 stxp ::llc::n2u2_t ADAM7_BASE      [] = {{0, 0}, {4, 0}, {0, 4}, {2, 0}, {0, 2}, {1, 0}, {0, 1}};
 stxp ::llc::n2u2_t ADAM7_SIZE_8X8  [] = {{1, 1}, {1, 1}, {2, 1}, {2, 2}, {4, 2}, {4, 4}, {8, 4}};
 
-sttc ::llc::err_t testAdam7Scale(ATestError & errors) {
+sttc ::llc::err_t testAdam7Scale(::llc::ATestError & errors) {
 	for(::llc::u2_t iPass = 0; iPass < ::llc::size(ADAM7_MULTIPLIER); ++iPass) {
 		::llc::n2u2_t multiplier = {}, base = {};
 		cnst ::llc::err_t result = ::llc::adam7ScaleIndex(iPass, multiplier, base);
@@ -36,7 +36,7 @@ sttc ::llc::err_t testAdam7Scale(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testAdam7Sizes(ATestError & errors) {
+sttc ::llc::err_t testAdam7Sizes(::llc::ATestError & errors) {
 	::llc::n2u2_t insufficient[6] = {};
 	::llc::view<::llc::n2u2_t> insufficientView = {insufficient};
 	LLC_TEST_CHECKF(errors, ADAM7_TEST_RESULT_SIZE_STORAGE, 0 <= ::llc::adam7Sizes(insufficientView, {8, 8}), "%s", "Six pass sizes were accepted.");
@@ -67,7 +67,7 @@ sttc ::llc::err_t testAdam7Sizes(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testAdam7Interlace(ATestError & errors) {
+sttc ::llc::err_t testAdam7Interlace(::llc::ATestError & errors) {
 	::llc::imgu2_t passes[7] = {};
 	for(::llc::u2_t iPass = 0; iPass < ::llc::size(passes); ++iPass) {
 		if_fail_fe(passes[iPass].resize(ADAM7_SIZE_8X8[iPass]));
@@ -98,7 +98,7 @@ sttc ::llc::err_t testAdam7Interlace(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testAdam7(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testAdam7(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testAdam7Scale(errors));
 	if_fail_fe(::testAdam7Sizes(errors));
 	rtrn ::testAdam7Interlace(errors);

@@ -30,7 +30,7 @@ stxp ::llc::u0_t ENGINE_SAVE_PREFIX[] = {0x31, 0x72, 0xB4};
 stxp ::llc::u0_t ENGINE_SAVE_SUFFIX[] = {0xE8, 0x5D, 0x0A, 0xC3};
 
 tplt<tpnm T>
-sttc ::llc::err_t engineRoundTrip(ATestError & errors, cnst T & source, T & loaded) {
+sttc ::llc::err_t engineRoundTrip(::llc::ATestError & errors, cnst T & source, T & loaded) {
 	::llc::au0_t bytes;
 	llc_necs(bytes.append(ENGINE_SAVE_PREFIX));
 	cnst ::llc::err_t saveResult = source.Save(bytes);
@@ -53,7 +53,7 @@ sttc ::llc::err_t engineRoundTrip(ATestError & errors, cnst T & source, T & load
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t engineArrayEqual(ATestError & errors, ENGINE_SERIAL_RESULT result, ::llc::view<cnst T> expected, ::llc::view<cnst T> actual) {
+sttc ::llc::err_t engineArrayEqual(::llc::ATestError & errors, ENGINE_SERIAL_RESULT result, ::llc::view<cnst T> expected, ::llc::view<cnst T> actual) {
 	LLC_TEST_CHECKF(errors, result, expected.size() != actual.size(), "Expected count:%u, actual:%u, element bytes:%u.", expected.size(), actual.size(), (::llc::u2_t)sizeof(T));
 	for(::llc::u2_t i = 0; i < ::llc::min(expected.size(), actual.size()); ++i)
 		LLC_TEST_CHECKF(errors, result, memcmp(&expected[i], &actual[i], sizeof(T)), "Element:%u, element bytes:%u.", i, (::llc::u2_t)sizeof(T));
@@ -61,12 +61,12 @@ sttc ::llc::err_t engineArrayEqual(ATestError & errors, ENGINE_SERIAL_RESULT res
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t engineArrayEqual(ATestError & errors, ENGINE_SERIAL_RESULT result, cnst ::llc::apod<T> & expected, cnst ::llc::apod<T> & actual) {
+sttc ::llc::err_t engineArrayEqual(::llc::ATestError & errors, ENGINE_SERIAL_RESULT result, cnst ::llc::apod<T> & expected, cnst ::llc::apod<T> & actual) {
 	return engineArrayEqual<T>(errors, result, ::llc::view<cnst T>{expected}, ::llc::view<cnst T>{actual});
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t engineNestedArraysEqual(ATestError & errors, ENGINE_SERIAL_RESULT result, cnst ::llc::apobj<::llc::apod<T>> & expected, cnst ::llc::apobj<::llc::apod<T>> & actual) {
+sttc ::llc::err_t engineNestedArraysEqual(::llc::ATestError & errors, ENGINE_SERIAL_RESULT result, cnst ::llc::apobj<::llc::apod<T>> & expected, cnst ::llc::apobj<::llc::apod<T>> & actual) {
 	LLC_TEST_CHECKF(errors, result, expected.size() != actual.size(), "Expected buckets:%u, actual:%u.", expected.size(), actual.size());
 	for(::llc::u2_t i = 0; i < ::llc::min(expected.size(), actual.size()); ++i) {
 		cnst ::llc::view<cnst T> a = expected[i] ? ::llc::view<cnst T>{*expected[i]} : ::llc::view<cnst T>{};
@@ -76,27 +76,27 @@ sttc ::llc::err_t engineNestedArraysEqual(ATestError & errors, ENGINE_SERIAL_RES
 	return 0;
 }
 
-sttc ::llc::err_t enginePayloadEqual(ATestError & errors, cnst ::llc::SRenderBuffer & a, cnst ::llc::SRenderBuffer & b) {
+sttc ::llc::err_t enginePayloadEqual(::llc::ATestError & errors, cnst ::llc::SRenderBuffer & a, cnst ::llc::SRenderBuffer & b) {
 	LLC_TEST_CHECK(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.Desc.Format != b.Desc.Format || a.Desc.Usage != b.Desc.Usage || a.Desc.PitchStride != b.Desc.PitchStride || a.Desc.PitchRow != b.Desc.PitchRow || a.Desc.Frequency != b.Desc.Frequency);
 	return engineArrayEqual(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.Data, b.Data);
 }
-sttc ::llc::err_t enginePayloadEqual(ATestError & errors, cnst ::llc::SSurface & a, cnst ::llc::SSurface & b) {
+sttc ::llc::err_t enginePayloadEqual(::llc::ATestError & errors, cnst ::llc::SSurface & a, cnst ::llc::SSurface & b) {
 	LLC_TEST_CHECK(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.Desc.ColorType != b.Desc.ColorType || a.Desc.BitDepth != b.Desc.BitDepth || a.Desc.Dimensions != b.Desc.Dimensions || a.Desc.MethodCompression != b.Desc.MethodCompression || a.Desc.MethodFilter != b.Desc.MethodFilter || a.Desc.MethodInterlace != b.Desc.MethodInterlace);
 	return engineArrayEqual(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.Data, b.Data);
 }
-sttc ::llc::err_t enginePayloadEqual(ATestError & errors, cnst ::llc::SGeometryMesh & a, cnst ::llc::SGeometryMesh & b) {
+sttc ::llc::err_t enginePayloadEqual(::llc::ATestError & errors, cnst ::llc::SGeometryMesh & a, cnst ::llc::SGeometryMesh & b) {
 	LLC_TEST_CHECK(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.Desc.Type != b.Desc.Type || a.Desc.Mode != b.Desc.Mode || a.Desc.NormalMode != b.Desc.NormalMode);
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.GeometryBuffers, b.GeometryBuffers));
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.ConstantBuffers, b.ConstantBuffers));
 	return engineArrayEqual(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.GeometrySlices, b.GeometrySlices);
 }
-sttc ::llc::err_t enginePayloadEqual(ATestError & errors, cnst ::llc::SSkin & a, cnst ::llc::SSkin & b) {
+sttc ::llc::err_t enginePayloadEqual(::llc::ATestError & errors, cnst ::llc::SSkin & a, cnst ::llc::SSkin & b) {
 	LLC_TEST_CHECK(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, memcmp(&a.Material, &b.Material, sizeof(a.Material)));
 	return engineArrayEqual(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, a.Textures, b.Textures);
 }
 
 tplt<tpnm TManager>
-sttc ::llc::err_t engineResourcesEqual(ATestError & errors, cnst TManager & a, cnst TManager & b) {
+sttc ::llc::err_t engineResourcesEqual(::llc::ATestError & errors, cnst TManager & a, cnst TManager & b) {
 	LLC_TEST_REQUIRE(errors, ENGINE_SERIAL_RESULT_RESOURCE_COUNT, a.size() != b.size() || a.Elements.size() != b.Elements.size() || b.size() != b.Elements.size());
 	for(::llc::u2_t i = 0; i < a.size(); ++i) {
 		LLC_TEST_REQUIREF(errors, ENGINE_SERIAL_RESULT_RESOURCE_VALUE, !a[i] || !b[i], "Element:%u.", i);
@@ -108,7 +108,7 @@ sttc ::llc::err_t engineResourcesEqual(ATestError & errors, cnst TManager & a, c
 }
 
 tplt<tpnm TManager>
-sttc ::llc::err_t testResourcePersistence(ATestError & errors) {
+sttc ::llc::err_t testResourcePersistence(::llc::ATestError & errors) {
 	TManager empty, source, loaded;
 	llc_necs(::engine_test::resources(loaded));
 	llc_necs(engineRoundTrip(errors, empty, loaded));
@@ -151,7 +151,7 @@ sttc ::llc::err_t testResourcePersistence(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t engineEntitiesEqual(ATestError & errors, cnst ::llc::SVirtualEntityManager & a, cnst ::llc::SVirtualEntityManager & b) {
+sttc ::llc::err_t engineEntitiesEqual(::llc::ATestError & errors, cnst ::llc::SVirtualEntityManager & a, cnst ::llc::SVirtualEntityManager & b) {
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_ENTITY_IDS, a.Entities, b.Entities));
 	LLC_TEST_REQUIRE(errors, ENGINE_SERIAL_RESULT_ENTITY_IDS, a.size() != b.size() || b.Entities.size() != b.size() || b.Children.size() != b.size());
 	for(::llc::u2_t i = 0; i < a.size(); ++i) {
@@ -161,7 +161,7 @@ sttc ::llc::err_t engineEntitiesEqual(ATestError & errors, cnst ::llc::SVirtualE
 	return 0;
 }
 
-sttc ::llc::err_t engineNodesEqual(ATestError & errors, cnst ::llc::SRenderNodeManager & a, cnst ::llc::SRenderNodeManager & b) {
+sttc ::llc::err_t engineNodesEqual(::llc::ATestError & errors, cnst ::llc::SRenderNodeManager & a, cnst ::llc::SRenderNodeManager & b) {
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_NODE_DATA, a.RenderNodes, b.RenderNodes));
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_NODE_DATA, a.Flags, b.Flags));
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_NODE_DATA, a.Transforms, b.Transforms));
@@ -173,7 +173,7 @@ sttc ::llc::err_t engineNodesEqual(ATestError & errors, cnst ::llc::SRenderNodeM
 	return engineNestedArraysEqual(errors, ENGINE_SERIAL_RESULT_LIGHTS, a.LightsSpot, b.LightsSpot);
 }
 
-sttc ::llc::err_t engineBodiesEqual(ATestError & errors, cnst ::llc::SRigidBodyIntegrator & a, cnst ::llc::SRigidBodyIntegrator & b) {
+sttc ::llc::err_t engineBodiesEqual(::llc::ATestError & errors, cnst ::llc::SRigidBodyIntegrator & a, cnst ::llc::SRigidBodyIntegrator & b) {
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_BODY_DATA, a.Frames, b.Frames));
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_BODY_DATA, a.Flags, b.Flags));
 	llc_necs(engineArrayEqual(errors, ENGINE_SERIAL_RESULT_BODY_DATA, a.Forces, b.Forces));
@@ -183,7 +183,7 @@ sttc ::llc::err_t engineBodiesEqual(ATestError & errors, cnst ::llc::SRigidBodyI
 	return engineArrayEqual(errors, ENGINE_SERIAL_RESULT_BODY_VOLUMES, a.BoundingVolumes, b.BoundingVolumes);
 }
 
-sttc ::llc::err_t testEntityPersistence(ATestError & errors) {
+sttc ::llc::err_t testEntityPersistence(::llc::ATestError & errors) {
 	::llc::SVirtualEntityManager empty, source, loaded;
 	llc_necs(::engine_test::entities(loaded));
 	llc_necs(engineRoundTrip(errors, empty, loaded));
@@ -195,7 +195,7 @@ sttc ::llc::err_t testEntityPersistence(ATestError & errors) {
 	return engineEntitiesEqual(errors, source, loaded);
 }
 
-sttc ::llc::err_t testNodePersistence(ATestError & errors) {
+sttc ::llc::err_t testNodePersistence(::llc::ATestError & errors) {
 	::llc::SRenderNodeManager empty, source, loaded;
 	llc_necs(::engine_test::nodes(loaded));
 	llc_necs(engineRoundTrip(errors, empty, loaded));
@@ -207,7 +207,7 @@ sttc ::llc::err_t testNodePersistence(ATestError & errors) {
 	return engineNodesEqual(errors, source, loaded);
 }
 
-sttc ::llc::err_t testBodyPersistence(ATestError & errors) {
+sttc ::llc::err_t testBodyPersistence(::llc::ATestError & errors) {
 	::llc::SRigidBodyIntegrator empty, source, loaded;
 	llc_necs(::engine_test::bodies(loaded));
 	llc_necs(engineRoundTrip(errors, empty, loaded));
@@ -231,14 +231,14 @@ sttc ::llc::err_t testBodyPersistence(ATestError & errors) {
 	return engineBodiesEqual(errors, source, reused);
 }
 
-sttc ::llc::err_t engineGraphicsEqual(ATestError & errors, cnst ::llc::SEngineGraphics & a, cnst ::llc::SEngineGraphics & b) {
+sttc ::llc::err_t engineGraphicsEqual(::llc::ATestError & errors, cnst ::llc::SEngineGraphics & a, cnst ::llc::SEngineGraphics & b) {
 	llc_necs(engineResourcesEqual(errors, a.Buffers, b.Buffers));
 	llc_necs(engineResourcesEqual(errors, a.Surfaces, b.Surfaces));
 	llc_necs(engineResourcesEqual(errors, a.Meshes, b.Meshes));
 	return engineResourcesEqual(errors, a.Skins, b.Skins);
 }
 
-sttc ::llc::err_t testGraphicsPersistence(ATestError & errors) {
+sttc ::llc::err_t testGraphicsPersistence(::llc::ATestError & errors) {
 	::llc::SEngineGraphics source, loaded;
 	llc_necs(::engine_test::resources(source.Buffers));
 	llc_necs(::engine_test::resources(source.Surfaces));
@@ -258,7 +258,7 @@ sttc ::llc::err_t testGraphicsPersistence(ATestError & errors) {
 	return 0;
 }
 
-sttc ::llc::err_t testCompleteEnginePersistence(ATestError & errors, ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testCompleteEnginePersistence(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::SEngine empty, source, loaded;
 	llc_necs(engineRoundTrip(errors, empty, loaded));
 	LLC_TEST_REQUIRE(errors, ENGINE_SERIAL_RESULT_ENGINE_LINKS, !loaded.Scene || !loaded.Scene->Graphics);
@@ -291,7 +291,7 @@ sttc ::llc::err_t testCompleteEnginePersistence(ATestError & errors, ::llc::vcst
 	return 0;
 }
 
-::llc::err_t testEngineSerialization(ATestError & errors, ::llc::vcst_t outputFolder) {
+::llc::err_t testEngineSerialization(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	always_printf("Engine resource serialization: buffers."); llc_necs(testResourcePersistence<::llc::SRenderBufferManager>(errors));
 	always_printf("Engine resource serialization: surfaces."); llc_necs(testResourcePersistence<::llc::SSurfaceManager>(errors));
 	always_printf("Engine resource serialization: meshes."); llc_necs(testResourcePersistence<::llc::SMeshManager>(errors));

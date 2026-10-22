@@ -22,7 +22,7 @@ GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, REUSE					, 12, "Reused format token
 GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, ROLLBACK					, 13, "Failed formatting changed the caller output.");
 GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, DATE					, 14, "Date field formatting or cached formatting differs.");
 
-sttc ::llc::err_t testExpressionFormatting(ATestError & errors, ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::keyval<::llc::vcst_t> bindings[] = {{"hh", "03"}, {"mm", "04"}, {"empty", ""}};
 	::llc::string examples;
 	if_fail_fe(examples.append_string("Lambda bindings (quoted text is literal):\n"));
@@ -103,7 +103,7 @@ sttc ::llc::err_t testExpressionFormatting(ATestError & errors, ::llc::vcst_t ou
 	rtrn 0;
 }
 
-::llc::err_t testExpression(ATestError & errors, ::llc::vcst_t outputFolder) {
+::llc::err_t testExpression(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testExpressionFormatting(errors, outputFolder));
 	cnst ::llc::vcst_t			validExpression			= "application.test_udp";
 	::llc::SExpressionReader	validReader				= {};

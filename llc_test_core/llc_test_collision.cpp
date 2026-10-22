@@ -82,14 +82,14 @@ GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_RAY_F2_POINT		, 74, "The flo
 sttc bool collisionDiffers(::llc::f3_t actual, ::llc::f3_t expected) { rtrn false == (::llc::abs(actual - expected) <= ::llc::math_epsilon); }
 
 tplt<tpnm T>
-sttc ::llc::err_t collisionCheckPoint2(ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::n2<T>& actual, cnst ::llc::n2<T>& expected, cnst char* pointName) {
+sttc ::llc::err_t collisionCheckPoint2(::llc::ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::n2<T>& actual, cnst ::llc::n2<T>& expected, cnst char* pointName) {
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.x, expected.x), "%s.x:%f, expected:%f.", pointName, (::llc::f3_t)actual.x, (::llc::f3_t)expected.x);
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.y, expected.y), "%s.y:%f, expected:%f.", pointName, (::llc::f3_t)actual.y, (::llc::f3_t)expected.y);
 	rtrn 0;
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t collisionCheckPoint3(ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::n3<T>& actual, cnst ::llc::n3<T>& expected, cnst char* pointName) {
+sttc ::llc::err_t collisionCheckPoint3(::llc::ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::n3<T>& actual, cnst ::llc::n3<T>& expected, cnst char* pointName) {
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.x, expected.x), "%s.x:%f, expected:%f.", pointName, (::llc::f3_t)actual.x, (::llc::f3_t)expected.x);
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.y, expected.y), "%s.y:%f, expected:%f.", pointName, (::llc::f3_t)actual.y, (::llc::f3_t)expected.y);
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.z, expected.z), "%s.z:%f, expected:%f.", pointName, (::llc::f3_t)actual.z, (::llc::f3_t)expected.z);
@@ -97,13 +97,13 @@ sttc ::llc::err_t collisionCheckPoint3(ATestError& errors, COLLISION_TEST_RESULT
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t collisionCheckLine(ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::line2<T>& actual, cnst ::llc::line2<T>& expected, cnst char* lineName) {
+sttc ::llc::err_t collisionCheckLine(::llc::ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::line2<T>& actual, cnst ::llc::line2<T>& expected, cnst char* lineName) {
 	if_fail_fe(collisionCheckPoint2(errors, result, actual.A, expected.A, lineName));
 	if_fail_fe(collisionCheckPoint2(errors, result, actual.B, expected.B, lineName));
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCollisionCoordinates(ATestError& errors) {
+sttc ::llc::err_t testCollisionCoordinates(::llc::ATestError& errors) {
 	::llc::s1_t integerOutput = -1;
 	bool castResult = ::llc::collisionCoordinateCast(7.0, integerOutput);
 	LLC_TEST_CHECKF(errors, COLLISION_TEST_RESULT_COORDINATE_INTEGER, false == castResult, "Cast result:%u, expected:1.", (::llc::u2_t)castResult);
@@ -119,7 +119,7 @@ sttc ::llc::err_t testCollisionCoordinates(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCollisionLines(ATestError& errors) {
+sttc ::llc::err_t testCollisionLines(::llc::ATestError& errors) {
 	cnst ::llc::line2f3_t diagonal = {{0, 0}, {4, 4}};
 	cnst ::llc::line2f3_t opposite = {{0, 4}, {4, 0}};
 	::llc::n2f3_t intersection = {91, 92};
@@ -151,7 +151,7 @@ sttc ::llc::err_t testCollisionLines(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCollisionSegments(ATestError& errors) {
+sttc ::llc::err_t testCollisionSegments(::llc::ATestError& errors) {
 	cnst ::llc::line2f3_t segment = {{0, 0}, {4, 4}};
 	LLC_TEST_CHECKF(errors, COLLISION_TEST_RESULT_POINT_INTERIOR, 1 != ::llc::point_in_segment(segment, ::llc::n2f3_t{2, 2}), "%s", "Interior point rejected.");
 	LLC_TEST_CHECKF(errors, COLLISION_TEST_RESULT_POINT_ENDPOINT, 1 != ::llc::point_in_segment(segment, segment.B), "%s", "Endpoint rejected.");
@@ -189,7 +189,7 @@ sttc ::llc::err_t testCollisionSegments(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCollisionRaySphere(ATestError& errors) {
+sttc ::llc::err_t testCollisionRaySphere(::llc::ATestError& errors) {
 	cnst ::llc::spheref3_t sphere = {1, {0, 0, 0}};
 	::llc::f2_t parameter = 91;
 	::llc::n3f3_t intersection = {91, 92, 93};
@@ -245,7 +245,7 @@ sttc ::llc::err_t testCollisionRaySphere(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCollisionAABB(ATestError& errors) {
+sttc ::llc::err_t testCollisionAABB(::llc::ATestError& errors) {
 	::llc::line2f3_t left = {}, top = {}, right = {}, bottom = {};
 	::llc::err_t result = ::llc::buildAABBSegments(::llc::n2f3_t{5, 7}, 2.0, left, top, right, bottom);
 	LLC_TEST_CHECKF(errors, COLLISION_TEST_RESULT_AABB_CENTER_RESULT, ::llc::failed(result), "Result:%i, expected:0.", result);
@@ -284,7 +284,7 @@ sttc ::llc::err_t testCollisionAABB(ATestError& errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testCollisionConsumerTypes(ATestError& errors) {
+sttc ::llc::err_t testCollisionConsumerTypes(::llc::ATestError& errors) {
 	::llc::n2f2_t lineIntersection = {};
 	::llc::err_t result = ::llc::line_line_intersect(::llc::line2f2_t{{0, 0}, {4, 4}}, ::llc::line2f2_t{{0, 4}, {4, 0}}, lineIntersection);
 	LLC_TEST_CHECKF(errors, COLLISION_TEST_RESULT_CONSUMER_LINE_F2_RESULT, result != 1, "Result:%i, expected:1.", result);
@@ -297,7 +297,7 @@ sttc ::llc::err_t testCollisionConsumerTypes(ATestError& errors) {
 	rtrn collisionCheckPoint3(errors, COLLISION_TEST_RESULT_CONSUMER_RAY_F2_POINT, sphereIntersection, ::llc::n3f2_t{-1, 0, 0}, "intersection");
 }
 
-::llc::err_t testCollision(ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testCollision(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testCollisionCoordinates(errors));
 	if_fail_fe(testCollisionLines(errors));
 	if_fail_fe(testCollisionSegments(errors));

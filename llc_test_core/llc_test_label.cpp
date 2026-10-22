@@ -19,7 +19,7 @@ sttc ::llc::err_t labelExpectedFailure(TCall call) {
 	rtrn result;
 }
 
-sttc ::llc::err_t testLabelManager(ATestError & errors) {
+sttc ::llc::err_t testLabelManager(::llc::ATestError & errors) {
 	::llc::CLabelManager manager = {};
 	::llc::vcst_t alpha = {}, beta = {}, repeated = {};
 	cnst ::llc::err_t iAlpha	= manager.View("alpha", 5, alpha);
@@ -84,7 +84,7 @@ sttc ::llc::err_t testLabelManager(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testLabels(ATestError & errors) {
+sttc ::llc::err_t testLabels(::llc::ATestError & errors) {
 	cnst ::llc::sc_t boundedText[] = {'a', 'l', 'p', 'h', 'a'};
 	cnst ::llc::label alpha		= "alpha";
 	cnst ::llc::label repeated	= "alpha";
@@ -121,7 +121,7 @@ sttc ::llc::err_t testLabels(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testLabel(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testLabel(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testLabelManager(errors));
 	rtrn ::testLabels(errors);
 }

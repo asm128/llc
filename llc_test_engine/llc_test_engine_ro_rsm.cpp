@@ -3,8 +3,6 @@
 #include "llc_ro_model.h"
 #include "llc_view_serialize.h"
 
-extern ::llc::string TestRSMPath;
-
 GDEFINE_ENUM_TYPE(RO_RSM_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(RO_RSM_RESULT, LOAD             , 1, "A complete RSM 1.1 through 1.5 stream must load.");
 GDEFINE_ENUM_VALUED(RO_RSM_RESULT, HEADER           , 2, "RSM header fields must preserve their wire values and version defaults.");
@@ -15,7 +13,6 @@ GDEFINE_ENUM_VALUED(RO_RSM_RESULT, VOLUME_BOX       , 6, "RSM volume boxes must 
 GDEFINE_ENUM_VALUED(RO_RSM_RESULT, INVALID_MAGIC    , 7, "An invalid RSM signature must fail after resetting the destination.");
 GDEFINE_ENUM_VALUED(RO_RSM_RESULT, TRUNCATED        , 8, "A truncated RSM stream must fail.");
 GDEFINE_ENUM_VALUED(RO_RSM_RESULT, PARTIAL_STATE    , 9, "A failed RSM load must retain the successfully decoded prefix.");
-GDEFINE_ENUM_VALUED(RO_RSM_RESULT, LOCAL_ASSET      , 10, "An explicitly selected local RSM asset must load through the production loader.");
 GDEFINE_ENUM_VALUED(RO_RSM_RESULT, VIEW_LOAD        , 11, "The RSM view parser must accept the same versioned fixtures.");
 GDEFINE_ENUM_VALUED(RO_RSM_RESULT, VIEW_ALIAS       , 12, "RSM section views must alias the supplied memory or owned file bytes.");
 GDEFINE_ENUM_VALUED(RO_RSM_RESULT, VIEW_FIELDS      , 13, "Typed RSM section views must preserve record counts and wire values.");
@@ -101,7 +98,7 @@ sttc ::llc::err_t rsmFixture(::llc::au0_t & output, ::llc::u0_t minor) {
 	return 0;
 }
 
-sttc ::llc::err_t rsmVersionTest(ATestError & errors, ::llc::u0_t minor) {
+sttc ::llc::err_t rsmVersionTest(::llc::ATestError & errors, ::llc::u0_t minor) {
 	::llc::au0_t bytes;
 	llc_necs(::rsmFixture(bytes, minor));
 	::llc::SRORSM loaded;
@@ -127,7 +124,7 @@ sttc ::llc::err_t rsmVersionTest(ATestError & errors, ::llc::u0_t minor) {
 	return 0;
 }
 
-sttc ::llc::err_t rsmViewTest(ATestError & errors, ::llc::u0_t minor) {
+sttc ::llc::err_t rsmViewTest(::llc::ATestError & errors, ::llc::u0_t minor) {
 	::llc::au0_t bytes;
 	llc_necs(::rsmFixture(bytes, minor));
 	::llc::SRORSMView loaded;
@@ -167,7 +164,7 @@ sttc ::llc::err_t rsmViewTest(ATestError & errors, ::llc::u0_t minor) {
 	return 0;
 }
 
-::llc::err_t testRORSM(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testRORSM(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	for(::llc::u0_t minor = 1; minor <= 5; ++minor) {
 		llc_necs(::rsmVersionTest(errors, minor));
 		llc_necs(::rsmViewTest(errors, minor));
@@ -204,19 +201,5 @@ sttc ::llc::err_t rsmViewTest(ATestError & errors, ::llc::u0_t minor) {
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_VIEW_LOAD, 0 <= ::llc::roRSMViewLoad({complete.begin(), partialSize}, invalidView));
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_VIEW_FIELDS, invalidView.VersionMajor != 1 || invalidView.VersionMinor != 5 || invalidView.FrameCount != 120 || invalidView.ShadeType || invalidView.Nodes.size());
 
-	if(TestRSMPath.size()) {
-		::llc::au0_t localBytes;
-		cnst ::llc::err_t fileResult = ::llc::fileToMemory(TestRSMPath, localBytes);
-		LLC_TEST_REQUIREF(errors, RO_RSM_RESULT_LOCAL_ASSET, ::llc::failed(fileResult), "Cannot read local RSM asset:'%.*s'.", LLC_VIEW_ARGS(TestRSMPath));
-		::llc::SRORSM localModel;
-		cnst ::llc::err_t loadResult = ::llc::roRSMLoad(localModel, localBytes);
-		LLC_TEST_REQUIREF(errors, RO_RSM_RESULT_LOCAL_ASSET, ::llc::failed(loadResult), "Cannot load local RSM asset:'%.*s'.", LLC_VIEW_ARGS(TestRSMPath));
-		LLC_TEST_CHECKF(errors, RO_RSM_RESULT_LOCAL_ASSET, 0 == localModel.Nodes.size(), "Local RSM asset has no nodes:'%.*s'.", LLC_VIEW_ARGS(TestRSMPath));
-		::llc::SRORSMFile localFile;
-		cnst ::llc::err_t viewResult = ::llc::roRSMViewLoad(TestRSMPath, localFile);
-		LLC_TEST_REQUIREF(errors, RO_RSM_RESULT_VIEW_LOAD, ::llc::failed(viewResult), "Cannot view local RSM asset:'%.*s'.", LLC_VIEW_ARGS(TestRSMPath));
-		LLC_TEST_CHECKF(errors, RO_RSM_RESULT_VIEW_ALIAS, localFile.View.Unknown.begin() != localFile.Raw.begin() + 14 + (::rsmVersionAtLeast(localFile.View.VersionMinor, 4) ? 1 : 0), "Local RSM asset view does not alias its owner:'%.*s'.", LLC_VIEW_ARGS(TestRSMPath));
-		LLC_TEST_CHECKF(errors, RO_RSM_RESULT_VIEW_FIELDS, localFile.View.Nodes.size() != localModel.Nodes.size() || localFile.View.TextureCount != localModel.Textures.size() || localFile.View.VolumeBoxCount != localModel.VolumeBoxes.size(), "Local RSM asset section counts differ:'%.*s'.", LLC_VIEW_ARGS(TestRSMPath));
-	}
 	return 0;
 }

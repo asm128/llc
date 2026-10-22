@@ -77,7 +77,7 @@ sttc ::llc::err_t typeMetadataExpectedFailure(TCall call) {
 	rtrn result;
 }
 
-sttc ::llc::err_t testDataTypeMatrix(ATestError & errors) {
+sttc ::llc::err_t testDataTypeMatrix(::llc::ATestError & errors) {
 	cnst ::llc::u0_t bitCounts[] = {1, 5, 8, 9, 16, 32, 64, 128};
 	cnst ::llc::u2_t elementCounts[] = {1, 2, 3, 8, 257, 0x100000};
 	for(cnst ::llc::u0_t bitCount : bitCounts)
@@ -108,7 +108,7 @@ sttc ::llc::err_t testDataTypeMatrix(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testDataTypeConstants(ATestError & errors) {
+sttc ::llc::err_t testDataTypeConstants(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_TYPE_INT64_NORM_256, 64 != GTYPEID_ELEMENTSIZE(::llc::DATA_TYPE_INT64_NORM_256), "Bits:%u, expected:64.", GTYPEID_ELEMENTSIZE(::llc::DATA_TYPE_INT64_NORM_256));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_TYPE_INT64_NORM_256, 256 != GTYPEID_ELEMENTCOUNT(::llc::DATA_TYPE_INT64_NORM_256), "Count:%u, expected:256.", GTYPEID_ELEMENTCOUNT(::llc::DATA_TYPE_INT64_NORM_256));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_TYPE_INT64_NORM_256, !GTYPEID_ISSIGNED(::llc::DATA_TYPE_INT64_NORM_256), "%s", "INT64_NORM_256 was encoded unsigned.");
@@ -133,7 +133,7 @@ sttc ::llc::err_t testDataTypeConstants(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testTypeIdentifier(ATestError & errors) {
+sttc ::llc::err_t testTypeIdentifier(::llc::ATestError & errors) {
 	cnst ::llc::STypeIdentifier type = {"llc", "u2_t"}, equal = {"llc", "u2_t"}, otherNamespace = {"std", "u2_t"}, otherName = {"llc", "u3_t"};
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAMESPACE, type.NameSpace != "llc", "Namespace:'%.*s'.", LLC_VIEW_ARGS(type.NameSpace));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAME, type.Name != "u2_t", "Name:'%.*s'.", LLC_VIEW_ARGS(type.Name));
@@ -145,7 +145,7 @@ sttc ::llc::err_t testTypeIdentifier(ATestError & errors) {
 	rtrn 0;
 }
 
-sttc ::llc::err_t testMemberRegistry(ATestError & errors) {
+sttc ::llc::err_t testMemberRegistry(::llc::ATestError & errors) {
 	cnst ::llc::member_registry<> empty = {};
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_EMPTY, empty.get_member_count(), "Members:%u.", empty.get_member_count());
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_EMPTY, empty.get_types().size(), "Types:%u.", empty.get_types().size());
@@ -180,7 +180,7 @@ sttc ::llc::err_t testMemberRegistry(ATestError & errors) {
 }
 
 tplt<tpnm T>
-sttc ::llc::err_t testPODValue(ATestError & errors, ::llc::SPODDefinition & definition, ::llc::vcst_t labelName, cnst T value, ::llc::DATA_TYPE expectedType) {
+sttc ::llc::err_t testPODValue(::llc::ATestError & errors, ::llc::SPODDefinition & definition, ::llc::vcst_t labelName, cnst T value, ::llc::DATA_TYPE expectedType) {
 	cnst ::llc::u2_t oldMemberCount = definition.Labels.size(), oldByteCount = definition.DefaultData.size();
 	cnst ::llc::err_t pushResult = definition.push_any(labelName, value);
 	LLC_TEST_REQUIREF(errors, TYPE_METADATA_TEST_RESULT_POD_PUSH_RESULT, ::llc::failed(pushResult), "Label:'%.*s' result:%i.", LLC_VIEW_ARGS(labelName), pushResult);
@@ -199,7 +199,7 @@ sttc ::llc::err_t testPODValue(ATestError & errors, ::llc::SPODDefinition & defi
 	rtrn 0;
 }
 
-sttc ::llc::err_t testPODDefinition(ATestError & errors) {
+sttc ::llc::err_t testPODDefinition(::llc::ATestError & errors) {
 	::llc::SPODDefinition definition = {};
 	if_fail_fe(::testPODValue(errors, definition, "bool", ::llc::b8_t{true}, ::llc::DATA_TYPE_BOOL));
 	if_fail_fe(::testPODValue(errors, definition, "u8", ::llc::u0_t{0xA5}, ::llc::DATA_TYPE_UINT8));
@@ -262,7 +262,7 @@ sttc ::llc::err_t testPODDefinition(ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testTypeMetadata(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t testTypeMetadata(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testDataTypeMatrix(errors));
 	if_fail_fe(::testDataTypeConstants(errors));
 	if_fail_fe(::testTypeIdentifier(errors));
