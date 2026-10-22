@@ -2,293 +2,226 @@
 // 
 // License: http://www.opensource.org/licenses/mit-license.php
 //
-#include "ropp_model.h"
-#include <cstdio>
-#include <iostream>
+#include "llc_ro_model.h"
 
-#ifndef __APPLE__
-#include <windows.h>
-#endif
+#include "llc_file.h"
+#include "llc_view_serialize.h"
 
-#ifdef __APPLE__
-#include "utf8.h"
-#endif /* __APPLE__ */
+static	bool			roRSMVersionAtLeast		(::llc::u0_t major, ::llc::u0_t minor, ::llc::u0_t requiredMajor, ::llc::u0_t requiredMinor) {
+	return major > requiredMajor || (major == requiredMajor && minor >= requiredMinor);
+}
 
-
-using namespace ropp;
-
-
-void ropp::CleanRSMData( _RSM_FILE_DATA_1_5& pRSMData )
-{
-	uint32_t i=0;
-	if( pRSMData.pTextureNames )
-	{
-		for( i=0; i<pRSMData.nTextureCount; i++ )
-		{
-			if( pRSMData.pTextureNames[i] )
-			{
-				free( pRSMData.pTextureNames[i] );
-				pRSMData.pTextureNames[i] = 0;
-			}
-		}
-		free( pRSMData.pTextureNames );
-		pRSMData.pTextureNames = 0;
-	}
-	RSM_NODE_DATA_1_5* pNode=0;
-	if( pRSMData.pNodes )
-	{
-		uint32_t nNodeCount = pRSMData.nNodeCount;
-		for( i=0; i<nNodeCount; i++ )
-		{
-			pNode = &pRSMData.pNodes[i];
-			if( pNode->lstVertices )
-				free( pNode->lstVertices );
-			if( pNode->lstAttributes )
-				free( pNode->lstAttributes );
-			if( pNode->pPositionKeyframes )
-				free( pNode->pPositionKeyframes );
-			if( pNode->pRotationKeyframes )
-				free( pNode->pRotationKeyframes );
-			if( pNode->lstTextureIndices )
-				free( pNode->lstTextureIndices );
-			if( pNode->lstTriangles )
-				free( pNode->lstTriangles );
-		}
-		free( pRSMData.pNodes );
-		pRSMData.pNodes = 0;
-	}
-
-	if( pRSMData.pVolumeBoxes )
-	{
-		free( pRSMData.pVolumeBoxes );
-		pRSMData.pVolumeBoxes = 0;
-	}
-};
-
-int32_t ropp::LoadRSMDataFromFile( const char* pFilename, _RSM_FILE_DATA_1_5* in_pRSMData )
-{
-	if( 0 == in_pRSMData )
-		return -1;
-	FILE* fp = 0;
-	fopen_s(&fp, pFilename, "rb" );
-	if( 0 == fp )
-		return -1; // file not found
-
-	RSM_FILE_DATA_1_5* pRSMData = in_pRSMData;
-
-	memset( pRSMData, 0, sizeof( RSM_FILE_DATA_1_5 ) );
-	uint32_t nPositionCount=0, 
-		nTextureCount=0, 
-		nVertexCount=0, 
-		nNodeCount=0;
-		//nRotationCount=0, 
-		//nTriangles=0, 
-
-	uint32_t nFileSize=0, i=0, j=0;
-	fseek( fp, 0, SEEK_END );
-	nFileSize = ftell( fp );
-	fseek( fp, 0, SEEK_SET );
-
-	// ----------------- Header and Version
-	fread( &pRSMData->nMagicNumber, sizeof( uint32_t ), 1, fp );
-	if( 'MSRG' != pRSMData->nMagicNumber )
-		return -1; // invalid file
-	fread( &pRSMData->nVersionMajor, sizeof( uint8_t ), 1, fp );
-	fread( &pRSMData->nVersionMinor, sizeof( uint8_t ), 1, fp );
-
-	fread( &pRSMData->nFrameCount, sizeof( uint32_t ), 1, fp );
-	fread( &pRSMData->nShadeType, sizeof( int32_t ), 1, fp );
-
-	// ----------------------------------------- Rendering properties -------------------------------
-	if( ( pRSMData->nVersionMajor == 1 && pRSMData->nVersionMinor >= 4 )
-		|| ( pRSMData->nVersionMajor > 1 ) )//{ >= v1.4
-		fread( &pRSMData->cAlpha, sizeof( uint8_t ), 1, fp ); // base alpha of the model? (default 0xff)
-	else 
-		pRSMData->cAlpha = 0xFF;
-
-	// fseek( fp, 16, SEEK_CUR );
-	fread( pRSMData->Unknown, sizeof( uint8_t ), 16, fp );	//	??? (ignored)
-	// ------------------ Textures
-	fread( &pRSMData->nTextureCount, sizeof( int32_t ), 1, fp );	//(int) number of textures
-	nTextureCount = pRSMData->nTextureCount;
-	if( nTextureCount )
-	{
-		pRSMData->pTextureNames = (char**)malloc( sizeof( char* )*nTextureCount );
-		memset( pRSMData->pTextureNames, 0, sizeof( char* )*nTextureCount );
-		for( i=0; i<nTextureCount; i++ )
-		{
-			pRSMData->pTextureNames[i] = (char*)malloc(sizeof( char )*40);
-			memset( pRSMData->pTextureNames[i], 0, sizeof( char )*40 );
-			fread( pRSMData->pTextureNames[i], sizeof( char ), 40, fp );
-		}
-	}
-	// ------------------ Nodes
-	fread( pRSMData->szMainNode, sizeof( uint8_t ), 40, fp );	// name of the main node
-	fread( &pRSMData->nNodeCount, sizeof( uint32_t ), 1, fp );		// (int) number of nodes
-	nNodeCount = pRSMData->nNodeCount;
-	if( nNodeCount )
-	{
-		pRSMData->pNodes = (RSM_NODE_DATA_1_5*)malloc( sizeof( RSM_NODE_DATA_1_5 )*nNodeCount );
-		memset( pRSMData->pNodes, 0, sizeof( RSM_NODE_DATA_1_5 )*nNodeCount );
-		RSM_NODE_DATA_1_5* pNode = 0;
-		for( i=0; i<nNodeCount; i++ )
-		{
-			pNode = &pRSMData->pNodes[i];
-			fread( pNode->szName, sizeof( uint8_t ), 40, fp ); // name of the node
-			fread( pNode->szParentName, sizeof( uint8_t ), 40, fp ); // name of the parent node
-			fread( &pNode->nTextureCount, sizeof( uint32_t ), 1, fp ); // number of textures used by this node
-			pNode->lstTextureIndices = (uint32_t*)malloc( sizeof( uint32_t )*pNode->nTextureCount );
-			fread( &pNode->lstTextureIndices[0], sizeof( uint32_t ), pNode->nTextureCount, fp );
-			fread( &pNode->mTransform._11, sizeof( float ), 9, fp ); // 4x4 matrix that identifies the axis and origin of this node, see http://www.gamedev.net/reference/articles/article695.asp
-			fread( &pNode->vOffset.x, sizeof( float ), 3, fp ); // translation of the node
-			fread( &pNode->vPosition.x, sizeof( float ), 3, fp ); // translation of the node
-			fread( &pNode->fRotation, sizeof( float ), 1, fp ); // angle of rotation around the axis in radians
-			fread( &pNode->vRotationAxis.x, sizeof( float ), 3, fp ); // axis of rotation
-			fread( &pNode->vScale.x, sizeof( float ), 3, fp ); // scale of the node
-			// ----------------------- Vertices
-			fread( &pNode->nVertexCount, sizeof( uint32_t ), 1, fp ); // number of vertices
-			uint32_t nVertexCount = pNode->nVertexCount;
-			pNode->lstVertices = (Vector3*)malloc( sizeof( Vector3 )*nVertexCount );
-			memset( pNode->lstVertices, 0, sizeof( Vector3 )*nVertexCount );
-//			uint32_t totalcoords = nVertexCount*3;
-			for( j=0; j<nVertexCount; j++ )
-				fread( &pNode->lstVertices[j], sizeof( float ), 3, fp );
-			// ----------------------- Texture Coordinates
-			fread( &pNode->nAttributeCount, sizeof( uint32_t ), 1, fp ); // number of vertices
-			nVertexCount = pNode->nAttributeCount;
-			if( nVertexCount )
-			{
-				pNode->lstAttributes = (RSM_ATTRIBUTE_DATA*)malloc( sizeof( RSM_ATTRIBUTE_DATA )*nVertexCount );
-				memset( pNode->lstAttributes, 0, sizeof( RSM_ATTRIBUTE_DATA )*nVertexCount );
-				if( ( pRSMData->nVersionMajor == 1 && pRSMData->nVersionMinor >= 2 )
-					|| ( pRSMData->nVersionMajor > 1 ) )//{ >= v1.2
-				{
-					for( j=0; j<nVertexCount; j++ )
-					{
-						fread( &pNode->lstAttributes[j].dwColor, sizeof( uint32_t ), 1, fp );
-						fread( &pNode->lstAttributes[j].u, sizeof( float ), 1, fp );
-						fread( &pNode->lstAttributes[j].v, sizeof( float ), 1, fp );
-					}
-				}
-				else 
-				{
-					for( j=0; j<nVertexCount; j++ )
-					{
-						fread( &pNode->lstAttributes[j].u, sizeof( float ), 1, fp );
-						fread( &pNode->lstAttributes[j].v, sizeof( float ), 1, fp );
-						pNode->lstAttributes[j].dwColor = 0xFFFFFFFFL;
-					}
-				}
-			}
-			fread( &pNode->nTriangleCount, sizeof( uint32_t ), 1, fp ); // number of faces
-			uint32_t nTriangleCount = pNode->nTriangleCount;
-			if( nTriangleCount )
-			{
-				pNode->lstTriangles = (RSM_TRIANGLE_DATA*)malloc( sizeof( RSM_TRIANGLE_DATA )*nTriangleCount );
-				memset( &pNode->lstTriangles[0], 0, sizeof( RSM_TRIANGLE_DATA )*nTriangleCount );
-				RSM_TRIANGLE_DATA_1_5* pTri=0;
-				// ----------------------- Triangles
-				for( j = 0; j<nTriangleCount; j++ )
-				{
-					pTri = &pNode->lstTriangles[j];
-					fread( pTri->nVertexIndices, sizeof( uint16_t ), 3, fp );
-					fread( pTri->nAttributeIndices, sizeof( uint16_t ), 3, fp );
-					fread( &pTri->nTextureIndex, sizeof( uint16_t ), 1, fp );
-					fread( &pTri->Padding, sizeof( uint16_t ), 1, fp );  // (padding) ??
-					fread( &pTri->nTwoSide, sizeof( int32_t ), 1, fp ); // (int) ??
-					if( ( pRSMData->nVersionMajor == 1 && pRSMData->nVersionMinor >= 2 )
-						|| ( pRSMData->nVersionMajor > 1 ) )//{ >= v1.2
-						fread( &pTri->nSmoothGroup, sizeof( int32_t ), 1, fp ); // (default 0)
-					else 
-						pTri->nSmoothGroup = 0;
-				}
-			}
-			if( ( pRSMData->nVersionMajor == 1 && pRSMData->nVersionMinor >= 5 )
-				|| ( pRSMData->nVersionMajor > 1 ) )//{ >= v1.5
-			{
-				fread( &pNode->nPositionCount, sizeof( uint32_t ), 1, fp ); // number of position key frames
-				nPositionCount = pNode->nPositionCount;
-				if( nPositionCount )
-				{
-					pNode->pPositionKeyframes = (RSM_POSITION_KEYFRAME_DATA_1_5*)
-						malloc( sizeof( RSM_POSITION_KEYFRAME_DATA_1_5 )*nPositionCount );
-					memset( pNode->pPositionKeyframes, 0, 
-						sizeof( RSM_POSITION_KEYFRAME_DATA_1_5 )*nPositionCount );
-					RSM_POSITION_KEYFRAME_DATA_1_5* pPosKey;
-					for( j = 0; j<nPositionCount; j++ )
-					{
-						pPosKey = &pNode->pPositionKeyframes[j];
-						fread( &pPosKey->nFrame, sizeof( uint32_t ), 1, fp );
-						fread( &pPosKey->vPosition[0], sizeof( float ), 3, fp );
-					}
-				}
-			}
-			else
-			{
-				pNode->nPositionCount = 0;
-				pNode->pPositionKeyframes = 0;
-			}
-			fread( &pNode->nRotationCount, sizeof( uint32_t ), 1, fp ); // number of position key frames
-			uint32_t nRotationCount = pNode->nRotationCount;
-			if( nRotationCount )
-			{
-				pNode->pRotationKeyframes = (RSM_ROTATION_KEYFRAME_DATA_1_5*)malloc( 
-					sizeof( RSM_ROTATION_KEYFRAME_DATA_1_5 )* nRotationCount );
-				memset( &pNode->pRotationKeyframes[0], 0, 
-					sizeof( RSM_ROTATION_KEYFRAME_DATA_1_5 )*nRotationCount );
-				RSM_ROTATION_KEYFRAME_DATA_1_5* pRotKey;
-				for( j = 0; j<nRotationCount; j++ )
-				{
-					pRotKey = &pNode->pRotationKeyframes[j];
-					fread( &pRotKey->nFrame, sizeof( uint32_t ), 1, fp );
-					fread( &pRotKey->qRotation, sizeof( float ), 4, fp );
-				}
-			}
-		}
-	}
-	fread( &pRSMData->nVolumeBoxCount, sizeof( uint32_t ), 1, fp );
-	uint32_t	nVolumeBoxCount = pRSMData->nVolumeBoxCount;// number of volume boxes
-	if( nVolumeBoxCount )
-	{
-		pRSMData->pVolumeBoxes = (RSM_VOLUME_BOX_1_5*)malloc( 
-			sizeof( RSM_VOLUME_BOX_1_5 )*nVolumeBoxCount );
-		memset( &pRSMData->pVolumeBoxes[0], 0, 
-			sizeof( RSM_VOLUME_BOX_1_5 )*nVolumeBoxCount );
-		RSM_VOLUME_BOX_1_5* pBox;
-		if( ( pRSMData->nVersionMajor == 1 && pRSMData->nVersionMinor >= 3 )
-			|| ( pRSMData->nVersionMajor > 1 ) )//{ >= v1.3
-		{
-			for( i=0; i< nVolumeBoxCount; i++ )
-			{
-				pBox = &pRSMData->pVolumeBoxes[i];
-				fread( &pBox->vSize.x, sizeof( float ), 3, fp );
-				fread( &pBox->vPosition.x, sizeof( float ), 3, fp );
-				fread( &pBox->vRotation.x, sizeof( float ), 3, fp );
-				fread( &pBox->nFlag, sizeof( uint32_t ), 3, fp );
-			}
-		}
-		else
-		{
-			for( i=0; i< nVolumeBoxCount; i++ )
-			{
-				pBox = &pRSMData->pVolumeBoxes[i];
-				fread( &pBox->vSize.x, sizeof( float ), 3, fp );
-				fread( &pBox->vPosition.x, sizeof( float ), 3, fp );
-				fread( &pBox->vRotation.x, sizeof( float ), 3, fp );
-				pBox->nFlag	= 0;
-			}
-		}
-	};
-	
-	
-	// uint32_t nPos = ftell( fp );
-	//
-	//uint32_t garbage;
-	//fread( &garbage, sizeof( uint32_t ), 1, fp ); 
-	// the file seems to end with a uint32_t with te value 0xcccccccc
-
-	fclose( fp );
-	//
+tplt<tpnm _tArray>
+static	::llc::err_t	roRSMResize				(_tArray & output, ::llc::u2_t count, ::llc::u2_t bytesPerItem, ::llc::vcu0_t input, ::llc::vcst_t section) {
+	if_true_fef(bytesPerItem && count > input.size() / bytesPerItem, "Invalid %.*s count: %u. Remaining bytes: %u.", LLC_VIEW_ARGS(section), count, input.size());
+	llc_necall(output.resize(count, {}), "Cannot resize %.*s to %u elements.", LLC_VIEW_ARGS(section), count);
 	return 0;
-};
+}
 
+static	::llc::err_t	roRSMNodeLoad
+	( ::llc::SRORSMNode	& output
+	, ::llc::vcu0_t		& input
+	, ::llc::u0_t			  versionMajor
+	, ::llc::u0_t			  versionMinor
+	, ::llc::u2_t			  indexNode
+	) {
+	llc_necall(::llc::loadPOD(input, output.Name		), "Cannot read RSM node %u name.", indexNode);
+	llc_necall(::llc::loadPOD(input, output.ParentName	), "Cannot read RSM node %u parent name.", indexNode);
+
+	::llc::u2_t				count				= {};
+	llc_necall(::llc::loadPOD(input, count), "Cannot read RSM node %u texture count.", indexNode);
+	llc_necall(::roRSMResize(output.Textures, count, szof(::llc::u2_t), input, "node textures"), "Node: %u.", indexNode);
+	for(::llc::u2_t iTexture = 0; iTexture < output.Textures.size(); ++iTexture)
+		llc_necall(::llc::loadPOD(input, output.Textures[iTexture]), "Cannot read RSM node %u texture %u.", indexNode, iTexture);
+
+	llc_necall(::llc::loadPOD(input, output.Transform		), "Cannot read RSM node %u transform.", indexNode);
+	llc_necall(::llc::loadPOD(input, output.Offset			), "Cannot read RSM node %u offset.", indexNode);
+	llc_necall(::llc::loadPOD(input, output.Position		), "Cannot read RSM node %u position.", indexNode);
+	llc_necall(::llc::loadPOD(input, output.Rotation		), "Cannot read RSM node %u rotation.", indexNode);
+	llc_necall(::llc::loadPOD(input, output.RotationAxis	), "Cannot read RSM node %u rotation axis.", indexNode);
+	llc_necall(::llc::loadPOD(input, output.Scale			), "Cannot read RSM node %u scale.", indexNode);
+
+	llc_necall(::llc::loadPOD(input, count), "Cannot read RSM node %u vertex count.", indexNode);
+	llc_necall(::roRSMResize(output.Vertices, count, szof(::llc::n3f2_t), input, "node vertices"), "Node: %u.", indexNode);
+	for(::llc::u2_t iVertex = 0; iVertex < output.Vertices.size(); ++iVertex)
+		llc_necall(::llc::loadPOD(input, output.Vertices[iVertex]), "Cannot read RSM node %u vertex %u.", indexNode, iVertex);
+
+	llc_necall(::llc::loadPOD(input, count), "Cannot read RSM node %u attribute count.", indexNode);
+	::llc::u2_c				bytesPerAttribute	= ::roRSMVersionAtLeast(versionMajor, versionMinor, 1, 2) ? 12U : 8U;
+	llc_necall(::roRSMResize(output.Attributes, count, bytesPerAttribute, input, "node attributes"), "Node: %u.", indexNode);
+	for(::llc::u2_t iAttribute = 0; iAttribute < output.Attributes.size(); ++iAttribute) {
+		::llc::SRORSMAttribute	& attribute			= output.Attributes[iAttribute];
+		if(::roRSMVersionAtLeast(versionMajor, versionMinor, 1, 2))
+			llc_necall(::llc::loadPOD(input, attribute.Color), "Cannot read RSM node %u attribute %u color.", indexNode, iAttribute);
+		llc_necall(::llc::loadPOD(input, attribute.UV), "Cannot read RSM node %u attribute %u UV.", indexNode, iAttribute);
+	}
+
+	llc_necall(::llc::loadPOD(input, count), "Cannot read RSM node %u triangle count.", indexNode);
+	::llc::u2_c				bytesPerTriangle		= ::roRSMVersionAtLeast(versionMajor, versionMinor, 1, 2) ? 24U : 20U;
+	llc_necall(::roRSMResize(output.Triangles, count, bytesPerTriangle, input, "node triangles"), "Node: %u.", indexNode);
+	for(::llc::u2_t iTriangle = 0; iTriangle < output.Triangles.size(); ++iTriangle) {
+		::llc::SRORSMTriangle	& triangle			= output.Triangles[iTriangle];
+		llc_necall(::llc::loadPOD(input, triangle.VertexIndices	), "Cannot read RSM node %u triangle %u vertex indices.", indexNode, iTriangle);
+		llc_necall(::llc::loadPOD(input, triangle.AttributeIndices), "Cannot read RSM node %u triangle %u attribute indices.", indexNode, iTriangle);
+		llc_necall(::llc::loadPOD(input, triangle.Texture		), "Cannot read RSM node %u triangle %u texture.", indexNode, iTriangle);
+		llc_necall(::llc::loadPOD(input, triangle.Padding		), "Cannot read RSM node %u triangle %u padding.", indexNode, iTriangle);
+		llc_necall(::llc::loadPOD(input, triangle.TwoSided		), "Cannot read RSM node %u triangle %u two-sided flag.", indexNode, iTriangle);
+		if(::roRSMVersionAtLeast(versionMajor, versionMinor, 1, 2))
+			llc_necall(::llc::loadPOD(input, triangle.SmoothGroup), "Cannot read RSM node %u triangle %u smooth group.", indexNode, iTriangle);
+	}
+
+	if(::roRSMVersionAtLeast(versionMajor, versionMinor, 1, 5)) {
+		llc_necall(::llc::loadPOD(input, count), "Cannot read RSM node %u position-key count.", indexNode);
+		llc_necall(::roRSMResize(output.PositionKeys, count, 16, input, "node position keys"), "Node: %u.", indexNode);
+		for(::llc::u2_t iKey = 0; iKey < output.PositionKeys.size(); ++iKey) {
+			llc_necall(::llc::loadPOD(input, output.PositionKeys[iKey].Frame	), "Cannot read RSM node %u position key %u frame.", indexNode, iKey);
+			llc_necall(::llc::loadPOD(input, output.PositionKeys[iKey].Position), "Cannot read RSM node %u position key %u position.", indexNode, iKey);
+		}
+	}
+
+	llc_necall(::llc::loadPOD(input, count), "Cannot read RSM node %u rotation-key count.", indexNode);
+	llc_necall(::roRSMResize(output.RotationKeys, count, 20, input, "node rotation keys"), "Node: %u.", indexNode);
+	for(::llc::u2_t iKey = 0; iKey < output.RotationKeys.size(); ++iKey) {
+		llc_necall(::llc::loadPOD(input, output.RotationKeys[iKey].Frame	), "Cannot read RSM node %u rotation key %u frame.", indexNode, iKey);
+		llc_necall(::llc::loadPOD(input, output.RotationKeys[iKey].Rotation), "Cannot read RSM node %u rotation key %u rotation.", indexNode, iKey);
+	}
+	return 0;
+}
+
+::llc::err_t			llc::roRSMLoad				(::llc::SRORSM & output, ::llc::vcu0_t input) {
+	output						= {};
+	::llc::astchar<4>		magic				= {};
+	llc_necs(::llc::loadPOD(input, magic));
+	if_true_fef(0 != memcmp(magic.begin(), "GRSM", 4), "Invalid RSM magic: '%c%c%c%c'.", magic[0], magic[1], magic[2], magic[3]);
+	llc_necs(::llc::loadPOD(input, output.VersionMajor));
+	llc_necs(::llc::loadPOD(input, output.VersionMinor));
+	llc_necs(::llc::loadPOD(input, output.FrameCount));
+	llc_necs(::llc::loadPOD(input, output.ShadeType));
+	if(::roRSMVersionAtLeast(output.VersionMajor, output.VersionMinor, 1, 4))
+		llc_necs(::llc::loadPOD(input, output.Alpha));
+	llc_necs(::llc::loadPOD(input, output.Unknown));
+
+	::llc::u2_t				count				= {};
+	llc_necs(::llc::loadPOD(input, count));
+	llc_necs(::roRSMResize(output.Textures, count, 40, input, "textures"));
+	for(::llc::u2_t iTexture = 0; iTexture < output.Textures.size(); ++iTexture)
+		llc_necall(::llc::loadPOD(input, output.Textures[iTexture]), "Cannot read RSM texture %u.", iTexture);
+
+	llc_necs(::llc::loadPOD(input, output.MainNode));
+	llc_necs(::llc::loadPOD(input, count));
+	llc_necs(::roRSMResize(output.Nodes, count, 180, input, "nodes"));
+	for(::llc::u2_t iNode = 0; iNode < output.Nodes.size(); ++iNode)
+		llc_necall(::roRSMNodeLoad(output.Nodes[iNode], input, output.VersionMajor, output.VersionMinor, iNode), "Cannot load RSM node %u.", iNode);
+
+	llc_necs(::llc::loadPOD(input, count));
+	::llc::u2_c				bytesPerVolumeBox	= ::roRSMVersionAtLeast(output.VersionMajor, output.VersionMinor, 1, 3) ? 40U : 36U;
+	llc_necs(::roRSMResize(output.VolumeBoxes, count, bytesPerVolumeBox, input, "volume boxes"));
+	for(::llc::u2_t iBox = 0; iBox < output.VolumeBoxes.size(); ++iBox) {
+		::llc::SRORSMVolumeBox	& box				= output.VolumeBoxes[iBox];
+		llc_necall(::llc::loadPOD(input, box.Size		), "Cannot read RSM volume box %u size.", iBox);
+		llc_necall(::llc::loadPOD(input, box.Position	), "Cannot read RSM volume box %u position.", iBox);
+		llc_necall(::llc::loadPOD(input, box.Rotation	), "Cannot read RSM volume box %u rotation.", iBox);
+		if(::roRSMVersionAtLeast(output.VersionMajor, output.VersionMinor, 1, 3))
+			llc_necall(::llc::loadPOD(input, box.Flags), "Cannot read RSM volume box %u flags.", iBox);
+	}
+
+	return 0;
+}
+
+static ::llc::err_t roRSMViewTake(::llc::vcu0_t & input, ::llc::u2_t size, ::llc::vcu0_t & output) {
+	llc_necs(input.slice(output, 0, size));
+	llc_necs(input.slice(input, size));
+	return 0;
+}
+
+tplt<tpnm T>
+static ::llc::err_t roRSMViewTakeArray(::llc::vcu0_t & input, ::llc::u2_t count, ::llc::view<cnst T> & output, ::llc::vcst_t section) {
+	if_true_fef(count > input.size() / szof(T), "Invalid %.*s count: %u. Remaining bytes: %u.", LLC_VIEW_ARGS(section), count, input.size());
+	output = count ? ::llc::view<cnst T>{reinterpret_cast<cnst T*>(input.begin()), count} : ::llc::view<cnst T>{};
+	llc_necs(input.slice(input, count * szof(T)));
+	return 0;
+}
+
+static ::llc::err_t roRSMViewInvalidate(::llc::SRORSMView & output) {
+	output.VersionMajor = output.VersionMinor = 0;
+	output.FrameCount = 0;
+	output.ShadeType = 0;
+	output.Alpha = 0xFF;
+	output.Unknown = output.MainNode = output.Trailing = {};
+	output.Textures = {};
+	output.VolumeBoxes11 = {};
+	output.VolumeBoxes13 = {};
+	output.TextureCount = output.VolumeBoxCount = 0;
+	return output.Nodes.clear();
+}
+
+static ::llc::err_t roRSMViewParse(::llc::vcu0_t input, ::llc::SRORSMView & output) {
+	::llc::astchar<4> magic = {};
+	llc_necs(::llc::loadPOD(input, magic));
+	if_true_fef(0 != memcmp(magic.begin(), "GRSM", 4), "Invalid RSM magic: '%c%c%c%c'.", magic[0], magic[1], magic[2], magic[3]);
+	llc_necs(::llc::loadPOD(input, output.VersionMajor));
+	llc_necs(::llc::loadPOD(input, output.VersionMinor));
+	llc_necs(::llc::loadPOD(input, output.FrameCount));
+	llc_necs(::llc::loadPOD(input, output.ShadeType));
+	if(::roRSMVersionAtLeast(output.VersionMajor, output.VersionMinor, 1, 4))
+		llc_necs(::llc::loadPOD(input, output.Alpha));
+	llc_necs(::roRSMViewTake(input, 16, output.Unknown));
+
+	llc_necs(::llc::loadPOD(input, output.TextureCount));
+	llc_necs(::roRSMViewTakeArray(input, output.TextureCount, output.Textures, "textures"));
+	llc_necs(::roRSMViewTake(input, 40, output.MainNode));
+	::llc::u2_t nodeCount = 0;
+	llc_necs(::llc::loadPOD(input, nodeCount));
+	if_true_fef(nodeCount > input.size() / 180, "Invalid node count: %u. Remaining bytes: %u.", nodeCount, input.size());
+	llc_necs(output.Nodes.resize(nodeCount, {}));
+	for(::llc::u2_t iNode = 0; iNode < nodeCount; ++iNode) {
+		::llc::SRORSMNodeView & node = output.Nodes[iNode];
+		llc_necs(::roRSMViewTake(input, 40, node.Name));
+		llc_necs(::roRSMViewTake(input, 40, node.ParentName));
+		llc_necs(::llc::loadPOD(input, node.TextureCount));
+		llc_necs(::roRSMViewTakeArray(input, node.TextureCount, node.Textures, "node textures"));
+		llc_necs(::roRSMViewTake(input, szof(::llc::m3a3f2_t), node.Transform));
+		llc_necs(::roRSMViewTake(input, szof(::llc::n3f2_t), node.Offset));
+		llc_necs(::roRSMViewTake(input, szof(::llc::n3f2_t), node.Position));
+		llc_necs(::roRSMViewTake(input, szof(::llc::f2_t), node.Rotation));
+		llc_necs(::roRSMViewTake(input, szof(::llc::n3f2_t), node.RotationAxis));
+		llc_necs(::roRSMViewTake(input, szof(::llc::n3f2_t), node.Scale));
+		llc_necs(::llc::loadPOD(input, node.VertexCount));
+		llc_necs(::roRSMViewTakeArray(input, node.VertexCount, node.Vertices, "node vertices"));
+		llc_necs(::llc::loadPOD(input, node.AttributeCount));
+		if(::roRSMVersionAtLeast(output.VersionMajor, output.VersionMinor, 1, 2))
+			llc_necs(::roRSMViewTakeArray(input, node.AttributeCount, node.Attributes12, "node attributes"));
+		else
+			llc_necs(::roRSMViewTakeArray(input, node.AttributeCount, node.Attributes11, "node attributes"));
+		llc_necs(::llc::loadPOD(input, node.TriangleCount));
+		if(::roRSMVersionAtLeast(output.VersionMajor, output.VersionMinor, 1, 2))
+			llc_necs(::roRSMViewTakeArray(input, node.TriangleCount, node.Triangles12, "node triangles"));
+		else
+			llc_necs(::roRSMViewTakeArray(input, node.TriangleCount, node.Triangles11, "node triangles"));
+		if(::roRSMVersionAtLeast(output.VersionMajor, output.VersionMinor, 1, 5)) {
+			llc_necs(::llc::loadPOD(input, node.PositionKeyCount));
+			llc_necs(::roRSMViewTakeArray(input, node.PositionKeyCount, node.PositionKeys, "node position keys"));
+		}
+		llc_necs(::llc::loadPOD(input, node.RotationKeyCount));
+		llc_necs(::roRSMViewTakeArray(input, node.RotationKeyCount, node.RotationKeys, "node rotation keys"));
+	}
+	llc_necs(::llc::loadPOD(input, output.VolumeBoxCount));
+	if(::roRSMVersionAtLeast(output.VersionMajor, output.VersionMinor, 1, 3))
+		llc_necs(::roRSMViewTakeArray(input, output.VolumeBoxCount, output.VolumeBoxes13, "volume boxes"));
+	else
+		llc_necs(::roRSMViewTakeArray(input, output.VolumeBoxCount, output.VolumeBoxes11, "volume boxes"));
+	output.Trailing = input;
+	return 0;
+}
+
+::llc::err_t llc::roRSMViewLoad(::llc::vcu0_t input, ::llc::SRORSMView & output) {
+	llc_necs(::roRSMViewInvalidate(output));
+	return ::roRSMViewParse(input, output);
+}
+
+::llc::err_t llc::roRSMViewLoad(::llc::vcst_t filename, ::llc::SRORSMFile & file) {
+	llc_necs(::roRSMViewInvalidate(file.View));
+	llc_necs(file.Raw.clear());
+	llc_necall(::llc::fileToMemory(filename, file.Raw), "Failed to load file '%.*s'.", LLC_VIEW_ARGS(filename));
+	return roRSMViewLoad(file.Raw, file.View);
+}

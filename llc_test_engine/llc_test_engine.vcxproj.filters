@@ -18,6 +18,9 @@
     <ClCompile Include="llc_test_engine_managers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="llc_test_engine_ro_rsm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="llc_test_engine_serialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

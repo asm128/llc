@@ -355,28 +355,30 @@ namespace llc
 	tplN2u	inln bool	oper!=	(sc_c (&left)[N], vcst_c & right)	{ rtrn !right.operator==(left); }
 	tplt<tpnm _tVal>						using kvvcst_t	= kv<vcst_t, _tVal>;
 #define LLC_VIEW_ARGS(view) (int)view.size(), view.begin() // Parenthesizing the argument does not merely tolerate expressions—it legitimizes and conceals them. Without those parentheses, the macro enforces its intended use.
-	stxp	vcst_t	VCC_NULL		= "null";
-	stxp	vcst_t	VCC_TRUE		= "true";
-	stxp	vcst_t	VCC_FALSE		= "false";
+	stxp		vcst_t	VCC_NULL		= "null";
+	stxp		vcst_t	VCC_TRUE		= "true";
+	stxp		vcst_t	VCC_FALSE		= "false";
 
-	nsix	vcst_t	bool2vcc		(bool b)							{ rtrn b ? VCC_TRUE : VCC_FALSE; }
-	nsix	sc_c*	bool2char		(bool b)							{ rtrn b ? VCC_TRUE.begin() : VCC_FALSE.begin(); }
-	nsix	u0_t	bool2u8			(bool b)							{ rtrn b ? 1 : 0; }
-	nsix	u0_t	bool2i8			(bool b)							{ rtrn b ? 1 : 0; }
-	stin	sc_c*	bool2char		(bool b, vcst_t & output)			{ rtrn (output = b ? VCC_TRUE : VCC_FALSE).begin(); }
-	stin	bool	vcc2bool		(vcst_t b)							{ rtrn b.size() && b != VCC_FALSE; }
+	nsix		vcst_t	b82vcs			(bool b)					nxpt	{ rtrn b ? VCC_TRUE : VCC_FALSE; }
+	nsix		u0_t	b82u0			(bool b)					nxpt	{ rtrn b ? 1 : 0; }
+	nsix		u0_t	b82s0			(bool b)					nxpt	{ rtrn b ? 1 : 0; }
+	nsix		sc_c*	b82sc			(bool b)					nxpt	{ rtrn b ? VCC_TRUE.begin() : VCC_FALSE.begin(); }
+	nsix		u0_t	bool2u8			(bool b)					nxpt	{ rtrn b ? 1 : 0; }
+	nsix		u0_t	bool2i8			(bool b)					nxpt	{ rtrn b ? 1 : 0; }
+	stin		sc_c*	b82sc			(bool b, vcst_t & output)	nxpt	{ rtrn (output = b ? VCC_TRUE : VCC_FALSE).begin(); }
+	stin		bool	vcs2b8			(vcst_t b)					nxpt	{ rtrn b.size() && b != VCC_FALSE; }
 
-	stin			vs		str	(vs & arg)								{ rtrn arg; }
-	stin			vcst_t	str	(cnst vs & arg)							{ rtrn arg.cc(); }
-	stin			vcst_t	str	(cnst vcst_t & arg)						{ rtrn arg; }
-	stin			vs		str	(vs0_t arg)								{ rtrn arg; }
-	stin			vcst_t	str	(vcs0_t arg)							{ rtrn arg; }
-	tplN2usinx		vs		str	(sc_t (&arg)[N])						{ rtrn arg; }
-	tplN2usinx		vcst_t	str	(sc_c (&arg)[N])						{ rtrn arg; }
-	sinx			vcst_t	str	(cnst bool arg)							{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
+	stin		vs		str				(vs & arg)					nxpt	{ rtrn arg; }
+	stin		vcst_t	str				(cnst vs & arg)				nxpt	{ rtrn arg.cc(); }
+	stin		vcst_t	str				(cnst vcst_t & arg)			nxpt	{ rtrn arg; }
+	stin		vs		str				(vs0_t arg)					nxpt	{ rtrn arg; }
+	stin		vcst_t	str				(vcs0_t arg)				nxpt	{ rtrn arg; }
+	tplN2usinx	vs		str				(sc_t (&arg)[N])			nxpt	{ rtrn arg; }
+	tplN2usinx	vcst_t	str				(sc_c (&arg)[N])			nxpt	{ rtrn arg; }
+	sinx		vcst_t	str				(cnst bool arg)				nxpt	{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
 	//
-	tplTnsix		vcst_t	get_type_namev	()					nxpt	{ rtrn "unknown"; }
-	tplTnsix		sc_c*	get_type_namep	()					nxpt	{ rtrn get_type_namev<T>().begin(); }
+	tplTnsix	vcst_t	get_type_namev	()							nxpt	{ rtrn "unknown"; }
+	tplTnsix	sc_c*	get_type_namep	()							nxpt	{ rtrn get_type_namev<T>().begin(); }
 
 #define GDEFINE_TYPE_NAME_STR(typeIdentifier)																										\
 			nsix	::llc::vcst_t	get_type_namev					(typeIdentifier &)	nxpt	{ rtrn #typeIdentifier; }					\

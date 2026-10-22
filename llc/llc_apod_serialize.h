@@ -1,7 +1,4 @@
 #include "llc_array_pod.h"
-
-#include "llc_keyval_old.h"
-
 #include "llc_view_serialize.h"
 
 #ifndef LLC_APOD_SERIALIZE_H_23627
@@ -55,7 +52,7 @@ namespace llc
 	}
 	tplTstin		err_t	loadView					(vcs0_t & input, apod<T> & output)				{ return loadView(*(vcu0_t*)& input, output); }
 
-	err_t					keyValConstStringSerialize	(view<cnst TKeyValConstString> keyVals, view<cnst vcst_t> keysToSave, au0_t & output);
+	//err_t					keyValConstStringSerialize	(view<cnst keyval<vcst_t>> keyVals, view<cnst vcst_t> keysToSave, au0_t & output);
 } // namespace
 
 #endif // LLC_APOD_SERIALIZE_H_23627

@@ -115,6 +115,12 @@
     <Filter Include="json">
       <UniqueIdentifier>{ac3e0dfb-a341-4cfc-9d60-2f3e7942b692}</UniqueIdentifier>
     </Filter>
+    <Filter Include="process">
+      <UniqueIdentifier>{fd55228d-e47f-40bf-bc45-06754c32cf34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{13b55d4f-0d68-4cdb-bea9-972aa6c47dd3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="llc_adam7.h">
@@ -378,9 +384,6 @@
     <ClInclude Include="llc_json_expression.h">
       <Filter>json</Filter>
     </ClInclude>
-    <ClInclude Include="llc_keyval.h">
-      <Filter>container</Filter>
-    </ClInclude>
     <ClInclude Include="llc_label.h">
       <Filter>container</Filter>
     </ClInclude>
@@ -504,16 +507,10 @@
     <ClInclude Include="llc_sphere.h">
       <Filter>geometry</Filter>
     </ClInclude>
-    <ClInclude Include="llc_stdstring.h">
-      <Filter>view</Filter>
-    </ClInclude>
     <ClInclude Include="llc_cstring.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="llc_sync.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_test_core.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="llc_timer.h">
@@ -816,29 +813,38 @@
     <ClInclude Include="llc_circuit.h">
       <Filter>circuit</Filter>
     </ClInclude>
-    <ClInclude Include="llc_mutex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_wifi.h">
       <Filter>wifi</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_ccsds.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_keyval_old.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_process.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="llc_astatic_n2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_ccsds.h">
+      <Filter>encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_process.h">
+      <Filter>process</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_test_core.h">
+      <Filter>test</Filter>
+    </ClInclude>
     <ClInclude Include="llc_test_report.h">
-      <Filter>base</Filter>
+      <Filter>test</Filter>
     </ClInclude>
     <ClInclude Include="llc_test_trace.h">
-      <Filter>Header Files</Filter>
+      <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_mutex.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_stdstring.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_keyval_view.h">
+      <Filter>string</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_keyval.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -965,9 +971,6 @@
     <ClCompile Include="llc_json_expression.cpp">
       <Filter>json</Filter>
     </ClCompile>
-    <ClCompile Include="llc_keyval_old.cpp">
-      <Filter>container</Filter>
-    </ClCompile>
     <ClCompile Include="llc_label.cpp">
       <Filter>container</Filter>
     </ClCompile>
@@ -1003,9 +1006,6 @@
     </ClCompile>
     <ClCompile Include="llc_runtime_module.cpp">
       <Filter>module</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_stdstring.cpp">
-      <Filter>view</Filter>
     </ClCompile>
     <ClCompile Include="llc_timer.cpp">
       <Filter>time</Filter>
@@ -1082,20 +1082,26 @@
     <ClCompile Include="llc_wifi.cpp">
       <Filter>wifi</Filter>
     </ClCompile>
-    <ClCompile Include="llc_ccsds.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_string.cpp">
       <Filter>string</Filter>
     </ClCompile>
     <ClCompile Include="llc_view_color.cpp">
       <Filter>view</Filter>
     </ClCompile>
-    <ClCompile Include="llc_process.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_header_checkingg.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_process.cpp">
+      <Filter>process</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_ccsds.cpp">
+      <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_stdstring.cpp">
+      <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_keyval_view.cpp">
+      <Filter>string</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

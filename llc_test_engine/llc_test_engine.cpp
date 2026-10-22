@@ -9,6 +9,7 @@
 
 sttc ::llc::u3_t TestSeedOverride = {};
 sttc bool TestSeedOverrideEnabled = false;
+::llc::string TestRSMPath = {};
 
 ::llc::u3_t testSeed(::llc::u3_t fallback) { rtrn TestSeedOverrideEnabled ? TestSeedOverride : fallback; }
 
@@ -89,6 +90,11 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 	ATestError		results;
 	llc::err_t		result				= 0;
 	run.SuccessDetails	= 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "success-details");
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "rsm-file")) {
+		::llc::vcst_t rsmPath = {};
+		if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "rsm-file", rsmPath));
+		if_fail_fe(TestRSMPath.append(rsmPath));
+	}
 	::llc::aobj<::llc::vcst_t> selectedSuites;
 	if_fail_fe(::llc::argsOptionValues(runtimeValues.EntryPointArgs, "test", selectedSuites));
 	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "seed")) {
@@ -116,61 +122,10 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 
 	::llc::STimer	testTimer;
 	result = testSuitesRun(results, run, selectedSuites
-		, LLC_TEST_SUITE(testSPRNG, "noise")
-		, LLC_TEST_SUITE(testSTL, "stl")
-		, LLC_TEST_SUITE(testAdam7, "adam7")
-		//, LLC_TEST_SUITE(testApp, "app")
-		, LLC_TEST_SUITE(testASCIIColor, "ascii_color")
-		, LLC_TEST_SUITE(testASCIITarget, "ascii_target")
-		, LLC_TEST_SUITE(testArgs, "args")
-		, LLC_TEST_SUITE(testBitField, "bit")
-		, LLC_TEST_SUITE(testBitmapTarget, "bitmap_target")
-		, LLC_TEST_SUITE(testBlock, "block")
-		, LLC_TEST_SUITE(testBlockContainer, "block_container")
-		, LLC_TEST_SUITE(testCamera, "camera")
-		, LLC_TEST_SUITE(testCollision, "collision")
-		, LLC_TEST_SUITE(testCOMPlus, "complus")
-		, LLC_TEST_SUITE(testCPow, "cpow")
-		, LLC_TEST_SUITE(testCTTIParser, "ctti")
 		, LLC_TEST_SUITE(testD3D, "d3d")
 		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
 		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
-		, LLC_TEST_SUITE(testEnum, "enum")
-		, LLC_TEST_SUITE(testExpression, "expression")
-		, LLC_TEST_SUITE(testGeometry, "geometry")
-		, LLC_TEST_SUITE(testGridImage, "grid_image")
-		, LLC_TEST_SUITE(testGridOperations, "grid_operations")
-		, LLC_TEST_SUITE(testGUI, "gui")
-		, LLC_TEST_SUITE(testInput, "input")
-		, LLC_TEST_SUITE(testStr, "str")
-		, LLC_TEST_SUITE(testSystemKey, "system_key")
-		, LLC_TEST_SUITE(testTypeMetadata, "type_metadata")
-		, LLC_TEST_SUITE(testArrayStatic, "array_static")
-		, LLC_TEST_SUITE(testArrayBit, "array_bit")
-		, LLC_TEST_SUITE(testArrayMinMax, "apod_minmax")
-		, LLC_TEST_SUITE(testArrayObj, "array_obj")
-		, LLC_TEST_SUITE(testArrayPod, "array_pod")
-		, LLC_TEST_SUITE(testBase64, "base64")
-		, LLC_TEST_SUITE(testJSONExpression, "json_expression")
-		, LLC_TEST_SUITE(testJSONReader, "json")
-		, LLC_TEST_SUITE(testKeyVal, "keyval")
-		, LLC_TEST_SUITE(testLabel, "label")
-		, LLC_TEST_SUITE(testLinearMap, "linear_map")
-		, LLC_TEST_SUITE(testXMLReader, "xml")
-		, LLC_TEST_SUITE(testMSBuildXML, "msbuild_xml")
-		, LLC_TEST_SUITE(testPath, "path")
-		, LLC_TEST_SUITE(testPointers, "ptr")
-		, LLC_TEST_SUITE(testPNG, "png")
-		, LLC_TEST_SUITE(testProcess, "process")
-		//, LLC_TEST_SUITE(testRuntimeModule, "runtime_module")
-		, LLC_TEST_SUITE(testView, "view")
-		, LLC_TEST_SUITE(testViewAliases, "view_aliases")
-		, LLC_TEST_SUITE(testViewBit, "view_bit")
-		, LLC_TEST_SUITE(testPackedUInt, "packed_int")
-		, LLC_TEST_SUITE(testViewSerialize, "view_serialize")
-		, LLC_TEST_SUITE(testViewStream, "view_stream")
-		, LLC_TEST_SUITE(testVOX, "vox")
-		, LLC_TEST_SUITE(testVoxel, "voxel")
+		, LLC_TEST_SUITE(testRORSM, "ro_rsm")
 		);
 	testTimer.Frame();
 
@@ -203,7 +158,9 @@ sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
 		timer.Frame();
 		if(log.Failed) status = -1;
 	}
-	try { if_fail_fe(testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride, log)); }
-	catch(...) { error_printf("%s", "Cannot write run reports."); rtrn -1; }
+	try { status = ::llc::min(status, testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride)); }
+	catch(...) { status = -1; error_printf("%s", "Cannot write run reports."); }
+	try { status = ::llc::min(status, testRootLogWrite(run.Folder, log)); }
+	catch(...) { status = -1; }
 	rtrn status;
 }

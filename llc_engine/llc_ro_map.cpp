@@ -2,7 +2,7 @@
 // 
 // License: http://www.opensource.org/licenses/mit-license.php
 //
-#include "ropp_map.h"
+#include "llc_ro__map.h"
 #include <cstdio>
 #include <iostream>
 
@@ -637,7 +637,7 @@ int32_t ropp::LoadRSWDataFromFile(	const wchar_t* pFilename, RSW_FILE_DATA_2_1* 
 				fread( pModelData->szName, sizeof( char ), 40, fp );	// (char[40])
 				fread( &pModelData->nAnimationType, sizeof( int32_t ), 1, fp );	// (int) (default 0)
 				fread( &pModelData->nAnimationSpeed, sizeof( int32_t ), 1, fp );	// (float) (default 1.0, must be in range [0,100.0[)
-				fread( &pModelData->nBlockType, sizeof( int32_t ), 1, fp );	// (int) (default 0)็
+				fread( &pModelData->nBlockType, sizeof( int32_t ), 1, fp );	// (int) (default 0)รง
 			}
 			// ------------------- v < 1.3
 			fread( pModelData->szModelName, sizeof( char ), 80, fp );	// (char[80])
@@ -802,7 +802,7 @@ int32_t ropp::LoadRSWDataFromFile( const char* pFilename, RSW_FILE_DATA_2_1* pRS
 				fread( pModelData->szName, sizeof( char ), 40, fp );	// (char[40])
 				fread( &pModelData->nAnimationType, sizeof( int32_t ), 1, fp );	// (int) (default 0)
 				fread( &pModelData->nAnimationSpeed, sizeof( int32_t ), 1, fp );	// (float) (default 1.0, must be in range [0,100.0[)
-				fread( &pModelData->nBlockType, sizeof( int32_t ), 1, fp );	// (int) (default 0)็
+				fread( &pModelData->nBlockType, sizeof( int32_t ), 1, fp );	// (int) (default 0)รง
 			}
 			// ------------------- v < 1.3
 			fread( pModelData->szModelName, sizeof( char ), 80, fp );	// (char[80])
@@ -986,7 +986,7 @@ int32_t ropp::LoadRSWDataFromMemory( const char* pBuffer, RSW_FILE_DATA_2_1* pRS
 				pos += sizeof( int32_t );
 				memcpy( &pModelData->nAnimationSpeed, &pBuffer[pos], sizeof( int32_t ) );	// (float) (default 1.0, must be in range [0,100.0[)
 				pos += sizeof( int32_t );
-				memcpy( &pModelData->nBlockType, &pBuffer[pos], sizeof( int32_t ) );	// (int) (default 0)็
+				memcpy( &pModelData->nBlockType, &pBuffer[pos], sizeof( int32_t ) );	// (int) (default 0)รง
 				pos += sizeof( int32_t );
 			}
 			// ------------------- v < 1.3

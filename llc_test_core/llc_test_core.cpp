@@ -239,7 +239,33 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 	rtrn ::llc::failed(result) ? result : failureCount ? ::llc::OS_ERROR : 0;
 }
 
+#if defined(LLC_WINDOWS) || defined(LLC_LINUX)
+extern ::llc::err_t testProcessEchoChild();
+#endif
+#ifdef LLC_LINUX
+extern ::llc::err_t testProcessMarkerChild();
+extern ::llc::err_t testProcessSignalChild();
+#endif
+
 sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
+#ifdef LLC_WINDOWS
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-echo"))
+		rtrn ::testProcessEchoChild();
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-child")) {
+		stxp ::llc::sc_t childOutput[] = "llc process child";
+		DWORD written = 0;
+		if(FALSE == WriteFile(GetStdHandle(STD_ERROR_HANDLE), childOutput, ::llc::size(childOutput) - 1, &written, 0) || written != ::llc::size(childOutput) - 1)
+			rtrn -1;
+		rtrn -1;
+	}
+#elif defined(LLC_LINUX)
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-signal"))
+		rtrn ::testProcessSignalChild();
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-echo"))
+		rtrn ::testProcessEchoChild();
+	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-child"))
+		rtrn ::testProcessMarkerChild();
+#endif
 	TestConsoleEnabled = 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "console");
 	STestLogBuffer log;
 	STestLogCapture capture(log);

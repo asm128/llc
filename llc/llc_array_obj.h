@@ -1,8 +1,6 @@
 /// Copyright 2010-2024 - ogarnd
 #include "llc_array_base.h"
 
-#include "llc_keyval_old.h"
-
 #ifndef LLC_ARRAY_OBJ_H_23627
 #define LLC_ARRAY_OBJ_H_23627
 
@@ -330,12 +328,5 @@ namespace llc
 	
 	err_t			filterPrefix	(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
 	err_t			filterPostfix	(view<cnst vcst_t> input, vcst_t prefix, aobj<vcst_t> & filtered, bool nullIncluded = false);
-
-
-
-	tydf keyval<vcst_t, aobj<vcst_t>>	TKeyValConstStringArray;
-	//------------------------------------------------------------------------------------------------------------
-	err_t			keyValConstStringDeserialize	(vcu0_t input, aobj<TKeyValConstChar> & output);
-
 }
 #endif // LLC_ARRAY_OBJ_H_23627

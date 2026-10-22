@@ -58,12 +58,12 @@
 		, body.Density
 		, body.MeanTemperature
 		, body.NumberOfMoons
-		, ::llc::bool2char(body.GlobalMagneticField)
+		, ::llc::b82sc(body.GlobalMagneticField)
 		, body.RadiusPolar
 		, body.RadiusEquatorial
 		, body.Perihelion
 		, body.Aphelion
-		, ::llc::bool2char(body.RingSystem)
+		, ::llc::b82sc(body.RingSystem)
 		, body.LengthOfDay
 		);
 	return 0;
