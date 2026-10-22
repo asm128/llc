@@ -81,11 +81,11 @@ sttc	::llc::err_t	testSuitesRun				(ATestError & results, STestRunReport & run, 
 
 #define LLC_TEST_SUITE(funcSuite, folder) ::testSuite(funcSuite, #funcSuite, folder)
 
-sttc	::llc::err_t	test_core_entry_point		(::llc::SRuntimeValues & runtimeValues);
-LLC_OS_ENTRY_POINT(::test_core_entry_point);
+sttc	::llc::err_t	test_engine_entry_point	(::llc::SRuntimeValues & runtimeValues);
+LLC_OS_ENTRY_POINT(::test_engine_entry_point);
 
 
-sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunReport & run) {
+sttc ::llc::err_t testEngineRun(::llc::SRuntimeValues & runtimeValues, STestRunReport & run) {
 	//_CrtSetBreakAlloc(12390);
 	ATestError		results;
 	llc::err_t		result				= 0;
@@ -122,10 +122,17 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 
 	::llc::STimer	testTimer;
 	result = testSuitesRun(results, run, selectedSuites
+<<<<<<< Updated upstream
 		, LLC_TEST_SUITE(testD3D, "d3d")
 		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
 		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
 		//, LLC_TEST_SUITE(testRORSM, "ro_rsm")
+=======
+		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
+		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
+		, LLC_TEST_SUITE(testRagnarokGAT, "ragnarok_gat")
+		, LLC_TEST_SUITE(testRagnarokGND, "ragnarok_gnd")
+>>>>>>> Stashed changes
 		);
 	testTimer.Frame();
 
@@ -140,27 +147,40 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 	rtrn ::llc::failed(result) ? result : failureCount ? ::llc::OS_ERROR : 0;
 }
 
-sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
-	STestRunReport run;
-	::llc::vcst_t parent = ".";
-	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "output"))
-		if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "output", parent));
-	try { if_fail_fe(testRunFolder(parent, run.Folder)); }
-	catch(...) { error_printf("%s", "Cannot create run folder."); rtrn -1; }
+sttc ::llc::err_t test_engine_entry_point(::llc::SRuntimeValues & runtimeValues) {
+	TestConsoleEnabled = 0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "console");
 	STestLogBuffer log;
+	STestLogCapture capture(log);
+	if(!TestConsoleEnabled) capture.Previous = {};
+	STestRunReport run;
 	::llc::err_t status = 0;
 	::llc::STimer timer;
-	{
-		STestLogCapture capture(log);
-		always_printf("Test output: %.*s", LLC_VIEW_ARGS(run.Folder));
-		try { status = testCoreRun(runtimeValues, run); }
-		catch(...) { status = -1; error_printf("%s", "Unknown runner exception."); }
-		timer.Frame();
-		if(log.Failed) status = -1;
+	try {
+		status = [&]() -> ::llc::err_t {
+			::llc::vcst_t parent = ".";
+			if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "output"))
+				if_fail_fe(::llc::argsOptionValue(runtimeValues.EntryPointArgs, "output", parent));
+			if_fail_fe(testRunFolder(parent, run.Folder));
+			always_printf("Test output: %.*s", LLC_VIEW_ARGS(run.Folder));
+			rtrn testEngineRun(runtimeValues, run);
+		}();
 	}
+<<<<<<< Updated upstream
 	try { status = ::llc::min(status, testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride)); }
 	catch(...) { status = -1; error_printf("%s", "Cannot write run reports."); }
 	try { status = ::llc::min(status, testRootLogWrite(run.Folder, log)); }
 	catch(...) { status = -1; }
 	rtrn status;
+=======
+	catch(...) { status = -1; error_printf("%s", "Runner setup or execution exception."); }
+	timer.Frame();
+	if(log.Failed) status = -1;
+	if(run.Folder.size()) {
+		try { status = ::llc::min(status, testRunReportWrite(run, status, timer.LastTimeMicroseconds, TestSeedOverrideEnabled, TestSeedOverride)); }
+		catch(...) { status = -1; error_printf("%s", "Cannot write run reports."); }
+	}
+	try { status = ::llc::min(status, testRootLogWrite(run.Folder, log)); }
+	catch(...) { status = -1; }
+	rtrn log.Failed ? -1 : status;
+>>>>>>> Stashed changes
 }

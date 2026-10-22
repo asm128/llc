@@ -1,7 +1,6 @@
 // Copyright (c) 2011 Pablo Ariel Zorrilla Cepeda
-// 
-// License: http://www.opensource.org/licenses/mit-license.php
 //
+<<<<<<< Updated upstream
 #include "llc_ro__map.h"
 #include <cstdio>
 #include <iostream>
@@ -13,197 +12,30 @@
 using namespace ropp;
 
 
+=======
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+// and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+>>>>>>> Stashed changes
 //
-void ropp::CleanGNDData( GND_FILE_DATA& GNDData )
-{
-	// clean textures
-	uint32_t nMax = GNDData.nTextureCount;
-	for( uint32_t i=0; i < nMax; i++ )
-	{
-		if( GNDData.ppTextureNames[i] )
-			free( GNDData.ppTextureNames[i] );
-	}
-	GNDData.nTextureCount = 0;
-	if( GNDData.ppTextureNames )
-	{
-		free( GNDData.ppTextureNames );
-		GNDData.ppTextureNames = 0; 
-	}
-	// clean lightmaps
-	GNDData.nLightmapCount	= 0;
-	GNDData.nLightmapTiles	= 0;
-	GNDData.nLightmapWidth	= 0;
-	GNDData.nLightmapDepth	= 0;
-	if( GNDData.pLightmapData )
-	{
-		free( GNDData.pLightmapData );
-		GNDData.pLightmapData = 0;
-	}
-	// clean attributes
-	GNDData.nAttributeCount = 0;
-	if( GNDData.pAttributeData )
-	{
-		free( GNDData.pAttributeData );
-		GNDData.pAttributeData = 0;
-	}
-	// clean tiles
-	GNDData.nWidth	= 0;
-	GNDData.nHeight = 0;
-	if( GNDData.pTileData )
-	{
-		free( GNDData.pTileData );
-		GNDData.pTileData = 0;
-	}
-	GNDData.nMagicHeader = GNDData.nVersionMajor = GNDData.nVersionMinor = 0;
-};
-
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 //
-void ropp::CleanGATData( GAT_FILE_DATA& GATData )
-{
-	if( GATData.pTiles )
-		free( GATData.pTiles );
-	GATData.pTiles = 0;
-	GATData.nWidth = 0;
-	GATData.nMagicHeader = GATData.nVersionMajor = GATData.nVersionMinor = 0;
-//	GATData.nHeight = 0;
-};
-
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+// OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-void ropp::CleanRSWData( RSW_FILE_DATA_2_1& RSWData )
-{
-	uint32_t nObjectCount = RSWData.nWorldObjectCount;
-	RSW_LIGHT_DATA* pLightData=0;
-	RSW_MODEL_DATA_1_3* pModelData=0;
-	RSW_EFFECT_DATA* pEffectData=0;
-	RSW_SOUND_DATA_2_0* pSoundData=0;
-	uint32_t i;
-	for( i=0; i< nObjectCount; i++ )
-	{
-		switch( RSWData.pWorldObjectData[i].nObjectType )
-		{
-		case WORLDOBJECT_EFFECT:
-			pEffectData = ( RSW_EFFECT_DATA* )RSWData.pWorldObjectData[i].pObject;
-			if(pEffectData) 
-				free( pEffectData );
-			continue;
-		case WORLDOBJECT_LIGHT:
-			pLightData = (RSW_LIGHT_DATA*)RSWData.pWorldObjectData[i].pObject;
-			if(pLightData) 
-				free( pLightData );
-			continue;
-		case WORLDOBJECT_MODEL:
-			pModelData = (RSW_MODEL_DATA_1_3*)RSWData.pWorldObjectData[i].pObject;
-			if(pModelData) 
-				free( pModelData );
-			continue;
-		case WORLDOBJECT_SOUND:
-			pSoundData = (RSW_SOUND_DATA_2_0*)RSWData.pWorldObjectData[i].pObject;
-			if(pSoundData) 
-				free( pSoundData );
-			continue;
-		}
-	}
-	RSWData.nWorldObjectCount = 0;
-	if( RSWData.pWorldObjectData )
-	{
-		free( RSWData.pWorldObjectData );
-		RSWData.pWorldObjectData = 0;
-	}
-	RSWData.nVersionMajor = RSWData.nVersionMinor = RSWData.nMagicNumber = 0;
-};
+// http://www.opensource.org/licenses/mit-license.php
 
-int32_t ropp::LoadGNDDataFromFile( const wchar_t* pFilename, GND_FILE_DATA* pGNDData )
-{
-	if( 0 == pGNDData || 0 == pFilename )
-		return -1;
-	FILE* fp = _wfopen( pFilename, L"rb" );
-	if( 0 == fp )
-		return -1;
-	fseek( fp, 0, SEEK_SET );
-	fread( &pGNDData->nMagicHeader, sizeof( uint32_t ), 1, fp );
-	if( pGNDData->nMagicHeader != 'NGRG' )
-	{	
-		fclose( fp );
-		return -1;
-	}
-	fread( &pGNDData->nVersionMajor, sizeof( uint8_t ), 1, fp );
-	fread( &pGNDData->nVersionMinor, sizeof( uint8_t ), 1, fp );
-	if( ( pGNDData->nVersionMajor < 1 ) || 
-		( pGNDData->nVersionMajor == 1 && pGNDData->nVersionMinor < 5 ) )
-	{
-		fclose( fp );
-		return -1;
-	}
-	fread( &pGNDData->nWidth, sizeof( uint32_t ), 1, fp );
-	fread( &pGNDData->nHeight, sizeof( uint32_t ), 1, fp );
-	fread( &pGNDData->fScale, sizeof( float ), 1, fp );
-	fread( &pGNDData->nTextureCount, sizeof( uint32_t ), 1, fp );
-	fread( &pGNDData->nTextureStringSize, sizeof( uint32_t ), 1, fp );
-	uint32_t i=0, nMax = pGNDData->nTextureCount, size = pGNDData->nTextureStringSize;
-	pGNDData->ppTextureNames = (char**)malloc( sizeof( char* )*nMax );
-	for( i=0; i < nMax; i++ )
-	{
-		pGNDData->ppTextureNames[i] = (char*)malloc( sizeof( char )*size );
-		fread( pGNDData->ppTextureNames[i], sizeof( char ), size, fp );
-	}
-	fread( &pGNDData->nLightmapCount, sizeof(int32_t), 1, fp );
-	fread( &pGNDData->nLightmapWidth, sizeof(int32_t), 1, fp );
-	fread( &pGNDData->nLightmapDepth, sizeof(int32_t), 1, fp );
-	fread( &pGNDData->nLightmapTiles, sizeof(int32_t), 1, fp ); // ??
-	nMax = pGNDData->nLightmapCount;
-	pGNDData->pLightmapData = (GND_LIGHTMAP_DATA*)malloc( sizeof( GND_LIGHTMAP_DATA )*nMax );
-	for( i=0; i<nMax; i++ )
-	{
-		fread( pGNDData->pLightmapData[i].Brightness, sizeof( char ), 64, fp );
-		fread( pGNDData->pLightmapData[i].ColorRGB, sizeof( char ), 3*64, fp );
-	}
-	fread( &pGNDData->nAttributeCount, sizeof( uint32_t ), 1, fp ); // almost there!
-	nMax = pGNDData->nAttributeCount;
-	pGNDData->pAttributeData = (GND_ATTRIBUTE_DATA*)malloc( sizeof( GND_ATTRIBUTE_DATA )*nMax );
-	for( i=0; i<nMax; i++ )
-	{
-		fread( pGNDData->pAttributeData[i].u, sizeof( float ), 4, fp );
-		fread( pGNDData->pAttributeData[i].v, sizeof( float ), 4, fp );
-		fread( &pGNDData->pAttributeData[i].nTextureIndex, sizeof( int16_t ), 1, fp );
-		fread( &pGNDData->pAttributeData[i].nLightmapIndex, sizeof( int16_t ), 1, fp );
-		fread( &pGNDData->pAttributeData[i].dwColor, sizeof( uint32_t ), 1, fp );
-	}
-	uint32_t nTiles = pGNDData->nWidth * pGNDData->nHeight;
-	pGNDData->pTileData = (GND_TILE_DATA*)malloc( sizeof( GND_TILE_DATA )*nTiles );
+#include "llc_ro_map.h"
 
-	if( pGNDData->nVersionMajor < 1 || 
-		( pGNDData->nVersionMajor == 1 && pGNDData->nVersionMinor <= 5 ) )
-	{// it seems old 1.5 format used 16 bit integers
-		short top=0, front=0, right=0; // uint32_t heights[4];
-		for( i=0; i<nTiles; i++ )
-		{
-//			fread( heights, sizeof( uint32_t ), 4, fp );
-			fread( pGNDData->pTileData[i].fHeight, sizeof( float ), 4, fp );
-			fread( &top, sizeof( int16_t ), 1, fp );
-			fread( &right, sizeof( int16_t ), 1, fp );
-			fread( &front, sizeof( int16_t ), 1, fp );
-			pGNDData->pTileData[i].TopAttributeIndex = top;
-			pGNDData->pTileData[i].RightAttributeIndex = right;
-			pGNDData->pTileData[i].FrontAttributeIndex = front;
-			fread( &pGNDData->pTileData[i].Unknown1, sizeof( int16_t ), 1, fp );
-			//fread( &pGNDData->pTileData[i].Unknown2, sizeof( int16_t ), 1, fp );
-		}
-	}
-	else if( pGNDData->nVersionMajor > 1 || 
-		( pGNDData->nVersionMajor == 1 && pGNDData->nVersionMinor >= 7 ) )
-	{
-		for( i=0; i<nTiles; i++ )
-		{
-			fread( pGNDData->pTileData[i].fHeight, sizeof( float ), 4, fp );
-			fread( &pGNDData->pTileData[i].TopAttributeIndex, sizeof( int32_t ), 1, fp );
-			fread( &pGNDData->pTileData[i].RightAttributeIndex, sizeof( int32_t ), 1, fp );
-			fread( &pGNDData->pTileData[i].FrontAttributeIndex, sizeof( int32_t ), 1, fp );
-		}
-	}
-	fclose( fp );
-	return 0;
-};
+#include "llc_view_serialize.h"
+#include "llc_view_stream.h"
 
+<<<<<<< Updated upstream
 int32_t ropp::LoadGNDDataFromFile( const char* pFilename, GND_FILE_DATA* pGNDData )
 {
 	if( 0 == pGNDData || 0 == pFilename )
@@ -1074,4 +906,26 @@ int32_t ropp::LoadRSWDataFromMemory( const char* pBuffer, RSW_FILE_DATA_2_1* pRS
 	// Here should be added some code for loading the quadtree (v >= 2.1)
 	return 0;
 };
+=======
+::llc::err_t				llc::roGATLoad					(SROGAT & output, vcu0_t input) {
+	::llc::view_stream<::llc::u0_c>	inputStream					= {input.begin(), input.size()};
+	::llc::u0_t				magic[4]					= {};
+	::llc::SROVersion		version						= {};
+	llc_necs(inputStream.read_pod(magic));
+	if_true_fef('G' != magic[0] || 'R' != magic[1] || 'A' != magic[2] || 'T' != magic[3]
+		, "Invalid GAT signature: %02X %02X %02X %02X.", (::llc::u2_t)magic[0], (::llc::u2_t)magic[1], (::llc::u2_t)magic[2], (::llc::u2_t)magic[3]);
+	llc_necs(inputStream.read_pod(version));
+	if_true_fef(1 != version.Major || 2 != version.Minor, "Unsupported GAT version: %u.%u.", (::llc::u2_t)version.Major, (::llc::u2_t)version.Minor);
+>>>>>>> Stashed changes
 
+	::llc::grid<cnst ::llc::SROGATTile>	tiles						= {};
+	::llc::err_t				gridBytes					= 0;
+	llc_necs(gridBytes = ::llc::gridPascal(tiles, ::llc::vcu0_t{input.begin() + inputStream.CursorPosition, inputStream.remaining()}));
+	if_true_fef((::llc::u2_t)gridBytes > 0x7FFFFFFFU - inputStream.CursorPosition, "GAT byte count exceeds the result range: %i + %" LLC_FMT_U2 ".", gridBytes, inputStream.CursorPosition);
+	llc_necs(output.Tiles.resize(tiles.size()));
+	if(tiles.size())
+		memcpy(output.Tiles.begin(), tiles.begin(), tiles.byte_count());
+	output.Version					= version;
+	output.Dimensions				= tiles.metrics();
+	return (::llc::err_t)inputStream.CursorPosition + gridBytes;
+}

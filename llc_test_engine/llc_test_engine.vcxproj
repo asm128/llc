@@ -38,6 +38,7 @@
     <ClCompile Include="llc_test_d3d.cpp" />
     <ClCompile Include="llc_test_engine.cpp" />
     <ClCompile Include="llc_test_engine_managers.cpp" />
+<<<<<<< Updated upstream
     <ClCompile Include="llc_test_engine_ro_rsm.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-MT|Win32'">true</ExcludedFromBuild>
@@ -48,6 +49,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-MT|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+=======
+    <ClCompile Include="llc_test_engine_ragnarok.cpp" />
+>>>>>>> Stashed changes
     <ClCompile Include="llc_test_engine_serialization.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -172,7 +176,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
@@ -216,7 +220,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
@@ -260,7 +264,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>
@@ -327,7 +331,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)../llc/llc;$(SolutionDir)../llc/llc_engine;</AdditionalIncludeDirectories>

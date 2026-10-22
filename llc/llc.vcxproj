@@ -42,6 +42,7 @@
     <ClInclude Include="llc_ccsds.h" />
     <ClInclude Include="llc_cerrno.h" />
     <ClInclude Include="llc_circuit.h" />
+    <ClInclude Include="llc_grid_serialize.h" />
     <ClInclude Include="llc_keyval_view.h" />
     <ClInclude Include="llc_micro.h" />
     <ClInclude Include="llc_bus.h" />

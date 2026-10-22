@@ -27,7 +27,11 @@
     <ClCompile Include="llc_test_engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< Updated upstream
     <ClCompile Include="llc_test_d3d.cpp">
+=======
+    <ClCompile Include="llc_test_engine_ragnarok.cpp">
+>>>>>>> Stashed changes
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

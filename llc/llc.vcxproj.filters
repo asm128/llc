@@ -849,6 +849,9 @@
     <ClInclude Include="llc_keyval.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="llc_grid_serialize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">

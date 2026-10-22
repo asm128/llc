@@ -9,8 +9,14 @@
 
 ::llc::err_t testEngineManagers	(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testEngineSerialization(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+<<<<<<< Updated upstream
 ::llc::err_t testRORSM		(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 
 ::llc::err_t testD3D			(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 
+=======
+::llc::err_t testRagnarokGAT		(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t testRagnarokGND		(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+
+>>>>>>> Stashed changes
 #endif // LLC_TEST_ENGINE_SUITES_H
