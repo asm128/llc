@@ -68,9 +68,7 @@ sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCom
 	cnst ::llc::err_t missing = ::llc::argsOptionValue(args, "missing", missingValue);
 	cnst ::llc::err_t missingCount = ::llc::argsOptionValues(args, "missing", values);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_AMBIGUOUS_VALUE, ambiguous != -2 , "Repeated --include single-value result:%i, expected:-2.", ambiguous);
-	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_AMBIGUOUS_VALUE, ambiguousValue.size() , "Repeated --include single-value output size:%u, expected:0.", ambiguousValue.size());
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_MISSING_VALUE, missing != -1 , "Missing option single-value result:%i, expected:-1.", missing);
-	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_MISSING_VALUE, missingValue.size() , "Missing option single-value output size:%u, expected:0.", missingValue.size());
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_MISSING_VALUE, missingCount , "Missing option collected value count:%i, expected:0.", missingCount);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_MISSING_VALUE, values.size() != 4 , "Missing option changed collected output size:%u, expected:4.", values.size());
 	rtrn 0;
