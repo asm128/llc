@@ -825,6 +825,9 @@
     <ClInclude Include="llc_process.h">
       <Filter>process</Filter>
     </ClInclude>
+    <ClInclude Include="llc_process_internal.h">
+      <Filter>process</Filter>
+    </ClInclude>
     <ClInclude Include="llc_test_core.h">
       <Filter>test</Filter>
     </ClInclude>
@@ -1092,6 +1095,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_process.cpp">
+      <Filter>process</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_process_win32.cpp">
+      <Filter>process</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_process_linux.cpp">
       <Filter>process</Filter>
     </ClCompile>
     <ClCompile Include="llc_ccsds.cpp">

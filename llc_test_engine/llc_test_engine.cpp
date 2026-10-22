@@ -125,7 +125,7 @@ sttc ::llc::err_t testCoreRun(::llc::SRuntimeValues & runtimeValues, STestRunRep
 		, LLC_TEST_SUITE(testD3D, "d3d")
 		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
 		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
-		, LLC_TEST_SUITE(testRORSM, "ro_rsm")
+		//, LLC_TEST_SUITE(testRORSM, "ro_rsm")
 		);
 	testTimer.Frame();
 

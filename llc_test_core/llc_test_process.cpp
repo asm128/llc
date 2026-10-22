@@ -1,4 +1,5 @@
 #include "llc_process.h"
+#include "llc_args.h"
 #include "llc_string_compose.h"
 #include "llc_test_core.h"
 #ifdef LLC_LINUX
@@ -18,9 +19,9 @@ GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, BARE_KEY			, 6, "environmentBlockViews(
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EMPTY_BLOCK			, 7, "environmentBlockViews() modified output for an empty block.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, UNTERMINATED_RESULT	, 8, "environmentBlockViews() accepted an unterminated variable.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, UNTERMINATED_OUTPUT	, 9, "environmentBlockViews() modified output after rejecting an unterminated variable.");
-GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EXECUTE_RESULT		, 10, "processExecute() failed to run the test process.");
-GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EXECUTE_OUTPUT		, 11, "processExecute() failed to capture the child process' standard error.");
-GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EXECUTE_EXIT		, 12, "processExecute() returned the wrong child exit code.");
+GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EXECUTE_RESULT		, 10, "SProcessManager::Execute() failed to run the test process.");
+GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EXECUTE_OUTPUT		, 11, "SProcessManager::Execute() failed to capture the child process' standard error.");
+GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EXECUTE_EXIT		, 12, "SProcessManager::Execute() returned the wrong child exit code.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, LOOKUP				, 13, "An empty application name must enable executable lookup from the command line.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, DUPLEX				, 14, "Large stdin and stdout transfers must complete without pipe deadlock or data loss.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, EARLY_EXIT			, 15, "A child closing stdin early must return an input error without hanging.");
@@ -29,6 +30,106 @@ GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, ENVIRONMENT			, 17, "A supplied environ
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, CREATE_FAILURE		, 18, "Failed process creation must leave a closable owner with no child id.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, SIGNAL_POLICY		, 19, "Pipe writes must preserve the caller's SIGPIPE disposition and mask.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, LAUNCH				, 20, "An asynchronous process launch must succeed and arrange child reaping.");
+GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, MANAGER				, 21, "Manager ownership, retained completion or process-id lifecycle is incorrect.");
+GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, COPYCAST			, 22, "cpycst() must preserve equal-sized object representations and process flag bits.");
+GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, SCOPE				, 23, "Scoped process cleanup must run once, preserve errors and allow ownership transfer.");
+
+stct STestProcessOwner {
+	::llc::u2_t Calls = 0, Order = 0;
+	::llc::err_t Result = 0;
+	::llc::err_t Close(::llc::u2_t id) { ++Calls; Order = Order * 10 + id; rtrn Result; }
+};
+
+sttc ::llc::err_t testProcessScopeReturn(STestProcessOwner & owner) {
+	::llc::SProcessScope<STestProcessOwner> scope{owner, 1};
+	rtrn -19;
+}
+
+sttc ::llc::err_t testProcessScope(ATestError & errors) {
+	STestProcessOwner owner;
+	{
+		::llc::SProcessScope<STestProcessOwner> scope{owner, 1};
+	}
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, owner.Calls != 1 || owner.Order != 1);
+	{
+		::llc::SProcessScope<STestProcessOwner> scope{owner, 2};
+		scope.Inactive = true;
+	}
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, owner.Calls != 1 || owner.Order != 1);
+	{
+		::llc::SProcessScope<STestProcessOwner> scope{owner, 3};
+		LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, scope.Close() || scope.Close() || owner.Calls != 2 || owner.Order != 13);
+	}
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, owner.Calls != 2);
+	owner.Result = -37;
+	{
+		::llc::SProcessScope<STestProcessOwner> scope{owner, 4};
+		LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, scope.Close() != -37 || scope.Close() || owner.Calls != 3 || owner.Order != 134);
+	}
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, owner.Calls != 3);
+	cnst ::llc::err_t failure = testProcessScopeReturn(owner);
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, failure != -19 || owner.Calls != 4);
+	owner = {};
+	{
+		::llc::SProcessScope<STestProcessOwner> first{owner, 1};
+		::llc::SProcessScope<STestProcessOwner> second{owner, 2};
+	}
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, owner.Order != 21);
+	rtrn 0;
+}
+
+#if defined(LLC_WINDOWS) || defined(LLC_LINUX)
+sttc ::llc::err_t testProcessManager(ATestError & errors, ::llc::vcst_t application, ::llc::vcst_t commandLine) {
+	::llc::SProcessManager<> manager;
+	::llc::string ownedCommand = commandLine;
+	cnst ::llc::err_t id = manager.Create(application, ownedCommand);
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(id));
+	ownedCommand.clear();
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, manager.KnownProcesses[id].State.Started || manager.KnownProcesses[id].CommandLine != commandLine);
+	::llc::u2_t exitCode = 0;
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::succeeded(manager.Wait(id, exitCode)));
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(manager.Execute(id)));
+	cnst ::llc::vcst_t marker = "llc process child";
+	cnst auto & record = manager.KnownProcesses[id];
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, !record.State.Started || !record.State.Finished || record.ExitCode != EXIT_FAILURE);
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, record.Output.size() != marker.size() || memcmp(record.Output.begin(), marker.begin(), marker.size()));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(manager.Wait(id, exitCode)) || exitCode != EXIT_FAILURE);
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::succeeded(manager.Launch(id)) || ::llc::succeeded(manager.Execute(id)));
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(manager.Close(id)));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::succeeded(manager.Wait(id, exitCode)) || ::llc::succeeded(manager.Close(id)));
+	cnst ::llc::err_t next = manager.Create(application, commandLine);
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_MANAGER, next <= id);
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(manager.Redirect(next)) || ::llc::failed(manager.Launch(next)));
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(manager.Write(next, {})));
+	::llc::au0_t output;
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(manager.Read(next, output)));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(manager.Wait(next, exitCode)) || exitCode != EXIT_FAILURE);
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, output.size() != marker.size() || memcmp(output.begin(), marker.begin(), marker.size()));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::succeeded(manager.Launch((::llc::u2_t)-1)));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_MANAGER, ::llc::failed(manager.Close(next)));
+	cnst ::llc::u2_t originalCount = manager.KnownProcesses.size();
+	for(::llc::u2_t stage = 0; stage < 3; ++stage) {
+		{
+			llc_necs(manager.PlatformState.push_back({}));
+			::llc::SProcessManager<>::SCreateScope rollback{manager, originalCount};
+			if(stage) {
+				llc_necs(manager.KnownProcesses.emplace_back());
+				if(stage > 1) {
+					llc_necs(manager.KnownProcesses[originalCount].Application.append(application.begin(), application.size()));
+				}
+			}
+		}
+		LLC_TEST_CHECKF(errors, PROCESS_TEST_RESULT_SCOPE, manager.KnownProcesses.size() != originalCount || manager.PlatformState.size() != originalCount, "Rollback stage:%u.", stage);
+	}
+	cnst ::llc::err_t scopedId = manager.Create(application, commandLine);
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_SCOPE, ::llc::failed(scopedId));
+	{
+		::llc::SProcessManager<>::TProcessScope scope{manager, (::llc::u2_t)scopedId};
+	}
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SCOPE, !manager.KnownProcesses[scopedId].State.Closed);
+	rtrn 0;
+}
+#endif
 
 #ifdef LLC_WINDOWS
 sttc DWORD WINAPI processChildTimeout(void * completed) {
@@ -118,6 +219,16 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 #endif
 
 ::llc::err_t testProcess(ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+	llc_necs(::testProcessScope(errors));
+	::llc::SProcessCreationFlags copiedFlags = {};
+	cnst ::llc::u2_t originalFlags = 0x08000004U;
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COPYCAST, &::llc::cpycst(copiedFlags, originalFlags) != &copiedFlags);
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COPYCAST, !copiedFlags.Suspended || !copiedFlags.NoWindow || copiedFlags.NewConsole);
+	::llc::u2_t copiedBits = 0;
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COPYCAST, &::llc::cpycst(copiedBits, copiedFlags) != &copiedBits || copiedBits != originalFlags);
+	cnst ::llc::u0_t sourceBytes[] = {0, 127, 128, 255};
+	::llc::s0_t destinationBytes[4] = {};
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COPYCAST, &::llc::cpycst(destinationBytes, sourceBytes) != &destinationBytes || memcmp(destinationBytes, sourceBytes, sizeof(sourceBytes)));
 	cnst ::llc::sc_t environment[] = {'A', '=', '1', 0, 'B', '=', 't', 'w', 'o', 0, 0};
 	::llc::aobj<::llc::kv<::llc::vcst_t>> variables = {};
 	cnst ::llc::err_t result = ::llc::environmentBlockViews(environment, variables);
@@ -159,20 +270,22 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 	LLC_TEST_REQUIREF(errors, PROCESS_TEST_RESULT_EXECUTE_RESULT, ::llc::failed(commandResult), "Command result:%i.", commandResult);
 	::llc::au0_t processOutput = {};
 	::llc::u2_t processExitCode = 0;
-	cnst ::llc::err_t processResult = ::llc::processExecute
+	cnst ::llc::err_t processResult = ::llc::SProcessManager{}.Execute
 		( ::llc::vcst_t{modulePath, modulePathLength}
 		, commandLine
 		, {}
 		, processOutput
 		, processExitCode
+		, {}
 		);
 	LLC_TEST_REQUIREF(errors, PROCESS_TEST_RESULT_EXECUTE_RESULT, ::llc::failed(processResult), "Result:%i.", processResult);
 	stxp ::llc::sc_t expectedOutput[] = "llc process child";
 	LLC_TEST_CHECKF(errors, PROCESS_TEST_RESULT_EXECUTE_OUTPUT, processOutput.size() != ::llc::size(expectedOutput) - 1 || 0 != memcmp(processOutput.begin(), expectedOutput, ::llc::size(expectedOutput) - 1), "Output size:%u, expected:%u.", processOutput.size(), ::llc::size(expectedOutput) - 1);
 	LLC_TEST_CHECKF(errors, PROCESS_TEST_RESULT_EXECUTE_EXIT, EXIT_FAILURE != processExitCode, "Exit code:%u, expected:%u.", processExitCode, EXIT_FAILURE);
+	llc_necs(::testProcessManager(errors, {modulePath, modulePathLength}, commandLine));
 
 	processOutput.clear();
-	cnst ::llc::err_t lookupResult = ::llc::processExecute({}, "cmd.exe /d /c exit 23", {}, processOutput, processExitCode);
+	cnst ::llc::err_t lookupResult = ::llc::SProcessManager{}.Execute({}, "cmd.exe /d /c exit 23", {}, processOutput, processExitCode, {});
 	LLC_TEST_CHECKF(errors, PROCESS_TEST_RESULT_LOOKUP, ::llc::failed(lookupResult) || 23 != processExitCode, "Result:%i, exit:%u.", lookupResult, processExitCode);
 
 	::llc::au0_t processInput;
@@ -180,13 +293,13 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 	for(::llc::u2_t i = 0; i < processInput.size(); ++i)
 		processInput[i] = (::llc::u0_t)i;
 	processOutput.clear();
-	cnst ::llc::err_t earlyExitResult = ::llc::processExecute({modulePath, modulePathLength}, commandLine, processInput, processOutput, processExitCode);
+	cnst ::llc::err_t earlyExitResult = ::llc::SProcessManager{}.Execute({modulePath, modulePathLength}, commandLine, processInput, processOutput, processExitCode, {});
 	LLC_TEST_CHECKF(errors, PROCESS_TEST_RESULT_EARLY_EXIT, 0 <= earlyExitResult, "Result:%i.", earlyExitResult);
 
 	commandLine.clear();
 	llc_necs(::llc::append_strings(commandLine, '"', ::llc::vcst_t{modulePath, modulePathLength}, "\" --process-echo"));
 	processOutput.clear();
-	cnst ::llc::err_t duplexResult = ::llc::processExecute({modulePath, modulePathLength}, commandLine, processInput, processOutput, processExitCode);
+	cnst ::llc::err_t duplexResult = ::llc::SProcessManager{}.Execute({modulePath, modulePathLength}, commandLine, processInput, processOutput, processExitCode, {});
 	LLC_TEST_REQUIREF(errors, PROCESS_TEST_RESULT_DUPLEX, ::llc::failed(duplexResult) || 0 != processExitCode, "Result:%i, exit:%u (124 means timeout).", duplexResult, processExitCode);
 	stxp ::llc::u2_t prefixSize = 16 * 4096;
 	LLC_TEST_REQUIREF(errors, PROCESS_TEST_RESULT_DUPLEX, processOutput.size() != prefixSize + processInput.size(), "Output:%u, expected:%u.", processOutput.size(), prefixSize + processInput.size());
@@ -200,22 +313,23 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 	cnst ::llc::vcst_t echoArgs = "llc_test_core --process-echo";
 	::llc::au0_t output, input;
 	::llc::u2_t exitCode = 0;
-	cnst ::llc::err_t markerResult = ::llc::processExecute("/proc/self/exe", markerArgs, {}, output, exitCode);
+	cnst ::llc::err_t markerResult = ::llc::SProcessManager{}.Execute("/proc/self/exe", markerArgs, {}, output, exitCode, {});
 	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_EXECUTE_RESULT, ::llc::failed(markerResult));
 	cnst ::llc::vcst_t marker = "llc process child";
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_EXECUTE_OUTPUT, output.size() != marker.size() || memcmp(output.begin(), marker.begin(), marker.size()));
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_EXECUTE_EXIT, EXIT_FAILURE != exitCode);
+	llc_necs(::testProcessManager(errors, "/proc/self/exe", markerArgs));
 	cnst ::llc::vcst_t signalArgs = "llc_test_core --process-signal";
 	output.clear();
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_EXECUTE_EXIT, ::llc::failed(::llc::processExecute("/proc/self/exe", signalArgs, {}, output, exitCode)) || 128U + SIGTERM != exitCode);
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_EXECUTE_EXIT, ::llc::failed(::llc::SProcessManager{}.Execute("/proc/self/exe", signalArgs, {}, output, exitCode, {})) || 128U + SIGTERM != exitCode);
 
 	cnst ::llc::vcst_t lookupArgs = "true";
 	output.clear();
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_LOOKUP, ::llc::failed(::llc::processExecute({}, lookupArgs, {}, output, exitCode)) || exitCode);
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_LOOKUP, ::llc::failed(::llc::SProcessManager{}.Execute({}, lookupArgs, {}, output, exitCode, {})) || exitCode);
 	cnst ::llc::vcst_t literalArgs = "printf %s|%s|%s \"two words\" \\\"quoted\\\" $(literal)";
 	cnst ::llc::vcst_t expected = "two words|\"quoted\"|$(literal)";
 	output.clear();
-	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_ARGUMENTS, ::llc::failed(::llc::processExecute({}, literalArgs, {}, output, exitCode)) || exitCode);
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_ARGUMENTS, ::llc::failed(::llc::SProcessManager{}.Execute({}, literalArgs, {}, output, exitCode, {})) || exitCode);
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_ARGUMENTS, output.size() != expected.size() || memcmp(output.begin(), expected.begin(), expected.size()));
 	cnst ::llc::kv<::llc::vcst_t> commandCases[] = {
 		{R"cmd("printf" <%s> "" "two words" plain)cmd", "<><two words><plain>"},
@@ -226,30 +340,36 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 	};
 	for(cnst auto & commandCase : commandCases) {
 		output.clear();
-		cnst ::llc::err_t commandResult = ::llc::processExecute({}, commandCase.Key, {}, output, exitCode);
+		cnst ::llc::err_t commandResult = ::llc::SProcessManager{}.Execute({}, commandCase.Key, {}, output, exitCode, {});
 		LLC_TEST_CHECKF(errors, PROCESS_TEST_RESULT_ARGUMENTS, ::llc::failed(commandResult) || exitCode || output.size() != commandCase.Val.size() || memcmp(output.begin(), commandCase.Val.begin(), commandCase.Val.size()), "Command:%.*s; result:%i, exit:%u, bytes:%u, expected:%u.", LLC_VIEW_ARGS(commandCase.Key), commandResult, exitCode, output.size(), commandCase.Val.size());
 	}
-	::llc::SProcess invalidCommand;
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::succeeded(::llc::processCreate(invalidCommand, "/bin/true", " \t")));
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::succeeded(::llc::processCreate(invalidCommand, "/bin/true", "\"\"")));
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::succeeded(::llc::processCreate(invalidCommand, "/proc/self/exe", markerArgs, {}, 1)));
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::failed(::llc::processClose(invalidCommand)));
+	::llc::SProcessManager<> manager;
+	for(cnst ::llc::vcst_t invalidCommand : {::llc::vcst_t{" \t"}, ::llc::vcst_t{"\"\""}}) {
+		cnst ::llc::err_t id = manager.Create("/bin/true", invalidCommand);
+		LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::failed(id));
+		LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::succeeded(manager.Launch(id)));
+		LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::failed(manager.Close(id)));
+	}
+	cnst ::llc::err_t flagsId = manager.Create("/proc/self/exe", markerArgs, {}, 1);
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::failed(flagsId));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::succeeded(manager.Launch(flagsId)));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::failed(manager.Close(flagsId)));
 
 	cnst ::llc::vcst_t envArgs = "env";
 	cnst ::llc::sc_t customEnvironment[] = "LLC_PROCESS_TEST=present\0";
 	cnst ::llc::vcst_t expectedEnvironment = "LLC_PROCESS_TEST=present\n";
 	output.clear();
-	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_ENVIRONMENT, ::llc::failed(::llc::processExecute({}, envArgs, {}, output, exitCode, {customEnvironment, sizeof(customEnvironment)})) || exitCode);
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_ENVIRONMENT, ::llc::failed(::llc::SProcessManager{}.Execute({}, envArgs, {}, output, exitCode, {customEnvironment, sizeof(customEnvironment)})) || exitCode);
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_ENVIRONMENT, output.size() != expectedEnvironment.size() || memcmp(output.begin(), expectedEnvironment.begin(), expectedEnvironment.size()));
 	cnst ::llc::sc_t emptyEnvironment[] = {0};
 	output.clear();
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_ENVIRONMENT, ::llc::failed(::llc::processExecute({}, envArgs, {}, output, exitCode, {emptyEnvironment, 1})) || exitCode || output.size());
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_ENVIRONMENT, ::llc::failed(::llc::SProcessManager{}.Execute({}, envArgs, {}, output, exitCode, {emptyEnvironment, 1})) || exitCode || output.size());
 
 	llc_necs(input.resize(1024 * 1024));
 	for(::llc::u2_t i = 0; i < input.size(); ++i)
 		input[i] = (::llc::u0_t)i;
 	output.clear();
-	cnst ::llc::err_t duplexResult = ::llc::processExecute("/proc/self/exe", echoArgs, input, output, exitCode);
+	cnst ::llc::err_t duplexResult = ::llc::SProcessManager{}.Execute("/proc/self/exe", echoArgs, input, output, exitCode, {});
 	LLC_TEST_REQUIREF(errors, PROCESS_TEST_RESULT_DUPLEX, ::llc::failed(duplexResult) || exitCode, "Result:%i, exit:%u (142 means SIGALRM timeout).", duplexResult, exitCode);
 	stxp ::llc::u2_t prefixSize = 16 * 4096;
 	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_DUPLEX, output.size() != prefixSize + input.size());
@@ -258,31 +378,32 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 		prefixChanged |= 0 != output[i];
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_DUPLEX, prefixChanged || memcmp(output.begin() + prefixSize, input.begin(), input.size()));
 
-	// Exercise SIGPIPE handling on this thread as well as on processExecute's worker.
+	// Exercise SIGPIPE handling on this thread as well as on Execute's worker.
 	struct sigaction before = {}, after = {};
 	sigset_t maskBefore, maskAfter;
 	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_SIGNAL_POLICY, sigaction(SIGPIPE, 0, &before) || pthread_sigmask(SIG_SETMASK, 0, &maskBefore));
-	::llc::SProcess pipeOnly;
-	llc_necs(::llc::processRedirect(pipeOnly));
-	cnst int readEnd = pipeOnly.StdinRead;
-	pipeOnly.StdinRead = -1;
-	cnst int closedRead = close(readEnd);
-	cnst ::llc::err_t brokenResult = ::llc::processWrite(pipeOnly, input);
-	cnst ::llc::err_t closedPipes = ::llc::processClose(pipeOnly);
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_EARLY_EXIT, closedRead || ::llc::succeeded(brokenResult) || ::llc::failed(closedPipes));
+	cnst ::llc::err_t pipeId = manager.Create({}, "true");
+	llc_necs(pipeId);
+	llc_necs(manager.Redirect(pipeId));
+	llc_necs(manager.Launch(pipeId));
+	llc_necs(manager.Wait(pipeId, exitCode)); // Child has closed its read end.
+	cnst ::llc::err_t brokenResult = manager.Write(pipeId, input);
+	cnst ::llc::err_t closedPipes = manager.Close(pipeId);
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_EARLY_EXIT, ::llc::succeeded(brokenResult) || ::llc::failed(closedPipes));
 	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_SIGNAL_POLICY, sigaction(SIGPIPE, 0, &after) || pthread_sigmask(SIG_SETMASK, 0, &maskAfter));
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_SIGNAL_POLICY, before.sa_handler != after.sa_handler || sigismember(&maskBefore, SIGPIPE) != sigismember(&maskAfter, SIGPIPE));
 	output.clear();
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_EARLY_EXIT, ::llc::succeeded(::llc::processExecute("/proc/self/exe", markerArgs, input, output, exitCode)));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_EARLY_EXIT, ::llc::succeeded(::llc::SProcessManager{}.Execute("/proc/self/exe", markerArgs, input, output, exitCode, {})));
 
-	::llc::SProcess missing;
-	llc_necs(::llc::processRedirect(missing));
-	cnst ::llc::err_t missingResult = ::llc::processCreate(missing, "/proc/self/llc-no-such-executable", markerArgs);
-	cnst bool hadChild = 0 < missing.Id;
-	cnst ::llc::err_t closedMissing = ::llc::processClose(missing);
+	cnst ::llc::err_t missingId = manager.Create("/proc/self/llc-no-such-executable", markerArgs);
+	llc_necs(missingId);
+	llc_necs(manager.Redirect(missingId));
+	cnst ::llc::err_t missingResult = manager.Launch(missingId);
+	cnst bool hadChild = manager.KnownProcesses[missingId].State.Started;
+	cnst ::llc::err_t closedMissing = manager.Close(missingId);
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::succeeded(missingResult) || hadChild || ::llc::failed(closedMissing));
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, missing.StdinRead != -1 || missing.StdinWrite != -1 || missing.StdoutRead != -1 || missing.StdoutWrite != -1);
-	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_LAUNCH, ::llc::failed(::llc::processLaunch({}, lookupArgs)));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_CREATE_FAILURE, ::llc::succeeded(manager.Launch(missingId)));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_LAUNCH, ::llc::failed(::llc::SProcessManager{}.Launch({}, lookupArgs, {})));
 #endif
 	return 0;
 }
