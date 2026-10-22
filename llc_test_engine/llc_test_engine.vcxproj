@@ -38,7 +38,6 @@
     <ClCompile Include="llc_test_d3d.cpp" />
     <ClCompile Include="llc_test_engine.cpp" />
     <ClCompile Include="llc_test_engine_managers.cpp" />
-<<<<<<< Updated upstream
     <ClCompile Include="llc_test_engine_ro_rsm.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-MT|Win32'">true</ExcludedFromBuild>
@@ -49,9 +48,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-MT|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-=======
     <ClCompile Include="llc_test_engine_ragnarok.cpp" />
->>>>>>> Stashed changes
     <ClCompile Include="llc_test_engine_serialization.cpp" />
   </ItemGroup>
   <ItemGroup>
