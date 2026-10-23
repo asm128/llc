@@ -309,7 +309,7 @@ namespace llc
 		}
 	};
 
-	::llc::err_t			d3dDrawEngineNode		(::llc::Sample3DSceneRenderer & renderer, const ::llc::SEngineScene & scene, ::llc::u2_t node, ::llc::view<const ::llc::SRenderLight> lights, const ::llc::SRenderMaterial * material = nullptr, ::llc::u2_t vertexShader = 0);
+	::llc::err_t			d3dDrawEngineNode		(::llc::Sample3DSceneRenderer & renderer, const ::llc::SEngineScene & scene, ::llc::u2_t node, ::llc::view<const ::llc::SRenderLight> lights, const ::llc::SRenderMaterial * material = nullptr, ::llc::u2_t vertexShader = 0, ::llc::CULL_MODE cullMode = ::llc::CULL_MODE_CCW);
 	::llc::error_t			d3dDrawEngineScene		(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
 	::llc::error_t			d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
 };

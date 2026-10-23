@@ -39,6 +39,9 @@ GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, OVERLAY_DEPTH				, 24, "The overlay must le
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_PIXELS					, 25, "GPU control drawing must match the existing CPU geometry, palettes, fonts and images.");
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_REUSE					, 26, "Repeated GUI drawing must reuse its vertex buffer and font textures.");
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_UNCHANGED				, 27, "GPU drawing must leave GUI geometry and state untouched.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, CULL_PIXELS					, 28, "Culling must select winding independently of alpha blending.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, CULL_DEPTH					, 29, "Changing culling must preserve the selected depth-write behavior.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, CULL_INVALID				, 30, "An invalid culling mode must fail before changing the rasterizer state.");
 
 sttc ::llc::err_t testD3DGUI(::llc::ATestError & errors, ::DX::D3DDeviceResources & resources, ::llc::vcst_t outputFolder) {
 	::llc::SGUI gui, overlay;
@@ -209,6 +212,27 @@ sttc ::llc::err_t testD3DLights(::llc::ATestError & errors, ::llc::pobj<::DX::D3
 		llc_necs(target.Read(*resources, pixels.Color, pixels.DepthStencil));
 		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_OVERLAY_DEPTH, pixels.Color[12][8].g != (z > 0 ? 200 : 0) || pixels.DepthStencil[12][8] != (::llc::u2_t)(0xFFFFFFFU * (z > 0 ? .5 : .25)));
 	}
+	llc_necs(lights.resize(1));
+	lights[0].Color.Diffuse = ::llc::RED;
+	lights[0].Range = 10;
+	for(bool reversed : {false, true}) for(bool alpha : {false, true})
+	for(::llc::CULL_MODE mode : {::llc::CULL_MODE_CCW, ::llc::CULL_MODE_CW, ::llc::CULL_MODE_NONE}) {
+		scene.RenderNodes.Transforms[0].Model.Scale({reversed ? -1.0f : 1.0f, 1, 1}, true);
+		::llc::SRenderMaterial material = {};
+		material.Color.Diffuse.a = alpha ? .5f : 1.0f;
+		for(auto & pixel : pixels.Color.Texels) pixel = ::llc::BLUE;
+		llc_necs(target.Begin(*resources, pixels.Color));
+		llc_necs(::llc::d3dDrawEngineNode(renderer, scene, 0, lights, &material, 0, mode));
+		llc_necs(target.Read(*resources, pixels.Color, pixels.DepthStencil));
+		const bool visible = mode == ::llc::CULL_MODE_NONE || mode == (reversed ? ::llc::CULL_MODE_CW : ::llc::CULL_MODE_CCW);
+		LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_CULL_PIXELS, (pixels.Color[12][8].r != 0) != visible, "Mode:%u, reversed:%u, alpha:%u.", (::llc::u2_t)mode, reversed, alpha);
+		LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_CULL_DEPTH, pixels.DepthStencil[12][8] != (visible && !alpha ? (::llc::u2_t)(0xFFFFFFFU * .5) : 0xFFFFFFFFU), "Mode:%u, reversed:%u, alpha:%u.", (::llc::u2_t)mode, reversed, alpha);
+	}
+	::llc::pcom<ID3D11RasterizerState> beforeCull, afterCull;
+	context->RSGetState(&beforeCull);
+	const ::llc::err_t invalidCull = renderer.Render(0, {0, 6}, {}, 0, false, {}, {}, 0, (::llc::CULL_MODE)255);
+	context->RSGetState(&afterCull);
+	LLC_TEST_CHECK(errors, D3D_TEST_RESULT_CULL_INVALID, invalidCull != ::llc::OS_INVALID_PARAMETER || beforeCull.get() != afterCull.get());
 	llc_necs(pixels.resize(::llc::n2u2_t{19, 11}, ::llc::BLUE, 0));
 	llc_necs(target.Begin(*resources, pixels.Color));
 	llc_necs(target.Read(*resources, pixels.Color, pixels.DepthStencil));

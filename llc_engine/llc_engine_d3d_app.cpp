@@ -393,7 +393,7 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	return 0;
 }
 
-::llc::err_t llc::d3dDrawEngineNode(::llc::Sample3DSceneRenderer & renderer, const ::llc::SEngineScene & scene, ::llc::u2_t iNode, ::llc::view<const ::llc::SRenderLight> lights, const ::llc::SRenderMaterial * material, ::llc::u2_t vertexShader) {
+::llc::err_t llc::d3dDrawEngineNode(::llc::Sample3DSceneRenderer & renderer, const ::llc::SEngineScene & scene, ::llc::u2_t iNode, ::llc::view<const ::llc::SRenderLight> lights, const ::llc::SRenderMaterial * material, ::llc::u2_t vertexShader, ::llc::CULL_MODE cullMode) {
 	if_true_fe(iNode >= scene.RenderNodes.size() || !scene.Graphics);
 	const ::llc::SRenderNode & node = scene.RenderNodes[iNode];
 	if_true_fe(node.Mesh >= scene.Graphics->Meshes.size() || node.Skin >= scene.Graphics->Skins.size());
@@ -409,7 +409,7 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	constants.Material = material ? *material : skin.Material;
 	const ::llc::m4f2_t model = scene.RenderNodes.BaseTransforms[iNode].Model * scene.RenderNodes.Transforms[iNode].Model;
 	llc_necs(::llc::lightFilter(model.GetTranslation(), lights, renderer.RenderCache.LightsNode));
-	return renderer.Render(node.Mesh, slice, skin.Textures, node.Shader, constants.Material.Color.Diffuse.a != 1.0f, constants, renderer.RenderCache.LightsNode, vertexShader);
+	return renderer.Render(node.Mesh, slice, skin.Textures, node.Shader, constants.Material.Color.Diffuse.a != 1.0f, constants, renderer.RenderCache.LightsNode, vertexShader, cullMode);
 }
 
 ::llc::error_t			llc::d3dDrawEngineScene	(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time)	{
