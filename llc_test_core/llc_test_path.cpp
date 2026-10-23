@@ -1,5 +1,6 @@
 #include "llc_path.h"
 #include "llc_file.h"
+#include "llc_string_compose.h"
 
 #include "llc_test_core.h"
 
@@ -66,6 +67,15 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_FOLDER_EQUIVALENT, 56, "Callback
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_EXTENSION_FOLDER_COUNT, 57, "Extension-filtered pathList() tree contained the wrong folder count.");
 
 tydf ::llc::err_t (*TFileToString)(::llc::vcst_t, ::llc::string &, ::llc::u2_t, uint64_t);
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_COUNTS, 58, "SPathTree arrays have inconsistent entry counts.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_STORAGE, 59, "SPathTree names are not consecutive views into Char.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_NODE, 60, "SPathTree node does not reference its own information/index.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_PARENT, 61, "SPathTree parent/child linkage does not match nesting.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_FILTER, 62, "SPathTree filter did not preserve folders or prune rejected branches.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_REUSE, 63, "SPathTree reuse retained old entries or lost reusable character storage.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_FAILURE, 64, "SPathTree failed scan did not retain a usable accepted prefix.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_RESET, 65, "SPathTree Reset did not retain reusable character/node storage.");
+GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_ROOT, 66, "SPathTree did not own the exact caller-provided scan root.");
 tydf ::llc::err_t (*TFileFromBytes)(::llc::vcst_t, ::llc::vcs0_t, bool);
 tydf ::llc::err_t (*TFileFromString)(::llc::vcst_t, ::llc::vcst_t, bool);
 tydf ::llc::err_t (*TPathCreate)(::llc::vcst_t, ::llc::sc_c);
@@ -371,6 +381,110 @@ sttc ::llc::err_t testPathAbsoluteInvalid(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testPathTreeLayout(::llc::ATestError & errors, cnst ::llc::SPathTree & tree) {
+	LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_TREE_COUNTS, tree.Name.size() != tree.Info.size() || tree.Tree.size() != tree.Info.size());
+	::llc::u2_t offset = 0;
+	cnst ::llc::SPathNode * parents[128] = {};
+	for(::llc::u2_t i = 0; i < tree.Info.size(); ++i) {
+		LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_TREE_NODE, !tree[i]);
+		cnst ::llc::SPathNode & node = *tree[i];
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_NODE, node.Info != &tree.Info[i] || node.ObjectIndex != i);
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_STORAGE, tree.Name[i].begin() != tree.Char.begin() + offset || !tree.Name[i].size());
+		for(cnst char character : tree.Name[i])
+			LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_STORAGE, !character || '/' == character || '\\' == character);
+		offset += tree.Name[i].size();
+		cnst ::llc::u2_t level = tree.Info[i].NestLevel;
+		cnst ::llc::SPathNode * expectedParent = level ? parents[level - 1] : nullptr;
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_PARENT, node.Parent != expectedParent || (level && !expectedParent));
+		parents[level] = tree.Info[i].Folder ? &node : nullptr;
+		::llc::u2_t children = 0;
+		for(::llc::u2_t j = i + 1; j < tree.Info.size() && tree.Info[j].NestLevel > level; ++j) {
+			if(tree.Info[j].NestLevel == level + 1) {
+				LLC_TEST_REQUIRE(errors, PATH_TEST_RESULT_TREE_PARENT, children >= node.Children.size());
+				LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_PARENT, (cnst ::llc::SPathNode*)node.Children[children] != (cnst ::llc::SPathNode*)tree[j]);
+				++children;
+			}
+		}
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_PARENT, children != node.Children.size() || (!tree.Info[i].Folder && children));
+	}
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_STORAGE, offset != tree.Char.size());
+	rtrn 0;
+}
+
+sttc ::llc::err_t testPathTree(::llc::ATestError & errors, ::llc::vcst_t root) {
+	::llc::string emptyPath;
+	if_fail_fe(::llc::pathNameCompose(root, "empty", emptyPath));
+	if_fail_fe(::llc::pathCreate(emptyPath));
+	::llc::SPathTree tree;
+	if_fail_fe(::llc::pathList(tree, root));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_ROOT, tree.Root != root);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_COUNTS, tree.Info.size() != 6);
+	if_fail_fe(::testPathTreeLayout(errors, tree));
+	cnst char * storage = tree.Char.begin();
+	cnst ::llc::SPathNode * firstNode = tree[0];
+	cnst ::llc::u2_t characters = tree.Char.size();
+	if_fail_fe(::llc::pathList(tree, tree.Root));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_ROOT, tree.Root != root);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_REUSE, tree.Info.size() != 6 || characters != tree.Char.size() || storage != tree.Char.begin() || firstNode != (cnst ::llc::SPathNode*)tree[0]);
+	if_fail_fe(::testPathTreeLayout(errors, tree));
+	::llc::string callerRoot;
+	if_fail_fe(::llc::append_strings(callerRoot, root, '/'));
+	cnst ::llc::string suppliedRoot = callerRoot;
+	if_fail_fe(::llc::pathList(tree, callerRoot, ".bin"));
+	if_fail_fe(callerRoot.clear());
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_ROOT, tree.Root != suppliedRoot);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FILTER, tree.Info.size() != 6);
+	if_fail_fe(::llc::pathList(tree, root, ".txt"));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FILTER, tree.Info.size() != 3);
+	for(cnst ::llc::SPathInfo & info : tree.Info)
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FILTER, !info.Folder);
+	if_fail_fe(::testPathTreeLayout(errors, tree));
+	if_fail_fe(::llc::pathList(tree, root, [] (bool folder, ::llc::vcst_c & path) -> ::llc::err_t {
+		::llc::vcst_t name;
+		if_fail_fe(::llc::pathFilename(path, name));
+		rtrn folder && name == "child" ? 1 : 0;
+	}));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FILTER, tree.Info.size() != 2);
+	if_fail_fe(::testPathTreeLayout(errors, tree));
+	::llc::u2_t visited = 0;
+	if_fail_fe(::llc::pathList(tree, root, [&](bool folder, ::llc::vcst_c &) -> ::llc::err_t {
+		++visited;
+		rtrn folder ? 2 : 0;
+	}));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FILTER, visited != 3 || tree.Info.size() != 3);
+	for(cnst ::llc::SPathInfo & info : tree.Info)
+		LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FILTER, info.NestLevel != 0);
+	if_fail_fe(::testPathTreeLayout(errors, tree));
+	cnst ::llc::err_t failedScan = ::llc::pathList(tree, root, [&](bool, ::llc::vcst_c &) -> ::llc::err_t {
+		rtrn tree.Info.size() == 2 ? -1 : 0;
+	});
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FAILURE, !::llc::failed(failedScan) || tree.Info.size() != 2);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_ROOT, tree.Root != root);
+	if_fail_fe(::testPathTreeLayout(errors, tree));
+	if_fail_fe(::llc::pathList(tree, emptyPath));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_ROOT, tree.Root != emptyPath);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_REUSE, tree.Char.size() || tree.Info.size() || tree.Name.size() || tree.Tree.size());
+	::llc::string missingPath;
+	if_fail_fe(::llc::pathNameCompose(root, "not-present", missingPath));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FAILURE, !::llc::failed(::llc::pathList(tree, missingPath)));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_ROOT, tree.Root != missingPath);
+	if_fail_fe(::testPathTreeLayout(errors, tree));
+	// Force growth of both backing arrays before verifying every borrowed address.
+	for(::llc::u2_t i = 0; i < 80; ++i) {
+		::llc::string filename;
+		if_fail_fe(::llc::append_strings(filename, emptyPath, "/file-", ::llc::str(i), ".bin"));
+		if_fail_fe(::llc::fileFromMemory(filename, ::llc::vcu0_c{}));
+	}
+	if_fail_fe(::llc::pathList(tree, root));
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_COUNTS, tree.Info.size() != 86);
+	if_fail_fe(::testPathTreeLayout(errors, tree));
+	cnst ::llc::u2_t retainedCharacters = tree.Char.size(), retainedNodes = tree.Tree.size();
+	if_fail_fe(tree.Reset());
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_ROOT, tree.Root != root);
+	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_RESET, tree.Char.size() != retainedCharacters || tree.Info.size() || tree.Name.size() || tree.Tree.size() != retainedNodes);
+	rtrn 0;
+}
+
 sttc ::llc::err_t testPathListRecursive(::llc::ATestError & errors) {
 	SPathListFixture		fixture;
 	std::error_code		filesystemError;
@@ -418,6 +532,7 @@ sttc ::llc::err_t testPathListRecursive(::llc::ATestError & errors) {
 	cnst SPathListCounts	filteredCounts	= ::pathListCounts(filteredTree);
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_EXTENSION_FILTER, filteredCounts.Files , "Root:'%.*s' filtered files:%u, expected:0." , (int)rootPath.size(), rootPath.begin(), filteredCounts.Files );
 	LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_LIST_EXTENSION_FOLDER_COUNT, 2 != filteredCounts.Folders , "Root:'%.*s' filtered folders:%u, expected:2." , (int)rootPath.size(), rootPath.begin(), filteredCounts.Folders );
+	if_fail_fe(::testPathTree(errors, rootPath));
 	rtrn 0;
 }
 

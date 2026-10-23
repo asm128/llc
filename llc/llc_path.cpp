@@ -377,3 +377,80 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	::llc::string				withoutTrailingSlash		= removeTrailingSlash ? ::llc::vcst_t{pathToList.begin(), pathToList.size() - 1} : pathToList;
 	rtrn ::pathListNative(withoutTrailingSlash, pathContents, onItem, extension);
 }
+
+sttc ::llc::err_t		pathTreeScan			(::llc::SPathTree & output, ::llc::au2_t & lengths, ::llc::vcst_t path, cnst ::llc::function<::llc::err_t(bool, ::llc::vcst_c&)> & filter, ::llc::u2_t level) {
+	::llc::SPathContents unused;
+	rtrn ::llc::pathList(path, unused, [&](bool folder, ::llc::vcst_c & entry) -> ::llc::err_t {
+		::llc::err_t action = 0;
+		if(filter) {
+			if_fail_fe(action = filter(folder, entry));
+		}
+		if(action & 1)
+			rtrn 1;
+		if_true_fef(level > 127, "Path nesting exceeds SPathInfo: '%.*s'.", LLC_VIEW_ARGS(entry));
+		::llc::vcst_t name;
+		if_fail_fe(::llc::pathFilename(entry, name));
+		cnst ::llc::u2_t oldSize = output.Char.size(), index = lengths.size();
+		if_fail_fe(output.Char.append(name));
+		if_true_block_log(error_printf, ::llc::failed(::llc::resize(index + 1, output.Info, lengths)), {
+			if_fail_e(output.Char.resize(oldSize));
+			rtrn -1;
+		});
+		output.Info[index] = {(::llc::u0_t)level, (::llc::u0_t)folder};
+		lengths[index] = name.size();
+		if(folder && !(action & 2)) {
+			if_fail_fe(::pathTreeScan(output, lengths, entry, filter, level + 1));
+		}
+		rtrn 1; // Recursion and storage are owned here, not by SPathContents.
+	}, {});
+}
+
+sttc ::llc::err_t		pathTreeBuild			(::llc::SPathTree & output, ::llc::vcu2_t lengths) {
+	if_fail_fe(::llc::resize(output.Info.size(), output.Name, output.Tree));
+	::llc::SPathNode * parents[128] = {};
+	::llc::u2_t offset = 0;
+	for(::llc::u2_t i = 0; i < output.Info.size(); ++i) {
+		output.Name[i] = {output.Char.begin() + offset, lengths[i]};
+		offset += lengths[i];
+		::llc::pobj<::llc::SPathNode> & node = output.Tree[i];
+		if(!node) {
+			if_null_fe(node.create());
+		}
+		node->Info = &output.Info[i];
+		node->ObjectIndex = i;
+		if_fail_fe(node->Children.clear());
+		cnst ::llc::u2_t level = node->Info->NestLevel;
+		node->Parent = level ? parents[level - 1] : nullptr;
+		parents[level] = node->Info->Folder ? (::llc::SPathNode*)node : nullptr;
+		if(node->Parent) {
+			if_fail_fe(node->Parent->Children.push_back(node));
+		}
+	}
+	rtrn 0;
+}
+
+::llc::err_t			llc::pathList			(SPathTree & output, vcst_t pathToList, function<err_t(bool, vcst_c&)> filter) {
+	// Keep a caller-supplied view into output alive across Reset().
+	output.Root = pathToList;
+	if_fail_fe(output.Reset());
+	if_fail_fe(output.Char.clear());
+	au2_t lengths;
+	cnst err_t scanned = ::pathTreeScan(output, lengths, output.Root, filter, 0);
+	// Rebuild accepted entries even if scanning failed, for inspection by the caller.
+	if_fail_fe(::pathTreeBuild(output, lengths));
+	rtrn scanned;
+}
+
+::llc::err_t			llc::pathList			(SPathTree & output, vcst_t pathToList, vcst_t extension) {
+	string suffix = extension;
+	rtrn pathList(output, pathToList, [&](bool folder, vcst_c & entry) -> err_t {
+		if(folder || !suffix.size())
+			rtrn 0;
+		vcst_t name, ending;
+		if_fail_fe(pathFilename(entry, name));
+		if(suffix.size() >= name.size())
+			rtrn 1;
+		if_fail_fe(name.slice(ending, name.size() - suffix.size()));
+		rtrn ending == suffix ? 0 : 1;
+	});
+}
