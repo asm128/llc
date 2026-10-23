@@ -427,6 +427,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug-MT|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="psGUIControl.hlsl">
+      <ShaderType>Pixel</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="vsGUIControl.hlsl">
+      <ShaderType>Vertex</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="psGUI.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release-MT|Win32'">Pixel</ShaderType>
@@ -672,18 +680,6 @@
     <ClInclude Include="WaveBankReader.h" />
     <ClInclude Include="WAVFileReader.h" />
     <ClInclude Include="XAudio2Versions.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="llc_engine_gui.cpp" />
-    <ClCompile Include="llc_engine_gui_d3d.cpp" />
-    <ClInclude Include="llc_engine_gui.h" />
-    <ClInclude Include="llc_engine_gui_d3d.h" />
-    <FxCompile Include="vsGUIMesh.hlsl">
-      <ShaderType>Vertex</ShaderType><ShaderModel>5.0</ShaderModel><ObjectFileOutput>$(OutDir)%(Filename).cso</ObjectFileOutput>
-    </FxCompile>
-    <FxCompile Include="psGUIMesh.hlsl">
-      <ShaderType>Pixel</ShaderType><ShaderModel>5.0</ShaderModel><ObjectFileOutput>$(OutDir)%(Filename).cso</ObjectFileOutput>
-    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

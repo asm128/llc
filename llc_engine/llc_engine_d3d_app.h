@@ -6,6 +6,7 @@
 
 #include "llc_image.h"
 #include "llc_file.h"
+#include "llc_gui.h"
 
 #ifndef LLC_ENGINE_D3D_APP_H_23627
 #define LLC_ENGINE_D3D_APP_H_23627
@@ -15,14 +16,23 @@ namespace llc
 	struct SD3DRenderTarget {
 		::llc::pcom<ID3D11Texture2D>			Color, Depth, ReadColor, ReadDepth;
 		::llc::pcom<ID3D11RenderTargetView>	Target;
-		::llc::pcom<ID3D11ShaderResourceView>	ColorView;
 		::llc::pcom<ID3D11DepthStencilView>	DepthView;
 		::llc::err_t Begin	(::DX::D3DDeviceResources & resources, ::llc::gc8bgra colors);
-		::llc::err_t Begin	(::DX::D3DDeviceResources & resources, ::llc::n2u2_t size, ::llc::rgbaf clearColor);
 		::llc::err_t Upload	(::DX::D3DDeviceResources & resources, ::llc::gc8bgra colors);
 		::llc::err_t Read	(::DX::D3DDeviceResources & resources, ::llc::g8bgra colors, ::llc::gu2_t depth);
 	};
 
+	struct SD3DGUIVertex {
+		::llc::n2f2_t Position, UV;
+		::llc::bgra Color;
+		::llc::u2_t Mode = 0;
+		::llc::tri2f2_t Triangle = {};
+	};
+	struct SD3DGUIFont {
+		::llc::pobj<::llc::SRasterFont> Font;
+		::llc::pcom<ID3D11Texture2D> Texture;
+		::llc::pcom<ID3D11ShaderResourceView> View;
+	};
 	tplt<tpnm _tColor>
 	struct SD3DGUIResources {
 		typedef	::llc::img<_tColor>				TRenderTarget;
@@ -45,6 +55,17 @@ namespace llc
 		::llc::pcom<ID3D11ShaderResourceView>	ShaderResourceView	= {};
 		::llc::pcom<ID3D11Texture2D>			Texture2D			= {};	// - Size-dependent
 
+		::llc::apod<::llc::SD3DGUIVertex> ControlVertices;
+		::llc::aobj<::llc::SD3DGUIFont> ControlFonts;
+		::llc::pcom<ID3D11Buffer> ControlVertexBuffer, ControlConstants;
+		::llc::pcom<ID3D11InputLayout> ControlInputLayout;
+		::llc::pcom<ID3D11VertexShader> ControlVertexShader;
+		::llc::pcom<ID3D11PixelShader> ControlPixelShader;
+		::llc::pcom<ID3D11RasterizerState> ControlRasterizerState;
+		::llc::pcom<ID3D11BlendState> ControlImageBlendState;
+		::llc::pcom<ID3D11Texture2D> ControlImageTexture;
+		::llc::pcom<ID3D11ShaderResourceView> ControlImageView;
+
 		void					ReleaseDeviceResources		() {
 			BlendState				= {};
 			RasterizerState			= {};
@@ -60,6 +81,10 @@ namespace llc
 			PixelShader				= {};
 			ShaderResourceView		= {};
 			Texture2D				= {};
+			ControlVertices.clear(); ControlFonts.clear();
+			ControlVertexBuffer = {}; ControlConstants = {}; ControlInputLayout = {};
+			ControlVertexShader = {}; ControlPixelShader = {}; ControlRasterizerState = {};
+			ControlImageBlendState = {}; ControlImageTexture = {}; ControlImageView = {};
 		}
 
 		::llc::error_t			CreateSizeDependentResources(ID3D11Device3 * d3dDevice, ::llc::n2u1_t windowSize)	{
@@ -215,6 +240,7 @@ namespace llc
 	};
 
 	::llc::error_t			d3dGUIDraw				(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff);
+	::llc::err_t d3dGUIDraw(::DX::D3DDeviceResources & resources, ::llc::SD3DGUIResources<::llc::bgra> & gpu, const ::llc::SGUI & gui, ::llc::n2u1_t targetSize);
 
 	struct SD3DApplication : DX::IDeviceNotify {
 		::llc::pobj<::llc::SEngineGraphics>		EngineGraphics;

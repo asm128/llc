@@ -6,7 +6,7 @@
 #if defined(LLC_WINDOWS)
 
 #include "llc_engine_d3d_app.h"
-#include "llc_engine_gui_d3d.h"
+#include "llc_png.h"
 #include <dxgi1_4.h>
 #include <cstring>
 
@@ -36,64 +36,116 @@ GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, TARGET_RESIZE				, 21, "The offscreen targe
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, VERTEX_SCENE				, 22, "The vertex shader must receive the scene constants at b1.");
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, OVERLAY_PIXELS				, 23, "The small overlay must preserve opaque, transparent and 20-percent label pixels.");
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, OVERLAY_DEPTH				, 24, "The overlay must leave ship depth unchanged for later geometry.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_PIXELS					, 25, "GPU control drawing must match the existing CPU geometry, palettes, fonts and images.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_REUSE					, 26, "Repeated GUI drawing must reuse its vertex buffer and font textures.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_UNCHANGED				, 27, "GPU drawing must leave GUI geometry and state untouched.");
 
-GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_MESH_PIXELS, 25, "GUI mesh pixels must match CPU geometry, palettes, images and bitmap text.");
-GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_MESH_DEPTH, 26, "GUI geometry must preserve scene depth.");
-GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_MESH_REUSE, 27, "Drawing unchanged GUI geometry must reuse its GPU buffers.");
-
-static ::llc::err_t testGUIMesh(::llc::ATestError & errors, ::llc::pobj<::DX::D3DDeviceResources> & resources) {
-	::llc::SGUI gui;
-	::llc::cid_t parent, child;
-	llc_necs(parent = ::llc::controlCreate(gui));
-	llc_necs(child = ::llc::controlCreateChild(gui, parent));
-	gui.Controls.Placement[parent].Area = {{3, 3}, {45, 32}};
-	gui.Controls.Placement[parent].Border = {2, 3, 4, 2};
-	gui.Controls.Placement[parent].Margin = {1, 1, 1, 1};
-	gui.Controls.Placement[child].Area = {{9, 8}, {24, 16}};
-	gui.Controls.Text[parent].Text = "Parent";
-	gui.Controls.Text[child].Text = "AB";
-	::llc::img8bgra image;
-	llc_necs(image.resize(::llc::n2u2_t{4, 4}));
-	for(::llc::u2_t i = 0; i < 16; ++i) image.Texels[i] = {(::llc::u0_t)(i * 10), 120, 200, (::llc::u0_t)(i % 3 == 0 ? 0 : i % 3 == 1 ? 128 : 255)};
-	gui.Controls.Images[child].Image = image;
-	::llc::SGUIMesh mesh;
-	::llc::SD3DGUIMeshResources renderer;
-	::llc::SD3DRenderTarget target;
-	::llc::rt<::llc::bgra, ::llc::u2_t> gpu;
-	::llc::img8bgra cpu;
-	for(::llc::u2_t pass = 0; pass < 8; ++pass) {
-		const ::llc::n2u2_t size = pass < 6 ? ::llc::n2u2_t{64, 48} : ::llc::n2u2_t{47, 35};
-		llc_necs(cpu.resize(size, {13, 27, 39, 255})); cpu.View.fill({13, 27, 39, 255});
-		llc_necs(gpu.resize(size, {13, 27, 39, 255}, 0xFFFFFFFFU)); gpu.Color.View.fill({13, 27, 39, 255});
-		gui.Controls.States[parent].Flag = pass == 1 ? ::llc::GUI_CONTROL_FLAG_Hovered : pass == 2 ? ::llc::GUI_CONTROL_FLAG_Pressed : pass == 3 ? ::llc::GUI_CONTROL_FLAG_Disabled : ::llc::GUI_CONTROL_FLAG{};
-		gui.Controls.Draw[parent].NoBorder = pass == 4;
-		gui.Controls.Draw[parent].NoClient = pass == 5;
-		gui.Controls.Images[child].ImageInvertY = pass % 2;
-		if(pass == 7) gui.Controls.Placement[parent].Area.Offset = {-4, -5};
-		llc_necs(::llc::guiUpdateMetrics(gui, size.u1(), true));
-		llc_necs(::llc::guiDraw(gui, cpu.View));
-		llc_necs(mesh.Clear());
-		llc_necs(::llc::guiBuildMesh(gui, size, mesh));
-		llc_necs(target.Begin(*resources, gpu.Color));
-		llc_necs(::llc::d3dGUIDraw(*resources, renderer, mesh, size));
-		ID3D11Buffer * vertices = renderer.Pipeline.VertexBuffer.get(), * indices = renderer.Pipeline.IndexBuffer.get();
-		llc_necs(target.Read(*resources, gpu.Color, gpu.DepthStencil));
-		::llc::u2_t different = 0, first = 0;
-		for(::llc::u2_t i = 0; i < cpu.Texels.size(); ++i) {
-			const auto a = cpu.Texels[i], b = gpu.Color.Texels[i];
-			if(::llc::abs((int)a.r - b.r) > 1 || ::llc::abs((int)a.g - b.g) > 1 || ::llc::abs((int)a.b - b.b) > 1 || ::llc::abs((int)a.a - b.a) > 1) { if(0 == different) first = i; ++different; }
-		}
-		const auto a = cpu.Texels[first], b = gpu.Color.Texels[first];
-		LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_GUI_MESH_PIXELS, different != 0, "Case:%u, differing:%u, first:{%u,%u}, CPU:%u/%u/%u/%u, GPU:%u/%u/%u/%u.", pass, different, first % size.x, first / size.x, a.r, a.g, a.b, a.a, b.r, b.g, b.b, b.a);
-		bool depthChanged = false;
-		for(auto depth : gpu.DepthStencil.Texels) depthChanged |= depth != 0xFFFFFFFFU;
-		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_GUI_MESH_DEPTH, depthChanged);
-		llc_necs(target.Begin(*resources, gpu.Color));
-		llc_necs(::llc::d3dGUIDraw(*resources, renderer, mesh, size));
-		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_GUI_MESH_REUSE, vertices != renderer.Pipeline.VertexBuffer.get() || indices != renderer.Pipeline.IndexBuffer.get());
+sttc ::llc::err_t testD3DGUI(::llc::ATestError & errors, ::DX::D3DDeviceResources & resources, ::llc::vcst_t outputFolder) {
+	::llc::SGUI gui, overlay;
+	cnst ::llc::GUI_CONTROL_FLAG states[] = {{}, ::llc::GUI_CONTROL_FLAG_Hovered, ::llc::GUI_CONTROL_FLAG_Selected, ::llc::GUI_CONTROL_FLAG_Pressed, ::llc::GUI_CONTROL_FLAG_Disabled};
+	cnst ::llc::vcst_t labels[] = {"Normal", "Hovered", "Selected", "Pressed", "Disabled"};
+	for(::llc::u2_t i = 0; i < 20; ++i) {
+		::llc::cid_t id;
+		llc_necs(id = ::llc::controlCreate(gui));
+		gui.Controls.Placement[id].Area = {{(::llc::s1_t)(12 + 200 * (i % 5)), (::llc::s1_t)(12 + 100 * (i / 5))}, {188, 90}};
+		gui.Controls.Placement[id].Border = {3, 5, 7, 9};
+		gui.Controls.Placement[id].Margin = {2, 4, 6, 8};
+		gui.Controls.Text[id].Text = labels[i % 5];
+		gui.Controls.Text[id].Align = ::llc::ALIGN_CENTER;
+		gui.Controls.States[id].Flag = states[i % 5];
+		gui.Controls.Draw[id].NoClient = i / 5 == 2;
+		gui.Controls.Draw[id].NoBorder = i / 5 == 3;
 	}
-	return 0;
+	::llc::cid_t child;
+	llc_necs(child = ::llc::controlCreateChild(gui, 6));
+	gui.Controls.Placement[child].Area = {{-20, 50}, {150, 35}};
+	gui.Controls.Text[child].Text = "Child overlaps";
+	::llc::cid_t clipped;
+	llc_necs(clipped = ::llc::controlCreate(gui));
+	gui.Controls.Placement[clipped].Area = {{-10, -5}, {90, 28}};
+	gui.Controls.Placement[clipped].Margin = gui.Controls.Placement[clipped].Border = {};
+	gui.Controls.Text[clipped].Text = "Clipped";
+	gui.Controls.Text[clipped].Align = ::llc::ALIGN_TOP_LEFT;
+	::llc::img8bgra image;
+	llc_necs(image.resize(::llc::n2u2_t{80, 60}));
+	for(::llc::u2_t y = 0; y < 60; ++y) for(::llc::u2_t x = 0; x < 80; ++x)
+		image.View[y][x] = {(::llc::u0_t)(x * 3), (::llc::u0_t)(y * 4), 125, (::llc::u0_t)((x % 3) * 127)};
+	for(::llc::u2_t i = 0; i < 3; ++i) {
+		::llc::cid_t id;
+		llc_necs(id = ::llc::controlCreate(overlay));
+		overlay.Controls.Placement[id].Area = {{(::llc::s1_t)(90 + i * 160), 430}, {140, 70}};
+		overlay.Controls.Text[id].Text = "Image";
+		overlay.Controls.Images[id].Image = image.View;
+		overlay.Controls.Images[id].ImageAlign = ::llc::ALIGN_CENTER;
+		overlay.Controls.Images[id].ImageInvertY = i == 1;
+		overlay.Controls.Images[id].ImageOffset = {i == 2 ? (::llc::s1_t)-5 : (::llc::s1_t)0, 3};
+	}
+	overlay.SelectedFont = 6;
+	::llc::SD3DGUIResources<::llc::bgra> gpu;
+	llc_necs(gpu.CreateDeviceResources(resources.GetD3DDevice()));
+	::llc::SD3DRenderTarget target;
+	::llc::rt<::llc::bgra, ::llc::u2_t> actual;
+	::llc::img8bgra expected;
+	llc_necs(actual.resize(::llc::n2u2_t{1024, 512}));
+	llc_necs(expected.resize(actual.metrics()));
+	cnst ::llc::vcst_t variants[] = {"flat-theme", "raised-theme", "flat-palette", "raised-palette"};
+	for(::llc::u2_t variant = 0; variant < 4; ++variant) {
+		gui.ColorModeDefault = variant % 2 ? ::llc::GUI_COLOR_MODE_3D : ::llc::GUI_COLOR_MODE_Flat;
+		for(auto & draw : gui.Controls.Draw) draw.UseNewPalettes = variant / 2;
+		llc_necs(::llc::guiUpdateMetrics(gui, expected.metrics().u1(), true));
+		llc_necs(::llc::guiUpdateMetrics(overlay, expected.metrics().u1(), true));
+		llc_necs(expected.View.fill({23, 47, 71, 255}));
+		llc_necs(actual.Color.View.fill({23, 47, 71, 255}));
+		llc_necs(::llc::guiDraw(gui, expected.View));
+		llc_necs(::llc::guiDraw(overlay, expected.View));
+		::llc::apod<::llc::SControlArea> areas; ::llc::apod<::llc::SControlState> flags;
+		llc_necs(areas.append(gui.Controls.Area)); llc_necs(flags.append(gui.Controls.States));
+		llc_necs(target.Begin(resources, actual.Color));
+		llc_necs(::llc::d3dGUIDraw(resources, gpu, gui, expected.metrics().u1()));
+		llc_necs(::llc::d3dGUIDraw(resources, gpu, overlay, expected.metrics().u1()));
+		llc_necs(target.Read(resources, actual.Color, actual.DepthStencil));
+		::llc::u2_t different = 0, first = 0;
+		for(::llc::u2_t i = 0; i < expected.Texels.size(); ++i) {
+			cnst auto a = actual.Color.Texels[i], b = expected.Texels[i];
+			cnst int tolerance = i / 1024 >= 430 ? 1 : 0; // Only image blending permits UNORM rounding.
+			if(::llc::abs((int)a.r - b.r) > tolerance || ::llc::abs((int)a.g - b.g) > tolerance || ::llc::abs((int)a.b - b.b) > tolerance || a.a != b.a) { if(!different) first = i; ++different; }
+		}
+		cnst auto a = actual.Color.Texels[first], b = expected.Texels[first];
+		LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_GUI_PIXELS, different != 0, "Variant:%u, differing:%u, first:{%u,%u}, GPU BGRA:%u/%u/%u/%u, CPU:%u/%u/%u/%u.", variant, different, first % 1024, first / 1024, a.b, a.g, a.r, a.a, b.b, b.g, b.r, b.a);
+		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_GUI_UNCHANGED, ::memcmp(areas.begin(), gui.Controls.Area.begin(), areas.byte_count()) || ::memcmp(flags.begin(), gui.Controls.States.begin(), flags.byte_count()));
+		cnst auto buffer = gpu.ControlVertexBuffer.get(); cnst auto fonts = gpu.ControlFonts.size();
+		llc_necs(::llc::d3dGUIDraw(resources, gpu, gui, expected.metrics().u1()));
+		llc_necs(::llc::d3dGUIDraw(resources, gpu, overlay, expected.metrics().u1()));
+		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_GUI_REUSE, buffer != gpu.ControlVertexBuffer.get() || fonts != gpu.ControlFonts.size());
+		::llc::string folder; ::llc::au0_t bytes;
+		llc_necs(::llc::pathNameCompose(outputFolder, variants[variant], folder));
+		llc_necs(::llc::pathCreate(folder));
+		llc_necs(::llc::pngFileWrite(expected.View, bytes)); llc_necs(::llc::fileFromMemory(folder, "gui-cpu.png", bytes));
+		bytes.clear();
+		llc_necs(::llc::pngFileWrite(actual.Color.View, bytes)); llc_necs(::llc::fileFromMemory(folder, "gui-gpu.png", bytes));
+	}
+	// Include GPU completion, not just asynchronous command submission, in the comparison.
+	llc_necs(target.Read(resources, actual.Color, actual.DepthStencil));
+	::llc::pcom<ID3D11Query> finished;
+	cnst D3D11_QUERY_DESC query = {D3D11_QUERY_EVENT, 0};
+	llc_hrcall(resources.GetD3DDevice()->CreateQuery(&query, &finished));
+	cnst ::llc::u2_t frames = 32;
+	::llc::STimer timer;
+	for(::llc::u2_t i = 0; i < frames; ++i) { llc_necs(::llc::guiDraw(gui, expected.View)); llc_necs(::llc::guiDraw(overlay, expected.View)); }
+	timer.Frame(); cnst double cpu = timer.LastTimeMicroseconds / (double)frames;
+	timer.Reset();
+	for(::llc::u2_t i = 0; i < frames; ++i) { llc_necs(::llc::d3dGUIDraw(resources, gpu, gui, expected.metrics().u1())); llc_necs(::llc::d3dGUIDraw(resources, gpu, overlay, expected.metrics().u1())); }
+	auto context = resources.GetD3DDeviceContext();
+	context->End(finished); context->Flush();
+	cnst auto deadline = ::GetTickCount64() + 10000;
+	HRESULT status;
+	while(S_FALSE == (status = context->GetData(finished, nullptr, 0, 0))) { if_true_fe(::GetTickCount64() > deadline); ::Sleep(0); }
+	llc_hrcall(status);
+	timer.Frame();
+	always_printf("GUI comparison: 1024x512, two instances, 25 controls, %u frames; CPU %.1f us/frame, GPU with completion %.1f us/frame, ratio %.2fx. Excludes layout and presentation.", frames, cpu, timer.LastTimeMicroseconds / (double)frames, cpu * frames / timer.LastTimeMicroseconds);
+	rtrn 0;
 }
+
 sttc ::llc::err_t testD3DLights(::llc::ATestError & errors, ::llc::pobj<::DX::D3DDeviceResources> & resources) {
 	::llc::SGeometryBuffers geometry;
 	llc_necs(geometry.Positions.append({{-1, 1, .5f}, {1, 1, .5f}, {-1, -1, .5f}, {1, -1, .5f}}));
@@ -249,7 +301,7 @@ sttc ::llc::err_t testD3DLights(::llc::ATestError & errors, ::llc::pobj<::DX::D3
 	LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_FAILURE_TEXTURE_PRESERVED, texture.get() != previousTexture, "Texture:%p, expected:%p.", texture.get(), previousTexture);
 	LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_FAILURE_VIEW_PRESERVED, view.get() != previousView, "View:%p, expected:%p.", view.get(), previousView);
 	llc_necs(testD3DLights(errors, resourceOwner));
-	llc_necs(testGUIMesh(errors, resourceOwner));
+	llc_necs(testD3DGUI(errors, resources, outputFolder));
 	rtrn 0;
 }
 
