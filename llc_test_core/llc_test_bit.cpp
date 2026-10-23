@@ -1,6 +1,13 @@
 #include "llc_test_core.h"
 #include "llc_bit.h"
 
+static_assert(llc::truncate<llc::err_t>(0ULL) == 0);
+static_assert(llc::truncate<llc::u0_t>(0x123456789ABCDEF0ULL) == 0xF0U);
+static_assert(llc::truncate<llc::u1_t>(0x123456789ABCDEF0ULL) == 0xDEF0U);
+static_assert(llc::truncate<llc::u2_t>(0x123456789ABCDEF0ULL) == 0x9ABCDEF0U);
+static_assert(llc::truncate<llc::u2_t>(0x100000000ULL) == 0);
+static_assert(llc::truncate<llc::u3_t>(0x123456789ABCDEF0ULL) == 0x123456789ABCDEF0ULL);
+
 GDEFINE_ENUM_TYPE(BIT_FIELD_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(BIT_FIELD_TEST_RESULT, OK				, 0, "All bit-field tests passed.");
 GDEFINE_ENUM_VALUED(BIT_FIELD_TEST_RESULT, TYPE_WIDTH		, 1, "bitsof() did not report the storage width in bits.");
