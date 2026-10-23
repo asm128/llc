@@ -271,13 +271,14 @@
     <ClInclude Include="llc_quad2.h" />
     <ClInclude Include="llc_sphere.h" />
     <ClInclude Include="llc_view_n2.h" />
-    <ClInclude Include="llc_gtl_command.h" />
+    <ClInclude Include="llc_comm.h" />
     <ClInclude Include="llc_packed_int.h" />
     <ClInclude Include="keyed_bit_array.h" />
     <ClInclude Include="llc_queue_async.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_ccsds.cpp" />
+    <ClCompile Include="llc_comm.cpp" />
     <ClCompile Include="llc_circuit.cpp" />
     <ClCompile Include="llc_adam7.cpp" />
     <ClCompile Include="llc_aes.cpp" />

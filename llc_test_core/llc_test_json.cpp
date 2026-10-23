@@ -65,6 +65,13 @@ GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, REUSE_CHILD_STORAGE	, 68, "Reparsin
 GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, RESET_ROOT_REFERENCE_AFTER, 69, "The cached JSON root reference is null after reset.");
 GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, CODEPOINT_RESULT		, 70, "jsonToCodePoint() returned the wrong status.");
 GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, CODEPOINT_VALUE		, 71, "jsonToCodePoint() returned the wrong Unicode code point.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, TREE_INVALIDATE_EMPTY	, 72, "jsonTreeInvalidate() accepted an empty reader.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, TREE_ENSURE_EMPTY		, 73, "jsonTreeEnsure() accepted an empty reader.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, TREE_ENSURE_CLEAN		, 74, "jsonTreeEnsure() rebuilt a current tree.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, TREE_INVALIDATE_RESULT	, 75, "jsonTreeInvalidate() rejected a parsed tree.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, TREE_INVALIDATE_STATE	, 76, "jsonTreeInvalidate() left the root token current.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, TREE_ENSURE_RESULT		, 77, "jsonTreeEnsure() rejected an invalidated tree.");
+GDEFINE_ENUM_VALUED(JSON_READER_TEST_RESULT, TREE_ENSURE_STATE		, 78, "jsonTreeEnsure() did not restore the invalidated tree.");
 
 static_assert(szof(::llc::JSON_PARSE_OPTION) == szof(::llc::u1_t), "JSON parse options must use one uniform 16-bit field.");
 static_assert(szof(::llc::SJSONParseOptions) == szof(::llc::JSON_PARSE_OPTION), "bit_field<> must not add storage overhead.");
@@ -210,6 +217,24 @@ sttc ::llc::err_t testJSONReset(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testJSONTreeFreshness(::llc::ATestError & errors) {
+	::llc::SJSONReader empty;
+	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_INVALIDATE_EMPTY, false == ::llc::failed(::llc::jsonTreeInvalidate(empty)));
+	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_ENSURE_EMPTY, false == ::llc::failed(::llc::jsonTreeEnsure(empty)));
+
+	cnst ::llc::vcst_t input = "{\"values\":[1,2,3],\"flag\":true}";
+	::llc::SJSONReader reader;
+	if_fail_fe(::llc::jsonParse(reader, input));
+	reader.Tree[0]->ObjectIndex = -2;
+	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_ENSURE_CLEAN, ::llc::failed(::llc::jsonTreeEnsure(reader)) || reader.Tree[0]->ObjectIndex != -2);
+	reader.Tree[0]->ObjectIndex = 0;
+	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_TREE_INVALIDATE_RESULT, ::llc::failed(::llc::jsonTreeInvalidate(reader)));
+	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_INVALIDATE_STATE, reader.Tree[0]->Token);
+	LLC_TEST_REQUIRE(errors, JSON_READER_TEST_RESULT_TREE_ENSURE_RESULT, ::llc::failed(::llc::jsonTreeEnsure(reader)));
+	LLC_TEST_CHECK(errors, JSON_READER_TEST_RESULT_TREE_ENSURE_STATE, reader.Tree[0]->Token != &reader.Token[0] || reader.Tree[0]->ObjectIndex);
+	rtrn testJSONStructure(errors, reader, input);
+}
+
 sttc ::llc::err_t testJSONSignedInteger(::llc::ATestError & errors) {
 	::llc::SJSONReader reader;
 	if_fail_fe(::llc::jsonParse(reader, "-42"));
@@ -308,5 +333,6 @@ sttc ::llc::err_t testJSONOptions(::llc::ATestError & errors) {
 	if_fail_fe(testJSONValidDocuments(errors));
 	if_fail_fe(testJSONSignedInteger(errors));
 	if_fail_fe(testJSONCodePoints(errors));
+	if_fail_fe(testJSONTreeFreshness(errors));
 	rtrn testJSONReset(errors);
 }

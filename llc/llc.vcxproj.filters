@@ -693,7 +693,7 @@
     <ClInclude Include="llc_queue_event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="llc_gtl_command.h">
+    <ClInclude Include="llc_comm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="llc_log_core.h">
@@ -1105,6 +1105,9 @@
     </ClCompile>
     <ClCompile Include="llc_ccsds.cpp">
       <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_comm.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_stdstring.cpp">
       <Filter>string</Filter>

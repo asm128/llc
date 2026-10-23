@@ -10,7 +10,7 @@
 
 namespace llc
 {
-	tpl_vtArgs	void			clear					(_tArgs&&... args)							{ const int32_t results[] = {args.clear()..., 0}; (void)results; }
+	tpl_vtArgs	err_t			clear					(_tArgs&&... args)				nxpt	{ const int32_t results[] = {args.clear()..., 0}; for(cnst int32_t result : results) if(result < 0) rtrn result; rtrn 0; }
 	tpl_vtArgs	err_t			resize					(u2_t newSize, _tArgs&&... args)		{
 		u2_c					oldSizes	[]			= {args.size	()..., 0};
 		const ::llc::error_t			results		[]			= {args.resize	(newSize)..., 0};

@@ -107,6 +107,8 @@ namespace llc
 		rtrn jsonParse(reader, jsonAsString, options);
 	}
 	err_t			jsonTreeRebuild		(view<cnst SJSONToken> in_object, apobj<SJSONNode> & out_nodes);
+	err_t			jsonTreeInvalidate	(SJSONReader & reader);
+	err_t			jsonTreeEnsure		(SJSONReader & reader);
 
 	nsix	err_t	jsonArraySize		(cnst SJSONNode & node)												nxpt	{ rtrn node.Children.size(); }	// returns the index of the JSON element corresponding to the index provided as parameter.
 	nsix	err_t	jsonObjectKeyCount	(cnst SJSONNode & node)												nxpt	{ rtrn node.Children.size() / 2; }

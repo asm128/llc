@@ -569,6 +569,23 @@ llc::err_t			llc::jsonTreeRebuild		(llc::view<cnst llc::SJSONToken> in_object, l
 	rtrn 0;
 }
 
+llc::err_t			llc::jsonTreeInvalidate	(llc::SJSONReader & reader) {
+	if_zero_fe(reader.Tree.size());
+	if_null_fe(reader.Tree[0]);
+	rtrn truncate<err_t>(reader.Tree[0]->Token = {});
+}
+
+llc::err_t			llc::jsonTreeEnsure		(llc::SJSONReader & reader) {
+	if_zero_fe(reader.Token.size());
+	if_zero_fe(reader.Tree.size());
+	if_null_fe(reader.Tree[0]);
+	if(reader.Tree[0]->Token)
+		rtrn 0;
+	llc::err_t result;
+	if_fail_fe(result = llc::jsonTreeRebuild(reader.Token, reader.Tree));
+	rtrn result;
+}
+
 #define json_bi_if(condition, format, ...) if(condition) break; //
 
 llc::err_t			llc::jsonParse				(llc::SJSONReader & reader, llc::vcst_t jsonAsString, llc::SJSONParseOptions options)	{

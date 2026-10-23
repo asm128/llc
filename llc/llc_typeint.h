@@ -146,6 +146,7 @@ namespace llc
 #define tydfTCnst(type)		tdcs		llc_rmcnst(type)	TCnst
 #define tdfTTCnst(type)		tdfT(type);	tydfTCnst(type)
 
+	tplTOutTIn	sinx	TOut	truncate	(TIn value)				nxpt	{ rtrn TOut(u3_t(value)); }
 	tplTOutTIn	sinx	TOut	dim2		(TIn value)				nxpt	{ rtrn {value, value}; }
 	tplTOutTIn	sinx	TOut	dim3		(TIn value)				nxpt	{ rtrn {value, value, value}; }
 	tplT		nsix	u0_t	byte_at		(T value, u0_t index)	nxpt	{ rtrn u0_t((value & (T(0xFFU) << (8 * index))) >> (8 * index)); }

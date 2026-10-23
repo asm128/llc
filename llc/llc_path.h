@@ -1,4 +1,4 @@
-#include "llc_array.h"
+#include "llc_array_ptr.h"
 #include "llc_string.h"
 
 #ifndef LLC_PATH_H_23627
@@ -6,11 +6,37 @@
 
 namespace llc
 {
-	stct SPathContents {
-		aobj<string>			Files					= {};
-		aobj<SPathContents>	Folders					= {};
+	stct SPathInfo {
+		u0_t					NestLevel	: 7;
+		u0_t					Folder		: 1;
+	};
+	stct SPathNode {
+		cnst SPathInfo			* Info				= 0;
+		SPathNode				* Parent			= 0;
+		apobj<SPathNode>		Children			= {};
+		u2_t					ObjectIndex			= (u2_t)-1;
+	};
+	stct SPathTree {
+		string					Root;	// Scan root exactly as supplied by the caller.
+		apod<sc_t>				Char;	// store here file names one after the other no null-terminated strings. The path for each file is not stored as it is assumed the concatenation of the parent entries.
+		aobj<vcst_t>			Name;	// construct here views from each file name. This avoids allocating each file name as a string
+		apod<SPathInfo>			Info;	// this tells whether an entry is a folder and its nest level. An entry with a higher nest level than the previous entry is a child of that entry. Likewise, an entry with a lower nest level than the previous determines the end of the branch and the consequent level of its sibling/parent
+		apobj<SPathNode>		Tree;	// the tree is constructed from the SPathInfo data as described above
+		
+		cnst pobj<SPathNode>&	oper[]	(u2_t index)	cnst	{ rtrn Tree[index]; }
+		cnst pobj<SPathNode>*	begin	()				cnst	{ rtrn Tree.begin(); }
+		cnst pobj<SPathNode>*	end		()				cnst	{ rtrn Tree.end(); }
+		err_t					Reset	()						{ rtrn ::llc::clear(Name, Info); }
 	};
 
+	err_t						pathList				(SPathTree & output, vcst_t pathToList, function<err_t(bool, vcst_c&)> filter);
+	err_t						pathList				(SPathTree & output, vcst_t pathToList, vcst_t extension = {});
+	//err_t						pathList				(const SPathTree & input, aobj<string> & output, vcst_t extension = {});	// recursively walk over a pathcontents hierarchy and store all the file names into "output"
+
+	stct SPathContents {
+		aobj<string>			Files					= {};
+		aobj<SPathContents>		Folders					= {};
+	};
 	err_t						pathCreate				(vcst_t folderName, sc_c separator = '/');	// Recursive
 	err_t						pathList				(const SPathContents & input, aobj<string> & output, vcst_t extension = {});	// recursively walk over a pathcontents hierarchy and store all the file names into "output"
 	err_t						pathList				(const SPathContents & input, aobj<vcst_t> & output, vcst_t extension = {});	// recursively walk over a pathcontents hierarchy and store all the file names into "output"
