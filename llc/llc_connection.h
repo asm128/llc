@@ -87,7 +87,7 @@ namespace llc
 	stxp	const uint32_t				UDP_PAYLOAD_SIZE_LIMIT		= 60 * 1024;
 
 	::llc::error_t						connectionPayloadCollect	(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & receivedMessages);
-	::llc::error_t						connectionSendQueue			(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage>& messageCacheSent, ::llc::apobj<::llc::SUDPMessage>& messageCacheSend);
+	::llc::error_t						connectionSendQueue			(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage>& messageCacheSent, ::llc::apobj<::llc::SUDPMessage>& messageCacheSend, bool packPayloads = true);
 	::llc::error_t						connectionHandleCommand		(::llc::SUDPConnection & client, ::llc::SUDPCommand & command, ::llc::au0_t & receiveBuffer);
 	::llc::error_t						connectionPushData			(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, const ::llc::vcu0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0);
 	stin	::llc::error_t				connectionPushData			(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, const ::llc::vcs0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0) {

@@ -113,6 +113,7 @@
     <ClInclude Include="llc_keyed_bit_array.h" />
     <ClInclude Include="llc_linear_map_pobj.h" />
     <ClInclude Include="llc_event_input.h" />
+    <ClInclude Include="llc_event_storage.h" />
     <ClInclude Include="llc_event_screen.h" />
     <ClInclude Include="llc_gauge.h" />
     <ClInclude Include="llc_geometry_buffers.h" />
@@ -241,6 +242,7 @@
     <ClInclude Include="llc_scene.h" />
     <ClInclude Include="llc_size.h" />
     <ClInclude Include="llc_stdsocket.h" />
+    <ClInclude Include="llc_connection.h" />
     <ClInclude Include="llc_stdstring.h" />
     <ClInclude Include="llc_stl.h" />
     <ClInclude Include="llc_file.h" />
@@ -441,6 +443,7 @@
     <ClCompile Include="llc_stl.cpp" />
     <ClCompile Include="llc_file.cpp" />
     <ClCompile Include="llc_tcpip.cpp" />
+    <ClCompile Include="llc_connection.cpp" />
     <ClCompile Include="llc_timer.cpp" />
     <ClCompile Include="llc_test_core.cpp" />
     <ClCompile Include="llc_view.cpp" />

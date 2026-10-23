@@ -600,6 +600,9 @@
     <ClInclude Include="llc_event_input.h">
       <Filter>event</Filter>
     </ClInclude>
+    <ClInclude Include="llc_event_storage.h">
+      <Filter>event</Filter>
+    </ClInclude>
     <ClInclude Include="llc_event_screen.h">
       <Filter>event</Filter>
     </ClInclude>
@@ -774,6 +777,7 @@
     <ClInclude Include="llc_tcpip.h">
       <Filter>inet</Filter>
     </ClInclude>
+    <ClInclude Include="llc_connection.h"><Filter>inet</Filter></ClInclude>
     <ClInclude Include="llc_stdsocket.h">
       <Filter>inet</Filter>
     </ClInclude>
@@ -1067,6 +1071,7 @@
     <ClCompile Include="llc_typeint.cpp">
       <Filter>base</Filter>
     </ClCompile>
+    <ClCompile Include="llc_connection.cpp"><Filter>inet</Filter></ClCompile>
     <ClCompile Include="llc_tcpip.cpp">
       <Filter>inet</Filter>
     </ClCompile>

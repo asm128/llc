@@ -172,14 +172,14 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 
 			if(0 != payloadHeader.Command.Encrypted) {
 				info_printf("Original packet size: %u. Final size: %u.", messageToSend.Payload.size(), ardellEncoded.size());
-				llc_necs(sendStream.write_pod(ardellEncoded.begin(), ardellEncoded.size()));
+				llc_necs(sendStream.write_pod(::llc::vcu0_t{ardellEncoded}));
 			}
 			else {
 				if(0 == payloadHeader.Command.Compressed)
-					llc_necs(sendStream.write_pod(messageToSend.Payload.begin(), messageToSend.Payload.size()));
+					llc_necs(sendStream.write_pod(::llc::vcu0_t{messageToSend.Payload}));
 				else {
 					info_printf("Original packet size: %u. Compressed size: %u.", messageToSend.Payload.size(), compressed.size());
-					llc_necs(sendStream.write_pod(compressed.begin(), compressed.size()));
+					llc_necs(sendStream.write_pod(::llc::vcu0_t{compressed}));
 				}
 			}
 
@@ -194,7 +194,7 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 	return 0;
 }
 
-::llc::error_t			llc::connectionSendQueue			(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & messageCacheSent, ::llc::apobj<::llc::SUDPMessage> & messageCacheSend)				{
+::llc::error_t			llc::connectionSendQueue			(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & messageCacheSent, ::llc::apobj<::llc::SUDPMessage> & messageCacheSend, bool packPayloads)				{
 	::llc::apobj<::llc::SUDPMessage>	& queueToSend						= client.Queue.Send;
 	sockaddr_in							sa_remote							= {};							// Information about the client
 	::llc::tcpipAddressToSockaddr(client.Address, sa_remote);
@@ -245,7 +245,9 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 			llc_necs(messageCacheSent.push_back(pMessageToSend));
 		}
 	}
-	llc_necall(::payloadQueueOptimize(client, messageCacheSent, payloadsToSend), "%s", "Failed to optimize payload queue.");
+	if(packPayloads) {
+		llc_necall(::payloadQueueOptimize(client, messageCacheSent, payloadsToSend), "%s", "Failed to optimize payload queue.");
+	}
 	llc_necall(::payloadQueueSend(client, messageCacheSent, payloadsToSend), "%s", "Failed ");
 	for(uint32_t iSent = 0; iSent < messageCacheSent.size(); ++iSent)
 		for(uint32_t iSend = 0; iSend < queueToSend.size(); ++iSend)
@@ -444,7 +446,7 @@ static	::llc::error_t	handlePAYLOADRequest				(const ::llc::SUDPPayloadHeader & 
 			messageReceivedInt->Command.Encrypted	= 0;
 			messageReceivedInt->Command.Compressed	= 0;
 			llc_necs(messageReceivedInt->Payload.resize(sizes[iSizes]));
-			llc_necall(payload.read_pod(messageReceivedInt->Payload.begin(), messageReceivedInt->Payload.size()), "Corrupt payload data. Sizes don't match. Payload size: %u.", payload.size());
+			llc_necall(payload.read_pod(::llc::vu0_t{messageReceivedInt->Payload}), "Corrupt payload data. Sizes don't match. Payload size: %u.", payload.size());
 			llc_necs(tempQueue.push_back(messageReceivedInt));
 		}
 		{
