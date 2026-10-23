@@ -113,6 +113,7 @@
     <ClInclude Include="llc_keyed_bit_array.h" />
     <ClInclude Include="llc_linear_map_pobj.h" />
     <ClInclude Include="llc_event_input.h" />
+    <ClInclude Include="llc_event_storage.h" />
     <ClInclude Include="llc_event_screen.h" />
     <ClInclude Include="llc_gauge.h" />
     <ClInclude Include="llc_geometry_buffers.h" />

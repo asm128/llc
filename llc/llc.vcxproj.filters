@@ -600,6 +600,9 @@
     <ClInclude Include="llc_event_input.h">
       <Filter>event</Filter>
     </ClInclude>
+    <ClInclude Include="llc_event_storage.h">
+      <Filter>event</Filter>
+    </ClInclude>
     <ClInclude Include="llc_event_screen.h">
       <Filter>event</Filter>
     </ClInclude>
