@@ -300,6 +300,9 @@
     <None Include="ShaderShared.hlsli">
       <Filter>hlsl</Filter>
     </None>
+    <None Include="ShaderLights.hlsli">
+      <Filter>hlsl</Filter>
+    </None>
     <None Include="ShaderShared2D.hlsli">
       <Filter>hlsl</Filter>
     </None>
@@ -309,5 +312,9 @@
     <None Include="llc_solar_system.json">
       <Filter>astronomical</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="vsGUIMesh.hlsl" />
+    <FxCompile Include="psGUIMesh.hlsl" />
   </ItemGroup>
 </Project>

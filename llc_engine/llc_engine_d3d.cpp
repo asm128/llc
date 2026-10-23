@@ -3,6 +3,9 @@
 #if defined(LLC_WINDOWS)
 
 #include "llc_file.h"
+#include <d3dcompiler.h>
+#include <d3d11shader.h>
+#pragma comment(lib, "d3dcompiler.lib")
 
 ::llc::error_t			llc::d3dCreateBuffersFromEngineMeshes		(ID3D11Device * pDevice, const ::llc::SMeshManager & engineMeshes, const ::llc::SRenderBufferManager & engineBuffers, ::llc::array_com<ID3D11Buffer> & indexBuffers, ::llc::array_com<ID3D11Buffer> & vertexBuffers)	{
 	for(uint32_t iMesh = 0; iMesh < engineMeshes.size(); ++iMesh) {
@@ -93,7 +96,7 @@
 }
 
 //
-::llc::error_t			llc::d3dCreatePixelShadersFromEngineShaders	(ID3D11Device* pDevice, const ::llc::SShaderManager & engineShaders, ::llc::array_com<ID3D11PixelShader> & pixelShaders) {
+::llc::error_t			llc::d3dCreatePixelShadersFromEngineShaders	(ID3D11Device* pDevice, const ::llc::SShaderManager & engineShaders, ::llc::array_com<ID3D11PixelShader> & pixelShaders, ::llc::au2_t * lightSlots) {
 	for(uint32_t iShader = 0; iShader < engineShaders.size(); ++iShader) {
 		const ::llc::vcst_t								shaderName				= engineShaders.Names[iShader];
 
@@ -105,7 +108,18 @@
 
 		::llc::ptr_com<ID3D11PixelShader>				pixelShader;
 		llc_hrcall(pDevice->CreatePixelShader(&filePS[0], filePS.size(), nullptr, &pixelShader));
-		pixelShaders.push_back(pixelShader);
+		::llc::u2_t lightSlot = (::llc::u2_t)-1;
+		if(lightSlots) {
+			::llc::pcom<ID3D11ShaderReflection> reflection;
+			llc_hrcall(::D3DReflect(filePS.begin(), filePS.size(), __uuidof(ID3D11ShaderReflection), (void**)&reflection));
+			D3D11_SHADER_INPUT_BIND_DESC binding = {};
+			if(SUCCEEDED(reflection->GetResourceBindingDescByName("EngineLights", &binding))) {
+				if_true_fe(binding.Type != D3D_SIT_STRUCTURED || binding.BindCount != 1);
+				lightSlot = binding.BindPoint;
+			}
+			llc_necs(lightSlots->push_back(lightSlot));
+		}
+		llc_necs(pixelShaders.push_back(pixelShader));
 	}
 	return 0;
 }

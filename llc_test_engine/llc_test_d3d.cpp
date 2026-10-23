@@ -5,6 +5,8 @@
 
 #if defined(LLC_WINDOWS)
 
+#include "llc_engine_d3d_app.h"
+#include "llc_engine_gui_d3d.h"
 #include <dxgi1_4.h>
 #include <cstring>
 
@@ -27,6 +29,140 @@ GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, WINDOW_CREATE				, 14, "The consumer test w
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, WINDOW_RESOURCES			, 15, "The consumer could not create its window-sized resources.");
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, HARDWARE_SELECTED			, 16, "The consumer fell back to WARP although a hardware D3D device is available.");
 GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, DEVICE_PRESERVED			, 17, "Validation rebuilt a healthy consumer device.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, LIGHT_SHADER				, 18, "The renderer must discover the light resource slot from the compiled shader.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, LIGHT_PIXELS				, 19, "The GPU must shade each pixel using all selected lights, including after the list grows or empties.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, SCENE_DEPTH				, 20, "Readback must preserve scene depth in the software rasterizer's units.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, TARGET_RESIZE				, 21, "The offscreen target must recreate color and depth resources at the requested size.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, VERTEX_SCENE				, 22, "The vertex shader must receive the scene constants at b1.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, OVERLAY_PIXELS				, 23, "The small overlay must preserve opaque, transparent and 20-percent label pixels.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, OVERLAY_DEPTH				, 24, "The overlay must leave ship depth unchanged for later geometry.");
+
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_MESH_PIXELS, 25, "GUI mesh pixels must match CPU geometry, palettes, images and bitmap text.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_MESH_DEPTH, 26, "GUI geometry must preserve scene depth.");
+GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, GUI_MESH_REUSE, 27, "Drawing unchanged GUI geometry must reuse its GPU buffers.");
+
+static ::llc::err_t testGUIMesh(::llc::ATestError & errors, ::llc::pobj<::DX::D3DDeviceResources> & resources) {
+	::llc::SGUI gui;
+	::llc::cid_t parent, child;
+	llc_necs(parent = ::llc::controlCreate(gui));
+	llc_necs(child = ::llc::controlCreateChild(gui, parent));
+	gui.Controls.Placement[parent].Area = {{3, 3}, {45, 32}};
+	gui.Controls.Placement[parent].Border = {2, 3, 4, 2};
+	gui.Controls.Placement[parent].Margin = {1, 1, 1, 1};
+	gui.Controls.Placement[child].Area = {{9, 8}, {24, 16}};
+	gui.Controls.Text[parent].Text = "Parent";
+	gui.Controls.Text[child].Text = "AB";
+	::llc::img8bgra image;
+	llc_necs(image.resize(::llc::n2u2_t{4, 4}));
+	for(::llc::u2_t i = 0; i < 16; ++i) image.Texels[i] = {(::llc::u0_t)(i * 10), 120, 200, (::llc::u0_t)(i % 3 == 0 ? 0 : i % 3 == 1 ? 128 : 255)};
+	gui.Controls.Images[child].Image = image;
+	::llc::SGUIMesh mesh;
+	::llc::SD3DGUIMeshResources renderer;
+	::llc::SD3DRenderTarget target;
+	::llc::rt<::llc::bgra, ::llc::u2_t> gpu;
+	::llc::img8bgra cpu;
+	for(::llc::u2_t pass = 0; pass < 8; ++pass) {
+		const ::llc::n2u2_t size = pass < 6 ? ::llc::n2u2_t{64, 48} : ::llc::n2u2_t{47, 35};
+		llc_necs(cpu.resize(size, {13, 27, 39, 255})); cpu.View.fill({13, 27, 39, 255});
+		llc_necs(gpu.resize(size, {13, 27, 39, 255}, 0xFFFFFFFFU)); gpu.Color.View.fill({13, 27, 39, 255});
+		gui.Controls.States[parent].Flag = pass == 1 ? ::llc::GUI_CONTROL_FLAG_Hovered : pass == 2 ? ::llc::GUI_CONTROL_FLAG_Pressed : pass == 3 ? ::llc::GUI_CONTROL_FLAG_Disabled : ::llc::GUI_CONTROL_FLAG{};
+		gui.Controls.Draw[parent].NoBorder = pass == 4;
+		gui.Controls.Draw[parent].NoClient = pass == 5;
+		gui.Controls.Images[child].ImageInvertY = pass % 2;
+		if(pass == 7) gui.Controls.Placement[parent].Area.Offset = {-4, -5};
+		llc_necs(::llc::guiUpdateMetrics(gui, size.u1(), true));
+		llc_necs(::llc::guiDraw(gui, cpu.View));
+		llc_necs(mesh.Clear());
+		llc_necs(::llc::guiBuildMesh(gui, size, mesh));
+		llc_necs(target.Begin(*resources, gpu.Color));
+		llc_necs(::llc::d3dGUIDraw(*resources, renderer, mesh, size));
+		ID3D11Buffer * vertices = renderer.Pipeline.VertexBuffer.get(), * indices = renderer.Pipeline.IndexBuffer.get();
+		llc_necs(target.Read(*resources, gpu.Color, gpu.DepthStencil));
+		::llc::u2_t different = 0, first = 0;
+		for(::llc::u2_t i = 0; i < cpu.Texels.size(); ++i) {
+			const auto a = cpu.Texels[i], b = gpu.Color.Texels[i];
+			if(::llc::abs((int)a.r - b.r) > 1 || ::llc::abs((int)a.g - b.g) > 1 || ::llc::abs((int)a.b - b.b) > 1 || ::llc::abs((int)a.a - b.a) > 1) { if(0 == different) first = i; ++different; }
+		}
+		const auto a = cpu.Texels[first], b = gpu.Color.Texels[first];
+		LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_GUI_MESH_PIXELS, different != 0, "Case:%u, differing:%u, first:{%u,%u}, CPU:%u/%u/%u/%u, GPU:%u/%u/%u/%u.", pass, different, first % size.x, first / size.x, a.r, a.g, a.b, a.a, b.r, b.g, b.b, b.a);
+		bool depthChanged = false;
+		for(auto depth : gpu.DepthStencil.Texels) depthChanged |= depth != 0xFFFFFFFFU;
+		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_GUI_MESH_DEPTH, depthChanged);
+		llc_necs(target.Begin(*resources, gpu.Color));
+		llc_necs(::llc::d3dGUIDraw(*resources, renderer, mesh, size));
+		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_GUI_MESH_REUSE, vertices != renderer.Pipeline.VertexBuffer.get() || indices != renderer.Pipeline.IndexBuffer.get());
+	}
+	return 0;
+}
+sttc ::llc::err_t testD3DLights(::llc::ATestError & errors, ::llc::pobj<::DX::D3DDeviceResources> & resources) {
+	::llc::SGeometryBuffers geometry;
+	llc_necs(geometry.Positions.append({{-1, 1, .5f}, {1, 1, .5f}, {-1, -1, .5f}, {1, -1, .5f}}));
+	llc_necs(geometry.Normals.resize(4, {0, 0, -1}));
+	llc_necs(geometry.TextureCoords.resize(4));
+	llc_necs(geometry.PositionIndices.append({0, 1, 2, 1, 3, 2}));
+	::llc::SEngineScene scene;
+	llc_necs(scene.CreateRenderNode(geometry, "Lighting probe", false));
+	llc_necs(scene.Graphics->Skins.Create());
+	if_null_fe(scene.Graphics->Skins[0].create());
+	llc_necs(scene.Graphics->Shaders.Create());
+	scene.Graphics->Shaders.Names[0] = "psTestLights";
+	scene.RenderNodes[0].Skin = scene.RenderNodes[0].Shader = 0;
+	::llc::Sample3DSceneRenderer renderer;
+	llc_necs(renderer.Initialize(resources));
+	llc_necs(::llc::d3dCreateBuffersFromEngineMeshes(resources->GetD3DDevice(), scene.Graphics->Meshes, scene.Graphics->Buffers, renderer.IndexBuffer, renderer.VertexBuffer));
+	llc_necs(::llc::d3dCreatePixelShadersFromEngineShaders(resources->GetD3DDevice(), scene.Graphics->Shaders, renderer.PixelShader, &renderer.LightSlots));
+	LLC_TEST_REQUIRE(errors, D3D_TEST_RESULT_LIGHT_SHADER, renderer.LightSlots.size() != 1 || renderer.LightSlots[0] != 2);
+	renderer.ConstantBufferScene.View.Identity();
+	renderer.ConstantBufferScene.Perspective.Identity();
+	::llc::SD3DRenderTarget target;
+	::llc::rt<::llc::bgra, ::llc::u2_t> pixels;
+	llc_necs(pixels.resize(::llc::n2u2_t{32, 24}));
+	::llc::apod<::llc::SRenderLight> lights;
+	const ::llc::u2_t counts[] = {0, 1, 2, 257, 0};
+	for(::llc::u2_t count : counts) {
+		::llc::SRenderLight light;
+		light.Color.Diffuse = {1.0f / 1024, 0, 0, 1};
+		light.Range = 1;
+		llc_necs(lights.resize(count, light));
+		if(count > 256) lights[256].Color.Diffuse.r = .5f;
+		llc_necs(target.Begin(*resources, pixels.Color));
+		llc_necs(::llc::d3dDrawEngineNode(renderer, scene, 0, lights));
+		::llc::pcom<ID3D11Buffer> vertexScene;
+		resources->GetD3DDeviceContext()->VSGetConstantBuffers(1, 1, &vertexScene);
+		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_VERTEX_SCENE, vertexScene.get() != renderer.ConstantBuffer[1].get());
+		llc_necs(target.Read(*resources, pixels.Color, pixels.DepthStencil));
+		for(::llc::u2_t x : {8U, 16U}) {
+			const float expected = (count * (1.0f / 1024) + (count > 256 ? .5f - 1.0f / 1024 : 0)) * (1 - (x + .5f) / 32) * 255;
+			const ::llc::bgra actual = pixels.Color[12][x];
+			LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_LIGHT_PIXELS, actual.r < expected - 1 || actual.r > expected + 1 || actual.g || actual.b, "Lights:%u, pixel:%u, expected red:%f, actual:%u/%u/%u.", count, x, expected, actual.r, actual.g, actual.b);
+			LLC_TEST_CHECK(errors, D3D_TEST_RESULT_SCENE_DEPTH, pixels.DepthStencil[12][x] != (::llc::u2_t)(0xFFFFFFFU * .5));
+		}
+	}
+	::llc::SD3DGUIResources<::llc::bgra> label;
+	llc_necs(label.CreateDeviceResources(resources->GetD3DDevice()));
+	llc_necs(label.CreateSizeDependentResources(resources->GetD3DDevice(), {2, 2}));
+	label.RenderTarget[0][0] = {0, 200, 0, 255}; label.RenderTarget[0][1] = {255, 255, 255, 0};
+	label.RenderTarget[1][0] = {0, 200, 0, 51};  label.RenderTarget[1][1] = {0, 0, 200, 255};
+	auto context = resources->GetD3DDeviceContext();
+	const D3D11_VIEWPORT labelViewport = {8, 12, 2, 2, 0, 1}, fullViewport = {0, 0, 32, 24, 0, 1};
+	context->RSSetViewports(1, &labelViewport);
+	llc_necs(::llc::d3dGUIDraw(*resources, label));
+	context->RSSetViewports(1, &fullViewport);
+	llc_necs(target.Read(*resources, pixels.Color, pixels.DepthStencil));
+	LLC_TEST_CHECK(errors, D3D_TEST_RESULT_OVERLAY_PIXELS, pixels.Color[12][8].g != 200 || pixels.Color[12][9].r || pixels.Color[12][9].g || pixels.Color[12][9].b || pixels.Color[13][8].g != 40 || pixels.Color[13][9].r != 200);
+	LLC_TEST_CHECK(errors, D3D_TEST_RESULT_OVERLAY_DEPTH, pixels.DepthStencil[12][8] != (::llc::u2_t)(0xFFFFFFFU * .5) || pixels.DepthStencil[13][9] != pixels.DepthStencil[12][8]);
+	for(float z : {.25f, -.25f}) {
+		scene.RenderNodes.Transforms[0].Model.SetTranslation({0, 0, z}, false);
+		llc_necs(::llc::d3dDrawEngineNode(renderer, scene, 0, lights));
+		llc_necs(target.Read(*resources, pixels.Color, pixels.DepthStencil));
+		LLC_TEST_CHECK(errors, D3D_TEST_RESULT_OVERLAY_DEPTH, pixels.Color[12][8].g != (z > 0 ? 200 : 0) || pixels.DepthStencil[12][8] != (::llc::u2_t)(0xFFFFFFFU * (z > 0 ? .5 : .25)));
+	}
+	llc_necs(pixels.resize(::llc::n2u2_t{19, 11}, ::llc::BLUE, 0));
+	llc_necs(target.Begin(*resources, pixels.Color));
+	llc_necs(target.Read(*resources, pixels.Color, pixels.DepthStencil));
+	LLC_TEST_CHECK(errors, D3D_TEST_RESULT_TARGET_RESIZE, pixels.Color[10][18] != ::llc::bgra(::llc::BLUE) || pixels.DepthStencil[10][18] != 0xFFFFFFFFU);
+	return 0;
+}
 
 ::llc::err_t testD3D(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	struct SWindowGuard { HWND Handle = {}; ~SWindowGuard() { if(Handle) ::DestroyWindow(Handle); } } window;
@@ -34,7 +170,9 @@ GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, DEVICE_PRESERVED			, 17, "Validation rebuil
 	llc_hrcall(com.Result);
 	window.Handle = ::CreateWindowExW(0, L"STATIC", L"LLC D3D consumer test", WS_OVERLAPPEDWINDOW, 0, 0, 128, 96, nullptr, nullptr, ::GetModuleHandleW(nullptr), nullptr);
 	LLC_TEST_REQUIRE(errors, D3D_TEST_RESULT_WINDOW_CREATE, nullptr == window.Handle);
-	::DX::D3DDeviceResources			resources;
+	::llc::pobj<::DX::D3DDeviceResources> resourceOwner;
+	if_null_fe(resourceOwner.create());
+	::DX::D3DDeviceResources & resources = *resourceOwner;
 	LLC_TEST_REQUIRE(errors, D3D_TEST_RESULT_DEVICE_INIT, ::llc::failed(resources.Initialize()));
 	LLC_TEST_REQUIRE(errors, D3D_TEST_RESULT_WINDOW_RESOURCES, ::llc::failed(resources.SetWindow(window.Handle)) || nullptr == resources.GetSwapChain() || nullptr == resources.GetBackBufferRenderTargetView() || nullptr == resources.GetDepthStencilView());
 	::llc::pcom<ID3D11Device3>		device3;
@@ -110,6 +248,8 @@ GDEFINE_ENUM_VALUED(D3D_TEST_RESULT, DEVICE_PRESERVED			, 17, "Validation rebuil
 	LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_EMPTY_REJECTED, false == ::llc::failed(emptyResult), "Result:%i.", emptyResult);
 	LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_FAILURE_TEXTURE_PRESERVED, texture.get() != previousTexture, "Texture:%p, expected:%p.", texture.get(), previousTexture);
 	LLC_TEST_CHECKF(errors, D3D_TEST_RESULT_FAILURE_VIEW_PRESERVED, view.get() != previousView, "View:%p, expected:%p.", view.get(), previousView);
+	llc_necs(testD3DLights(errors, resourceOwner));
+	llc_necs(testGUIMesh(errors, resourceOwner));
 	rtrn 0;
 }
 

@@ -37,6 +37,16 @@ namespace llc
 	stacxpr size_t		SENGINESCENECONSTANTSSIZE = sizeof(SEngineSceneConstants);
 
 
+	struct SRenderLight {
+		::llc::SRenderColor		Color					= {};
+		::llc::n3f2_t			Position				= {};
+		::llc::f2_t				Range					= 0;
+		::llc::n3f2_t			Direction				= {};
+		::llc::f2_t				SpotPower				= 0;
+		::llc::u2_t				Type					= ::llc::LIGHT_TYPE_Point;
+		::llc::u2_t				Padding[3]				= {};
+	};
+
 	struct SPSIn {
 		const ::llc::SRenderNodeConstants & NodeConstants;
 		::llc::n3f2_t			WeightedPosition	;
@@ -44,6 +54,7 @@ namespace llc
 		::llc::n2f2_t			WeightedUV			;
 		::llc::SRenderMaterial	Material			;
 		::llc::view<const ::llc::gc8bgra>	Surfaces		;
+		::llc::view<const ::llc::SRenderLight> Lights		= {};
 	};
 
 	stacxpr size_t		SPSINSIZE = sizeof(SPSIn);
@@ -72,6 +83,8 @@ namespace llc
 	struct SEngineRenderCache {
 		::llc::SVSOutput		VertexShaderOutput		= {};
 		::llc::SVSCache			VertexShaderCache		= {};
+		::llc::apod<::llc::SRenderLight> LightsWorld		= {};
+		::llc::apod<::llc::SRenderLight> LightsNode		= {};
 	};
 
 	struct SSkin {
@@ -133,6 +146,7 @@ namespace llc
 		::llc::SEngineRenderCache		RenderCache				= {};
 
 		::llc::error_t					BuildRenderList			(const ::llc::n3f2_t & cameraPosition, const ::llc::n3f2_t & cameraFront, ::llc::SRenderNodeList & renderList) const;
+		::llc::err_t						BuildLightList			(::llc::apod<::llc::SRenderLight> & lights) const;
 		::llc::error_t					CreateRenderNode		(const ::llc::SGeometryBuffers & geometry, ::llc::vcst_c name, bool createSkin);
 
 		::llc::error_t					Load					(::llc::vcu0_t & input) {
@@ -177,6 +191,8 @@ namespace llc
 		}
 
 	};
+
+	::llc::err_t							lightFilter	(const ::llc::n3f2_t & position, ::llc::view<const ::llc::SRenderLight> lights, ::llc::apod<::llc::SRenderLight> & selected);
 
 	::llc::error_t							drawScene
 		( ::llc::g8bgra				backBufferColors

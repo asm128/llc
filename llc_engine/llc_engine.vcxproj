@@ -575,6 +575,7 @@
     <None Include="PixelShaderShared2D.hlsli" />
     <None Include="ShaderColors.hlsli" />
     <None Include="ShaderShared.hlsli" />
+    <None Include="ShaderLights.hlsli" />
     <None Include="ShaderShared2D.hlsli" />
   </ItemGroup>
   <ItemGroup>
@@ -671,6 +672,18 @@
     <ClInclude Include="WaveBankReader.h" />
     <ClInclude Include="WAVFileReader.h" />
     <ClInclude Include="XAudio2Versions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="llc_engine_gui.cpp" />
+    <ClCompile Include="llc_engine_gui_d3d.cpp" />
+    <ClInclude Include="llc_engine_gui.h" />
+    <ClInclude Include="llc_engine_gui_d3d.h" />
+    <FxCompile Include="vsGUIMesh.hlsl">
+      <ShaderType>Vertex</ShaderType><ShaderModel>5.0</ShaderModel><ObjectFileOutput>$(OutDir)%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="psGUIMesh.hlsl">
+      <ShaderType>Pixel</ShaderType><ShaderModel>5.0</ShaderModel><ObjectFileOutput>$(OutDir)%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
