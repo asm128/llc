@@ -393,6 +393,9 @@
     <ClInclude Include="llc_label_manager.h">
       <Filter>container</Filter>
     </ClInclude>
+    <ClInclude Include="llc_lifecycle.h">
+      <Filter>base</Filter>
+    </ClInclude>
     <ClInclude Include="llc_line.h">
       <Filter>geometry</Filter>
     </ClInclude>
@@ -780,7 +783,9 @@
     <ClInclude Include="llc_tcpip.h">
       <Filter>inet</Filter>
     </ClInclude>
-    <ClInclude Include="llc_connection.h"><Filter>inet</Filter></ClInclude>
+    <ClInclude Include="llc_connection.h">
+      <Filter>inet</Filter>
+    </ClInclude>
     <ClInclude Include="llc_stdsocket.h">
       <Filter>inet</Filter>
     </ClInclude>
@@ -851,6 +856,12 @@
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="llc_grid_serialize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_file_pack.h">
+      <Filter>dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_crc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1074,7 +1085,9 @@
     <ClCompile Include="llc_typeint.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="llc_connection.cpp"><Filter>inet</Filter></ClCompile>
+    <ClCompile Include="llc_connection.cpp">
+      <Filter>inet</Filter>
+    </ClCompile>
     <ClCompile Include="llc_tcpip.cpp">
       <Filter>inet</Filter>
     </ClCompile>
@@ -1122,6 +1135,12 @@
     </ClCompile>
     <ClCompile Include="llc_keyval_view.cpp">
       <Filter>string</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_file_pack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_crc.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
