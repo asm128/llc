@@ -207,6 +207,8 @@ namespace llc
 
 		err_t			Write				(u2_t processId, vcu0_t input);
 		err_t			Read				(u2_t processId, au0_t & output);
+		// Already launched/redirected child: close stdin while draining output; does not launch or reap.
+		err_t			Communicate			(u2_t processId, vcu0_t input, au0_t & output);
 
 		err_t			Wait				(u2_t processId, u2_t & exitCode);// Linux: signal termination is 128 + signal; wait consumes the child id.
 		err_t			Close				(u2_t processId); // Releases the record; does not kill the child.

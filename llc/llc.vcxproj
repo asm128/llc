@@ -42,6 +42,8 @@
     <ClInclude Include="llc_ccsds.h" />
     <ClInclude Include="llc_cerrno.h" />
     <ClInclude Include="llc_circuit.h" />
+    <ClInclude Include="llc_crc.h" />
+    <ClInclude Include="llc_file_pack.h" />
     <ClInclude Include="llc_grid_serialize.h" />
     <ClInclude Include="llc_keyval_view.h" />
     <ClInclude Include="llc_micro.h" />
@@ -214,12 +216,14 @@
     <ClInclude Include="llc_http_client.h" />
     <ClInclude Include="llc_image.h" />
     <ClInclude Include="llc_input.h" />
+    <ClInclude Include="llc_inout.h" />
     <ClInclude Include="llc_cstdio.h" />
     <ClInclude Include="llc_json.h" />
     <ClInclude Include="llc_json_expression.h" />
     <ClInclude Include="llc_keyval.h" />
     <ClInclude Include="llc_label.h" />
     <ClInclude Include="llc_label_manager.h" />
+    <ClInclude Include="llc_lifecycle.h" />
     <ClInclude Include="llc_log.h" />
     <ClInclude Include="llc_math.h" />
     <ClInclude Include="llc_matrix.h" />
@@ -314,10 +318,12 @@
     <ClCompile Include="llc_component_scene_draw.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_crc.cpp" />
     <ClCompile Include="llc_datatype.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_deflate.cpp" />
+    <ClCompile Include="llc_file_pack.cpp" />
     <ClCompile Include="llc_geometry.cpp" />
     <ClCompile Include="llc_geometry_draw.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
