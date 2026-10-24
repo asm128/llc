@@ -1,6 +1,8 @@
 /// Copyright 2016-2018 - asm128
 #include "llc_args.h"
 #include "llc_enum.h"
+#include "llc_queue_event.h"
+#include "llc_system_event.h"
 
 #if defined(LLC_WINDOWS)
 #	define WIN32_LEAN_AND_MEAN
@@ -29,6 +31,9 @@ namespace llc
 	struct SRuntimeValues {
 		SRuntimeValuesDetail	PlatformDetail	;
 		SCommandLineArgs		EntryPointArgs	;
+		// Direction is relative to the application/module receiving these values.
+		::llc::qpevt<::llc::SYSTEM_EVENT>	EventsIn	= {};
+		::llc::qpevt<::llc::SYSTEM_EVENT>	EventsOut	= {};
 	};
 
 } // namespace
