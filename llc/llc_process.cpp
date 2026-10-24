@@ -49,6 +49,16 @@ err_t SProcessManager<T>::Read(u2_t id, au0_t & output) {
 }
 
 tplt<tpnm T>
+err_t SProcessManager<T>::Communicate(u2_t id, vcu0_t input, au0_t & output) {
+	err_t result;
+	if_fail_vef(-1, result = Validate(id), "(%" LLC_FMT_S2 ")", result);
+	cnst auto & state = KnownProcesses[id].State;
+	if_true_fe(!state.Started || !state.Redirected || state.Finished);
+	if_fail_vef(result, result = process_detail::processCommunicate(PlatformState[id], input, output), "(%" LLC_FMT_S2 ")", result);
+	rtrn result;
+}
+
+tplt<tpnm T>
 err_t SProcessManager<T>::Wait(u2_t id, u2_t & exitCode) {
 	err_t result;
 	if_fail_vef(-1, result = Validate(id), "(%" LLC_FMT_S2 ")", result);
@@ -69,7 +79,7 @@ err_t SProcessManager<T>::Execute(u2_t id, vcu0_t input, au0_t & output, u2_t & 
 	if_true_fe(KnownProcesses[id].State.Started);
 	if_fail_vef(-1, result = Redirect(id), "(%" LLC_FMT_S2 ")", result);
 	if_fail_vef(-1, result = Launch(id), "(%" LLC_FMT_S2 ")", result);
-	if_fail_vef(result, result = process_detail::processCommunicate(PlatformState[id], input, output), "(%" LLC_FMT_S2 ")", result);
+	if_fail_vef(result, result = Communicate(id, input, output), "(%" LLC_FMT_S2 ")", result);
 	if_fail_vef(result, result = Wait(id, exitCode), "(%" LLC_FMT_S2 ")", result);
 	rtrn result;
 }

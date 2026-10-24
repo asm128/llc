@@ -33,6 +33,7 @@ GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, LAUNCH				, 20, "An asynchronous proces
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, MANAGER				, 21, "Manager ownership, retained completion or process-id lifecycle is incorrect.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, COPYCAST			, 22, "cpycst() must preserve equal-sized object representations and process flag bits.");
 GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, SCOPE				, 23, "Scoped process cleanup must run once, preserve errors and allow ownership transfer.");
+GDEFINE_ENUM_VALUED(PROCESS_TEST_RESULT, COMMUNICATE			, 24, "Communicate must drain an already-launched child without relaunching or reaping it.");
 
 stct STestProcessOwner {
 	::llc::u2_t Calls = 0, Order = 0;
@@ -79,6 +80,25 @@ sttc ::llc::err_t testProcessScope(::llc::ATestError & errors) {
 }
 
 #if defined(LLC_WINDOWS) || defined(LLC_LINUX)
+sttc ::llc::err_t testProcessCommunicate(::llc::ATestError & errors, ::llc::vcst_t application, ::llc::vcst_t commandLine, ::llc::vcu0_t input, ::llc::vcu0_t expected) {
+	::llc::SProcessManager<> manager;
+	cnst ::llc::err_t id = manager.Create(application, commandLine);
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_COMMUNICATE, ::llc::failed(id));
+	::llc::SProcessManager<>::TProcessScope scope{manager, (::llc::u2_t)id};
+	::llc::au0_t output;
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COMMUNICATE, ::llc::succeeded(manager.Communicate(id, input, output)) || output.size());
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_COMMUNICATE, ::llc::failed(manager.Redirect(id)) || ::llc::failed(manager.Launch(id)));
+	LLC_TEST_REQUIREF(errors, PROCESS_TEST_RESULT_COMMUNICATE, ::llc::failed(manager.Communicate(id, input, output)), "Child:%u, input:%u bytes.", (::llc::u2_t)id, input.size());
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COMMUNICATE, !manager.KnownProcesses[id].State.Started || manager.KnownProcesses[id].State.Finished);
+	::llc::u2_t exitCode = 0;
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_COMMUNICATE, ::llc::failed(manager.Wait(id, exitCode)));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COMMUNICATE, exitCode || output.size() != expected.size() || memcmp(output.begin(), expected.begin(), expected.size()));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COMMUNICATE, ::llc::succeeded(manager.Communicate(id, input, output)));
+	LLC_TEST_REQUIRE(errors, PROCESS_TEST_RESULT_COMMUNICATE, ::llc::failed(scope.Close()));
+	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_COMMUNICATE, ::llc::succeeded(manager.Communicate(id, input, output)));
+	rtrn 0;
+}
+
 sttc ::llc::err_t testProcessManager(::llc::ATestError & errors, ::llc::vcst_t application, ::llc::vcst_t commandLine) {
 	::llc::SProcessManager<> manager;
 	::llc::string ownedCommand = commandLine;
@@ -308,6 +328,7 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 		prefixChanged |= 0 != processOutput[i];
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_DUPLEX, prefixChanged);
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_DUPLEX, 0 != memcmp(processOutput.begin() + prefixSize, processInput.begin(), processInput.size()));
+	llc_necs(::testProcessCommunicate(errors, {modulePath, modulePathLength}, commandLine, processInput, processOutput));
 #elif defined(LLC_LINUX)
 	cnst ::llc::vcst_t markerArgs = "llc_test_core --process-child";
 	cnst ::llc::vcst_t echoArgs = "llc_test_core --process-echo";
@@ -377,6 +398,7 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 	for(::llc::u2_t i = 0; i < prefixSize; ++i)
 		prefixChanged |= 0 != output[i];
 	LLC_TEST_CHECK(errors, PROCESS_TEST_RESULT_DUPLEX, prefixChanged || memcmp(output.begin() + prefixSize, input.begin(), input.size()));
+	llc_necs(::testProcessCommunicate(errors, "/proc/self/exe", echoArgs, input, output));
 
 	// Exercise SIGPIPE handling on this thread as well as on Execute's worker.
 	struct sigaction before = {}, after = {};
