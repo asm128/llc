@@ -214,6 +214,7 @@
     <ClInclude Include="llc_http_client.h" />
     <ClInclude Include="llc_image.h" />
     <ClInclude Include="llc_input.h" />
+    <ClInclude Include="llc_inout.h" />
     <ClInclude Include="llc_cstdio.h" />
     <ClInclude Include="llc_json.h" />
     <ClInclude Include="llc_json_expression.h" />

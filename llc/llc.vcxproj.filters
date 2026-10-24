@@ -375,6 +375,9 @@
     <ClInclude Include="llc_input.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="llc_inout.h">
+      <Filter>base</Filter>
+    </ClInclude>
     <ClInclude Include="llc_cstdio.h">
       <Filter>base</Filter>
     </ClInclude>
