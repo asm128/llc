@@ -6,12 +6,33 @@
 
 #include "llc_image.h"
 #include "llc_file.h"
+#include "llc_gui.h"
 
 #ifndef LLC_ENGINE_D3D_APP_H_23627
 #define LLC_ENGINE_D3D_APP_H_23627
 
 namespace llc
 {
+	struct SD3DGUIControlInstance {
+		::llc::s1_t X[4] = {}, Y[4] = {};
+		::llc::bgra Colors[::llc::GUI_CONTROL_AREA_OLD_COUNT] = {};
+		::llc::u2_t Flags = 0;
+	};
+	struct SD3DGUITextureInstance {
+		::llc::rect2s1_t Rectangle = {};
+		::llc::rect2f2_t UV = {};
+		::llc::bgra Color = {};
+		::llc::u2_t Mode = 0;
+	};
+	struct SD3DGUIFont {
+		::llc::pobj<::llc::SRasterFont> Font;
+		::llc::pcom<ID3D11Texture2D> Texture;
+		::llc::pcom<ID3D11ShaderResourceView> View;
+	};
+	struct SD3DGUIImage {
+		::llc::pcom<ID3D11Texture2D> Texture;
+		::llc::pcom<ID3D11ShaderResourceView> View;
+	};
 	tplt<tpnm _tColor>
 	struct SD3DGUIResources {
 		typedef	::llc::img<_tColor>				TRenderTarget;
@@ -34,6 +55,21 @@ namespace llc
 		::llc::pcom<ID3D11ShaderResourceView>	ShaderResourceView	= {};
 		::llc::pcom<ID3D11Texture2D>			Texture2D			= {};	// - Size-dependent
 
+		::llc::aobj<::llc::SD3DGUIFont> ControlFonts;
+		::llc::aobj<::llc::SD3DGUIImage> ControlImages;
+		::llc::apod<::llc::SD3DGUIControlInstance> ControlInstances;
+		::llc::apod<::llc::SD3DGUITextureInstance> ControlTextureInstances;
+		::llc::pcom<ID3D11Buffer> ControlVertexBuffer, ControlIndexBuffer, ControlInstanceBuffer, ControlConstants;
+		::llc::pcom<ID3D11InputLayout> ControlInputLayout;
+		::llc::pcom<ID3D11VertexShader> ControlVertexShader;
+		::llc::pcom<ID3D11PixelShader> ControlPixelShader;
+		::llc::pcom<ID3D11RasterizerState> ControlRasterizerState;
+		::llc::pcom<ID3D11Buffer> ControlTextureVertexBuffer, ControlTextureInstanceBuffer;
+		::llc::pcom<ID3D11InputLayout> ControlTextureInputLayout;
+		::llc::pcom<ID3D11VertexShader> ControlTextureVertexShader;
+		::llc::pcom<ID3D11PixelShader> ControlTexturePixelShader;
+		::llc::pcom<ID3D11BlendState> ControlImageBlendState;
+
 		void					ReleaseDeviceResources		() {
 			BlendState				= {};
 			RasterizerState			= {};
@@ -49,6 +85,12 @@ namespace llc
 			PixelShader				= {};
 			ShaderResourceView		= {};
 			Texture2D				= {};
+			ControlFonts.clear(); ControlImages.clear(); ControlInstances.clear(); ControlTextureInstances.clear();
+			ControlVertexBuffer = {}; ControlIndexBuffer = {}; ControlInstanceBuffer = {}; ControlConstants = {}; ControlInputLayout = {};
+			ControlVertexShader = {}; ControlPixelShader = {}; ControlRasterizerState = {};
+			ControlTextureVertexBuffer = {}; ControlTextureInstanceBuffer = {}; ControlTextureInputLayout = {};
+			ControlTextureVertexShader = {}; ControlTexturePixelShader = {};
+			ControlImageBlendState = {};
 		}
 
 		::llc::error_t			CreateSizeDependentResources(ID3D11Device3 * d3dDevice, ::llc::n2u1_t windowSize)	{
@@ -204,6 +246,7 @@ namespace llc
 	};
 
 	::llc::error_t			d3dGUIDraw				(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff);
+	::llc::err_t			d3dGUIDraw				(::DX::D3DDeviceResources & resources, ::llc::SD3DGUIResources<::llc::bgra> & gpu, const ::llc::SGUI & gui, ::llc::n2u1_t targetSize);
 
 	struct SD3DApplication : DX::IDeviceNotify {
 		::llc::pobj<::llc::SEngineGraphics>		EngineGraphics;
@@ -271,6 +314,7 @@ namespace llc
 			return 0;
 		}
 	};
+	::llc::err_t			d3dGUIFrameDraw		(::llc::SD3DApplication & app, const ::llc::SGUI & gui, ::llc::n2u1_t targetSize, const ::llc::rgbaf & clearColor);
 
 	::llc::error_t			d3dDrawEngineScene		(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
 	::llc::error_t			d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
