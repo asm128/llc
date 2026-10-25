@@ -2,8 +2,8 @@
 
 namespace llc
 {
-    stxp vcs PREPENDED_QUOT = LLC_CXS(",\"");
-    stxp vcs NOPREPDED_QUOT = LLC_CXS("\"");
+    stxp vcs PREPENDED_QUOT = ",\"";
+    stxp vcs NOPREPDED_QUOT = "\"";
 
     err_t   appendOpenKey   (asc_t & output, vcs k       , bool prepSep)  { return append_strings(output, prepSep ? PREPENDED_QUOT : NOPREPDED_QUOT, k, "\":")              ; }
     err_t   appendKeyValue  (asc_t & output, vcs k, vcs v, bool prepSep)  { return append_strings(output, prepSep ? PREPENDED_QUOT : NOPREPDED_QUOT, k, "\":", v)           ; }

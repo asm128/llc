@@ -1,56 +1,56 @@
 #include "llc_append_xml.h"
 
-llc::err_t	llc::appendXmlOpenTag		(::llc::asc_t & output, ::llc::vcst_t tagName) 							{ return llc::append_strings(output, '<', tagName); }
-llc::err_t	llc::appendXmlTagClosing	(::llc::asc_t & output, ::llc::vcst_t tagName) 							{ return llc::append_strings(output, "</", tagName, '>'); }
-llc::err_t	llc::appendXmlTagOpening	(::llc::asc_t & output, ::llc::vcst_t tagName, ::llc::vcst_t tagAttributes)	{
+llc::err_t	llc::appendXmlOpenTag		(asc_t & output, vcst_t tagName) 							{ return append_strings(output, '<', tagName); }
+llc::err_t	llc::appendXmlTagClosing	(asc_t & output, vcst_t tagName) 							{ return append_strings(output, "</", tagName, '>'); }
+llc::err_t	llc::appendXmlTagOpening	(asc_t & output, vcst_t tagName, vcst_t tagAttributes)	{
 	return tagAttributes.size()
-		? ::llc::append_strings(output, '<', tagName, ' ', tagAttributes, " >")
-		: ::llc::append_strings(output, '<', tagName, '>')
+		? append_strings(output, '<', tagName, ' ', tagAttributes, " >")
+		: append_strings(output, '<', tagName, '>')
 		;
 }
-llc::err_t	llc::appendXmlTagVoid		(::llc::asc_t & output, ::llc::vcst_t tagName, ::llc::vcst_t tagAttributes) {
+llc::err_t	llc::appendXmlTagVoid		(asc_t & output, vcst_t tagName, vcst_t tagAttributes) {
 	return tagAttributes.size()
-		? ::llc::append_strings(output, '<', tagName, ' ', tagAttributes, " >")
-		: ::llc::append_strings(output, '<', tagName, " />")
+		? append_strings(output, '<', tagName, ' ', tagAttributes, " >")
+		: append_strings(output, '<', tagName, " />")
 		;
 }
-llc::err_t	llc::appendXmlTag			(::llc::asc_t & output, ::llc::vcst_t tagName, ::llc::vcst_t tagAttributes, ::llc::vcst_t innerHtml) {
+llc::err_t	llc::appendXmlTag			(asc_t & output, vcst_t tagName, vcst_t tagAttributes, vcst_t innerHtml) {
 	return tagAttributes.size()
-		? ::llc::append_strings(output, '<', tagName, ' ', tagAttributes, " >", innerHtml, "</", tagName, '>')
-		: ::llc::append_strings(output, '<', tagName, '>', innerHtml, "</", tagName, '>')
+		? append_strings(output, '<', tagName, ' ', tagAttributes, " >", innerHtml, "</", tagName, '>')
+		: append_strings(output, '<', tagName, '>', innerHtml, "</", tagName, '>')
 		;
 }
-llc::err_t	llc::appendXmlAttr			(::llc::asc_t & output, ::llc::vcst_t attrName, ::llc::vcst_t attrValue)	{
+llc::err_t	llc::appendXmlAttr			(asc_t & output, vcst_t attrName, vcst_t attrValue)	{
 	return attrValue.size()
-		? ::llc::append_strings(output, " ", attrName, "=\"", attrValue, '"')
-		: ::llc::append_strings(output, " ", attrName)
+		? append_strings(output, " ", attrName, "=\"", attrValue, '"')
+		: append_strings(output, " ", attrName)
 		;
 }
-llc::err_t	llc::appendXmlTag			(::llc::asc_t & output, ::llc::vcst_t tagName, ::llc::vcst_t tagAttributes, const ::llc::FAppend & funcAppend) {
+llc::err_t	llc::appendXmlTag			(asc_t & output, vcst_t tagName, vcst_t tagAttributes, const FAppend & funcAppend) {
 	int32_t			result						= 0;
 
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagOpening(output, tagName, tagAttributes)); 	result += _result; }
-	if(funcAppend)	{ int32_t _result; llc_necs(_result = funcAppend(output));											result += _result; }
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagClosing(output, tagName)); 					result += _result; }
+					{ int32_t _result; if_fail_fe(_result = appendXmlTagOpening(output, tagName, tagAttributes)); 	result += _result; }
+	if(funcAppend)	{ int32_t _result; if_fail_fe(_result = funcAppend(output));									result += _result; }
+					{ int32_t _result; if_fail_fe(_result = appendXmlTagClosing(output, tagName)); 					result += _result; }
 	return result;
 }
-llc::err_t	llc::appendXmlTag			(::llc::asc_t & output, ::llc::vcst_t tagName, ::llc::vcst_t tagAttributes, const ::llc::function<llc::err_t()> & funcAppend) {
+llc::err_t	llc::appendXmlTag			(asc_t & output, vcst_t tagName, vcst_t tagAttributes, const function<err_t()> & funcAppend) {
 	int32_t			result						= 0;
 
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagOpening(output, tagName, tagAttributes)); 	result += _result; }
-	if(funcAppend)	{ int32_t _result; llc_necs(_result = funcAppend());												result += _result; }
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagClosing(output, tagName)); 					result += _result; }
+					{ int32_t _result; if_fail_fe(_result = appendXmlTagOpening(output, tagName, tagAttributes)); 	result += _result; }
+	if(funcAppend)	{ int32_t _result; if_fail_fe(_result = funcAppend());											result += _result; }
+					{ int32_t _result; if_fail_fe(_result = appendXmlTagClosing(output, tagName)); 					result += _result; }
 	return result;
 }
-llc::err_t	llc::appendXmlTag			(::llc::asc_t & output, ::llc::vcst_t tagName, const ::llc::function<llc::err_t()> & funcAppendAttrs, const ::llc::function<llc::err_t()> & funcAppend) {
+llc::err_t	llc::appendXmlTag			(asc_t & output, vcst_t tagName, const function<err_t()> & funcAppendAttrs, const function<err_t()> & funcAppend) {
 	int32_t			result						= 0;
 	if(!funcAppendAttrs)
-		return ::llc::appendXmlTag(output, tagName, ::llc::vcst_t{}, funcAppend);
+		return appendXmlTag(output, tagName, vcst_t{}, funcAppend);
 
-					{ int32_t _result; llc_necs(_result = llc::append_strings(output, '<', tagName, ' '));	result += _result; }
-					{ int32_t _result; llc_necs(_result = funcAppendAttrs());								result += _result; }
-					{ int32_t _result; llc_necs(_result = output.append_string(" >"));						result += _result; }
-	if(funcAppend)	{ int32_t _result; llc_necs(_result = funcAppend());									result += _result; }
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagClosing(output, tagName));		result += _result; }
+					{ int32_t _result; if_fail_fe(_result = append_strings(output, '<', tagName, ' '));	result += _result; }
+					{ int32_t _result; if_fail_fe(_result = funcAppendAttrs());									result += _result; }
+					{ int32_t _result; if_fail_fe(_result = output.append_string(" >"));						result += _result; }
+	if(funcAppend)	{ int32_t _result; if_fail_fe(_result = funcAppend());										result += _result; }
+					{ int32_t _result; if_fail_fe(_result = appendXmlTagClosing(output, tagName));			result += _result; }
 	return result;
 }

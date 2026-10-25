@@ -6,6 +6,6 @@
 namespace llc
 {
 
-} // namespace 
+} // namespace
 
 #endif // LLC_APPEND_JS_H

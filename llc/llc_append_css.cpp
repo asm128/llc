@@ -5,7 +5,7 @@ llc::err_t	llc::appendCSSBorderWidth			(::llc::asc_t & output, uint8_t borderWid
 	stxp char		cssFormat	[]			= "border-width:%" LLC_FMT_U2 "%s;";
 	const char			* unit					= absoluteSize ? "px" : "%";
 	const int32_t		len						= ::llc::sprintf_s(cssBuffer, cssFormat, borderWidth, unit);
-	llc_necs(output.append_string(cssBuffer));
+	if_fail_fe(output.append_string(cssBuffer));
 	return len;
 }
 llc::err_t	llc::appendCSSControlWidth			(::llc::asc_t & output, uint16_t outerLimit, bool absoluteSize)	{
@@ -13,7 +13,7 @@ llc::err_t	llc::appendCSSControlWidth			(::llc::asc_t & output, uint16_t outerLi
 	stxp char		cssFormat	[]			= "width:%" LLC_FMT_U2 "%s;";
 	const char			* unit					= absoluteSize ? "px" : "%";
 	const int32_t 		len						= ::llc::sprintf_s(cssBuffer, cssFormat, outerLimit, unit);
-	llc_necs(output.append_string(cssBuffer));
+	if_fail_fe(output.append_string(cssBuffer));
 	return len;
 }
 llc::err_t	llc::appendCSSControlHeight		(::llc::asc_t & output, uint16_t outerLimit, bool absoluteSize)	{
@@ -21,7 +21,7 @@ llc::err_t	llc::appendCSSControlHeight		(::llc::asc_t & output, uint16_t outerLi
 	stxp char		cssFormat	[]			= "height:%" LLC_FMT_U2 "%s;";
 	const char			* unit					= absoluteSize ? "px" : "%";
 	const int32_t 		len						= ::llc::sprintf_s(cssBuffer, cssFormat, outerLimit, unit);
-	llc_necs(output.append_string(cssBuffer));
+	if_fail_fe(output.append_string(cssBuffer));
 	return len;
 }
 llc::err_t	llc::appendCSSControlSize			(::llc::asc_t & output, ::llc::n2u1_t outerLimit, bool absoluteSize)	{
@@ -35,11 +35,11 @@ llc::err_t	llc::appendCSSSizeWithBorderWidthRelative	(::llc::asc_t & output, ::l
 	char				cssBuffer	[128]		= {};
 	stxp char		cssFormat	[]			= "width:calc(%" LLC_FMT_U2 "%% - %" LLC_FMT_U2 "px);height:calc(%" LLC_FMT_U2 "%% - %" LLC_FMT_U2 "px);";
 	const int32_t 		len						= ::llc::sprintf_s(cssBuffer, cssFormat, outerLimit.x, borderWidth * 2, outerLimit.y, borderWidth * 2);
-	llc_necs(output.append_string(cssBuffer));
+	if_fail_fe(output.append_string(cssBuffer));
 	return len + appendCSSBorderWidth(output, borderWidth);
 }
 llc::err_t	llc::appendCSSSizeWithBorderWidth	(::llc::asc_t & output, ::llc::n2u1_t outerLimit, uint8_t borderWidth, bool absoluteSize)	{
-	return absoluteSize 
+	return absoluteSize
 		? appendCSSSizeWithBorderWidthAbsolute(output, outerLimit, borderWidth)
 		: appendCSSSizeWithBorderWidthRelative(output, outerLimit, borderWidth)
 		;

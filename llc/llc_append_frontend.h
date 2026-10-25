@@ -8,6 +8,6 @@
 
 namespace llc
 {
-} // namespace 
+} // namespace
 
 #endif // LLC_APPEND_FRONTEND_H
