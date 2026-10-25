@@ -702,9 +702,6 @@
     <ClInclude Include="llc_queue_event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="llc_comm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_log_core.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -852,20 +849,20 @@
     <ClInclude Include="llc_keyval.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="llc_grid_serialize.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_file_pack.h">
       <Filter>dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_crc.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="llc_connection_ip.h">
       <Filter>inet</Filter>
     </ClInclude>
     <ClInclude Include="llc_connection.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_crc.h">
+      <Filter>encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_grid_serialize.h">
+      <Filter>view</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1124,9 +1121,6 @@
     <ClCompile Include="llc_ccsds.cpp">
       <Filter>encoding</Filter>
     </ClCompile>
-    <ClCompile Include="llc_comm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_stdstring.cpp">
       <Filter>string</Filter>
     </ClCompile>
@@ -1134,9 +1128,6 @@
       <Filter>string</Filter>
     </ClCompile>
     <ClCompile Include="llc_file_pack.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_crc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_word_dict.cpp">
@@ -1147,6 +1138,9 @@
     </ClCompile>
     <ClCompile Include="llc_connection_ip.cpp">
       <Filter>inet</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_crc.cpp">
+      <Filter>encoding</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
