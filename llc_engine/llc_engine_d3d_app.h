@@ -13,6 +13,15 @@
 
 namespace llc
 {
+	struct SD3DRenderTarget {
+		::llc::pcom<ID3D11Texture2D>			Color, Depth, ReadColor, ReadDepth;
+		::llc::pcom<ID3D11RenderTargetView>	Target;
+		::llc::pcom<ID3D11DepthStencilView>	DepthView;
+		::llc::err_t Begin	(::DX::D3DDeviceResources & resources, ::llc::gc8bgra colors);
+		::llc::err_t Upload	(::DX::D3DDeviceResources & resources, ::llc::gc8bgra colors);
+		::llc::err_t Read	(::DX::D3DDeviceResources & resources, ::llc::g8bgra colors, ::llc::gu2_t depth);
+	};
+
 	struct SD3DGUIControlInstance {
 		::llc::s1_t X[4] = {}, Y[4] = {};
 		::llc::bgra Colors[::llc::GUI_CONTROL_AREA_OLD_COUNT] = {};
@@ -290,7 +299,7 @@ namespace llc
 		::llc::error_t			CreateDeviceDependentEngineResources(ID3D11Device3 * d3dDevice,  const ::llc::SEngineGraphics & engineGraphics)	{
 			llc_necs(llc::d3dCreateBuffersFromEngineMeshes		(d3dDevice, engineGraphics.Meshes	, engineGraphics.Buffers, Scene.IndexBuffer, Scene.VertexBuffer));
 			llc_necs(llc::d3dCreateTexturesFromEngineSurfaces		(d3dDevice, engineGraphics.Surfaces	, Scene.ShaderResourceView));
-			llc_necs(llc::d3dCreatePixelShadersFromEngineShaders	(d3dDevice, engineGraphics.Shaders	, Scene.PixelShader));
+			llc_necs(llc::d3dCreatePixelShadersFromEngineShaders	(d3dDevice, engineGraphics.Shaders	, Scene.PixelShader, &Scene.LightSlots));
 			return 0;
 		}
 		::llc::error_t			CreateDeviceResources	(const ::llc::SEngineGraphics & engineGraphics)	{
@@ -316,6 +325,7 @@ namespace llc
 	};
 	::llc::err_t			d3dGUIFrameDraw		(::llc::SD3DApplication & app, const ::llc::SGUI & gui, ::llc::n2u1_t targetSize, const ::llc::rgbaf & clearColor);
 
+	::llc::err_t			d3dDrawEngineNode		(::llc::Sample3DSceneRenderer & renderer, const ::llc::SEngineScene & scene, ::llc::u2_t node, ::llc::view<const ::llc::SRenderLight> lights, const ::llc::SRenderMaterial * material = nullptr, ::llc::u2_t vertexShader = 0, ::llc::CULL_MODE cullMode = ::llc::CULL_MODE_CCW);
 	::llc::error_t			d3dDrawEngineScene		(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
 	::llc::error_t			d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
 };

@@ -20,6 +20,8 @@ struct Output {
 	nointerpolation float4 right : COLOR3;
 	nointerpolation float4 bottom : COLOR4;
 	nointerpolation uint flags : TEXCOORD0;
+	nointerpolation int4 x : TEXCOORD1;
+	nointerpolation int4 y : TEXCOORD2;
 };
 
 Output main(Input input) {
@@ -32,5 +34,7 @@ Output main(Input input) {
 	output.right = input.right.bgra;
 	output.bottom = input.bottom.bgra;
 	output.flags = input.flags;
+	output.x = input.x;
+	output.y = input.y;
 	return output;
 }

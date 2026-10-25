@@ -10,6 +10,52 @@
 
 #include <algorithm>
 
+::llc::err_t llc::SEngineScene::BuildLightList(::llc::apod<::llc::SRenderLight> & lights) const {
+	lights.clear();
+	for(::llc::u2_t iNode = 0; iNode < RenderNodes.size(); ++iNode) {
+		if(!RenderNodes.Lights[iNode])
+			continue;
+		const ::llc::m4f2_t model = RenderNodes.BaseTransforms[iNode].Model * RenderNodes.Transforms[iNode].Model;
+		for(const ::llc::SLight & reference : *RenderNodes.Lights[iNode]) {
+			const auto append = [&](const auto & source) -> ::llc::err_t {
+				::llc::SRenderLight light;
+				light.Type = reference.Type;
+				light.Color = source.Color;
+				light.Position = model.GetTranslation();
+				if constexpr(requires { source.Direction; })
+					light.Direction = model.TransformDirection(source.Direction).Normalize();
+				if constexpr(requires { source.Range; })
+					light.Range = source.Range;
+				if constexpr(requires { source.SpotPower; })
+					light.SpotPower = source.SpotPower;
+				return lights.push_back(light);
+			};
+			const auto appendGroup = [&](const auto & groups) -> ::llc::err_t {
+				if_true_fef(reference.Index >= groups.size(), "Light group:%u, type:%u.", reference.Index, reference.Type);
+				if(groups[reference.Index])
+					for(const auto & light : *groups[reference.Index])
+						llc_necs(append(light));
+				return 0;
+			};
+			switch(reference.Type) {
+			case ::llc::LIGHT_TYPE_Directional: llc_necs(appendGroup(RenderNodes.LightsDirectional)); break;
+			case ::llc::LIGHT_TYPE_Point      : llc_necs(appendGroup(RenderNodes.LightsPoint)); break;
+			case ::llc::LIGHT_TYPE_Spot       : llc_necs(appendGroup(RenderNodes.LightsSpot)); break;
+			default: return ::llc::OS_INVALID_PARAMETER;
+			}
+		}
+	}
+	return 0;
+}
+
+::llc::err_t llc::lightFilter(const ::llc::n3f2_t & position, ::llc::view<const ::llc::SRenderLight> lights, ::llc::apod<::llc::SRenderLight> & selected) {
+	selected.clear();
+	for(const ::llc::SRenderLight & light : lights)
+		if(light.Type == ::llc::LIGHT_TYPE_Directional || (light.Range > 0 && (light.Position - position).LengthSquared() < light.Range * light.Range))
+			llc_necs(selected.push_back(light));
+	return 0;
+}
+
 tplt <tpnm _tIndex>
 static	::llc::error_t	transformTriangles					
 	( ::llc::SVSOutput		& output
@@ -127,6 +173,7 @@ static	::llc::error_t	drawBuffers
 	, bool												alphaBlend
 	, const ::llc::SEngineSceneConstants				& constants
 	, const ::llc::SRenderNodeConstants					& nodeConstants
+	, ::llc::view<const ::llc::SRenderLight>			lights
 	, const ::std::function<::llc::TFuncPixelShader>	& ps
 	) {	// 
 	::llc::atrif2_t				& triangleWeights			= cacheVS.TriangleWeights		;
@@ -136,6 +183,7 @@ static	::llc::error_t	drawBuffers
 	::llc::SPSIn				inPS						= {nodeConstants};
 	inPS.Surfaces			= surfaces;
 	inPS.Material			= material;
+	inPS.Lights				= lights;
 
 	for(::llc::u2_t iTriangle = 0; iTriangle < outVS.PositionsScreen.size(); ++iTriangle) {
 		const ::llc::tri3f2_t		& triPositions				= outVS.PositionsScreen	[iTriangle];
@@ -228,11 +276,13 @@ static	::llc::error_t	drawBuffers
 	static ::std::function<::llc::TFuncPixelShader>	defaultShader			= {::llc::psSolid};
 	::llc::SRenderNodeList			renderList;
 	llc_necs(scene.BuildRenderList(constants.CameraPosition, constants.CameraFront, renderList));
+	llc_necs(scene.BuildLightList(renderCache.LightsWorld));
 	const auto drawNode = [&](::llc::u2_t iRenderNode, bool alphaBlend) -> ::llc::error_t {
 		const ::llc::SRenderNode		& renderNode		= scene.RenderNodes.RenderNodes[iRenderNode];
 		const ::llc::SSkin				& skin				= *scene.Graphics->Skins.Elements[renderNode.Skin];
 		::llc::SRenderNodeConstants		transforms			= {};
 		llc_necs(::getNodeTransform(scene.RenderNodes, iRenderNode, constants, transforms));
+		llc_necs(::llc::lightFilter(transforms.Model.GetTranslation(), renderCache.LightsWorld, renderCache.LightsNode));
 
 		llc_necall(::transformTriangles(renderCache, scene, constants, transforms, iRenderNode), "iRenderNode %i", iRenderNode);
 
@@ -248,7 +298,7 @@ static	::llc::error_t	drawBuffers
 		const ::std::function<::llc::TFuncPixelShader>	& fx
 			= (renderNode.Shader >= scene.Graphics->Shaders.size()) ? defaultShader : *scene.Graphics->Shaders[renderNode.Shader];
 
-		return drawBuffers(backBufferColors, backBufferDepth, renderCache.VertexShaderOutput, renderCache.VertexShaderCache, material, surfaces, alphaBlend, constants, transforms, fx);
+		return drawBuffers(backBufferColors, backBufferDepth, renderCache.VertexShaderOutput, renderCache.VertexShaderCache, material, surfaces, alphaBlend, constants, transforms, renderCache.LightsNode, fx);
 	};
 	for(::llc::u2_t iNode : renderList.Solid)
 		llc_necs(drawNode(iNode, false));

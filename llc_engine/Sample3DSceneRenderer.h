@@ -26,6 +26,13 @@ namespace llc
 		::llc::acom<ID3D11RasterizerState>		RasterizerState;
 		::llc::acom<ID3D11DepthStencilState>	DepthStencilState;
 		UINT									BoundShaderResourceCount		= 0;
+		::llc::au2_t							LightSlots					= {};
+		::llc::pcom<ID3D11Buffer>				LightBuffer, LightConstants;
+		::llc::pcom<ID3D11ShaderResourceView>	LightView;
+		::llc::SEngineRenderCache				RenderCache;
+
+		::llc::err_t							SetLights(::llc::view<const ::llc::SRenderLight> lights);
+		::llc::err_t							CreateVertexShader(::llc::vcst_t name);
 		
 		// System resources for cube geometry.
 		::llc::SEngineSceneConstants			ConstantBufferScene				= {};
@@ -55,11 +62,23 @@ namespace llc
 			RasterizerState		.clear();
 			DepthStencilState	.clear();
 			BoundShaderResourceCount = 0;
+			LightSlots.clear();
+			LightBuffer = {}; LightConstants = {}; LightView = {};
 		}
 
-		::llc::error_t						Render							(uint32_t iMesh, ::llc::rangeu2_t indexRange, ::llc::vcu2_t iTextures, uint32_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel) {
+		::llc::error_t						Render							(uint32_t iMesh, ::llc::rangeu2_t indexRange, ::llc::vcu2_t iTextures, uint32_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel, ::llc::view<const ::llc::SRenderLight> lights = {}, ::llc::u2_t iVertexShader = 0, ::llc::CULL_MODE cullMode = ::llc::CULL_MODE_CCW) {
+			if(cullMode > ::llc::CULL_MODE_NONE || (::llc::u2_t)cullMode >= RasterizerState.size())
+				return ::llc::OS_INVALID_PARAMETER;
 			if(iTextures.size() > D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT)
 				return ::llc::OS_INVALID_PARAMETER;
+			if(iShader >= PixelShader.size() || iVertexShader >= VertexShader.size() || iMesh >= IndexBuffer.size() || iMesh >= VertexBuffer.size())
+				return ::llc::OS_INVALID_PARAMETER;
+			const ::llc::u2_t lightSlot = iShader < LightSlots.size() ? LightSlots[iShader] : (::llc::u2_t)-1;
+			if(lightSlot != (::llc::u2_t)-1) {
+				if(lightSlot < iTextures.size() || lightSlot >= D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT)
+					return ::llc::OS_INVALID_PARAMETER;
+				llc_necs(SetLights(lights));
+			}
 			auto										context							= DeviceResources->GetD3DDeviceContext();
 			context->UpdateSubresource1(ConstantBuffer[0], 0, NULL, &constantBufferModel, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
 			context->UpdateSubresource1(ConstantBuffer[1], 0, NULL, &ConstantBufferScene, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
@@ -75,8 +94,9 @@ namespace llc
 			context->IASetPrimitiveTopology	(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			context->IASetInputLayout		(InputLayout[0]);
 
-			context->VSSetShader			(VertexShader[0], nullptr, 0);	// Attach our vertex shader.
+			context->VSSetShader			(VertexShader[iVertexShader], nullptr, 0);	// Attach our vertex shader.
 			context->VSSetConstantBuffers1	(0, 1, &ConstantBuffer[0], nullptr, nullptr);	// Send the constant buffer to the graphics device.
+			context->VSSetConstantBuffers1	(1, 1, &ConstantBuffer[1], nullptr, nullptr);
 
 			context->PSSetConstantBuffers1	(0, 1, &ConstantBuffer[0], nullptr, nullptr);	// Send the constant buffer to the graphics device.
 			context->PSSetConstantBuffers1	(1, 1, &ConstantBuffer[1], nullptr, nullptr);	// Send the constant buffer to the graphics device.
@@ -92,12 +112,18 @@ namespace llc
 					return ::llc::OS_INVALID_PARAMETER;
 				resources[iTexture]						= ShaderResourceView[iTextures[iTexture]].get();
 			}
-			const UINT								resourceCount					= ::llc::max((UINT)iTextures.size(), BoundShaderResourceCount);
+			UINT usedResourceCount = (UINT)iTextures.size();
+			if(lightSlot != (::llc::u2_t)-1) {
+				resources[lightSlot] = LightView.get();
+				usedResourceCount = ::llc::max(usedResourceCount, lightSlot + 1);
+				context->PSSetConstantBuffers(2, 1, &LightConstants);
+			}
+			const UINT								resourceCount					= ::llc::max(usedResourceCount, BoundShaderResourceCount);
 			if(resourceCount)
 				context->PSSetShaderResources(0, resourceCount, resources);
-			BoundShaderResourceCount					= (UINT)iTextures.size();
+			BoundShaderResourceCount					= usedResourceCount;
 
-			context->RSSetState(RasterizerState[alpha ? 1 : 0]);
+			context->RSSetState(RasterizerState[cullMode]);
 	
 			context->OMSetBlendState(BlendState[alpha ? 1 : 0], 0, 0xFFFFFFFF);
 			context->OMSetDepthStencilState(DepthStencilState[alpha ? 1 : 0], 0xFF);
@@ -241,23 +267,14 @@ namespace llc
 				llc_hrcall(d3dDevice->CreateBlendState(&blendDesc, &blendState));
 				BlendState.push_back(blendState);
 			}
-			{
+			for(::llc::CULL_MODE mode : {::llc::CULL_MODE_CCW, ::llc::CULL_MODE_CW, ::llc::CULL_MODE_NONE}) {
 				D3D11_RASTERIZER_DESC			rsDesc							= {};
 				rsDesc.FillMode				= D3D11_FILL_SOLID; // D3D11_FILL_WIREFRAME; // 
-				rsDesc.CullMode				= D3D11_CULL_BACK;
+				rsDesc.CullMode				= mode == ::llc::CULL_MODE_NONE ? D3D11_CULL_NONE : (mode == ::llc::CULL_MODE_CCW ? D3D11_CULL_BACK : D3D11_CULL_FRONT);
 				rsDesc.DepthClipEnable		= false;
 				::llc::pcom<ID3D11RasterizerState>	rasterizerState;
 				llc_hrcall(d3dDevice->CreateRasterizerState(&rsDesc, &rasterizerState));
-				RasterizerState.push_back(rasterizerState);
-			}
-			{
-				D3D11_RASTERIZER_DESC			rsDesc							= {};
-				rsDesc.FillMode				= D3D11_FILL_SOLID; // D3D11_FILL_WIREFRAME; // 
-				rsDesc.CullMode				= D3D11_CULL_BACK;
-				rsDesc.DepthClipEnable		= false;
-				::llc::pcom<ID3D11RasterizerState>	rasterizerState;
-				llc_hrcall(d3dDevice->CreateRasterizerState(&rsDesc, &rasterizerState));
-				RasterizerState.push_back(rasterizerState);
+				llc_necs(RasterizerState.push_back(rasterizerState));
 			}
 			{ // enabled
 				D3D11_DEPTH_STENCIL_DESC		depthStencilDesc				= {};

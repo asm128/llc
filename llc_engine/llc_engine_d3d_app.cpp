@@ -346,6 +346,132 @@ static void guiTextureCommandDraw(ID3D11DeviceContext * context, ::llc::SD3DGUIR
 }
 
 
+::llc::err_t llc::Sample3DSceneRenderer::CreateVertexShader(::llc::vcst_t name) {
+	::llc::string filename;
+	llc_necs(filename.append(name));
+	llc_necs(filename.append(::llc::vcst_t{".cso"}));
+	::llc::au0_t code;
+	llc_necs(::llc::fileToMemory(filename, code));
+	::llc::pcom<ID3D11VertexShader> shader;
+	llc_hrcall(DeviceResources->GetD3DDevice()->CreateVertexShader(code.begin(), code.size(), nullptr, &shader));
+	return VertexShader.push_back(shader);
+}
+
+::llc::err_t llc::SD3DRenderTarget::Upload(::DX::D3DDeviceResources & resources, ::llc::gc8bgra colors) {
+	if_null_fe(Color.get());
+	D3D11_TEXTURE2D_DESC desc = {};
+	Color->GetDesc(&desc);
+	if_true_fe(desc.Width != colors.metrics().x || desc.Height != colors.metrics().y);
+	resources.GetD3DDeviceContext()->UpdateSubresource(Color, 0, nullptr, colors.begin(), (UINT)(colors.metrics().x * sizeof(::llc::bgra)), 0);
+	return 0;
+}
+
+::llc::err_t llc::SD3DRenderTarget::Begin(::DX::D3DDeviceResources & resources, ::llc::gc8bgra colors) {
+	if_true_fe(0 == colors.size());
+	auto device = resources.GetD3DDevice();
+	auto context = resources.GetD3DDeviceContext();
+	D3D11_TEXTURE2D_DESC desc = {};
+	::llc::pcom<ID3D11Device> owner;
+	if(Color) { Color->GetDesc(&desc); Color->GetDevice(&owner); }
+	if(desc.Width != colors.metrics().x || desc.Height != colors.metrics().y || owner.get() != device) {
+		::llc::SD3DRenderTarget next;
+		desc = {};
+		desc.Width = colors.metrics().x; desc.Height = colors.metrics().y;
+		desc.ArraySize = desc.MipLevels = desc.SampleDesc.Count = 1;
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.BindFlags = D3D11_BIND_RENDER_TARGET;
+		llc_hrcall(device->CreateTexture2D(&desc, nullptr, &next.Color));
+		llc_hrcall(device->CreateRenderTargetView(next.Color, nullptr, &next.Target));
+		desc.Format = DXGI_FORMAT_R32_TYPELESS;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		llc_hrcall(device->CreateTexture2D(&desc, nullptr, &next.Depth));
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthView = {};
+		depthView.Format = DXGI_FORMAT_D32_FLOAT;
+		depthView.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		llc_hrcall(device->CreateDepthStencilView(next.Depth, &depthView, &next.DepthView));
+		desc.BindFlags = 0;
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		llc_hrcall(device->CreateTexture2D(&desc, nullptr, &next.ReadDepth));
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		llc_hrcall(device->CreateTexture2D(&desc, nullptr, &next.ReadColor));
+		*this = next;
+	}
+	llc_necs(Upload(resources, colors));
+	context->OMSetRenderTargets(1, &Target, DepthView);
+	const D3D11_VIEWPORT viewport = {0, 0, (float)colors.metrics().x, (float)colors.metrics().y, 0, 1};
+	context->RSSetViewports(1, &viewport);
+	context->ClearDepthStencilView(DepthView, D3D11_CLEAR_DEPTH, 1, 0);
+	return 0;
+}
+
+::llc::err_t llc::SD3DRenderTarget::Read(::DX::D3DDeviceResources & resources, ::llc::g8bgra colors, ::llc::gu2_t depth) {
+	if_null_fe(Color.get());
+	D3D11_TEXTURE2D_DESC desc = {};
+	Color->GetDesc(&desc);
+	if_true_fe(colors.metrics() != depth.metrics() || colors.metrics().x != desc.Width || colors.metrics().y != desc.Height);
+	auto context = resources.GetD3DDeviceContext();
+	context->CopyResource(ReadColor, Color);
+	context->CopyResource(ReadDepth, Depth);
+	D3D11_MAPPED_SUBRESOURCE mapped = {};
+	llc_hrcall(context->Map(ReadColor, 0, D3D11_MAP_READ, 0, &mapped));
+	for(::llc::u2_t y = 0; y < desc.Height; ++y)
+		memcpy(colors[y].begin(), (const ::llc::u0_t*)mapped.pData + y * mapped.RowPitch, colors[y].byte_count());
+	context->Unmap(ReadColor, 0);
+	llc_hrcall(context->Map(ReadDepth, 0, D3D11_MAP_READ, 0, &mapped));
+	for(::llc::u2_t y = 0; y < desc.Height; ++y) {
+		const float * row = (const float*)((const ::llc::u0_t*)mapped.pData + y * mapped.RowPitch);
+		for(::llc::u2_t x = 0; x < desc.Width; ++x)
+			depth[y][x] = row[x] >= 1 ? 0xFFFFFFFFU : (::llc::u2_t)(0xFFFFFFFU * (double)row[x]);
+	}
+	context->Unmap(ReadDepth, 0);
+	return 0;
+}
+
+::llc::err_t llc::Sample3DSceneRenderer::SetLights(::llc::view<const ::llc::SRenderLight> lights) {
+	static_assert(sizeof(::llc::SRenderLight) == 96);
+	auto device = DeviceResources->GetD3DDevice();
+	auto context = DeviceResources->GetD3DDeviceContext();
+	if_true_fe(lights.size() > 0xFFFFFFFFU / sizeof(::llc::SRenderLight));
+	D3D11_BUFFER_DESC desc = {};
+	if(LightBuffer)
+		LightBuffer->GetDesc(&desc);
+	const UINT required = (UINT)::llc::max(lights.size(), 1U) * (UINT)sizeof(::llc::SRenderLight);
+	if(desc.ByteWidth < required) {
+		desc = {};
+		desc.ByteWidth = required;
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+		desc.StructureByteStride = sizeof(::llc::SRenderLight);
+		::llc::pcom<ID3D11Buffer> buffer;
+		::llc::pcom<ID3D11ShaderResourceView> view;
+		llc_hrcall(device->CreateBuffer(&desc, nullptr, &buffer));
+		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
+		srv.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		srv.Buffer.NumElements = desc.ByteWidth / desc.StructureByteStride;
+		llc_hrcall(device->CreateShaderResourceView(buffer, &srv, &view));
+		LightBuffer = buffer;
+		LightView = view;
+	}
+	if(lights.size()) {
+		D3D11_MAPPED_SUBRESOURCE mapped = {};
+		llc_hrcall(context->Map(LightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
+		memcpy(mapped.pData, lights.begin(), lights.byte_count());
+		context->Unmap(LightBuffer, 0);
+	}
+	if(!LightConstants) {
+		desc = {};
+		desc.ByteWidth = 16;
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		llc_hrcall(device->CreateBuffer(&desc, nullptr, &LightConstants));
+	}
+	const ::llc::u2_t counts[4] = {lights.size()};
+	context->UpdateSubresource(LightConstants, 0, nullptr, counts, 0, 0);
+	return 0;
+}
+
 ::llc::error_t			llc::d3dGUIDraw		(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff)	{
 	if(!guiStuff.Texture2D) 
 		return 1;
@@ -402,6 +528,25 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	return 0;
 }
 
+::llc::err_t llc::d3dDrawEngineNode(::llc::Sample3DSceneRenderer & renderer, const ::llc::SEngineScene & scene, ::llc::u2_t iNode, ::llc::view<const ::llc::SRenderLight> lights, const ::llc::SRenderMaterial * material, ::llc::u2_t vertexShader, ::llc::CULL_MODE cullMode) {
+	if_true_fe(iNode >= scene.RenderNodes.size() || !scene.Graphics);
+	const ::llc::SRenderNode & node = scene.RenderNodes[iNode];
+	if_true_fe(node.Mesh >= scene.Graphics->Meshes.size() || node.Skin >= scene.Graphics->Skins.size());
+	const ::llc::SGeometryMesh & mesh = *scene.Graphics->Meshes[node.Mesh];
+	const ::llc::SSkin & skin = *scene.Graphics->Skins[node.Skin];
+	if_true_fe(0 == mesh.GeometryBuffers.size());
+	const auto & indices = *scene.Graphics->Buffers[mesh.GeometryBuffers[0]];
+	const ::llc::u2_t indexCount = indices.Data.size() / indices.Desc.Format.TotalBytes();
+	const ::llc::rangeu2_t slice = node.Slice < mesh.GeometrySlices.size() ? mesh.GeometrySlices[node.Slice].Slice : ::llc::rangeu2_t{0, indexCount};
+	if_true_fe(slice.Offset > indexCount || slice.Count > indexCount - slice.Offset);
+	::llc::SRenderNodeConstants constants;
+	llc_necs(::getNodeTransform(scene.RenderNodes, iNode, renderer.ConstantBufferScene, constants));
+	constants.Material = material ? *material : skin.Material;
+	const ::llc::m4f2_t model = scene.RenderNodes.BaseTransforms[iNode].Model * scene.RenderNodes.Transforms[iNode].Model;
+	llc_necs(::llc::lightFilter(model.GetTranslation(), lights, renderer.RenderCache.LightsNode));
+	return renderer.Render(node.Mesh, slice, skin.Textures, node.Shader, constants.Material.Color.Diffuse.a != 1.0f, constants, renderer.RenderCache.LightsNode, vertexShader, cullMode);
+}
+
 ::llc::error_t			llc::d3dDrawEngineScene	(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time)	{
 	::llc::n3f2_t				cameraFront				= (cameraTarget - cameraPosition).Normalize();
 
@@ -420,49 +565,11 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 
 	::llc::SRenderNodeList						renderList;
 	llc_necs(engineScene.BuildRenderList(cameraPosition, cameraFront, renderList));
-	const ::llc::au2_t						& solid							= renderList.Solid;
-	const ::llc::au2_t						& alpha							= renderList.Alpha;
-	for(uint32_t iSolid = 0; iSolid < solid.size(); ++iSolid) {
-		uint32_t								iNode							= solid[iSolid];
-		::llc::SRenderNodeConstants				nodeConstants;
-		getNodeTransform(engineScene.RenderNodes, iNode, constants, nodeConstants);
-		
-		const ::llc::SRenderNode				& node							= engineScene.RenderNodes.RenderNodes[iNode];
-		const ::llc::SGeometryMesh				& mesh							= *engineScene.Graphics->Meshes[node.Mesh];
-
-		uint32_t				indexCount			= 0;
-		if(mesh.GeometryBuffers.size() > 0) {
-			auto					pindices			= engineScene.Graphics->Buffers[mesh.GeometryBuffers[0]];
-			indexCount			= pindices->Data.size() / pindices->Desc.Format.TotalBytes();
-		}
-
-		const ::llc::SSkin						& skin							= *engineScene.Graphics->Skins.Elements[node.Skin];
-		const ::llc::SGeometrySlice				slice							= (node.Slice < mesh.GeometrySlices.size()) ? mesh.GeometrySlices[node.Slice] : ::llc::SGeometrySlice{{0, indexCount / 3}};
-		nodeConstants.Material				= skin.Material;
-
-		verbose_printf("Drawing node %i, mesh %i, slice %i, mesh name: %s", iNode, node.Mesh, node.Slice, engineScene.Graphics->Meshes.Names[node.Mesh].begin());
-		llc_necs(d3dScene.Render(node.Mesh, slice.Slice, skin.Textures, node.Shader, skin.Material.Color.Diffuse.a != 1.0f, nodeConstants));
-	}
-	for(uint32_t iAlpha  = 0; iAlpha < alpha.size(); ++iAlpha) {
-		uint32_t								iNode							= alpha[iAlpha];
-		::llc::SRenderNodeConstants				nodeConstants;
-		getNodeTransform(engineScene.RenderNodes, iNode, constants, nodeConstants);
-		
-		const ::llc::SRenderNode				& node							= engineScene.RenderNodes.RenderNodes[iNode];
-		const ::llc::SGeometryMesh				& mesh							= *engineScene.Graphics->Meshes[node.Mesh];
-		uint32_t				indexCount			= 0;
-		if(mesh.GeometryBuffers.size() > 0) {
-			auto					pindices			= engineScene.Graphics->Buffers[mesh.GeometryBuffers[0]];
-			indexCount			= pindices->Data.size() / pindices->Desc.Format.TotalBytes();
-		}
-
-		const ::llc::SSkin			& skin							= *engineScene.Graphics->Skins.Elements[node.Skin];
-		const ::llc::SGeometrySlice	slice							= (node.Slice < mesh.GeometrySlices.size()) ? mesh.GeometrySlices[node.Slice] : ::llc::SGeometrySlice{{0, indexCount / 3}};
-		nodeConstants.Material	= skin.Material;
-
-		verbose_printf("Drawing node %i, mesh %i, slice %i, mesh name: %s", iNode, node.Mesh, node.Slice, engineScene.Graphics->Meshes.Names[node.Mesh].begin());
-		llc_necs(d3dScene.Render(node.Mesh, slice.Slice, skin.Textures, node.Shader, skin.Material.Color.Diffuse.a != 1.0f, nodeConstants));
-	}
+	llc_necs(engineScene.BuildLightList(d3dScene.RenderCache.LightsWorld));
+	for(::llc::u2_t node : renderList.Solid)
+		llc_necs(::llc::d3dDrawEngineNode(d3dScene, engineScene, node, d3dScene.RenderCache.LightsWorld));
+	for(::llc::u2_t node : renderList.Alpha)
+		llc_necs(::llc::d3dDrawEngineNode(d3dScene, engineScene, node, d3dScene.RenderCache.LightsWorld));
 	return 0;
 }
 ::llc::error_t							llc::d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time) {

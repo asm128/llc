@@ -312,6 +312,9 @@
     <None Include="ShaderShared.hlsli">
       <Filter>hlsl</Filter>
     </None>
+    <None Include="ShaderLights.hlsli">
+      <Filter>hlsl</Filter>
+    </None>
     <None Include="ShaderShared2D.hlsli">
       <Filter>hlsl</Filter>
     </None>

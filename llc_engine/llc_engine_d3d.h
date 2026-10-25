@@ -17,7 +17,7 @@ namespace llc
 
 	::llc::error_t		d3dCreateBuffersFromEngineMeshes		(ID3D11Device* pDevice, const ::llc::SMeshManager & engineMeshes, const ::llc::SRenderBufferManager & engineBuffers, ::llc::array_com<ID3D11Buffer> & indexBuffers, ::llc::array_com<ID3D11Buffer> & vertexBuffers);
 	::llc::error_t		d3dCreateTexturesFromEngineSurfaces		(ID3D11Device* pDevice, const ::llc::SSurfaceManager & engineSurfaces, ::llc::array_com<ID3D11ShaderResourceView> & shaderResourceViews);
-	::llc::error_t		d3dCreatePixelShadersFromEngineShaders	(ID3D11Device* pDevice, const ::llc::SShaderManager & engineShaders, ::llc::array_com<ID3D11PixelShader> & pixelShaders);
+	::llc::error_t		d3dCreatePixelShadersFromEngineShaders	(ID3D11Device* pDevice, const ::llc::SShaderManager & engineShaders, ::llc::array_com<ID3D11PixelShader> & pixelShaders, ::llc::au2_t * lightSlots = nullptr);
 } // namespace
 
 #endif // LLC_ENGINE_D3D_H_23627

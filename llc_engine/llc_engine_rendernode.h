@@ -8,6 +8,11 @@
 
 namespace llc 
 {
+	GDEFINE_ENUM_TYPE(CULL_MODE, u0_t);
+	GDEFINE_ENUM_VALUE(CULL_MODE, CCW	, 0);
+	GDEFINE_ENUM_VALUE(CULL_MODE, CW	, 1);
+	GDEFINE_ENUM_VALUE(CULL_MODE, NONE	, 2);
+
 #pragma pack(push, 1)
 	// ------------------ Render Node
 	struct SRenderNodeFlags {
