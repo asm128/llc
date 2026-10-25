@@ -120,6 +120,9 @@
     <ClInclude Include="llc_adam7.h">
       <Filter>image</Filter>
     </ClInclude>
+    <ClInclude Include="llc_args.h">
+      <Filter>container</Filter>
+    </ClInclude>
     <ClInclude Include="llc_aes.h">
       <Filter>encoding</Filter>
     </ClInclude>
@@ -687,9 +690,6 @@
     <ClInclude Include="llc_gtl_command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="llc_log_level.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="llc_log_core.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -813,6 +813,24 @@
     <ClInclude Include="llc_ccsds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_keyval_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_crc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_lifecycle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_file_pack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_test_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_swap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -820,6 +838,9 @@
     </ClCompile>
     <ClCompile Include="llc_aes.cpp">
       <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_args.cpp">
+      <Filter>container</Filter>
     </ClCompile>
     <ClCompile Include="llc_array.cpp">
       <Filter>container</Filter>
@@ -869,9 +890,6 @@
     <ClCompile Include="llc_encoding.cpp">
       <Filter>encoding</Filter>
     </ClCompile>
-    <ClCompile Include="llc_expression.cpp">
-      <Filter>script</Filter>
-    </ClCompile>
     <ClCompile Include="llc_file.cpp">
       <Filter>file</Filter>
     </ClCompile>
@@ -915,9 +933,6 @@
       <Filter>http</Filter>
     </ClCompile>
     <ClCompile Include="llc_json.cpp">
-      <Filter>json</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_json_expression.cpp">
       <Filter>json</Filter>
     </ClCompile>
     <ClCompile Include="llc_keyval.cpp">
@@ -1001,9 +1016,6 @@
     <ClCompile Include="llc_string_compose.cpp">
       <Filter>string</Filter>
     </ClCompile>
-    <ClCompile Include="llc_string_helper.cpp">
-      <Filter>string</Filter>
-    </ClCompile>
     <ClCompile Include="llc_append_css.cpp">
       <Filter>string</Filter>
     </ClCompile>
@@ -1048,6 +1060,27 @@
     </ClCompile>
     <ClCompile Include="llc_ccsds.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_keyval_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_crc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_string.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_file_pack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_expression.cpp">
+      <Filter>script</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_json_expression.cpp">
+      <Filter>json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

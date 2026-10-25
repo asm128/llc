@@ -25,6 +25,10 @@
     <ClInclude Include="llc_ccsds.h" />
     <ClInclude Include="llc_cerrno.h" />
     <ClInclude Include="llc_circuit.h" />
+    <ClInclude Include="llc_crc.h" />
+    <ClInclude Include="llc_file_pack.h" />
+    <ClInclude Include="llc_keyval_view.h" />
+    <ClInclude Include="llc_lifecycle.h" />
     <ClInclude Include="llc_micro.h" />
     <ClInclude Include="llc_bus.h" />
     <ClInclude Include="llc_adam7.h" />
@@ -44,6 +48,7 @@
     <ClInclude Include="llc_append_xml.h" />
     <ClInclude Include="llc_app_impl.h" />
     <ClInclude Include="llc_arduino_string.h" />
+    <ClInclude Include="llc_args.h" />
     <ClInclude Include="llc_array.h" />
     <ClInclude Include="llc_array_base.h" />
     <ClInclude Include="llc_array_bit.h" />
@@ -95,7 +100,6 @@
     <ClInclude Include="llc_i2c.h" />
     <ClInclude Include="llc_keyed_bit_array.h" />
     <ClInclude Include="llc_linear_map_pobj.h" />
-    <ClInclude Include="llc_log_level.h" />
     <ClInclude Include="llc_event_input.h" />
     <ClInclude Include="llc_event_screen.h" />
     <ClInclude Include="llc_gauge.h" />
@@ -142,6 +146,7 @@
     <ClInclude Include="llc_std_string.h" />
     <ClInclude Include="llc_string.h" />
     <ClInclude Include="llc_string_compose.h" />
+    <ClInclude Include="llc_swap.h" />
     <ClInclude Include="llc_system_event.h" />
     <ClInclude Include="llc_system_key.h" />
     <ClInclude Include="llc_ptr_nco.h" />
@@ -154,6 +159,7 @@
     <ClInclude Include="llc_rect3.h" />
     <ClInclude Include="llc_rect_align.h" />
     <ClInclude Include="llc_ref.h" />
+    <ClInclude Include="llc_test_core.h" />
     <ClInclude Include="llc_tri.h" />
     <ClInclude Include="llc_tri2.h" />
     <ClInclude Include="llc_tri3.h" />
@@ -259,6 +265,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_aes.cpp" />
+    <ClCompile Include="llc_args.cpp" />
     <ClCompile Include="llc_append_tcpip.cpp" />
     <ClCompile Include="llc_append_css.cpp" />
     <ClCompile Include="llc_append_html.cpp" />
@@ -292,6 +299,7 @@
     <ClCompile Include="llc_component_scene_draw.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_crc.cpp" />
     <ClCompile Include="llc_d3d.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -302,6 +310,8 @@
     <ClCompile Include="llc_dialog.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_expression.cpp" />
+    <ClCompile Include="llc_file_pack.cpp" />
     <ClCompile Include="llc_geometry.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -328,11 +338,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_json_expression.cpp" />
+    <ClCompile Include="llc_keyval_view.cpp" />
     <ClCompile Include="llc_pack.cpp" />
     <ClCompile Include="llc_particle.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_path.cpp" />
+    <ClCompile Include="llc_string.cpp" />
+    <ClCompile Include="llc_test_core.cpp" />
     <ClCompile Include="llc_typeint.cpp" />
     <ClCompile Include="llc_spi.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -370,9 +384,6 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_encoding.cpp" />
-    <ClCompile Include="llc_expression.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_scene.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -392,9 +403,6 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_json.cpp" />
-    <ClCompile Include="llc_json_expression.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_keyval.cpp" />
     <ClCompile Include="llc_label.cpp" />
     <ClCompile Include="llc_log.cpp" />
@@ -423,9 +431,6 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_file.cpp" />
-    <ClCompile Include="llc_string_helper.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_tcpip.cpp" />
     <ClCompile Include="llc_timer.cpp" />
     <ClCompile Include="llc_view.cpp" />
@@ -497,7 +502,8 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -519,7 +525,8 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -543,7 +550,8 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -569,7 +577,8 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
