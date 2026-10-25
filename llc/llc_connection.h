@@ -55,6 +55,8 @@ namespace llc
 
 	typedef function<err_t(au0_t &)>		FConnectionReceive;
 	typedef function<err_t(const vcu0_t &)> FConnectionSend;
+	DIJE CONFIGURABLE DESDE EL DASHBOARD ///stxp	u2_t		PAYLOAD_SIZE_LIMIT				= 60 * 1024;
+	DIJE CONFIGURABLE DESDE EL DASHBOARD ///stxp	u3_t		PAYLOAD_SENT_LIFETIME_DEFAULT	= 1000000;
 
 	GDEFINE_ENUM_TYPE (CONNECTION_STATE, uint8_t)
 	GDEFINE_ENUM_VALUE(CONNECTION_STATE, DISCONNECTED				, 0);
@@ -69,15 +71,20 @@ namespace llc
 		CONNECTION_STATE	State		= CONNECTION_STATE_DISCONNECTED;
 	};
 
+	typedef SCommand			SUDPCommand;
+	typedef SPayloadHeader		SUDPPayloadHeader;
+	typedef SMessage			SUDPMessage;
+	typedef SClientQueue		SUDPClientQueue;
+	typedef CONNECTION_STATE	UDP_CONNECTION_STATE;
+	stxp UDP_CONNECTION_STATE	UDP_CONNECTION_STATE_DISCONNECTED	= CONNECTION_STATE_DISCONNECTED;
+	stxp UDP_CONNECTION_STATE	UDP_CONNECTION_STATE_HANDSHAKE		= CONNECTION_STATE_HANDSHAKE;
+	stxp UDP_CONNECTION_STATE	UDP_CONNECTION_STATE_IDLE			= CONNECTION_STATE_IDLE;
+
 	err_t				connectionPayloadCollect	(SConnection & client, apobj<SMessage> & receivedMessages);
-	stin	err_t		connectionPayloadCollect	(SConnection & client, apobj<SMessage> & receivedMessages) { return connectionPayloadCollect(client, receivedMessages); }
-	err_t				connectionSendQueue			(SConnection & client, apobj<SMessage>& messageCacheSent, apobj<SMessage>& messageCacheSend, bool packPayloads = true);
-	err_t				connectionSendQueue			(SConnection & client, apobj<SMessage>& messageCacheSent, apobj<SMessage>& messageCacheSend, const FConnectionSend & send, bool packPayloads = true);
-//	err_t				connectionHandleCommand		(SConnection & client, SCommand & command, const FConnectionReceive & receive, au0_t & receiveBuffer);
+	err_t				connectionSendQueue			(SConnection & client, apobj<SMessage>& messageCacheSent, apobj<SMessage>& messageCacheSend, const FConnectionSend & send, bool packPayloads = true, u3_t payloadSentLifetime = PAYLOAD_SENT_LIFETIME_DEFAULT);
+	err_t				connectionHandleCommand		(SConnection & client, SCommand & command, const FConnectionReceive & receive, au0_t & receiveBuffer);
 	err_t				connectionHandleCommand		(SConnection & client, SCommand & command, const FConnectionReceive & receive);
-	err_t				connectionHandleCommand		(SConnection & client, SCommand & command, au0_t & receiveBuffer);
 	err_t				connectionPushData			(SConnection & client, SClientQueue & queue, const vcu0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0);
-	stin	err_t		connectionPushData			(SConnection & client, SClientQueue & queue, const vcu0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0) { return connectionPushData(client, queue, data, bEncrypted, bCompress, retryCount); }
 	stin	err_t		connectionPushData			(SConnection & client, SClientQueue & queue, const vcs0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0) {
 		return connectionPushData(client, queue, *(const vcu0_t*)&data, bEncrypted, bCompress, retryCount);
 	}
@@ -85,7 +92,7 @@ namespace llc
 		return connectionPushData(client, queue, *(const vcu0_t*)&data, bEncrypted, bCompress, retryCount);
 	}
 	tplt<tpnm _tWithLoad, tpnm _tState> 
-	err_t				processClientQueueEvents	(_tWithLoad & eventCache, uint32_t iClient, vpobj<SMessage> clientQueue, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tWithLoad &)> & funcProcessRequest) {
+	err_t				processClientQueueEvents	(_tWithLoad & eventCache, uint32_t iClient, vcpobj<SMessage> clientQueue, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tWithLoad &)> & funcProcessRequest) {
 		for(uint32_t iMessage = 0; iMessage < clientQueue.size(); ++iMessage) {
 			const SMessage				& message					= *clientQueue[iMessage];
 			switch(message.Command.Command) {
@@ -105,23 +112,34 @@ namespace llc
 	}
 
 	tplt<tpnm _tWithLoad, tpnm _tState> 
-	stin	err_t		processUDPClientQueueEvents	(u2_t iClient, vcpobj<SMessage> clientQueue, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tWithLoad &)> & funcProcessRequest) {
+	stin	err_t		processClientQueueEvents	(u2_t iClient, vcpobj<SMessage> clientQueue, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tWithLoad &)> & funcProcessRequest) {
 		_tWithLoad				eventCache					= {};
-		return processUDPClientQueueEvents(eventCache, iClient, clientQueue, state, funcProcessRequest);
+		return processClientQueueEvents(eventCache, iClient, clientQueue, state, funcProcessRequest);
 	}
 
 	tplt<tpnm _tEvent, tpnm _tState> 
-	err_t				processUDPEvents			(view<apobj<SMessage>> queueReceived, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tEvent &)>	& funcProcessRequest) {
+	err_t				processEvents				(view<apobj<SMessage>> queueReceived, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tEvent &)>	& funcProcessRequest) {
 		_tEvent					eventReceived				= {};
 		for(uint32_t iClient = 0; iClient < queueReceived.size(); ++iClient) {
 			 const apobj<SMessage>	& clientQueue				= queueReceived[iClient];
-			 llc_necs(llc::processUDPClientQueueEvents(eventReceived, iClient, clientQueue, state, funcProcessRequest));
+			 llc_necs(processClientQueueEvents(eventReceived, iClient, clientQueue, state, funcProcessRequest));
 		}
 		return 0;
 	}
 
+	tplt<tpnm _tWithLoad, tpnm _tState>
+	stin	err_t		processUDPClientQueueEvents	(_tWithLoad & eventCache, uint32_t iClient, vpobj<SMessage> clientQueue, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tWithLoad &)> & funcProcessRequest) { return processClientQueueEvents(eventCache, iClient, clientQueue, state, funcProcessRequest); }
+
+	tplt<tpnm _tWithLoad, tpnm _tState>
+	stin	err_t		processUDPClientQueueEvents	(u2_t iClient, vcpobj<SMessage> clientQueue, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tWithLoad &)> & funcProcessRequest) { return processClientQueueEvents<_tWithLoad>(iClient, clientQueue, state, funcProcessRequest); }
+
+	tplt<tpnm _tEvent, tpnm _tState>
+	stin	err_t		processUDPEvents			(view<apobj<SMessage>> queueReceived, _tState & state, const function<err_t (uint32_t iClient, _tState &, const _tEvent &)> & funcProcessRequest) { return processEvents(queueReceived, state, funcProcessRequest); }
+
 	typedef	apobj<SMessage>	TPacketQueue;
 	typedef	apobj<au0_t>	TPacketQueueSend;
+	typedef TPacketQueue		TUDPQueue;
+	typedef TPacketQueueSend	TQueueSend;
 }
 
 #endif // LLC_CONNECTION_H_23627

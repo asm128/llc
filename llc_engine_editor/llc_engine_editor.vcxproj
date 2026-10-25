@@ -55,8 +55,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\llc\llc_gui_control_list.cpp" />
-    <ClCompile Include="..\llc\llc_gui_desktop.cpp" />
     <ClCompile Include="llc_engine_editor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
