@@ -13,16 +13,15 @@ namespace llc
 	tpl_t struct SEventView {
 		tdfT(_t);
 		tydf	SEventView<T>	TEView;
-		T		Type			= {};
-		vcu0_t	Data			= {};
+		T		Type		= {};
+		vcu0_t	Data		= {};
 
-		error_t	Save		(au0_t & output)	const	{
+		err_t	Save		(au0_t & output)	const	{
 			llc_necs(savePOD (output, Type));
 			llc_necs(saveView(output, Data));
 			rtrn 0;
 		}
-
-		error_t	Load		(vcu0_t & input)			{
+		err_t	Load		(vcu0_t & input)			{
 			llc_necs(loadPOD (input, Type));
 			llc_necs(loadView(input, Data));
 			rtrn 0;
@@ -31,10 +30,10 @@ namespace llc
 	tplt<tpnm T> using SEView 					= SEventView<T>;
 	tplt<tpnm T> using TEViewQueue 				= aobj<SEView<T>>;
 
-	tplt<tpnm T> using FEViewHandler			= function<error_t(      SEView<T>&)>;
-	tplt<tpnm T> using FEViewHandlerConst		= function<error_t(const SEView<T>&)>;
-	tplt<tpnm T> using FEventViewHandler		= function<error_t(      SEView<T>&)>;
-	tplt<tpnm T> using FEventViewHandlerConst	= function<error_t(const SEView<T>&)>;
+	tplt<tpnm T> using FEViewHandler			= function<err_t(      SEView<T>&)>;
+	tplt<tpnm T> using FEViewHandlerConst		= function<err_t(const SEView<T>&)>;
+	tplt<tpnm T> using FEventViewHandler		= function<err_t(      SEView<T>&)>;
+	tplt<tpnm T> using FEventViewHandlerConst	= function<err_t(const SEView<T>&)>;
 
 	tplt<tpnm _tEventType>
 	stct SEvent {
@@ -55,20 +54,20 @@ namespace llc
 
 		oper			TEView		()						const	{ rtrn {Type, Data.cu8()}; }
 
-		error_t			Save		(au0_t & output)	const	{
+		err_t			Save		(au0_t & output)	const	{
 			llc_necs(savePOD(output, Type));
 			llc_necs(saveView(output, Data));
 			rtrn 0;
 		}
 
-		error_t	Load		(vcu0_t & input)			{
+		err_t	Load		(vcu0_t & input)			{
 			llc_necs(loadPOD(input, Type));
 			llc_necs(loadView(input, Data));
 			rtrn 0;
 		}
 
 		tplt<tpnm _tETypeOther>
-		error_t	ExtractChild(SEvent<_tETypeOther> & outputEvent)		const	{
+		err_t	ExtractChild(SEvent<_tETypeOther> & outputEvent)		const	{
 			vcu0_t			input				= Data;
 			llc_necs(outputEvent.Load(input));
 			llc_event_printf("%s", get_value_namep(outputEvent.Type)); 
@@ -76,7 +75,7 @@ namespace llc
 		}
 
 		tplt<tpnm _tETypeOther>
-		error_t	ExtractChild(SEView<_tETypeOther> & outputEvent)	const	{
+		err_t	ExtractChild(SEView<_tETypeOther> & outputEvent)	const	{
 			vcu0_t			input				= Data;
 			llc_necs(outputEvent.Load(input));
 			llc_event_printf("%s", get_value_namep(outputEvent.Type)); 
@@ -84,43 +83,38 @@ namespace llc
 		}
 	};
 
-	tplt<tpnm T> using FEventHandler		= function<error_t(      SEvent<T>&)>;
-	tplt<tpnm T> using FEventHandlerConst	= function<error_t(const SEvent<T>&)>;
+	tplt<tpnm T> using FEventHandler		= function<err_t(      SEvent<T>&)>;
+	tplt<tpnm T> using FEventHandlerConst	= function<err_t(const SEvent<T>&)>;
 
 	tplt<tpnm T> using PEvent 				= pobj <SEvent<T>>;
 	tplt<tpnm T> using TEventQueue 			= apobj<SEvent<T>>;
 
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild>
-	static	error_t	eventWrapChild		(SEvent<_tEvntParent> & parentEvent, _tEvntChild childEventType, vcu0_t eventData) {
+	sttc	err_t	eventWrapChild		(SEvent<_tEvntParent> & parentEvent, _tEvntChild childEventType, vcu0_t eventData) {
 		SEView<_tEvntChild>	childEvent			= {childEventType, eventData};
 		rtrn childEvent.Save(parentEvent.Data);
 	}
-
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild>
-	static	error_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, vcu0_t eventData) {
+	sttc	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, vcu0_t eventData) {
 		PEvent<_tEvntParent>	parentEvent			= {};
 		parentEvent->Type = parentEventType;
 		llc_necs(eventWrapChild(*parentEvent, childEventType, eventData));
 		rtrn eventQueue.push_back(parentEvent);
 	}
-
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild, tpnm _tPOD>
-	static	error_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, view<const _tPOD> eventData) {
+	sttc	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, view<const _tPOD> eventData) {
 		rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, vcu0_t{(const u0_t*)eventData.begin(), eventData.byte_count()});
 	}
-
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild, tpnm _tPOD>
-	static	error_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, const _tPOD & childEventDataType) {
+	sttc	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, const _tPOD & childEventDataType) {
 		rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, vcu0_t{(const u0_t*)&childEventDataType, szof(_tPOD)});
 	}
-
 	tplt<tpnm _tChildEvent, tpnm _tParentEvent>
-	static	error_t	eventExtractAndHandle	(const SEvent<_tParentEvent> & parentEvent, const function<error_t (const SEventView<_tChildEvent> &)> & funcHandleChild) {
+	sttc	err_t	eventExtractAndHandle	(const SEvent<_tParentEvent> & parentEvent, const function<err_t (const SEventView<_tChildEvent> &)> & funcHandleChild) {
 		SEView<_tChildEvent>	childEvent; 
 		llc_necs(parentEvent.ExtractChild(childEvent)); 
 		rtrn funcHandleChild(childEvent);
 	}
-
 	tydf SEvent            <RESULT>	SEventResult;
 	tydf SEventView        <RESULT>	SEViewResult;
 	tydf FEventHandler     <RESULT>	FEventResult;

@@ -10,71 +10,67 @@
 namespace llc
 {
 	struct SGUIZoom {
-		::llc::n2f3_t		DPI					= {1.0, 1.0};
-		::llc::minmaxf3_t	ZoomLimits			= {0.1, 10.0};
+		n2f3_t				DPI					= {1.0, 1.0};
+		minmaxf3_t			ZoomLimits			= {0.1, 10.0};
 		double				ZoomLevel			= 1.0;
 
-		bool				operator==			(const ::llc::SGUIZoom & other)		const	noexcept	{
+		inln	bool		operator!=			(const SGUIZoom & other)	csnx	{ return !operator==(other); }
+		inln	bool		operator==			(const SGUIZoom & other)	csnx	{
 			return DPI			== other.DPI
 				&& ZoomLevel	== other.ZoomLevel
 				;
 		}
-		inline	bool		operator!=			(const ::llc::SGUIZoom & other)		const	noexcept	{ return !operator==(other); }
 	};
 
 	struct SGUIColors {
-		::llc::papod<::llc::bgra>			Palette					= {};
-		::llc::papod<::llc::SControlTheme>	ControlThemes			= {};
+		papod<bgra>							Palette					= {};
+		papod<SControlTheme>				ControlThemes			= {};
+		asts1_t<GUI_CONTROL_PALETTE_COUNT>	DefaultColors			= {};
 
-		::llc::asti16<::llc::GUI_CONTROL_PALETTE_COUNT>	
-											DefaultColors			= {};
-
-		::llc::apod<::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>>
+		apod<astatic<bgra, UI_CONTROL_AREA_COUNT>>
 											Palettes;
 	};
 
 	struct SGUI {
-		::llc::n2u1_t						LastSize			= {};
-		::llc::n2f2_t						CursorPos			= {};
-		::llc::SControlTable				Controls			= {};
-		::llc::pobj<::llc::SGUIColors>		Colors;
+		n2u1_t				LastSize			= {};
+		n2f2_t				CursorPos			= {};
+		SControlTable		Controls			= {};
+		pobj<SGUIColors>	Colors;
 		// Font
-		::llc::apobj<::llc::SRasterFont>	Fonts				= {};
+		apobj<SRasterFont>	Fonts				= {};
 
-		::llc::SGUIZoom						LastZoom			= {};
-		::llc::SGUIZoom						Zoom				= {};
-		::llc::u1_t							SelectedFont		= 7;
-		::llc::u1_t							ThemeDefault		= ::llc::ASCII_COLOR_CYAN * 16 + 8;
-		::llc::GUI_COLOR_MODE				ColorModeDefault	= ::llc::GUI_COLOR_MODE_3D;//::llc::GUI_COLOR_MODE_DEFAULT;
-		bool								InputModeTouch		= true;
+		SGUIZoom			LastZoom			= {};
+		SGUIZoom			Zoom				= {};
+		u1_t				SelectedFont		= 7;
+		u1_t				ThemeDefault		= ASCII_COLOR_CYAN * 16 + 8;
+		GUI_COLOR_MODE		ColorModeDefault	= GUI_COLOR_MODE_3D;//GUI_COLOR_MODE_DEFAULT;
+		bool				InputModeTouch		= true;
 	};
 
-	::llc::error_t			guiProcessInput					(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> in_Events = {});
-	::llc::error_t			guiUpdateMetrics				(::llc::SGUI & gui, const ::llc::n2u1_t & targetSize, bool forceUpdate);
-	// Process input against the previous update, apply changes, then update metrics before drawing.
-	// Drawing does not update layout or adopt the render target's size.
-	::llc::error_t			guiDraw							(::llc::SGUI & gui, ::llc::g8bgra target);
-	::llc::error_t			guiGetProcessableControls		(const ::llc::SGUI & gui, ::llc::acid & controlIndices);
-	::llc::error_t			guiDeselect						(::llc::SGUI & gui);
-	::llc::error_t			guiSelect						(::llc::SGUI & gui, cid_t controlToSelect);
+	err_t			guiProcessInput					(SGUI & gui, const SInput & input, vpobj<SEventSystem> in_Events = {});
+	err_t			guiUpdateMetrics				(SGUI & gui, const n2u1_t & targetSize, bool forceUpdate);
+	err_t			guiDraw							(SGUI & gui, g8bgra target);
+	err_t			guiGetProcessableControls		(const SGUI & gui, acid & controlIndices);
+	err_t			guiDeselect						(SGUI & gui);
+	err_t			guiSelect						(SGUI & gui, cid_t controlToSelect);
 
-	::llc::error_t			controlDelete					(::llc::SGUI & gui, cid_t iControl, bool recursive = true);
-	::llc::cid_t 			controlCreate					(::llc::SGUI & gui);
-	::llc::cid_t			controlCreateChild				(::llc::SGUI & gui, cid_t iParent);
-	::llc::error_t			controlSetParent				(::llc::SGUI & gui, cid_t iControl, cid_t iParent);
-	::llc::error_t			controlDrawHierarchy			(::llc::SGUI & gui, cid_t iControl, ::llc::g8bgra target);
-	::llc::error_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, vcst_t text);
-	::llc::error_t			controlFontSet					(::llc::SGUI & gui, cid_t iControl, int16_t iFont);
-	//::llc::error_t			controlUpdateMetrics			(::llc::SGUI & gui, int32_t iControl, const ::llc::n2<::llc::u2_t> & targetSize);
-	::llc::error_t			controlUpdateMetricsTopToDown	(::llc::SGUI & gui, cid_t iControl, const ::llc::n2u1_t & targetSize, bool forceUpdate);
-	::llc::error_t			controlMetricsInvalidate		(::llc::SGUI & gui, cid_t iControl);
-	::llc::error_t			controlHidden					(const ::llc::SGUI & gui, cid_t iControl);
-	::llc::error_t			controlDisabled					(const ::llc::SGUI & gui, cid_t iControl);
-	::llc::error_t			controlInvalid					(const ::llc::SGUI & gui, cid_t iControl);
+	err_t			controlDelete					(SGUI & gui, cid_t iControl, bool recursive = true);
+	cid_t 			controlCreate					(SGUI & gui);
+	cid_t			controlCreateChild				(SGUI & gui, cid_t iParent);
+	err_t			controlSetParent				(SGUI & gui, cid_t iControl, cid_t iParent);
+	err_t			controlDrawHierarchy			(SGUI & gui, cid_t iControl, g8bgra target);
+	err_t			controlTextSet					(SGUI & gui, cid_t iControl, vcst_t text);
+	err_t			controlFontSet					(SGUI & gui, cid_t iControl, int16_t iFont);
+	//err_t			controlUpdateMetrics			(SGUI & gui, int32_t iControl, const n2<u2_t> & targetSize);
+	err_t			controlUpdateMetricsTopToDown	(SGUI & gui, cid_t iControl, const n2u1_t & targetSize, bool forceUpdate);
+	err_t			controlMetricsInvalidate		(SGUI & gui, cid_t iControl);
+	err_t			controlHidden					(const SGUI & gui, cid_t iControl);
+	err_t			controlDisabled					(const SGUI & gui, cid_t iControl);
+	err_t			controlInvalid					(const SGUI & gui, cid_t iControl);
 
 
-	::llc::error_t			guiProcessControls				(const ::llc::SGUI & gui, const ::llc::function<::llc::error_t(::llc::cid_t iControl)> & funcOnExecute);
-	::llc::error_t			guiProcessControls				(const ::llc::SGUI & gui, ::llc::vcid controlsToProcess, const ::llc::function<::llc::error_t(::llc::cid_t iControl)> & funcOnExecute);
+	err_t			guiProcessControls				(const SGUI & gui, const function<err_t(cid_t iControl)> & funcOnExecute);
+	err_t			guiProcessControls				(const SGUI & gui, vcid controlsToProcess, const function<err_t(cid_t iControl)> & funcOnExecute);
 } // namespace
 
 #endif // LLC_GUI_H_23627

@@ -90,7 +90,7 @@ namespace llc
 		bool			UseNewPalettes		: 1;	// -- Legacy property (don't use in the new implementation!)
 
 		int16_t			ColorTheme			= 0;
-		::llc::asti16<::llc::GUI_CONTROL_PALETTE_COUNT>	
+		::llc::asts1_t<::llc::GUI_CONTROL_PALETTE_COUNT>	
 						Palettes			= {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9,}};
 	};
 

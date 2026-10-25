@@ -68,7 +68,7 @@ namespace llc
 	tplN2uusng	astu2_t		= ::llc::astatic<u2_t, N>; tplN2uusng	astu2_c	= const ::llc::astu2_t<N>; tplN2uusng astu32	= ::llc::astatic<u2_t, N>; tplN2uusng astaticu32	= ::llc::astu32	<N>;
 	tplN2uusng	astu3_t		= ::llc::astatic<u3_t, N>; tplN2uusng	astu3_c	= const ::llc::astu3_t<N>; tplN2uusng astu64	= ::llc::astatic<u3_t, N>; tplN2uusng astaticu64	= ::llc::astu64	<N>;
 	tplN2uusng	asts0_t		= ::llc::astatic<s0_t, N>; tplN2uusng	asts0_c	= const ::llc::asts0_t<N>; tplN2uusng asti8 	= ::llc::astatic<s0_t, N>; tplN2uusng astatici8 	= ::llc::asti8 	<N>;
-	tplN2uusng	asts1_t		= ::llc::astatic<s1_t, N>; tplN2uusng	asts1_c	= const ::llc::asts1_t<N>; tplN2uusng asti16	= ::llc::astatic<s1_t, N>; tplN2uusng astatici16	= ::llc::asti16	<N>;
+	tplN2uusng	asts1_t		= ::llc::astatic<s1_t, N>; tplN2uusng	asts1_c	= const ::llc::asts1_t<N>; tplN2uusng asts1_t		= ::llc::astatic<s1_t, N>; tplN2uusng astatici16	= ::llc::asts1_t	<N>;
 	tplN2uusng	asts2_t		= ::llc::astatic<s2_t, N>; tplN2uusng	asts2_c	= const ::llc::asts2_t<N>; tplN2uusng asti32	= ::llc::astatic<s2_t, N>; tplN2uusng astatici32	= ::llc::asti32	<N>;
 	tplN2uusng	asts3_t		= ::llc::astatic<s3_t, N>; tplN2uusng	asts3_c	= const ::llc::asts3_t<N>; tplN2uusng asti64	= ::llc::astatic<s3_t, N>; tplN2uusng astatici64	= ::llc::asti64	<N>;
 	tplN2uusng	astf2_t		= ::llc::astatic<f2_t, N>; tplN2uusng	astf2_c	= const ::llc::astf2_t<N>; tplN2uusng astf32	= ::llc::astatic<f2_t, N>; tplN2uusng astaticf32	= ::llc::astf32	<N>;
@@ -97,7 +97,7 @@ namespace llc
 	tplN2usinx	u2_t	size(astu1_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(astu2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(astu3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(asti16	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplN2usinx	u2_t	size(asts1_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(asti32	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(asti64	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
 	tplN2usinx	u2_t	size(astf32	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }

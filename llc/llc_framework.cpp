@@ -293,10 +293,7 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				sc_t								buffer		[256]							= {};
 				//snprintf(buffer, ::llc::size(buffer) - 2, "[%u x %u]. Last frame seconds: %g. ", (uint32_t)newMetrics.x, (uint32_t)newMetrics.y, app.Framework.Timer.LastTimeSeconds);
 				snprintf(buffer, ::llc::size(buffer) - 2, "[%u x %u].", (uint32_t)newMetrics.x, (uint32_t)newMetrics.y);
-#if defined(UNICODE)
-#else
 				SetWindowText(mainDisplay.PlatformDetail.WindowHandle, buffer);
-#endif
 				if_true_e(llc::failed(::llc::eventEnqueueScreenResize(mainDisplay.EventQueue, newMetrics)));
 			}
 		}
