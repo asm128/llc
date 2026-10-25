@@ -816,9 +816,6 @@
     <ClInclude Include="llc_keyval_view.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="llc_crc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_lifecycle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -830,6 +827,9 @@
     </ClInclude>
     <ClInclude Include="llc_swap.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_crc.h">
+      <Filter>encoding</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1067,9 +1067,6 @@
     <ClCompile Include="llc_keyval_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llc_crc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_string.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1081,6 +1078,12 @@
     </ClCompile>
     <ClCompile Include="llc_json_expression.cpp">
       <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_crc.cpp">
+      <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_debug.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

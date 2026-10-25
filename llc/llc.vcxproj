@@ -306,6 +306,7 @@
     <ClCompile Include="llc_datatype.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_debug.cpp" />
     <ClCompile Include="llc_deflate.cpp" />
     <ClCompile Include="llc_dialog.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>

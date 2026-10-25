@@ -28,31 +28,31 @@ namespace llc
 	tplt<tpnm T>	nsix	T&			max			(T & a, T & b)							noexcept	{ return (a > b) ? a : b; }
 	tplt<tpnm T>	nsix	const T&	min			(const T & a, const T & b)				noexcept	{ return (a < b) ? a : b; }
 	tplt<tpnm T>	nsix	const T&	max			(const T & a, const T & b)				noexcept	{ return (a > b) ? a : b; }
-	tplt<tpnm T>	nsix	T			clamped		(T _value, const T _min, const T _max)	noexcept	{ return ::llc::min(_max, ::llc::max(_min, _value)); }
+	tplt<tpnm T>	nsix	T			clamped		(T _value, const T _min, const T _max)	noexcept	{ return min(_max, max(_min, _value)); }
 
 	// excluding the stop value
-	tplt<tpnm T>	ndsx	bool		in_range	(const T & valueToTest, const T & rangeStart, const T & rangeStop)	noexcept	{ 
+	tplt<tpnm T>	ndsx	bool		in_range	(const T & valueToTest, const T & rangeStart, const T & rangeStop)	noexcept	{
 		return (valueToTest >= rangeStart) && (valueToTest < rangeStop);
 	}
-	tplt<tpnm T>	ndsc	bool		equal		(const T * other, const T * local, uint32_t count) {
-		for(uint32_t iElement = 0; iElement < count; ++iElement)
+	tplt<tpnm T>	ndsc	bool		equal		(const T * other, const T * local, u2_t count) {
+		for(u2_t iElement = 0; iElement < count; ++iElement)
 			if(other[iElement] != local[iElement])
 				return false;
 		return true;
 	}
 //#if !defined(LLC_ATMEL)
-	tplt<>	ndin	bool	equal	(const double	* other, const double	* local, uint32_t count)	{ return 0 == memcmp(other, local, szof(double	)*count); }
-	tplt<>	ndin	bool	equal	(const float	* other, const float	* local, uint32_t count)	{ return 0 == memcmp(other, local, szof(float		)*count); }
-	tplt<>	ndin	bool	equal	(const int32_t	* other, const int32_t	* local, uint32_t count)	{ return 0 == memcmp(other, local, szof(int32_t	)*count); }
-	tplt<>	ndin	bool	equal	(u2_c	* other, u2_c	* local, uint32_t count)	{ return 0 == memcmp(other, local, szof(uint32_t	)*count); }
-	tplt<>	ndin	bool	equal	(const int16_t	* other, const int16_t	* local, uint32_t count)	{ return 0 == memcmp(other, local, szof(int16_t	)*count); }
-	tplt<>	ndin	bool	equal	(const uint16_t	* other, const uint16_t	* local, uint32_t count)	{ return 0 == memcmp(other, local, szof(uint16_t	)*count); }
-	tplt<>	ndin	bool	equal	(const int8_t	* other, const int8_t	* local, uint32_t count)	{ return 0 == memcmp(other, local, szof(int8_t	)*count); }
-	tplt<>	ndin	bool	equal	(const uint8_t	* other, const uint8_t	* local, uint32_t count)	{ return 0 == memcmp(other, local, szof(uint8_t	)*count); }
+	tplt<>	ndin	bool	equal	(const double	* other, const double	* local, u2_t count)	{ return 0 == memcmp(other, local, szof(double	)*count); }
+	tplt<>	ndin	bool	equal	(const float	* other, const float	* local, u2_t count)	{ return 0 == memcmp(other, local, szof(float		)*count); }
+	tplt<>	ndin	bool	equal	(const int32_t	* other, const int32_t	* local, u2_t count)	{ return 0 == memcmp(other, local, szof(int32_t	)*count); }
+	tplt<>	ndin	bool	equal	(u2_c	* other, u2_c	* local, u2_t count)					{ return 0 == memcmp(other, local, szof(u2_t	)*count); }
+	tplt<>	ndin	bool	equal	(const int16_t	* other, const int16_t	* local, u2_t count)	{ return 0 == memcmp(other, local, szof(int16_t	)*count); }
+	tplt<>	ndin	bool	equal	(const u1_t	* other, const u1_t	* local, u2_t count)	{ return 0 == memcmp(other, local, szof(u1_t	)*count); }
+	tplt<>	ndin	bool	equal	(const int8_t	* other, const int8_t	* local, u2_t count)	{ return 0 == memcmp(other, local, szof(int8_t	)*count); }
+	tplt<>	ndin	bool	equal	(const u0_t	* other, const u0_t	* local, u2_t count)	{ return 0 == memcmp(other, local, szof(u0_t	)*count); }
 //#endif
 
 #pragma pack(pop)
-#ifndef true_if 
+#ifndef true_if
 #	define true_if(expression)				((expression) ? true : false)	// returns true  if the parameter evaluates to true
 #	define false_if(expression)				((expression) ? false : true)	// returns false if the parameter evaluates to true
 #	define one_if(expression)				((expression) ? 1 : 0)			// returns one   if the parameter evaluates to true
@@ -61,7 +61,7 @@ namespace llc
 #	define is_zero(your_int)				(0 == (your_int))				// returns true if the parameter is equal to zero
 #	define one_if_false(expression)			one_if(false == (expression))
 //
-#	define round_up(count, denominator)		(((count) + (denominator) - 1) / (denominator))	// 
+#	define round_up(count, denominator)		(((count) + (denominator) - 1) / (denominator))	//
 #endif
 
 } // namespace
