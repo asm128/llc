@@ -1,31 +1,40 @@
 cbuffer GUIViewport : register(b0) { float4 scale; };
 
 struct Input {
-	float2 position : POSITION;
-	float2 uv : TEXCOORD0;
-	float4 color : COLOR;
-	uint mode : TEXCOORD1;
-	float2 a : TEXCOORD2;
-	float2 b : TEXCOORD3;
-	float2 c : TEXCOORD4;
+	uint2 grid : POSITION;
+	int4 x : TEXCOORD0;
+	int4 y : TEXCOORD1;
+	float4 client : COLOR0;
+	float4 left : COLOR1;
+	float4 top : COLOR2;
+	float4 right : COLOR3;
+	float4 bottom : COLOR4;
+	uint flags : TEXCOORD2;
 };
+
 struct Output {
 	float4 position : SV_POSITION;
-	float2 uv : TEXCOORD0;
-	float2 pixel : TEXCOORD1;
-	nointerpolation float4 color : COLOR;
-	nointerpolation uint mode : TEXCOORD2;
-	nointerpolation float2 a : TEXCOORD3;
-	nointerpolation float2 b : TEXCOORD4;
-	nointerpolation float2 c : TEXCOORD5;
+	nointerpolation float4 client : COLOR0;
+	nointerpolation float4 left : COLOR1;
+	nointerpolation float4 top : COLOR2;
+	nointerpolation float4 right : COLOR3;
+	nointerpolation float4 bottom : COLOR4;
+	nointerpolation uint flags : TEXCOORD0;
+	nointerpolation int4 x : TEXCOORD1;
+	nointerpolation int4 y : TEXCOORD2;
 };
+
 Output main(Input input) {
 	Output output;
-	output.position = float4(input.position * scale.xy + scale.zw, 0, 1);
-	output.pixel = input.position;
-	output.uv = input.uv;
-	output.color = input.color.bgra;
-	output.mode = input.mode;
-	output.a = input.a; output.b = input.b; output.c = input.c;
+	const float2 pixel = float2(input.x[input.grid.x], input.y[input.grid.y]);
+	output.position = float4(pixel * scale.xy + scale.zw, 0, 1);
+	output.client = input.client.bgra;
+	output.left = input.left.bgra;
+	output.top = input.top.bgra;
+	output.right = input.right.bgra;
+	output.bottom = input.bottom.bgra;
+	output.flags = input.flags;
+	output.x = input.x;
+	output.y = input.y;
 	return output;
 }

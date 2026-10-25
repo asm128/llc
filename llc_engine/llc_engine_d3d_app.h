@@ -22,14 +22,23 @@ namespace llc
 		::llc::err_t Read	(::DX::D3DDeviceResources & resources, ::llc::g8bgra colors, ::llc::gu2_t depth);
 	};
 
-	struct SD3DGUIVertex {
-		::llc::n2f2_t Position, UV;
-		::llc::bgra Color;
+	struct SD3DGUIControlInstance {
+		::llc::s1_t X[4] = {}, Y[4] = {};
+		::llc::bgra Colors[::llc::GUI_CONTROL_AREA_OLD_COUNT] = {};
+		::llc::u2_t Flags = 0;
+	};
+	struct SD3DGUITextureInstance {
+		::llc::rect2s1_t Rectangle = {};
+		::llc::rect2f2_t UV = {};
+		::llc::bgra Color = {};
 		::llc::u2_t Mode = 0;
-		::llc::tri2f2_t Triangle = {};
 	};
 	struct SD3DGUIFont {
 		::llc::pobj<::llc::SRasterFont> Font;
+		::llc::pcom<ID3D11Texture2D> Texture;
+		::llc::pcom<ID3D11ShaderResourceView> View;
+	};
+	struct SD3DGUIImage {
 		::llc::pcom<ID3D11Texture2D> Texture;
 		::llc::pcom<ID3D11ShaderResourceView> View;
 	};
@@ -55,16 +64,20 @@ namespace llc
 		::llc::pcom<ID3D11ShaderResourceView>	ShaderResourceView	= {};
 		::llc::pcom<ID3D11Texture2D>			Texture2D			= {};	// - Size-dependent
 
-		::llc::apod<::llc::SD3DGUIVertex> ControlVertices;
 		::llc::aobj<::llc::SD3DGUIFont> ControlFonts;
-		::llc::pcom<ID3D11Buffer> ControlVertexBuffer, ControlConstants;
+		::llc::aobj<::llc::SD3DGUIImage> ControlImages;
+		::llc::apod<::llc::SD3DGUIControlInstance> ControlInstances;
+		::llc::apod<::llc::SD3DGUITextureInstance> ControlTextureInstances;
+		::llc::pcom<ID3D11Buffer> ControlVertexBuffer, ControlIndexBuffer, ControlInstanceBuffer, ControlConstants;
 		::llc::pcom<ID3D11InputLayout> ControlInputLayout;
 		::llc::pcom<ID3D11VertexShader> ControlVertexShader;
 		::llc::pcom<ID3D11PixelShader> ControlPixelShader;
 		::llc::pcom<ID3D11RasterizerState> ControlRasterizerState;
+		::llc::pcom<ID3D11Buffer> ControlTextureVertexBuffer, ControlTextureInstanceBuffer;
+		::llc::pcom<ID3D11InputLayout> ControlTextureInputLayout;
+		::llc::pcom<ID3D11VertexShader> ControlTextureVertexShader;
+		::llc::pcom<ID3D11PixelShader> ControlTexturePixelShader;
 		::llc::pcom<ID3D11BlendState> ControlImageBlendState;
-		::llc::pcom<ID3D11Texture2D> ControlImageTexture;
-		::llc::pcom<ID3D11ShaderResourceView> ControlImageView;
 
 		void					ReleaseDeviceResources		() {
 			BlendState				= {};
@@ -81,10 +94,12 @@ namespace llc
 			PixelShader				= {};
 			ShaderResourceView		= {};
 			Texture2D				= {};
-			ControlVertices.clear(); ControlFonts.clear();
-			ControlVertexBuffer = {}; ControlConstants = {}; ControlInputLayout = {};
+			ControlFonts.clear(); ControlImages.clear(); ControlInstances.clear(); ControlTextureInstances.clear();
+			ControlVertexBuffer = {}; ControlIndexBuffer = {}; ControlInstanceBuffer = {}; ControlConstants = {}; ControlInputLayout = {};
 			ControlVertexShader = {}; ControlPixelShader = {}; ControlRasterizerState = {};
-			ControlImageBlendState = {}; ControlImageTexture = {}; ControlImageView = {};
+			ControlTextureVertexBuffer = {}; ControlTextureInstanceBuffer = {}; ControlTextureInputLayout = {};
+			ControlTextureVertexShader = {}; ControlTexturePixelShader = {};
+			ControlImageBlendState = {};
 		}
 
 		::llc::error_t			CreateSizeDependentResources(ID3D11Device3 * d3dDevice, ::llc::n2u1_t windowSize)	{
@@ -240,7 +255,7 @@ namespace llc
 	};
 
 	::llc::error_t			d3dGUIDraw				(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff);
-	::llc::err_t d3dGUIDraw(::DX::D3DDeviceResources & resources, ::llc::SD3DGUIResources<::llc::bgra> & gpu, const ::llc::SGUI & gui, ::llc::n2u1_t targetSize);
+	::llc::err_t			d3dGUIDraw				(::DX::D3DDeviceResources & resources, ::llc::SD3DGUIResources<::llc::bgra> & gpu, const ::llc::SGUI & gui, ::llc::n2u1_t targetSize);
 
 	struct SD3DApplication : DX::IDeviceNotify {
 		::llc::pobj<::llc::SEngineGraphics>		EngineGraphics;
@@ -308,6 +323,7 @@ namespace llc
 			return 0;
 		}
 	};
+	::llc::err_t			d3dGUIFrameDraw		(::llc::SD3DApplication & app, const ::llc::SGUI & gui, ::llc::n2u1_t targetSize, const ::llc::rgbaf & clearColor);
 
 	::llc::err_t			d3dDrawEngineNode		(::llc::Sample3DSceneRenderer & renderer, const ::llc::SEngineScene & scene, ::llc::u2_t node, ::llc::view<const ::llc::SRenderLight> lights, const ::llc::SRenderMaterial * material = nullptr, ::llc::u2_t vertexShader = 0, ::llc::CULL_MODE cullMode = ::llc::CULL_MODE_CCW);
 	::llc::error_t			d3dDrawEngineScene		(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);

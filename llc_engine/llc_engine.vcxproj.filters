@@ -220,6 +220,12 @@
     <FxCompile Include="vsGUIControl.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="psGUITexture.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="vsGUITexture.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
     <FxCompile Include="psGUI.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
