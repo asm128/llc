@@ -14,7 +14,7 @@ namespace llc
 	nsix	u3_t		noise1DBase			(u3_t x, u3_t noiseSeed = ::llc::NOISE_SEED)	nxpt	{ return noise1DBu3((x << 13) ^ x, noiseSeed); }
 	nsix	f3_t		noise1D				(u3_t x, u3_t noiseSeed = ::llc::NOISE_SEED)	nxpt	{ return ( 1.0 - (::llc::noise1DBase(x, noiseSeed)  & 0x7fFFffFFffFFffFFULL) / 4611686018427387904.0); }
 	nsix	f3_t		noiseNormal1D		(u3_t x, u3_t noiseSeed = ::llc::NOISE_SEED)	nxpt	{ return ::llc::noise1D(x, noiseSeed) *.5 + .5f; }
-		   
+
 	nsix	f3_t		noise2D				(u2_t x, u2_t y			, u2_t nWidth				, u3_t noiseSeed = ::llc::NOISE_SEED)	nxpt	{ return ::llc::noise1D			(x + y * nWidth, noiseSeed);	}
 	nsix	f3_t		noiseNormal2D		(u2_t x, u2_t y			, u2_t nWidth				, u3_t noiseSeed = ::llc::NOISE_SEED)	nxpt	{ return ::llc::noiseNormal1D	(x + y * nWidth, noiseSeed);	}
 	nsix	f3_t		noise3D				(u2_t x, u2_t y, u2_t z	, u2_t nWidth, u2_t nHeight	, u3_t noiseSeed = ::llc::NOISE_SEED)	nxpt	{ return ::llc::noise1D			(x + y * nWidth + z * nHeight * nWidth, noiseSeed);	}

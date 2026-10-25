@@ -23,7 +23,7 @@ namespace llc
 		f3_t					WeightClamp	(T value)		csnx	{ return Weight(Clamp(value)); }
 
 		tpl_t2
-		inxp	minmax<_t2> 	Cast		()				csnx	{ return{(_t2)Min, (_t2)Max}; } 
+		inxp	minmax<_t2> 	Cast		()				csnx	{ return{(_t2)Min, (_t2)Max}; }
 
 		inxp	minmax<uc_t> 	uc			()				csnx	{ return Cast<uc_t>(); }
 		inxp	minmax<sc_t> 	sc			()				csnx	{ return Cast<sc_t>(); }
