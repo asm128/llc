@@ -9,7 +9,7 @@ namespace llc
 	err_t			with				(vcst_t filepath, vcst_t mode, const function<err_t(FILE*&)> & funcFile);	//
 
 	err_t			fileJoin			(vcst_t fileNameDst);								// Joins a file split into file.split.## parts.
-	err_t			fileSplit			(vcst_t fileNameSrc, u2_c partSize);		// Splits a file into file.split.## parts.
+	err_t			fileSplit			(vcst_t fileNameSrc, u2_c partSize);		// Writes file.0, file.1, ...; returns part count. Failure retains completed/partial parts.
 	s3_t			fileSize			(vcst_t fileName);
 	err_t			fileLastWriteTime	(vcst_t fileName, s3_t & modified);
 	err_t			fileDelete			(vcst_t fileName);
@@ -29,32 +29,6 @@ namespace llc
 	GDEFINE_ENUM_VALUE(OPEN_MODE, READ		, 'r' + (i1u_t('b') << 8));							//  1
 	GDEFINE_ENUM_VALUE(OPEN_MODE, WRITE		, 'w' + (i1u_t('b') << 8));							//  2
 	GDEFINE_ENUM_VALUE(OPEN_MODE, APPEND	, 'a' + (i2u_t('b') << 8) + (i2u_t('+') << 16));	//  3
-	// FILE wrapper
-	tpl_t struct SFile {	
-		tdfTTCnst(_t);
-		vcst_t						Name			= {};
-		u3_t						Offset			= {};
-		T							File			{};
-
-		inln						~SFile			()					{ llc_safe_fclose(File); }
-
-		inxp		oper			T&				()					{ return File; }
-		
-		u3_t						size			()					{
-			if(0 == File) {
-				if_true_fef(fopen_s(File, Name, "rb"), "%.*s", (int)Name.size(), Name.begin());
-				Offset = 0;
-			}
-			if_true_fef(llc::fseek(File, 0, SEEK_END), "Failed to seek to end of file. %s.", "why?");
-			u3_c fileSize = ftell(File);
-			if_true_block_logf(error_printf, Offset > fileSize, Offset = fileSize, "Offset: %" LLC_FMT_U64 ". fileSize: %" LLC_FMT_U64 ".", Offset, fileSize);
-			if_true_fe(fseek(File, Offset, SEEK_SET));
-			return fileSize;
-		}
-	};
-
-	struct CFile : SFile<FILE*> {};
-
 } // namespace
 
 #endif // LLC_FILE_H_23627

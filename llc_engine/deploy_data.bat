@@ -1,17 +1,18 @@
-mkdir ..\..\Win32.Release
-mkdir ..\..\Win32.Debug
-mkdir ..\..\Win32.Release-MT
-mkdir ..\..\Win32.Debug-MT
-mkdir ..\..\x64.Release
-mkdir ..\..\x64.Debug
-mkdir ..\..\x64.Release-MT
-mkdir ..\..\x64.Debug-MT
+@echo off
+setlocal
+if "%~1"=="" (
+	echo Usage: deploy_data.bat output-directory 1>&2
+	exit /b 1
+)
+pushd "%~dp0" || exit /b 1
+if not exist "%~1\" (
+	mkdir "%~1" || goto :failed
+)
+copy /Y "*.json" "%~1\" >nul
+if errorlevel 1 goto :failed
+popd
+exit /b 0
 
-copy *.json ..\..\Win32.Release\*.*
-copy *.json ..\..\Win32.Debug\*.*
-copy *.json ..\..\Win32.Release-MT\*.*
-copy *.json ..\..\Win32.Debug-MT\*.*
-copy *.json ..\..\x64.Release\*.*
-copy *.json ..\..\x64.Debug\*.*
-copy *.json ..\..\x64.Release-MT\*.*
-copy *.json ..\..\x64.Debug-MT\*.*
+:failed
+popd
+exit /b 1

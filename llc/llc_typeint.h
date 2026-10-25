@@ -40,6 +40,13 @@ namespace llc
 	tydf		intptr_t	sP_t, iPs_t;
 	tydf		void*		uV_t, iVu_t;
 
+	tplt<tpnm... T>
+	stct type_pack {};
+	tplt<tpnm T>
+	stct type_tag { using type = T; };
+	using unsigned_integer_types = type_pack<u0_t, u1_t, u2_t, u3_t>;
+	using integer_bounds_types = type_pack<u0_t, u1_t, u2_t, u3_t, s0_t, s1_t, s2_t, s3_t>;
+
 //	tplt<size_t _size>
 //	sinx auto szof() nxpt {
 //			 cxpr_if(_size > 0xFFFFU)	rtrn ::llc::u2_t(_size & 0xFFFFFFFFU);

@@ -1035,14 +1035,7 @@ sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 
 ::llc::err_t testView(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
-	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::u2_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::u3_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::s0_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::s1_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::s2_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::s3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn testTypeLogged<typename decltype(type)::type>(errors); }));
 	if_fail_fe(testStringSubscript(errors));
 	if_fail_fe(testStringSplitCollection(errors));
 	if(failureCount == testErrorCount(errors))

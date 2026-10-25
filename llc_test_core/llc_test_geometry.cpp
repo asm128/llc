@@ -165,14 +165,7 @@ sttc ::llc::err_t testGeometryTypeFamily(::llc::ATestError & errors) {
 
 	if_fail_fe(::testGeometryScalar<::llc::uc_t>(errors));
 	if_fail_fe(::testGeometryScalar<::llc::sc_t>(errors));
-	if_fail_fe(::testGeometryScalar<::llc::u0_t>(errors));
-	if_fail_fe(::testGeometryScalar<::llc::u1_t>(errors));
-	if_fail_fe(::testGeometryScalar<::llc::u2_t>(errors));
-	if_fail_fe(::testGeometryScalar<::llc::u3_t>(errors));
-	if_fail_fe(::testGeometryScalar<::llc::s0_t>(errors));
-	if_fail_fe(::testGeometryScalar<::llc::s1_t>(errors));
-	if_fail_fe(::testGeometryScalar<::llc::s2_t>(errors));
-	if_fail_fe(::testGeometryScalar<::llc::s3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn ::testGeometryScalar<typename decltype(type)::type>(errors); }));
 	if_fail_fe(::testGeometryScalar<::llc::f2_t>(errors));
 	rtrn ::testGeometryScalar<::llc::f3_t>(errors);
 }

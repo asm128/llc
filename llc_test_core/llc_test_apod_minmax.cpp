@@ -101,14 +101,7 @@ sttc ::llc::err_t testMinMaxType(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_MINMAX_TEST_RESULT_CONST_ALIAS_TYPE, (false == ::std::is_same_v<::llc::aminmaxf3_c, cnst ::llc::aminmaxf3_t>));
 	if_fail_fe(testMinMaxType<::llc::sc_t>(errors));
 	if_fail_fe(testMinMaxType<::llc::uc_t>(errors));
-	if_fail_fe(testMinMaxType<::llc::u0_t>(errors));
-	if_fail_fe(testMinMaxType<::llc::u1_t>(errors));
-	if_fail_fe(testMinMaxType<::llc::u2_t>(errors));
-	if_fail_fe(testMinMaxType<::llc::u3_t>(errors));
-	if_fail_fe(testMinMaxType<::llc::s0_t>(errors));
-	if_fail_fe(testMinMaxType<::llc::s1_t>(errors));
-	if_fail_fe(testMinMaxType<::llc::s2_t>(errors));
-	if_fail_fe(testMinMaxType<::llc::s3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn testMinMaxType<typename decltype(type)::type>(errors); }));
 	if_fail_fe(testMinMaxType<::llc::f2_t>(errors));
 	return testMinMaxType<::llc::f3_t>(errors);
 }

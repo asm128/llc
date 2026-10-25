@@ -93,6 +93,41 @@ sttc ::llc::err_t testGridCopy(::llc::ATestError & errors) {
 }
 
 sttc ::llc::err_t testGridScale(::llc::ATestError & errors) {
+	// Const, narrower source cells exercise widening assignment and read-only views.
+	::llc::u1_t boundarySourceCells[3][22] = {};
+	::llc::grid<cnst ::llc::u1_t> boundarySource = {boundarySourceCells};
+	for(::llc::u2_t y = 0; y < 3; ++y) for(::llc::u2_t x = 0; x < 22; ++x)
+		boundarySourceCells[y][x] = (::llc::u1_t)(1 + y * 22 + x);
+	::llc::u2_t boundaryDestinationCells[5][23] = {};
+	::llc::grid<::llc::u2_t> boundaryDestination = {boundaryDestinationCells};
+	cnst ::llc::u2_t untouched = 999;
+	cnst ::llc::n2s2_t origins[] = {{0, 0}, {-3, -1}, {20, 4}, {-40, 0}, {30, 0}, {0x7FFFFFFF, 0x7FFFFFFF}};
+	cnst ::llc::n2s2_t extents[] = {{22, 3}, {7, 4}, {31, 9}, {1, 1}};
+	for(cnst auto origin : origins) for(cnst auto extent : extents) {
+		if_fail_fe(boundaryDestination.fill(untouched));
+		LLC_TEST_REQUIRE(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_RESULT, ::llc::grid_scale(boundaryDestination, boundarySource, origin, extent) != 0);
+		for(::llc::u2_t y = 0; y < boundaryDestination.metrics().y; ++y) for(::llc::u2_t x = 0; x < boundaryDestination.metrics().x; ++x) {
+			cnst ::llc::s3_t localX = ::llc::s3_t(x) - origin.x, localY = ::llc::s3_t(y) - origin.y;
+			::llc::u2_t expectedCell = untouched;
+			if(localX >= 0 && localX < extent.x && localY >= 0 && localY < extent.y)
+				expectedCell = boundarySourceCells[localY * 3 / extent.y][localX * 22 / extent.x];
+			LLC_TEST_CHECKF(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_CELL, boundaryDestination[y][x] != expectedCell, "Cell:%u,%u, origin:%i,%i, extent:%i,%i, actual:%u, expected:%u.", x, y, origin.x, origin.y, extent.x, extent.y, boundaryDestination[y][x], expectedCell);
+		}
+	}
+	if_fail_fe(boundaryDestination.fill(untouched));
+	cnst ::llc::grid<cnst ::llc::u1_t> emptySource;
+	cnst ::llc::n2s2_t origin = {}, oneCell = {1, 1}, zeroWidth = {0, 3}, zeroHeight = {3, 0};
+	cnst ::llc::n2s2_t negativeWidth = {-1, 3}, negativeHeight = {3, -1};
+	LLC_TEST_CHECK(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_RESULT, ::llc::grid_scale(boundaryDestination, emptySource, origin, oneCell) >= 0);
+	LLC_TEST_CHECK(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_RESULT, ::llc::grid_scale(boundaryDestination, boundarySource, origin, negativeWidth) >= 0);
+	LLC_TEST_CHECK(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_RESULT, ::llc::grid_scale(boundaryDestination, boundarySource, origin, negativeHeight) >= 0);
+	LLC_TEST_CHECK(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_RESULT, ::llc::grid_scale(boundaryDestination, emptySource, origin, zeroWidth) != 0);
+	LLC_TEST_CHECK(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_RESULT, ::llc::grid_scale(boundaryDestination, emptySource, origin, zeroHeight) != 0);
+	::llc::grid<::llc::u2_t> emptyDestination;
+	LLC_TEST_CHECK(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_RESULT, ::llc::grid_scale(emptyDestination, emptySource, origin, oneCell) != 0);
+	for(cnst auto cell : boundaryDestination)
+		LLC_TEST_CHECK(errors, GRID_OPERATIONS_TEST_RESULT_SCALE_CELL, cell != untouched);
+
 	::llc::u2_t sourceCells[2][3] = {{1, 2, 3}, {4, 5, 6}};
 	cnst ::llc::grid<::llc::u2_t> source = {sourceCells};
 	::llc::u2_t scaledCells[2][6] = {};

@@ -16,13 +16,13 @@ namespace llc
         using   asc_t  ::asc_t;
         using   asc_t  ::operator==;
         using   asc_t  ::operator!=;
-        string & oper = (asc_c & other) { asc_t::operator=(other); rtrn *this; }
-        string & oper = (vcs0_t other) { asc_t::operator=(other); rtrn *this; }
         tplN2u string & oper = (sc_c (&other)[N]) {
             u2_t count = 0;
             for(; count < N && other[count]; ++count) {}
-            gsthrow_if(resize(count) != (s2_t)count);
-            if(count) memcpy(Data, other, count * szof(sc_t));
+            if_true_te(resize(count) != (s2_t)count);
+            if(count) {
+                memcpy(Data, other, count * szof(sc_t));
+            }
             rtrn *this;
         }
         tplN2u bool oper== (sc_c (&other)[N]) cnst { rtrn asc_t::operator==(vcst_t{other}); }

@@ -144,8 +144,5 @@ sttc ::llc::err_t testArrayBitType(::llc::ATestError & errors) {
 	static_assert(::std::is_same_v<::llc::abitu1_t, ::llc::array_bit<::llc::u1_t>>);
 	static_assert(::std::is_same_v<::llc::abitu2_t, ::llc::array_bit<::llc::u2_t>>);
 	static_assert(::std::is_same_v<::llc::abitu3_t, ::llc::array_bit<::llc::u3_t>>);
-	if_fail_fe(testArrayBitType<::llc::u0_t>(errors));
-	if_fail_fe(testArrayBitType<::llc::u1_t>(errors));
-	if_fail_fe(testArrayBitType<::llc::u2_t>(errors));
-	return testArrayBitType<::llc::u3_t>(errors);
+	return ::llc::testTypePack(::llc::unsigned_integer_types{}, [&](auto type) { return testArrayBitType<typename decltype(type)::type>(errors); });
 }

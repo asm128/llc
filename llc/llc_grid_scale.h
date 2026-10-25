@@ -49,17 +49,57 @@ namespace llc
 		return 0;
 	}
 
-	tplt<tpnm T>
-	::llc::error_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const ::llc::n2<int32_t> & dstPos, const ::llc::n2<int32_t> & dstSize) {
-		const ::llc::n2<int32_t>			srcSize						= {(int)src.metrics().x	, (int)src.metrics().y	};
-		for(int y = dstPos.y, yStop = ::llc::min(dstPos.y + dstSize.y, (int32_t)dst.metrics().y); y < yStop; ++y) {
-			::llc::n2<int32_t>					sourcePixelCoord			= {0, (int)((y - (double)dstPos.y) / dstSize.y * (double)srcSize.y)};
-			for(int x = dstPos.x, xStop = ::llc::min(dstPos.x + dstSize.x, (int32_t)dst.metrics().x); x < xStop; ++x) {
-				sourcePixelCoord.x				= (int)((x - (double)dstPos.x) / dstSize.x * (double)srcSize.x);
-				dst[y][x]						= src[sourcePixelCoord.y][sourcePixelCoord.x];
+	// Clip destination coordinates without changing the original sampling rectangle.
+	// Empty rectangles are no-ops; negative extents and a sampled empty source fail.
+	struct SGridScaleAxis {
+		u2_t	Index			= 0;
+		u2_t	Step			= 0;
+		u2_t	Remainder		= 0;
+		u2_t	RemainderStep	= 0;
+		u2_t	Denominator		= 1;
+
+		inln	void	advance		() nxpt {
+			Index		+= Step;
+			Remainder	+= RemainderStep;
+			if(Remainder >= Denominator) {
+				++Index;
+				Remainder -= Denominator;
 			}
 		}
-		return 0;
+	};
+
+	stxp SGridScaleAxis gridScaleAxis(s3_t dstStart, s2_t dstOrigin, u2_t srcSize, s2_t dstSize) nxpt {
+		cnst u3_t	numerator	= u3_t(dstStart - dstOrigin) * srcSize;
+		cnst u2_t	denominator	= (u2_t)dstSize;
+		rtrn
+			{ (u2_t)(numerator / denominator)
+			, srcSize / denominator
+			, (u2_t)(numerator % denominator)
+			, srcSize % denominator
+			, denominator
+			};
+	}
+
+	tplt<tpnm T, tpnm TSource>
+	::llc::error_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<TSource> & src, const ::llc::n2<int32_t> & dstPos, const ::llc::n2<int32_t> & dstSize) {
+		if_true_fef(dstSize.x < 0 || dstSize.y < 0, "Negative scale extent: %i x %i.", dstSize.x, dstSize.y);
+		if(!dstSize.x || !dstSize.y) rtrn 0;
+		cnst ::llc::n2s3_t start = {::llc::max(::llc::s3_t(0), ::llc::s3_t(dstPos.x)), ::llc::max(::llc::s3_t(0), ::llc::s3_t(dstPos.y))};
+		cnst ::llc::n2s3_t stop = {::llc::min(::llc::s3_t(dstPos.x) + dstSize.x, ::llc::s3_t(dst.metrics().x)), ::llc::min(::llc::s3_t(dstPos.y) + dstSize.y, ::llc::s3_t(dst.metrics().y))};
+		if(start.x >= stop.x || start.y >= stop.y) rtrn 0;
+		cnst auto srcSize = src.metrics();
+		if_true_fef(!srcSize.x || !srcSize.y, "Cannot sample an empty source: %u x %u.", srcSize.x, srcSize.y);
+		cnst SGridScaleAxis sourceXStart = gridScaleAxis(start.x, dstPos.x, srcSize.x, dstSize.x);
+		SGridScaleAxis sourceY = gridScaleAxis(start.y, dstPos.y, srcSize.y, dstSize.y);
+		for(::llc::s3_t y = start.y; y < stop.y; ++y) {
+			SGridScaleAxis sourceX = sourceXStart;
+			for(::llc::s3_t x = start.x; x < stop.x; ++x) {
+				dst[(::llc::u2_t)y][(::llc::u2_t)x] = src[sourceY.Index][sourceX.Index];
+				sourceX.advance();
+			}
+			sourceY.advance();
+		}
+		rtrn 0;
 	}
 } // namespace
 

@@ -88,10 +88,7 @@ sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 
 ::llc::err_t testGridSerialize(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
-	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::u2_t>(errors));
-	if_fail_fe(testTypeLogged<::llc::u3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::unsigned_integer_types{}, [&](auto type) { rtrn testTypeLogged<typename decltype(type)::type>(errors); }));
 	if(failureCount == testErrorCount(errors))
 		always_printf("Element widths tested successfully:\n%u, %u, %u and %u bits."
 			, ::llc::u2_t(szof(::llc::u0_t) * 8), ::llc::u2_t(szof(::llc::u1_t) * 8), ::llc::u2_t(szof(::llc::u2_t) * 8), ::llc::u2_t(szof(::llc::u3_t) * 8)

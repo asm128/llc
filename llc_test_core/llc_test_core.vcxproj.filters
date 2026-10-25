@@ -72,10 +72,16 @@
     <ClCompile Include="llc_test_expression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="llc_test_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="llc_test_geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_test_grid_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_image_bounds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_test_grid_operations.cpp">
@@ -97,6 +103,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_test_label.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_word_dict.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_test_linear_map.cpp">

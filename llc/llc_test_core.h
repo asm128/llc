@@ -54,6 +54,13 @@ namespace llc
 	stin ::llc::u2_t testSuccessCount	(cnst ATestError & errors) { return testResultCount(errors, [](cnst STestError & error) { return error.SuccessCount; }); }
 	stin ::llc::u2_t testCheckCount		(cnst ATestError & errors) { return testErrorCount(errors) + testSuccessCount(errors); }
 
+	tplt<tpnm... T, tpnm TCall>
+	stin ::llc::err_t testTypePack(type_pack<T...>, TCall call) {
+		::llc::err_t result = 0;
+		(void)(((result = call(type_tag<T>{})) >= 0) && ...);
+		rtrn result;
+	}
+
 	#ifdef LLC_WINDOWS
 	tplt<tpnm TCall>
 	bool testThrows(TCall call) {

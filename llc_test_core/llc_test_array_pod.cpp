@@ -632,14 +632,7 @@ sttc ::llc::err_t testPodTypeLogged(::llc::ATestError & errors) {
 
 ::llc::err_t testArrayPod(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
-	if_fail_fe(testPodTypeLogged<::llc::u0_t>(errors));
-	if_fail_fe(testPodTypeLogged<::llc::u1_t>(errors));
-	if_fail_fe(testPodTypeLogged<::llc::u2_t>(errors));
-	if_fail_fe(testPodTypeLogged<::llc::u3_t>(errors));
-	if_fail_fe(testPodTypeLogged<::llc::s0_t>(errors));
-	if_fail_fe(testPodTypeLogged<::llc::s1_t>(errors));
-	if_fail_fe(testPodTypeLogged<::llc::s2_t>(errors));
-	if_fail_fe(testPodTypeLogged<::llc::s3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn testPodTypeLogged<typename decltype(type)::type>(errors); }));
 	if_fail_fe(testPodStringAppend(errors));
 	if(failureCount == testErrorCount(errors))
 		always_printf("Types tested successfully:\n%s, %s, %s, %s, %s, %s, %s, %s."

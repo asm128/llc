@@ -68,8 +68,7 @@ namespace llc
 		inln	err_t		resize			(n2u0_c & newSize, cnst T & value) nxpt { rtrn resize(newSize.u2(), value); }
 		inln	err_t		resize			(n2u1_c & newSize, cnst T & value) nxpt { rtrn resize(newSize.u2(), value); }
 		err_t				resize			(n2u2_c & newSize, cnst T & value) nxpt {
-			if_fail_fef(Texels.resize(newSize.x * newSize.y), "Cannot resize image to %u x %u.", newSize.x, newSize.y);
-			View = {Texels.begin(), newSize.x, newSize.y};
+			if_fail_fe(resize(newSize));
 			if_fail_fe(View.fill(value));
 			rtrn Texels.size();
 		}

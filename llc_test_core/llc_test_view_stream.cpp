@@ -126,14 +126,7 @@ sttc ::llc::err_t testViewStreamType(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_READ_CONST_ACCESS, (false == canViewStreamRead<::llc::view_stream<cnst ::llc::u0_t>, ::llc::u2_t>));
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_WRITE_MUTABLE_ACCESS, (false == canViewStreamWrite<::llc::view_stream<::llc::u0_t>, ::llc::u2_t>));
 	LLC_TEST_CHECK(errors, VIEW_STREAM_TEST_RESULT_WRITE_CONST_ACCESS, (canViewStreamWrite<::llc::view_stream<cnst ::llc::u0_t>, ::llc::u2_t>));
-	if_fail_fe(::testViewStreamType<::llc::u0_t>(errors));
-	if_fail_fe(::testViewStreamType<::llc::u1_t>(errors));
-	if_fail_fe(::testViewStreamType<::llc::u2_t>(errors));
-	if_fail_fe(::testViewStreamType<::llc::u3_t>(errors));
-	if_fail_fe(::testViewStreamType<::llc::s0_t>(errors));
-	if_fail_fe(::testViewStreamType<::llc::s1_t>(errors));
-	if_fail_fe(::testViewStreamType<::llc::s2_t>(errors));
-	if_fail_fe(::testViewStreamType<::llc::s3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn ::testViewStreamType<typename decltype(type)::type>(errors); }));
 	if_fail_fe(::testViewStreamType<::llc::f2_t>(errors));
 	rtrn ::testViewStreamType<::llc::f3_t>(errors);
 }

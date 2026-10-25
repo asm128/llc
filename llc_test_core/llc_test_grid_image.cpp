@@ -276,12 +276,5 @@ sttc ::llc::err_t testImageSerialization(::llc::ATestError & errors) {
 	if_fail_fe(::testImage(errors));
 	if_fail_fe(::testMonochromeImage(errors));
 	if_fail_fe(::testDefaultFonts(errors));
-	if_fail_fe(::testImageSerialization<::llc::u0_t>(errors));
-	if_fail_fe(::testImageSerialization<::llc::u1_t>(errors));
-	if_fail_fe(::testImageSerialization<::llc::u2_t>(errors));
-	if_fail_fe(::testImageSerialization<::llc::u3_t>(errors));
-	if_fail_fe(::testImageSerialization<::llc::s0_t>(errors));
-	if_fail_fe(::testImageSerialization<::llc::s1_t>(errors));
-	if_fail_fe(::testImageSerialization<::llc::s2_t>(errors));
-	rtrn ::testImageSerialization<::llc::s3_t>(errors);
+	rtrn ::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn ::testImageSerialization<typename decltype(type)::type>(errors); });
 }

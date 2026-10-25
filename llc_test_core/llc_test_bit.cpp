@@ -244,10 +244,7 @@ sttc ::llc::err_t testBitTypeLogged(::llc::ATestError & errors) {
 
 ::llc::err_t testBitField(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
-	if_fail_fe(testBitTypeLogged<::llc::u0_t>(errors));
-	if_fail_fe(testBitTypeLogged<::llc::u1_t>(errors));
-	if_fail_fe(testBitTypeLogged<::llc::u2_t>(errors));
-	if_fail_fe(testBitTypeLogged<::llc::u3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::unsigned_integer_types{}, [&](auto type) { rtrn testBitTypeLogged<typename decltype(type)::type>(errors); }));
 	cnst bool typesSucceeded = failureCount == testErrorCount(errors);
 	if_fail_fe(testEnumFlags(errors));
 	if(typesSucceeded)

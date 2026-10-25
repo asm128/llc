@@ -72,6 +72,8 @@ GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_POD_BEGIN		, 58, "str() changed const
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, ARRAY_SCAN			, 59, "Array string-view construction did not stop at the first zero or array bound.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, ARRAY_APPEND			, 60, "Appending array text copied storage beyond its text length.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, ARRAY_COMPARE			, 61, "String-view array comparison did not compare bounded text.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, LITERAL_CONTRACT		, 62, "String literal construction, assignment or comparison changed its text range.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_ASSIGNMENT		, 63, "Empty string assignment is ambiguous or did not produce an empty string.");
 
 stxp struct { ::llc::sc_t Storage[8]; ::llc::u2_t Length; } StringArrayCases[] = {
 	{{}, 0}, {"hello", 5}, {{'a', 0, 'b'}, 1},
@@ -91,6 +93,17 @@ static_assert([]() constexpr {
 static_assert([](::llc::vcst_t text) constexpr { rtrn text.size(); }("hello") == 5);
 
 sttc ::llc::err_t testStringArrayScan(::llc::ATestError & errors) {
+	cnst ::llc::vcst_t literalView = "hola";
+	cnst ::llc::string constructed = "hola";
+	::llc::string assigned;
+	assigned = "hola";
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_LITERAL_CONTRACT, literalView.size() != 4 || !(literalView == "hola") || literalView != "hola");
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_LITERAL_CONTRACT, constructed.size() != 4 || !(constructed == "hola") || constructed != "hola");
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_LITERAL_CONTRACT, assigned.size() != 4 || !(assigned == "hola") || assigned != "hola");
+	::llc::string emptyLeft, emptyRight;
+	emptyLeft = emptyRight = {};
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_EMPTY_ASSIGNMENT, emptyLeft.size() || emptyRight.size());
+
 	for(auto testCase : StringArrayCases) {
 		cnst auto & constCase = testCase;
 		cnst ::llc::vcst_t expected = {testCase.Storage, testCase.Length};

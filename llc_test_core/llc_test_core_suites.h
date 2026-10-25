@@ -31,10 +31,12 @@
 ::llc::err_t testDeflate		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testEnum			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testExpression		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t testFile			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testGeometry		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testGrid(::llc::ATestError & errors, ::llc::vcst_t outputFolder);
 ::llc::err_t testGridSerialize(::llc::ATestError & errors, ::llc::vcst_t outputFolder);
 ::llc::err_t testGridImage		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t testImageBounds	(::llc::ATestError & results, ::llc::vcst_t outputFolder);
 ::llc::err_t testGridOperations	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testGUI			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testInput			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
@@ -55,6 +57,7 @@
 ::llc::err_t testStr			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testSystemKey		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testTypeMetadata	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t testWordDict		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testView			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testViewAliases	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testViewBit		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);

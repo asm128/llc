@@ -270,14 +270,7 @@ sttc ::llc::err_t testStaticTypeLogged(::llc::ATestError & errors) {
 
 ::llc::err_t testArrayStatic(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
-	if_fail_fe(testStaticTypeLogged<::llc::u0_t>(errors));
-	if_fail_fe(testStaticTypeLogged<::llc::u1_t>(errors));
-	if_fail_fe(testStaticTypeLogged<::llc::u2_t>(errors));
-	if_fail_fe(testStaticTypeLogged<::llc::u3_t>(errors));
-	if_fail_fe(testStaticTypeLogged<::llc::s0_t>(errors));
-	if_fail_fe(testStaticTypeLogged<::llc::s1_t>(errors));
-	if_fail_fe(testStaticTypeLogged<::llc::s2_t>(errors));
-	if_fail_fe(testStaticTypeLogged<::llc::s3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn testStaticTypeLogged<typename decltype(type)::type>(errors); }));
 	if(failureCount == testErrorCount(errors))
 		always_printf("Types tested successfully:\n%s, %s, %s, %s, %s, %s, %s, %s."
 			, ::llc::get_type_namep<::llc::u0_t>(), ::llc::get_type_namep<::llc::u1_t>(), ::llc::get_type_namep<::llc::u2_t>(), ::llc::get_type_namep<::llc::u3_t>()

@@ -120,13 +120,6 @@ sttc ::llc::err_t testBlockContainerNTS(::llc::ATestError & errors) {
 }
 
 ::llc::err_t testBlockContainer(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
-	if_fail_fe(::testBlockContainerTypeLogged<::llc::u0_t>(errors));
-	if_fail_fe(::testBlockContainerTypeLogged<::llc::u1_t>(errors));
-	if_fail_fe(::testBlockContainerTypeLogged<::llc::u2_t>(errors));
-	if_fail_fe(::testBlockContainerTypeLogged<::llc::u3_t>(errors));
-	if_fail_fe(::testBlockContainerTypeLogged<::llc::s0_t>(errors));
-	if_fail_fe(::testBlockContainerTypeLogged<::llc::s1_t>(errors));
-	if_fail_fe(::testBlockContainerTypeLogged<::llc::s2_t>(errors));
-	if_fail_fe(::testBlockContainerTypeLogged<::llc::s3_t>(errors));
+	if_fail_fe(::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn ::testBlockContainerTypeLogged<typename decltype(type)::type>(errors); }));
 	rtrn ::testBlockContainerNTS(errors);
 }
