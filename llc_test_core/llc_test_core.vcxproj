@@ -106,6 +106,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+		<ClCompile Include="llc_test_adam7.cpp" />
     <ClCompile Include="llc_test_array_base.cpp" />
     <ClCompile Include="llc_test_array_circular.cpp" />
     <ClCompile Include="llc_test_array_obj.cpp" />
@@ -115,8 +116,16 @@
     <ClCompile Include="llc_test_block_container.cpp" />
     <ClCompile Include="llc_test_block_container_nts.cpp" />
     <ClCompile Include="llc_test_core_main.cpp" />
+    <ClCompile Include="llc_test_deflate.cpp" />
+    <ClCompile Include="llc_test_encoding.cpp" />
+    <ClCompile Include="llc_test_file.cpp" />
     <ClCompile Include="llc_test_grid.cpp" />
+    <ClCompile Include="llc_test_grid_copy.cpp" />
+    <ClCompile Include="llc_test_png.cpp" />
     <ClCompile Include="llc_test_queue_async.cpp" />
+    <ClCompile Include="llc_test_ptr_nco.cpp" />
+    <ClCompile Include="llc_test_ptr_obj.cpp" />
+    <ClCompile Include="llc_test_ptr_pod.cpp" />
     <ClCompile Include="llc_test_string.cpp" />
     <ClCompile Include="llc_test_view.cpp" />
     <ClCompile Include="llc_test_view_bit.cpp" />

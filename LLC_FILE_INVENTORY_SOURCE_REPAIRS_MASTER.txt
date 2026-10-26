@@ -1,0 +1,68 @@
+D:\enterprise\programming_sciences\codebases\repairs\llc\llc>dir /w
+ Volume in drive D is CPP
+ Volume Serial Number is 0A2E-233A
+
+ Directory of D:\enterprise\programming_sciences\codebases\repairs\llc\llc
+
+[.]                           [..]                          android_llc.vcxproj           android_llc.vcxproj.filters   android_llc.vcxproj.user
+copy_llc_config.bat           cpp.hint                      llc.cppproj                   llc.vcxproj                   llc.vcxproj.filters
+llc.vcxproj.user              llc_adam7.cpp                 llc_adam7.h                   llc_aes.cpp                   llc_aes.h
+llc_align.h                   llc_aobj_pobj.h               llc_aobj_ppod.h               llc_apod_color.h              llc_apod_minmax.h
+llc_apod_n2.h                 llc_apod_n3.h                 llc_apod_range.h              llc_apod_serialize.h          llc_apod_slice.h
+llc_apod_tri.h                llc_apod_tri2.h               llc_apod_tri3.h               llc_append_css.cpp            llc_append_css.h
+llc_append_frontend.h         llc_append_html.cpp           llc_append_html.h             llc_append_js.cpp             llc_append_js.h
+llc_append_json.cpp           llc_append_json.h             llc_append_tcpip.cpp          llc_append_tcpip.h            llc_append_xml.cpp
+llc_append_xml.h              llc_app_impl.cpp              llc_app_impl.h                llc_arduino.h                 llc_arduino_stream.h
+llc_arduino_string.cpp        llc_arduino_string.h          llc_args.cpp                  llc_args.h                    llc_array.cpp
+llc_array.h                   llc_array_base.h              llc_array_bit.h               llc_array_circular.h          llc_array_obj.h
+llc_array_pod.h               llc_array_ptr.h               llc_array_static.h            llc_ascii_color.h             llc_ascii_target.cpp
+llc_ascii_target.h            llc_astatic_color.h           llc_astatic_n2.h              llc_astatic_serialize.h       llc_auto_handler.h
+llc_axis.h                    llc_base64.cpp                llc_base64.h                  llc_bit.h                     llc_bitmap_target.h
+llc_block.cpp                 llc_block.h                   llc_block_container.h         llc_block_container_nts.h     llc_bus.h
+llc_bus_manager.h             llc_camera.h                  llc_ccsds.cpp                 llc_ccsds.h                   llc_cerrno.h
+llc_chrono.cpp                llc_chrono.h                  llc_circle.h                  llc_circuit.cpp               llc_circuit.h
+llc_collision.h               llc_color.h                   llc_color_type.h              llc_complus.h                 llc_config.json
+llc_coord.h                   llc_cpow.h                    llc_cstdio.h                  llc_cstring.h                 llc_ctti.h
+llc_d3d.cpp                   llc_d3d.h                     llc_datatype.cpp              llc_datatype.h                llc_debug.h
+llc_deflate.cpp               llc_deflate.h                 llc_encoding.cpp              llc_encoding.h                llc_enum.h
+llc_error.cpp                 llc_error.h                   llc_eval.h                    llc_event.h                   llc_event_input.h
+llc_event_raster.h            llc_event_screen.h            llc_expression.cpp            llc_expression.h              llc_file.cpp
+llc_file.h                    llc_font.cpp                  llc_font.h                    llc_frameinfo.h               llc_framework.cpp
+llc_framework.h               llc_functional.h              llc_gauge.h                   llc_geometry.cpp              llc_geometry.h
+llc_geometry2.h               llc_geometry_buffers.h        llc_geometry_lh.cpp           llc_geometry_lh.h             llc_grid.h
+llc_grid_color.h              llc_grid_copy.h               llc_grid_scale.h              llc_grid_static.h             llc_gui.cpp
+llc_gui.h                     llc_gui_control.h             llc_gui_control_list.cpp      llc_gui_control_list.h        llc_gui_control_state.h
+llc_gui_desktop.cpp           llc_gui_desktop.h             llc_gui_draw.cpp              llc_gui_inputbox.cpp          llc_gui_inputbox.h
+llc_gui_text.h                llc_gui_viewport.cpp          llc_gui_viewport.h            llc_i2c.cpp                   llc_i2c.h
+llc_image.h                   llc_img_color.h               llc_img_serialize.h           llc_input.h                   llc_json.cpp
+llc_json.h                    llc_json_expression.cpp       llc_json_expression.h         llc_keyval.h                  llc_keyval_old.cpp
+llc_keyval_old.h              llc_label.cpp                 llc_label.h                   llc_label_manager.h           llc_line.h
+llc_line2.h                   llc_line3.h                   llc_linear_map_pobj.h         llc_linear_map_pod.h          llc_log.cpp
+llc_log.h                     llc_log_core.h                llc_log_level.h               llc_math.h                    llc_matrix.h
+llc_matrix2.h                 llc_matrix3.h                 llc_member_registry.h         llc_memory.h                  llc_micro.h
+llc_minmax.h                  llc_minmax_n2.h               llc_minmax_n3.h               llc_model.h                   llc_module.h
+llc_module_exports.def        llc_mutex.h                   llc_n2.h                      llc_n3.h                      llc_noise.cpp
+llc_noise.h                   llc_pack.cpp                  llc_pack.h                    llc_packed_int.h              llc_parse.cpp
+llc_parse.h                   llc_particle.cpp              llc_particle.h                llc_path.cpp                  llc_path.h
+llc_platform_error.h          llc_platform_globals.h        llc_png.cpp                   llc_png.h                     llc_png_write.cpp
+llc_pod_definition.h          llc_process.cpp               llc_process.h                 llc_ptr_nco.h                 llc_ptr_obj.h
+llc_ptr_pod.h                 llc_quad.h                    llc_quad2.h                   llc_quad3.h                   llc_quat.h
+llc_queue_async.h             llc_queue_event.h             llc_range.h                   llc_range_n2.h                llc_range_n3.h
+llc_raster_lh.cpp             llc_raster_lh.h               llc_rect.h                    llc_rect2.h                   llc_rect3.h
+llc_rect_align.h              llc_ref.h                     llc_runtime.h                 llc_runtime_module.cpp        llc_runtime_module.h
+llc_rxtx.h                    llc_safe.h                    llc_size.h                    llc_slice.h                   llc_slice_n2.h
+llc_slice_n3.h                llc_sphere.h                  llc_spi.cpp                   llc_spi.h                     llc_stdsocket.h
+llc_stdstring.cpp             llc_stdstring.h               llc_std_cstring.h             llc_std_initializer_list.h    llc_std_string.h
+llc_stl.cpp                   llc_stl.h                     llc_string.cpp                llc_string.h                  llc_string_compose.cpp
+llc_string_compose.h          llc_string_helper.h           llc_swap.h                    llc_sync.h                    llc_system_event.h
+llc_system_key.h              llc_tcpip.cpp                 llc_tcpip.h                   llc_test_core.h               llc_timer.cpp
+llc_timer.h                   llc_tri.h                     llc_tri2.h                    llc_tri3.h                    llc_typeint.cpp
+llc_typeint.h                 llc_type_identifier.h         llc_view.cpp                  llc_view.h                    llc_view_bit.h
+llc_view_color.cpp            llc_view_color.h              llc_view_n2.h                 llc_view_n3.h                 llc_view_pobj.h
+llc_view_ppod.h               llc_view_serialize.h          llc_view_stream.h             llc_view_tri.h                llc_view_tri2.h
+llc_view_tri3.h               llc_virtual_keyboard.cpp      llc_virtual_keyboard.h        llc_vox.h                     llc_voxel.h
+llc_wifi.cpp                  llc_wifi.h                    llc_window.cpp                llc_window.h                  llc_windows.cpp
+llc_windows.h                 llc_xml_reader.cpp            llc_xml_reader.h              Makefile                      MIGRATION_OVERVIEW.md
+README.md                     rename.bat
+             295 File(s)      1,731,836 bytes
+               2 Dir(s)   3,569,762,304 bytes free
