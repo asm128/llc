@@ -833,9 +833,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="llc_adam7.cpp">
-      <Filter>image</Filter>
-    </ClCompile>
     <ClCompile Include="llc_aes.cpp">
       <Filter>encoding</Filter>
     </ClCompile>
@@ -959,12 +956,6 @@
     <ClCompile Include="llc_path.cpp">
       <Filter>file</Filter>
     </ClCompile>
-    <ClCompile Include="llc_png.cpp">
-      <Filter>image</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_png_write.cpp">
-      <Filter>image</Filter>
-    </ClCompile>
     <ClCompile Include="llc_process.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -1084,6 +1075,15 @@
     </ClCompile>
     <ClCompile Include="llc_debug.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_adam7.cpp">
+      <Filter>image</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_png.cpp">
+      <Filter>image</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_png_write.cpp">
+      <Filter>image</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

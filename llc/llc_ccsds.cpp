@@ -28,7 +28,7 @@ sttc llc::err_t ccsdsPacketHeaders  (llc::au0_t & output, bool telemetry, CCSDS_
         }           secondary   = {subfamily, family};
         llc::reverse<u0_t>({(u0_t*)&secondary, sizeof(secondary)});
         if_fail_fe(savePOD(output, secondary));
-    }    
+    }
     return 0;
 }
 tplt<tpnm _tPayload>

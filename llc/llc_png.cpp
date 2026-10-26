@@ -1,0 +1,1245 @@
+#include "llc_png.h"
+
+#include "llc_view_bit.h"
+#include "llc_view_serialize.h"
+#include "llc_adam7.h"
+#include "llc_file.h"
+#include "llc_bit.h"
+#include "llc_deflate.h"
+
+#include "llc_view_color.h"
+
+LLC_USING_TYPEINT();
+
+using ::llc::be2le;
+
+static	u2_t	g_crc_table[256]		= {};
+static	s2_t	g_crc_table_computed	= 0;
+
+static	s2_t	make_crc_table	() {
+	u2_t n = {}, k = {};
+	for(n = 0; n < 256; ++n) {
+		u2_t c = n;
+		for(k = 0; k < 8; ++k)
+			c = (c & 1) ? 0xedb88320L ^ (c >> 1) : c >> 1;
+		g_crc_table[n] = c;
+	}
+	rtrn g_crc_table_computed = 1;
+}
+
+u2_t llc::update_crc(cnst ::llc::vcu0_t & buffer, u2_t crc) {
+	if(0 == g_crc_table_computed) {
+		cnst s2_t initialized = make_crc_table();
+		(void)initialized;
+		info_printf("Initialized PNG CRC table: %i.", initialized);
+	}
+	for(u2_t iByte = 0; iByte < buffer.size(); ++iByte)
+		crc = g_crc_table[(crc ^ buffer[iByte]) & 0xff] ^ (crc >> 8);
+	rtrn crc;
+}
+
+#ifdef abs
+#	undef abs
+#endif
+
+sttc	llc::err_t	scanLineSizeFromFormat	(s2_t colorType, s2_t bitDepth, s2_t imageWidth)	{
+	s2_t																		scanLineWidth									= imageWidth;
+	switch(bitDepth) {
+	default	  : return -1; // ?? Corrupt file?
+	case	 1: { scanLineWidth /= 8;	if(colorType == 2) { scanLineWidth *= 3; } else if(colorType == 4) { error_printf("Unsupported color type/bit depth combination: %i, %i.", colorType, bitDepth); } else if(colorType == 6) { error_printf("Unsupported color type/bit depth combination: %i, %i.", colorType, bitDepth); }	} break;
+	case	 2: { scanLineWidth /= 4;	if(colorType == 2) { scanLineWidth *= 3; } else if(colorType == 4) { error_printf("Unsupported color type/bit depth combination: %i, %i.", colorType, bitDepth); } else if(colorType == 6) { error_printf("Unsupported color type/bit depth combination: %i, %i.", colorType, bitDepth); }	} break;
+	case	 4: { scanLineWidth /= 2;	if(colorType == 2) { scanLineWidth *= 3; } else if(colorType == 4) { error_printf("Unsupported color type/bit depth combination: %i, %i.", colorType, bitDepth); } else if(colorType == 6) { error_printf("Unsupported color type/bit depth combination: %i, %i.", colorType, bitDepth); }	} break;
+	case	 8: {						if(colorType == 2) { scanLineWidth *= 3; } else if(colorType == 4) { scanLineWidth *= 2; } else if(colorType == 6) { scanLineWidth *= 4; }			} break;
+	case	16: { scanLineWidth *= 2;	if(colorType == 2) { scanLineWidth *= 3; } else if(colorType == 4) { scanLineWidth *= 2; } else if(colorType == 6) { scanLineWidth *= 4; }			} break;
+	}
+
+	switch(bitDepth) {
+	default	  : return scanLineWidth;
+	case	 1: return scanLineWidth + ((imageWidth % 8) ? 1 : 0);
+	case	 2: return scanLineWidth + ((imageWidth % 4) ? 1 : 0);
+	case	 4: return scanLineWidth + ((imageWidth % 2) ? 1 : 0);
+	}
+}
+
+sttc	llc::err_t	pngScanlineDecode_2_8	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t					& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<::llc::crgb8>		viewPixels										= {(::llc::crgb8*)scanline.begin(), scanline.size() / 3};
+		::llc::view<::llc::bgra>			scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::bgra							& pixelOutput									= scanlineOut[iPixel];
+			::llc::crgb8						& pixelInput									= viewPixels[iPixel];
+			pixelOutput						= {pixelInput.b, pixelInput.g, pixelInput.r, 255};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_2_8	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t										& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<::llc::crgb8>					viewPixels										= {(::llc::crgb8*)scanline.begin(), scanline.size() / 3};
+		::llc::vu1_t												scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::crgb8										& pixelInput									= viewPixels[iPixel];
+			scanlineOut[iPixel]									= ::llc::SColorBGR{pixelInput.b, pixelInput.g, pixelInput.r};
+		}
+	}
+	return 0;
+}
+
+static	u0_t			toGrayscale8			(::llc::bgra color)	{ return u0_t (.3f / 255 * color.r + .59f / 255 * color.g + .11f / 255 * color.b) *   255; }
+static	u0_t			toGrayscale8			(::llc::bgr  color)	{ return u0_t (.3f / 255 * color.r + .59f / 255 * color.g + .11f / 255 * color.b) *   255; }
+
+sttc	llc::err_t	pngScanlineDecode_2_8	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<::llc::crgb8>					viewPixels										= {(::llc::crgb8*)scanline.begin(), scanline.size() / 3};
+		::llc::vu0_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::crgb8												& pixelInput									= viewPixels[iPixel];
+			scanlineOut[iPixel]														= ::toGrayscale8(::llc::SColorBGR{pixelInput.b, pixelInput.g, pixelInput.r});
+		}
+	}
+	return 0;
+}
+
+// grayscale 8
+sttc	llc::err_t	pngScanlineDecode_0_8	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::view<::llc::bgra>										scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < scanline.size(); ++iPixel) {
+			::llc::bgra															& pixelOutput									= scanlineOut[iPixel];
+			u0_t																		pixelInput										= scanline[iPixel];
+			pixelOutput																= {pixelInput, pixelInput, pixelInput, 255};
+		}
+	}
+	return 0;
+}
+
+// grayscale 8
+sttc	llc::err_t	pngScanlineDecode_0_8	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::vu0_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < scanline.size(); ++iPixel) {
+			scanlineOut[iPixel]														= scanline[iPixel];
+		}
+	}
+	return 0;
+}
+
+// grayscale 8
+sttc	llc::err_t	pngScanlineDecode_0_8	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitChannel										= 1.0 / 255 * 65535;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::vu1_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < scanline.size(); ++iPixel) {
+			scanlineOut[iPixel]														= (u1_t)(unitChannel * scanline[iPixel]);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_2_16	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitChannel										= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<::llc::crgb16>					viewPixels										= {(::llc::crgb16*)scanline.begin(), scanline.size() / 6};
+		::llc::view<::llc::bgra>										scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::rgb16													pixelInput										= viewPixels[iPixel];
+			be2le(pixelInput.b);
+			be2le(pixelInput.g);
+			be2le(pixelInput.r);
+			::llc::bgra															& pixelOutput									= scanlineOut[iPixel];
+			pixelOutput.b															= (u0_t)(unitChannel * pixelInput.b);
+			pixelOutput.g															= (u0_t)(unitChannel * pixelInput.g);
+			pixelOutput.r															= (u0_t)(unitChannel * pixelInput.r);
+			pixelOutput.a															= 255;
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_2_16	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitChannel										= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<::llc::crgb16>					viewPixels										= {(::llc::crgb16*)scanline.begin(), scanline.size() / 6};
+		::llc::vu1_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::rgb16													pixelInput										= viewPixels[iPixel];
+			be2le(pixelInput.b);
+			be2le(pixelInput.g);
+			be2le(pixelInput.r);
+			::llc::bgra															pixelOutput									= 
+			{ (u0_t)(unitChannel * pixelInput.b)
+			, (u0_t)(unitChannel * pixelInput.g)
+			, (u0_t)(unitChannel * pixelInput.r)
+			, 255
+			};
+			scanlineOut[iPixel]														= ::llc::SColor16(pixelOutput);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_2_16	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitChannel										= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<::llc::crgb16>					viewPixels										= {(::llc::crgb16*)scanline.begin(), scanline.size() / 6};
+		::llc::vu0_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::rgb16													pixelInput										= viewPixels[iPixel];
+			be2le(pixelInput.b);
+			be2le(pixelInput.g);
+			be2le(pixelInput.r);
+			::llc::bgra															pixelOutput									= 
+				{ (u0_t)(unitChannel * pixelInput.b)
+				, (u0_t)(unitChannel * pixelInput.g)
+				, (u0_t)(unitChannel * pixelInput.r)
+				, 255
+				};
+			scanlineOut[iPixel]														= ::toGrayscale8(pixelOutput);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_0_16	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	const double									unitChannel										= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t										& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::vcu1_t										viewPixels										= {(const u1_t*)scanline.begin(), scanline.size() / 2};
+		::llc::view<::llc::bgra>								scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			u1_t												toReverse										= viewPixels[iPixel];
+			be2le(toReverse);
+			u0_t													largeValue										= (u0_t)(unitChannel * toReverse);
+			::llc::bgra												& pixelOutput									= scanlineOut[iPixel];
+			pixelOutput											= {largeValue, largeValue, largeValue, 255};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_0_16	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t			& scanline				= scanlines[iScanline];
+		if(0 == scanline.size())	
+			continue;
+		const ::llc::vcu1_t			viewPixels				= {(const u1_t*)scanline.begin(), scanline.size() / 2};
+		::llc::vu1_t					scanlineOut				= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			u1_t					toReverse				= viewPixels[iPixel];
+			be2le(toReverse);
+			scanlineOut[iPixel]		= toReverse;
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_0_16	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitChannel										= 1.0 / 255 * 65535;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t			& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::vcu1_t			viewPixels										= {(const u1_t*)scanline.begin(), scanline.size() / 2};
+		::llc::vu0_t					scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			u1_t					toReverse										= viewPixels[iPixel];
+			be2le(toReverse);
+			scanlineOut[iPixel]		= u0_t(toReverse * unitChannel);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_6_8	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t			& scanline				= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::vc8rgba		viewPixels				= {(const ::llc::rgba*)scanline.begin(), scanline.size() / 4};
+		::llc::v8bgra				scanlineOut				= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::bgra															& pixelOutput									= scanlineOut[iPixel];
+			const ::llc::rgba8											& pixelInput									= viewPixels[iPixel];
+			pixelOutput																= {pixelInput.b, pixelInput.g, pixelInput.r, pixelInput.a};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_6_8	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t			& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<const ::llc::rgba8>					viewPixels										= {(const ::llc::rgba8*)scanline.begin(), scanline.size() / 4};
+		::llc::vu1_t					scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			const ::llc::rgba8											& pixelInput									= viewPixels[iPixel];
+			scanlineOut[iPixel]														= ::llc::SColorBGR{pixelInput.b, pixelInput.g, pixelInput.r};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_6_8	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<::llc::crgba8>					viewPixels										= {(::llc::crgba8*)scanline.begin(), scanline.size() / 4};
+		::llc::vu0_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			const ::llc::rgba8											& pixelInput									= viewPixels[iPixel];
+			scanlineOut[iPixel]														= ::toGrayscale8(::llc::SColorBGR{pixelInput.b, pixelInput.g, pixelInput.r});
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_6_16	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitChannel										= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<::llc::crgba16>					viewPixels										= {(::llc::crgba16*)scanline.begin(), scanline.size() / 8};
+		::llc::view<::llc::bgra>										scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::color_rgba<u1_t>													colorReversed									= viewPixels[iPixel];
+			be2le(colorReversed.b);
+			be2le(colorReversed.g);
+			be2le(colorReversed.r);
+			be2le(colorReversed.a);
+			::llc::bgra															& pixelOutput									= scanlineOut[iPixel];
+			pixelOutput.b															= (u0_t)(unitChannel * colorReversed.b);
+			pixelOutput.g															= (u0_t)(unitChannel * colorReversed.g);
+			pixelOutput.r															= (u0_t)(unitChannel * colorReversed.r);
+			pixelOutput.a															= (u0_t)(unitChannel * colorReversed.a);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_6_16	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitChannel										= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view<const ::llc::color_rgba<u1_t>>					viewPixels										= {(const ::llc::color_rgba<u1_t>*)scanline.begin(), scanline.size() / 8};
+		::llc::vu1_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::color_rgba<u1_t>													colorReversed									= viewPixels[iPixel];
+			be2le(colorReversed.b);
+			be2le(colorReversed.g);
+			be2le(colorReversed.r);
+			be2le(colorReversed.a);
+			::llc::bgra															pixelOutput									= 
+				{ (u0_t)(unitChannel * colorReversed.b)
+				, (u0_t)(unitChannel * colorReversed.g)
+				, (u0_t)(unitChannel * colorReversed.r)
+				, (u0_t)(unitChannel * colorReversed.a)
+				};
+			scanlineOut[iPixel]														= ::llc::SColor16(pixelOutput);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_6_16	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	const double		unitChannel				= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t			& scanline				= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::v1<const ::llc::rgba16>	viewPixels			= {(const ::llc::rgba16*)scanline.begin(), scanline.size() / 8};
+		::llc::vu0_t					scanlineOut				= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			::llc::color_rgba<u1_t>	colorReversed			= viewPixels[iPixel];
+			be2le(colorReversed.b);
+			be2le(colorReversed.g);
+			be2le(colorReversed.r);
+			be2le(colorReversed.a);
+			::llc::bgra					pixelOutput				= 
+				{ (u0_t)(unitChannel * colorReversed.b)
+				, (u0_t)(unitChannel * colorReversed.g)
+				, (u0_t)(unitChannel * colorReversed.r)
+				, (u0_t)(unitChannel * colorReversed.a)
+				};
+			scanlineOut[iPixel]		= ::toGrayscale8(pixelOutput);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_4_8	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t			& scanline				= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::vcu1_t			viewPixels				= {(const u1_t*)scanline.begin(), scanline.size() / 2};
+		::llc::view<::llc::bgra>	scanlineOut				= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			const u1_t				valueInput				= viewPixels[iPixel];
+			const u0_t				valueGrayscale			= valueInput & 0xFFU;
+			::llc::bgra					& pixelOutput			= scanlineOut[iPixel];
+			pixelOutput				= {valueGrayscale, valueGrayscale, valueGrayscale, (u0_t)((valueInput & 0xFF00U) >> 8)};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_4_8	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t			& scanline				= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+
+		const ::llc::vcu1_t			viewPixels				= {(const u1_t*)scanline.begin(), scanline.size() / 2};
+		::llc::vu1_t					scanlineOut				= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel)
+			scanlineOut[iPixel]		= viewPixels[iPixel];
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_4_8	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t			& scanline				= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::vcu1_t			viewPixels				= {(const u1_t*)scanline.begin(), scanline.size() / 2};
+		::llc::vu0_t					scanlineOut				= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			const u1_t				valueInput				= viewPixels[iPixel];
+			const u0_t				valueGrayscale			= valueInput & 0xFFU;
+			scanlineOut[iPixel]		= u0_t(valueGrayscale / 255.0 * 15) | u0_t(((valueInput & 0xFF00U) >> 8) / 255.0 * 15);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_4_16	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitGreyscale									= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::view<u2_t>													viewPixels										= {(u2_t*)scanline.begin(), scanline.size() / 4};
+		::llc::view<::llc::bgra>										scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			const u2_t																packedValues									= viewPixels[iPixel];
+			u1_t																	valueGrayscale									= (packedValues & 0xFFFFU);
+			u1_t																	valueAlpha										= (packedValues & 0xFFFF0000U) >> 16;
+			be2le(valueGrayscale	);
+			be2le(valueAlpha		);
+			const u0_t																greyFinal										= (u0_t)(unitGreyscale * valueGrayscale);
+			::llc::bgra															& pixelOutput									= scanlineOut[iPixel];
+			pixelOutput																= {greyFinal, greyFinal, greyFinal, (u0_t)(unitGreyscale * valueAlpha)};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_4_16	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitGreyscale									= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::view<u2_t>													viewPixels										= {(u2_t*)scanline.begin(), scanline.size() / 4};
+		::llc::vu1_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			const u2_t																packedValues									= viewPixels[iPixel];
+			u1_t																	valueGrayscale									= (packedValues & 0xFFFFU);
+			u1_t																	valueAlpha										= (packedValues & 0xFFFF0000U) >> 16;
+			be2le(valueGrayscale	);
+			be2le(valueAlpha		);
+			const u0_t																greyFinal										= (u0_t)(unitGreyscale * valueGrayscale);
+			scanlineOut[iPixel]														= u0_t(greyFinal) | (u0_t)(unitGreyscale * valueAlpha);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_4_16	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines)		{
+	stxp	double				unitGreyscale									= 1.0 / 65535 * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::view<u2_t>													viewPixels										= {(u2_t*)scanline.begin(), scanline.size() / 4};
+		::llc::vu0_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
+			const u2_t																packedValues									= viewPixels[iPixel];
+			u1_t																	valueGrayscale									= (packedValues & 0xFFFFU);
+			u1_t																	valueAlpha										= (packedValues & 0xFFFF0000U) >> 16;
+			be2le(valueGrayscale	);
+			be2le(valueAlpha		);
+			const u0_t																greyFinal										= (u0_t)(unitGreyscale * valueGrayscale);
+			scanlineOut[iPixel]														= u0_t(greyFinal / 255.0 * 15) | (u0_t)(unitGreyscale * valueAlpha / 255.0 * 15);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_3_8	(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, const ::llc::view<::llc::bgr>& palette)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::view<::llc::bgra>										scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < scanline.size(); ++iPixel) {
+			u0_t																		paletteIndex									= scanline[iPixel];
+			::llc::bgra															& pixelOutput									= scanlineOut[iPixel];
+			const ::llc::bgr												& pixelInput									= palette[paletteIndex];
+			pixelOutput																= {pixelInput.b, pixelInput.g, pixelInput.r, 255};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_3_8	(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, const ::llc::vbgr & palette)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::vu1_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < scanline.size(); ++iPixel) {
+			u0_t																		paletteIndex									= scanline[iPixel];
+			const ::llc::bgr												& pixelInput									= palette[paletteIndex];
+			::llc::SColorBGR															pixelOutput										= {pixelInput.b, pixelInput.g, pixelInput.r};
+			scanlineOut[iPixel]														= ::llc::SColor16{pixelOutput};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_3_8	(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, const ::llc::vbgr & palette)		{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		::llc::vu0_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < scanline.size(); ++iPixel) {
+			u0_t																		paletteIndex									= scanline[iPixel];
+			const ::llc::bgr												& pixelInput									= palette[paletteIndex];
+			::llc::SColorBGR															pixelOutput										= {pixelInput.b, pixelInput.g, pixelInput.r};
+			scanlineOut[iPixel]														= ::toGrayscale8(pixelOutput);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_3_bits(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, const ::llc::vbgr & palette, u2_t bitDepth)	{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view_bit<const u0_t>										viewPixels										= ::llc::view_bit<const u0_t>{scanline.begin(), out_View.metrics().x * bitDepth};
+		::llc::view<::llc::bgra>										scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < out_View.metrics().x; ++iPixel) {
+			u0_t																		indexPalette									= 0;
+			::llc::view_bit<u0_t>													indexPaletteBits								= {&indexPalette, (u2_t)8};
+			for(u2_t i=0; i < bitDepth; ++i)
+				indexPaletteBits[i]														= viewPixels[bitDepth * iPixel + i];
+
+			const ::llc::bgr												& pixelInput									= (indexPalette >= palette.size()) ? ::llc::bgr{} : palette[indexPalette];
+			::llc::bgra															& pixelOutput									= scanlineOut[iPixel];
+			pixelOutput																= {pixelInput.b, pixelInput.g, pixelInput.r, 255};
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_3_bits(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, const ::llc::vbgr & palette, u2_t bitDepth)	{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view_bit<const u0_t>										viewPixels										= ::llc::view_bit<const u0_t>{scanline.begin(), out_View.metrics().x * bitDepth};
+		::llc::vu1_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < out_View.metrics().x; ++iPixel) {
+			u0_t																		indexPalette									= 0;
+			::llc::view_bit<u0_t>													indexPaletteBits								= {&indexPalette, (u2_t)8};
+			for(u2_t i=0; i < bitDepth; ++i)
+				indexPaletteBits[i]														= viewPixels[bitDepth * iPixel + i];
+
+			const ::llc::bgr												& pixelInput									= (indexPalette >= palette.size()) ? ::llc::bgr{} : palette[indexPalette];
+			::llc::SColorBGR															pixelOutput									= {pixelInput.b, pixelInput.g, pixelInput.r};
+			scanlineOut[iPixel]														= ::llc::SColor16(pixelOutput);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_3_bits(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, const ::llc::vbgr & palette, u2_t bitDepth)	{
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view_bit<const u0_t>										viewPixels										= ::llc::view_bit<const u0_t>{scanline.begin(), out_View.metrics().x * bitDepth};
+		::llc::vu0_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < out_View.metrics().x; ++iPixel) {
+			u0_t																		indexPalette									= 0;
+			::llc::view_bit<u0_t>													indexPaletteBits								= {&indexPalette, (u2_t)8};
+			for(u2_t i=0; i < bitDepth; ++i)
+				indexPaletteBits[i]														= viewPixels[bitDepth * iPixel + i];
+
+			const ::llc::bgr												& pixelInput									= (indexPalette >= palette.size()) ? ::llc::bgr{} : palette[indexPalette];
+			::llc::SColorBGR															pixelOutput									= {pixelInput.b, pixelInput.g, pixelInput.r};
+			scanlineOut[iPixel]														= ::toGrayscale8(pixelOutput);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_0_bits(::llc::g8bgra & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, u2_t bitDepth)	{
+	double																		unitGrayscale									= 1.0 / ((1 << bitDepth) - 1) * 255;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view_bit<const u0_t>										viewPixels										= ::llc::view_bit<const u0_t>{scanline.begin(), out_View.metrics().x * bitDepth};
+		::llc::view<::llc::bgra>										scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < out_View.metrics().x; ++iPixel) {
+			u3_t																	valueGrayscale								= 0;
+			::llc::view_bit<u3_t>													valueGrayscaleBits							= {&valueGrayscale, (u2_t)64};
+			for(u2_t i = 0; i < bitDepth; ++i)
+				valueGrayscaleBits[i]													= viewPixels[bitDepth * iPixel + i];
+
+			::llc::bgra															& pixelOutput									= scanlineOut[iPixel];
+			pixelOutput.r															=
+			pixelOutput.g															=
+			pixelOutput.b															= (1 == bitDepth) ? (u0_t)(valueGrayscale * 255) : (u0_t)(valueGrayscale * unitGrayscale);
+			pixelOutput.a															= 255;
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_0_bits(::llc::gu1_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, u2_t bitDepth)	{
+	double																		unitGrayscale									= 1.0 / ((1 << bitDepth) - 1) * 65535;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view_bit<const u0_t>										viewPixels										= ::llc::view_bit<const u0_t>{scanline.begin(), out_View.metrics().x * bitDepth};
+		::llc::vu1_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < out_View.metrics().x; ++iPixel) {
+			u3_t																	valueGrayscale								= 0;
+			::llc::view_bit<u3_t>													valueGrayscaleBits							= {&valueGrayscale, (u2_t)64};
+			for(u2_t i = 0; i < bitDepth; ++i)
+				valueGrayscaleBits[i]													= viewPixels[bitDepth * iPixel + i];
+
+			scanlineOut[iPixel]														= (1 == bitDepth) ? (u1_t)valueGrayscale : (u1_t)(valueGrayscale * unitGrayscale);
+		}
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDecode_0_bits(::llc::gu0_t & out_View, const ::llc::view<const ::llc::au0_t> & scanlines, u2_t bitDepth)	{
+	double																		unitGrayscale									= 1.0 / ((1 << bitDepth) - 1) * 65535;
+	for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+		const ::llc::au0_t												& scanline										= scanlines[iScanline];
+		if(0 == scanline.size())
+			continue;
+		const ::llc::view_bit<const u0_t>										viewPixels										= ::llc::view_bit<const u0_t>{scanline.begin(), out_View.metrics().x * bitDepth};
+		::llc::vu0_t													scanlineOut										= out_View[iScanline];
+		for(u2_t iPixel = 0; iPixel < out_View.metrics().x; ++iPixel) {
+			u3_t																	valueGrayscale								= 0;
+			::llc::view_bit<u3_t>													valueGrayscaleBits							= {&valueGrayscale, (u2_t)64};
+			for(u2_t i = 0; i < bitDepth; ++i)
+				valueGrayscaleBits[i]													= viewPixels[bitDepth * iPixel + i];
+
+			scanlineOut[iPixel]														= (1 == bitDepth) ? (u0_t)valueGrayscale : (u0_t)(valueGrayscale * unitGrayscale);
+		}
+	}
+	return 0;
+}
+
+// const llc::function & pngScanlineDecode_2_8;
+// const llc::function & pngScanlineDecode_4_8;
+// const llc::function & pngScanlineDecode_6_8;
+// const llc::function & pngScanlineDecode_3_8;
+
+tplt<tpnm _tPixel>
+sttc	llc::err_t	pngDecode
+	( const s2_t							bitDepth
+	, const s2_t							colorType
+	, const ::llc::view<const ::llc::au0_t>	& scanlines
+	, const ::llc::vbgr						& palette
+	, ::llc::grid<_tPixel>				& out_View
+	) {
+	switch(colorType) {
+	default: error_printf("Invalid color type: %u.", colorType); return -1;
+	case  2: if_true_fef(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_2_8(out_View, scanlines)			: ::pngScanlineDecode_2_16  (out_View, scanlines);
+	case  4: if_true_fef(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_4_8(out_View, scanlines)			: ::pngScanlineDecode_4_16  (out_View, scanlines);
+	case  6: if_true_fef(bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);									return (bitDepth == 8) ? ::pngScanlineDecode_6_8(out_View, scanlines)			: ::pngScanlineDecode_6_16  (out_View, scanlines);
+	case  3: if_true_fef(bitDepth != 1 && bitDepth != 2 && bitDepth != 4 && bitDepth != 8, "Invalid bit depth: %u.", bitDepth);	return (bitDepth == 8) ? ::pngScanlineDecode_3_8(out_View, scanlines, palette)	: ::pngScanlineDecode_3_bits(out_View, scanlines, palette, bitDepth);
+	case  0: if_true_fef(bitDepth != 1 && bitDepth != 2 && bitDepth != 4 && bitDepth != 8 && bitDepth != 16, "Invalid bit depth: %u.", bitDepth);
+		 if(bitDepth == 8)
+			return ::pngScanlineDecode_0_8(out_View, scanlines);
+		else
+			return (bitDepth == 16) ? ::pngScanlineDecode_0_16(out_View, scanlines) : ::pngScanlineDecode_0_bits(out_View, scanlines, bitDepth);
+	} // switch(colorType
+}
+
+tplt<tpnm _tPixel>
+sttc	llc::err_t	pngDecodeInterlaced
+	( const s2_t							bitDepth
+	, const s2_t							colorType
+	, const ::llc::view<const ::llc::au0_t>	& scanlines
+	, const ::llc::vbgr						& palette
+	, const ::llc::view<const ::llc::n2u2_t>	& imageSizes
+	, ::llc::grid<_tPixel>				& out_View
+	) {
+	::llc::img<_tPixel>			adam7			[7]		= {};
+	u2_t					offsetScanline			= 0;
+	for(u2_t iImage = 0; iImage < imageSizes.size(); ++iImage) {
+		const ::llc::n2u2_t			currentImageSize		= imageSizes[iImage];
+		adam7[iImage].resize(currentImageSize);
+		if(0 == adam7[iImage].Texels.size())
+			continue;
+		const ::llc::view<const::llc::au0_t>	currentScanlineSet	= {&scanlines[offsetScanline], currentImageSize.y};
+		switch(colorType) {
+		case 0: // grayscale
+			 if(bitDepth == 8) {
+				 if_fail_fe(::pngScanlineDecode_0_8(adam7[iImage].View, currentScanlineSet));
+			}
+			else if(bitDepth == 16) {
+				if_fail_fe(::pngScanlineDecode_0_16(adam7[iImage].View, currentScanlineSet));
+			}
+			else  if(bitDepth == 4 || bitDepth == 2 || bitDepth == 1) {
+				if_fail_fe(::pngScanlineDecode_0_bits(adam7[iImage].View, currentScanlineSet, bitDepth));
+			}
+			break;
+		case 2: // RGB
+			if(bitDepth == 8) {
+				if_fail_fe(::pngScanlineDecode_2_8(adam7[iImage].View, currentScanlineSet));
+			}
+			else if(bitDepth == 16) {
+				if_fail_fe(::pngScanlineDecode_2_16(adam7[iImage].View, currentScanlineSet));
+			}
+			break;
+		case 3: // Palette
+			if(bitDepth == 8) {
+				if_fail_fe(::pngScanlineDecode_3_8(adam7[iImage].View, currentScanlineSet, palette));
+			}
+			else if(bitDepth == 4 || bitDepth == 2 || bitDepth == 1) {
+				if_fail_fe(::pngScanlineDecode_3_bits(adam7[iImage].View, currentScanlineSet, palette, bitDepth));
+			}
+			break;
+		case 4: // Grayscale + Alpha
+			if(bitDepth == 8) {
+				if_fail_fe(::pngScanlineDecode_4_8(adam7[iImage].View, currentScanlineSet));
+			}
+			else if(bitDepth == 16) {
+				if_fail_fe(::pngScanlineDecode_4_16(adam7[iImage].View, currentScanlineSet));
+			}
+			break;
+		case 6: // RGBA
+			if(bitDepth == 8) {
+				if_fail_fe(::pngScanlineDecode_6_8(adam7[iImage].View, currentScanlineSet));
+			}
+			else if(bitDepth == 16) {
+				if_fail_fe(::pngScanlineDecode_6_16(adam7[iImage].View, currentScanlineSet));
+			}
+			break;
+		} // switch(colorType)
+		offsetScanline			+= currentImageSize.y;
+	}
+	return ::llc::adam7Interlace(::llc::view<::llc::img<_tPixel>>{adam7}, out_View);
+}
+
+
+sttc	llc::err_t	scanlineBitDecodeOrder
+	( const s2_t				bitDepth
+	, ::llc::view<::llc::au0_t>	scanlines
+	) {
+	if(bitDepth <= 4)
+		for(u2_t iScanline = 0; iScanline < scanlines.size(); ++iScanline) {
+			::llc::au0_t				& scanline					= scanlines[iScanline];
+			for(u2_t iByte = 0; iByte < scanline.size(); ++iByte) {
+				u0_t					& pixel						= scanline[iByte];
+				pixel				= ::llc::reverse_bitfield(pixel, bitDepth);
+			}
+		}
+	return 0;
+}
+
+sttc	llc::err_t	pngActualFileLoad		(const ::llc::vcu0_t & source, ::llc::SPNGData & pngData, ::llc::au2_t & indicesIDAT)	{
+	pngData.Feature			= {};
+	memset(pngData.Signature, 0, ::llc::size(pngData.Signature));
+	::llc::clear
+		( pngData.Deflated
+		, pngData.Inflated
+		, pngData.Filters
+		, pngData.Chunks
+		, pngData.Palette
+		);
+	memset(pngData.Adam7Sizes, 0, ::llc::size(pngData.Adam7Sizes) * sizeof(::llc::n2u2_t));
+	pngData.Header			= {};
+
+	::llc::vcu0_t pngStream = source;
+	if_fail_fef(::llc::loadPOD(pngStream, pngData.Signature), "%s", "Failed to read PNG signature.");
+	if_true_fef(0 != memcmp(pngData.Signature, "\x89PNG\r\n\x1A\n", ::llc::size(pngData.Signature)), "%s", "Invalid PNG signature.");
+	while(pngStream.size()) {
+		::llc::SPNGChunk			chunkRead				= {};
+		u2_t					sizeChunk				= 0;
+		if_fail_fef(::llc::loadPOD(pngStream, sizeChunk), "%s", "Failed to read PNG chunk size.");
+		cnst ::llc::vcu0_t			crcData					= pngStream;
+		if_fail_fef(::llc::loadPOD(pngStream, chunkRead.Type), "%s", "Failed to read PNG chunk type.");
+		be2le(sizeChunk);
+		if_true_fef(sizeChunk > (0x7FFFFFFF >> 2), "%s", "Chunk too large! Corrupt file?");
+		if_true_fef(pngStream.size() < sizeChunk + 4U, "Chunk size:%u, remaining bytes:%u.", sizeChunk, pngStream.size());
+		if_fail_fef(chunkRead.Data.resize(sizeChunk), "Out of memory? Chunk size: %u.", sizeChunk);
+		if(sizeChunk) {
+			memcpy(chunkRead.Data.begin(), pngStream.begin(), sizeChunk);
+		}
+		if_fail_fe(pngStream.slice(pngStream, sizeChunk));
+		if_fail_fef(::llc::loadPOD(pngStream, chunkRead.CRC), "%s", "Failed to read PNG chunk CRC.");
+		be2le(chunkRead.CRC);
+		u2_t					crcGenerated			= ::llc::get_crc({crcData.begin(), sizeChunk + 4});
+		if_true_ef(crcGenerated != chunkRead.CRC, "Invalid CRC: File: %X, Generated: %X.", chunkRead.CRC, crcGenerated);
+		if_fail_fe(pngData.Chunks.push_back(chunkRead));
+		if_null_bef(memcmp(chunkRead.Type, "IEND", 4), "%s", "Found IEND chunk (image end).");
+	}
+
+	::llc::SPNGIHDR						& imageHeader	= pngData.Header;
+	::llc::a8bgr						& palette		= pngData.Palette;
+	for(u2_t iChunk = 0; iChunk < pngData.Chunks.size(); ++iChunk) {
+		const ::llc::SPNGChunk				& newChunk		= pngData.Chunks[iChunk];
+		verbose_printf("Found chunk of type: %c%c%c%c. Data size: %u.", newChunk.Type[0], newChunk.Type[1], newChunk.Type[2], newChunk.Type[3], (u2_t)newChunk.Data.size());
+			 if(0 == memcmp(newChunk.Type, "IDAT", 4)) { indicesIDAT.push_back(iChunk); }
+		else if(0 == memcmp(newChunk.Type, "IHDR", 4)) {
+			if_true_fef(newChunk.Data.size() != szof(::llc::SPNGIHDR), "Invalid IHDR size: %u.", newChunk.Data.size());
+			memcpy(&imageHeader, newChunk.Data.begin(), szof(::llc::SPNGIHDR));
+			be2le(imageHeader.Size.x);
+			be2le(imageHeader.Size.y);
+		}
+		else if(0 == memcmp(newChunk.Type, "PLTE", 4)) {
+			u2_t							colorCount		= newChunk.Data.size() / 3;
+			if(colorCount) {
+				verbose_printf("Loading palette of %u colors.", colorCount);
+				if_fail_fe(palette.resize(colorCount));
+				const ::llc::rgb					* pngPalette	= (::llc::rgb*)newChunk.Data.begin();
+				for(u2_t iColor = 0; iColor < colorCount; ++iColor) {
+					palette[iColor].b				= pngPalette[iColor].b;
+					palette[iColor].g				= pngPalette[iColor].g;
+					palette[iColor].r				= pngPalette[iColor].r;
+				}
+			}
+		}
+		else if(0 == memcmp(newChunk.Type, "tEXt", 4)) { 	// Can store text that can be represented in ISO/IEC 8859-1, with one key-value pair for each chunk. The "key" must be between 1 and 79 characters long. Separator is a null character. The "value" can be any length, including zero up to the maximum permissible chunk size minus the length of the keyword and separator. Neither "key" nor "value" can contain null character. Leading or trailing spaces are also disallowed.
+			if_true_fef(0 == newChunk.Data.size(), "%s", "Empty tEXt chunk.");
+			cnst sc_t					* keyBegin										= (cnst sc_t*)newChunk.Data.begin();
+			cnst sc_t					* separator										= (cnst sc_t*)memchr(keyBegin, 0, newChunk.Data.size());
+			if_null_fef(separator, "%s", "tEXt chunk has no keyword separator.");
+			u2_t							keyLength										= (u2_t)(separator - keyBegin);
+			if_true_fef(0 == keyLength || keyLength > 79, "Invalid tEXt keyword length: %u.", keyLength);
+			verbose_printf("Text Key: %.*s.", (int)keyLength, keyBegin);
+			u2_t							valueLength										= newChunk.Data.size() - (keyLength + 1);
+			::llc::apod<sc_t>					value;
+			if_fail_fe(value.resize(valueLength + 1));
+			value[valueLength]				= 0;
+			memcpy(&value[0], separator + 1, valueLength);
+			verbose_printf("Text: %s.", value.begin());
+			if(-1 == pngData.Feature[::llc::PNG_TAG_tEXt])
+				pngData.Feature[::llc::PNG_TAG_tEXt] = iChunk;
+
+		}
+		else if(0 == memcmp(newChunk.Type, "zTXt", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_zTXt]) pngData.Feature[::llc::PNG_TAG_zTXt] = iChunk; }	// Contains compressed text (and a compression method marker) with the same limits as tEXt.
+		else if(0 == memcmp(newChunk.Type, "bKGD", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_bKGD]) pngData.Feature[::llc::PNG_TAG_bKGD] = iChunk; }	// Gives the default background color. It is intended for use when there is no better choice available, such as in standalone image viewers (but not web browsers; see below for more details).
+		else if(0 == memcmp(newChunk.Type, "cHRM", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_cHRM]) pngData.Feature[::llc::PNG_TAG_cHRM] = iChunk; }	// Gives the chromaticity coordinates of the display primaries and white point.
+		else if(0 == memcmp(newChunk.Type, "dSIG", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_dSIG]) pngData.Feature[::llc::PNG_TAG_dSIG] = iChunk; }	// Is for storing digital signatures.[13]
+		else if(0 == memcmp(newChunk.Type, "eXIf", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_eXIf]) pngData.Feature[::llc::PNG_TAG_eXIf] = iChunk; }	// Stores Exif metadata.[14]
+		else if(0 == memcmp(newChunk.Type, "gAMA", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_gAMA]) pngData.Feature[::llc::PNG_TAG_gAMA] = iChunk; }	// Specifies gamma.
+		else if(0 == memcmp(newChunk.Type, "hIST", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_hIST]) pngData.Feature[::llc::PNG_TAG_hIST] = iChunk; }	// Can store the histogram, or total amount of each color in the image.
+		else if(0 == memcmp(newChunk.Type, "iCCP", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_iCCP]) pngData.Feature[::llc::PNG_TAG_iCCP] = iChunk; }	// Is an ICC color profile.
+		else if(0 == memcmp(newChunk.Type, "iTXt", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_iTXt]) pngData.Feature[::llc::PNG_TAG_iTXt] = iChunk; }	// Contains a keyword and UTF-8 text, with encodings for possible compression and translations marked with language tag. The Extensible Metadata Platform (XMP) uses this chunk with a keyword 'XML:com.adobe.xmp'
+		else if(0 == memcmp(newChunk.Type, "pHYs", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_pHYs]) pngData.Feature[::llc::PNG_TAG_pHYs] = iChunk; }	// Holds the intended pixel size and/or aspect ratio of the image.
+		else if(0 == memcmp(newChunk.Type, "sBIT", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_sBIT]) pngData.Feature[::llc::PNG_TAG_sBIT] = iChunk; }	// (significant bits) indicates the color-accuracy of the source data.
+		else if(0 == memcmp(newChunk.Type, "sPLT", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_sPLT]) pngData.Feature[::llc::PNG_TAG_sPLT] = iChunk; }	// Suggests a palette to use if the full range of colors is unavailable.
+		else if(0 == memcmp(newChunk.Type, "sRGB", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_sRGB]) pngData.Feature[::llc::PNG_TAG_sRGB] = iChunk; }	// Indicates that the standard sRGB color space is used.
+		else if(0 == memcmp(newChunk.Type, "sTER", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_sTER]) pngData.Feature[::llc::PNG_TAG_sTER] = iChunk; }	// Stereo-image indicator chunk for stereoscopic images.[15]
+		else if(0 == memcmp(newChunk.Type, "tIME", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_tIME]) pngData.Feature[::llc::PNG_TAG_tIME] = iChunk; }	// Stores the time that the image was last changed.
+		else if(0 == memcmp(newChunk.Type, "tRNS", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_tRNS]) pngData.Feature[::llc::PNG_TAG_tRNS] = iChunk; }	// Contains transparency information. For indexed images, it stores alpha channel values for one or more palette entries. For truecolor and grayscale images, it stores a single pixel value that is to be regarded as fully transparent.
+		else if(0 == memcmp(newChunk.Type, "fcTL", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_fcTL]) pngData.Feature[::llc::PNG_TAG_fcTL] = iChunk; }	// The frame control chunk contains several bits of information, the most important of which is the display time of the following frame.
+		else if(0 == memcmp(newChunk.Type, "fdAT", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_fdAT]) pngData.Feature[::llc::PNG_TAG_fdAT] = iChunk; }	// The frame data chunks have the same structure as the IDAT chunks, except preceded by a sequence number.
+		else if(0 == memcmp(newChunk.Type, "acTL", 4)) { if(-1 == pngData.Feature[::llc::PNG_TAG_acTL]) pngData.Feature[::llc::PNG_TAG_acTL] = iChunk; verbose_printf("%s", "This is an animated PNG."); }	// The animation control chunk is a kind of "marker" chunk, telling the parser that this is an animated png.
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngDefilterSub			(::llc::vu0_t & scanline, u2_t bpp)										{ for(u2_t iByte = bpp	; iByte < scanline.size(); ++iByte) scanline[iByte] += scanline[iByte - bpp];	return 0; }
+sttc	llc::err_t	pngDefilterUp			(::llc::vu0_t & scanline, const ::llc::vcu0_t & scanlinePrevious)				{ for(u2_t iByte = 0	; iByte < scanline.size(); ++iByte) scanline[iByte] += scanlinePrevious[iByte];	return 0; }
+sttc	llc::err_t	pngDefilterAverage		(::llc::vu0_t & scanline, const ::llc::vcu0_t & scanlinePrevious, u2_t bpp)	{
+	if(scanlinePrevious.size()) {
+		for(u2_t iByte = 0; iByte < bpp; ++iByte)
+			scanline[iByte]			+= ((u2_t)scanlinePrevious[iByte] / 2) & 0xFFU;
+		for(u2_t iByte = bpp; iByte < scanline.size(); ++iByte)
+			scanline[iByte]			+= (((u2_t)scanline[iByte - bpp] + scanlinePrevious[iByte]) / 2) & 0xFFU;
+	} else {
+		for(u2_t iByte = bpp; iByte < scanline.size(); ++iByte)
+			scanline[iByte]			+= ((u2_t)scanline[iByte - bpp] / 2) & 0xFFU;
+	}
+	return 0;
+}
+
+sttc	llc::err_t	paethPredictor			(s2_t left, s2_t above, s2_t upperleft)	{
+	s2_t						p						= left + above - upperleft;	// initial estimate
+	s2_t						pa						= ::llc::abs(int(p - left		)); // distances to a, b, c
+	s2_t						pb						= ::llc::abs(int(p - above		)); // a = left, b = above, c = upper left
+	s2_t						pc						= ::llc::abs(int(p - upperleft	)); //
+	if (pa <= pb && pa <= pc)	// return nearest of a,b,c, breaking ties in order a,b,c.
+		return left;
+	return (pb <= pc) ? above : upperleft;
+}
+
+sttc	llc::err_t	pngDefilterPaeth		(::llc::vu0_t & scanline, const ::llc::vcu0_t & scanlinePrevious, u2_t bpp) {
+	if(scanlinePrevious.size()) {
+		for(u2_t iByte = 0; iByte < bpp; ++iByte)
+			scanline[iByte]			+= ::paethPredictor(0, scanlinePrevious[iByte], 0) & 0xFFU;
+		for(u2_t iByte = bpp; iByte < scanline.size(); ++iByte)
+			scanline[iByte]			+= ::paethPredictor(scanline[iByte - bpp], scanlinePrevious[iByte], scanlinePrevious[iByte - bpp]) & 0xFFU;
+	} else {
+		for(u2_t iByte = bpp; iByte < scanline.size(); ++iByte)
+			scanline[iByte]			+= ::paethPredictor(scanline[iByte - bpp], 0, 0) & 0xFFU;
+	}
+	return 0;
+}
+
+sttc	llc::err_t	pngScanlineDefilter		(const ::llc::vcu0_t & scanlineFilters, const ::llc::n2u2_t & imageSize, u2_t bytesPerPixel, ::llc::view<::llc::au0_t> scanlines) {
+	if_true_fef(scanlineFilters.size() != scanlines.size() || scanlineFilters.size() != imageSize.y, "Invalid scanline/filter count: filters:%u, scanlines:%u, height:%u.", scanlineFilters.size(), scanlines.size(), imageSize.y);
+	::llc::apod<bool>			filteredScanlines;
+	if_fail_fe(filteredScanlines.resize(scanlineFilters.size(), false));
+	if(scanlineFilters.size())
+		switch(scanlineFilters[0]) {
+		case 0: 														filteredScanlines[0] = true; break;
+		case 1: ::pngDefilterSub	(scanlines[0], bytesPerPixel);		filteredScanlines[0] = true; break;
+		case 2: /* nothing to do when there is no "up" scanline */		filteredScanlines[0] = true; break;
+		case 3: ::pngDefilterAverage(scanlines[0], {}, bytesPerPixel);	filteredScanlines[0] = true; break;
+		case 4: ::pngDefilterPaeth	(scanlines[0], {}, bytesPerPixel);	filteredScanlines[0] = true; break;
+		default: if_true_fef(true, "Invalid filter: %u! Corrupt png file?", (u2_t)scanlineFilters[0]);
+		}
+
+	for(u2_t iScanline = 0; iScanline < filteredScanlines.size(); ++iScanline)
+		if(scanlineFilters[iScanline] == 0)
+			filteredScanlines[iScanline]	= true;
+
+	for(u2_t y = 1; y < imageSize.y; ++y)
+		if(scanlineFilters[y] == 1) {
+			::pngDefilterSub(scanlines[y], bytesPerPixel);
+			filteredScanlines[y]	= true;
+		}
+
+	u2_t					countPasses				= 0;
+	while(true) {
+		bool						filterPass				= false;
+		for(u2_t iScanline = 0; iScanline < filteredScanlines.size(); ++iScanline)
+			if(false == filteredScanlines[iScanline]) {
+				filterPass				= true;
+				break;
+			}
+		if(false == filterPass)
+			break;
+
+		++countPasses;
+		for(u2_t y = 1; y < imageSize.y; ++y) {
+			if(false == filteredScanlines[y] && filteredScanlines[y - 1]) {
+					 if(scanlineFilters[y] == 2) { ::pngDefilterUp		(scanlines[y], scanlines[y - 1]);					filteredScanlines[y] = true; }
+				else if(scanlineFilters[y] == 3) { ::pngDefilterAverage	(scanlines[y], scanlines[y - 1], bytesPerPixel);	filteredScanlines[y] = true; }
+				else if(scanlineFilters[y] == 4) { ::pngDefilterPaeth	(scanlines[y], scanlines[y - 1], bytesPerPixel);	filteredScanlines[y] = true; }
+				else
+					if_true_fef(scanlineFilters[y] > 4, "Invalid filter: %u! Corrupt png file?", (u2_t)scanlineFilters[y]);
+			}
+		}
+	}
+	if_true_ef(countPasses > 1, "Decoding passess executed: %u.", countPasses);
+	return 0;
+}
+
+sttc	llc::err_t	pngBytesPerPixel			(s2_t colorType, s2_t bitDepth)					{
+	switch(colorType) {
+	default: return -1;					
+	case  3: return 1;							// palette 8-bit 
+	case  0: return (bitDepth == 16) ? 2 : 1;	// grayscale 8 or 16 bit per channel
+	case  2: return (bitDepth == 16) ? 6 : 3;	// rgb 8 or 16 bit per channel
+	case  4: return (bitDepth == 16) ? 4 : 2;	// grayscale w/alpha 8 or 16 bit per channel
+	case  6: return (bitDepth == 16) ? 8 : 4;	// rgba 8 or 16 bit per channel
+	}
+}
+
+sttc	llc::err_t	defilterInterlaced			(::llc::SPNGData & pngData)									{
+	const ::llc::SPNGIHDR		& imageHeader				= pngData.Header;
+	const ::llc::n2u2_t			& imageSize					= imageHeader.Size;
+	::llc::aobj<::llc::au0_t>		& scanlines					= pngData.Scanlines;
+	::llc::view<::llc::n2u2_t>	imageSizes					= pngData.Adam7Sizes;
+	::llc::adam7Sizes(imageSizes, imageSize);
+
+	u2_t					totalScanlines				= 0;
+	for(u2_t iImage = 0; iImage < 7; ++iImage)
+		totalScanlines			+= imageSizes[iImage].y;
+	if_fail_fe(scanlines.resize(totalScanlines)			);
+	if_fail_fe(pngData.Filters.resize(scanlines.size())	);
+	u2_t					offsetByte					= 0;
+	u2_t					offsetScanline				= 0;
+	const llc::err_t		bytesPerPixel				= ::pngBytesPerPixel(imageHeader.ColorType, imageHeader.BitDepth);
+	if_fail_fef(bytesPerPixel, "Invalid format! Color Type: %u. Bit Depth: %u.", (u2_t)imageHeader.ColorType, (u2_t)imageHeader.BitDepth);
+	for(u2_t iImage = 0; iImage < 7; ++iImage) {
+		u2_t					widthScanlineCurrent		= ::scanLineSizeFromFormat(imageHeader.ColorType, imageHeader.BitDepth, imageSizes[iImage].x);
+		verbose_printf("Image: %u. Scanline size: %u.", iImage, widthScanlineCurrent);
+		const ::llc::n2u2_t			currentImageSize			= imageSizes[iImage];
+		for(u2_t y = 0; y < currentImageSize.y; ++y) {
+			const s2_t				currentScanline				= offsetScanline + y;
+			pngData.Filters[currentScanline]	= pngData.Inflated[offsetByte + y * widthScanlineCurrent + y];
+			verbose_printf("Filter for scanline %u: %u", y, (u2_t)pngData.Filters[currentScanline]);
+			if_fail_fe	(scanlines[currentScanline].resize(widthScanlineCurrent));
+			memcpy		(scanlines[currentScanline].begin(), &pngData.Inflated[offsetByte + y * widthScanlineCurrent + y + 1], widthScanlineCurrent);
+		}
+
+		if(currentImageSize.y) {
+			if_fail_fe(::pngScanlineDefilter({&pngData.Filters[offsetScanline], currentImageSize.y}, currentImageSize, bytesPerPixel, {&scanlines[offsetScanline], currentImageSize.y}));
+			if(imageHeader.BitDepth < 8 && (imageHeader.ColorType == 3 || imageHeader.ColorType == 0)) { // Decode pixel ordering for bit depths of 1, 2 and 4 bits
+				if(widthScanlineCurrent)
+					::scanlineBitDecodeOrder(imageHeader.BitDepth, {&scanlines[offsetScanline], currentImageSize.y});
+			}
+			if(widthScanlineCurrent)
+				offsetByte				+= (widthScanlineCurrent + 1) * currentImageSize.y;
+			offsetScanline			+= currentImageSize.y;
+		}
+	}
+	return 0;
+}
+
+stin	::llc::err_t	pngFilePrintInfo			(::llc::SPNGData & pngData) {
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	verbose_printf("----- PNG File Info summary: "
+		"\nSize                 : {%u,  %u}."
+		"\nBit Depth            : 0x%X."
+		"\nColor Type           : 0x%X."
+		"\nCompression          : 0x%X."
+		"\nFilter               : 0x%X."
+		"\nInterlace            : 0x%X."
+		"\nInflated size        : %u."
+		"\nDeflated size        : %u."
+		, imageHeader.Size.x, imageHeader.Size.y
+		, (u2_t)imageHeader.BitDepth
+		, (u2_t)imageHeader.ColorType
+		, (u2_t)imageHeader.MethodCompression
+		, (u2_t)imageHeader.MethodFilter
+		, (u2_t)imageHeader.MethodInterlace
+		, pngData.Inflated.size()
+		, pngData.Deflated.size()
+		);
+	return 0;
+}
+
+sttc	llc::err_t	defilterNonInterlaced		(::llc::SPNGData & pngData, u2_t bytesPerPixel) {
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	::llc::aobj<::llc::au0_t>		& scanlines					= pngData.Scanlines;
+	pngData.Filters.clear();
+	scanlines.resize(imageHeader.Size.y);
+	u2_t					widthScanline				= ::scanLineSizeFromFormat(imageHeader.ColorType, imageHeader.BitDepth, imageHeader.Size.x);
+	verbose_printf("Scanline size: %u.", widthScanline);
+	for(u2_t y = 0; y < imageHeader.Size.y; ++y) {
+		pngData.Filters.push_back(pngData.Inflated[y * widthScanline + y]);
+		verbose_printf("Filter for scanline %u: %u", y, (u2_t)pngData.Filters[y]);
+		if_fail_fe(scanlines[y].resize(widthScanline));
+		memcpy(scanlines[y].begin(), &pngData.Inflated[y * widthScanline + y + 1], widthScanline);
+	}
+	if_fail_fe(::pngScanlineDefilter(pngData.Filters, imageHeader.Size, bytesPerPixel, scanlines));
+	if(imageHeader.ColorType == 3 || imageHeader.ColorType == 0) // Decode pixel ordering for bit depths of 1, 2 and 4 bits
+		return ::scanlineBitDecodeOrder(imageHeader.BitDepth, pngData.Scanlines);
+
+	return 0;
+}
+
+::llc::err_t			llc::pngDecode				(::llc::SPNGData & pngData, ::llc::img8bgra & out_Texture) {
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	if_fail_fe(out_Texture.resize(imageHeader.Size));
+	return llc::pngDecode(pngData, out_Texture.View);
+}
+::llc::err_t			llc::pngDecode				(::llc::SPNGData & pngData, ::llc::imgu1_t & out_Texture) {
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	if_fail_fe(out_Texture.resize(imageHeader.Size));
+	return llc::pngDecode(pngData, out_Texture.View);
+}
+::llc::err_t			llc::pngDecode				(::llc::SPNGData & pngData, ::llc::imgu0_t & out_Texture) {
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	if_fail_fe(out_Texture.resize(imageHeader.Size));
+	return llc::pngDecode(pngData, out_Texture.View);
+}
+
+::llc::err_t			llc::pngDecode				(::llc::SPNGData & pngData, ::llc::g8bgra out_Texture) {
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	if(imageHeader.MethodInterlace)
+		return ::pngDecodeInterlaced
+			( pngData.Header.BitDepth
+			, pngData.Header.ColorType
+			, pngData.Scanlines
+			, pngData.Palette
+			, pngData.Adam7Sizes
+			, out_Texture
+			);
+	else
+		return ::pngDecode
+			( pngData.Header.BitDepth
+			, pngData.Header.ColorType
+			, pngData.Scanlines
+			, pngData.Palette
+			, out_Texture
+			);
+}
+
+::llc::err_t			llc::pngDecode				(::llc::SPNGData & pngData, ::llc::gu1_t out_Texture) {
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	if(imageHeader.MethodInterlace)
+		return ::pngDecodeInterlaced
+			( pngData.Header.BitDepth
+			, pngData.Header.ColorType
+			, pngData.Scanlines
+			, pngData.Palette
+			, pngData.Adam7Sizes
+			, out_Texture
+			);
+	else
+		return ::pngDecode
+			( pngData.Header.BitDepth
+			, pngData.Header.ColorType
+			, pngData.Scanlines
+			, pngData.Palette
+			, out_Texture
+			);
+}
+
+::llc::err_t			llc::pngDecode				(::llc::SPNGData & pngData, ::llc::gu0_t out_Texture) {
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	if(imageHeader.MethodInterlace)
+		return ::pngDecodeInterlaced
+			( pngData.Header.BitDepth
+			, pngData.Header.ColorType
+			, pngData.Scanlines
+			, pngData.Palette
+			, pngData.Adam7Sizes
+			, out_Texture
+			);
+	else
+		return ::pngDecode
+			( pngData.Header.BitDepth
+			, pngData.Header.ColorType
+			, pngData.Scanlines
+			, pngData.Palette
+			, out_Texture
+			);
+}
+
+::llc::err_t	llc::pngDecode	(::llc::SPNGData & pngData, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) { if_fail_fe(out_Data.resize(pngData.Header.Size.Area() * sizeof(::llc::bgra))); return ::llc::pngDecode(pngData, out_View = {(::llc::bgra*)out_Data.begin(), pngData.Header.Size}); }
+::llc::err_t	llc::pngDecode	(::llc::SPNGData & pngData, ::llc::au0_t & out_Data, ::llc::gu1_t   & out_View) { if_fail_fe(out_Data.resize(pngData.Header.Size.Area() * sizeof(::llc::u1_t ))); return ::llc::pngDecode(pngData, out_View = {(::llc::u1_t *)out_Data.begin(), pngData.Header.Size}); }
+::llc::err_t	llc::pngDecode	(::llc::SPNGData & pngData, ::llc::au0_t & out_Data, ::llc::gu0_t    & out_View) { if_fail_fe(out_Data.resize(pngData.Header.Size.Area() * sizeof(::llc::u0_t  ))); return ::llc::pngDecode(pngData, out_View = {(::llc::u0_t  *)out_Data.begin(), pngData.Header.Size}); }
+::llc::err_t	llc::pngDecode	(::llc::SPNGData & pngData, ::llc::au0_t & out_Data) { if_fail_fe(out_Data.resize(pngData.Header.Size.Area() * sizeof(::llc::bgra))); return ::llc::pngDecode(pngData, {(::llc::bgra*)out_Data.begin(), pngData.Header.Size}); }
+
+
+#if defined(LLC_ESP32) || defined(LLC_ARDUINO)
+stxp	u2_t		DEFLATE_CHUNK_SIZE			= 1024 * 1;
+stxp	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
+#else
+stxp	u2_t		DEFLATE_CHUNK_SIZE			= 1024 * 1024 * 1;
+stxp	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
+#endif
+::llc::err_t			llc::pngFileLoad			(::llc::SPNGData & pngData, const ::llc::vcu0_t & source	)	{
+	::llc::au2_t					indicesIDAT;
+	if_fail_fef(::pngActualFileLoad(source, pngData, indicesIDAT), "%s", "Failed to read png stream! Corrupt file?");
+	::llc::au0_t					& imageDeflated				= pngData.Deflated;
+	for(u2_t iChunk = 0; iChunk < indicesIDAT.size(); ++iChunk) {
+		const ::llc::SPNGChunk		& loadedChunk				= pngData.Chunks[indicesIDAT[iChunk]];
+		if(loadedChunk.Data.size()) {
+			u2_t					dataOffset					= imageDeflated.size();
+			if_fail_fef(imageDeflated.resize(imageDeflated.size() + loadedChunk.Data.size()), "Out of memory? Requested size: %u.", imageDeflated.size() + loadedChunk.Data.size());
+			memcpy(&imageDeflated[dataOffset], loadedChunk.Data.begin(), loadedChunk.Data.size());
+		}
+	}
+	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
+	pngData.Inflated.clear();
+	if_fail_fe(llc::arrayInflate(pngData.Deflated.cu8(), pngData.Inflated, ::INFLATE_CHUNK_SIZE));
+	::pngFilePrintInfo(pngData);
+
+	llc::err_t				bytesPerPixel				= ::pngBytesPerPixel(imageHeader.ColorType, imageHeader.BitDepth);
+	if_fail_fef(bytesPerPixel, "Invalid format! Color Type: %u. Bit Depth: %u.", (u2_t)imageHeader.ColorType, (u2_t)imageHeader.BitDepth);
+	if_fail_fe(imageHeader.MethodInterlace 
+		? ::defilterInterlaced   (pngData)
+		: ::defilterNonInterlaced(pngData, bytesPerPixel)
+		);
+	return 0;
+}
+
+::llc::err_t			llc::pngFileLoad			(::llc::SPNGData & pngData, const ::llc::vcst_t & filename	)	{
+	::llc::au0_t					fileInMemory				= {};
+	if_fail_fe(llc::fileToMemory(filename, fileInMemory));
+	return ::llc::pngFileLoad(pngData, fileInMemory);
+}
+
+::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcu0_t &   source, ::llc::au0_t & out_Data) {
+	if_fail_fe(llc::pngFileLoad(pngData, source)); 
+	return ::llc::pngDecode(pngData, out_Data); 
+}
+
+::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcst_t  & filename, ::llc::au0_t & out_Data) {
+	::llc::au0_t					fileInMemory				= {};
+	if_fail_fe(llc::fileToMemory(filename, fileInMemory));
+	return ::llc::pngFileLoad(pngData, fileInMemory.cu8(), out_Data);
+}
+
+::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcu0_t &   source, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) {
+	if_fail_fe(llc::pngFileLoad(pngData, source)); 
+	return ::llc::pngDecode(pngData, out_Data, out_View); 
+}
+
+::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcst_t  & filename, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) {
+	::llc::au0_t					fileInMemory				= {};
+	if_fail_fe(llc::fileToMemory(filename, fileInMemory));
+	return ::llc::pngFileLoad(pngData, fileInMemory.cu8(), out_Data, out_View);
+}
+
+::llc::err_t			llc::pngFileLoad			(::llc::SPNGData & pngData, const ::llc::vcu0_t & source, ::llc::img8bgra & out_Texture) {
+	if_fail_fe(llc::pngFileLoad(pngData, source));
+	if_fail_fe(out_Texture.resize(pngData.Header.Size));
+	return ::llc::pngDecode(pngData, out_Texture.View);
+}
+
+::llc::err_t			llc::pngFileLoad	(::llc::SPNGData & pngData, const ::llc::vcst_t & filename, ::llc::img8bgra & out_Texture)	{
+	if_fail_fef(llc::pngFileLoad(pngData, filename), "%s", ::llc::string(filename).begin());
+	if_fail_fe(out_Texture.resize(pngData.Header.Size));
+	return ::llc::pngDecode(pngData, out_Texture.View);
+}

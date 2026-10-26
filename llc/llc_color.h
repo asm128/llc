@@ -215,7 +215,7 @@ namespace llc
 			, color.b * BYTE_SCALE	 }
 			, color.a * BYTE_SCALE
 			} {}
-		cxpr					SColorFloat		(::llc::bgr8 color, uint8_t alpha)		nxpt	: color_rgba<f2_t>
+		cxpr					SColorFloat		(::llc::bgr8 color, u0_t alpha)		nxpt	: color_rgba<f2_t>
 			{ {{{color.r * BYTE_SCALE}
 			, color.g * BYTE_SCALE	 }
 			, color.b * BYTE_SCALE	 }

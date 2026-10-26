@@ -8,7 +8,7 @@
 namespace llc
 {
 #pragma pack(push, 1)
-	tplTusng	minmax2 = minmax<n2<T>>;	
+	tplTusng	minmax2 = minmax<n2<T>>;
 	tydf	minmax2<uc_t>	minmax2uc_t;	tdcs	minmax2uc_t	minmax2uc_c;
 	tydf	minmax2<sc_t>	minmax2sc_t;	tdcs	minmax2sc_t	minmax2sc_c;
 	tydf	minmax2<u0_t>	minmax2u0_t;	tdcs	minmax2u0_t	minmax2u0_c;
