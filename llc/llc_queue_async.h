@@ -16,15 +16,15 @@ namespace llc
 		tydf	_tContainer	TContainer;
 
 		TContainer				Queue	= {};
-		::llc::mutex			Lock	= {};
+		mutex			Lock	= {};
 
-		inline	err_t 	Size	()						{ ::llc::lock_guard locked(Lock); return Queue.size(); }
-		inline	err_t	Clear	()						{ ::llc::lock_guard	locked(Lock); return Queue.clear(); }
-		inline	err_t	Post	(const T & item) 		{ ::llc::lock_guard locked(Lock); return Queue.push_back(item); }
+		inline	err_t 	Size	()						{ lock_guard locked(Lock); return Queue.size(); }
+		inline	err_t	Clear	()						{ lock_guard locked(Lock); return Queue.clear(); }
+		inline	err_t	Post	(const T & item) 		{ lock_guard locked(Lock); return Queue.push_back(item); }
 		// Appends to the `output` container all the messages from the queue
 		inline	err_t	Read	(TContainer & output, bool clearQueue = true) {
-			::llc::lock_guard		locked(Lock);
-			llc_necs(output.append(Queue));
+			lock_guard			locked(Lock);
+			if_fail_fe(output.append(Queue));
 			if(clearQueue) {
 				Queue.clear();
 			}
@@ -34,24 +34,24 @@ namespace llc
 		err_t			Next	(T & output) {
 			err_t	left;
 			{
-				::std::lock_guard	locked(Lock);
-				rnis_if(0 == Queue.size());
+				lock_guard	locked(Lock);
+				if_zerp_vi(0, Queue.size());
 				output	= Queue[0];
-				llc_necs(left = Queue.remove(0));
+				if_fail_fe(left = Queue.remove(0));
 			}
 			return 1 + left;
 		}
 	};
 
-	tplt<tpnm _tObj> using qobj			= ::llc::queue_async<_tObj, ::llc::aobj<_tObj>>;
-	tplt<tpnm _tPOD> using qpod			= ::llc::queue_async<_tPOD, ::llc::apod<_tPOD>>;
-	tplt<tpnm _tObj> using qpobj		= ::llc::qobj<::llc::pobj<_tObj>>;
-	tplt<tpnm _tPOD> using qppod		= ::llc::qobj<::llc::ppod<_tPOD>>;
+	tplt<tpnm _tObj> using qobj			= queue_async<_tObj, aobj<_tObj>>;
+	tplt<tpnm _tPOD> using qpod			= queue_async<_tPOD, apod<_tPOD>>;
+	tplt<tpnm _tObj> using qpobj		= qobj<pobj<_tObj>>;
+	tplt<tpnm _tPOD> using qppod		= qobj<ppod<_tPOD>>;
 
-	tplt<tpnm _tObj> using queue_obj	= ::llc::qobj <_tObj>;
-	tplt<tpnm _tPOD> using queue_pod	= ::llc::qpod <_tPOD>;
-	tplt<tpnm _tObj> using queue_pobj	= ::llc::qpobj<_tObj>;
-	tplt<tpnm _tPOD> using queue_ppod	= ::llc::qppod<_tPOD>;
+	tplt<tpnm _tObj> using queue_obj	= qobj <_tObj>;
+	tplt<tpnm _tPOD> using queue_pod	= qpod <_tPOD>;
+	tplt<tpnm _tObj> using queue_pobj	= qpobj<_tObj>;
+	tplt<tpnm _tPOD> using queue_ppod	= qppod<_tPOD>;
 
 } // namespace
 

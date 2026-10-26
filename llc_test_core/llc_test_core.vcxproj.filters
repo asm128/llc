@@ -11,12 +11,54 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="llc_test_array_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_array_circular.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_array_obj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_array_pod.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_array_ptr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_array_static.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_block_container.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_block_container_nts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="llc_test_core_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_queue_async.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_string.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_test_view_bit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../llc/llc_test_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_test_core_suites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

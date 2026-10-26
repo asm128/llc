@@ -1,13 +1,3 @@
 .vs/
 .vscode/
-obj/
-bin2hex/
-checkmater/
-esp_build/
-ice_ping/
-llc_pack/
-llc_tokenizer/
-llc_test_compress/
-/llc.win32.client
-/llc.win32.server
-/llc_cloner_win32
+llc_test_core_*/

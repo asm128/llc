@@ -8,12 +8,12 @@
 namespace llc
 {
 	tplTstct gref {
-		T						* Instance = 0;
-		refcount_vl				References = 0;
+		T					* Instance			= {};
+		refcount_vl			References			= {};
 	};
 
 	tplT	gref<T>*	ref_acquire				(gref<T> * llc_reference)	nxpt	{ if(llc_reference) llc_sync_increment(llc_reference->References); return llc_reference; }
-	tplT	err_t		ref_release				(gref<T>* * llc_reference) {
+	tplT	err_t		ref_release				(gref<T>* * llc_reference)			{
 		tydf	gref<T>			TRef;
 		TRef					* oldRef				= *llc_reference;
 		*llc_reference		= 0;
@@ -23,7 +23,7 @@ namespace llc
 			case  0:
 				if_null_e(oldRef->Instance)
 				else {
-					oldRef->Instance->~T(); 
+					oldRef->Instance->~T();
 					llc_free(oldRef->Instance);
 				}
 				llc_free(oldRef);
@@ -31,7 +31,7 @@ namespace llc
 			}
 		return 0;
 	}
-	tplT	T*			ref_allocate			(gref<T>* * llc_reference)	noexcept	{
+	tplT	T*			ref_allocate			(gref<T>* * llc_reference)	nxpt	{
 		tydf	gref<T>			TRef;
 		TRef					* newRef;
 		if_null_ve(0, newRef = malloc(newRef));
@@ -44,7 +44,7 @@ namespace llc
 	tplT_vtArgs	T*		ref_create				(gref<T>* * llc_reference, _tArgs&&... argsConstructor)	{
 		tydf	gref<T>			TRef;
 		TRef					* newRef				= 0;
-		if_true_ve(0, 0 == ref_allocate(&newRef));
+		if_null_ve(0, ref_allocate(&newRef));
 		new (newRef->Instance) T{argsConstructor...};
 		TRef					* oldRef				= *llc_reference;
 		*llc_reference		= newRef;

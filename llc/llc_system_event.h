@@ -29,10 +29,10 @@ namespace llc
 	tydf ::llc::FEViewHandlerConst<::llc::SYSTEM_EVENT>	FEViewSystemConst;
 	tydf ::llc::pobj <::llc::SEventSystem>				PEventSystem;
 	tydf ::llc::apobj<::llc::SEventSystem>				TQueueSystemEvent;
-	
+
 	template<typename _t>
-	stin	::llc::error_t	eventEnqueueChild	(::llc::apobj<::llc::SEventSystem> & queue, ::llc::RESULT eventType, _t & eventData)	{ 
-		return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Device, eventType, eventData); 
+	stin	::llc::error_t	eventEnqueueChild	(::llc::apobj<::llc::SEventSystem> & queue, ::llc::RESULT eventType, _t & eventData)	{
+		return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Device, eventType, eventData);
 	}
 
 	//GDEFINE_ENUM_TYPE (EVENT_RUNTIME, uint8_t);
