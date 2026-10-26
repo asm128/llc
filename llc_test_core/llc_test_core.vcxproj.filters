@@ -14,6 +14,12 @@
 		<ClCompile Include="llc_test_adam7.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_aes.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_align.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
     <ClCompile Include="llc_test_array_base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

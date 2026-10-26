@@ -11,6 +11,8 @@ sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
 	}
 	rtrn ::llc::runSuites(runtimeValues
 		, LLC_TEST_SUITE(testAdam7            , "adam7")
+		, LLC_TEST_SUITE(testAES              , "aes")
+		, LLC_TEST_SUITE(testAlign            , "align")
 		, LLC_TEST_SUITE(testView             , "view")
 		, LLC_TEST_SUITE(testViewBit          , "view_bit")
 		, LLC_TEST_SUITE(testArrayBase        , "array_base")
