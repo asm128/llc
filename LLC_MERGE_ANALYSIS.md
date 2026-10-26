@@ -3210,4 +3210,345 @@ This section records the new sequential pass requested after the checklist reset
 - **Reason:** GPK's formulas lose valid pixels for small dimensions, while the generalized base/multiplier calculation covers them and adds the required seven-slot guard. `adam7ScaleIndex()`'s pass table and all unrelated logic remain unchanged.
 - **Merge work:** no product delta for this file. Keep its focused Adam7 tests pending the later suite-wide build/runtime pass.
 
+### R002 - `llc_adam7.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 36L/4E53418F3366; GPK gpk_adam7.h 36L/287B63F6017B; repairs-master 36L/4E53418F3366; sanitization 36L/CBCC48FA2D9D.
+- **Text relationship:** thecure = repairs-master; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** retain sanitization unchanged; the removed `llc_necall` spelling is already migrated to equivalent `if_fail_fef`, while declarations, traversal, clipping and texel placement remain historical.
+- **Reason:** the only source delta is the completed macro adaptation, so no alias or logic work remains in the product file.
+- **Test obligation retained:** instantiate `adam7Interlace()` for multiple texel types; reject an eighth pass; verify clipping and exact `8x8` placement; retain the real small interlaced-PNG integration case.
+
+### R003 - `llc_aes.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 468L/AAF645B931C5; GPK gpk_aes.cpp 468L/9BD96EA4AF71; repairs-master 468L/9BD96EA4AF71; sanitization 469L/CECA16CF6CC8.
+- **Text relationship:** GPK/gpk_aes.cpp = repairs-master; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** preserve the AES algorithm and existing ciphertext layout while using current error macros; require a 32-byte key, exact IV size, block-aligned ciphertext and fully validated PKCS#7 padding before resize.
+- **Reason:** the sanitization delta is mostly macro/error migration, but the API otherwise can read a short IV or accept an invalid padding length; those are concrete bounds/format failures, not license to change the wire format.
+- **Test obligation retained:** standard AES vectors at every supported level, appended-IV roundtrip, short IV/key rejection, empty and non-block ciphertext rejection, every legal pad length and corrupt padding.
+
+### R004 - `llc_aes.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 83L/AACEFEDDF4B7; GPK gpk_aes.h 103L/CD3E4B3EC676; repairs-master 83L/AACEFEDDF4B7; sanitization 83L/AACEFEDDF4B7.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** preserve the AES algorithm and existing ciphertext layout while using current error macros; require a 32-byte key, exact IV size, block-aligned ciphertext and fully validated PKCS#7 padding before resize.
+- **Reason:** the sanitization delta is mostly macro/error migration, but the API otherwise can read a short IV or accept an invalid padding length; those are concrete bounds/format failures, not license to change the wire format.
+- **Test obligation retained:** standard AES vectors at every supported level, appended-IV roundtrip, short IV/key rejection, empty and non-block ciphertext rejection, every legal pad length and corrupt padding.
+
+### R005 - `llc_align.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 28L/E543AC9207DF; GPK gpk_align.h 31L/79EDA04D8153; repairs-master 28L/E543AC9207DF; sanitization 28L/E543AC9207DF.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** retain the common thecure/sanitization implementation; review GPK or repairs differences only for lost behavior, not as automatic replacements.
+- **Reason:** two active LLC snapshots agree exactly and no repository-local rewrite needs promotion.
+- **Test obligation retained:** public API smoke coverage, error paths and a GPK differential check for the file's observable operations.
+
+### R006 - `llc_aobj_pobj.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 20L/D342F9F48954; GPK gpk_aobj_pobj.h 22L/4BFEE17F992E; repairs-master 20L/D342F9F48954; sanitization 20L/D342F9F48954.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R007 - `llc_aobj_ppod.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 15L/0CE26752F0DD; GPK gpk_aobj_ppod.h 14L/701E8045F2AC; repairs-master 15L/0CE26752F0DD; sanitization 15L/0CE26752F0DD.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R008 - `llc_apod_color.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 18L/A845254FABD3; GPK gpk_apod_color.h 17L/15F79168C247; repairs-master 18L/A845254FABD3; sanitization 18L/A845254FABD3.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R009 - `llc_apod_gauge.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure absent; GPK gpk_apod_gauge.h 26L/270FBC2AF5F5; repairs-master absent; sanitization absent.
+- **Text relationship:** all available source texts match after namespace/line-ending normalization.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R010 - `llc_apod_minmax.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 26L/BBB85D029681; GPK gpk_apod_minmax.h 26L/F2CB1F51AF00; repairs-master 26L/BBB85D029681; sanitization 26L/BBB85D029681.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R011 - `llc_apod_n2.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 29L/A5E271D3B4BC; GPK gpk_apod_n2.h 30L/7BF0E0ADC2A3; repairs-master 29L/A5E271D3B4BC; sanitization 29L/A5E271D3B4BC.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R012 - `llc_apod_n3.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 30L/ED9AD699E739; GPK gpk_apod_n3.h 31L/60FCC128A408; repairs-master 30L/ED9AD699E739; sanitization 30L/ED9AD699E739.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R013 - `llc_apod_range.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 25L/ECB48BF653A4; GPK gpk_apod_range.h 26L/9A0EC57029AD; repairs-master 25L/ECB48BF653A4; sanitization 25L/ECB48BF653A4.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R014 - `llc_apod_serialize.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 59L/4CC677216E0C; GPK gpk_apod_serialize.h 63L/11EC37A91861; repairs-master 62L/C2970BB3EA12; sanitization 59L/4CC677216E0C.
+- **Text relationship:** thecure = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R015 - `llc_apod_slice.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 25L/9DB25536FF1B; GPK gpk_apod_slice.h 26L/ADD342FF9868; repairs-master 25L/9DB25536FF1B; sanitization 25L/9DB25536FF1B.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R016 - `llc_apod_tri.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 29L/A69158E3AEC2; GPK gpk_apod_tri.h 30L/295134B55C0D; repairs-master 29L/A69158E3AEC2; sanitization 29L/A69158E3AEC2.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R017 - `llc_apod_tri2.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 29L/ED3971C724D7; GPK gpk_apod_tri2.h 30L/790CC7852033; repairs-master 29L/ED3971C724D7; sanitization 29L/ED3971C724D7.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R018 - `llc_apod_tri3.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 29L/FB8D02CE6449; GPK gpk_apod_tri3.h 30L/E621D52A821F; repairs-master 29L/FB8D02CE6449; sanitization 29L/FB8D02CE6449.
+- **Text relationship:** thecure = repairs-master = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** use the common modern LLC container contract as donor when available; preserve element lifetime, allocation failure, view aliasing and exact serialized layout, and do not reintroduce removed aliases.
+- **Reason:** these are foundation types with broad ABI/performance impact, so textual novelty is not sufficient reason to change behavior.
+- **Test obligation retained:** empty/boundary operations, copy/move/self-assignment, allocation failure, iterator/view stability, serialization roundtrip and type traits.
+
+### R019 - `llc_app_impl.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure absent; GPK absent; repairs-master 1L/407A9501E671; sanitization absent.
+- **Text relationship:** all available source texts match after namespace/line-ending normalization.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **revised**.
+- **Approved merge plan:** keep this empty include-only translation unit out of the final project; `llc_app_impl.h` remains the actual implementation owner.
+- **Reason:** repairs-master contains only `#include "llc_app_impl.h"`; adding a source file with no definitions creates no behavior or linkage value.
+- **Test obligation retained:** setup/update/draw/cleanup order, module load/unload, process success/failure/quoting and configured host integration.
+
+### R020 - `llc_app_impl.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 128L/20734EF717AB; GPK gpk_app_impl.h 198L/3070A2F45A42; repairs-master 207L/C8DF95402F88; sanitization 128L/20734EF717AB.
+- **Text relationship:** thecure = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** merge the established application/module/process lifecycle without duplicating entry-point ownership or changing callback order.
+- **Reason:** runtime ownership is cross-project ABI; source presence alone cannot authorize a second lifecycle path.
+- **Test obligation retained:** setup/update/draw/cleanup order, module load/unload, process success/failure/quoting and configured host integration.
+
+### R021 - `llc_append_css.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 47L/D93B870EFC04; GPK gpk_append_css.cpp 47L/98FB2D2922B9; repairs-master 47L/600BAC82944C; sanitization 47L/577B0AB2D396.
+- **Text relationship:** all available variants differ textually.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** three-way merge from thecure, GPK and repairs into the sanitization owner, choosing each semantic change only with a concrete contract; do not publish the current variant merely because it is present.
+- **Reason:** the sanitization text differs from the available donors and hash/line count cannot establish correctness.
+- **Test obligation retained:** API/ABI compilation, historical differential vectors, boundary/error paths and consumer integration.
+
+### R022 - `llc_append_css.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 20L/739E73748929; GPK gpk_append_css.h 19L/5E7DD6D97549; repairs-master 20L/C55A2513C0BF; sanitization 19L/9BB43C6222F9.
+- **Text relationship:** all available variants differ textually.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** three-way merge from thecure, GPK and repairs into the sanitization owner, choosing each semantic change only with a concrete contract; do not publish the current variant merely because it is present.
+- **Reason:** the sanitization text differs from the available donors and hash/line count cannot establish correctness.
+- **Test obligation retained:** API/ABI compilation, historical differential vectors, boundary/error paths and consumer integration.
+
+### R023 - `llc_append_frontend.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 14L/D2CE68C39A03; GPK gpk_append_frontend.h 15L/E974833D3BF7; repairs-master 14L/D2CE68C39A03; sanitization 14L/C5DDC57F3870.
+- **Text relationship:** thecure = repairs-master; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** three-way merge from thecure, GPK and repairs into the sanitization owner, choosing each semantic change only with a concrete contract; do not publish the current variant merely because it is present.
+- **Reason:** the sanitization text differs from the available donors and hash/line count cannot establish correctness.
+- **Test obligation retained:** API/ABI compilation, historical differential vectors, boundary/error paths and consumer integration.
+
+### R024 - `llc_append_html.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 55L/ADB1ECA46B42; GPK gpk_append_html.cpp 57L/E5B2A03C81D4; repairs-master 55L/0C9E03B83166; sanitization 57L/D847EF20C580.
+- **Text relationship:** all available variants differ textually.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** three-way merge from thecure, GPK and repairs into the sanitization owner, choosing each semantic change only with a concrete contract; do not publish the current variant merely because it is present.
+- **Reason:** the sanitization text differs from the available donors and hash/line count cannot establish correctness.
+- **Test obligation retained:** API/ABI compilation, historical differential vectors, boundary/error paths and consumer integration.
+
+### R025 - `llc_append_html.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 24L/2B06B9602BCC; GPK gpk_append_html.h 24L/62E86253602D; repairs-master 24L/2B06B9602BCC; sanitization 24L/71A35F09102E.
+- **Text relationship:** thecure = repairs-master; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** three-way merge from thecure, GPK and repairs into the sanitization owner, choosing each semantic change only with a concrete contract; do not publish the current variant merely because it is present.
+- **Reason:** the sanitization text differs from the available donors and hash/line count cannot establish correctness.
+- **Test obligation retained:** API/ABI compilation, historical differential vectors, boundary/error paths and consumer integration.
+
+### R026 - `llc_append_js.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 1L/E9D748E68595; GPK gpk_append_js.cpp 1L/E9D748E68595; repairs-master 1L/E9D748E68595; sanitization 1L/E9D748E68595.
+- **Text relationship:** all available source texts match after namespace/line-ending normalization.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** retain the common thecure/sanitization implementation; review GPK or repairs differences only for lost behavior, not as automatic replacements.
+- **Reason:** two active LLC snapshots agree exactly and no repository-local rewrite needs promotion.
+- **Test obligation retained:** public API smoke coverage, error paths and a GPK differential check for the file's observable operations.
+
+### R027 - `llc_append_js.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 11L/B59B0FA15F6F; GPK gpk_append_js.h 11L/B59B0FA15F6F; repairs-master 11L/B59B0FA15F6F; sanitization 11L/B59B0FA15F6F.
+- **Text relationship:** all available source texts match after namespace/line-ending normalization.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** retain the common thecure/sanitization implementation; review GPK or repairs differences only for lost behavior, not as automatic replacements.
+- **Reason:** two active LLC snapshots agree exactly and no repository-local rewrite needs promotion.
+- **Test obligation retained:** public API smoke coverage, error paths and a GPK differential check for the file's observable operations.
+
+### R028 - `llc_append_json.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 14L/9699B3B027E2; GPK gpk_append_json.cpp 14L/D07D438DB783; repairs-master 14L/13C61629D1E9; sanitization 14L/C940B6082F97.
+- **Text relationship:** all available variants differ textually.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** three-way merge from thecure, GPK and repairs into the sanitization owner, choosing each semantic change only with a concrete contract; do not publish the current variant merely because it is present.
+- **Reason:** the sanitization text differs from the available donors and hash/line count cannot establish correctness.
+- **Test obligation retained:** API/ABI compilation, historical differential vectors, boundary/error paths and consumer integration.
+
+### R029 - `llc_append_json.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 18L/F7DF6AD101D0; GPK gpk_append_json.h 18L/8FF06922C7DD; repairs-master 18L/F7DF6AD101D0; sanitization 17L/664D203E5DFA.
+- **Text relationship:** thecure = repairs-master; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** three-way merge from thecure, GPK and repairs into the sanitization owner, choosing each semantic change only with a concrete contract; do not publish the current variant merely because it is present.
+- **Reason:** the sanitization text differs from the available donors and hash/line count cannot establish correctness.
+- **Test obligation retained:** API/ABI compilation, historical differential vectors, boundary/error paths and consumer integration.
+
+### R030 - `llc_append_tcpip.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 37L/F9C4D60C86D5; GPK gpk_append_tcpip.cpp 37L/36517708FE43; repairs-master 37L/F9C4D60C86D5; sanitization 37L/05ABC2C47786.
+- **Text relationship:** thecure = repairs-master; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** preserve the established network API and error/byte-count semantics while keeping transport below event semantics and compatible with the legacy connection overloads.
+- **Reason:** carrier refactoring does not authorize changing callers, packet acceptance or socket behavior.
+- **Test obligation retained:** loopback send/receive, partial/error paths, IPv4 formatting, invalid/truncated datagrams and legacy overload compilation.
+
+### R031 - `llc_append_tcpip.h`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 17L/0D8C800AEE7A; GPK gpk_append_tcpip.h 16L/E4320F4BAA86; repairs-master 17L/0D8C800AEE7A; sanitization 16L/E4320F4BAA86.
+- **Text relationship:** thecure = repairs-master; GPK/gpk_append_tcpip.h = sanitization; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** preserve the established network API and error/byte-count semantics while keeping transport below event semantics and compatible with the legacy connection overloads.
+- **Reason:** carrier refactoring does not authorize changing callers, packet acceptance or socket behavior.
+- **Test obligation retained:** loopback send/receive, partial/error paths, IPv4 formatting, invalid/truncated datagrams and legacy overload compilation.
+
+### R032 - `llc_append_xml.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure 57L/31BC4D60E30F; GPK gpk_append_xml.cpp 57L/307429AF12AF; repairs-master 57L/31BC4D60E30F; sanitization 57L/0A88C3DC925F.
+- **Text relationship:** thecure = repairs-master; all other variants differ.
+- **Integrity check:** all four current source signatures match the signatures captured by the prior analysis; no source mutation is hidden by the checklist reset.
+- **Prior plan review:** **approved**.
+- **Approved merge plan:** three-way merge from thecure, GPK and repairs into the sanitization owner, choosing each semantic change only with a concrete contract; do not publish the current variant merely because it is present.
+- **Reason:** the sanitization text differs from the available donors and hash/line count cannot establish correctness.
+- **Test obligation retained:** API/ABI compilation, historical differential vectors, boundary/error paths and consumer integration.
+
 <!-- NEXT-REVALIDATION -->
