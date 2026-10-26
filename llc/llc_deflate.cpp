@@ -142,7 +142,7 @@ stxp	u2_c	LLC_CRC_CRC_SEED			= 18973;
 	const ::llc::au0_t			& compressedContentsPacked	= folderPackage.CompressedContentsPacked	;
 	{
 		FILE						* fp						= 0;
-		llc_necall(::llc::fopen_s(&fp, nameFileDst, "wb"), "'%s'", nameFileDst.begin());
+		llc_necall(::llc::fopen_s(fp, nameFileDst, "wb"), "'%s'", nameFileDst.begin());
 		ree_if(0 == fp, "Failed to create file: %s.", ::llc::toString(nameFileDst).begin());
 		fwrite(&fileHeader							, 1, szof(::llc::SPackHeader)			, fp);
 		fwrite(compressedTableFiles		.begin	()	, 1, compressedTableFiles		.size()	, fp);
@@ -260,7 +260,7 @@ stxp	uint32_t		INFLATE_CHUNK_SIZE			= uint32_t(1024) * 1024 * 4;
  			if_fail_cef(::llc::pathCreate({finalPathName.begin(), lenPath}), "Failed to create foder: %s.", finalPathName.begin());
 			finalPathName[indexSlash]	= '/';
 		}
-		llc_necall(::llc::fopen_s(&fp, finalPathName, "wb"), "%s", finalPathName.begin());
+		llc_necall(::llc::fopen_s(fp, finalPathName, "wb"), "%s", finalPathName.begin());
 		cef_if(0 == fp, "Failed to create file: %s.", finalPathName.begin());
 		cef_if(fileContent.size() != fwrite(fileContent.begin(), 1, fileContent.size(), fp), "Failed to write file: %s. Disk full?", finalPathName.begin());
 	}
