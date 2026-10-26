@@ -35,6 +35,45 @@
 		<ClCompile Include="llc_test_apod_minmax.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_apod_n2.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_n3.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_range.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_serialize.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_slice.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_tri.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_tri2.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_tri3.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_app_impl_cpp.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_app_impl_h.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_append_css_cpp.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_append_css_h.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_append_frontend.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
     <ClCompile Include="llc_test_array_base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

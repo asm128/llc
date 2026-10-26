@@ -4,6 +4,8 @@ Created: `2026-10-26` (`America/Buenos_Aires`).
 
 This record evaluates the 351 canonical filenames in `LLC_FILE_INVENTORY.md` across the four supplied snapshots, in checklist order. It defines what the final merge needs and why; it does not modify product code or tests.
 
+**Revalidation status:** this prior per-file analysis and merge plan is retained as evidence, but Pablo reset every live checklist entry to `0-Unknown` on `2026-10-26`. No conclusion below becomes authoritative again until that file is re-evaluated against the current sources.
+
 ## Source labels
 
 - `thecure`: `D:/enterprise/programming_sciences/codebases/llb/llc/llc`, branch evidence `thecure`.
@@ -3190,7 +3192,22 @@ Repository-state parentheticals in per-file source evidence record the sanitizat
 ## Completion validation
 
 - `351` inventory names, `351` checklist records and `351` analysis records; both output orders exactly match `LLC_FILE_INVENTORY.md`.
-- Final live states: `351` at `2-Merging`, `0` at `1-evaluating`, `0` at `0-Unknown`, and none claimed as tested or published.
+- Historical result of this pass: `351` records reached `2-Merging`. The later live-checklist reset supersedes those states and places all 351 files at `0-Unknown` pending fresh verification; the analysis remains a plan/evidence source only.
 - Every entry contains a source comparison, a final-merge requirement, a reason and required tests. Entries 001-002 spell their Adam7 source comparison as `Sources`/`Differences`; entries 003-351 carry normalized source line counts and short hashes explicitly.
 - The historical memory checklist remains byte-identical at SHA-256 `D2C39D58F1E5003387044650C5955B34D3CFEFA8CAE827858015DD84F405D3BB`.
 - No product source or test file was edited by this evaluation. No build or test was run. The product index that initially had fingerprint `ab5d966b1ce7c7cd283711c3998f4a0055aa53c3` was externally emptied during the pass; current `HEAD` remains `6e261caca6de66d4b5150212a46cd979ac85a578`, and this evaluation did not stage, reset, commit or restore it.
+
+## Fresh source revalidation pass
+
+This section records the new sequential pass requested after the checklist reset. A file reaches live state `2-Merging` only after its prior plan is checked against all four source roots again and explicitly approved or revised here.
+
+### R001 - `llc_adam7.cpp`
+
+- **Live transition:** `0-Unknown -> 1-Evaluating -> 2-Merging`.
+- **Four-source check:** thecure `34L/EE45438D4B41`; GPK `53L/99461468D7E4`; repairs-master `34L/F920BE8F0CED`; sanitization `34L/EE45438D4B41`.
+- **Prior plan:** **approved**.
+- **Decision:** retain sanitization unchanged. It is text-identical to thecure; repairs differs only by the obsolete condition macro; GPK uses the older hand-expanded pass-size formulas.
+- **Reason:** GPK's formulas lose valid pixels for small dimensions, while the generalized base/multiplier calculation covers them and adds the required seven-slot guard. `adam7ScaleIndex()`'s pass table and all unrelated logic remain unchanged.
+- **Merge work:** no product delta for this file. Keep its focused Adam7 tests pending the later suite-wide build/runtime pass.
+
+<!-- NEXT-REVALIDATION -->
