@@ -16,7 +16,11 @@ Reset on `2026-10-26`: every prior classification was discarded. All 351 files m
 
 A checkbox remains unmarked until the file has been evaluated and moved to a separately justified final state.
 
-## Files (351)
+## 0-Unknown
+
+## 1-Evaluating
+
+## 2-Merging
 
 - [ ] `llc_adam7.cpp` - `2-Merging`
 - [ ] `llc_adam7.h` - `2-Merging`
@@ -369,6 +373,10 @@ A checkbox remains unmarked until the file has been evaluated and moved to a sep
 - [ ] `llc_word_dict.h` - `2-Merging`
 - [ ] `llc_xml_reader.cpp` - `2-Merging`
 - [ ] `llc_xml_reader.h` - `2-Merging`
+
+## 3-Tested
+
+## 4-Published
 
 ## Evidence
 

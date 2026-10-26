@@ -4,7 +4,7 @@ This is the separate progress tracker for the new `llc_test_core` suites.
 
 Source inventory (read-only): `LLC_SANITIZATION_CHECKLIST.md`.
 
-This file owns only test-suite progress. It must not replace, rewrite or annotate the shared sanitization/merge checklist.
+This file owns only Wirewright's test-suite progress. It must not replace, rewrite or annotate Conduit's sanitization/merge checklist.
 
 ## State contract
 
@@ -17,12 +17,12 @@ A checkbox is marked only at `3-Tested`.
 
 ## Files (351)
 
-- [ ] `llc_adam7.cpp` - `0-Unprocessed`
-- [ ] `llc_adam7.h` - `0-Unprocessed`
-- [ ] `llc_aes.cpp` - `0-Unprocessed`
-- [ ] `llc_aes.h` - `0-Unprocessed`
-- [ ] `llc_align.h` - `0-Unprocessed`
-- [ ] `llc_aobj_pobj.h` - `0-Unprocessed`
+- [ ] `llc_adam7.cpp` - `2-Testing`
+- [ ] `llc_adam7.h` - `2-Testing`
+- [ ] `llc_aes.cpp` - `2-Testing`
+- [ ] `llc_aes.h` - `2-Testing`
+- [ ] `llc_align.h` - `2-Testing`
+- [ ] `llc_aobj_pobj.h` - `1-Implementing`
 - [ ] `llc_aobj_ppod.h` - `0-Unprocessed`
 - [ ] `llc_apod_color.h` - `0-Unprocessed`
 - [ ] `llc_apod_gauge.h` - `0-Unprocessed`
