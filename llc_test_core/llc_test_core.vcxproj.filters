@@ -20,6 +20,12 @@
 		<ClCompile Include="llc_test_align.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_aobj_pobj.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_aobj_ppod.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
     <ClCompile Include="llc_test_array_base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

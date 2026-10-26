@@ -109,6 +109,8 @@
 		<ClCompile Include="llc_test_adam7.cpp" />
 		<ClCompile Include="llc_test_aes.cpp" />
 		<ClCompile Include="llc_test_align.cpp" />
+		<ClCompile Include="llc_test_aobj_pobj.cpp" />
+		<ClCompile Include="llc_test_aobj_ppod.cpp" />
     <ClCompile Include="llc_test_array_base.cpp" />
     <ClCompile Include="llc_test_array_circular.cpp" />
     <ClCompile Include="llc_test_array_obj.cpp" />
