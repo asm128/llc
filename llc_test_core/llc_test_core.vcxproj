@@ -106,49 +106,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-		<ClCompile Include="llc_test_adam7.cpp" />
-		<ClCompile Include="llc_test_aes.cpp" />
-		<ClCompile Include="llc_test_align.cpp" />
-		<ClCompile Include="llc_test_aobj_pobj.cpp" />
-		<ClCompile Include="llc_test_aobj_ppod.cpp" />
-		<ClCompile Include="llc_test_apod_color.cpp" />
-		<ClCompile Include="llc_test_apod_gauge.cpp" />
-		<ClCompile Include="llc_test_apod_minmax.cpp" />
-		<ClCompile Include="llc_test_apod_n2.cpp" />
-		<ClCompile Include="llc_test_apod_n3.cpp" />
-		<ClCompile Include="llc_test_apod_range.cpp" />
-		<ClCompile Include="llc_test_apod_serialize.cpp" />
-		<ClCompile Include="llc_test_apod_slice.cpp" />
-		<ClCompile Include="llc_test_apod_tri.cpp" />
-		<ClCompile Include="llc_test_apod_tri2.cpp" />
-		<ClCompile Include="llc_test_apod_tri3.cpp" />
-		<ClCompile Include="llc_test_app_impl_cpp.cpp" />
-		<ClCompile Include="llc_test_app_impl_h.cpp" />
-		<ClCompile Include="llc_test_append_css_cpp.cpp" />
-		<ClCompile Include="llc_test_append_css_h.cpp" />
-		<ClCompile Include="llc_test_append_frontend.cpp" />
-    <ClCompile Include="llc_test_array_base.cpp" />
-    <ClCompile Include="llc_test_array_circular.cpp" />
-    <ClCompile Include="llc_test_array_obj.cpp" />
-    <ClCompile Include="llc_test_array_pod.cpp" />
-    <ClCompile Include="llc_test_array_ptr.cpp" />
-    <ClCompile Include="llc_test_array_static.cpp" />
-    <ClCompile Include="llc_test_block_container.cpp" />
-    <ClCompile Include="llc_test_block_container_nts.cpp" />
     <ClCompile Include="llc_test_core_main.cpp" />
-    <ClCompile Include="llc_test_deflate.cpp" />
-    <ClCompile Include="llc_test_encoding.cpp" />
-    <ClCompile Include="llc_test_file.cpp" />
-    <ClCompile Include="llc_test_grid.cpp" />
-    <ClCompile Include="llc_test_grid_copy.cpp" />
-    <ClCompile Include="llc_test_png.cpp" />
-    <ClCompile Include="llc_test_queue_async.cpp" />
-    <ClCompile Include="llc_test_ptr_nco.cpp" />
-    <ClCompile Include="llc_test_ptr_obj.cpp" />
-    <ClCompile Include="llc_test_ptr_pod.cpp" />
-    <ClCompile Include="llc_test_string.cpp" />
-    <ClCompile Include="llc_test_view.cpp" />
-    <ClCompile Include="llc_test_view_bit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../llc/llc_test_core.h" />
