@@ -11,6 +11,13 @@
 #ifndef LLC_MEMORY_H__92836409283642038462309846
 #define LLC_MEMORY_H__92836409283642038462309846
 
+//#define	llc_calc_align_address		(alignment, address)	((alignment - ((alignment - 1) & (uintptr_t)address)) & (alignment - 1))	// returns the difference between an origin address and the next aligned addres. The alignment must always be a power of two.
+//#define	llc_calc_align_address_4	(address)				llc_calc_align_address( 4, address)	// (0x04 - (0x03 & (uintptr_t)address) & 0x03)
+//#define	llc_calc_align_address_8	(address)				llc_calc_align_address( 8, address)	// (0x08 - (0x07 & (uintptr_t)address) & 0x07)
+//#define	llc_calc_align_address_16	(address)				llc_calc_align_address(16, address)	// (0x10 - (0x0F & (uintptr_t)address) & 0x0F)
+//#define	llc_calc_align_address_32	(address)				llc_calc_align_address(32, address)	// (0x20 - (0x1F & (uintptr_t)address) & 0x1F)
+//#define	llc_calc_align_address_64	(address)				llc_calc_align_address(64, address)	// (0x40 - (0x3F & (uintptr_t)address) & 0x3F)
+
 namespace llc
 {
 	stxp	u1_c		MALLOC_CUSTOM_ALIGN		= 16;

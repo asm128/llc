@@ -8,18 +8,18 @@ namespace llc
 {
 	tplTstin	err_t	append_string			(asc_t & output, cnst T & arg)			{ rtrn output.append_string(arg); }
 	tplN2ustin	err_t	append_string			(asc_t & output, sc_c (&arg)[N])		{ rtrn output.append_string(arg); }
-	tplN2ustin	err_t	append_string			(asc_t & output, cnst astchar<N> & arg)	{ rtrn output.append_string(arg.Storage); }
-	stin		err_t	append_string			(asc_t & output, asc_c & arg)			{ rtrn output.append_string(arg.cc()); }
-	tpl_vtArgs	err_t	append_strings			(asc_t & output, _tArgs&&... args)	{ 
+	tplN2ustin	err_t	append_string			(asc_t & output, cnst asts0_t<N> & arg)	{ rtrn output.append_string(arg.Storage); }
+	stin		err_t	append_string			(asc_t & output, vcst_t arg)			{ rtrn output.append_string(arg); }
+	tpl_vtArgs	err_t	append_strings			(asc_t & output, _tArgs&&... args)	{
 		err_t					err			= 0;
-		s2_c					results[]	= {err = (failed(err) ? -1 : append_string(output, args))..., 0}; 
-		rtrn failed(err) ? err : ::llc::sum(vcs2_t{results}); 
+		s2_c					results[]	= {err = (failed(err) ? -1 : append_string(output, args))..., 0};
+		rtrn failed(err) ? err : ::llc::sum(vcs2_t{results});
 	}
 	tplT_vtArgs	err_t	append_strings_separated	(asc_t & output, T separator, _tArgs&&... args)	{
 		err_t					err			= 0;
 		u2_t					len			= 0;
-		s2_c					results[]	= {len = err = ((0 == len) ? append_string(output, args) : failed(err) ? -1 : append_string(output, separator) + append_string(output, args))..., 0}; 
-		rtrn failed(err) ? err : ::llc::sum(vcs2_t{results}); 
+		s2_c					results[]	= {len = err = ((0 == len) ? append_string(output, args) : failed(err) ? -1 : append_string(output, separator) + append_string(output, args))..., 0};
+		rtrn failed(err) ? err : ::llc::sum(vcs2_t{results});
 	}
 				err_t	appendNclosd			(asc_t & output, vcst_t textToEnclose);
 				err_t	appendBraced			(asc_t & output, vcst_t textToEnclose);

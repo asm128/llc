@@ -11,7 +11,7 @@ namespace llc
 	//ndsi	vcsc_t		tovcc   (cnst Stream   & srcstr)							{ rtrn srcstr.length() ? vcsc_t{srcstr.begin(), srcstr.length()} : vcs{}; }
 	//stin	err_t	tovcc   (vcsc_t		& output, cnst Stream	& srcstr)	{ rtrn (output = tovcc(srcstr)).size(); }
 	//stin	err_t	tolabel (vcsc_t		& output, cnst Stream	& srcstr)	{ rtrn (output = label(tovcc(srcstr))).size(); }
-	//stin	err_t	toachar (asc_t	& output, cnst Stream	& srcstr)	{ llc_necs(output.reserve(srcstr.length())); rtrn (output = tovcc(srcstr)).size(); }
+	//stin	err_t	toachar (asc_t	& output, cnst Stream	& srcstr)	{ if_fail_fe(output.reserve(srcstr.length())); rtrn (output = tovcc(srcstr)).size(); }
 	//stin	err_t	append 	(asc_t	& output, cnst Stream	& srcstr)	{ rtrn output.append(tovcc(srcstr)); }
 
 	//ndsi	vcsc_t		tolabel (cnst Stream & srcstr)	{ rtrn label(tovcc(srcstr)); }
