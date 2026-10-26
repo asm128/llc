@@ -111,6 +111,9 @@
 		<ClCompile Include="llc_test_align.cpp" />
 		<ClCompile Include="llc_test_aobj_pobj.cpp" />
 		<ClCompile Include="llc_test_aobj_ppod.cpp" />
+		<ClCompile Include="llc_test_apod_color.cpp" />
+		<ClCompile Include="llc_test_apod_gauge.cpp" />
+		<ClCompile Include="llc_test_apod_minmax.cpp" />
     <ClCompile Include="llc_test_array_base.cpp" />
     <ClCompile Include="llc_test_array_circular.cpp" />
     <ClCompile Include="llc_test_array_obj.cpp" />

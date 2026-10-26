@@ -24,9 +24,9 @@ A checkbox is marked only when the file reaches `3-Tested`.
 - [ ] `llc_align.h` - `2-Testing`
 - [ ] `llc_aobj_pobj.h` - `2-Testing`
 - [ ] `llc_aobj_ppod.h` - `2-Testing`
-- [ ] `llc_apod_color.h` - `1-Implementing`
-- [ ] `llc_apod_gauge.h` - `0-Unprocessed`
-- [ ] `llc_apod_minmax.h` - `0-Unprocessed`
+- [ ] `llc_apod_color.h` - `2-Testing`
+- [ ] `llc_apod_gauge.h` - `2-Testing`
+- [ ] `llc_apod_minmax.h` - `1-Implementing`
 - [ ] `llc_apod_n2.h` - `0-Unprocessed`
 - [ ] `llc_apod_n3.h` - `0-Unprocessed`
 - [ ] `llc_apod_range.h` - `0-Unprocessed`

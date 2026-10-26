@@ -26,6 +26,15 @@
 		<ClCompile Include="llc_test_aobj_ppod.cpp">
 			<Filter>Source Files</Filter>
 		</ClCompile>
+		<ClCompile Include="llc_test_apod_color.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_gauge.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
+		<ClCompile Include="llc_test_apod_minmax.cpp">
+			<Filter>Source Files</Filter>
+		</ClCompile>
     <ClCompile Include="llc_test_array_base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

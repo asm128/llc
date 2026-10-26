@@ -8,6 +8,9 @@
 ::llc::err_t	testAlign				(::llc::ATestError & results, ::llc::vcst_t outputFolder);
 ::llc::err_t	testAObjPObj			(::llc::ATestError & results, ::llc::vcst_t outputFolder);
 ::llc::err_t	testAObjPPod			(::llc::ATestError & results, ::llc::vcst_t outputFolder);
+::llc::err_t	testAPodColor			(::llc::ATestError & results, ::llc::vcst_t outputFolder);
+::llc::err_t	testAPodGauge			(::llc::ATestError & results, ::llc::vcst_t outputFolder);
+::llc::err_t	testAPodMinMax			(::llc::ATestError & results, ::llc::vcst_t outputFolder);
 ::llc::err_t	testView				(::llc::ATestError & results, ::llc::vcst_t outputFolder);
 ::llc::err_t	testViewBit			(::llc::ATestError & results, ::llc::vcst_t outputFolder);
 ::llc::err_t	testArrayBase			(::llc::ATestError & results, ::llc::vcst_t outputFolder);
