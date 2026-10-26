@@ -106,15 +106,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-	<ClCompile Include="llc_test_adam7_cpp.cpp" />
-	<ClCompile Include="llc_test_adam7_h.cpp" />
-	<ClCompile Include="llc_test_aes_cpp.cpp" />
-	<ClCompile Include="llc_test_aes_h.cpp" />
-	<ClCompile Include="llc_test_align_h.cpp" />
     <ClCompile Include="llc_test_core_main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="../llc/llc_test_core.h" />
     <ClInclude Include="llc_test_core_suites.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

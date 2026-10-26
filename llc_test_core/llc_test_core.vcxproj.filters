@@ -11,29 +11,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-	<ClCompile Include="llc_test_adam7_cpp.cpp">
-	  <Filter>Source Files</Filter>
-	</ClCompile>
-	<ClCompile Include="llc_test_adam7_h.cpp">
-	  <Filter>Source Files</Filter>
-	</ClCompile>
-	<ClCompile Include="llc_test_aes_cpp.cpp">
-	  <Filter>Source Files</Filter>
-	</ClCompile>
-	<ClCompile Include="llc_test_aes_h.cpp">
-	  <Filter>Source Files</Filter>
-	</ClCompile>
-	<ClCompile Include="llc_test_align_h.cpp">
-	  <Filter>Source Files</Filter>
-	</ClCompile>
     <ClCompile Include="llc_test_core_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="../llc/llc_test_core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_test_core_suites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
