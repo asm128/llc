@@ -10,6 +10,10 @@ GDEFINE_ENUM_VALUED(TEST_ADAM7_RESULT, SHORT_STORAGE      , 2, "Adam7 size calcu
 GDEFINE_ENUM_VALUED(TEST_ADAM7_RESULT, SIZES_8X8          , 3, "Adam7 reports the exact seven pass sizes for an 8x8 image.");
 GDEFINE_ENUM_VALUED(TEST_ADAM7_RESULT, EXHAUSTIVE_COVERAGE, 4, "Adam7 pass sizes and vectors cover every pixel exactly once for dimensions 1 through 17.");
 GDEFINE_ENUM_VALUED(TEST_ADAM7_RESULT, INTERLACED_PNG_SMALL, 5, "A real 3x2 interlaced PNG decodes every grayscale pixel into its source position.");
+GDEFINE_ENUM_VALUED(TEST_ADAM7_RESULT, INTERLACE_TYPES      , 6, "Adam7 interlace instantiates and succeeds for two texel types.");
+GDEFINE_ENUM_VALUED(TEST_ADAM7_RESULT, INTERLACE_INVALID_PASS, 7, "Adam7 interlace propagates an invalid eighth-pass error.");
+GDEFINE_ENUM_VALUED(TEST_ADAM7_RESULT, INTERLACE_CLIPPING   , 8, "Adam7 interlace clips pass cells that fall outside the destination grid.");
+GDEFINE_ENUM_VALUED(TEST_ADAM7_RESULT, INTERLACE_8X8        , 9, "Adam7 interlace places every texel from all seven 8x8 passes at its source coordinate.");
 
 sttc ::llc::err_t adam7AppendU32BE(::llc::au0_t & output, ::llc::u2_t value) {
 	if_fail_fe(output.push_back((::llc::u0_t)(value >> 24)));
@@ -136,6 +140,66 @@ sttc ::llc::err_t testAdam7InterlacedPNGSmall(::llc::ATestError & results) {
 	rtrn 0;
 }
 
+tplt<tpnm T>
+sttc ::llc::err_t adam7InterlaceEmptyType() {
+	::llc::img<T> passes[7] = {};
+	T outputStorage[1][1] = {};
+	::llc::grid<T> output = outputStorage;
+	rtrn ::llc::adam7Interlace(::llc::view<::llc::img<T>>{passes}, output);
+}
+
+sttc ::llc::err_t testAdam7InterlaceTypes(::llc::ATestError & results) {
+	LLC_TEST_CHECK(results, TEST_ADAM7_RESULT_INTERLACE_TYPES, 0 != ::adam7InterlaceEmptyType<::llc::u0_t>());
+	LLC_TEST_CHECK(results, TEST_ADAM7_RESULT_INTERLACE_TYPES, 0 != ::adam7InterlaceEmptyType<::llc::u2_t>());
+	rtrn 0;
+}
+
+sttc ::llc::err_t testAdam7InterlaceInvalidPass(::llc::ATestError & results) {
+	::llc::imgu0_t passes[8] = {};
+	::llc::u0_t outputStorage[1][1] = {};
+	::llc::gu0_t output = outputStorage;
+	LLC_TEST_CHECK(results, TEST_ADAM7_RESULT_INTERLACE_INVALID_PASS, 0 <= ::llc::adam7Interlace(::llc::view<::llc::imgu0_t>{passes}, output));
+	rtrn 0;
+}
+
+sttc ::llc::err_t testAdam7InterlaceClipping(::llc::ATestError & results) {
+	::llc::imgu0_t passes[7] = {};
+	LLC_TEST_REQUIRE(results, TEST_ADAM7_RESULT_INTERLACE_CLIPPING, 0 != passes[0].resize({2, 2}));
+	passes[0][0][0] = 11;
+	passes[0][0][1] = 12;
+	passes[0][1][0] = 13;
+	passes[0][1][1] = 14;
+	::llc::u0_t outputStorage[1][1] = {};
+	::llc::gu0_t output = outputStorage;
+	LLC_TEST_REQUIRE(results, TEST_ADAM7_RESULT_INTERLACE_CLIPPING, 0 != ::llc::adam7Interlace(::llc::view<::llc::imgu0_t>{passes}, output));
+	LLC_TEST_CHECK(results, TEST_ADAM7_RESULT_INTERLACE_CLIPPING, output[0][0] != 11);
+	rtrn 0;
+}
+
+sttc ::llc::err_t testAdam7Interlace8x8(::llc::ATestError & results) {
+	::llc::n2u2_t sizeStorage[7] = {};
+	::llc::view<::llc::n2u2_t> sizes = sizeStorage;
+	LLC_TEST_REQUIRE(results, TEST_ADAM7_RESULT_INTERLACE_8X8, 0 != ::llc::adam7Sizes(sizes, {8, 8}));
+	::llc::imgu0_t passes[7] = {};
+	for(::llc::u2_t iPass = 0; iPass < 7; ++iPass) {
+		LLC_TEST_REQUIRE(results, TEST_ADAM7_RESULT_INTERLACE_8X8, 0 != passes[iPass].resize(sizes[iPass]));
+		::llc::n2u2_t multiplier = {}, base = {};
+		LLC_TEST_REQUIRE(results, TEST_ADAM7_RESULT_INTERLACE_8X8, 0 != ::llc::adam7ScaleIndex(iPass, multiplier, base));
+		for(::llc::u2_t y = 0; y < sizes[iPass].y; ++y)
+		for(::llc::u2_t x = 0; x < sizes[iPass].x; ++x) {
+			cnst ::llc::n2u2_t target = {x * multiplier.x + base.x, y * multiplier.y + base.y};
+			passes[iPass][y][x] = (::llc::u0_t)(1 + target.y * 8 + target.x);
+		}
+	}
+	::llc::u0_t outputStorage[8][8] = {};
+	::llc::gu0_t output = outputStorage;
+	LLC_TEST_REQUIRE(results, TEST_ADAM7_RESULT_INTERLACE_8X8, 0 != ::llc::adam7Interlace(::llc::view<::llc::imgu0_t>{passes}, output));
+	for(::llc::u2_t y = 0; y < 8; ++y)
+	for(::llc::u2_t x = 0; x < 8; ++x)
+		LLC_TEST_CHECK(results, TEST_ADAM7_RESULT_INTERLACE_8X8, output[y][x] != 1 + y * 8 + x);
+	rtrn 0;
+}
+
 ::llc::err_t testAdam7(::llc::ATestError & results, ::llc::vcst_t) {
 	::llc::err_t result = 0;
 	result = ::llc::min(result, ::testAdam7ScaleVectors(results));
@@ -144,5 +208,9 @@ sttc ::llc::err_t testAdam7InterlacedPNGSmall(::llc::ATestError & results) {
 	result = ::llc::min(result, ::testAdam7Sizes8x8(results));
 	result = ::llc::min(result, ::testAdam7ExhaustiveCoverage(results));
 	result = ::llc::min(result, ::testAdam7InterlacedPNGSmall(results));
+	result = ::llc::min(result, ::testAdam7InterlaceTypes(results));
+	result = ::llc::min(result, ::testAdam7InterlaceInvalidPass(results));
+	result = ::llc::min(result, ::testAdam7InterlaceClipping(results));
+	result = ::llc::min(result, ::testAdam7Interlace8x8(results));
 	rtrn result;
 }
