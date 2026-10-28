@@ -162,7 +162,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(SolutionDir)../llc/llc/llc_module_exports.def</ModuleDefinitionFile>
     </Link>
@@ -184,7 +184,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(SolutionDir)../llc/llc/llc_module_exports.def</ModuleDefinitionFile>
     </Link>
@@ -208,7 +208,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(SolutionDir)../llc/llc/llc_module_exports.def</ModuleDefinitionFile>
     </Link>
@@ -232,7 +232,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(SolutionDir)../llc/llc/llc_module_exports.def</ModuleDefinitionFile>
     </Link>
@@ -254,7 +254,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(SolutionDir)../llc/llc/llc_module_exports.def</ModuleDefinitionFile>
     </Link>
@@ -276,7 +276,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(SolutionDir)../llc/llc/llc_module_exports.def</ModuleDefinitionFile>
     </Link>
@@ -300,7 +300,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(SolutionDir)../llc/llc/llc_module_exports.def</ModuleDefinitionFile>
     </Link>
@@ -324,7 +324,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(SolutionDir)../llc/llc/llc_module_exports.def</ModuleDefinitionFile>
     </Link>

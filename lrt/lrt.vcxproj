@@ -162,7 +162,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -183,7 +183,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -206,7 +206,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -229,7 +229,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -250,7 +250,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -271,7 +271,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -294,7 +294,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
@@ -317,7 +317,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>llc.lib; llc_engine.lib; </AdditionalDependencies>
+      <AdditionalDependencies>llc.lib; </AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir); </AdditionalLibraryDirectories>
     </Link>
     <Manifest>
