@@ -443,14 +443,6 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug-MT|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="psGUIControl.hlsl">
-      <ShaderType>Pixel</ShaderType>
-      <ShaderModel>5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="vsGUIControl.hlsl">
-      <ShaderType>Vertex</ShaderType>
-      <ShaderModel>5.0</ShaderModel>
-    </FxCompile>
     <FxCompile Include="psGUI.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release-MT|Win32'">Pixel</ShaderType>
