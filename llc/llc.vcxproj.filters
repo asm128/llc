@@ -855,14 +855,14 @@
     <ClInclude Include="llc_connection_ip.h">
       <Filter>inet</Filter>
     </ClInclude>
-    <ClInclude Include="llc_connection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_crc.h">
       <Filter>encoding</Filter>
     </ClInclude>
     <ClInclude Include="llc_grid_serialize.h">
       <Filter>view</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_connection.h">
+      <Filter>inet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1133,14 +1133,14 @@
     <ClCompile Include="llc_word_dict.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llc_connection.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_connection_ip.cpp">
       <Filter>inet</Filter>
     </ClCompile>
     <ClCompile Include="llc_crc.cpp">
       <Filter>encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_connection.cpp">
+      <Filter>inet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
