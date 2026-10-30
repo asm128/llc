@@ -12,7 +12,7 @@ namespace llc
 	struct SGUIZoom {
 		n2f3_t				DPI					= {1.0, 1.0};
 		minmaxf3_t			ZoomLimits			= {0.1, 10.0};
-		double				ZoomLevel			= 1.0;
+		f3_t				ZoomLevel			= 1.0;
 
 		inln	bool		operator!=			(const SGUIZoom & other)	csnx	{ return !operator==(other); }
 		inln	bool		operator==			(const SGUIZoom & other)	csnx	{
@@ -61,7 +61,7 @@ namespace llc
 	err_t			controlDrawHierarchy			(SGUI & gui, cid_t iControl, g8bgra target);
 	err_t			controlTextSet					(SGUI & gui, cid_t iControl, vcst_t text);
 	err_t			controlFontSet					(SGUI & gui, cid_t iControl, int16_t iFont);
-	//err_t			controlUpdateMetrics			(SGUI & gui, int32_t iControl, const n2<u2_t> & targetSize);
+	//err_t			controlUpdateMetrics			(SGUI & gui, s2_t iControl, const n2<u2_t> & targetSize);
 	err_t			controlUpdateMetricsTopToDown	(SGUI & gui, cid_t iControl, const n2u1_t & targetSize, bool forceUpdate);
 	err_t			controlMetricsInvalidate		(SGUI & gui, cid_t iControl);
 	err_t			controlHidden					(const SGUI & gui, cid_t iControl);

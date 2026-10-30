@@ -53,7 +53,7 @@ namespace ropp
 	{
 		uint16_t	nWidth;
 		uint16_t	nHeight;
-		uint32_t*	pImageData;
+		u2_t*	pImageData;
 	} RGBA_IMAGE_DATA;
 
 	typedef struct _SPR_2_1_FILE_DATA
@@ -65,45 +65,45 @@ namespace ropp
 		uint16_t				nRGBAImages;	// v >= 2.0
 		PALETTE_IMAGE_RLE_DATA*	pPaletteImages; // v >= 2.1
 		RGBA_IMAGE_DATA*		pRGBAImages;	// v >= 2.0
-		uint32_t				Palette[256];	// v >= 1.1
+		u2_t				Palette[256];	// v >= 1.1
 	} SPR_2_1_FILE_DATA, SPR_FILE_DATA;
 
 	// this seems to add an offset to the sprite
 	typedef struct _ACT_PIVOT_DATA
 	{
 	// TODO investigate. imf files are related to this data
-		uint32_t	Unknown;	//???			4			??? ignored
-		int32_t		CenterX;	//			4			??? offset in the frame (center is 0,0)
-		int32_t		CenterY;	//			4			??? offset in the frame (center is 0,0)
-		uint32_t	nAttribute;	//		4			???
+		u2_t	Unknown;	//???			4			??? ignored
+		s2_t		CenterX;	//			4			??? offset in the frame (center is 0,0)
+		s2_t		CenterY;	//			4			??? offset in the frame (center is 0,0)
+		u2_t	nAttribute;	//		4			???
 	}ACT_PIVOT_DATA;
 
 	// this structure contains info about how to map the frames from the images
 	typedef struct _ACT_FRAME_DATA
 	{
-		int32_t		CenterX;		// offset in the frame (center is 0,0?) 
-		int32_t		CenterY;		// 
-		uint32_t	nFrameIndex;	// frame index in the sprite texture
-		uint32_t	bMirror;		// If non zero the image is mirrored along the vertical axis
-		uint32_t	nColor;			// RGBA color (for blending?) (default 0xFFFFFFFF)
-		float		ScaleX;			
-		float		ScaleY;
-		float		fRotationAngle;			
-		uint32_t	nSpriteType;	// 0 = palette image, 1 = rgb image (default 0) 
-		uint32_t	nWidth;			// ??
-		uint32_t	nHeight;		// ??
+		s2_t		CenterX;		// offset in the frame (center is 0,0?) 
+		s2_t		CenterY;		// 
+		u2_t	nFrameIndex;	// frame index in the sprite texture
+		u2_t	bMirror;		// If non zero the image is mirrored along the vertical axis
+		u2_t	nColor;			// RGBA color (for blending?) (default 0xFFFFFFFF)
+		f2_t		ScaleX;			
+		f2_t		ScaleY;
+		f2_t		fRotationAngle;			
+		u2_t	nSpriteType;	// 0 = palette image, 1 = rgb image (default 0) 
+		u2_t	nWidth;			// ??
+		u2_t	nHeight;		// ??
 	}ACT_FRAME_DATA;
 
 	typedef struct _ACT_SPRITE_DATA
 	{
-		int32_t			Range1[4];	//RECT{left,top,right,bottom} ?
-		int32_t			Range2[4];
-		uint32_t		nFrameCount;	// Number of sprite frame (max=1000) (int)
+		s2_t			Range1[4];	//RECT{left,top,right,bottom} ?
+		s2_t			Range2[4];
+		u2_t		nFrameCount;	// Number of sprite frame (max=1000) (int)
 		ACT_FRAME_DATA*	lstFrameData;	// 
 //		{ >= v2.0 (set to -1 on v2.0)
-		uint32_t		nEventIndex; //	(default -1)
+		u2_t		nEventIndex; //	(default -1)
 //			{	>= v2.3
-		uint32_t		nPivotCount; // ??? number of anchors (default 0)
+		u2_t		nPivotCount; // ??? number of anchors (default 0)
 		ACT_PIVOT_DATA* lstPivotData;
 //			}
 //		}
@@ -111,7 +111,7 @@ namespace ropp
 
 	typedef struct _ACT_ACTION_DATA
 	{
-		uint32_t nSpriteCount;
+		u2_t nSpriteCount;
 		ACT_SPRITE_DATA* lstSpriteData;
 	}ACT_ACTION_DATA;
 
@@ -126,10 +126,10 @@ namespace ropp
 		uint8_t				nUknown[10];	// Whadda u know about the ways of the UnderSide?
 		ACT_ACTION_DATA*	lstActionData;	
 //	{ >= v2.1
-		uint32_t			nEventCount; // number of events/sound files (default 0)
+		u2_t			nEventCount; // number of events/sound files (default 0)
 		ACT_EVENT_NAME* 	lstEventNames;
 //		{ >= v2.2
-		float*				lstFrameDelay; //sizeof(float)*nActionCount interval of action frames? (float) (default 4.0)
+		f2_t*				lstFrameDelay; //sizeof(f2_t)*nActionCount interval of action frames? (f2_t) (default 4.0)
 //		}
 //	}
 	}ACT_FILE_DATA;
@@ -137,17 +137,17 @@ namespace ropp
 
 	void CleanSPRData( SPR_FILE_DATA& pSPRData );
 
-	int32_t LoadSPRDataFromFile( const wchar_t* pFilename, SPR_FILE_DATA* pSPRData );
-	int32_t LoadSPRDataFromMemory( const char* pBuffer, SPR_FILE_DATA* pSPRData );
+	s2_t LoadSPRDataFromFile( const wchar_t* pFilename, SPR_FILE_DATA* pSPRData );
+	s2_t LoadSPRDataFromMemory( const char* pBuffer, SPR_FILE_DATA* pSPRData );
 	
-	int32_t	LoadACTDataFromFile( const wchar_t* pFilename, ACT_FILE_DATA* pACTData );
-	int32_t	LoadACTDataFromFile( const char* pFilename, ACT_FILE_DATA* pACTData );
+	s2_t	LoadACTDataFromFile( const wchar_t* pFilename, ACT_FILE_DATA* pACTData );
+	s2_t	LoadACTDataFromFile( const char* pFilename, ACT_FILE_DATA* pACTData );
 	void	CleanACTData( ACT_FILE_DATA& ActData );
 
-	int32_t BuildTexelsFromPaletteImage( const PALETTE_IMAGE_RLE_DATA* pRLEData, 
-		const uint32_t* pPalette, uint32_t* out_nTexelCount, uint32_t* out_pColors );
-	int32_t BuildTexelsFromRGBAImage( const RGBA_IMAGE_DATA* pRGBAData, 
-		uint32_t* out_pColors, uint32_t* out_nTexelCount );
+	s2_t BuildTexelsFromPaletteImage( const PALETTE_IMAGE_RLE_DATA* pRLEData, 
+		const u2_t* pPalette, u2_t* out_nTexelCount, u2_t* out_pColors );
+	s2_t BuildTexelsFromRGBAImage( const RGBA_IMAGE_DATA* pRGBAData, 
+		u2_t* out_pColors, u2_t* out_nTexelCount );
 } // namespace
 
 #endif

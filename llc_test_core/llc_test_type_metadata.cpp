@@ -4,6 +4,13 @@
 
 #include "llc_test_core.h"
 
+
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
+
+usng llc::one_if;
+
 GDEFINE_ENUM_TYPE(TYPE_METADATA_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(TYPE_METADATA_TEST_RESULT, OK                       ,  0, "All type-metadata tests passed.");
 GDEFINE_ENUM_VALUED(TYPE_METADATA_TEST_RESULT, TYPE_ELEMENT_SIZE        ,  1, "DATA_TYPE did not preserve the element bit count.");
@@ -202,17 +209,17 @@ sttc ::llc::err_t testPODValue(::llc::ATestError & errors, ::llc::SPODDefinition
 sttc ::llc::err_t testPODDefinition(::llc::ATestError & errors) {
 	::llc::SPODDefinition definition = {};
 	if_fail_fe(::testPODValue(errors, definition, "bool", ::llc::b8_t{true}, ::llc::DATA_TYPE_BOOL));
-	if_fail_fe(::testPODValue(errors, definition, "u8", ::llc::u0_t{0xA5}, ::llc::DATA_TYPE_UINT8));
-	if_fail_fe(::testPODValue(errors, definition, "u16", ::llc::u1_t{0xA55A}, ::llc::DATA_TYPE_UINT16));
-	if_fail_fe(::testPODValue(errors, definition, "u32", ::llc::u2_t{0xA55AA55A}, ::llc::DATA_TYPE_UINT32));
-	if_fail_fe(::testPODValue(errors, definition, "u64", ::llc::u3_t{0xA55AA55AA55AA55A}, ::llc::DATA_TYPE_UINT64));
+	if_fail_fe(::testPODValue(errors, definition, "u0_t", ::llc::u0_t{0xA5}, ::llc::DATA_TYPE_UINT8));
+	if_fail_fe(::testPODValue(errors, definition, "u1_t", ::llc::u1_t{0xA55A}, ::llc::DATA_TYPE_UINT16));
+	if_fail_fe(::testPODValue(errors, definition, "u2_t", ::llc::u2_t{0xA55AA55A}, ::llc::DATA_TYPE_UINT32));
+	if_fail_fe(::testPODValue(errors, definition, "u3_t", ::llc::u3_t{0xA55AA55AA55AA55A}, ::llc::DATA_TYPE_UINT64));
 	if_fail_fe(::testPODValue(errors, definition, "char", ::llc::sc_t{'z'}, ::llc::DATA_TYPE_INT8));
-	if_fail_fe(::testPODValue(errors, definition, "i8", ::llc::s0_t{-12}, ::llc::DATA_TYPE_INT8));
-	if_fail_fe(::testPODValue(errors, definition, "i16", ::llc::s1_t{-1234}, ::llc::DATA_TYPE_INT16));
-	if_fail_fe(::testPODValue(errors, definition, "i32", ::llc::s2_t{-1234567}, ::llc::DATA_TYPE_INT32));
-	if_fail_fe(::testPODValue(errors, definition, "i64", ::llc::s3_t{-1234567890123LL}, ::llc::DATA_TYPE_INT64));
-	if_fail_fe(::testPODValue(errors, definition, "f32", ::llc::f2_t{0.25f}, ::llc::DATA_TYPE_FLOAT32));
-	if_fail_fe(::testPODValue(errors, definition, "f64", ::llc::f3_t{-0.5}, ::llc::DATA_TYPE_FLOAT64));
+	if_fail_fe(::testPODValue(errors, definition, "s0_t", ::llc::s0_t{-12}, ::llc::DATA_TYPE_INT8));
+	if_fail_fe(::testPODValue(errors, definition, "s1_t", ::llc::s1_t{-1234}, ::llc::DATA_TYPE_INT16));
+	if_fail_fe(::testPODValue(errors, definition, "s2_t", ::llc::s2_t{-1234567}, ::llc::DATA_TYPE_INT32));
+	if_fail_fe(::testPODValue(errors, definition, "s3_t", ::llc::s3_t{-1234567890123LL}, ::llc::DATA_TYPE_INT64));
+	if_fail_fe(::testPODValue(errors, definition, "f2_t", ::llc::f2_t{0.25f}, ::llc::DATA_TYPE_FLOAT32));
+	if_fail_fe(::testPODValue(errors, definition, "f3_t", ::llc::f3_t{-0.5}, ::llc::DATA_TYPE_FLOAT64));
 
 	::llc::sc_t mutableName[] = {'o', 'w', 'n', 'e', 'd', 0};
 	cnst ::llc::vcst_t mutableNameView = {mutableName, 5};
@@ -222,7 +229,7 @@ sttc ::llc::err_t testPODDefinition(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_LABEL_OWNERSHIP, false == (definition.Labels[ownedResult] == "owned"), "Stored:'%.*s'.", LLC_VIEW_ARGS(definition.Labels[ownedResult]));
 
 	cnst ::llc::u2_t memberCountBeforeFailure = definition.Labels.size(), byteCountBeforeFailure = definition.DefaultData.size();
-	cnst ::llc::err_t duplicateResult = ::typeMetadataExpectedFailure([&]() { rtrn definition.push_any("u8", ::llc::u0_t{9}); });
+	cnst ::llc::err_t duplicateResult = ::typeMetadataExpectedFailure([&]() { rtrn definition.push_any("u0_t", ::llc::u0_t{9}); });
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_DUPLICATE_REJECTION, false == ::llc::failed(duplicateResult), "Result:%i.", duplicateResult);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_DUPLICATE_STATE, memberCountBeforeFailure != definition.Labels.size(), "Labels:%u expected:%u.", definition.Labels.size(), memberCountBeforeFailure);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_DUPLICATE_STATE, memberCountBeforeFailure != definition.Types.size(), "Types:%u expected:%u.", definition.Types.size(), memberCountBeforeFailure);

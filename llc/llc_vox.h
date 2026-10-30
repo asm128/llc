@@ -71,9 +71,7 @@ namespace llc
 		u2_t						ChunkSize				= 0;	// | num bytes of chunk content (N)
 		u2_t						ChildChunks				= 0;	// | num bytes of children chunks (M)
 
-		inline	bool				IsType					(vcst_t riff)	const	{
-			return riff == Type;
-		}
+		inline	bool				IsType					(vcst_t riff)	const	{ return riff == Type.Storage; }
 	};
 
 	struct SVOXTransformFrame { // DICT	: frame attributes
@@ -272,7 +270,7 @@ namespace llc
 			vcu0_t					remaining				= input;
 			SVOXData					loaded					= {};
 			if_fail_fe(loadPOD(remaining, loaded.Header));
-			if_true_fe(vcst_t{loaded.Header.MagicNumber} != "VOX ");
+			if_true_fe(vcst_t{loaded.Header.MagicNumber.Storage} != "VOX ");
 			bool						mainFound				= false;
 			while(remaining.size()) {
 				SVOXChunkHeader			readChunkHeader			= {};
@@ -420,7 +418,7 @@ namespace llc
 					if_fail_fe(loaded.ChunksTransform.push_back(newChunk));
 				}
 				else {
-					vcst_t					chunkType				= {readChunkHeader.Type};
+					vcst_t					chunkType				= {readChunkHeader.Type.Storage};
 					warning_printf("Unknown chunk type: %.*s.", LLC_VIEW_ARGS(chunkType));
 				}
 			}

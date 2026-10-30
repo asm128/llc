@@ -18,5 +18,5 @@ sttc ::llc::err_t testImageBoundsTyped(::llc::ATestError & results) {
 }
 
 ::llc::err_t testImageBounds(::llc::ATestError & results, ::llc::vcst_t) {
-	rtrn ::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn testImageBoundsTyped<typename decltype(type)::type>(results); });
+	rtrn ::llc::testTypePack(::llc::type_pack_integers{}, [&](auto type) { rtrn testImageBoundsTyped<typename decltype(type)::type>(results); });
 }

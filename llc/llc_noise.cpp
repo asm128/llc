@@ -1,7 +1,7 @@
 #include "llc_noise.h"
 																	// 4611686018427387904
 // Based on noiseNormal1D() returns a value between 0 and 1.
-//double						::llc::randNoise			(uint64_t seed)				noexcept	{
+//f3_t						::llc::randNoise			(u3_t seed)				noexcept	{
 //		static	::llc::SRandomGenerator		generator;
 //		if( generator.Seed != seed )
 //			generator.Reset(seed);

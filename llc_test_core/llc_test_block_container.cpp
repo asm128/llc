@@ -120,6 +120,6 @@ sttc ::llc::err_t testBlockContainerNTS(::llc::ATestError & errors) {
 }
 
 ::llc::err_t testBlockContainer(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
-	if_fail_fe(::llc::testTypePack(::llc::integer_bounds_types{}, [&](auto type) { rtrn ::testBlockContainerTypeLogged<typename decltype(type)::type>(errors); }));
+	if_fail_fe(::llc::testTypePack(::llc::type_pack_integers{}, [&](auto type) { rtrn ::testBlockContainerTypeLogged<typename decltype(type)::type>(errors); }));
 	rtrn ::testBlockContainerNTS(errors);
 }

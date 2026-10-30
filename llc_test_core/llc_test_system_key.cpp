@@ -217,7 +217,7 @@ stxp SExpectedSystemKey SYSTEM_KEYS[] = {
 };
 
 ::llc::err_t testSystemKey(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
-	stacxpr bool correctUnderlyingType = ::std::is_same_v<::std::underlying_type_t<::llc::SYSTEM_KEY>, ::llc::u0_t>;
+	stxp bool correctUnderlyingType = ::std::is_same_v<::std::underlying_type_t<::llc::SYSTEM_KEY>, ::llc::u0_t>;
 	LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_STORAGE, false == correctUnderlyingType || sizeof(::llc::SYSTEM_KEY) != sizeof(::llc::u0_t), "Enum bytes:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SYSTEM_KEY), (::llc::u2_t)sizeof(::llc::u0_t));
 
 	cnst ::llc::enum_definition<::llc::SYSTEM_KEY>& registry = ::llc::get_enum<::llc::SYSTEM_KEY>();

@@ -46,7 +46,7 @@ namespace llc
 		xcb_drawable_t				IdDrawableBackPixmap		= {};
 
 									~SWindowPlatformDetail		()	{
-			if(uint32_t(-1) != GC) {
+			if(u2_t(-1) != GC) {
 				xcb_free_gc(Connection, GC);
 				info_printf("%s.", "Window graphics context freed");
 			}
@@ -56,7 +56,7 @@ namespace llc
 
 	struct SWindow {
 		typedef	bgra					TTexel;
-		typedef	rt<TTexel, uint32_t>	TOffscreen;
+		typedef	rt<TTexel, u2_t>	TOffscreen;
 
 		SWindowPlatformDetail			PlatformDetail			= {};
 		apobj<SEventSystem>				EventQueue				= {};

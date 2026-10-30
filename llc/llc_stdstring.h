@@ -19,6 +19,6 @@ namespace llc
 			tolower(input[iByte]);
 		return 0;
 	}
-	err_t			stoull		(vcst_t input, uint64_t & output);
+	err_t			stoull		(vcst_t input, u3_t & output);
 }
 #endif // LLC_STDSTRING_H_23627

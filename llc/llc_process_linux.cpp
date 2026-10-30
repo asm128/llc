@@ -129,7 +129,7 @@ sttc llc::err_t processPipe(int & readEnd, int & writeEnd) {
 llc::err_t processRedirect(SProcessLinux & process) {
 	if(0 < process.PID)
 		rtrn OS_BUSY;
-	llc_necs(processPipesClose(process));
+	if_fail_fe(processPipesClose(process));
 	SProcessNativeScope<SProcessLinux> rollback{process};
 	if_fail_ve(OS_ERROR, processPipe(process.StdinRead, process.StdinWrite));
 	if_fail_ve(OS_ERROR, processPipe(process.StdoutRead, process.StdoutWrite));
@@ -138,14 +138,14 @@ llc::err_t processRedirect(SProcessLinux & process) {
 }
 
 // Compact one writable command line into argv storage; no per-argument strings or shell.
-// Match MS CRT double quotes/backslashes, including argv[0]'s literal backslashes.
+// Match MS CRT f3_t quotes/backslashes, including argv[0]'s literal backslashes.
 sttc llc::err_t processArguments(as0_t & storage, apod<char*> & arguments) {
 	u2_t read = 0, write = 0;
 	while(read + 1 < storage.size()) {
 		while(' ' == storage[read] || '\t' == storage[read]) ++read;
 		if(!storage[read]) break;
 		cnst bool programName = 0 == arguments.size();
-		llc_necs(arguments.push_back(storage.begin() + write));
+		if_fail_fe(arguments.push_back(storage.begin() + write));
 		bool quoted = false;
 		while(storage[read] && (quoted || (' ' != storage[read] && '\t' != storage[read]))) {
 			u2_t slashes = 0;
@@ -173,7 +173,7 @@ sttc llc::err_t processArguments(as0_t & storage, apod<char*> & arguments) {
 		storage[write++] = 0;
 	}
 	if_true_fef(!arguments.size() || !arguments[0][0], "%s", "Command line must include a nonempty program name.");
-	llc_necs(arguments.push_back(0));
+	if_fail_fe(arguments.push_back(0));
 	rtrn 0;
 }
 
@@ -185,17 +185,17 @@ llc::err_t processCreate(SProcessLinux & process, vcst_t application, vcst_t com
 	if_true_fef(commandLine.size() && memchr(commandLine.begin(), 0, commandLine.size()), "%s", "Command line contains an embedded zero.");
 	as0_t argumentStorage, environmentStorage = environment;
 	apod<char*> argv, envp;
-	llc_necs(argumentStorage.append(commandLine.begin(), commandLine.size()));
-	llc_necs(argumentStorage.push_back(0));
-	llc_necs(processArguments(argumentStorage, argv));
+	if_fail_fe(argumentStorage.append(commandLine.begin(), commandLine.size()));
+	if_fail_fe(argumentStorage.push_back(0));
+	if_fail_fe(processArguments(argumentStorage, argv));
 	string executable = application;
 	for(u2_t offset = 0; offset < environmentStorage.size() && environmentStorage[offset]; ) {
 		char * end = (char*)memchr(environmentStorage.begin() + offset, 0, environmentStorage.size() - offset);
 		if_null_fef(end, "%s", "Unterminated process environment entry.");
-		llc_necs(envp.push_back(environmentStorage.begin() + offset));
+		if_fail_fe(envp.push_back(environmentStorage.begin() + offset));
 		offset = (u2_t)(end - environmentStorage.begin()) + 1;
 	}
-	llc_necs(envp.push_back(0));
+	if_fail_fe(envp.push_back(0));
 	cnst bool redirected = 0 <= process.StdinRead && 0 <= process.StdinWrite && 0 <= process.StdoutRead && 0 <= process.StdoutWrite;
 	if_true_fef(!redirected && (0 <= process.StdinRead || 0 <= process.StdinWrite || 0 <= process.StdoutRead || 0 <= process.StdoutWrite), "%s", "Incomplete process pipe setup.");
 	posix_spawn_file_actions_t actions;
@@ -327,7 +327,7 @@ stct auto_process_writer : auto_handler<pthread_t*, nullptr> {
 
 llc::err_t processCommunicate(SProcessLinux & process, vcu0_t input, au0_t & output) {
 	if(!input.size()) {
-		llc_necs(processWrite(process, input));
+		if_fail_fe(processWrite(process, input));
 		rtrn processRead(process, output);
 	}
 	SProcessInput context = {process, input};

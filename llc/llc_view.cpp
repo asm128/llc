@@ -1,23 +1,23 @@
 #include "llc_view.h"
 
-::llc::error_t			llc::trim				(::llc::vcst_t & trimmed, cnst ::llc::vcst_t & original, cnst ::llc::vcst_t & characters) 	{
-	u2_c				countChars				= ::llc::ltrim(trimmed, original, characters);
-	return countChars + ::llc::rtrim(trimmed, trimmed, characters);
+llc::err_t	llc::trim			(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters) 	{
+	u2_c		countChars				= ltrim(trimmed, original, characters);
+	return countChars + rtrim(trimmed, trimmed, characters);
 }
 
-::llc::error_t			llc::ltrim				(::llc::vcst_t & trimmed, cnst ::llc::vcst_t & original, cnst ::llc::vcst_t & characters)	{
-	::llc::u2_t					iChar					= 0;
-	while(iChar < original.size() && original.size() >= (::llc::u2_t)::llc::find(original[iChar], characters))
+llc::err_t	llc::ltrim			(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters)	{
+	u2_t			iChar				= 0;
+	while(iChar < original.size() && original.size() >= (u2_t)find(original[iChar], characters))
 		++iChar;
-	trimmed					= {original.begin() + iChar, original.size() - iChar};
+	trimmed		= {original.begin() + iChar, original.size() - iChar};
 	return iChar;
 }
 
-::llc::error_t			llc::rtrim				(::llc::vcst_t & trimmed, cnst ::llc::vcst_t & original, cnst ::llc::vcst_t & characters)	{
-	::llc::u2_t					iChar					= original.size() - 1;
-	while(iChar < original.size() && original.size() >= (::llc::u2_t)::llc::find(original[iChar], characters))
+llc::err_t	llc::rtrim			(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters)	{
+	u2_t			iChar				= original.size() - 1;
+	while(iChar < original.size() && original.size() >= (u2_t)find(original[iChar], characters))
 		--iChar;
-	u2_c				trimmedCount			= original.size() - iChar;
-	trimmed					= {original.begin(), original.size() - trimmedCount + 1};
+	u2_c			trimmedCount		= original.size() - iChar;
+	trimmed		= {original.begin(), original.size() - trimmedCount + 1};
 	return trimmedCount;
 }

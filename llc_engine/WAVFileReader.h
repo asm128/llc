@@ -15,20 +15,24 @@
 
 namespace DirectX
 {
-	HRESULT					LoadWAVAudioInMemory	(::llc::vcu0_t wavData, _Outptr_ const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioView) noexcept;
-	HRESULT					LoadWAVAudioFromFile	(::llc::vcst_t szFileName, ::llc::au0_t & wavData, const WAVEFORMATEX* * wfx, ::llc::vcu0_t & audioView) noexcept;
+	LLC_USING_APOD();
+	LLC_USING_VIEW();
+	LLC_USING_TYPEINT();
+
+	HRESULT					LoadWAVAudioInMemory	(vcu0_t wavData, _Outptr_ const WAVEFORMATEX* * wfx, vcu0_t & audioView) noexcept;
+	HRESULT					LoadWAVAudioFromFile	(vcst_t szFileName, au0_t & wavData, const WAVEFORMATEX* * wfx, vcu0_t & audioView) noexcept;
 							
 	struct WAVData {		
 		const WAVEFORMATEX		* WaveFormat			= 0;
-		::llc::vcu0_t				AudioView				= {};
-		uint32_t				LoopStart				= 0;
-		uint32_t				LoopLength				= 0;
-		const uint32_t			* Seek					= 0;	// Note: XMA Seek data is Big-Endian
-		uint32_t				SeekCount				= 0;
+		vcu0_t				AudioView				= {};
+		u2_t				LoopStart				= 0;
+		u2_t				LoopLength				= 0;
+		const u2_t			* Seek					= 0;	// Note: XMA Seek data is Big-Endian
+		u2_t				SeekCount				= 0;
 	};						
 							
-	HRESULT					LoadWAVAudioInMemoryEx	(::llc::vcu0_t wavData, WAVData & result) noexcept;
-	HRESULT					LoadWAVAudioFromFileEx	(::llc::vcst_t szFileName, ::llc::au0_t & wavData, WAVData & result) noexcept;
+	HRESULT					LoadWAVAudioInMemoryEx	(vcu0_t wavData, WAVData & result) noexcept;
+	HRESULT					LoadWAVAudioFromFileEx	(vcst_t szFileName, au0_t & wavData, WAVData & result) noexcept;
 }
 
 #endif // LLC_WINDOWS

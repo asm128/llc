@@ -24,14 +24,14 @@ namespace llc
 		::llc::au0_t									Data			= {};
 
 		::llc::error_t								Save			(::llc::apod<uint8_t> & output)	const	{ 
-			llc_necs(llc::savePOD	(output, Desc));
-			llc_necs(llc::saveView(output, Data));
+			if_fail_fe(llc::savePOD	(output, Desc));
+			if_fail_fe(llc::saveView(output, Data));
 			return 0; 
 		}
 
 		::llc::error_t								Load			(::llc::vcu0_t & input)	{ 
-			llc_necs(llc::loadPOD (input, Desc));
-			llc_necs(llc::loadView(input, Data));
+			if_fail_fe(llc::loadPOD (input, Desc));
+			if_fail_fe(llc::loadView(input, Data));
 			return 0;
 		}
 	};

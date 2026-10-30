@@ -18,7 +18,7 @@ namespace llc
 		constexpr	u2_t				remaining							() const nxpt	{ rtrn CursorPosition <= size() ? size() - CursorPosition : 0; }
 
 		tplt<tpnm _tPOD>
-		error_t								read_pod							(view<_tPOD> output) {
+		err_t								read_pod							(view<_tPOD> output) {
 			u2_c								count								= output.size();
 			if_true_fef(count > remaining() / szof(_tPOD), "%" LLC_FMT_U2 " > %" LLC_FMT_U2 ".", count, remaining() / szof(_tPOD));
 			if_true_fef(count > 0x7FFFFFFFU / szof(_tPOD), "%" LLC_FMT_U2 " > %" LLC_FMT_U2 ".", count, 0x7FFFFFFFU / szof(_tPOD));
@@ -28,11 +28,11 @@ namespace llc
 			CursorPosition						+= byteCount;
 			rtrn byteCount;
 		}
-		tplt<tpnm _tPOD>					inln	error_t	read_pod	(_tPOD & output)			{ rtrn read_pod(view<_tPOD>{&output, 1}); }
-		tplt<tpnm _tPOD, size_t _sCount>	inln	error_t	read_pod	(_tPOD (&output)[_sCount])	{ rtrn read_pod(view<_tPOD>{output}); }
+		tplt<tpnm _tPOD>					inln	err_t	read_pod	(_tPOD & output)			{ rtrn read_pod(view<_tPOD>{&output, 1}); }
+		tplt<tpnm _tPOD, size_t _sCount>	inln	err_t	read_pod	(_tPOD (&output)[_sCount])	{ rtrn read_pod(view<_tPOD>{output}); }
 
 		tplt<tpnm _tPOD> requires(false == is_cnst<_tElement>::Value)
-		error_t								write_pod							(view<cnst _tPOD> input) {
+		err_t								write_pod							(view<cnst _tPOD> input) {
 			u2_c								count								= input.size();
 			if_true_fef(count > remaining() / szof(_tPOD), "%" LLC_FMT_U2 " > %" LLC_FMT_U2 ".", count, remaining() / szof(_tPOD));
 			if_true_fef(count > 0x7FFFFFFFU / szof(_tPOD), "%" LLC_FMT_U2 " > %" LLC_FMT_U2 ".", count, 0x7FFFFFFFU / szof(_tPOD));
@@ -43,9 +43,9 @@ namespace llc
 			rtrn byteCount;
 		}
 		tplt<tpnm _tPOD> requires(false == is_cnst<_tElement>::Value)
-		inln	error_t						write_pod							(cnst _tPOD & input)			{ rtrn write_pod(view<cnst _tPOD>{&input, 1}); }
+		inln	err_t						write_pod							(cnst _tPOD & input)			{ rtrn write_pod(view<cnst _tPOD>{&input, 1}); }
 		tplt<tpnm _tPOD, size_t _sCount> requires(false == is_cnst<_tElement>::Value)
-		inln	error_t						write_pod							(cnst _tPOD (&input)[_sCount])	{ rtrn write_pod(view<cnst _tPOD>{input}); }
+		inln	err_t						write_pod							(cnst _tPOD (&input)[_sCount])	{ rtrn write_pod(view<cnst _tPOD>{input}); }
 	};
 } // namespace
 

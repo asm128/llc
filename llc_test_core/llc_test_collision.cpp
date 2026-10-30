@@ -73,11 +73,11 @@ GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, AABB_NEGATIVE_SIZE_RESULT		, 66, "The
 GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, AABB_NEGATIVE_SIZE_PRESERVED	, 67, "A rejected negative rectangle size changed an output edge.");
 GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, AABB_ZERO_RESULT				, 68, "The AABB builder rejected a zero-area box.");
 GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, AABB_ZERO_EDGE				, 69, "A zero-area AABB did not collapse every edge to its center.");
-GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_LINE_F2_RESULT		, 70, "The float line-intersection contract used by Gontrill failed.");
-GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_LINE_F2_POINT		, 71, "The float line-intersection contract used by Gontrill produced the wrong point.");
-GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_RAY_F2_RESULT		, 72, "The float ray-sphere contract used by Galaxy Hell failed.");
-GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_RAY_F2_PARAMETER	, 73, "The float ray-sphere contract used by Galaxy Hell produced the wrong parameter.");
-GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_RAY_F2_POINT		, 74, "The float ray-sphere contract used by Galaxy Hell produced the wrong point.");
+GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_LINE_F2_RESULT		, 70, "The f2_t line-intersection contract used by Gontrill failed.");
+GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_LINE_F2_POINT		, 71, "The f2_t line-intersection contract used by Gontrill produced the wrong point.");
+GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_RAY_F2_RESULT		, 72, "The f2_t ray-sphere contract used by Galaxy Hell failed.");
+GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_RAY_F2_PARAMETER	, 73, "The f2_t ray-sphere contract used by Galaxy Hell produced the wrong parameter.");
+GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_RAY_F2_POINT		, 74, "The f2_t ray-sphere contract used by Galaxy Hell produced the wrong point.");
 
 sttc bool collisionDiffers(::llc::f3_t actual, ::llc::f3_t expected) { rtrn false == (::llc::abs(actual - expected) <= ::llc::math_epsilon); }
 

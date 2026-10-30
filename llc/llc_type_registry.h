@@ -30,8 +30,8 @@ namespace llc
 
 #define LLC_END_POD(_structName)																							\
 	public:																													\
-		sinx	::llc::vcsc_t	llc_type_name			()	nxpt	{ rtrn {::llc::size(#_structName) - 1, #_structName}; }	\
-		sinx	uint32_t		llc_type_name_len		()	nxpt	{ rtrn ::llc::size(#_structName) - 1; }					\
+		sinx	::llc::view<sc_t>	llc_type_name			()	nxpt	{ rtrn {::llc::size(#_structName) - 1, #_structName}; }	\
+		sinx	u2_t		llc_type_name_len		()	nxpt	{ rtrn ::llc::size(#_structName) - 1; }					\
 	};																														\
 	static	const int	llc_tr_##_structName	= ::llc::STypeRegistrator<_structName>();
 
@@ -39,8 +39,8 @@ namespace llc
 
 #define LLC_STRUCT_MEMBER(_type, _name, ...)																	\
 	struct LLC_STRUCT_MEMBER_DESC_NAME(_name) {																	\
-		sinx	::llc::vcsc_t	llc_member_type_name	()	nxpt	{ rtrn {::llc::size(#_type) - 1, #_type}; }	\
-		sinx	::llc::vcsc_t	llc_member_name			()	nxpt	{ rtrn {::llc::size(#_name) - 1, #_name}; }	\
+		sinx	::llc::view<sc_t>	llc_member_type_name	()	nxpt	{ rtrn {::llc::size(#_type) - 1, #_type}; }	\
+		sinx	::llc::view<sc_t>	llc_member_name			()	nxpt	{ rtrn {::llc::size(#_name) - 1, #_name}; }	\
 	};																											\
 	_type				_name
 }

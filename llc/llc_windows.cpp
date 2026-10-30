@@ -6,7 +6,7 @@
 #	endif
 #	include <Windows.h>
 
-::llc::apod<char>		llc::getWindowsErrorAsString	(const int32_t lastError)					{	// Get the error message, if any.
+::llc::apod<char>		llc::getWindowsErrorAsString	(const s2_t lastError)					{	// Get the error message, if any.
 	if(0 == lastError)
 		return {};
 	char						* messageBuffer					= nullptr;
@@ -20,7 +20,7 @@
 	}
 }
 
-::llc::error_t			llc::wcstombs					(::llc::apod<char> & output, const ::llc::view<wchar_t> input)	{
+::llc::err_t			llc::wcstombs					(::llc::apod<char> & output, const ::llc::view<wchar_t> input)	{
 	if(0 == input.size())
 		return 0;
 
@@ -29,13 +29,13 @@
 		return 0;
 
 	::llc::apod<char>			converted;
-	llc_necs(converted.resize(sizeNeededForMultiByte));
+	if_fail_fe(converted.resize(sizeNeededForMultiByte));
 	WideCharToMultiByte(CP_UTF8, 0, input.begin(), input.size(), &converted[0], int(converted.size()), nullptr, nullptr);
-	llc_necs(output.append(converted));
+	if_fail_fe(output.append(converted));
 	return sizeNeededForMultiByte;
 }
 
-::llc::error_t			llc::mbstowcs					(::llc::apod<wchar_t> & output, ::llc::vcs0_t input)	{
+::llc::err_t			llc::mbstowcs					(::llc::apod<wchar_t> & output, ::llc::vcs0_t input)	{
 	if(0 == input.size())
 		return 0;
 

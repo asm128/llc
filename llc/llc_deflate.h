@@ -9,11 +9,11 @@
 namespace llc
 {
 #if defined(LLC_ESP32) || defined(LLC_ARDUINO)
-	stxp	::llc::u2_t		DEFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 4;
-	stxp	::llc::u2_t		INFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 4;
+	stxp	u2_t		DEFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 4;
+	stxp	u2_t		INFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 4;
 #else
-	stxp	::llc::u2_t		DEFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 32;
-	stxp	::llc::u2_t		INFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 32;
+	stxp	u2_t		DEFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 32;
+	stxp	u2_t		INFLATE_DEFAULT_CHUNK_SIZE		= 1024 * 32;
 #endif	
 	struct SDeflateSettings {
 		u2_t				SearchDepth			= 256;
@@ -29,13 +29,9 @@ namespace llc
 		LIFECYCLE_STATE		Status					= LIFECYCLE_STATE_IDLE;
 	};
 
-	struct SDeflateMatch {
-		rangeu3_t			Match					= {};
-		rangeu3_t			PreviousMatch			= {};
-	};
 
-	err_t			deflateInit			(SZipStream & output, vcu0_t input, SDeflateSettings settings = {});
-	err_t			inflateInit			(SZipStream & output, vcu0_t input);
+	err_t			deflateInit				(SZipStream & output, vcu0_t input, SDeflateSettings settings = {});
+	err_t			inflateInit				(SZipStream & output, vcu0_t input);
 
 	err_t			arrayDeflate			(vcu0_t inflated, au0_t & deflated, SDeflateSettings settings, u2_c chunkSize = DEFLATE_DEFAULT_CHUNK_SIZE);
 	err_t			arrayDeflate			(vcu0_t inflated, au0_t & deflated, u2_c chunkSize = DEFLATE_DEFAULT_CHUNK_SIZE);
@@ -54,3 +50,5 @@ namespace llc
 } // namespace
 
 #endif // LLC_DEFLATE_H_23627
+
+

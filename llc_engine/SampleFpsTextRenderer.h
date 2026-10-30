@@ -22,38 +22,38 @@ namespace llc
 		::llc::pcom<IDWriteTextLayout3>			TextLayout						= {};
 		::llc::pcom<IDWriteTextFormat2>			TextFormat						= {};
 
-		::llc::error_t							CreateDeviceResources	(ID2D1DeviceContext * d2dContext) { WhiteBrush = {}; llc_hrcall(d2dContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &WhiteBrush)); return 0; }
+		::llc::err_t							CreateDeviceResources	(ID2D1DeviceContext * d2dContext) { WhiteBrush = {}; llc_hrcall(d2dContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &WhiteBrush)); return 0; }
 		void									ReleaseDeviceResources	() { WhiteBrush = {}; }
 
 		// Initializes D2D resources used for text 
-		::llc::error_t							Initialize		(const ::llc::pobj<DX::D3DDeviceResources> & deviceResources)  {
+		::llc::err_t							Initialize		(const ::llc::pobj<DX::D3DDeviceResources> & deviceResources)  {
 			DeviceResources									= deviceResources;
 			// Create device independent resources
 			::llc::pcom<IDWriteTextFormat>						textFormat						= {};
 			llc_hrcall(DeviceResources->GetDWriteFactory()->CreateTextFormat(L"Segoe UI", nullptr, DWRITE_FONT_WEIGHT_LIGHT, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 32.0f, L"en-US", &textFormat));
-			llc_necs(textFormat.as(TextFormat));
+			if_fail_fe(textFormat.as(TextFormat));
 			llc_hrcall(TextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR));
 			llc_hrcall(DeviceResources->GetD2DFactory()->CreateDrawingStateBlock(&StateBlock));
 			return CreateDeviceResources(DeviceResources->GetD2DDeviceContext());
 		}
 
 		// Updates the text to be displayed.
-		::llc::error_t									Update							(double /*frameSeconds*/, double /*totalSeconds*/, uint32_t framesPerSecond) {
+		::llc::err_t									Update							(f3_t /*frameSeconds*/, f3_t /*totalSeconds*/, u2_t framesPerSecond) {
 			// Update display text.
-			uint32_t											fps								= framesPerSecond;
+			u2_t											fps								= framesPerSecond;
 			Text											= (fps > 0) ? std::to_wstring(fps) + L" FPS" : L" - FPS";
 
 			::llc::pcom<IDWriteTextLayout>						textLayout;
-			constexpr float										w								= 240.0f; // Max width of the input text.
-			constexpr float										h								= 50.0f;// Max height of the input text.
-			llc_hrcall(DeviceResources->GetDWriteFactory()->CreateTextLayout(Text.c_str(), (uint32_t) Text.length(), TextFormat, w, h, &textLayout));
-			llc_necs(textLayout.as(TextLayout));
+			constexpr f2_t										w								= 240.0f; // Max width of the input text.
+			constexpr f2_t										h								= 50.0f;// Max height of the input text.
+			llc_hrcall(DeviceResources->GetDWriteFactory()->CreateTextLayout(Text.c_str(), (u2_t) Text.length(), TextFormat, w, h, &textLayout));
+			if_fail_fe(textLayout.as(TextLayout));
 			llc_hrcall(TextLayout->GetMetrics(&TextMetrics));
 			return 0;
 		}
 
 		// Renders a frame to the screen.
-		::llc::error_t									Render							() {
+		::llc::err_t									Render							() {
 			ID2D1DeviceContext									* context						= DeviceResources->GetD2DDeviceContext();
 			const ::llc::n2f2_t								logicalSize						= DeviceResources->GetLogicalSize();
 

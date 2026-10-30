@@ -3,8 +3,14 @@
 #include "llc_bit.h"
 
 LLC_USING_TYPEINT();
+
 namespace llc
 {
+		struct SDeflateMatch {
+			rangeu3_t			Match					= {};
+			rangeu3_t			PreviousMatch			= {};
+		};
+
 		stxp rangeu1_t	DEFLATE_MATCH_LENGTHS	= {3, 256};
 		stxp u2_t		ZLIB_ADLER_MODULUS		= 65521;
 
@@ -135,7 +141,7 @@ namespace llc
 			pending.Value				|= value << pending.Width;
 			pending.Width				+= width;
 			while(pending.Width >= 8) {
-				llc_necs(output.push_back((u0_t)pending.Value));
+				if_fail_fe(output.push_back((u0_t)pending.Value));
 				pending.Value			>>= 8;
 				pending.Width			-= 8;
 			}
@@ -144,7 +150,7 @@ namespace llc
 
 		sttc err_t		bitsFlush				(SBitWindow & pending, au0_t & output) {
 			if(pending.Width) {
-				llc_necs(output.push_back((u0_t)pending.Value));
+				if_fail_fe(output.push_back((u0_t)pending.Value));
 			}
 			pending					= {};
 			rtrn 0;
@@ -197,16 +203,16 @@ namespace llc
 			u2_t lengthCode				= 0;
 			while(lengthCode + 1 < ::llc::size(LENGTH_BASE) && length >= LENGTH_BASE[lengthCode + 1])
 				++lengthCode;
-			llc_necs(fixedSymbolWrite(pending, output, (u1_t)(257U + lengthCode)));
+			if_fail_fe(fixedSymbolWrite(pending, output, (u1_t)(257U + lengthCode)));
 			if(LENGTH_EXTRA[lengthCode])
-				llc_necs(bitsWrite(pending, output, length - LENGTH_BASE[lengthCode], LENGTH_EXTRA[lengthCode]));
+				if_fail_fe(bitsWrite(pending, output, length - LENGTH_BASE[lengthCode], LENGTH_EXTRA[lengthCode]));
 
 			u2_t distanceCode			= 0;
 			while(distanceCode + 1 < ::llc::size(DISTANCE_BASE) && distance >= DISTANCE_BASE[distanceCode + 1])
 				++distanceCode;
-			llc_necs(bitsWrite(pending, output, reverse_bits(distanceCode, 5), 5));
+			if_fail_fe(bitsWrite(pending, output, reverse_bits(distanceCode, 5), 5));
 			if(DISTANCE_EXTRA[distanceCode])
-				llc_necs(bitsWrite(pending, output, distance - DISTANCE_BASE[distanceCode], DISTANCE_EXTRA[distanceCode]));
+				if_fail_fe(bitsWrite(pending, output, distance - DISTANCE_BASE[distanceCode], DISTANCE_EXTRA[distanceCode]));
 			rtrn 0;
 		}
 
@@ -305,7 +311,7 @@ namespace llc
 			u2_t index					= 0;
 			for(u0_t width = 1; width <= table.MaxWidth; ++width) {
 				u2_t bit				= 0;
-				llc_necs(bitsRead(input, 1, bit));
+				if_fail_fe(bitsRead(input, 1, bit));
 				code					|= bit;
 				cnst u2_t count			= table.Counts[width];
 				if(code < first + count) {
@@ -327,32 +333,32 @@ namespace llc
 			for(u2_t i = 256; i <= 279; ++i) literalWidths[i] = 7;
 			for(u2_t i = 280; i <= 287; ++i) literalWidths[i] = 8;
 			for(u2_t i =   0; i < ::llc::size(distanceWidths); ++i) distanceWidths[i] = 5;
-			llc_necs(huffmanBuild(literals, literalWidths, 15));
-			llc_necs(huffmanBuild(distances, distanceWidths, 15));
+			if_fail_fe(huffmanBuild(literals, literalWidths, 15));
+			if_fail_fe(huffmanBuild(distances, distanceWidths, 15));
 			rtrn 0;
 		}
 
 		sttc err_t		dynamicTables				(SBitReader & input, SHuffmanTable & literals, SHuffmanTable & distances) {
 			stxp u0_t order[]			= {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 			u2_t value					= 0;
-			llc_necs(bitsRead(input, 5, value)); cnst u2_t literalCount	= value + 257;
-			llc_necs(bitsRead(input, 5, value)); cnst u2_t distanceCount	= value + 1;
-			llc_necs(bitsRead(input, 4, value)); cnst u2_t lengthCount		= value + 4;
+			if_fail_fe(bitsRead(input, 5, value)); cnst u2_t literalCount	= value + 257;
+			if_fail_fe(bitsRead(input, 5, value)); cnst u2_t distanceCount	= value + 1;
+			if_fail_fe(bitsRead(input, 4, value)); cnst u2_t lengthCount		= value + 4;
 			if_true_fe(literalCount > 286 || distanceCount > 32);
 
 			u0_t codeWidths[19]		= {};
 			for(u2_t i = 0; i < lengthCount; ++i) {
-				llc_necs(bitsRead(input, 3, value));
+				if_fail_fe(bitsRead(input, 3, value));
 				codeWidths[order[i]]		= (u0_t)value;
 			}
 			SHuffmanTable codeLengths	= {};
-			llc_necs(huffmanBuild(codeLengths, codeWidths, 7));
+			if_fail_fe(huffmanBuild(codeLengths, codeWidths, 7));
 
 			u0_t widths[288 + 32]		= {};
 			cnst u2_t total				= literalCount + distanceCount;
 			for(u2_t i = 0; i < total;) {
 				u1_t symbol				= 0;
-				llc_necs(huffmanRead(input, codeLengths, symbol));
+				if_fail_fe(huffmanRead(input, codeLengths, symbol));
 				if(symbol <= 15) {
 					widths[i++]			= (u0_t)symbol;
 					continue;
@@ -361,14 +367,14 @@ namespace llc
 				u0_t repeatedWidth			= 0;
 				if(symbol == 16) {
 					if_true_fe(0 == i);
-					llc_necs(bitsRead(input, 2, repeat)); repeat += 3;
+					if_fail_fe(bitsRead(input, 2, repeat)); repeat += 3;
 					repeatedWidth			= widths[i - 1];
 				}
 				else if(symbol == 17) {
-					llc_necs(bitsRead(input, 3, repeat)); repeat += 3;
+					if_fail_fe(bitsRead(input, 3, repeat)); repeat += 3;
 				}
 				else if(symbol == 18) {
-					llc_necs(bitsRead(input, 7, repeat)); repeat += 11;
+					if_fail_fe(bitsRead(input, 7, repeat)); repeat += 11;
 				}
 				else
 					rtrn -1;
@@ -377,24 +383,24 @@ namespace llc
 					widths[i++]			= repeatedWidth;
 			}
 			if_true_fe(0 == widths[256]);
-			llc_necs(huffmanBuild(literals, {widths, literalCount}, 15));
-			llc_necs(huffmanBuild(distances, {&widths[literalCount], distanceCount}, 15));
+			if_fail_fe(huffmanBuild(literals, {widths, literalCount}, 15));
+			if_fail_fe(huffmanBuild(distances, {&widths[literalCount], distanceCount}, 15));
 			rtrn 0;
 		}
 
 		sttc err_t		inflateByte				(SZipStream & stream, au0_t & output, u3_t produced, SAdler32 & adler, u0_t value) {
 			stream.Window[(u2_t)produced & (stream.Window.size() - 1)] = value;
 			adlerAdd(adler, value);
-			llc_necs(output.push_back(value));
+			if_fail_fe(output.push_back(value));
 			rtrn 0;
 		}
 
 		sttc err_t		inflateCompressed			(SZipStream & stream, SBitReader & input, cnst SHuffmanTable & literals, cnst SHuffmanTable & distances, au0_t & output, u3_t & produced, SAdler32 & adler) {
 			while(true) {
 				u1_t symbol				= 0;
-				llc_necs(huffmanRead(input, literals, symbol));
+				if_fail_fe(huffmanRead(input, literals, symbol));
 				if(symbol < 256) {
-					llc_necs(inflateByte(stream, output, produced++, adler, (u0_t)symbol));
+					if_fail_fe(inflateByte(stream, output, produced++, adler, (u0_t)symbol));
 					continue;
 				}
 				if(symbol == 256)
@@ -403,20 +409,20 @@ namespace llc
 				cnst u2_t lengthCode	= symbol - 257;
 				u2_t extra				= 0;
 				if(LENGTH_EXTRA[lengthCode])
-					llc_necs(bitsRead(input, LENGTH_EXTRA[lengthCode], extra));
+					if_fail_fe(bitsRead(input, LENGTH_EXTRA[lengthCode], extra));
 				cnst u2_t length		= LENGTH_BASE[lengthCode] + extra;
 
 				u1_t distanceCode		= 0;
-				llc_necs(huffmanRead(input, distances, distanceCode));
+				if_fail_fe(huffmanRead(input, distances, distanceCode));
 				if_true_fe(distanceCode >= ::llc::size(DISTANCE_BASE));
 				extra					= 0;
 				if(DISTANCE_EXTRA[distanceCode])
-					llc_necs(bitsRead(input, DISTANCE_EXTRA[distanceCode], extra));
+					if_fail_fe(bitsRead(input, DISTANCE_EXTRA[distanceCode], extra));
 				cnst u2_t distance		= DISTANCE_BASE[distanceCode] + extra;
 				if_true_fe(0 == distance || distance > produced || distance > stream.Window.size());
 				for(u2_t i = 0; i < length; ++i) {
 					cnst u0_t value		= stream.Window[(u2_t)(produced - distance) & (stream.Window.size() - 1)];
-					llc_necs(inflateByte(stream, output, produced++, adler, value));
+					if_fail_fe(inflateByte(stream, output, produced++, adler, value));
 				}
 			}
 		}
@@ -425,19 +431,19 @@ namespace llc
 			SZlibHeader header			= {};
 			header.Set(stream.Settings.WindowBits, stream.Settings.CompressionLevel);
 			cnst u0_t headerBytes[]		= {header.Method.Encode(), header.Flags.Encode()};
-			llc_necs(output.append(headerBytes));
+			if_fail_fe(output.append(headerBytes));
 			SBitWindow pending			= {};
 			SDeflateBlockHeader block	= {};
 			block.Final					= 1;
 			block.Type					= DEFLATE_BLOCK_TYPE_FIXED;
-			llc_necs(bitsWrite(pending, output, block.Encode(), block.BIT_COUNT));
+			if_fail_fe(bitsWrite(pending, output, block.Encode(), block.BIT_COUNT));
 			SDeflateHistory history		= deflateHistory(stream);
 			SAdler32 adler				= {};
 			for(u2_t offset = 0; offset < stream.Stream.size();) {
 				cnst SDeflateMatch match	= matchFind(history, stream.Stream, offset, stream.Settings.SearchDepth);
 				if(match.Match.Count >= 3) {
 					cnst u2_t length		= (u2_t)match.Match.Count;
-					llc_necs(matchWrite(pending, output, length, offset - (u2_t)match.Match.Offset));
+					if_fail_fe(matchWrite(pending, output, length, offset - (u2_t)match.Match.Offset));
 					for(u2_t i = 0; i < length; ++i) {
 						adlerAdd(adler, stream.Stream[offset + i]);
 						matchInsert(history, stream.Stream, offset + i);
@@ -446,22 +452,22 @@ namespace llc
 				}
 				else {
 					adlerAdd(adler, stream.Stream[offset]);
-					llc_necs(fixedSymbolWrite(pending, output, stream.Stream[offset]));
+					if_fail_fe(fixedSymbolWrite(pending, output, stream.Stream[offset]));
 					matchInsert(history, stream.Stream, offset++);
 				}
 			}
-			llc_necs(fixedSymbolWrite(pending, output, 256));
-			llc_necs(bitsFlush(pending, output));
+			if_fail_fe(fixedSymbolWrite(pending, output, 256));
+			if_fail_fe(bitsFlush(pending, output));
 			cnst u2_t checksum			= adlerValue(adler);
 			cnst u0_t trailer[]			= {::llc::byte_at(checksum, 3), ::llc::byte_at(checksum, 2), ::llc::byte_at(checksum, 1), ::llc::byte_at(checksum, 0)};
-			llc_necs(output.append(trailer));
+			if_fail_fe(output.append(trailer));
 			rtrn 0;
 		}
 
 		sttc err_t		inflateWrite				(SZipStream & stream, au0_t & output) {
 			if_true_fe(stream.Stream.size() < 6);
 			SZlibHeader header			= {};
-			llc_necs(zlibHeaderRead(header, stream.Stream));
+			if_fail_fe(zlibHeaderRead(header, stream.Stream));
 			cnst u2_t payloadSize		= stream.Stream.size() - 6;
 			SBitReader input				= {{&stream.Stream[2], payloadSize}, {}};
 			SAdler32 adler				= {};
@@ -469,7 +475,7 @@ namespace llc
 			bool finalBlock				= false;
 			while(!finalBlock) {
 				u2_t value				= 0;
-				llc_necs(bitsRead(input, SDeflateBlockHeader::BIT_COUNT, value));
+				if_fail_fe(bitsRead(input, SDeflateBlockHeader::BIT_COUNT, value));
 				SDeflateBlockHeader block	= {};
 				block.Decode((u0_t)value);
 				finalBlock				= 0 != block.Final;
@@ -477,18 +483,18 @@ namespace llc
 				if(DEFLATE_BLOCK_TYPE_STORED == blockType) {
 					bitsAlign(input);
 					u2_t length = 0, inverse = 0;
-					llc_necs(bitsRead(input, 16, length));
-					llc_necs(bitsRead(input, 16, inverse));
+					if_fail_fe(bitsRead(input, 16, length));
+					if_fail_fe(bitsRead(input, 16, inverse));
 					if_true_fe((u1_t)length != (u1_t)~inverse);
 					for(u2_t i = 0; i < length; ++i) {
-						llc_necs(bitsRead(input, 8, value));
-						llc_necs(inflateByte(stream, output, produced++, adler, (u0_t)value));
+						if_fail_fe(bitsRead(input, 8, value));
+						if_fail_fe(inflateByte(stream, output, produced++, adler, (u0_t)value));
 					}
 				}
 				else if(DEFLATE_BLOCK_TYPE_FIXED == blockType || DEFLATE_BLOCK_TYPE_DYNAMIC == blockType) {
 					SHuffmanTable literals = {}, distances = {};
-					llc_necs(DEFLATE_BLOCK_TYPE_FIXED == blockType ? fixedTables(literals, distances) : dynamicTables(input, literals, distances));
-					llc_necs(inflateCompressed(stream, input, literals, distances, output, produced, adler));
+					if_fail_fe(DEFLATE_BLOCK_TYPE_FIXED == blockType ? fixedTables(literals, distances) : dynamicTables(input, literals, distances));
+					if_fail_fe(inflateCompressed(stream, input, literals, distances, output, produced, adler));
 				}
 				else
 					rtrn -1;
@@ -508,7 +514,7 @@ llc::err_t			llc::deflateInit			(SZipStream & output, vcu0_t input, SDeflateSett
 	output.Window.clear();
 	output.Previous.clear();
 	output.Head.clear();
-	llc_necs(::llc::deflateSettingsValidate(settings));
+	if_fail_fe(::llc::deflateSettingsValidate(settings));
 	cnst u2_t windowSize			= ::llc::bit_make<u2_t>(settings.WindowBits);
 	cnst u2_t hashSize				= ::llc::bit_make<u2_t>(settings.HashBits);
 	if_fail_fe(output.Window.resize(windowSize, {}));
@@ -522,7 +528,7 @@ llc::err_t			llc::inflateInit			(SZipStream & output, vcu0_t input) {
 	output.Stream				= input;
 	output.Status				= LIFECYCLE_STATE_FAILED;
 	SZlibHeader header			= {};
-	llc_necs(::llc::zlibHeaderRead(header, input));
+	if_fail_fe(::llc::zlibHeaderRead(header, input));
 	output.Window.clear();
 	if_fail_fe(output.Window.resize(::llc::bit_make<u2_t>(header.WindowBits()), {}));
 	output.Previous.clear();
@@ -542,11 +548,11 @@ llc::err_t			llc::arrayDeflate			(vcu0_t inflated, au0_t & deflated, SDeflateSet
 #else
 	(void)chunkSize;
 	SZipStream stream				= {};
-	llc_necs(deflateInit(stream, inflated, settings));
+	if_fail_fe(deflateInit(stream, inflated, settings));
 	stream.Status				= LIFECYCLE_STATE_BUSY;
 	cnst err_t result				= ::llc::deflateWrite(stream, deflated);
 	stream.Status				= failed(result) ? LIFECYCLE_STATE_FAILED : LIFECYCLE_STATE_FINISHED;
-	llc_necs(result);
+	if_fail_fe(result);
 #endif
 	rtrn 0;
 }
@@ -563,11 +569,13 @@ llc::err_t			llc::arrayInflate			(vcu0_t deflated, au0_t & inflated, u2_c chunkS
 #else
 	(void)chunkSize;
 	SZipStream stream				= {};
-	llc_necs(inflateInit(stream, deflated));
+	if_fail_fe(inflateInit(stream, deflated));
 	stream.Status				= LIFECYCLE_STATE_BUSY;
 	cnst err_t result				= ::llc::inflateWrite(stream, inflated);
 	stream.Status				= failed(result) ? LIFECYCLE_STATE_FAILED : LIFECYCLE_STATE_FINISHED;
-	llc_necs(result);
+	if_fail_fe(result);
 #endif
 	rtrn 0;
 }
+
+

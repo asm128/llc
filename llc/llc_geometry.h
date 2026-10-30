@@ -44,8 +44,8 @@ namespace llc
 		::llc::n3f2_t		Origin			= {};
 		::llc::n2u1_t		CellCount		= {32, 32};
 		bool				Reverse			= false;
-		float				Circumference	= 1.0f;
-		float				Radius			= .5f;
+		f2_t				Circumference	= 1.0f;
+		f2_t				Radius			= .5f;
 		::llc::quatf2_t		Orientation		= {0, 0, 0, 1};
 	
 		LLC_DEFAULT_OPERATOR_C(SParamsSphere, Origin == other.Origin && CellCount == other.CellCount && Reverse == other.Reverse && Circumference == other.Circumference && Radius == other.Radius);
@@ -54,8 +54,8 @@ namespace llc
 	struct SParamsDisc { 
 		::llc::n3f2_t		Origin			= {};
 		::llc::u1_t			Slices			= 16;
-		float				Circumference	= 1.0f;
-		float				Radius			= .5f;
+		f2_t				Circumference	= 1.0f;
+		f2_t				Radius			= .5f;
 		::llc::quatf2_t		Orientation		= {0, 0, 0, 1};
 	
 		LLC_DEFAULT_OPERATOR_C(SParamsDisc, Origin == other.Origin && Slices == other.Slices && Circumference == other.Circumference && Radius == other.Radius);
@@ -75,7 +75,7 @@ namespace llc
 		::llc::n3f2_t		Origin			= {};
 		::llc::u1_t			Slices			= 16;
 		bool				Reverse			= false;
-		float				Circumference	= 1.0f;
+		f2_t				Circumference	= 1.0f;
 		::llc::minmaxf2_t	Radius			= {.45f, .5f};
 		::llc::quatf2_t		Orientation		= {0, 0, 0, 1};
 	
@@ -86,10 +86,10 @@ namespace llc
 		::llc::n3f2_t		Origin			= {};
 		::llc::n2u1_t		CellCount		= {16, 1};
 		bool				Reverse			= false;
-		float				Circumference	= 1.0f;
+		f2_t				Circumference	= 1.0f;
 		::llc::minmaxf2_t	RadiusYMin		= {.45f, .5f};
 		::llc::minmaxf2_t	RadiusYMax		= {.45f, .5f};
-		float				Height			= 1;
+		f2_t				Height			= 1;
 		::llc::quatf2_t		Orientation		= {0, 0, 0, 1};
 
 		LLC_DEFAULT_OPERATOR_C(SParamsTube, Origin == other.Origin && CellCount == other.CellCount && Reverse == other.Reverse && Circumference == other.Circumference && RadiusYMin == other.RadiusYMin && RadiusYMax == other.RadiusYMax && Height == other.Height);
@@ -99,9 +99,9 @@ namespace llc
 		::llc::n3f2_t		Origin			= {};
 		::llc::n2u1_t		CellCount		= {16, 2};
 		bool				Reverse			= false;
-		float				Circumference	= 1.0f;
+		f2_t				Circumference	= 1.0f;
 		::llc::minmaxf2_t	Radius			= {.5f, .5f};
-		float				Height			= 1;
+		f2_t				Height			= 1;
 		::llc::quatf2_t		Orientation		= {0, 0, 0, 1};
 
 		LLC_DEFAULT_OPERATOR_C(SParamsCylinderWall, Origin == other.Origin && CellCount == other.CellCount && Reverse == other.Reverse && Circumference == other.Circumference && Radius == other.Radius && Height == other.Height); 
@@ -122,7 +122,7 @@ namespace llc
 		::llc::n3f2_t		Origin			= {0, .5f};
 		::llc::n2u1_t		CellCount		= {9, 9};
 		::llc::minmaxf2_t	Radius			= {.5f, .5f};	// TODO: Not working
-		float				Length			= 1;
+		f2_t				Length			= 1;
 		::llc::quatf2_t		Orientation		= {0, 0, 0, 1};
 
 		LLC_DEFAULT_OPERATOR_C(SParamsHelix, Origin == other.Origin && CellCount == other.CellCount && Radius == other.Radius && Length == other.Length); 
@@ -131,19 +131,19 @@ namespace llc
 #pragma pack(pop)
 
 #ifndef LLC_ATMEL
-	::llc::error_t		geometryBuildCircleSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCircle			& params);
-	::llc::error_t		geometryBuildDisc			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsDisc			& params);
-	::llc::error_t		geometryBuildBox			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsBox			& params);
-	::llc::error_t		geometryBuildSphere			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsSphere			& params);
-	::llc::error_t		geometryBuildCylinderWall	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall	& params);
-	::llc::error_t		geometryBuildCylinder		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall	& params);
-	::llc::error_t		geometryBuildGrid			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsGrid			& params);
-	::llc::error_t		geometryBuildHelixHalf		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);	// TODO: Rewrite
-	::llc::error_t		geometryBuildHelix			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
-	::llc::error_t		geometryBuildFigure0		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
-	::llc::error_t		geometryBuildRingSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
-	::llc::error_t		geometryBuildRingFlat		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
-	::llc::error_t		geometryBuildRing			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTube			& params);
+	::llc::err_t		geometryBuildCircleSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCircle			& params);
+	::llc::err_t		geometryBuildDisc			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsDisc			& params);
+	::llc::err_t		geometryBuildBox			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsBox			& params);
+	::llc::err_t		geometryBuildSphere			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsSphere			& params);
+	::llc::err_t		geometryBuildCylinderWall	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall	& params);
+	::llc::err_t		geometryBuildCylinder		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall	& params);
+	::llc::err_t		geometryBuildGrid			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsGrid			& params);
+	::llc::err_t		geometryBuildHelixHalf		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);	// TODO: Rewrite
+	::llc::err_t		geometryBuildHelix			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
+	::llc::err_t		geometryBuildFigure0		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
+	::llc::err_t		geometryBuildRingSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
+	::llc::err_t		geometryBuildRingFlat		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
+	::llc::err_t		geometryBuildRing			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTube			& params);
 #endif
 } // namespace
 

@@ -19,12 +19,12 @@ namespace llc
 
 	// The following structure stores mass information for a 3D rigid body. These almost never change during runtime
 	struct SBodyMass {
-		float				LinearDamping					= 1.0f;
-		float				AngularDamping					= 1.0f;
-		float				InverseMass						= 0;
+		f2_t				LinearDamping					= 1.0f;
+		f2_t				AngularDamping					= 1.0f;
+		f2_t				InverseMass						= 0;
 		::llc::m3a3f2_t		InverseAngularMassTensor		= {1,0,0,0,1,0,0,0,1};
 
-		inlcxpr	double		GetMass							()	{
+		inxp	f3_t		GetMass							()	{
 			return (InverseMass == 0) ? DBL_MAX : 1.0 / InverseMass; 
 		}
 	};
@@ -57,7 +57,7 @@ namespace llc
 		::llc::n3f2_t		AccumulatedForce				= {0, 0, 0};
 		::llc::n3f2_t		AccumulatedTorque				= {0, 0, 0};
 
-		int32_t				ClearAccumulators				()	{ AccumulatedForce = AccumulatedTorque = {}; return 0; }
+		s2_t				ClearAccumulators				()	{ AccumulatedForce = AccumulatedTorque = {}; return 0; }
 	};
 
 	struct SBodyVolume {
@@ -65,8 +65,8 @@ namespace llc
 	};
 #pragma pack(pop)
 	void				updateTransform					(::llc::SBodyCenter & bodyTransform, ::llc::m4f2_t & transformLocal);
-	int32_t				integrateForces					(double duration, ::llc::SBodyFrame & bodyFrame, ::llc::SBodyForces & bodyForce, const ::llc::SBodyMass & bodyMass);
-	int32_t				integratePosition				(double duration, double durationHalfSquared, ::llc::SBodyFlags & bodyFlags, ::llc::SBodyCenter & bodyTransform, const ::llc::SBodyForces & bodyForces);
+	s2_t				integrateForces					(f3_t duration, ::llc::SBodyFrame & bodyFrame, ::llc::SBodyForces & bodyForce, const ::llc::SBodyMass & bodyMass);
+	s2_t				integratePosition				(f3_t duration, f3_t durationHalfSquared, ::llc::SBodyFlags & bodyFlags, ::llc::SBodyCenter & bodyTransform, const ::llc::SBodyForces & bodyForces);
 	void				transformInertiaTensor			(::llc::m3a3f2_t & iitWorld, const ::llc::m3a3f2_t & iitBody, const ::llc::m4f2_t &rotmat);
 
 
@@ -79,30 +79,30 @@ namespace llc
 		::llc::apod<::llc::SBodyVolume	>	BoundingVolumes					= {};
 		::llc::apod<::llc::m4f2_t		>	TransformsLocal					= {};
 
-		stacxpr	::llc::m4f2_t				MatrixIdentity4					= {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
-		stacxpr	::llc::m3a3f2_t				MatrixIdentity3					= {1,0,0,0,1,0,0,0,1};
+		stxp	::llc::m4f2_t				MatrixIdentity4					= {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+		stxp	::llc::m3a3f2_t				MatrixIdentity3					= {1,0,0,0,1,0,0,0,1};
 
-		::llc::error_t						Load							(::llc::vcu0_t & input);
-		::llc::error_t						Save							(::llc::au0_t & output)	const;
-		inline	::llc::error_t				Load							(::llc::vcst_t & input)			{ return Load(*((::llc::vcu0_t*)&input)); }
-		inline	::llc::error_t				Save							(::llc::as0_t & output)	const	{ return Save(*((::llc::apod<u0_t>*)&output)); }
+		::llc::err_t						Load							(::llc::vcu0_t & input);
+		::llc::err_t						Save							(::llc::au0_t & output)	const;
+		inline	::llc::err_t				Load							(::llc::vcst_t & input)			{ return Load(*((::llc::vcu0_t*)&input)); }
+		inline	::llc::err_t				Save							(::llc::as0_t & output)	const	{ return Save(*((::llc::apod<u0_t>*)&output)); }
 
-		int32_t 							ZeroCenters						()	{ return Centers.fill({}); }
-		int32_t 							ZeroForces						()	{ return Forces.fill({}); }
-		int32_t 							ZeroFrames						()	{ return Frames.fill({}); }
+		s2_t 							ZeroCenters						()	{ return Centers.fill({}); }
+		s2_t 							ZeroForces						()	{ return Forces.fill({}); }
+		s2_t 							ZeroFrames						()	{ return Frames.fill({}); }
 
-		int32_t 							Reset							()	{
+		s2_t 							Reset							()	{
 			ZeroForces();
 			ZeroCenters();
 			return ZeroFrames();
 		}
 		
-		int32_t 							Clear							()	{
+		s2_t 							Clear							()	{
 			::llc::clear(Frames, Flags, Forces, Masses, Centers, BoundingVolumes, TransformsLocal);
 			return 0;
 		}
 
-		int32_t 							Clone							(::llc::u2_t iBody)	{
+		s2_t 							Clone							(::llc::u2_t iBody)	{
 			Frames					.push_back(::llc::SBodyFrame		{Frames				[iBody]});
 			Flags					.push_back(::llc::SBodyFlags		{Flags				[iBody]});
 			Forces					.push_back(::llc::SBodyForces		{Forces				[iBody]});
@@ -112,7 +112,7 @@ namespace llc
 			return TransformsLocal	.push_back(::llc::m4f2_t				{TransformsLocal	[iBody]});
 		}
 
-		int32_t 							Create							()	{
+		s2_t 							Create							()	{
 			Frames					.push_back({});
 			Flags					.push_back({});
 			Forces					.push_back({});
@@ -122,7 +122,7 @@ namespace llc
 			return TransformsLocal	.push_back(MatrixIdentity4);
 		}
 
-		int32_t 							Delete							(::llc::u2_t iBody)	{
+		s2_t 							Delete							(::llc::u2_t iBody)	{
 			Frames					.remove_unordered(iBody);
 			Flags					.remove_unordered(iBody);
 			Forces					.remove_unordered(iBody);
@@ -132,20 +132,20 @@ namespace llc
 			return TransformsLocal	.remove_unordered(iBody);
 		}
 
-		int32_t 							Create							(::llc::u2_t bodyCount)	{
+		s2_t 							Create							(::llc::u2_t bodyCount)	{
 			const ::llc::u2_t							indexFirstBody					= Centers.size();
 			const ::llc::u2_t							newSize							= indexFirstBody + bodyCount;
-			llc_necs(Frames				.resize(newSize, {}));				
-			llc_necs(Flags				.resize(newSize, {}));
-			llc_necs(Forces				.resize(newSize, {}));
-			llc_necs(Masses				.resize(newSize, {}));
-			llc_necs(Centers			.resize(newSize, {}));
-			llc_necs(BoundingVolumes	.resize(newSize, {}));		
-			llc_necs(TransformsLocal	.resize(newSize, MatrixIdentity4));
+			if_fail_fe(Frames				.resize(newSize, {}));				
+			if_fail_fe(Flags				.resize(newSize, {}));
+			if_fail_fe(Forces				.resize(newSize, {}));
+			if_fail_fe(Masses				.resize(newSize, {}));
+			if_fail_fe(Centers			.resize(newSize, {}));
+			if_fail_fe(BoundingVolumes	.resize(newSize, {}));		
+			if_fail_fe(TransformsLocal	.resize(newSize, MatrixIdentity4));
 			return indexFirstBody;
 		}
 
-		int32_t 							GetTransform					(::llc::u2_t iBody, ::llc::m4f2_t	& transform)	{
+		s2_t 							GetTransform					(::llc::u2_t iBody, ::llc::m4f2_t	& transform)	{
 			::llc::SBodyFlags						& bodyFlags						= Flags				[iBody];
 			::llc::m4f2_t							& bodyTransformLocal			= TransformsLocal	[iBody];
 			if(false == bodyFlags.UpdatedTransform || false == bodyFlags.UpdatedTensorWorld) {
@@ -175,8 +175,8 @@ namespace llc
 			bodyFlags.Active					= true;
 		}
 
-		int32_t								Integrate						(double duration)	{
-			const double							durationHalfSquared				= duration * duration * 0.5;
+		s2_t								Integrate						(f3_t duration)	{
+			const f3_t							durationHalfSquared				= duration * duration * 0.5;
 			::llc::m4f2_t							dummy;
 			for(::llc::u2_t iBody = 0; iBody < Flags.size(); ++iBody) {
 				::llc::SBodyFlags						& bodyFlags						= Flags[iBody];
@@ -213,7 +213,7 @@ namespace llc
 
 		inline	bool						Active							(::llc::u2_t iBody)									const	{ return Flags[iBody].Active; }
 		inline	bool						Collides						(::llc::u2_t iBody)									const	{ return Flags[iBody].Collides; }
-		inline	float						GetMass							(::llc::u2_t iBody)									const	{ return 1.0f / Masses[iBody].InverseMass; }
+		inline	f2_t						GetMass							(::llc::u2_t iBody)									const	{ return 1.0f / Masses[iBody].InverseMass; }
 		inline	void						GetPosition						(::llc::u2_t iBody, ::llc::n3f2_t & position)			const	{ position		= Centers[iBody].Position; }
 		inline	void						GetOrientation					(::llc::u2_t iBody, ::llc::quatf2_t & orientation)		const	{ orientation	= Centers[iBody].Orientation; }
 		inline	void						GetRotation						(::llc::u2_t iBody, ::llc::n3f2_t & rotation)			const	{ rotation		= Forces[iBody].Rotation;		}
@@ -224,8 +224,8 @@ namespace llc
 		inline	void						SetCollides						(::llc::u2_t iBody, bool collides)								{ Flags[iBody].Collides	= collides; }
 		inline	void						SetHalfSizes					(::llc::u2_t iBody, const ::llc::n3f2_t & halfSizes)			{ BoundingVolumes[iBody].HalfSizes	= halfSizes; }
 		
-		inline	void						SetMassInverse					(::llc::u2_t iBody, float inverseMass)							{ Masses[iBody].InverseMass = inverseMass; }
-		inline	void						SetMass							(::llc::u2_t iBody, float mass)								{ Masses[iBody].InverseMass = 1.0f / mass; }
+		inline	void						SetMassInverse					(::llc::u2_t iBody, f2_t inverseMass)							{ Masses[iBody].InverseMass = inverseMass; }
+		inline	void						SetMass							(::llc::u2_t iBody, f2_t mass)								{ Masses[iBody].InverseMass = 1.0f / mass; }
 		inline	void						AddForce						(::llc::u2_t iBody, const ::llc::n3f2_t & force)				{ Frames[iBody].AccumulatedForce += force; }
 
 		void								SetPosition						(::llc::u2_t iBody, const ::llc::n3f2_t & newPosition)			{
@@ -239,7 +239,7 @@ namespace llc
 		}
 		void								SetOrientation					(::llc::u2_t iBody, const ::llc::quatf2_t & newOrientation)		{
 			::llc::SBodyCenter						& bodyCenter					= Centers[iBody];
-			if(0 == memcmp(&newOrientation.x, &bodyCenter.Orientation.x, sizeof(::llc::quat<float>)))
+			if(0 == memcmp(&newOrientation.x, &bodyCenter.Orientation.x, sizeof(::llc::quat<f2_t>)))
 				return;
 			bodyCenter.Orientation				= newOrientation;
 			::llc::SBodyFlags						& bodyFlags						= Flags[iBody];

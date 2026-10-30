@@ -16,8 +16,8 @@ namespace llc
 
 	struct SImageTag {
 		 COLOR_TYPE	ColorType;
-		 int32_t	Index;
-		 int32_t	Palette;
+		 s2_t	Index;
+		 s2_t	Palette;
 	};
 #pragma pack(pop)
 
@@ -85,7 +85,7 @@ namespace llc
 	struct SModelNode {
 		::llc::as2_t						VertexBuffers	= {};
 		::llc::as2_t						Images			= {};
-		int32_t								IndexBuffer		= -1;
+		s2_t								IndexBuffer		= -1;
 		::llc::SGeometryGroupModes			Modes			= {};
 		::llc::rangeu1_t					RangeIndex		= {};
 		::llc::rangeu1_t					RangeVertex		= {};
@@ -107,7 +107,7 @@ namespace llc
 
 #pragma pack(push, 1)
 	struct STile {
-		float			Height	[4]	= {};
+		f2_t			Height	[4]	= {};
 		int16_t			Top			= -1;
 		int16_t			Front		= -1;
 		int16_t			Right		= -1;
@@ -125,22 +125,22 @@ namespace llc
 
 #ifndef LLC_ATMEL
 
-	::llc::error_t	geometryBuildCube		(::llc::SGeometryQuads & geometry, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildGrid		(::llc::SGeometryQuads & geometry, ::llc::n2u1_t gridSize, ::llc::n2f2_t gridCenter, ::llc::n3f2_c & scale);
+	::llc::err_t	geometryBuildCube		(::llc::SGeometryQuads & geometry, ::llc::n3f2_c & scale);
+	::llc::err_t	geometryBuildGrid		(::llc::SGeometryQuads & geometry, ::llc::n2u1_t gridSize, ::llc::n2f2_t gridCenter, ::llc::n3f2_c & scale);
 
-	::llc::error_t	geometryBuildSphere		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter);
-	::llc::error_t	geometryBuildCylinder	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radiusYMin, float radiusYMax, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildHelixHalf	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildHelix		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildTender		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
-	::llc::error_t	geometryBuildFigure0	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter);
-	::llc::error_t	geometryBuildFigure1	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter);
+	::llc::err_t	geometryBuildSphere		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, ::llc::n3f2_c & gridCenter);
+	::llc::err_t	geometryBuildCylinder	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radiusYMin, f2_t radiusYMax, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
+	::llc::err_t	geometryBuildHelixHalf	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
+	::llc::err_t	geometryBuildHelix		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
+	::llc::err_t	geometryBuildTender		(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, ::llc::n3f2_c & gridCenter, ::llc::n3f2_c & scale);
+	::llc::err_t	geometryBuildFigure0	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, ::llc::n3f2_c & gridCenter);
+	::llc::err_t	geometryBuildFigure1	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, ::llc::n3f2_c & gridCenter);
 
-	::llc::error_t	geometryBuildSphere		(::llc::SGeometryTriangles & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, ::llc::n3f2_c & gridCenter);
-	::llc::error_t	geometryBuildCube		(::llc::SGeometryQuads & geometry, const ::llc::n3f2_t & scale, const ::llc::n3f2_t & translation);
+	::llc::err_t	geometryBuildSphere		(::llc::SGeometryTriangles & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, ::llc::n3f2_c & gridCenter);
+	::llc::err_t	geometryBuildCube		(::llc::SGeometryQuads & geometry, const ::llc::n3f2_t & scale, const ::llc::n3f2_t & translation);
 
-	::llc::error_t	geometryBuildTileListFromImage	(::llc::gc8bgra image, ::llc::apod<STile> & out_tiles, ::llc::u2_t imagePitch = 0);
-	::llc::error_t	geometryBuildGridFromTileList	(::llc::SGeometryQuads & geometry, ::llc::grid<const ::llc::STile> image, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale);
+	::llc::err_t	geometryBuildTileListFromImage	(::llc::gc8bgra image, ::llc::apod<STile> & out_tiles, ::llc::u2_t imagePitch = 0);
+	::llc::err_t	geometryBuildGridFromTileList	(::llc::SGeometryQuads & geometry, ::llc::grid<const ::llc::STile> image, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale);
 
 #endif
 

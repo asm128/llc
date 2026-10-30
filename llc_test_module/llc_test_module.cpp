@@ -25,4 +25,10 @@ struct SApplication {
 	rtrn 0;
 }
 
+
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
+LLC_USING_N2();
+
 LLC_DEFINE_APPLICATION_ENTRY_POINT_MT(SApplication, "LLC test module");

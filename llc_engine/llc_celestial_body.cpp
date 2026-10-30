@@ -1,7 +1,7 @@
 #include "llc_celestial_body.h"
 #include "llc_stdstring.h"
 
-::llc::error_t			llc::printStar		(const ::llc::SDetailStar & body) {
+::llc::err_t			llc::printStar		(const ::llc::SDetailStar & body) {
 	info_printf(
 		" \nGm					: %u"
 		" \nVolume				: %u"
@@ -39,7 +39,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::printPlanet		(const ::llc::SDetailPlanet & body) {
+::llc::err_t			llc::printPlanet		(const ::llc::SDetailPlanet & body) {
 	info_printf(
 		" \nGravity					: %f"
 		" \nSurfacePressure			: %u"
@@ -69,7 +69,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::printCelestialBody	(const ::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type) {
+::llc::err_t			llc::printCelestialBody	(const ::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type) {
 	info_printf(
 		" \nMass				: %f"
 		" \nDiameter			: %u"
@@ -114,7 +114,7 @@
 	return ::llc::get_value_camelcased<::llc::PLANET_TYPE>(bodyType);
 }
 
-::llc::error_t			llc::loadPlanet		(::llc::SDetailPlanet & body, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody) { 
+::llc::err_t			llc::loadPlanet		(::llc::SDetailPlanet & body, const ::llc::SJSONReader & jsonData, s2_t jsonIndexStellarBody) { 
 	::llc::vcst_t					subtype;
 	if_fail_w(::llc::jsonObjectGetAsString (jsonData, jsonIndexStellarBody, "subtype"				, subtype					));
 	body.Subtype			= ::llc::bodySubtypeFromString(subtype);
@@ -131,7 +131,7 @@
 	return 0; 
 }
 
-::llc::error_t			llc::loadStar		(::llc::SDetailStar & body, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody) { 
+::llc::err_t			llc::loadStar		(::llc::SDetailStar & body, const ::llc::SJSONReader & jsonData, s2_t jsonIndexStellarBody) { 
 	if_fail_w(::llc::jsonObjectGetAsInteger(jsonData, jsonIndexStellarBody, "gm"						, body.Gm					));
 	if_fail_w(::llc::jsonObjectGetAsInteger(jsonData, jsonIndexStellarBody, "volume"					, body.Volume				));
 	if_fail_w(::llc::jsonObjectGetAsInteger(jsonData, jsonIndexStellarBody, "volumetric_mean_radius"	, body.VolumetricMeanRadius	));
@@ -151,7 +151,7 @@
 	return 0; 
 }
 
-::llc::error_t			llc::loadCelestialBody(::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody) { 
+::llc::err_t			llc::loadCelestialBody(::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type, const ::llc::SJSONReader & jsonData, s2_t jsonIndexStellarBody) { 
 	if_fail_w(::llc::jsonObjectGetAsDecimal(jsonData, jsonIndexStellarBody, "escape_velocity"		, body.EscapeVelocity		));
 	if_fail_w(::llc::jsonObjectGetAsDecimal(jsonData, jsonIndexStellarBody, "mass"					, body.Mass					));
 	if_fail_w(::llc::jsonObjectGetAsInteger(jsonData, jsonIndexStellarBody, "diameter"				, body.Diameter				));

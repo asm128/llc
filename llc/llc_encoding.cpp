@@ -19,7 +19,7 @@ stxp ::llc::vcst_c	HEX_DIGITS_UPPER	= "0123456789ABCDEF";
 stxp ::llc::vcst_c	HEX_DIGITS_LOWER	= "0123456789abcdef";
 
 llc::err_t			llc::saltDataSalt				(vcu0_c & binary, ::llc::au0_t & salted)				{
-	llc_necs(salted.resize(binary.size() * 2));
+	if_fail_fe(salted.resize(binary.size() * 2));
 	u0_t						* pSalted						= salted.begin();
 	const u0_t				* pBinary						= binary.begin();
 	for(::llc::u2_t iBinary = 0; iBinary < binary.size(); ++iBinary) {
@@ -30,7 +30,7 @@ llc::err_t			llc::saltDataSalt				(vcu0_c & binary, ::llc::au0_t & salted)				{
 }
 
 llc::err_t			llc::saltDataUnsalt				(vcu0_c & salted, ::llc::au0_t & binary)				{
-	llc_necs(binary.resize(salted.size() / 2));
+	if_fail_fe(binary.resize(salted.size() / 2));
 	const u0_t				* pSalted						= salted.begin();
 	u0_t						* pBinary						= binary.begin();
 	for(::llc::u2_t iBinary = 0; iBinary < binary.size(); ++iBinary)
@@ -38,27 +38,27 @@ llc::err_t			llc::saltDataUnsalt				(vcu0_c & salted, ::llc::au0_t & binary)				
 	return 0;
 }
 
-static	::llc::error_t	hexFromByte		(u0_t byteValue, char * hexed)																{
+static	::llc::err_t	hexFromByte		(u0_t byteValue, char * hexed)																{
 	hexed[0] = HEX_DIGITS_UPPER[byteValue >> 4];
 	hexed[1] = HEX_DIGITS_UPPER[byteValue & 0xF];
 	return 0;
 }
 
-static	::llc::error_t	hexToByte		(const char* s, u0_t & byte)															{
+static	::llc::err_t	hexToByte		(const char* s, u0_t & byte)															{
 	char						temp [3]		= {s[0], s[1]};
-	llc_necs(llc::parseIntegerHexadecimal(::llc::vcst_t{temp}, byte));
+	if_fail_fe(llc::parseIntegerHexadecimal(::llc::vcst_t{temp}, byte));
 	return 0;
 }
 
-static	::llc::error_t	hexToByte		(const char* s, ::llc::s0_t & byte)															{
+static	::llc::err_t	hexToByte		(const char* s, ::llc::s0_t & byte)															{
 	char						temp [3]		= {s[0], s[1]};
-	llc_necs(llc::parseIntegerHexadecimal(::llc::vcst_t{temp}, byte));
+	if_fail_fe(llc::parseIntegerHexadecimal(::llc::vcst_t{temp}, byte));
 	return 0;
 }
 
 llc::err_t			llc::hexEncode					(vcu0_c & in_binary, ::llc::string & out_hexed	)	{
 	::llc::u2_t					offset							= out_hexed.size();
-	llc_necs(out_hexed.resize(offset + in_binary.size() * 2));
+	if_fail_fe(out_hexed.resize(offset + in_binary.size() * 2));
 	for(::llc::u2_t iByte = 0; iByte < in_binary.size(); ++iByte)
 		hexFromByte(in_binary[iByte], &out_hexed[offset + iByte * 2]);
 	return 0;
@@ -67,7 +67,7 @@ llc::err_t			llc::hexEncode					(vcu0_c & in_binary, ::llc::string & out_hexed	)
 llc::err_t			llc::hexDecode					(::llc::vcst_t in_hexed	, ::llc::au0_t & out_binary)	{
 	::llc::u2_t					offset							= out_binary.size();
 	::llc::u2_t					binarySize						= in_hexed.size() >> 1;
-	llc_necs(out_binary.resize(offset + binarySize));
+	if_fail_fe(out_binary.resize(offset + binarySize));
 	const char					* pHexed						= in_hexed.begin();
 	u0_t						* pBinary						= out_binary.begin();
 	for(::llc::u2_t iByte = 0; iByte < binarySize; ++iByte)
@@ -78,7 +78,7 @@ llc::err_t			llc::hexDecode					(::llc::vcst_t in_hexed	, ::llc::au0_t & out_bin
 llc::err_t			llc::hexDecode					(::llc::vcst_t in_hexed	, ::llc::as0_t & out_binary)	{
 	::llc::u2_t					offset							= out_binary.size();
 	::llc::u2_t					binarySize						= in_hexed.size() >> 1;
-	llc_necs(out_binary.resize(offset + binarySize));
+	if_fail_fe(out_binary.resize(offset + binarySize));
 	const char					* pHexed						= in_hexed.begin();
 	s0_t						* pBinary						= out_binary.begin();
 	for(::llc::u2_t iByte = 0; iByte < binarySize; ++iByte)
@@ -86,61 +86,61 @@ llc::err_t			llc::hexDecode					(::llc::vcst_t in_hexed	, ::llc::as0_t & out_bin
 	return 0;
 }
 
-llc::err_t			llc::ardellEncode				(as2_t & cache, vcu0_c & input, uint64_t key, bool salt, ::llc::au0_t & output)						{
+llc::err_t			llc::ardellEncode				(as2_t & cache, vcu0_c & input, u3_t key, bool salt, ::llc::au0_t & output)						{
 	// Originally written by Gary Ardell as Visual Basic code. free from all copyright restrictions.
 	char						saltValue		[4]				= {};
 	if (salt)
-		for (int32_t i = 0; i < 4; i++) {
-			int32_t					t								= 100 * (1 + saltValue[i]) * rand() * (((int32_t)time(0)) + 1);
+		for (s2_t i = 0; i < 4; i++) {
+			s2_t					t								= 100 * (1 + saltValue[i]) * rand() * (((s2_t)time(0)) + 1);
 			saltValue[i]		= t % 256;
 		}
-	const int32_t				keyFinal[8]						=
-	{ (int32_t)(11 + (key % 233))
-	, (int32_t)( 7 + (key % 239))
-	, (int32_t)( 5 + (key % 241))
-	, (int32_t)( 3 + (key % 251))
+	const s2_t				keyFinal[8]						=
+	{ (s2_t)(11 + (key % 233))
+	, (s2_t)( 7 + (key % 239))
+	, (s2_t)( 5 + (key % 241))
+	, (s2_t)( 3 + (key % 251))
 	};
-	int32_t						n								= salt ? input.size() + 4 : input.size();
-	llc_necs(cache.resize(n));
-	int32_t						* sn							= cache.begin();
+	s2_t						n								= salt ? input.size() + 4 : input.size();
+	if_fail_fe(cache.resize(n));
+	s2_t						* sn							= cache.begin();
 	if(salt) {
-		for(int32_t i = 0; i < 2; ++i)
+		for(s2_t i = 0; i < 2; ++i)
 			sn[i]					= saltValue[i];
-		for(int32_t i = 0; i < n - 4; ++i)
+		for(s2_t i = 0; i < n - 4; ++i)
 			sn[2 + i]				= input[i];
-		for(int32_t i = 0; i < 2; ++i)
+		for(s2_t i = 0; i < 2; ++i)
 			sn[2 + n + i]			= saltValue[2 + i];
 	}
 	else
-		for(int32_t i = 0; i < n; ++i)
+		for(s2_t i = 0; i < n; ++i)
 			sn[i]					= input[i];
-	int32_t						i;
+	s2_t						i;
 	for(i = 1		; i  < n; ++i) sn[i] = sn[i] ^ sn[i - 1] ^ ((keyFinal[0] * sn[i - 1]) % 256);
 	for(i = n - 2	; i >= 0; --i) sn[i] = sn[i] ^ sn[i + 1] ^  (keyFinal[1] * sn[i + 1]) % 256 ;
 	for(i = 2		; i  < n; ++i) sn[i] = sn[i] ^ sn[i - 2] ^  (keyFinal[2] * sn[i - 1]) % 256 ;
 	for(i = n - 3	; i >= 0; --i) sn[i] = sn[i] ^ sn[i + 2] ^  (keyFinal[3] * sn[i + 1]) % 256 ;
 
 	::llc::u2_t					outputOffset					= output.size();
-	llc_necs(output.resize(outputOffset + n));
+	if_fail_fe(output.resize(outputOffset + n));
 	u0_t					* outputFast					= output.begin();
 	for( i = 0; i < n; ++i)
 		outputFast[outputOffset + i]	= (char)sn[i];
 	return 0;
 }
 
-llc::err_t			llc::ardellDecode				(::llc::as2_t & cache, vcu0_c & input, uint64_t key, bool salt, ::llc::au0_t & output)		{
+llc::err_t			llc::ardellDecode				(::llc::as2_t & cache, vcu0_c & input, u3_t key, bool salt, ::llc::au0_t & output)		{
 	// Originally written by Gary Ardell as Visual Basic code. free from all copyright restrictions.
-	const int32_t				keyFinal[8]						=
-		{ (int32_t)(11 + (key % 233))
-		, (int32_t)( 7 + (key % 239))
-		, (int32_t)( 5 + (key % 241))
-		, (int32_t)( 3 + (key % 251))
+	const s2_t				keyFinal[8]						=
+		{ (s2_t)(11 + (key % 233))
+		, (s2_t)( 7 + (key % 239))
+		, (s2_t)( 5 + (key % 241))
+		, (s2_t)( 3 + (key % 251))
 		};
-	int32_t						n								= (int32_t)input.size();
+	s2_t						n								= (s2_t)input.size();
 
-	llc_necs(cache.resize(n));
-	int32_t						* sn							= cache.begin();
-	int32_t						i;
+	if_fail_fe(cache.resize(n));
+	s2_t						* sn							= cache.begin();
+	s2_t						i;
 	for(i = 0		; i  < n	; ++i)	sn[i]			= input[i];
 	for(i = 0		; i  < n - 2; ++i)	sn[i]			= sn[i] ^ sn[i + 2] ^ (keyFinal[3] * sn[i + 1]) % 256;
 	for(i = n - 1	; i >= 2	; --i)	sn[i]			= sn[i] ^ sn[i - 2] ^ (keyFinal[2] * sn[i - 1]) % 256;
@@ -149,11 +149,11 @@ llc::err_t			llc::ardellDecode				(::llc::as2_t & cache, vcu0_c & input, uint64_
 
 	::llc::u2_t					outputOffset					= output.size();
 	u2_c				finalStringSize					= salt ? n - 4 : n;
-	const ::llc::vci32			finalValues						= {salt ? &sn[2] : sn, finalStringSize};
-	llc_necs(output.resize(outputOffset + finalStringSize));
+	const ::llc::vcs2_t			finalValues						= {salt ? &sn[2] : sn, finalStringSize};
+	if_fail_fe(output.resize(outputOffset + finalStringSize));
 	u0_t						* outputFast					= output.begin();
-	const int32_t				* finalValuesFast				= finalValues.begin();
-	for( i = 0; i < (int32_t)finalStringSize; ++i)
+	const s2_t				* finalValuesFast				= finalValues.begin();
+	for( i = 0; i < (s2_t)finalStringSize; ++i)
 		outputFast[outputOffset + i]	= (char)finalValuesFast[i];
 	return 0;
 }
@@ -253,7 +253,7 @@ llc::err_t			llc::digest						(vcu0_c & input, ::llc::string & digest)		{
 	char						temp		[32]				= {};
 	for(::llc::u2_t i = 0; i < ::llc::min(filtered.size(), (::llc::u2_t)8U); ++i) {
 		::llc::sprintf_s(temp, "%" LLC_FMT_U2, filtered[i]);
-		llc_necs(digest.append_string(temp));
+		if_fail_fe(digest.append_string(temp));
 	}
 	return 0;
 }

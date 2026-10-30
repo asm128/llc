@@ -3,7 +3,7 @@
 #ifndef LLC_ATMEL		
 #	include <cfloat>
 #else
-#	include <float.h>
+#	include <f2_t.h>
 #endif
 #ifndef LLC_PARTICLE_H_23627
 #define LLC_PARTICLE_H_23627
@@ -15,15 +15,15 @@ namespace llc
 	struct SParticle2Forces {
 		typedef	::llc::n2<_tElement>	TCoord;
 
-		stacxpr	const _tElement		VelocityEpsilon				= 0.0001f;
+		stxp	const _tElement		VelocityEpsilon				= 0.0001f;
 
 		TCoord						AccumulatedForce			= {};
 		TCoord						Acceleration				= {};	// A vector representing the speed in a given direction
 		TCoord						Velocity					= {};	// A vector representing the speed in a given direction
 
-		inlcxpr	bool				VelocityDepleted			()				const	noexcept	{ return (Velocity + Acceleration).LengthSquared() < (VelocityEpsilon * VelocityEpsilon); }
+		inxp	bool				VelocityDepleted			()				const	noexcept	{ return (Velocity + Acceleration).LengthSquared() < (VelocityEpsilon * VelocityEpsilon); }
 		// This basically does Acceleration += (Force * 1 / Mass) and Velocity += (Acceleration * Time).
-		void						IntegrateAccumulatedForce	(const _tElement inverseMass, const _tElement damping, const double timeElapsed)			noexcept	{
+		void						IntegrateAccumulatedForce	(const _tElement inverseMass, const _tElement damping, const f3_t timeElapsed)			noexcept	{
 			Acceleration				+= AccumulatedForce * inverseMass;				// Calculate linear acceleration from force inputs.
 			AccumulatedForce			= {};											// Clear this out now that we've used it already.
 
@@ -40,9 +40,9 @@ namespace llc
 		_tElement					InverseMass					= 0;
 		_tElement					Damping						= .99f;	// A vector representing the speed in a given direction
 
-		inline	void				SetMass						(const double mass)																			noexcept	{ InverseMass = mass ? ((_tElement)(1.0 / mass)) : 0;		}
-		inlcxpr	double				GetMass						()				const	noexcept	{ return (InverseMass == 0) ? DBL_MAX : 1.0 / InverseMass;	}
-		inlcxpr	bool				HasFiniteMass				()				const	noexcept	{ return InverseMass >= 0.0f;								}
+		inline	void				SetMass						(const f3_t mass)																			noexcept	{ InverseMass = mass ? ((_tElement)(1.0 / mass)) : 0;		}
+		inxp	f3_t				GetMass						()				const	noexcept	{ return (InverseMass == 0) ? DBL_MAX : 1.0 / InverseMass;	}
+		inxp	bool				HasFiniteMass				()				const	noexcept	{ return InverseMass >= 0.0f;								}
 	};
 
 	// This compact structure allows to define all the boolean states of the particle packed in a single byte.
@@ -50,15 +50,15 @@ namespace llc
 		bool					Unused						: 1;
 		bool					Active						: 1;
 
-		inlcxpr	bool			RequiresProcessing			()				const	noexcept	{ return (false == Unused) && Active; }
+		inxp	bool			RequiresProcessing			()				const	noexcept	{ return (false == Unused) && Active; }
 	};
 #pragma pack(pop)
 	// This basically does FinalPosition = InitialPosition + Velocity * Time.
 	tplt<tpnm _tElement>
-	stainli	void			particleIntegratePosition
+	stin	void			particleIntegratePosition
 		(	const ::llc::n2<_tElement>	& velocity
-		,	const double				timeElapsed
-		,	const double				timeElapsedHalfSquared
+		,	const f3_t				timeElapsed
+		,	const f3_t				timeElapsedHalfSquared
 		,	::llc::n2<_tElement>		& position
 		) {
 		position				+= velocity * timeElapsed;
@@ -66,7 +66,7 @@ namespace llc
 	}
 
 	tplt<tpnm _tElement>
-	::llc::error_t			integrate					(const ::llc::view<::llc::SParticle2<_tElement>>& particles, ::llc::apod<::llc::SParticle2State>& particleStates, ::llc::view<::llc::SParticle2<_tElement>>& particlesNext, double timeElapsed, double timeElapsedHalfSquared)			{
+	::llc::err_t			integrate					(const ::llc::view<::llc::SParticle2<_tElement>>& particles, ::llc::apod<::llc::SParticle2State>& particleStates, ::llc::view<::llc::SParticle2<_tElement>>& particlesNext, f3_t timeElapsed, f3_t timeElapsedHalfSquared)			{
 		for(::llc::u2_t iParticle = 0, particleCount = (::llc::u2_t)particleStates.size(); iParticle < particleCount; ++iParticle)
 			if(particleStates[iParticle].RequiresProcessing()) {
 				::llc::SParticle2<_tElement>												& particleNext								= particlesNext[iParticle] = particles[iParticle];	// Copy the current particle state to the next
@@ -87,12 +87,12 @@ namespace llc
 		::llc::apod<TParticle>					Particle									= {};
 		::llc::apod<TParticle>					ParticleNext								= {};
 		// -----------------------------------------------------	---
-		inline	::llc::error_t					Integrate									(double timeElapsed, double timeElapsedHalfSquared)														{ return Integrate(ParticleNext, timeElapsed, timeElapsedHalfSquared);	}
-		::llc::error_t							Integrate									(::llc::view<TParticle>& particleNext, double timeElapsed, double timeElapsedHalfSquared)			{ return ::llc::integrate(Particle, ParticleState, particleNext, timeElapsed, timeElapsedHalfSquared);		}
+		inline	::llc::err_t					Integrate									(f3_t timeElapsed, f3_t timeElapsedHalfSquared)														{ return Integrate(ParticleNext, timeElapsed, timeElapsedHalfSquared);	}
+		::llc::err_t							Integrate									(::llc::view<TParticle>& particleNext, f3_t timeElapsed, f3_t timeElapsedHalfSquared)			{ return ::llc::integrate(Particle, ParticleState, particleNext, timeElapsed, timeElapsedHalfSquared);		}
 		// --------------------------------------------------------
-		::llc::error_t							AddParticle					(const TParticle& particleData)																			{
+		::llc::err_t							AddParticle					(const TParticle& particleData)																			{
 			const ::llc::u2_t								particleCount								= (::llc::u2_t)ParticleState.size();
-			stacxpr	const ::llc::SParticle2State		initialParticleState						= {false, true};
+			stxp	const ::llc::SParticle2State		initialParticleState						= {false, true};
 
 			for(::llc::u2_t iBody = 0; iBody < particleCount; ++iBody)	// Check if there is any unused particle that we can recycle.
 				if( ParticleState	[iBody].Unused ) {
@@ -127,11 +127,11 @@ namespace llc
 		typedef	_tParticleType	TParticleType;
 
 		TParticleType			Binding										= {};
-		int32_t					IndexParticlePhysics						= -1;
+		s2_t					IndexParticlePhysics						= -1;
 	};
 
 	tplt<tpnm _tParticleType, tpnm _tCoord>
-	::llc::error_t			addParticle
+	::llc::err_t			addParticle
 		(	const _tParticleType										& particleType
 		,	::llc::apod<::llc::SParticleBinding<_tParticleType>>	& particleInstances
 		,	::llc::SParticle2Integrator<_tCoord>						& particleIntegrator
@@ -140,7 +140,7 @@ namespace llc
 	{
 		::llc::SParticleBinding<_tParticleType>	newInstance									= {};
 		newInstance.Binding		= particleType;
-		llc_necs(newInstance.IndexParticlePhysics = particleIntegrator.AddParticle(particleDefinition));
+		if_fail_fe(newInstance.IndexParticlePhysics = particleIntegrator.AddParticle(particleDefinition));
 		return particleInstances.push_back(newInstance);
 	}
 
@@ -154,7 +154,7 @@ namespace llc
 	};
 
 	tplt<tpnm _tParticleType, tpnm _tCoord>
-	stainli	::llc::error_t			addParticle					(const _tParticleType& particleType, ::llc::SParticleSystem<_tParticleType, _tCoord> & particleSystem,	const ::llc::SParticle2<_tCoord> & particleDefinition)	{
+	stin	::llc::err_t			addParticle					(const _tParticleType& particleType, ::llc::SParticleSystem<_tParticleType, _tCoord> & particleSystem,	const ::llc::SParticle2<_tCoord> & particleDefinition)	{
 		return addParticle(particleType, particleSystem.Instances, particleSystem.Integrator, particleDefinition);
 	}
 
@@ -165,13 +165,13 @@ namespace llc
 		::llc::an3f2_t					Direction			= {};
 		::llc::af2_t					Speed				= {};
 
-		::llc::error_t					IntegrateSpeed		(double secondsLastFrame);
+		::llc::err_t					IntegrateSpeed		(f3_t secondsLastFrame);
 
-		::llc::error_t					Create				(n3f2_c & position, n3f2_c & direction, float speed);
-		::llc::error_t					Remove				(int32_t iParticle);
+		::llc::err_t					Create				(n3f2_c & position, n3f2_c & direction, f2_t speed);
+		::llc::err_t					Remove				(s2_t iParticle);
 
-		::llc::error_t					Load				(::llc::vcu0_t & input);
-		::llc::error_t					Save				(::llc::au0_t & output)	const;
+		::llc::err_t					Load				(::llc::vcu0_t & input);
+		::llc::err_t					Save				(::llc::au0_t & output)	const;
 	};
 } // namespace
 

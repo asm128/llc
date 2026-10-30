@@ -7,18 +7,11 @@
 #   include <cstddef>
 #endif
 
-// Uncomment these to toggle behavior
-#ifndef LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
-#	define LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
-#endif
-//#define LLC_KEEP_SYSTEM_ERROR_ON_ERROR_LOG
-
 #ifndef LLC_DEBUG_H
 #define LLC_DEBUG_H
 
 #ifndef LLC_DEBUG_ENABLED
-namespace llc { stxp size_t DEBUG_BUILD = 0; } 
-#	define LLC_PLATFORM_CRT_BREAKPOINT()		do {} while(0)
+namespace llc { stxp size_t DEBUG_BUILD = 0; }
 #	define LLC_PLATFORM_CRT_CHECK_MEMORY()		do {} while(0)
 //#	ifndef ARDUINOJSON_ENABLE_COMMENTS
 #		define LLC_ERROR_PRINTF_ENABLED
@@ -28,28 +21,19 @@ namespace llc { stxp size_t DEBUG_BUILD = 0; }
 //#	define LLC_SUCCESS_PRINTF_ENABLED	// Uncomment as needed
 //#	define LLC_VERBOSE_PRINTF_ENABLED	// Uncomment as needed
 #else
-namespace llc { stxp size_t DEBUG_BUILD = (size_t)-1; } 
+namespace llc { stxp size_t DEBUG_BUILD = (size_t)-1; }
 #	define LLC_ERROR_PRINTF_ENABLED
 #	define LLC_WARNING_PRINTF_ENABLED
 #	define LLC_INFO_PRINTF_ENABLED
 //#	define LLC_SUCCESS_PRINTF_ENABLED	// Uncomment as needed
 //#	define LLC_VERBOSE_PRINTF_ENABLED
-#	ifndef LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
-#		define LLC_USE_DEBUG_BREAK_ON_ERROR_LOG
-#	endif
 #	ifndef LLC_KEEP_SYSTEM_ERROR_ON_ERROR_LOG
 #		define LLC_CLEAR_SYSTEM_ERROR_ON_ERROR_LOG
 #	endif
 #	ifdef LLC_WINDOWS
 #		include <crtdbg.h>
-#		if defined LLC_USE_DEBUG_BREAK_ON_ERROR_LOG
-#			define LLC_PLATFORM_CRT_BREAKPOINT		(void)_CrtDbgBreak
-#		else
-#			define LLC_PLATFORM_CRT_BREAKPOINT()	do {} while(0)
-#		endif
 #		define LLC_PLATFORM_CRT_CHECK_MEMORY()	do {} while(0) // (void)_CrtCheckMemory
 #	else // LLC_WINDOWS
-#		define LLC_PLATFORM_CRT_BREAKPOINT()	do {} while(0)
 #		ifndef LLC_ESP32
 #		    ifdef LLC_ESP8266
 #			    include <user_interface.h>
@@ -66,4 +50,11 @@ namespace llc { stxp size_t DEBUG_BUILD = (size_t)-1; }
 #	endif // LLC_WINDOWS
 #endif // LLC_DEBUG_ENABLED
 
+namespace llc
+{
+	int	debugBreakEnabled	()						nxpt;
+	int	debugBreak			()						nxpt;
+	int	debugBreakEnable	(int enabled = true)	nxpt;
+	int	debugBreakDisable	()						nxpt;
+} // namespace
 #endif // LLC_DEBUG_H

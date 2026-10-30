@@ -4,15 +4,15 @@
 
 using namespace ropp;
 
-int32_t ropp::BuildMeshGeometryFromRSM( const RSM_FILE_DATA* in_RSMData, uint32_t* inout_nVertexCount, 
+s2_t ropp::BuildMeshGeometryFromRSM( const RSM_FILE_DATA* in_RSMData, u2_t* inout_nVertexCount, 
 										Vector3* out_pVertices, Vector2* out_pTexCoord, 
-										Vector3* out_pNormals, uint32_t* inout_nIndexCount, 
+										Vector3* out_pNormals, u2_t* inout_nIndexCount, 
 										bool* b32BitIndices, void* out_pIndices, 
-										uint32_t* out_pAttributes, uint32_t* inout_nMeshAttributeCount,
+										u2_t* out_pAttributes, u2_t* inout_nMeshAttributeCount,
 										MESH_ATTRIBUTE_DATA* out_pAttributeData, 
-										uint32_t* inout_nNodeCount,
+										u2_t* inout_nNodeCount,
 										MESH_NODE_DATA* out_pNodeData,
-										uint32_t dwFlags )
+										u2_t dwFlags )
 {
 	if( 0 == in_RSMData || 0 == inout_nVertexCount || 0 == inout_nIndexCount )
 		return -1;
@@ -21,7 +21,7 @@ int32_t ropp::BuildMeshGeometryFromRSM( const RSM_FILE_DATA* in_RSMData, uint32_
 	if( 0 == out_pVertices )
 		bCountOnly = true;
 
-	uint32_t iNode, iTex, iTri, nTextureCount, 
+	u2_t iNode, iTex, iTri, nTextureCount, 
 		nNodeCount=in_RSMData->nNodeCount;
 	if( 0 == nNodeCount )
 		return 0;
@@ -36,8 +36,8 @@ int32_t ropp::BuildMeshGeometryFromRSM( const RSM_FILE_DATA* in_RSMData, uint32_
 	else
 		memset( out_pNodeData, 0, sizeof( MESH_NODE_DATA )*(*inout_nNodeCount) );
 
-	uint32_t nTriangleCount=0, nIndexCount=0, nVertexCount=0, nAttributeCount=0, nFinalNodeCount=0;
-	uint32_t nAttrID, nVertexStart=0, nAttrVertexCount=0, nFaceStart=0, nFaceCount=0; // <- all these are for counting attributes
+	u2_t nTriangleCount=0, nIndexCount=0, nVertexCount=0, nAttributeCount=0, nFinalNodeCount=0;
+	u2_t nAttrID, nVertexStart=0, nAttrVertexCount=0, nFaceStart=0, nFaceCount=0; // <- all these are for counting attributes
 	const RSM_NODE_DATA_1_5* pNode;
 	const RSM_TRIANGLE_DATA_1_5* pTriangle;
 
@@ -45,7 +45,7 @@ int32_t ropp::BuildMeshGeometryFromRSM( const RSM_FILE_DATA* in_RSMData, uint32_
 	Vector3 * out_Vert0, * out_Vert1, * out_Vert2;
 
 	Quaternion qRot( 0.0f, 0.0f, 0.0f, 1.0f );
-	uint32_t rootIndex = 0;
+	u2_t rootIndex = 0;
 	for( iNode=0; iNode<nNodeCount; iNode++ )
 	{
 		if( 0 == strcmp( in_RSMData->szMainNode, in_RSMData->pNodes[iNode].szName ) )
@@ -65,7 +65,7 @@ int32_t ropp::BuildMeshGeometryFromRSM( const RSM_FILE_DATA* in_RSMData, uint32_
 			out_CurrentNode = &out_pNodeData[nFinalNodeCount];
 			if( nNodeCount > 1 )
 			{// look for parent
-				for( uint32_t iNode2=0; iNode2<nNodeCount; iNode2++ )
+				for( u2_t iNode2=0; iNode2<nNodeCount; iNode2++ )
 				{
 					//if( in_RSMData->pNodes[iNode2].szName[0] && pNode->szParentName[0] )
 					//if( pNode->szParentName[0] )
@@ -146,14 +146,14 @@ int32_t ropp::BuildMeshGeometryFromRSM( const RSM_FILE_DATA* in_RSMData, uint32_
 						}
 						if( *b32BitIndices )
 						{ // we invert order because we negated y
-							((uint32_t*)out_pIndices)[nIndexCount+0]	= nVertexCount+0;
-							((uint32_t*)out_pIndices)[nIndexCount+1]	= nVertexCount+2;
-							((uint32_t*)out_pIndices)[nIndexCount+2]	= nVertexCount+1;
+							((u2_t*)out_pIndices)[nIndexCount+0]	= nVertexCount+0;
+							((u2_t*)out_pIndices)[nIndexCount+1]	= nVertexCount+2;
+							((u2_t*)out_pIndices)[nIndexCount+2]	= nVertexCount+1;
 							if( 0 != pTriangle->nTwoSide )
 							{ // indices are useful for 2 sided faces
-								((uint32_t*)out_pIndices)[nIndexCount+3]	= nVertexCount+0;
-								((uint32_t*)out_pIndices)[nIndexCount+4]	= nVertexCount+1;
-								((uint32_t*)out_pIndices)[nIndexCount+5]	= nVertexCount+2;						
+								((u2_t*)out_pIndices)[nIndexCount+3]	= nVertexCount+0;
+								((u2_t*)out_pIndices)[nIndexCount+4]	= nVertexCount+1;
+								((u2_t*)out_pIndices)[nIndexCount+5]	= nVertexCount+2;						
 							}
 						}
 						else // 16 bit indices

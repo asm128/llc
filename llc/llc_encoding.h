@@ -35,7 +35,7 @@ namespace llc
 			cnst T				& latest				= decoded[idxLatest];
 			if(0 == iIn || 0 != memcmp(&current, &latest, szof(T)) || 255 == (u0_t)encoded[encoded.size() - 1]) {
 				u2_c				newSize					= encoded.size() + sizeBlock;
-				llc_necs(encoded.resize(newSize));
+				if_fail_fe(encoded.resize(newSize));
 				memcpy(&encoded[encoded.size() - sizeBlock], &current, szof(T));
 				encoded[encoded.size() - 1]			= 0;
 				idxLatest							= iIn;
@@ -51,9 +51,9 @@ namespace llc
   		for(u2_t iIn = 0; iIn < encoded.size(); iIn += sizeBlock) {
 			cnst T 				& current			= *(T*)&encoded[iIn];
 			u0_c				count				= encoded[iIn + szof(T)];
-			llc_necs(decoded.push_back(current));
+			if_fail_fe(decoded.push_back(current));
 			for(u2_t iOut = 0; iOut < count; ++iOut)
-				llc_necs(decoded.push_back(current));
+				if_fail_fe(decoded.push_back(current));
 		}
 		return 0;
 	}

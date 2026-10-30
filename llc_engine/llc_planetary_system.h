@@ -20,43 +20,43 @@ namespace llc
 		::llc::aobj<::llc::vcst_t>			ImageCloudAlpha;
 		::llc::aobj<::llc::vcst_t>			Shader;
 
-		::llc::error_t				Save			(::llc::au0_t & output)	const	{ 
-			llc_necs(Body.Save(output));
-			llc_necs(llc::saveView(output, Type));
-			llc_necs(llc::saveView(output, Parent));
-			for(uint32_t iBody = 0; iBody < Body.size(); ++iBody) {
-				llc_necs(llc::saveView(output, ImageColor[iBody]));
-				llc_necs(llc::saveView(output, ImageLight[iBody]));
-				llc_necs(llc::saveView(output, ImageCloudColor[iBody]));
-				llc_necs(llc::saveView(output, ImageCloudAlpha[iBody]));
-				llc_necs(llc::saveView(output, Shader[iBody]));
+		::llc::err_t				Save			(::llc::au0_t & output)	const	{ 
+			if_fail_fe(Body.Save(output));
+			if_fail_fe(llc::saveView(output, Type));
+			if_fail_fe(llc::saveView(output, Parent));
+			for(u2_t iBody = 0; iBody < Body.size(); ++iBody) {
+				if_fail_fe(llc::saveView(output, ImageColor[iBody]));
+				if_fail_fe(llc::saveView(output, ImageLight[iBody]));
+				if_fail_fe(llc::saveView(output, ImageCloudColor[iBody]));
+				if_fail_fe(llc::saveView(output, ImageCloudAlpha[iBody]));
+				if_fail_fe(llc::saveView(output, Shader[iBody]));
 			}
 			return 0;
 		}
 
-		::llc::error_t				Load			(::llc::vcu0_t & input)	{ 
-			llc_necs(Body.Load(input));
-			llc_necs(llc::loadView(input, Type));
-			llc_necs(llc::loadView(input, Parent));
-			for(uint32_t iBody = 0; iBody < Body.size(); ++iBody) {
+		::llc::err_t				Load			(::llc::vcu0_t & input)	{ 
+			if_fail_fe(Body.Load(input));
+			if_fail_fe(llc::loadView(input, Type));
+			if_fail_fe(llc::loadView(input, Parent));
+			for(u2_t iBody = 0; iBody < Body.size(); ++iBody) {
 				::llc::vcst_t imageColor = {}, imageLight = {}, imageCloudColor = {}, imageCloudAlpha = {}, shader = {};
-				llc_necs(llc::loadLabel(input, imageColor));
-				llc_necs(llc::loadLabel(input, imageLight));
-				llc_necs(llc::loadLabel(input, imageCloudColor));
-				llc_necs(llc::loadLabel(input, imageCloudAlpha));
-				llc_necs(llc::loadLabel(input, shader));
-				llc_necs(ImageColor.push_back(imageColor));
-				llc_necs(ImageLight.push_back(imageLight));
-				llc_necs(ImageCloudColor.push_back(imageCloudColor));
-				llc_necs(ImageCloudAlpha.push_back(imageCloudAlpha));
-				llc_necs(Shader.push_back(shader));
+				if_fail_fe(llc::loadLabel(input, imageColor));
+				if_fail_fe(llc::loadLabel(input, imageLight));
+				if_fail_fe(llc::loadLabel(input, imageCloudColor));
+				if_fail_fe(llc::loadLabel(input, imageCloudAlpha));
+				if_fail_fe(llc::loadLabel(input, shader));
+				if_fail_fe(ImageColor.push_back(imageColor));
+				if_fail_fe(ImageLight.push_back(imageLight));
+				if_fail_fe(ImageCloudColor.push_back(imageCloudColor));
+				if_fail_fe(ImageCloudAlpha.push_back(imageCloudAlpha));
+				if_fail_fe(Shader.push_back(shader));
 			}
 			return 0;
 		}
 	};
 
-	::llc::error_t			planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, const ::llc::SJSONReader & jsonData);
-	::llc::error_t			planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, ::llc::vcst_t jsonFilePath);
+	::llc::err_t			planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, const ::llc::SJSONReader & jsonData);
+	::llc::err_t			planetarySystemSetup	(::llc::SPlanetarySystem & planetarySystem, ::llc::vcst_t jsonFilePath);
 } // namespace
 
 #endif // LLC_PLANETARY_SYSTEM_H_23701

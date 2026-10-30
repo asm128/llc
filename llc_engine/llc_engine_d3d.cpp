@@ -7,8 +7,8 @@
 #include <d3d11shader.h>
 #pragma comment(lib, "d3dcompiler.lib")
 
-::llc::error_t			llc::d3dCreateBuffersFromEngineMeshes		(ID3D11Device * pDevice, const ::llc::SMeshManager & engineMeshes, const ::llc::SRenderBufferManager & engineBuffers, ::llc::array_com<ID3D11Buffer> & indexBuffers, ::llc::array_com<ID3D11Buffer> & vertexBuffers)	{
-	for(uint32_t iMesh = 0; iMesh < engineMeshes.size(); ++iMesh) {
+::llc::err_t			llc::d3dCreateBuffersFromEngineMeshes		(ID3D11Device * pDevice, const ::llc::SMeshManager & engineMeshes, const ::llc::SRenderBufferManager & engineBuffers, ::llc::array_com<ID3D11Buffer> & indexBuffers, ::llc::array_com<ID3D11Buffer> & vertexBuffers)	{
+	for(u2_t iMesh = 0; iMesh < engineMeshes.size(); ++iMesh) {
 		const ::llc::pobj<::llc::SGeometryMesh>		& mesh									= engineMeshes[iMesh];
 		if(!mesh)
 			continue;
@@ -17,21 +17,21 @@
 		::llc::apobj<::llc::SRenderBuffer>			engineBufferVertices;
 		::llc::au2_t						layoutOffsets;
 
-		uint32_t										vertexSize					= 0;
-		for(uint32_t iBuffer = 0; iBuffer < mesh->GeometryBuffers.size(); ++iBuffer) {
+		u2_t										vertexSize					= 0;
+		for(u2_t iBuffer = 0; iBuffer < mesh->GeometryBuffers.size(); ++iBuffer) {
 			const ::llc::pobj<::llc::SRenderBuffer>		& buffer								= engineBuffers[mesh->GeometryBuffers[iBuffer]];
 			if(buffer->Desc.Usage == ::llc::BUFFER_USAGE_Index) {
 				engineBufferIndices							= buffer;
 				continue;
 			}
-			llc_necs(engineBufferVertices.push_back(buffer));
-			llc_necs(layoutOffsets.push_back(vertexSize));
+			if_fail_fe(engineBufferVertices.push_back(buffer));
+			if_fail_fe(layoutOffsets.push_back(vertexSize));
 			vertexSize									+= buffer->Desc.Format.TotalBytes();
 
 		}
 		::llc::apod<uint8_t>						packed;
-		for(uint32_t iValue = 0, valueCount = engineBufferVertices[0]->Data.size() / engineBufferVertices[0]->Desc.Format.TotalBytes(); iValue < valueCount; ++iValue) {
-			for(uint32_t iBuffer = 0; iBuffer < engineBufferVertices.size(); ++iBuffer) {
+		for(u2_t iValue = 0, valueCount = engineBufferVertices[0]->Data.size() / engineBufferVertices[0]->Desc.Format.TotalBytes(); iValue < valueCount; ++iValue) {
+			for(u2_t iBuffer = 0; iBuffer < engineBufferVertices.size(); ++iBuffer) {
 				const ::llc::SRenderBuffer						& buffer					= *engineBufferVertices[iBuffer];
 				::llc::vcu0_t							value						= {&buffer.Data[iValue * buffer.Desc.Format.TotalBytes()], buffer.Desc.Format.TotalBytes()};
 				packed.append(value);
@@ -51,12 +51,12 @@
 			indexBufferDesc.BindFlags	= D3D11_BIND_INDEX_BUFFER;
 			::llc::au1_t						indices;
 			const SDataTypeID				indexFormat				= engineBufferIndices->Desc.Format;
-			const uint32_t					indexSize				= engineBufferIndices->Desc.Format.TotalBytes();
+			const u2_t					indexSize				= engineBufferIndices->Desc.Format.TotalBytes();
 			//if(engineBufferIndices->Desc.Format.TotalBytes() == 4) 
 			//else 
 			if(indexSize == 1) {
 				if_fail_fe(indices.resize(engineBufferIndices->Data.size()));
-				indices.enumerate([engineBufferIndices](uint32_t & i, uint16_t & value){ value = engineBufferIndices->Data[i]; return 0; }, 0);
+				indices.enumerate([engineBufferIndices](u2_t & i, uint16_t & value){ value = engineBufferIndices->Data[i]; return 0; }, 0);
 				indexBufferData.pSysMem	= indices.begin();
 				indexBufferDesc.ByteWidth = indices.byte_count();
 			}
@@ -70,8 +70,8 @@
 	return 0;
 }
 
-::llc::error_t			llc::d3dCreateTexturesFromEngineSurfaces	(ID3D11Device* pDevice, const ::llc::SSurfaceManager & engineSurfaces, ::llc::array_com<ID3D11ShaderResourceView> & shaderResourceViews) {
-	for(uint32_t iSurface = 0; iSurface < engineSurfaces.size(); ++iSurface) {
+::llc::err_t			llc::d3dCreateTexturesFromEngineSurfaces	(ID3D11Device* pDevice, const ::llc::SSurfaceManager & engineSurfaces, ::llc::array_com<ID3D11ShaderResourceView> & shaderResourceViews) {
+	for(u2_t iSurface = 0; iSurface < engineSurfaces.size(); ++iSurface) {
 		const ::llc::SSurface						& surface			= *engineSurfaces[iSurface];
 		D3D11_TEXTURE2D_DESC						desc				= {surface.Desc.Dimensions.x, surface.Desc.Dimensions.y, 1, 1, DXGI_FORMAT_B8G8R8A8_UNORM, {1, 0}, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE};
 		D3D11_SUBRESOURCE_DATA						initData			= {};
@@ -96,15 +96,15 @@
 }
 
 //
-::llc::error_t			llc::d3dCreatePixelShadersFromEngineShaders	(ID3D11Device* pDevice, const ::llc::SShaderManager & engineShaders, ::llc::array_com<ID3D11PixelShader> & pixelShaders, ::llc::au2_t * lightSlots) {
-	for(uint32_t iShader = 0; iShader < engineShaders.size(); ++iShader) {
+::llc::err_t			llc::d3dCreatePixelShadersFromEngineShaders	(ID3D11Device* pDevice, const ::llc::SShaderManager & engineShaders, ::llc::array_com<ID3D11PixelShader> & pixelShaders, ::llc::au2_t * lightSlots) {
+	for(u2_t iShader = 0; iShader < engineShaders.size(); ++iShader) {
 		const ::llc::vcst_t								shaderName				= engineShaders.Names[iShader];
 
 		// After the pixel shader file is loaded, create the shader.
 		sc_t											shaderFileName	[1024]	= {};
 		sprintf_s(shaderFileName, "%.*s.cso", LLC_VIEW_ARGS(shaderName));
 		::llc::as0_t					filePS;
-		llc_necs(llc::fileToMemory(::llc::vstr_t{shaderFileName}, filePS));
+		if_fail_fe(llc::fileToMemory(::llc::vstr_t{shaderFileName}, filePS));
 
 		::llc::ptr_com<ID3D11PixelShader>				pixelShader;
 		llc_hrcall(pDevice->CreatePixelShader(&filePS[0], filePS.size(), nullptr, &pixelShader));
@@ -117,9 +117,9 @@
 				if_true_fe(binding.Type != D3D_SIT_STRUCTURED || binding.BindCount != 1);
 				lightSlot = binding.BindPoint;
 			}
-			llc_necs(lightSlots->push_back(lightSlot));
+			if_fail_fe(lightSlots->push_back(lightSlot));
 		}
-		llc_necs(pixelShaders.push_back(pixelShader));
+		if_fail_fe(pixelShaders.push_back(pixelShader));
 	}
 	return 0;
 }

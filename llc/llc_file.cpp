@@ -24,7 +24,7 @@
 #		include <LittleFS.h>
 #		include "umm_malloc/umm_malloc.h"
 #		define 	LLC_SOC_FILESYSTEM_INSTANCE LittleFS
-#	elif defined(LLC_ESP32) 
+#	elif defined(LLC_ESP32)
 #		include <SPIFFS.h>
 #		define 	LLC_SOC_FILESYSTEM_INSTANCE SPIFFS
 #	endif // LLC_ESP32
@@ -34,10 +34,13 @@ LLC_USING_APOD();
 LLC_USING_VIEW();
 LLC_USING_TYPEINT();
 
-llc::err_t		llc::with			(vcst_t filepath, vcst_t mode, const llc::function<llc::err_t(FILE*&)> & funcFile)	{ 
-	FILE					* fp				= {};
-	llc_necs(llc::fopen_s(fp, filepath, mode)); if_null_ve(-1, fp);
-	llc::err_t	result;
+usng llc::one_if;
+
+llc::err_t		llc::with			(vcst_t filepath, vcst_t mode, const function<err_t(FILE*&)> & funcFile)	{
+	FILE				* fp				= {};
+	if_fail_fe(llc::fopen_s(fp, filepath, mode));
+	if_null_ve(-1, fp);
+	err_t				result;
 	if_fail_ef(result = funcFile(fp), "filepath:'%.*s'.", (int)filepath.size(), filepath.begin());
 	if(fp)
 		fclose(fp);
@@ -79,7 +82,7 @@ s3_t	llc::	fileSize			(llc::vcst_t fileName)			{
 #	endif // LLC_ESP32
 #else
 	::FILE				* fp					= 0;
-	llc_necall(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
+	if_fail_fef(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
 	if_true_fef(0 == fp, "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
 	if(0 != llc::fseek(fp, 0, FSEEK_END)) {
 		error_printf("Unknown error reading '%.*s'.", (int)fileName.size(), fileName.begin());
@@ -116,17 +119,17 @@ llc::err_t	llc::fileLastWriteTime	(vcst_t fileName, s3_t & modified) {
 // Retain the whole-file fast path for files below the streaming threshold.
 sttc llc::err_t fileSplitSmall(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
 	llc::as0_t			fileInMemory;
-	llc_necs(llc::fileToMemory(fileNameSrc, fileInMemory));
+	if_fail_fe(llc::fileToMemory(fileNameSrc, fileInMemory));
 	cnst u2_t			countParts = fileInMemory.size() / sizePartMax + one_if(fileInMemory.size() % sizePartMax);
 	if_true_fe(countParts > 0x7FFFFFFFU);
 	llc::string			fileNameDst;
 	for(u2_t iPart = 0; iPart < countParts; ++iPart) {
 		cnst u2_t		offsetPart = sizePartMax * iPart;
 		fileNameDst.clear();
-		llc_necs(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
+		if_fail_fe(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
 		info_printf("Creating part %u: '%s'.", iPart, fileNameDst.begin());
 		cnst u2_t		countBytes = llc::min(sizePartMax, fileInMemory.size() - offsetPart);
-		llc_necs(llc::fileFromMemory(fileNameDst, llc::vcs0_t{fileInMemory.begin() + offsetPart, countBytes}));
+		if_fail_fe(llc::fileFromMemory(fileNameDst, llc::vcs0_t{fileInMemory.begin() + offsetPart, countBytes}));
 	}
 	return (llc::err_t)countParts;
 }
@@ -139,14 +142,14 @@ sttc llc::err_t fileSplitLarge(llc::vcst_t fileNameSrc, u2_c sizePartMax, u3_c s
 	u3_t				offset = 0;
 	for(u2_t iPart = 0; iPart < countParts; ++iPart) {
 		fileNameDst.clear();
-		llc_necs(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
+		if_fail_fe(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
 		cnst u3_t		partSize = llc::min(sizeFile - offset, (u3_t)sizePartMax);
 		u3_t			partOffset = 0;
 		while(partOffset < partSize) {
 			cnst u2_t	count = (u2_t)llc::min(partSize - partOffset, (u3_t)(1024U * 1024U));
-			llc_necs(llc::fileToMemory(fileNameSrc, buffer, count, offset));
+			if_fail_fe(llc::fileToMemory(fileNameSrc, buffer, count, offset));
 			if_true_fef(buffer.size() != count, "Short read at offset %" LLC_FMT_U3 ": '%.*s'.", offset, LLC_VIEW_ARGS(fileNameSrc));
-			llc_necs(llc::fileFromMemory(fileNameDst, buffer, partOffset != 0));
+			if_fail_fe(llc::fileFromMemory(fileNameDst, buffer, partOffset != 0));
 			partOffset += count;
 			offset += count;
 		}
@@ -189,7 +192,7 @@ llc::err_t	llc::	fileJoin				(vcst_t fileNameDst)	{
 
 #define LLC_DEBUG_FILE_CONTENTS
 
-llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, ::llc::u2_t maxSize, uint64_t offset)		{
+llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, ::llc::u2_t maxSize, u3_t offset)		{
 	llc::string			fileName					= usfileName;
 	llc_file_info_printf("Loading '%s'.", fileName.begin());
 
@@ -201,9 +204,9 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, :
 	u2_c				fileSize					= (::llc::u2_t)fp.size();
 	fileInMemory.clear();
 #		ifdef LLC_ESP32
-	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
+	if_fail_fef(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
 #		else
-	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
+	if_fail_fef(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
 #		endif // LLC_ESP32
 	if_true_fe(fileSize != (::llc::u2_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
 	fp.close();
@@ -211,7 +214,7 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, :
 	llc::err_t	result				= 0;
 #else // !LLC_ARDUINO
 	::FILE				* fp				= 0;
-	const int32_t				fileErr				= llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ);
+	const s2_t				fileErr				= llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ);
 	if_true_vef((fileErr > 0) ? -fileErr : fileErr, 0 != fileErr || 0 == fp, "Cannot open file: %s.", fileName.begin());
 	fseek(fp, 0, SEEK_END);
 	const s3_t				fileSize					= llc::ftell(fp);
@@ -221,7 +224,7 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, :
 	llc_fail_if_ne(LLC_FMT_NE_S3, 0, llc::fseek(fp, offset, FSEEK_SET));
 	llc::err_t	result				= 0;
 	if_failed(fileInMemory.resize(maxRead)) {
-		error_printf("File too large? : %llu.", (uint64_t)fileSize);
+		error_printf("File too large? : %llu.", (u3_t)fileSize);
 		result					= -1;
 	}
 	else {
@@ -259,7 +262,7 @@ llc::err_t	llc::	fileFromMemory			(vcst_t usfileName, vcu0_t fileInMemory, bool 
 #	endif // LLC_ESP32 || LLC_ESP8266
 #else // !LLC_ARDUINO
 	::FILE				* fp				= 0;
-	const int32_t				fileErr				= llc::fopen_s(fp, fileName, append ? LLC_OPEN_MODE_APPEND : LLC_OPEN_MODE_WRITE);
+	const s2_t				fileErr				= llc::fopen_s(fp, fileName, append ? LLC_OPEN_MODE_APPEND : LLC_OPEN_MODE_WRITE);
 	if_true_vwf((fileErr > 0) ? -fileErr : fileErr, 0 != fileErr || 0 == fp, "Failed to create '%s' for %s.", fileName.begin(), append ? "appending" : "writing");
 	if(fileInMemory.size() != fwrite(fileInMemory.begin(), 1, fileInMemory.size(), fp)) {
 		error_printf("Failed to write '%s'. Disk full? File size: %" LLC_FMT_U2 ".", fileName.begin(), fileInMemory.size());
@@ -289,14 +292,14 @@ llc::err_t	llc::	fileDelete				(vcst_t usfileName)	{
 	llc_file_info_printf("'%s' deleted successfully.", fileName.begin());
 	return 0;
 }
-llc::err_t	llc::fileToMemory		(vcst_t folderPath, vcst_t fileName, llc::au0_t & fileBytes, ::llc::u2_t maxSize, uint64_t offset) {
+llc::err_t	llc::fileToMemory		(vcst_t folderPath, vcst_t fileName, llc::au0_t & fileBytes, ::llc::u2_t maxSize, u3_t offset) {
 	llc::string			filePath			= {};
 	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());
 	if_fail_fef(llc::fileToMemory(filePath, fileBytes, maxSize, offset), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());
 	return 0;
 }
 llc::err_t	llc::fileFromMemory		(vcst_t folderPath, vcst_t fileName, vcu0_c fileInMemory, bool append) {
-	llc::string			filePath			= {}; 
+	llc::string			filePath			= {};
 	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());
 	if_fail_fef(llc::fileFromMemory(filePath, fileInMemory, append), "folderPath: '%.*s', fileName: '%.*s', append: %s.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin(), llc::b82sc(append));
 	return 0;

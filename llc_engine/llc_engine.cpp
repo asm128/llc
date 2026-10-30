@@ -4,7 +4,7 @@
 #include "llc_geometry_lh.h"
 #include "llc_engine_shader.h"
 
-::llc::error_t			llc::updateEntityTransforms			
+::llc::err_t			llc::updateEntityTransforms			
 	( ::llc::u2_t								iEntity
 	, const ::llc::SEntity			& entity
 	, const ::llc::SVirtualEntityManager	& managedEntities	
@@ -56,8 +56,8 @@
 	return 0;
 }
 
-::llc::error_t			llc::SEngine::CreateLight(::llc::LIGHT_TYPE type) {
-	int32_t							iEntity				= this->Entities.Create();
+::llc::err_t			llc::SEngine::CreateLight(::llc::LIGHT_TYPE type) {
+	s2_t							iEntity				= this->Entities.Create();
 	::llc::SEntity			& entity			= Entities[iEntity];
 	entity.RenderNode			= Scene->RenderNodes.Create();
 
@@ -75,8 +75,8 @@
 	return iEntity;
 }
 
-::llc::error_t			llc::SEngine::CreateCamera() {
-	int32_t						iEntity						= this->Entities.Create();
+::llc::err_t			llc::SEngine::CreateCamera() {
+	s2_t						iEntity						= this->Entities.Create();
 	::llc::SEntity				& entity					= Entities[iEntity];
 	entity.RenderNode		= Scene->RenderNodes.Create();
 	entity.RigidBody		= this->Integrator.Create();
@@ -90,133 +90,133 @@
 	Scene->RenderNodes.Cameras		[entity.RenderNode]->push_back(camera);
 	Scene->RenderNodes.Transforms	[entity.RenderNode]		= {};
 
-	int32_t						iSphere;
-	llc_necs(iSphere = CreateSphere({}, "Camera reference"));
-	llc_necs(Entities.SetParent(iSphere, iEntity));
+	s2_t						iSphere;
+	if_fail_fe(iSphere = CreateSphere({}, "Camera reference"));
+	if_fail_fe(Entities.SetParent(iSphere, iEntity));
 	return iEntity;
 }
 
-::llc::error_t			llc::SEngine::CreateBox			(const ::llc::SParamsBox & params, ::llc::vcs entityName)	{
+::llc::err_t			llc::SEngine::CreateBox			(const ::llc::SParamsBox & params, ::llc::vcst_t entityName)	{
 	return CreateEntityFromGeometry(entityName, params.HalfSizes, true, params, ParamsBox
 		, [params](::llc::SGeometryBuffers & geometry) { 
 			return ::llc::geometryBuildBox(geometry, params); 
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateCylinder		(const ::llc::SParamsCylinderWall & params, ::llc::vcs entityName)	{
-	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
+::llc::err_t			llc::SEngine::CreateCylinder		(const ::llc::SParamsCylinderWall & params, ::llc::vcst_t entityName)	{
+	const f2_t					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Height * .5f, radius}, true, params, ParamsCylinder
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildCylinder(geometry, params));
+			if_fail_fe(llc::geometryBuildCylinder(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateSphere		(const ::llc::SParamsSphere & params, ::llc::vcs entityName)	{ 
+::llc::err_t			llc::SEngine::CreateSphere		(const ::llc::SParamsSphere & params, ::llc::vcst_t entityName)	{ 
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{params.Radius, params.Radius, params.Radius}, true, params, ParamsSphere
 		, [params](::llc::SGeometryBuffers & geometry) { 
 			return ::llc::geometryBuildSphere(geometry, params); 
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateGrid		(const ::llc::SParamsGrid & params, ::llc::vcs entityName)	{ 
+::llc::err_t			llc::SEngine::CreateGrid		(const ::llc::SParamsGrid & params, ::llc::vcst_t entityName)	{ 
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{params.Size.x * .5f, 0, params.Size.y * .5f}, true, params, ParamsGrid
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildGrid(geometry, params));
+			if_fail_fe(llc::geometryBuildGrid(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateHelixHalf	(const ::llc::SParamsHelix & params, ::llc::vcs entityName)	{ 
-	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
+::llc::err_t			llc::SEngine::CreateHelixHalf	(const ::llc::SParamsHelix & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Length * .5f, radius}, true, params, ParamsHelix
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildHelixHalf(geometry, params));
+			if_fail_fe(llc::geometryBuildHelixHalf(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateHelix		(const ::llc::SParamsHelix & params, ::llc::vcs entityName)	{ 
-	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
+::llc::err_t			llc::SEngine::CreateHelix		(const ::llc::SParamsHelix & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Length * .5f, radius}, true, params, ParamsHelix
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildHelix(geometry, params));
+			if_fail_fe(llc::geometryBuildHelix(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateFigure0		(const ::llc::SParamsHelix & params, ::llc::vcs entityName)	{ 
-	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
+::llc::err_t			llc::SEngine::CreateFigure0		(const ::llc::SParamsHelix & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Length * .5f, radius}, true, params, ParamsHelix
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildHelix(geometry, params));
+			if_fail_fe(llc::geometryBuildHelix(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateCylinderWall(const ::llc::SParamsCylinderWall & params, ::llc::vcs entityName)	{ 
-	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
+::llc::err_t			llc::SEngine::CreateCylinderWall(const ::llc::SParamsCylinderWall & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Height * .5f, radius}, true, params, ParamsCylinderWall
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildCylinderWall(geometry, params));
+			if_fail_fe(llc::geometryBuildCylinderWall(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateCircleSide		(const ::llc::SParamsCircle & params, ::llc::vcs entityName)	{ 
-	const float					radius							= params.Radius;
+::llc::err_t			llc::SEngine::CreateCircleSide		(const ::llc::SParamsCircle & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= params.Radius;
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, 0, radius}, true, params, ParamsCircleSide
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildCircleSide(geometry, params));
+			if_fail_fe(llc::geometryBuildCircleSide(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateDisc		(const ::llc::SParamsDisc & params, ::llc::vcs entityName)	{ 
-	const float					radius							= params.Radius;
+::llc::err_t			llc::SEngine::CreateDisc		(const ::llc::SParamsDisc & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= params.Radius;
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, 0, radius}, true, params, ParamsDisc
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildDisc(geometry, params));
+			if_fail_fe(llc::geometryBuildDisc(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateRingSide	(const ::llc::SParamsRingSide & params, ::llc::vcs entityName)	{ 
-	const float					radius							= params.Radius.Max;
+::llc::err_t			llc::SEngine::CreateRingSide	(const ::llc::SParamsRingSide & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= params.Radius.Max;
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, radius, radius}, true, params, ParamsRingSide
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildRingSide(geometry, params));
+			if_fail_fe(llc::geometryBuildRingSide(geometry, params));
 			return 0;
 		});
 }
-::llc::error_t			llc::SEngine::CreateRingFlat	(const ::llc::SParamsRingSide & params, ::llc::vcs entityName)	{ 
-	const float					radius							= params.Radius.Max;
+::llc::err_t			llc::SEngine::CreateRingFlat	(const ::llc::SParamsRingSide & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= params.Radius.Max;
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, radius, radius}, true, params, ParamsRingFlat
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildRingFlat(geometry, params));
+			if_fail_fe(llc::geometryBuildRingFlat(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateTube		(const ::llc::SParamsTube & params, ::llc::vcs entityName)	{ 
-	const float					radius							= ::llc::max(params.RadiusYMax.Max, params.RadiusYMin.Max);
+::llc::err_t			llc::SEngine::CreateTube		(const ::llc::SParamsTube & params, ::llc::vcst_t entityName)	{ 
+	const f2_t					radius							= ::llc::max(params.RadiusYMax.Max, params.RadiusYMin.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, radius, radius}, true, params, ParamsTube
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildRing(geometry, params));
+			if_fail_fe(llc::geometryBuildRing(geometry, params));
 			return 0;
 		});
 }
 
-::llc::error_t			llc::SEngine::CreateImageFromFile(const ::llc::vcs & fileFolder, const ::llc::vcs & fileName) {
+::llc::err_t			llc::SEngine::CreateImageFromFile(const ::llc::vcst_t & fileFolder, const ::llc::vcst_t & fileName) {
 	sc_t						filePath	[2048]				= {};
 	if_fail_fe(sprintf_s(filePath, "%.*s/%.*s", (int)fileFolder.size(), fileFolder.begin(), (int)fileName.size(), fileName.begin()));
-	int32_t						index							= Images.Keys.find(filePath);
+	s2_t						index							= Images.Keys.find(filePath);
 	if(index != -1)
 		return Images.Values[index];
 
 	index					= Scene->Graphics->Surfaces.Create(::llc::label(filePath));
 	::llc::pobj<::llc::SSurface>	& surface					= Scene->Graphics->Surfaces[index];
-	llc_necs(llc::pngFileLoad(PNGCache, filePath, surface->Data));
+	if_fail_fe(llc::pngFileLoad(PNGCache, filePath, surface->Data));
 	surface->Desc.Dimensions	= PNGCache.Header.Size.u1();
 	surface->Desc.BitDepth		= PNGCache.Header.BitDepth;
 	surface->Desc.ColorType		= PNGCache.Header.ColorType;
@@ -224,7 +224,7 @@
 }
 
 //
-//	int32_t						iEntity					= CreateBox();
+//	s2_t						iEntity					= CreateBox();
 //	::llc::SEntity		& entity				= Entities[iEntity];
 //	::llc::SRenderNode			& renderNode			= Scene->RenderNodes[entity.RenderNode];
 //
@@ -260,7 +260,7 @@
 //		slice.Slice				= {offsetIndex, 6};
 //		offsetIndex				+= slice.Slice.Count;
 //
-//		int32_t						iFaceEntity				= Entities.Create();
+//		s2_t						iFaceEntity				= Entities.Create();
 //		::llc::u2_t					iFaceRenderNode			= Scene->RenderNodes.Create();
 //		::llc::SEntity		& faceEntity			= Entities[iFaceEntity];
 //		::llc::SRenderNode			& faceRenderNode		= Scene->RenderNodes.RenderNodes[iFaceRenderNode];

@@ -5,12 +5,12 @@
 using llc::u0_t, llc::u2_t;
 
 ::llc::err_t			llc::pngFileWrite		(const ::llc::gc8bgra & in_imageView, ::llc::au0_t & out_Bytes)		{
-	stacxpr	const u0_t		signature	[8]			= {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
+	stxp	const u0_t		signature	[8]			= {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
 	::llc::au0_t				safe_Bytes				= {};
 	safe_Bytes.append(signature);
 
 	u2_t					chunkSize				= sizeof(::llc::SPNGIHDR);
-	stacxpr	const u0_t		typeIHDR	[4]			= {'I', 'H', 'D', 'R'};
+	stxp	const u0_t		typeIHDR	[4]			= {'I', 'H', 'D', 'R'};
 	u2_t						crc						= 0;
 	::llc::SPNGIHDR				imageHeader				= {};
 	imageHeader.Size				= in_imageView.metrics();
@@ -52,14 +52,14 @@ using llc::u0_t, llc::u2_t;
 	}
 
 	::llc::au0_t					deflated;
-	llc_necall(llc::arrayDeflate(filtered.Texels.cu8(), deflated), "%s", "Failed to compress! Out of memory?");
+	if_fail_fef(llc::arrayDeflate(filtered.Texels, deflated), "%s", "Failed to compress! Out of memory?");
 
 	chunkSize					= deflated.size();
 	be2le(chunkSize);
 	safe_Bytes.append((const u0_t*)&chunkSize, 4);
 	crcDataStart				= safe_Bytes.size();
 
-	stacxpr	const u0_t			typeIDAT	[4]			= {'I', 'D', 'A', 'T'};
+	stxp	const u0_t			typeIDAT	[4]			= {'I', 'D', 'A', 'T'};
 	safe_Bytes.append(typeIDAT);
 	safe_Bytes.append(deflated);
 	crc							= ::llc::get_crc({&safe_Bytes[crcDataStart], safe_Bytes.size() - crcDataStart});
@@ -68,7 +68,7 @@ using llc::u0_t, llc::u2_t;
 
 	chunkSize					= 0;
 	crc							= 0;
-	stacxpr	const u0_t			typeIEND	[4]			= {'I', 'E', 'N', 'D'};
+	stxp	const u0_t			typeIEND	[4]			= {'I', 'E', 'N', 'D'};
 	be2le(chunkSize);
 	safe_Bytes.append((const u0_t*)&chunkSize, 4);
 	crcDataStart				= safe_Bytes.size();
@@ -78,7 +78,7 @@ using llc::u0_t, llc::u2_t;
 	safe_Bytes.append((const u0_t*)&crc, 4);
 
 	u2_t							oldSize					= out_Bytes.size();
-	llc_necs(out_Bytes.resize(oldSize + safe_Bytes.size()));
+	if_fail_fe(out_Bytes.resize(oldSize + safe_Bytes.size()));
 	memcpy(&out_Bytes[oldSize], safe_Bytes.begin(), safe_Bytes.size());
 	return 0;
 }

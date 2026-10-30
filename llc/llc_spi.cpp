@@ -18,7 +18,7 @@
 	case SPI_MODE_IT  : result = HAL_SPI_Receive_IT (host.PlatformHandle, pin, registerIndex, registerCount, data.begin(), data.size(), timeout);
 	case SPI_MODE_DMA : result = HAL_SPI_Receive_DMA(host.PlatformHandle, pin, registerIndex, registerCount, data.begin(), data.size(), timeout);
 	default:
-		error_printf("Unsupported operation mode: %i", (int32_t)mode);
+		error_printf("Unsupported operation mode: %i", (s2_t)mode);
 	}
 	return ::llc::error_t_from_hal_status(result);
 #else
@@ -34,7 +34,7 @@
 	case SPI_MODE_IT  : result = HAL_SPI_Transmit_IT (host.PlatformHandle, pin, registerIndex, registerCount, data.begin(), data.size(), timeout);
 	case SPI_MODE_DMA : result = HAL_SPI_Transmit_DMA(host.PlatformHandle, pin, registerIndex, registerCount, data.begin(), data.size(), timeout);
 	default:
-	  error_printf("Unsupported operation mode: %i", (int32_t)mode);
+	  error_printf("Unsupported operation mode: %i", (s2_t)mode);
 	}
 	return ::llc::error_t_from_hal_status(result);
 #else

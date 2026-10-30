@@ -23,14 +23,14 @@ namespace llc
 		::llc::tilegrid			Tiles;
 
 		::llc::error_t			Save				(::llc::au0_t & output)	const	{ 
-			llc_necs(llc::saveView (output, Flags)); 
-			llc_necs(llc::saveImage(output, Tiles.View)); 
+			if_fail_fe(llc::saveView (output, Flags)); 
+			if_fail_fe(llc::saveImage(output, Tiles.View)); 
 			return 0;
 		}
 
 		::llc::error_t			Load				(::llc::vcu0_t & input)	{ 
-			llc_necs(llc::loadView (input, Flags )); 
-			llc_necs(llc::loadImage(input, Tiles)); 
+			if_fail_fe(llc::loadView (input, Flags )); 
+			if_fail_fe(llc::loadImage(input, Tiles)); 
 			return 0;
 		}
 	};
@@ -50,29 +50,29 @@ namespace llc
 		::llc::apobj<STileBlock>	Blocks;	// 
 	
 		::llc::error_t			Save				(::llc::au0_t & output)	const	{ 
-			llc_necs(llc::savePOD (output, Config)); 
-			llc_necs(llc::saveView(output, Coords)); 
-			llc_necs(llc::saveView(output, Stamps)); 
-			llc_necs(llc::savePOD (output, Blocks.size())); 
+			if_fail_fe(llc::savePOD (output, Config)); 
+			if_fail_fe(llc::saveView(output, Coords)); 
+			if_fail_fe(llc::saveView(output, Stamps)); 
+			if_fail_fe(llc::savePOD (output, Blocks.size())); 
 			for(uint32_t iMap = 0; iMap < Blocks.size(); ++iMap) {
-				llc_necs(Blocks[iMap] ? Blocks[iMap]->Save(output) : STileBlock{}.Save(output));
+				if_fail_fe(Blocks[iMap] ? Blocks[iMap]->Save(output) : STileBlock{}.Save(output));
 			}
 			return 0; 
 		}
 		::llc::error_t			Load				(::llc::vcu0_t & input) { 
-			llc_necs(llc::loadPOD (input, Config)); 
-			llc_necs(llc::loadView(input, Coords)); 
-			llc_necs(llc::loadView(input, Stamps)); 
+			if_fail_fe(llc::loadPOD (input, Config)); 
+			if_fail_fe(llc::loadView(input, Coords)); 
+			if_fail_fe(llc::loadView(input, Stamps)); 
 			uint32_t					blockCount			= {};
-			llc_necs(llc::loadPOD (input, blockCount)); 
-			llc_necs(Blocks.reserve(blockCount));
+			if_fail_fe(llc::loadPOD (input, blockCount)); 
+			if_fail_fe(Blocks.reserve(blockCount));
 			for(uint32_t iMap = 0; iMap < blockCount; ++iMap) {
 				::llc::pobj<STileBlock>		block;
-				llc_necs(block->Load(input));
+				if_fail_fe(block->Load(input));
 				if(0 == block->Tiles.size())
 					block.clear();
 
-				llc_necs(Blocks.push_back(block));
+				if_fail_fe(Blocks.push_back(block));
 			}
 			return 0; 
 		}

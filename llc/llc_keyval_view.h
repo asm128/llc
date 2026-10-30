@@ -13,7 +13,7 @@ namespace llc
 			err_t		keyvalNumeric		(vcst_t key, view<cnst keyval<vcst_t>> keyVals, u3_t & outputNumber);
 	tplt<tpnm _tNumeric>
 			err_t		keyvalNumeric		(vcst_t key, view<cnst keyval<vcst_t>> keyVals, _tNumeric & outputNumber)	{
-		uint64_t				value				= 0;
+		u3_t				value				= 0;
 		err_t					indexKey			= keyvalNumeric(key, keyVals, value);
 		if(-1 != indexKey)
 			outputNumber		= value;

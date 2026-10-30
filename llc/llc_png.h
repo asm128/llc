@@ -66,7 +66,7 @@ namespace llc
 #pragma pack(pop)
 
 	u2_t					update_crc	(const ::llc::vcu0_t & buf, u2_t crc)		;
-	stainli	u2_t			get_crc		(const ::llc::vcu0_t & buf)					{ return update_crc(buf, 0xffffffffL) ^ 0xffffffffL; }
+	stin	u2_t			get_crc		(const ::llc::vcu0_t & buf)					{ return update_crc(buf, 0xffffffffL) ^ 0xffffffffL; }
 
 	::llc::err_t			pngDecode	(::llc::SPNGData & pngData, ::llc::g8bgra	out_View);
 	::llc::err_t			pngDecode	(::llc::SPNGData & pngData, ::llc::gu1_t	out_View);
@@ -90,12 +90,12 @@ namespace llc
 
 	::llc::err_t			pngFileWrite(const ::llc::gc8bgra & out_ImageView, ::llc::au0_t & out_Bytes);
 
-	stainli	::llc::err_t	pngFileLoad	(const ::llc::vcst_t	& filename	, ::llc::img8bgra & out_Texture)					{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, filename	, out_Texture); }
-	stainli	::llc::err_t	pngFileLoad	(const ::llc::vcu0_t	& source	, ::llc::img8bgra & out_Texture)					{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, source	, out_Texture); }
-	stainli	::llc::err_t	pngFileLoad	(const ::llc::vcst_t	& filename	, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View)	{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, filename	, out_Data, out_View); }
-	stainli	::llc::err_t	pngFileLoad	(const ::llc::vcu0_t	& source	, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View)	{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, source	, out_Data, out_View); }
-	stainli	::llc::err_t	pngFileLoad	(const ::llc::vcst_t	& filename	, ::llc::au0_t & out_Data)							{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, filename	, out_Data); }
-	stainli	::llc::err_t	pngFileLoad	(const ::llc::vcu0_t	& source	, ::llc::au0_t & out_Data)							{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, source	, out_Data); }
+	stin	::llc::err_t	pngFileLoad	(const ::llc::vcst_t	& filename	, ::llc::img8bgra & out_Texture)					{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, filename	, out_Texture); }
+	stin	::llc::err_t	pngFileLoad	(const ::llc::vcu0_t	& source	, ::llc::img8bgra & out_Texture)					{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, source	, out_Texture); }
+	stin	::llc::err_t	pngFileLoad	(const ::llc::vcst_t	& filename	, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View)	{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, filename	, out_Data, out_View); }
+	stin	::llc::err_t	pngFileLoad	(const ::llc::vcu0_t	& source	, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View)	{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, source	, out_Data, out_View); }
+	stin	::llc::err_t	pngFileLoad	(const ::llc::vcst_t	& filename	, ::llc::au0_t & out_Data)							{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, filename	, out_Data); }
+	stin	::llc::err_t	pngFileLoad	(const ::llc::vcu0_t	& source	, ::llc::au0_t & out_Data)							{ ::llc::SPNGData tempCache; return pngFileLoad(tempCache, source	, out_Data); }
 } // namespace
 
 #endif // LLC_PNG_H_23627

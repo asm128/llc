@@ -17,7 +17,7 @@ namespace llc
 	tplT			err_t	saveView					(au0_t & output, cnst view<T> & viewToSerialize)	{
 		cnst packedu32				counterValue				= viewToSerialize.size();
 		if_fail_fe(savePacked(output, counterValue));
-		if_fail_fe(output.append(viewToSerialize.cu8()));
+		if_fail_fe(output.append(view<u0_c>{(u0_c*)viewToSerialize.begin(), viewToSerialize.size()}));
 		return counterValue.ValueWidth() + viewToSerialize.byte_count();
 	}
 	//tplT			err_t	saveUIntView		(au0_t & output, cnst view<T> & viewToSerialize)	{

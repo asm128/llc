@@ -18,27 +18,28 @@
 ////#	include <unistd.h>
 #endif
 
-#if !defined(LLC_ARDUINO) && !defined(LLC_ATMEL)
-#	include <filesystem>
-#	include <string>
-#endif
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
 
-stxp	::llc::u2_t LLC_MAX_PATH = 256;
+usng nmsp llc;;
+
+stxp	u2_t LLC_MAX_PATH = 256;
 
 #define llc_path_debug info_printf
 
 
 //
-::llc::err_t			llc::pathCreate				(::llc::vcst_t pathName, sc_c separator) {
+llc::err_t			llc::pathCreate				(vcst_t pathName, sc_c separator) {
 	if_zero_fw(pathName.size());
 #ifndef LLC_ATMEL
 	char						folder[LLC_MAX_PATH]		= {};
 	s2_t						offsetBar					= -1;
 	do {
 		++offsetBar;
-		offsetBar				= ::llc::find(separator, pathName, offsetBar);
+		offsetBar				= find(separator, pathName, offsetBar);
 		if(0 == offsetBar) {
-			if(offsetBar == (int32_t)pathName.size() - 1)
+			if(offsetBar == (s2_t)pathName.size() - 1)
 				break;
 			continue;
 		}
@@ -63,31 +64,31 @@ stxp	::llc::u2_t LLC_MAX_PATH = 256;
 	return 0;
 }
 
-::llc::err_t			llc::findLastSlash			(::llc::vcst_t path)		{
-	int32_t						indexOfStartOfFileName0		= ::llc::rfind('\\', path);
-	int32_t						indexOfStartOfFileName1		= ::llc::rfind('/', path);
+llc::err_t			llc::findLastSlash			(vcst_t path)		{
+	s2_t						indexOfStartOfFileName0		= rfind('\\', path);
+	s2_t						indexOfStartOfFileName1		= rfind('/', path);
 	return
 		(-1 == indexOfStartOfFileName1) ? indexOfStartOfFileName0 :
 		(-1 == indexOfStartOfFileName0) ? indexOfStartOfFileName1 :
-		::llc::max(indexOfStartOfFileName0, indexOfStartOfFileName1)
+		max(indexOfStartOfFileName0, indexOfStartOfFileName1)
 		;
 }
-::llc::err_t			llc::pathStem				(::llc::vcst_t path, ::llc::vcst_t & stem) {
-	::llc::vcst_t filename = {};
-	if_fail_fe(::llc::pathFilename(path, filename));
+llc::err_t			llc::pathStem				(vcst_t path, vcst_t & stem) {
+	vcst_t filename = {};
+	if_fail_fe(pathFilename(path, filename));
 	if_zero_fef(filename.size(), "Path has no filename:'%.*s'.", (int)path.size(), path.begin());
-	::llc::u2_t iEnd = filename.size();
+	u2_t iEnd = filename.size();
 	while(1 < iEnd)
 		if('.' == filename[--iEnd])
 			rtrn filename.slice(stem, 0, iEnd);
 	rtrn filename.slice(stem, 0, filename.size());
 }
 
-stxp	bool			pathSeparator			(::llc::sc_c value) { rtrn '/' == value || '\\' == value; }
-stxp	bool			pathDriveLetter			(::llc::sc_c value) { rtrn ('A' <= value && value <= 'Z') || ('a' <= value && value <= 'z'); }
+stxp	bool			pathSeparator			(sc_c value) { rtrn '/' == value || '\\' == value; }
+stxp	bool			pathDriveLetter			(sc_c value) { rtrn ('A' <= value && value <= 'Z') || ('a' <= value && value <= 'z'); }
 
-::llc::err_t			llc::pathBegin				(::llc::vcst_t path, ::llc::vcst_t & output) {
-	::llc::u2_t					prefixSize				= 0;
+llc::err_t			llc::pathBegin				(vcst_t path, vcst_t & output) {
+	u2_t					prefixSize				= 0;
 	if(path.size() && ::pathSeparator(path[0])) {
 		prefixSize							= 1;
 		if(path.size() > 1 && ::pathSeparator(path[1])) {
@@ -103,8 +104,8 @@ stxp	bool			pathDriveLetter			(::llc::sc_c value) { rtrn ('A' <= value && value 
 		}
 	}
 	else {
-		::llc::vcst_t			drive					= path;
-		if_fail_fe(::llc::split(':', drive));
+		vcst_t			drive					= path;
+		if_fail_fe(split(':', drive));
 		if(1 == drive.size() && drive.size() < path.size() && ::pathDriveLetter(drive[0])) {
 			prefixSize						= 2;
 			if(prefixSize < path.size() && ::pathSeparator(path[prefixSize]))
@@ -115,8 +116,8 @@ stxp	bool			pathDriveLetter			(::llc::sc_c value) { rtrn ('A' <= value && value 
 	rtrn output.size();
 }
 
-sttc	::llc::err_t	validatePathSeparators	(::llc::vcst_t path, bool allowUNC) {
-	for(::llc::u2_t iChar = 1; iChar < path.size(); ++iChar)
+sttc	llc::err_t	validatePathSeparators	(vcst_t path, bool allowUNC) {
+	for(u2_t iChar = 1; iChar < path.size(); ++iChar)
 		if_true_fef(::pathSeparator(path[iChar - 1]) && ::pathSeparator(path[iChar]) && false == (allowUNC && 1 == iChar)
 			, "Adjacent separators at offset %" LLC_FMT_U2 ": '%.*s'."
 			, iChar - 1, (int)path.size(), path.begin()
@@ -124,10 +125,10 @@ sttc	::llc::err_t	validatePathSeparators	(::llc::vcst_t path, bool allowUNC) {
 	rtrn 0;
 }
 
-sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & output) {
-	::llc::u2_t			written				= 0;
-	for(::llc::u2_t iChar = 0; iChar < path.size(); ++iChar) {
-		::llc::sc_t			curChar				= path[iChar];
+sttc	err_t 	appendPathNormalized		(vcst_t path, string & output) {
+	u2_t			written				= 0;
+	for(u2_t iChar = 0; iChar < path.size(); ++iChar) {
+		sc_t			curChar				= path[iChar];
 		if(::pathSeparator(curChar))
 			curChar					= '/';
 		if_fail_fef(output.push_back(curChar), "output.size()=%" LLC_FMT_U2 ".", output.size());
@@ -136,7 +137,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 	rtrn written;
 }
 
-::llc::err_t			llc::pathNormalize			(::llc::vcst_t path, ::llc::string & output, sc_c separator) {
+llc::err_t			llc::pathNormalize			(vcst_t path, string & output, sc_c separator) {
 	if_true_fef(false == ::pathSeparator(separator), "Invalid separator: '%c'.", separator);
 	if_fail_fe(::validatePathSeparators(path, true));
 	if(0 == path.size())
@@ -145,17 +146,17 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 	cnst bool				isUNC					= path.size() > 1 && ::pathSeparator(path[0]) && ::pathSeparator(path[1]);
 	cnst bool				hasDrive				= path.size() > 1 && ::pathDriveLetter(path[0]) && ':' == path[1];
 	cnst bool				isAbsolute				= isUNC || (!hasDrive && ::pathSeparator(path[0])) || (hasDrive && path.size() > 2 && ::pathSeparator(path[2]));
-	::llc::u2_t				iChar					= isUNC ? 2U : hasDrive ? 2U : isAbsolute ? 1U : 0U;
+	u2_t				iChar					= isUNC ? 2U : hasDrive ? 2U : isAbsolute ? 1U : 0U;
 	if(hasDrive && isAbsolute)
 		++iChar;
 
-	::llc::aobj<vcst_t>			segments;
-	cnst ::llc::u2_t		protectedSegments		= isUNC ? 2U : 0U;
+	aobj<vcst_t>			segments;
+	cnst u2_t		protectedSegments		= isUNC ? 2U : 0U;
 	while(iChar < path.size()) {
-		cnst ::llc::u2_t		segmentStart			= iChar;
+		cnst u2_t		segmentStart			= iChar;
 		while(iChar < path.size() && false == ::pathSeparator(path[iChar]))
 			++iChar;
-		::llc::vcst_c			segment					= {path.begin() + segmentStart, iChar - segmentStart};
+		vcst_c			segment					= {path.begin() + segmentStart, iChar - segmentStart};
 		if(segment == ".") {}
 		else if(segment == "..") {
 			if(segments.size() > protectedSegments && segments[segments.size() - 1] != "..") {
@@ -172,7 +173,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 	}
 	if_true_fef(isUNC && segments.size() < 2, "Incomplete UNC root: '%.*s'.", (int)path.size(), path.begin());
 
-	::llc::string			normalized					= {};
+	string			normalized					= {};
 	if(hasDrive)
 		if_fail_fe(normalized.append(path.begin(), 2));
 	if(isUNC) {
@@ -181,7 +182,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 	}
 	else if(isAbsolute)
 		if_fail_fe(normalized.push_back(separator));
-	for(::llc::u2_t iSegment = 0; iSegment < segments.size(); ++iSegment) {
+	for(u2_t iSegment = 0; iSegment < segments.size(); ++iSegment) {
 		cnst bool				driveRelativeFirst		= hasDrive && false == isAbsolute && 0 == iSegment;
 		if(normalized.size() && normalized[normalized.size() - 1] != separator && false == driveRelativeFirst)
 			if_fail_fe(normalized.push_back(separator));
@@ -196,22 +197,32 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 	output						= normalized;
 	rtrn output.size();
 }
-
-::llc::err_t			llc::pathAbsolute			(::llc::vcst_t path, ::llc::string & output, sc_c separator) {
+//
+llc::err_t			llc::pathAbsolute			(vcst_t path, string & output, sc_c separator) {
 	if_zero_fef(path.size(), "%s", "Empty path.");
 	if_true_fef(false == ::pathSeparator(separator), "Invalid separator: '%c'.", separator);
 	if_fail_fe(::validatePathSeparators(path, true));
-#if !defined(LLC_ARDUINO) && !defined(LLC_ATMEL)
-	try {
-		cnst ::std::string		input					= {path.begin(), path.size()};
-		cnst ::std::string		absolute				= ::std::filesystem::absolute(input).generic_string();
-		::llc::vcst_c			absoluteView			= {absolute.data(), (::llc::u2_t)absolute.size()};
-		rtrn ::llc::pathNormalize(absoluteView, output, separator);
-	}
-	catch(cnst ::std::filesystem::filesystem_error & exception) {
-		error_printf("Failed to resolve absolute path '%.*s': %s.", (int)path.size(), path.begin(), exception.what());
-		rtrn -1;
-	}
+#if defined(LLC_WINDOWS)
+	string			input					= path;
+	cnst DWORD				required				= GetFullPathNameA(input.begin(), 0, 0, 0);
+	if_zero_fef(required, "Failed to resolve absolute path '%.*s'. Error: %lu.", (int)path.size(), path.begin(), GetLastError());
+	string			absolute;
+	if_fail_fe(absolute.resize(required));
+	cnst DWORD				written					= GetFullPathNameA(input.begin(), required, &absolute[0], 0);
+	if_zero_fef(written, "Failed to resolve absolute path '%.*s'. Error: %lu.", (int)path.size(), path.begin(), GetLastError());
+	if_true_fef(written >= required, "Absolute path grew while resolving '%.*s'. Required: %lu. Available: %lu.", (int)path.size(), path.begin(), written, required);
+	if_fail_fe(absolute.resize(written));
+	rtrn pathNormalize(absolute, output, separator);
+#elif defined(LLC_ANDROID) || defined(LLC_LINUX)
+	string			normalized;
+	if_fail_fe(pathNormalize(path, normalized, '/'));
+	if(normalized.size() && '/' == normalized[0])
+		rtrn pathNormalize(normalized, output, separator);
+	char					currentPath[LLC_MAX_PATH]	= {};
+	if_null_fef(getcwd(currentPath, size(currentPath)), "Failed to obtain the current directory while resolving '%.*s'.", (int)path.size(), path.begin());
+	string			absolute;
+	if_fail_fe(pathNameCompose(currentPath, normalized, absolute));
+	rtrn pathNormalize(absolute, output, separator);
 #else
 	(void)output;
 	(void)separator;
@@ -220,53 +231,53 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 #endif
 }
 //
-::llc::err_t			llc::pathNameCompose		(::llc::vcst_t path, ::llc::vcst_t fileName, ::llc::string & out_composed)		{
+llc::err_t			llc::pathNameCompose		(vcst_t path, vcst_t fileName, string & out_composed)		{
 	if_fail_fe(::validatePathSeparators(path, true));
 	if_fail_fe(::validatePathSeparators(fileName, 0 == path.size()));
-	::llc::u2_t				pathLength				= 0;
+	u2_t				pathLength				= 0;
 	if(path.size())
 		if_fail_fe(pathLength = ::appendPathNormalized(path, out_composed));
 	if(fileName.size()) {
-		::llc::u2_t				fileOffset				= 0;
+		u2_t				fileOffset				= 0;
 		if(pathLength) {
 			while(fileOffset < fileName.size() && ::pathSeparator(fileName[fileOffset]))
 				++fileOffset;
 			if('/' != out_composed[out_composed.size() - 1] && fileOffset < fileName.size())
 				if_fail_fef(out_composed.push_back('/'), "out_composed.size()=%" LLC_FMT_U2 ".", out_composed.size());
 		}
-		::llc::vcst_c			fileToAppend				= {fileName.begin() + fileOffset, fileName.size() - fileOffset};
+		vcst_c			fileToAppend				= {fileName.begin() + fileOffset, fileName.size() - fileOffset};
 		if_fail_fe(::appendPathNormalized(fileToAppend, out_composed));
 	}
 	rtrn out_composed.size();
 }
 
-::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::aobj<vcst_t> & output, ::llc::vcst_c extension)					{
+llc::err_t			llc::pathList				(const SPathContents & input, aobj<vcst_t> & output, vcst_c extension)					{
 	llc_path_debug("extension=\"%.*s\"", (int)extension.size(), extension.begin());
-	for(::llc::u2_t iFile = 0; iFile < input.Files.size(); ++iFile) {
-		::llc::vcst_c			& fileName					= input.Files[iFile];
+	for(u2_t iFile = 0; iFile < input.Files.size(); ++iFile) {
+		vcst_c			& fileName					= input.Files[iFile];
 		if(extension.size() && extension.size() >= fileName.size())
 			continue;
-		::llc::vcst_t			fileExtension				= {};
+		vcst_t			fileExtension				= {};
 		if(extension.size())
 			if_fail_fe(fileName.slice(fileExtension, fileName.size() - extension.size()));
 		if(0 == extension.size() || fileExtension == extension) {
 			llc_path_debug("fileName=\"%.*s\"", (int)fileName.size(), fileName.begin());
-			llc_necs(output.push_back(fileName));
+			if_fail_fe(output.push_back(fileName));
 		}
 	}
-	for(::llc::u2_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder)
+	for(u2_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder)
 		if_fail_fef(llc::pathList(input.Folders[iFolder], output, extension), "%s", "Unknown error!");
 	return 0;
 }
 
-::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::aobj<string> & output, ::llc::vcst_c extension)					{
+llc::err_t			llc::pathList				(const SPathContents & input, aobj<string> & output, vcst_c extension)					{
 	llc_path_debug("extension=\"%.*s\"", (int)extension.size(), extension.begin());
-	for(::llc::u2_t iFile = 0; iFile < input.Files.size(); ++iFile) {
-		::llc::vcst_c			& fileName					= input.Files[iFile];
+	for(u2_t iFile = 0; iFile < input.Files.size(); ++iFile) {
+		vcst_c			& fileName					= input.Files[iFile];
 		llc_path_debug("fileName=\"%.*s\"", (int)fileName.size(), fileName.begin());
 		if(extension.size() && extension.size() >= fileName.size())
 			continue;
-		::llc::vcst_t			fileExtension				= {};
+		vcst_t			fileExtension				= {};
 		if(extension.size())
 			if_fail_fe(fileName.slice(fileExtension, fileName.size() - extension.size()));
 		if(0 == extension.size() || fileExtension == extension) {
@@ -274,8 +285,8 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 			if_fail_fef(output.push_back(fileName), "fileName=%.*s, output.size()=%" LLC_FMT_U2, (int)fileName.size(), fileName.begin(), output.size());
 		}
 	}
-	for(::llc::u2_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder	) {
-		const ::llc::SPathContents	& childPath	= input.Folders[iFolder];
+	for(u2_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder	) {
+		const SPathContents	& childPath	= input.Folders[iFolder];
 		if_fail_fef(llc::pathList(childPath, output, extension), "output.size()=%" LLC_FMT_U2 ", extension=%.*s", output.size(), (int)extension.size(), extension.begin());
 	}
 	return 0;
@@ -302,47 +313,47 @@ stxp	const char		curDir	[]					= ".";
 stxp	const char		parDir	[]					= "..";
 #endif
 
-sttc ::llc::err_t		pathListEntry			(::llc::vcst_t pathToList, ::llc::SPathContents & pathContents, const ::llc::function<::llc::err_t(bool, ::llc::vcst_c&)> & onItem, ::llc::vcst_c extension, ::llc::vcst_t entryName, bool isFolder) {
+sttc llc::err_t		pathListEntry			(vcst_t pathToList, llc::SPathContents & pathContents, const llc::function<err_t(bool, vcst_c&)> & onItem, vcst_c extension, vcst_t entryName, bool isFolder) {
 	if(0 == strcmp(entryName.begin(), curDir) || 0 == strcmp(entryName.begin(), parDir))
 		rtrn 0;
-	::llc::string				sPath						= {};
-	if_fail_fe(::llc::pathNameCompose(pathToList, entryName, sPath));
+	llc::string				sPath						= {};
+	if_fail_fe(pathNameCompose(pathToList, entryName, sPath));
 	if(false == isFolder && extension.size()) {
-		::llc::vcst_t			fileExtension				= {};
+		vcst_t			fileExtension				= {};
 		if(extension.size() >= sPath.size())
 			rtrn 0;
 		if_fail_fe(sPath.slice(fileExtension, sPath.size() - extension.size()));
 		if(fileExtension != extension)
 			rtrn 0;
 	}
-	::llc::err_t				action						= 0;
+	llc::err_t				action						= 0;
 	if_fail_fef(action = onItem(isFolder, sPath), "'%s'", sPath.begin());
 	if(action & 1)
 		rtrn 0;
 	if(isFolder) {
-		::llc::err_t				newFolderIndex				= pathContents.Folders.push_back({});
-		llc_necs(newFolderIndex);
-		llc_necall(llc::pathList(sPath, pathContents.Folders[newFolderIndex], onItem, extension), "'%s'", sPath.begin());
+		llc::err_t				newFolderIndex				= pathContents.Folders.push_back({});
+		if_fail_fe(newFolderIndex);
+		if_fail_fef(llc::pathList(sPath, pathContents.Folders[newFolderIndex], onItem, extension), "'%s'", sPath.begin());
 		verbose_printf("Directory: %s.", sPath.begin());
 	}
 	else {
-		int32_t						indexFile;
-		llc_necall(indexFile = pathContents.Files.push_back(sPath), "%s", "Failed to push path to output list");
+		s2_t						indexFile;
+		if_fail_fef(indexFile = pathContents.Files.push_back(sPath), "%s", "Failed to push path to output list");
 		verbose_printf("File %" LLC_FMT_U2 ": %s.", indexFile, sPath.begin());
 	}
 	rtrn 0;
 }
 
-sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathContents & pathContents, const ::llc::function<::llc::err_t(bool, ::llc::vcst_c&)> & onItem, ::llc::vcst_c extension) {
-	::llc::err_t				result						= 0;
+sttc llc::err_t		pathListNative			(vcst_t pathToList, llc::SPathContents & pathContents, const function<err_t(bool, vcst_c&)> & onItem, vcst_c extension) {
+	err_t				result						= 0;
 #ifdef LLC_WINDOWS
-	::llc::string				sPath						= {};
-	if_fail_fef(::llc::pathNameCompose(pathToList, "*.*", sPath), "Invalid path: '%.*s'.", (int)pathToList.size(), pathToList.begin());
+	llc::string				sPath						= {};
+	if_fail_fef(pathNameCompose(pathToList, "*.*", sPath), "Invalid path: '%.*s'.", (int)pathToList.size(), pathToList.begin());
 	WIN32_FIND_DATAA			fdFile						= {};
 	HANDLE						hFind						= FindFirstFile(sPath.begin(), &fdFile);
 	if_true_fef(hFind == INVALID_HANDLE_VALUE, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());
 	do {
-		cnst ::llc::vcst_t		entryName						= {fdFile.cFileName, (::llc::u2_t)-1};
+		cnst vcst_t		entryName						= {fdFile.cFileName, (u2_t)-1};
 		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, 0 != (fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)), "'%.*s'", (int)entryName.size(), entryName.begin());
 	}
 	while(FindNextFile(hFind, &fdFile));
@@ -352,11 +363,11 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	if_true_fef(0 == dir, "Path not found: [%.*s].", (int)pathToList.size(), pathToList.begin());
 	struct dirent				* drnt						= nullptr;
 	while((drnt = readdir(dir))) {
-		cnst ::llc::vcst_t		entryName						= {drnt->d_name, (::llc::u2_t)-1};
+		cnst vcst_t		entryName						= {drnt->d_name, (u2_t)-1};
 		bool					isFolder						= drnt->d_type == DT_DIR;
 		if(drnt->d_type == DT_UNKNOWN) {
-			::llc::string		entryPath;
-			if_fail_bef(result = ::llc::pathNameCompose(pathToList, entryName, entryPath), "%s", drnt->d_name);
+			llc::string		entryPath;
+			if_fail_bef(result = pathNameCompose(pathToList, entryName, entryPath), "%s", drnt->d_name);
 			struct stat			metadata						= {};
 			if_fail_bef(result = lstat(entryPath.begin(), &metadata), "%s", entryPath.begin());
 			isFolder											= S_ISDIR(metadata.st_mode);
@@ -374,37 +385,37 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	rtrn 0;
 }
 
-::llc::err_t			llc::pathList				(::llc::vcst_t pathToList, ::llc::SPathContents & pathContents, ::llc::vcst_c extension)						{
-	rtrn ::llc::pathList(pathToList, pathContents, [](::llc::b8_t, ::llc::vcst_c &) { rtrn 0; }, extension);
+llc::err_t			llc::pathList				(vcst_t pathToList, SPathContents & pathContents, vcst_c extension)						{
+	rtrn pathList(pathToList, pathContents, [](b8_t, vcst_c &) { rtrn 0; }, extension);
 }
 
-::llc::err_t			llc::pathList				(::llc::vcst_t pathToList, ::llc::SPathContents & pathContents, ::llc::function<err_t(bool, vcst_c&)> onItem, ::llc::vcst_c extension)						{
-	::llc::vcst_t				pathBegin;
-	if_fail_fe(::llc::pathBegin(pathToList, pathBegin));
-	cnst bool					removeTrailingSlash		= pathToList.size() > pathBegin.size() && ::pathSeparator(pathToList[pathToList.size() - 1]);
-	::llc::string				withoutTrailingSlash		= removeTrailingSlash ? ::llc::vcst_t{pathToList.begin(), pathToList.size() - 1} : pathToList;
+llc::err_t			llc::pathList				(vcst_t pathToList, SPathContents & pathContents, function<err_t(bool, vcst_c&)> onItem, vcst_c extension)						{
+	vcst_t				pathLeft;
+	if_fail_fe(pathBegin(pathToList, pathLeft));
+	cnst bool					removeTrailingSlash		= pathToList.size() > pathLeft.size() && ::pathSeparator(pathToList[pathToList.size() - 1]);
+	string				withoutTrailingSlash		= removeTrailingSlash ? vcst_t{pathToList.begin(), pathToList.size() - 1} : pathToList;
 	rtrn ::pathListNative(withoutTrailingSlash, pathContents, onItem, extension);
 }
 
-sttc ::llc::err_t		pathTreeScan			(::llc::SPathTree & output, ::llc::au2_t & lengths, ::llc::vcst_t path, cnst ::llc::function<::llc::err_t(bool, ::llc::vcst_c&)> & filter, ::llc::u2_t level) {
-	::llc::SPathContents unused;
-	rtrn ::llc::pathList(path, unused, [&](bool folder, ::llc::vcst_c & entry) -> ::llc::err_t {
-		::llc::err_t action = 0;
+sttc err_t		pathTreeScan			(SPathTree & output, au2_t & lengths, vcst_t path, cnst function<err_t(bool, vcst_c&)> & filter, u2_t level) {
+	SPathContents unused;
+	rtrn pathList(path, unused, [&](bool folder, vcst_c & entry) -> err_t {
+		err_t action = 0;
 		if(filter) {
 			if_fail_fe(action = filter(folder, entry));
 		}
 		if(action & 1)
 			rtrn 1;
 		if_true_fef(level > 127, "Path nesting exceeds SPathInfo: '%.*s'.", LLC_VIEW_ARGS(entry));
-		::llc::vcst_t name;
-		if_fail_fe(::llc::pathFilename(entry, name));
-		cnst ::llc::u2_t oldSize = output.Char.size(), index = lengths.size();
+		vcst_t name;
+		if_fail_fe(pathFilename(entry, name));
+		cnst u2_t oldSize = output.Char.size(), index = lengths.size();
 		if_fail_fe(output.Char.append(name));
-		if_true_block_log(error_printf, ::llc::failed(::llc::resize(index + 1, output.Info, lengths)), {
+		if_true_block_log(error_printf, failed(resize(index + 1, output.Info, lengths)), {
 			if_fail_e(output.Char.resize(oldSize));
 			rtrn -1;
 		});
-		output.Info[index] = {(::llc::u0_t)level, (::llc::u0_t)folder};
+		output.Info[index] = {(u0_t)level, (u0_t)folder};
 		lengths[index] = name.size();
 		if(folder && !(action & 2)) {
 			if_fail_fe(::pathTreeScan(output, lengths, entry, filter, level + 1));
@@ -413,23 +424,23 @@ sttc ::llc::err_t		pathTreeScan			(::llc::SPathTree & output, ::llc::au2_t & len
 	}, {});
 }
 
-sttc ::llc::err_t		pathTreeBuild			(::llc::SPathTree & output, ::llc::vcu2_t lengths) {
-	if_fail_fe(::llc::resize(output.Info.size(), output.Name, output.Tree));
-	::llc::SPathNode * parents[128] = {};
-	::llc::u2_t offset = 0;
-	for(::llc::u2_t i = 0; i < output.Info.size(); ++i) {
+sttc err_t		pathTreeBuild			(SPathTree & output, vcu2_t lengths) {
+	if_fail_fe(resize(output.Info.size(), output.Name, output.Tree));
+	SPathNode * parents[128] = {};
+	u2_t offset = 0;
+	for(u2_t i = 0; i < output.Info.size(); ++i) {
 		output.Name[i] = {output.Char.begin() + offset, lengths[i]};
 		offset += lengths[i];
-		::llc::pobj<::llc::SPathNode> & node = output.Tree[i];
+		pobj<SPathNode> & node = output.Tree[i];
 		if(!node) {
 			if_null_fe(node.create());
 		}
 		node->Info = &output.Info[i];
 		node->ObjectIndex = i;
 		if_fail_fe(node->Children.clear());
-		cnst ::llc::u2_t level = node->Info->NestLevel;
+		cnst u2_t level = node->Info->NestLevel;
 		node->Parent = level ? parents[level - 1] : nullptr;
-		parents[level] = node->Info->Folder ? (::llc::SPathNode*)node : nullptr;
+		parents[level] = node->Info->Folder ? (SPathNode*)node : nullptr;
 		if(node->Parent) {
 			if_fail_fe(node->Parent->Children.push_back(node));
 		}
@@ -437,7 +448,7 @@ sttc ::llc::err_t		pathTreeBuild			(::llc::SPathTree & output, ::llc::vcu2_t len
 	rtrn 0;
 }
 
-::llc::err_t			llc::pathList			(SPathTree & output, vcst_t pathToList, function<err_t(bool, vcst_c&)> filter) {
+llc::err_t			llc::pathList			(SPathTree & output, vcst_t pathToList, function<err_t(bool, vcst_c&)> filter) {
 	// Keep a caller-supplied view into output alive across Reset().
 	output.Root = pathToList;
 	if_fail_fe(output.Reset());
@@ -449,16 +460,15 @@ sttc ::llc::err_t		pathTreeBuild			(::llc::SPathTree & output, ::llc::vcu2_t len
 	rtrn scanned;
 }
 
-::llc::err_t			llc::pathList			(SPathTree & output, vcst_t pathToList, vcst_t extension) {
-	string suffix = extension;
-	rtrn pathList(output, pathToList, [&](bool folder, vcst_c & entry) -> err_t {
-		if(folder || !suffix.size())
+llc::err_t			llc::pathList			(SPathTree & output, vcst_t pathToList, vcst_t extension) {
+	rtrn pathList(output, pathToList, [&extension](bool folder, vcst_c & entry) -> err_t {
+		if(folder || !extension.size())
 			rtrn 0;
 		vcst_t name, ending;
 		if_fail_fe(pathFilename(entry, name));
-		if(suffix.size() >= name.size())
+		if(extension.size() >= name.size())
 			rtrn 1;
-		if_fail_fe(name.slice(ending, name.size() - suffix.size()));
-		rtrn ending == suffix ? 0 : 1;
+		if_fail_fe(name.slice(ending, name.size() - extension.size()));
+		rtrn ending == extension ? 0 : 1;
 	});
 }

@@ -13,9 +13,9 @@
 namespace llc
 {
 #ifdef LLC_WINDOWS
-	ndsi int64_t	ftell		(FILE * fp) { return ::_ftelli64(fp); }
+	ndsi s3_t	ftell		(FILE * fp) { return ::_ftelli64(fp); }
 #else
-	ndsi int64_t	ftell		(FILE * fp) { return ::ftell(fp); }
+	ndsi s3_t	ftell		(FILE * fp) { return ::ftell(fp); }
 #endif
 	// fseek
 	GDEFINE_ENUM_TYPE(FSEEK, u0_t);
@@ -23,11 +23,11 @@ namespace llc
 	GDEFINE_ENUM_VALUE(FSEEK, CUR, SEEK_CUR);
 	GDEFINE_ENUM_VALUE(FSEEK, END, SEEK_END);
 #ifdef LLC_WINDOWS
-	ndsi err_t		fseek		(FILE * fp, int64_t offset, FSEEK origin) { if_true_vef(-1, ::_fseeki64(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
+	ndsi err_t		fseek		(FILE * fp, s3_t offset, FSEEK origin) { if_true_vef(-1, ::_fseeki64(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
 #else
-	ndsi err_t		fseek		(FILE * fp, int64_t offset, FSEEK origin) { if_true_vef(-1, ::fseek(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
+	ndsi err_t		fseek		(FILE * fp, s3_t offset, FSEEK origin) { if_true_vef(-1, ::fseek(fp, offset, origin), "%p, %" LLC_FMT_S3 ", %X'%s'.", fp, offset, origin, get_value_namep(origin)); return 0; }
 #endif
-	ndsi err_t		fopen_s		(FILE* & out_fp, vcst_t filename, vcst_t mode, uint64_t offset = 0)	{
+	ndsi err_t		fopen_s		(FILE* & out_fp, vcst_t filename, vcst_t mode, u3_t offset = 0)	{
 		if_true_fe(0 == filename.size());
 		if_true_fef(0 == mode.size()		, "'%.*s'", LLC_VIEW_ARGS(filename));
 #ifndef LLC_WINDOWS

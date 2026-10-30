@@ -3,10 +3,10 @@
 #include "llc_noise.h"
 
 
-static_assert(1 == ::llc::uint_width_field_size<::llc::u0_t>(), "u8 width field");
-static_assert(1 == ::llc::uint_width_field_size<::llc::u1_t>(), "u16 width field");
-static_assert(2 == ::llc::uint_width_field_size<::llc::u2_t>(), "u32 width field");
-static_assert(3 == ::llc::uint_width_field_size<::llc::u3_t>(), "u64 width field");
+static_assert(1 == ::llc::uint_width_field_size<::llc::u0_t>(), "u0_t width field");
+static_assert(1 == ::llc::uint_width_field_size<::llc::u1_t>(), "u1_t width field");
+static_assert(2 == ::llc::uint_width_field_size<::llc::u2_t>(), "u2_t width field");
+static_assert(3 == ::llc::uint_width_field_size<::llc::u3_t>(), "u3_t width field");
 
 GDEFINE_ENUM_TYPE(PACKED_UINT_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, OK				, 0, "All packed-uint tests passed.");
@@ -133,7 +133,7 @@ sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 
 ::llc::err_t testPackedUInt(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
-	if_fail_fe(::llc::testTypePack(::llc::unsigned_integer_types{}, [&](auto type) { rtrn testTypeLogged<typename decltype(type)::type>(errors); }));
+	if_fail_fe(::llc::testTypePack(::llc::type_pack_unsigned{}, [&](auto type) { rtrn testTypeLogged<typename decltype(type)::type>(errors); }));
 	if(failureCount == testErrorCount(errors))
 		always_printf("Element widths tested successfully:\n%u, %u, %u and %u bits."
 			, ::llc::u2_t(szof(::llc::u0_t) * 8), ::llc::u2_t(szof(::llc::u1_t) * 8), ::llc::u2_t(szof(::llc::u2_t) * 8), ::llc::u2_t(szof(::llc::u3_t) * 8)

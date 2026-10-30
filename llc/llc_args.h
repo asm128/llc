@@ -21,9 +21,9 @@ namespace llc
 	stin	err_t	argsOptionIndex				(cnst SCommandLineArgs & input, vcst_t key, u2_t offset = 0)	{ rtrn input.Options.find([&key](cnst kvvcst_t<vcst_t> & option) { rtrn option.Key == key; }, offset); }
 	err_t			viewsFromEnvp				(aobj<vcst_t> & outputViews, char * envp[]);
 	err_t			viewsFromArgv				(aobj<vcst_t> & outputViews, u2_t argc, char * argv[]);
-	error_t			environmentBlockViews		(vcs0_t environmentBlock, aobj<kv<vcst_t>> & out_Views);
-	error_t			environmentBlock			(as0_t & environmentBlock);
-	error_t			environmentBlock			(as0_t & environmentBlock, view<cnst vcst_t> inputEnvp = {});
+	err_t			environmentBlockViews		(vcs0_t environmentBlock, aobj<kv<vcst_t>> & out_Views);
+	err_t			environmentBlock			(as0_t & environmentBlock);
+	err_t			environmentBlock			(as0_t & environmentBlock, view<cnst vcst_t> inputEnvp = {});
 }
 
 #endif // LLC_ARGS_H_23627

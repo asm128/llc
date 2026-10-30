@@ -206,7 +206,7 @@ sttc ::llc::err_t testLinearMapInvalidSerialization(::llc::ATestError & errors) 
 
 sttc ::llc::err_t prepareObjectMapSentinel(TObjectLinearMap & map) {
 	cnst ::llc::err_t index = map.Create("sentinel");
-	llc_necs(index);
+	if_fail_fe(index);
 	map[index]->Value = 999;
 	return index;
 }

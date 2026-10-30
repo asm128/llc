@@ -141,6 +141,15 @@
     <ClInclude Include="llc_ro_map.h">
       <Filter>ragnarok</Filter>
     </ClInclude>
+    <ClInclude Include="Sample3DSceneRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SampleFpsTextRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_xaudio2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_engine.cpp">

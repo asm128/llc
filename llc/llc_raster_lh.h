@@ -19,7 +19,7 @@ namespace llc
 {
 	struct SLight3 {
 		::llc::n3f2_t	Position;
-		float			Range;
+		f2_t			Range;
 	};
 
 	int				pixelBlend			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color);
@@ -77,7 +77,7 @@ namespace llc
 		, ::llc::apod<::llc::n3f2_t>		& lightPoints
 		, ::llc::a8bgra						& lightColors
 		, ::llc::grid<::llc::u2_t>				depthBuffer
-		, const ::llc::function<::llc::error_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
+		, const ::llc::function<::llc::err_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
 		);
 
 	int				drawQuadTriangle
@@ -146,7 +146,7 @@ namespace llc
 		, ::llc::gc8bgra					textureImage
 		, ::llc::apod<::llc::n3f2_t>		& lightPoints
 		, ::llc::a8bgra						& lightColors
-		, const ::llc::function<::llc::error_t(::llc::g8bgra targetPixels, ::llc::n2s1_c & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
+		, const ::llc::function<::llc::err_t(::llc::g8bgra targetPixels, ::llc::n2s1_c & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
 		);
 
 	int				drawPixels

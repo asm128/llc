@@ -27,15 +27,15 @@
 
 namespace llc
 {
-	stacxpr uint8_t		INPUTCHANNELS	= 1;// number of source channels
-	stacxpr uint8_t		OUTPUTCHANNELS	= 8;// maximum number of destination channels supported in this sample
-	stacxpr uint8_t		NUM_PRESETS		= 30;
+	stxp uint8_t		INPUTCHANNELS	= 1;// number of source channels
+	stxp uint8_t		OUTPUTCHANNELS	= 8;// maximum number of destination channels supported in this sample
+	stxp uint8_t		NUM_PRESETS		= 30;
 
 	// Constants to define our world space
-	stacxpr int32_t		XMIN			= -10;
-	stacxpr int32_t		XMAX			= 10;
-	stacxpr int32_t		ZMIN			= -10;
-	stacxpr int32_t		ZMAX			= 10;
+	stxp s2_t		XMIN			= -10;
+	stxp s2_t		XMAX			= 10;
+	stxp s2_t		ZMIN			= -10;
+	stxp s2_t		ZMAX			= 10;
 
 	struct AudioDevice {
 		std::wstring	Id;
@@ -49,11 +49,11 @@ namespace llc
 		X3DAUDIO_EMITTER		Emitter					= {};
 		X3DAUDIO_CONE			EmitterCone				= {};
 		::llc::n3f2_t			EmitterPos				= {};
-		float					EmitterAzimuths			[INPUTCHANNELS]                     = {};
-		float					MatrixCoefficients		[INPUTCHANNELS * OUTPUTCHANNELS]    = {};
+		f2_t					EmitterAzimuths			[INPUTCHANNELS]                     = {};
+		f2_t					MatrixCoefficients		[INPUTCHANNELS * OUTPUTCHANNELS]    = {};
 
-		uint32_t				ChannelMask				= 0;
-		uint32_t				nChannels				= 0;
+		u2_t				ChannelMask				= 0;
+		u2_t				nChannels				= 0;
 		X3DAUDIO_DSP_SETTINGS	dspSettings				= {};
 		bool					Playing					= false;
 
@@ -83,8 +83,8 @@ namespace llc
 		IXAudio2SourceVoice		* SourceVoice			= 0;
 
 
-		uint32_t				ChannelMask				= 0;
-		uint32_t				nChannels				= 0;
+		u2_t				ChannelMask				= 0;
+		u2_t				nChannels				= 0;
 		X3DAUDIO_DSP_SETTINGS	dspSettings				= {};
 
 		X3DAUDIO_LISTENER		listener				= {};
@@ -93,29 +93,29 @@ namespace llc
 
 		::llc::n3f2_t			vListenerPos			= {};
 		::llc::n3f2_t			vEmitterPos				= {};
-		float					fListenerAngle			= (float)(::llc::math_pi_2 * .5);
+		f2_t					fListenerAngle			= (f2_t)(::llc::math_pi_2 * .5);
 		bool					fUseListenerCone		= true;
 		bool					fUseInnerRadius			= true;
 		bool					fUseRedirectToLFE		= 0;
 		bool					Playing					= false;
-		float					FrequencyRatio			= 1.0f;
+		f2_t					FrequencyRatio			= 1.0f;
 #ifdef USING_XAUDIO2_7_DIRECTX
-		uint32_t				SampleRateOriginal		= 0;
-		uint32_t				SampleRateCurrent		= 0;
+		u2_t				SampleRateOriginal		= 0;
+		u2_t				SampleRateCurrent		= 0;
 #endif
 
 		FLOAT32					emitterAzimuths			[INPUTCHANNELS]                     = {};
 		FLOAT32					matrixCoefficients		[INPUTCHANNELS * OUTPUTCHANNELS]    = {};
 
 
-		::llc::error_t			InitAudio				();
-		::llc::error_t			PrepareAudio			(::llc::vcst_t wavname);
-		::llc::error_t			UpdateAudio				(double fElapsedTime);
-		::llc::error_t			SetReverb				(int nReverb);
-		::llc::error_t			PauseAudio				(bool resume);
-		::llc::error_t			CleanupAudio			();
+		::llc::err_t			InitAudio				();
+		::llc::err_t			PrepareAudio			(::llc::vcst_t wavname);
+		::llc::err_t			UpdateAudio				(f3_t fElapsedTime);
+		::llc::err_t			SetReverb				(int nReverb);
+		::llc::err_t			PauseAudio				(bool resume);
+		::llc::err_t			CleanupAudio			();
 
-		::llc::error_t			PlayWave				(::llc::vcst_t wavname);
+		::llc::err_t			PlayWave				(::llc::vcst_t wavname);
 	};
 } // namespace
 #endif // LLC_XAUDIO2_H_23627

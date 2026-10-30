@@ -99,38 +99,38 @@ namespace llc
 			enum_printf("Enumeration index out of range! Index: 0x%" LLC_FMT_U2 ".", index);
 			return UNDEFINED_ENUM_VALUE_STR;
 		}
-		err_t				get_value_index			(vcst_t name, int32_t & index)	const			{
+		err_t				get_value_index			(vcst_t name, s2_t & index)	const			{
 			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i)
 				if(name == Names[i]) {
-					index				= (int32_t)i;
+					index				= (s2_t)i;
 					return index;
 				}
 			enum_printf("Enumeration value not found! Name: %.*s.", (int)name.size(), name.begin());
 			return index				= -1;
 		}
-		int32_t				get_value_index			(vcst_t name)					const			{
+		s2_t				get_value_index			(vcst_t name)					const			{
 			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i) {
 				if(name == Names[i])
-					return (int32_t)i;
+					return (s2_t)i;
 			}
 			enum_printf("Enumeration value not found! Name: %.*s.", (int)name.size(), name.begin());
 			return -1;
 		}
-		err_t				get_value_index			(const T & value, int32_t & index)		const			{
+		err_t				get_value_index			(const T & value, s2_t & index)		const			{
 			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i)
 				if(value == Values[i]) {
-					index					= (int32_t)i;
+					index					= (s2_t)i;
 					return 0;
 				}
-			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
+			enum_printf("Enumeration value not found! Value: 0x%llX.", (u3_t)value);
 			return index					= -1;
 		}
-		int32_t				get_value_index			(const T & value)				const			{
+		s2_t				get_value_index			(const T & value)				const			{
 			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i) {
 				if(value == Values[i])
-					return (int32_t)i;
+					return (s2_t)i;
 			}
-			enum_printf("Enumeration value not found! Value: %llX.", (uint64_t)value);
+			enum_printf("Enumeration value not found! Value: %llX.", (u3_t)value);
 			return -1;
 		}
 		err_t				get_value_label			(const T & value, vcst_t & name)	const			{
@@ -139,7 +139,7 @@ namespace llc
 					name				= Names[i];
 					return 0;
 				}
-			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
+			enum_printf("Enumeration value not found! Value: 0x%llX.", (u3_t)value);
 			name				= UNRESOLVED_ENUM_LABEL_STR;
 			return -1;
 		}
@@ -149,7 +149,7 @@ namespace llc
 					name				= Descriptions[i];
 					return 0;
 				}
-			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
+			enum_printf("Enumeration value not found! Value: 0x%llX.", (u3_t)value);
 			name				= UNRESOLVED_ENUM_LABEL_STR;
 			return -1;
 		}
@@ -158,7 +158,7 @@ namespace llc
 				if(value == Values[i])
 					return Names[i];
 			}
-			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
+			enum_printf("Enumeration value not found! Value: 0x%llX.", (u3_t)value);
 			return UNRESOLVED_ENUM_LABEL_STR;
 		}
 		vcst_t	get_value_desc			(const T & value)				const			{
@@ -166,26 +166,26 @@ namespace llc
 				if(value == Values[i])
 					return Descriptions[i];
 			}
-			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);
+			enum_printf("Enumeration value not found! Value: 0x%llX.", (u3_t)value);
 			return UNRESOLVED_ENUM_LABEL_STR;
 		}
 		err_t				add_value				(const T & value, vcst_t name, vcst_t title, vcst_t description)	{
 			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i)
 				if(Names[i] == name) {
 					if_true_fef(Values[i] != value, "Enumeration name already has another value! Type:'%.*s'. Name:'%.*s'. Previous:0x%llX. New:0x%llX."
-						, (int)Name.size(), Name.begin(), (int)name.size(), name.begin(), (uint64_t)Values[i], (uint64_t)value
+						, (int)Name.size(), Name.begin(), (int)name.size(), name.begin(), (u3_t)Values[i], (u3_t)value
 						);
 					return -1;
 				}
 			::llc::u2_t				newIndex				= Values.push_back(value);
-			llc_necs(newIndex);
-			llc_necs(Names.push_back(name));
-			llc_necs(Titles.push_back(title));
-			llc_necs(Descriptions.push_back(description));
+			if_fail_fe(newIndex);
+			if_fail_fe(Names.push_back(name));
+			if_fail_fe(Titles.push_back(title));
+			if_fail_fe(Descriptions.push_back(description));
 			verbose_printf("Added new value to enumeration definition. Enum name: %.*s. Index: %.02u, Value: 0x%llX. Value name: %.*s."
 				, (int)Name.size(), Name.begin()
 				, (::llc::u2_t)newIndex
-				, (uint64_t)value
+				, (u3_t)value
 				, (int)name.size(), name.begin()
 				);
 			return newIndex;
@@ -194,21 +194,21 @@ namespace llc
 			for(::llc::u2_t i=0, count = Names.size(); i < count; ++i) {
 				if_true_fef(name == Names[i], "Enumeration value already defined! Type: '%.*s'. Value: 0x%llX. Previous name: %.*s. New name: %.*s. Second definition ignored..."
 					, (int)Name		.size(), Name		.begin()
-					, (uint64_t)Values[i]
+					, (u3_t)Values[i]
 					, (int)Names[i]	.size(), Names[i]	.begin()
 					, (int)name		.size(), name		.begin()
 					);
 			}
 			::llc::u2_t				valueCount				= {};
 			for(::llc::u2_t i=0; i < Values.size(); ++i)
-				valueCount += get_value_index(Values[i]) == (int32_t)i;
+				valueCount += get_value_index(Values[i]) == (s2_t)i;
 			const T					value					= (T)valueCount;
 			::llc::u2_t				newIndex				= Values.push_back(value);
-			llc_necs(newIndex);
-			llc_necs(Names.push_back(name));
-			llc_necs(Titles.push_back(title));
-			llc_necs(Descriptions.push_back(description));
-			verbose_printf("Added new value to enumeration definition. Enum name: %.*s. Index: %.02u, Value: 0x%llX. Value name: %.*s.", (int)Name.size(), Name.begin(), (::llc::u2_t)newIndex, (uint64_t)value, (int)name.size(), name.begin());
+			if_fail_fe(newIndex);
+			if_fail_fe(Names.push_back(name));
+			if_fail_fe(Titles.push_back(title));
+			if_fail_fe(Descriptions.push_back(description));
+			verbose_printf("Added new value to enumeration definition. Enum name: %.*s. Index: %.02u, Value: 0x%llX. Value name: %.*s.", (int)Name.size(), Name.begin(), (::llc::u2_t)newIndex, (u3_t)value, (int)name.size(), name.begin());
 			return newIndex;
 		}
 	};
@@ -258,7 +258,7 @@ namespace llc
 	tplt<tpnm TEnum>	ndsi	view<vcst_c>	get_value_labels	()							nxpt	{ return get_enum<TEnum>().Names; }
 	tplt<tpnm TEnum>	ndsi	view<vcst_c>	get_value_names		()							nxpt	{ return get_enum<TEnum>().Names; }
 	tplt<tpnm TEnum>	ndsi	view<vcst_c>	get_value_descs		()							nxpt	{ return get_enum<TEnum>().Names; }
-	tplt<tpnm TEnum>	ndsi	int32_t			get_value_index		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_index(statusBit); }
+	tplt<tpnm TEnum>	ndsi	s2_t			get_value_index		(const TEnum & statusBit)			{ return get_enum<TEnum>().get_value_index(statusBit); }
 	tplt<tpnm TEnum>	ndsi	vcst_t			get_enum_namev		()							nxpt	{ return get_enum<TEnum>().Name;			}
 	tplt<tpnm TEnum>	ndsi	vcst_t			get_enum_namev		(const TEnum & )			nxpt	{ return get_enum<TEnum>().Name;			}
 	tplt<tpnm TEnum>	ndsi	sc_c*			get_enum_namep		()							nxpt	{ return get_enum<TEnum>().Name.begin();	}
@@ -383,7 +383,7 @@ namespace llc
 				if(value == Values[i].Value)																						\
 					return Values[i].Name;																							\
 			}																														\
-			enum_printf("Enumeration value not found! Value: 0x%llX.", (uint64_t)value);											\
+			enum_printf("Enumeration value not found! Value: 0x%llX.", (u3_t)value);											\
 			return ::llc::UNRESOLVED_ENUM_LABEL_STR;																				\
 		}																															\
 		stxp 	::llc::SLLCEnumValue<IntType> 	Values	[]	= {
@@ -397,82 +397,82 @@ namespace llc
 namespace llc
 {
 //#ifdef LLC_ESP8266
-// 	LLC_ENUM_BEGIN	(RESULT, int8_t)
-//	LLC_ENUM_VALUE	(Ok                , int8_t(::llc::OS_OK                ))
-//	LLC_ENUM_VALUE	(Error             , int8_t(::llc::OS_ERROR             ))
-//	LLC_ENUM_VALUE	(Busy              , int8_t(::llc::OS_BUSY              ))
-//	LLC_ENUM_VALUE	(Timeout           , int8_t(::llc::OS_TIMEOUT           ))
-//	LLC_ENUM_VALUE	(Full              , int8_t(::llc::OS_FULL              ))
-//	LLC_ENUM_VALUE	(Empty             , int8_t(::llc::OS_EMPTY             ))
-//	LLC_ENUM_VALUE	(Overrun           , int8_t(::llc::OS_OVERRUN           ))
-//	LLC_ENUM_VALUE	(Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ))
-//	LLC_ENUM_VALUE	(Not_found         , int8_t(::llc::OS_NOT_FOUND         ))
-//	LLC_ENUM_VALUE	(Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ))
-//	LLC_ENUM_VALUE	(Forbidden         , int8_t(::llc::OS_FORBIDDEN         ))
-//	LLC_ENUM_VALUE	(Restart           , int8_t(::llc::OS_RESTART           ))
-//	LLC_ENUM_VALUE	(Wake_up           , int8_t(::llc::OS_WAKE_UP           ))
-//	LLC_ENUM_VALUE	(Sleep             , int8_t(::llc::OS_SLEEP             ))
-//	LLC_ENUM_VALUE	(Offline           , int8_t(::llc::OS_OFFLINE           ))
-//	LLC_ENUM_VALUE	(Disconnected      , int8_t(::llc::OS_DISCONNECTED      ))
-//	LLC_ENUM_VALUE	(Connecting        , int8_t(::llc::OS_CONNECTING        ))
-//	LLC_ENUM_VALUE	(Connected         , int8_t(::llc::OS_CONNECTED         ))
-//	LLC_ENUM_VALUE	(Missing_data      , int8_t(::llc::OS_MISSING_DATA      ))
-//	LLC_ENUM_VALUE	(No_Memory         , int8_t(::llc::OS_NO_MEMORY         ))
-//	LLC_ENUM_VALUE	(Read              , int8_t(::llc::OS_READ              ))
-//	LLC_ENUM_VALUE	(Write             , int8_t(::llc::OS_WRITE             ))
+// 	LLC_ENUM_BEGIN	(RESULT, s0_t)
+//	LLC_ENUM_VALUE	(Ok                , s0_t(::llc::OS_OK                ))
+//	LLC_ENUM_VALUE	(Error             , s0_t(::llc::OS_ERROR             ))
+//	LLC_ENUM_VALUE	(Busy              , s0_t(::llc::OS_BUSY              ))
+//	LLC_ENUM_VALUE	(Timeout           , s0_t(::llc::OS_TIMEOUT           ))
+//	LLC_ENUM_VALUE	(Full              , s0_t(::llc::OS_FULL              ))
+//	LLC_ENUM_VALUE	(Empty             , s0_t(::llc::OS_EMPTY             ))
+//	LLC_ENUM_VALUE	(Overrun           , s0_t(::llc::OS_OVERRUN           ))
+//	LLC_ENUM_VALUE	(Not_available     , s0_t(::llc::OS_NOT_AVAILABLE     ))
+//	LLC_ENUM_VALUE	(Not_found         , s0_t(::llc::OS_NOT_FOUND         ))
+//	LLC_ENUM_VALUE	(Invalid_parameter , s0_t(::llc::OS_INVALID_PARAMETER ))
+//	LLC_ENUM_VALUE	(Forbidden         , s0_t(::llc::OS_FORBIDDEN         ))
+//	LLC_ENUM_VALUE	(Restart           , s0_t(::llc::OS_RESTART           ))
+//	LLC_ENUM_VALUE	(Wake_up           , s0_t(::llc::OS_WAKE_UP           ))
+//	LLC_ENUM_VALUE	(Sleep             , s0_t(::llc::OS_SLEEP             ))
+//	LLC_ENUM_VALUE	(Offline           , s0_t(::llc::OS_OFFLINE           ))
+//	LLC_ENUM_VALUE	(Disconnected      , s0_t(::llc::OS_DISCONNECTED      ))
+//	LLC_ENUM_VALUE	(Connecting        , s0_t(::llc::OS_CONNECTING        ))
+//	LLC_ENUM_VALUE	(Connected         , s0_t(::llc::OS_CONNECTED         ))
+//	LLC_ENUM_VALUE	(Missing_data      , s0_t(::llc::OS_MISSING_DATA      ))
+//	LLC_ENUM_VALUE	(No_Memory         , s0_t(::llc::OS_NO_MEMORY         ))
+//	LLC_ENUM_VALUE	(Read              , s0_t(::llc::OS_READ              ))
+//	LLC_ENUM_VALUE	(Write             , s0_t(::llc::OS_WRITE             ))
 // 	LLC_ENUM_END	();
 //	
-// 	LLC_ENUM_BEGIN	(COMMAND, int8_t)
-//	LLC_ENUM_VALUE	(Ok                , int8_t(::llc::OS_OK                ) * -1)
-//	LLC_ENUM_VALUE	(Error             , int8_t(::llc::OS_ERROR             ) * -1)
-//	LLC_ENUM_VALUE	(Busy              , int8_t(::llc::OS_BUSY              ) * -1)
-//	LLC_ENUM_VALUE	(Timeout           , int8_t(::llc::OS_TIMEOUT           ) * -1)
-//	LLC_ENUM_VALUE	(Full              , int8_t(::llc::OS_FULL              ) * -1)
-//	LLC_ENUM_VALUE	(Empty             , int8_t(::llc::OS_EMPTY             ) * -1)
-//	LLC_ENUM_VALUE	(Overrun           , int8_t(::llc::OS_OVERRUN           ) * -1)
-//	LLC_ENUM_VALUE	(Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ) * -1)
-//	LLC_ENUM_VALUE	(Not_found         , int8_t(::llc::OS_NOT_FOUND         ) * -1)
-//	LLC_ENUM_VALUE	(Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ) * -1)
-//	LLC_ENUM_VALUE	(Forbidden         , int8_t(::llc::OS_FORBIDDEN         ) * -1)
-//	LLC_ENUM_VALUE	(Restart           , int8_t(::llc::OS_RESTART           ) * -1)
-//	LLC_ENUM_VALUE	(Wake_up           , int8_t(::llc::OS_WAKE_UP           ) * -1)
-//	LLC_ENUM_VALUE	(Sleep             , int8_t(::llc::OS_SLEEP             ) * -1)
-//	LLC_ENUM_VALUE	(Offline           , int8_t(::llc::OS_OFFLINE           ) * -1)
-//	LLC_ENUM_VALUE	(Disconnected      , int8_t(::llc::OS_DISCONNECTED      ) * -1)
-//	LLC_ENUM_VALUE	(Connecting        , int8_t(::llc::OS_CONNECTING        ) * -1)
-//	LLC_ENUM_VALUE	(Connected         , int8_t(::llc::OS_CONNECTED         ) * -1)
-//	LLC_ENUM_VALUE	(Missing_data      , int8_t(::llc::OS_MISSING_DATA      ) * -1)
-//	LLC_ENUM_VALUE	(No_Memory         , int8_t(::llc::OS_NO_MEMORY         ) * -1)
-//	LLC_ENUM_VALUE	(Read              , int8_t(::llc::OS_READ              ) * -1)
-//	LLC_ENUM_VALUE	(Write             , int8_t(::llc::OS_WRITE             ) * -1)
+// 	LLC_ENUM_BEGIN	(COMMAND, s0_t)
+//	LLC_ENUM_VALUE	(Ok                , s0_t(::llc::OS_OK                ) * -1)
+//	LLC_ENUM_VALUE	(Error             , s0_t(::llc::OS_ERROR             ) * -1)
+//	LLC_ENUM_VALUE	(Busy              , s0_t(::llc::OS_BUSY              ) * -1)
+//	LLC_ENUM_VALUE	(Timeout           , s0_t(::llc::OS_TIMEOUT           ) * -1)
+//	LLC_ENUM_VALUE	(Full              , s0_t(::llc::OS_FULL              ) * -1)
+//	LLC_ENUM_VALUE	(Empty             , s0_t(::llc::OS_EMPTY             ) * -1)
+//	LLC_ENUM_VALUE	(Overrun           , s0_t(::llc::OS_OVERRUN           ) * -1)
+//	LLC_ENUM_VALUE	(Not_available     , s0_t(::llc::OS_NOT_AVAILABLE     ) * -1)
+//	LLC_ENUM_VALUE	(Not_found         , s0_t(::llc::OS_NOT_FOUND         ) * -1)
+//	LLC_ENUM_VALUE	(Invalid_parameter , s0_t(::llc::OS_INVALID_PARAMETER ) * -1)
+//	LLC_ENUM_VALUE	(Forbidden         , s0_t(::llc::OS_FORBIDDEN         ) * -1)
+//	LLC_ENUM_VALUE	(Restart           , s0_t(::llc::OS_RESTART           ) * -1)
+//	LLC_ENUM_VALUE	(Wake_up           , s0_t(::llc::OS_WAKE_UP           ) * -1)
+//	LLC_ENUM_VALUE	(Sleep             , s0_t(::llc::OS_SLEEP             ) * -1)
+//	LLC_ENUM_VALUE	(Offline           , s0_t(::llc::OS_OFFLINE           ) * -1)
+//	LLC_ENUM_VALUE	(Disconnected      , s0_t(::llc::OS_DISCONNECTED      ) * -1)
+//	LLC_ENUM_VALUE	(Connecting        , s0_t(::llc::OS_CONNECTING        ) * -1)
+//	LLC_ENUM_VALUE	(Connected         , s0_t(::llc::OS_CONNECTED         ) * -1)
+//	LLC_ENUM_VALUE	(Missing_data      , s0_t(::llc::OS_MISSING_DATA      ) * -1)
+//	LLC_ENUM_VALUE	(No_Memory         , s0_t(::llc::OS_NO_MEMORY         ) * -1)
+//	LLC_ENUM_VALUE	(Read              , s0_t(::llc::OS_READ              ) * -1)
+//	LLC_ENUM_VALUE	(Write             , s0_t(::llc::OS_WRITE             ) * -1)
 // 	LLC_ENUM_END	();
 //	
 //#else // !LLC_ESP8266
- 	GDEFINE_ENUM_TYPE (RESULT, int8_t);
-	GDEFINE_ENUM_VALUE(RESULT, Ok                , int8_t(::llc::OS_OK                ));
-	GDEFINE_ENUM_VALUE(RESULT, Error             , int8_t(::llc::OS_ERROR             ));
-	GDEFINE_ENUM_VALUE(RESULT, Busy              , int8_t(::llc::OS_BUSY              ));
-	GDEFINE_ENUM_VALUE(RESULT, Timeout           , int8_t(::llc::OS_TIMEOUT           ));
-	GDEFINE_ENUM_VALUE(RESULT, Full              , int8_t(::llc::OS_FULL              ));
-	GDEFINE_ENUM_VALUE(RESULT, Empty             , int8_t(::llc::OS_EMPTY             ));
-	GDEFINE_ENUM_VALUE(RESULT, Overrun           , int8_t(::llc::OS_OVERRUN           ));
-	GDEFINE_ENUM_VALUE(RESULT, Not_available     , int8_t(::llc::OS_NOT_AVAILABLE     ));
-	GDEFINE_ENUM_VALUE(RESULT, Not_found         , int8_t(::llc::OS_NOT_FOUND         ));
-	GDEFINE_ENUM_VALUE(RESULT, Invalid_parameter , int8_t(::llc::OS_INVALID_PARAMETER ));
-	GDEFINE_ENUM_VALUE(RESULT, Forbidden         , int8_t(::llc::OS_FORBIDDEN         ));
-	GDEFINE_ENUM_VALUE(RESULT, Restart           , int8_t(::llc::OS_RESTART           ));
-	GDEFINE_ENUM_VALUE(RESULT, Wake_up           , int8_t(::llc::OS_WAKE_UP           ));
-	GDEFINE_ENUM_VALUE(RESULT, Sleep             , int8_t(::llc::OS_SLEEP             ));
-	GDEFINE_ENUM_VALUE(RESULT, Offline           , int8_t(::llc::OS_OFFLINE           ));
-	GDEFINE_ENUM_VALUE(RESULT, Disconnected      , int8_t(::llc::OS_DISCONNECTED      ));
-	GDEFINE_ENUM_VALUE(RESULT, Connecting        , int8_t(::llc::OS_CONNECTING        ));
-	GDEFINE_ENUM_VALUE(RESULT, Connected         , int8_t(::llc::OS_CONNECTED         ));
-	GDEFINE_ENUM_VALUE(RESULT, Missing_data      , int8_t(::llc::OS_MISSING_DATA      ));
-	GDEFINE_ENUM_VALUE(RESULT, No_Memory         , int8_t(::llc::OS_NO_MEMORY         ));
-	GDEFINE_ENUM_VALUE(RESULT, Read              , int8_t(::llc::OS_READ              ));
-	GDEFINE_ENUM_VALUE(RESULT, Write             , int8_t(::llc::OS_WRITE             ));
+ 	GDEFINE_ENUM_TYPE (RESULT, s0_t);
+	GDEFINE_ENUM_VALUE(RESULT, Ok                , s0_t(::llc::OS_OK                ));
+	GDEFINE_ENUM_VALUE(RESULT, Error             , s0_t(::llc::OS_ERROR             ));
+	GDEFINE_ENUM_VALUE(RESULT, Busy              , s0_t(::llc::OS_BUSY              ));
+	GDEFINE_ENUM_VALUE(RESULT, Timeout           , s0_t(::llc::OS_TIMEOUT           ));
+	GDEFINE_ENUM_VALUE(RESULT, Full              , s0_t(::llc::OS_FULL              ));
+	GDEFINE_ENUM_VALUE(RESULT, Empty             , s0_t(::llc::OS_EMPTY             ));
+	GDEFINE_ENUM_VALUE(RESULT, Overrun           , s0_t(::llc::OS_OVERRUN           ));
+	GDEFINE_ENUM_VALUE(RESULT, Not_available     , s0_t(::llc::OS_NOT_AVAILABLE     ));
+	GDEFINE_ENUM_VALUE(RESULT, Not_found         , s0_t(::llc::OS_NOT_FOUND         ));
+	GDEFINE_ENUM_VALUE(RESULT, Invalid_parameter , s0_t(::llc::OS_INVALID_PARAMETER ));
+	GDEFINE_ENUM_VALUE(RESULT, Forbidden         , s0_t(::llc::OS_FORBIDDEN         ));
+	GDEFINE_ENUM_VALUE(RESULT, Restart           , s0_t(::llc::OS_RESTART           ));
+	GDEFINE_ENUM_VALUE(RESULT, Wake_up           , s0_t(::llc::OS_WAKE_UP           ));
+	GDEFINE_ENUM_VALUE(RESULT, Sleep             , s0_t(::llc::OS_SLEEP             ));
+	GDEFINE_ENUM_VALUE(RESULT, Offline           , s0_t(::llc::OS_OFFLINE           ));
+	GDEFINE_ENUM_VALUE(RESULT, Disconnected      , s0_t(::llc::OS_DISCONNECTED      ));
+	GDEFINE_ENUM_VALUE(RESULT, Connecting        , s0_t(::llc::OS_CONNECTING        ));
+	GDEFINE_ENUM_VALUE(RESULT, Connected         , s0_t(::llc::OS_CONNECTED         ));
+	GDEFINE_ENUM_VALUE(RESULT, Missing_data      , s0_t(::llc::OS_MISSING_DATA      ));
+	GDEFINE_ENUM_VALUE(RESULT, No_Memory         , s0_t(::llc::OS_NO_MEMORY         ));
+	GDEFINE_ENUM_VALUE(RESULT, Read              , s0_t(::llc::OS_READ              ));
+	GDEFINE_ENUM_VALUE(RESULT, Write             , s0_t(::llc::OS_WRITE             ));
 
- 	GDEFINE_ENUM_TYPE (COMMAND, int8_t);
+ 	GDEFINE_ENUM_TYPE (COMMAND, s0_t);
 	GDEFINE_ENUM_VALUE(COMMAND, Ok                , RESULT_Ok                * -1);
 	GDEFINE_ENUM_VALUE(COMMAND, Error             , RESULT_Error             * -1);
 	GDEFINE_ENUM_VALUE(COMMAND, Busy              , RESULT_Busy              * -1);

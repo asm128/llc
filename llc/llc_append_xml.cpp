@@ -27,30 +27,30 @@ llc::err_t	llc::appendXmlAttr			(::llc::string & output, ::llc::vcst_t attrName,
 		;
 }
 llc::err_t	llc::appendXmlTag			(::llc::string & output, ::llc::vcst_t tagName, ::llc::vcst_t tagAttributes, const ::llc::FAppend & funcAppend) {
-	int32_t			result						= 0;
+	s2_t			result						= 0;
 
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagOpening(output, tagName, tagAttributes)); 	result += _result; }
-	if(funcAppend)	{ int32_t _result; llc_necs(_result = funcAppend(output));											result += _result; }
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagClosing(output, tagName)); 					result += _result; }
+					{ s2_t _result; if_fail_fe(_result = llc::appendXmlTagOpening(output, tagName, tagAttributes)); 	result += _result; }
+	if(funcAppend)	{ s2_t _result; if_fail_fe(_result = funcAppend(output));											result += _result; }
+					{ s2_t _result; if_fail_fe(_result = llc::appendXmlTagClosing(output, tagName)); 					result += _result; }
 	return result;
 }
 llc::err_t	llc::appendXmlTag			(::llc::string & output, ::llc::vcst_t tagName, ::llc::vcst_t tagAttributes, const ::llc::function<llc::err_t()> & funcAppend) {
-	int32_t			result						= 0;
+	s2_t			result						= 0;
 
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagOpening(output, tagName, tagAttributes)); 	result += _result; }
-	if(funcAppend)	{ int32_t _result; llc_necs(_result = funcAppend());												result += _result; }
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagClosing(output, tagName)); 					result += _result; }
+					{ s2_t _result; if_fail_fe(_result = llc::appendXmlTagOpening(output, tagName, tagAttributes)); 	result += _result; }
+	if(funcAppend)	{ s2_t _result; if_fail_fe(_result = funcAppend());												result += _result; }
+					{ s2_t _result; if_fail_fe(_result = llc::appendXmlTagClosing(output, tagName)); 					result += _result; }
 	return result;
 }
 llc::err_t	llc::appendXmlTag			(::llc::string & output, ::llc::vcst_t tagName, const ::llc::function<llc::err_t()> & funcAppendAttrs, const ::llc::function<llc::err_t()> & funcAppend) {
-	int32_t			result						= 0;
+	s2_t			result						= 0;
 	if(!funcAppendAttrs)
 		return ::llc::appendXmlTag(output, tagName, ::llc::vcst_t{}, funcAppend);
 
-					{ int32_t _result; llc_necs(_result = llc::append_strings(output, '<', tagName, ' '));	result += _result; }
-					{ int32_t _result; llc_necs(_result = funcAppendAttrs());								result += _result; }
-					{ int32_t _result; llc_necs(_result = output.append_string(" >"));						result += _result; }
-	if(funcAppend)	{ int32_t _result; llc_necs(_result = funcAppend());									result += _result; }
-					{ int32_t _result; llc_necs(_result = llc::appendXmlTagClosing(output, tagName));		result += _result; }
+					{ s2_t _result; if_fail_fe(_result = llc::append_strings(output, '<', tagName, ' '));	result += _result; }
+					{ s2_t _result; if_fail_fe(_result = funcAppendAttrs());								result += _result; }
+					{ s2_t _result; if_fail_fe(_result = output.append_string(" >"));						result += _result; }
+	if(funcAppend)	{ s2_t _result; if_fail_fe(_result = funcAppend());									result += _result; }
+					{ s2_t _result; if_fail_fe(_result = llc::appendXmlTagClosing(output, tagName));		result += _result; }
 	return result;
 }

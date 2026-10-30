@@ -228,7 +228,7 @@
 // // 		if_zero_fe(bus[i2c_num].Initialized);
 // // 		return *frequency = bus[i2c_num].Frequency;
 // // 	}
-// // 	sttc	llc::err_t	i2cInit				(u0_t i2c_num, int8_t sda, int8_t scl, u2_t frequency) {
+// // 	sttc	llc::err_t	i2cInit				(u0_t i2c_num, s0_t sda, s0_t scl, u2_t frequency) {
 // // 		if_true_fef(i2c_num >= SOC_I2C_NUM, "%u", i2c_num);
 // // 		std::lock_guard			mutexLock			(bus[i2c_num].Lock);
 // // 		if_true_fef(bus[i2c_num].Initialized, "bus %u already initialized", i2c_num);
@@ -362,7 +362,7 @@
 // // 	case I2C_MODE_IT  : result = HAL_I2C_Receive_IT (host.PlatformHandle, address, memAddSize, data.begin(), data.size(), timeout);
 // // 	case I2C_MODE_DMA : result = HAL_I2C_Receive_DMA(host.PlatformHandle, address, memAddSize, data.begin(), data.size(), timeout);
 // // 	default:
-// // 		error_printf("Unsupported operation mode: %i", (int32_t)mode);
+// // 		error_printf("Unsupported operation mode: %i", (s2_t)mode);
 // // 	}
 // // 	return ::llc::error_t_from_hal_status(result);
 // // #elif defined(LLC_ESP32)
@@ -380,7 +380,7 @@
 // // 	case I2C_MODE_IT  : result = HAL_I2C_Transmit_IT (host.Handle, address, memAddSize, data.begin(), data.size(), timeout);
 // // 	case I2C_MODE_DMA : result = HAL_I2C_Transmit_DMA(host.Handle, address, memAddSize, data.begin(), data.size(), timeout);
 // // 	default:
-// // 	  error_printf("Unsupported operation mode: %i", (int32_t)mode);
+// // 	  error_printf("Unsupported operation mode: %i", (s2_t)mode);
 // // 	}
 // // 	return ::llc::error_t_from_hal_status(result);
 // // #elif defined(LLC_ESP32)

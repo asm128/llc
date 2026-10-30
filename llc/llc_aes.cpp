@@ -366,40 +366,40 @@ static	void									XorWithIv							(u0_t* buf, u0_t * Iv)											{
 }
 
 /* Public functions:                                                         */
-void											llc::aesECBEncrypt					(::llc::SAESContext * ctx, u0_t * buf)								{ Cipher	((state_t*)buf, ctx->RoundKey.begin(), ctx->Level); } // Cipher encrypts the PlainText with the Key using AES algorithm.
-void											llc::aesECBDecrypt					(::llc::SAESContext * ctx, u0_t * buf)								{ InvCipher	((state_t*)buf, ctx->RoundKey.begin(), ctx->Level); } // InvCiper decrypts the PlainText with the Key using AES algorithm.
-void											llc::aesCBCEncryptBuffer			(::llc::SAESContext * ctx, u0_t * buf, ::llc::u2_t length)	{
+void											llc::aesECBEncrypt					(SAESContext * ctx, u0_t * buf)								{ Cipher	((state_t*)buf, ctx->RoundKey.begin(), ctx->Level); } // Cipher encrypts the PlainText with the Key using AES algorithm.
+void											llc::aesECBDecrypt					(SAESContext * ctx, u0_t * buf)								{ InvCipher	((state_t*)buf, ctx->RoundKey.begin(), ctx->Level); } // InvCiper decrypts the PlainText with the Key using AES algorithm.
+void											llc::aesCBCEncryptBuffer			(SAESContext * ctx, u0_t * buf, u2_t length)	{
 	u0_t												* Iv								= ctx->Iv;
-	for (uintptr_t i = 0; i < length; i += ::llc::AES_SIZEBLOCK) {
+	for (uintptr_t i = 0; i < length; i += AES_SIZEBLOCK) {
 		XorWithIv(buf, Iv);
 		Cipher((state_t*)buf, ctx->RoundKey.begin(), ctx->Level);
 		Iv												= buf;
-		buf												+= ::llc::AES_SIZEBLOCK;
+		buf												+= AES_SIZEBLOCK;
 		//printf("Step %d - %d", i/16, i);
 	}
-	memcpy(ctx->Iv, Iv, ::llc::AES_SIZEBLOCK);	// store Iv in ctx for next call */
+	memcpy(ctx->Iv, Iv, AES_SIZEBLOCK);	// store Iv in ctx for next call */
 }
 
-void											llc::aesCBCDecryptBuffer			(::llc::SAESContext * ctx, u0_t * buf, ::llc::u2_t length)			{
-	u0_t												storeNextIv	[::llc::AES_SIZEBLOCK];
-	for (uintptr_t i = 0; i < length; i += ::llc::AES_SIZEBLOCK) {
-		memcpy(storeNextIv, buf, ::llc::AES_SIZEBLOCK);
+void											llc::aesCBCDecryptBuffer			(SAESContext * ctx, u0_t * buf, u2_t length)			{
+	u0_t												storeNextIv	[AES_SIZEBLOCK];
+	for (uintptr_t i = 0; i < length; i += AES_SIZEBLOCK) {
+		memcpy(storeNextIv, buf, AES_SIZEBLOCK);
 		InvCipher((state_t*)buf, ctx->RoundKey.begin(), ctx->Level);
 		XorWithIv(buf, ctx->Iv);
-		memcpy(ctx->Iv, storeNextIv, ::llc::AES_SIZEBLOCK);
-		buf												+= ::llc::AES_SIZEBLOCK;
+		memcpy(ctx->Iv, storeNextIv, AES_SIZEBLOCK);
+		buf												+= AES_SIZEBLOCK;
 	}
 }
 
 // Symmetrical operation: same function for encrypting as for decrypting. Note any IV/nonce should never be reused with the same key
-void											llc::aesCTRXCryptBuffer				(::llc::SAESContext* ctx, u0_t * buf, ::llc::u2_t length)			{
-	u0_t												buffer	[::llc::AES_SIZEBLOCK];
-	int													bi									= ::llc::AES_SIZEBLOCK;
-	for (::llc::u2_t i = 0; i < length; ++i, ++bi) {
-		if (bi == ::llc::AES_SIZEBLOCK) {// we need to regen xor compliment in buffer */
-			memcpy(buffer, ctx->Iv, ::llc::AES_SIZEBLOCK);
+void											llc::aesCTRXCryptBuffer				(SAESContext* ctx, u0_t * buf, u2_t length)			{
+	u0_t												buffer	[AES_SIZEBLOCK];
+	int													bi									= AES_SIZEBLOCK;
+	for (u2_t i = 0; i < length; ++i, ++bi) {
+		if (bi == AES_SIZEBLOCK) {// we need to regen xor compliment in buffer */
+			memcpy(buffer, ctx->Iv, AES_SIZEBLOCK);
 			Cipher((state_t*)buffer, ctx->RoundKey.begin(), ctx->Level);
-			for(bi = (::llc::AES_SIZEBLOCK - 1); bi >= 0; --bi) {	// Increment Iv and handle overflow
+			for(bi = (AES_SIZEBLOCK - 1); bi >= 0; --bi) {	// Increment Iv and handle overflow
 				if (ctx->Iv[bi] == 255) {	/* inc will owerflow */
 					ctx->Iv[bi]										= 0;
 					continue;
@@ -413,54 +413,55 @@ void											llc::aesCTRXCryptBuffer				(::llc::SAESContext* ctx, u0_t * buf, 
 	}
 }
 
-::llc::error_t			llc::aesEncode			(vcu0_c & messageToEncrypt, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputEncrypted)	{
-	u0_t													iv		[::llc::AES_SIZEIV]				= {};
-	const double											fraction								= (1.0 / (65535>>1)) * 255.0;
-	for(::llc::u2_t iVal = 0; iVal < ::llc::AES_SIZEIV; ++iVal)
-		iv[iVal]											= (u0_t)(::llc::noise1DBase(::llc::timeCurrentInUs()) * fraction);
+llc::err_t			llc::aesEncode			(vcu0_c & messageToEncrypt, vcu0_c & encryptionKey, AES_LEVEL level, au0_t & outputEncrypted)	{
+	u0_t													iv		[AES_SIZEIV]				= {};
+	const f3_t											fraction								= (1.0 / (65535>>1)) * 255.0;
+	for(u2_t iVal = 0; iVal < AES_SIZEIV; ++iVal)
+		iv[iVal]											= (u0_t)(noise1DBase(timeCurrentInUs()) * fraction);
 
-	llc_necs(llc::aesEncode(messageToEncrypt, iv, encryptionKey, level, outputEncrypted));
-	llc_necs(outputEncrypted.resize(outputEncrypted.size() + ::llc::AES_SIZEIV));
-	memcpy(&outputEncrypted[outputEncrypted.size() - ::llc::AES_SIZEIV], iv, ::llc::AES_SIZEIV);
+	if_fail_fe(llc::aesEncode(messageToEncrypt, iv, encryptionKey, level, outputEncrypted));
+	if_fail_fe(outputEncrypted.resize(outputEncrypted.size() + AES_SIZEIV));
+	memcpy(&outputEncrypted[outputEncrypted.size() - AES_SIZEIV], iv, AES_SIZEIV);
 	return 0;
 }
 
-::llc::error_t			llc::aesDecode			(vcu0_c & messageEncrypted, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputDecrypted)	{
-	return ::llc::aesDecode({messageEncrypted.begin(), messageEncrypted.size() - ::llc::AES_SIZEIV}, {&messageEncrypted[messageEncrypted.size() - ::llc::AES_SIZEIV], ::llc::AES_SIZEIV}, encryptionKey, level, outputDecrypted);
+llc::err_t			llc::aesDecode			(vcu0_c & messageEncrypted, vcu0_c & encryptionKey, AES_LEVEL level, au0_t & outputDecrypted)	{
+	return aesDecode({messageEncrypted.begin(), messageEncrypted.size() - AES_SIZEIV}, {&messageEncrypted[messageEncrypted.size() - AES_SIZEIV], AES_SIZEIV}, encryptionKey, level, outputDecrypted);
 }
 
-::llc::error_t			llc::aesEncode		(vcu0_c & messageToEncrypt, vcu0_c & iv, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputEncrypted) {
+llc::err_t			llc::aesEncode		(vcu0_c & messageToEncrypt, vcu0_c & iv, vcu0_c & encryptionKey, AES_LEVEL level, au0_t & outputEncrypted) {
 	if_true_fef(0 == messageToEncrypt.size(), "Cannot encode empty message at address %p.", messageToEncrypt);
 	if_true_fef(encryptionKey.size() != 32, "Invalid key length! Key must be exactly 32 bytes long. Key size: %" LLC_FMT_U2 ".", encryptionKey.size());
-	int8_t													excedent								= messageToEncrypt.size() % ::llc::AES_SIZEBLOCK;
-	int8_t													paddingRequired							= (int8_t)(::llc::AES_SIZEBLOCK - excedent);
+	s0_t													excedent								= messageToEncrypt.size() % AES_SIZEBLOCK;
+	s0_t													paddingRequired							= (s0_t)(AES_SIZEBLOCK - excedent);
 	outputEncrypted.clear();
-	llc_necs(outputEncrypted.resize(messageToEncrypt.size() + (paddingRequired ? paddingRequired : ::llc::AES_SIZEBLOCK), (int8_t)0));
-	for(int8_t iPad = 0; iPad < paddingRequired; ++iPad)
+	if_fail_fe(outputEncrypted.resize(messageToEncrypt.size() + (paddingRequired ? paddingRequired : AES_SIZEBLOCK), (s0_t)0));
+	for(s0_t iPad = 0; iPad < paddingRequired; ++iPad)
 		outputEncrypted[messageToEncrypt.size() + iPad]		= paddingRequired;
 	memcpy(outputEncrypted.begin(), messageToEncrypt.begin(), messageToEncrypt.size());
 
-	::llc::SAESContext										aes;
-	::llc::aesInitCtxIV(&aes, (const u0_t*)encryptionKey.begin(), level, iv.begin());
-	::llc::aesCBCEncryptBuffer(&aes, (u0_t*)outputEncrypted.begin(), outputEncrypted.size());
+	SAESContext										aes;
+	aesInitCtxIV(&aes, (const u0_t*)encryptionKey.begin(), level, iv.begin());
+	aesCBCEncryptBuffer(&aes, (u0_t*)outputEncrypted.begin(), outputEncrypted.size());
 	return 0;
 }
 
-::llc::error_t			llc::aesDecode		(vcu0_c & messageEncrypted, vcu0_c & iv, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputDecrypted) {
+llc::err_t			llc::aesDecode		(vcu0_c & messageEncrypted, vcu0_c & iv, vcu0_c & encryptionKey, AES_LEVEL level, au0_t & outputDecrypted) {
 	if_true_fef(0 == messageEncrypted.size(), "Cannot encode empty message at address %p.", messageEncrypted.begin());
-	if_true_fef(messageEncrypted.size() % ::llc::AES_SIZEBLOCK, "Invalid data length: %" LLC_FMT_U2 ".", messageEncrypted.size());
+	if_true_fef(messageEncrypted.size() % AES_SIZEBLOCK, "Invalid data length: %" LLC_FMT_U2 ".", messageEncrypted.size());
 	if_true_fef(encryptionKey.size() != 32, "Invalid key length! Key must be exactly 32 bytes long. Key size: %" LLC_FMT_U2 ".", encryptionKey.size());
-	llc_necs(outputDecrypted.resize(messageEncrypted.size()));
+	if_fail_fe(outputDecrypted.resize(messageEncrypted.size()));
 	memcpy(outputDecrypted.begin(), messageEncrypted.begin(), outputDecrypted.size());
-	::llc::SAESContext										aes;
-	::llc::aesInitCtxIV(&aes, (const u0_t*)encryptionKey.begin(), level, iv.begin());
-	::llc::aesCBCDecryptBuffer(&aes, (u0_t*)outputDecrypted.begin(), outputDecrypted.size());
-	if(outputDecrypted[outputDecrypted.size() - 1] == 0)
-		llc_necs(outputDecrypted.resize(outputDecrypted.size() - ::llc::AES_SIZEBLOCK));
+	SAESContext										aes;
+	aesInitCtxIV(&aes, (const u0_t*)encryptionKey.begin(), level, iv.begin());
+	aesCBCDecryptBuffer(&aes, (u0_t*)outputDecrypted.begin(), outputDecrypted.size());
+	if(outputDecrypted[outputDecrypted.size() - 1] == 0) {
+		if_fail_fe(outputDecrypted.resize(outputDecrypted.size() - AES_SIZEBLOCK));
+	}
 	else {
-		const int32_t											padCunt									= outputDecrypted[outputDecrypted.size() - 1];
-		const int32_t											sizeOriginal							= outputDecrypted.size() - padCunt;
-		llc_necs(outputDecrypted.resize(sizeOriginal));
+		const s2_t											padCunt									= outputDecrypted[outputDecrypted.size() - 1];
+		const s2_t											sizeOriginal							= outputDecrypted.size() - padCunt;
+		if_fail_fe(outputDecrypted.resize(sizeOriginal));
 	}
 	return 0;
 }

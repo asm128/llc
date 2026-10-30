@@ -140,6 +140,7 @@
 #define tplTstct		tplT	stct
 #define tplTsttc		tplT	sttc
 #define tplTinln		tplT	inln
+#define tplTndsc		tplT	ndsc
 #define tplTstin		tplT	stin
 #define tplTusng		tplT	usng
 #define tplTndsx		tplT	ndsx
@@ -267,31 +268,5 @@
 #define LLC_FMT_LT_U32	LLC_FMT_U32_LT_U32
 #define LLC_FMT_LT_I64	LLC_FMT_I64_LT_I64
 #define LLC_FMT_LT_U64	LLC_FMT_U64_LT_U64
-
-// Legacy -- Compat
-#define cnstnxpt	csnx
-#define cnstvltl	csvl
-#define unsgnd		unsd
-#define operatr		oper
-#define cnstxpr		cxpr
-#define inlcxpr		inxp
-#define stacxpr		stxp
-#define stainli		stin
-#define stincxp		sinx
-#define prtctd		prtc
-#define privte		prvt
-#define nodscrd		ndsc
-#define ndsttic		ndst
-#define ndinlne		ndin
-#define ndcnxpr		ndxp
-#define ndstain		ndsi
-#define ndstcxp		ndsx
-#define ndincxp		ndix
-#define ndstinx		nsix
-#define tplTstruct	tplTstct
-#define tplTndstcxp	tplTndsx
-#define tplTstincxp	tplTsinx
-#define tplTstacxpr	tplTstxp
-#define tplTndstinx	tplTnsix
 
 #endif	//	LLC_PLATFORM_GLOBALS_H_23627

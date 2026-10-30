@@ -75,7 +75,7 @@ namespace llc
 		}
 		// Returns the new size of the array.
 		err_t			resize				(u2_t newCount)															nxpt	{
-			llc_necs(reserve(newCount));
+			if_fail_fe(reserve(newCount));
 			for(; Count < newCount; ++Count)
 				new (&Data[Count]) T{};
 			for(; Count > newCount; --Count)
@@ -84,7 +84,7 @@ namespace llc
 		}
 		// Returns the new size of the array.
 		err_t			resize				(u2_t newCount, TCnst & newValue)									nxpt	{
-			llc_necs(reserve(newCount));
+			if_fail_fe(reserve(newCount));
 			for(; Count < newCount; ++Count)
 				new (&Data[Count]) T{newValue};
 			for(; Count > newCount; --Count)
@@ -93,7 +93,7 @@ namespace llc
 		}
 		// Returns the new size of the array.
 		tpl_vtArgs	err_t	resize				(u2_t newCount, _tArgs&&... constructorArgs)											{
-			llc_necs(reserve(newCount));
+			if_fail_fe(reserve(newCount));
 			for(; Count < newCount; ++Count)
 				new (&Data[Count]) T{constructorArgs...};
 			for(; Count > newCount; --Count)
@@ -116,12 +116,12 @@ namespace llc
 		// Returns the index of the pushed value or -1 on failure
 		err_t			push_back			(TCnst & newValue)														nxpt	{
 			cnst s2_t				oldSize				= Count;
-			llc_necs(resize(oldSize + 1, newValue));
+			if_fail_fe(resize(oldSize + 1, newValue));
 			rtrn oldSize;
 		}
 		tpl_vtArgs	err_t	emplace_back		(_tArgs&&... constructorArgs)											{
 			cnst s2_t				oldSize				= Count;
-			llc_necs(resize(oldSize + 1, constructorArgs...));
+			if_fail_fe(resize(oldSize + 1, constructorArgs...));
 			rtrn oldSize;
 		}
 		// returns the new array size or -1 if failed.
@@ -164,7 +164,7 @@ namespace llc
 			if(0 == chainLength)
 				rtrn Count;
 
-			llc_necs(reserve(Count + chainLength));
+			if_fail_fe(reserve(Count + chainLength));
 			u2_c				iFirst				= Count;
 			for(u2_t i = 0; i < chainLength; ++i)
 				new (&Data[Count++]) T{chainToAppend[i]};
@@ -306,7 +306,7 @@ namespace llc
 			if(0 > end)
 				end				= target.size();
 			if(begin < (u2_t)end)
-				llc_necs(output.push_back({&target[begin], (u2_t)end - begin}));
+				if_fail_fe(output.push_back({&target[begin], (u2_t)end - begin}));
 			begin				= (u2_t)end + 1;
 		}
 		rtrn output.size();
@@ -319,7 +319,7 @@ namespace llc
 			if(0 > end)
 				end				= target.size();
 			if(begin < (u2_t)end)
-				llc_necs(output.push_back({&target[begin], (u2_t)end - begin}));
+				if_fail_fe(output.push_back({&target[begin], (u2_t)end - begin}));
 			begin				= (u2_t)end + separator.size();
 		}
 		rtrn output.size();

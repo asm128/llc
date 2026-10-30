@@ -33,7 +33,7 @@ stxp		int		LOG_PREFIX_BUFFER_SIZE	= 64;
 stxp		int		LOG_PREFIX_BUFFER_SIZE	= 256;
 #endif
 
-::llc::error_t			llc::debug_print_prefix				(s0_t severity, const char * path, ::llc::u2_t line, const char * function) {
+::llc::err_t			llc::debug_print_prefix				(s0_t severity, const char * path, ::llc::u2_t line, const char * function) {
 	stxp sc_c	STR_DEBUG_PREFIX[]					= "%i|%llu|%s(%" LLC_FMT_U2 "){%s}:";
 	char			formatted[::LOG_PREFIX_BUFFER_SIZE]	= {};
 	::llc::sprintf_s(formatted, STR_DEBUG_PREFIX, severity, ::llc::timeCurrentInMs(), path, line, function);
@@ -41,41 +41,37 @@ stxp		int		LOG_PREFIX_BUFFER_SIZE	= 256;
 }
 
 #if defined(LLC_WINDOWS)
-static	::llc::error_t	default_log_write		(const char * text, ::llc::u2_t textLen) 	{  u2_t iChar = 0; for(; iChar < textLen; ++iChar) { sc_c buf[2] = {text[iChar], 0}; OutputDebugStringA(buf); } return (::llc::error_t)fprintf(stderr, "%.*s", (int)textLen, text); }
-static	::llc::error_t	default_log_print		(const char * text)						{ OutputDebugStringA(text); return (::llc::error_t)fprintf(stderr, "%s", text); }
+static	::llc::err_t	default_log_write		(const char * text, ::llc::u2_t textLen) 	{  u2_t iChar = 0; for(; iChar < textLen; ++iChar) { sc_c buf[2] = {text[iChar], 0}; OutputDebugStringA(buf); } return (::llc::err_t)fprintf(stderr, "%.*s", (int)textLen, text); }
+static	::llc::err_t	default_log_print		(const char * text)						{ OutputDebugStringA(text); return (::llc::err_t)fprintf(stderr, "%s", text); }
 #elif defined(LLC_ANDROID)
-static	::llc::error_t	default_log_write		(const char * text, ::llc::u2_t textLen)	{ LOGI("%.*s", (int)textLen, text); return textLen; }
-static	::llc::error_t	default_log_print		(const char * text)						{ LOGI("%s", text); return (::llc::error_t)strlen(text); }
+static	::llc::err_t	default_log_write		(const char * text, ::llc::u2_t textLen)	{ LOGI("%.*s", (int)textLen, text); return textLen; }
+static	::llc::err_t	default_log_print		(const char * text)						{ LOGI("%s", text); return (::llc::err_t)strlen(text); }
 #elif defined(LLC_ARDUINO)
-static	::llc::error_t	default_log_write		(const char * text, ::llc::u2_t textLen)	{ return Serial ? Serial.write(text, textLen) : textLen; }
-static	::llc::error_t	default_log_print		(const char * text)						{ return Serial ? Serial.print(text) : (::llc::error_t)strlen(text); }
+static	::llc::err_t	default_log_write		(const char * text, ::llc::u2_t textLen)	{ return Serial ? Serial.write(text, textLen) : textLen; }
+static	::llc::err_t	default_log_print		(const char * text)						{ return Serial ? Serial.print(text) : (::llc::err_t)strlen(text); }
 #else
-static	::llc::error_t	default_log_write		(const char * text, ::llc::u2_t textLen)	{ return (::llc::error_t)fprintf(stderr, "%.*s", (int)textLen, text); }
-static	::llc::error_t	default_log_print		(const char * text)						{ return (::llc::error_t)fprintf(stderr, "%s", text); }
+static	::llc::err_t	default_log_write		(const char * text, ::llc::u2_t textLen)	{ return (::llc::err_t)fprintf(stderr, "%.*s", (int)textLen, text); }
+static	::llc::err_t	default_log_print		(const char * text)						{ return (::llc::err_t)fprintf(stderr, "%s", text); }
 #endif
 
 ::llc::log_write_t		llc_log_write					= default_log_write;
 ::llc::log_print_t		llc_log_print					= default_log_print;
 
-::llc::error_t llc::getLogCallbacks(log_print_t & funcLogPrint, log_write_t & funcLogWrite) {
+::llc::err_t llc::getLogCallbacks(log_print_t & funcLogPrint, log_write_t & funcLogWrite) {
 	funcLogPrint = ::llc_log_print;
 	funcLogWrite = ::llc_log_write;
 	return 0;
 }
 
-::llc::error_t			llc::log_print					(const char * text)						{ return (llc_log_print && text) ? ::llc_log_print(text) : 0; }
-::llc::error_t			llc::log_write					(const char * text, ::llc::u2_t textLen)	{ return (llc_log_write && text && textLen) ? ::llc_log_write(text, textLen) : 0; }
+::llc::err_t			llc::log_print					(const char * text)						{ return (llc_log_print && text) ? ::llc_log_print(text) : 0; }
+::llc::err_t			llc::log_write					(const char * text, ::llc::u2_t textLen)	{ return (llc_log_write && text && textLen) ? ::llc_log_write(text, textLen) : 0; }
 #ifdef LLC_LOG_ARDUINO_FLASHSTRINGHELPER
-::llc::error_t			llc::log_print_P				(const __FlashStringHelper * text)		{ return (Serial && text) ? (::llc::error_t)Serial.print(text) : 0; }
+::llc::err_t			llc::log_print_P				(const __FlashStringHelper * text)		{ return (Serial && text) ? (::llc::err_t)Serial.print(text) : 0; }
 #endif
 
-::llc::error_t			llc::setupDefaultLogCallbacks	()	{
-	::llc_log_print	= default_log_print;
-	::llc_log_write	= default_log_write;
-	return 0;
-}
+::llc::err_t			llc::setupDefaultLogCallbacks	()	{ return setupLogCallbacks(default_log_print, default_log_write); }
 
-::llc::error_t			llc::setupLogCallbacks
+::llc::err_t			llc::setupLogCallbacks
 	( llc::log_print_t	funcLogPrint
 	, llc::log_write_t	funcLogWrite
 	) {
@@ -138,7 +134,7 @@ static	::llc::error_t	default_log_print		(const char * text)						{ return (::ll
 
 #ifndef LLC_ARDUINO
 
-static	::llc::error_t	getSystemErrorAsString			(const uint64_t lastError, char* buffer, ::llc::u2_t bufferSize)			{	// Get the error message, if any.
+static	::llc::err_t	getSystemErrorAsString			(const u3_t lastError, char* buffer, ::llc::u2_t bufferSize)			{	// Get the error message, if any.
 #ifdef LLC_WINDOWS
 	if_true_fe(0 == buffer);
 	return lastError
@@ -153,13 +149,13 @@ static	::llc::error_t	getSystemErrorAsString			(const uint64_t lastError, char* 
 void					llc::_llc_print_system_errors	(const char* prefix, ::llc::u2_t prefixLen)								{
 	char								bufferError[256]				= {};
 #ifdef LLC_WINDOWS
-	int64_t								lastSystemError					= ::GetLastError() & 0xFFFFFFFFFFFFFFFFLL;
+	s3_t								lastSystemError					= ::GetLastError() & 0xFFFFFFFFFFFFFFFFLL;
 #else
-	int64_t								lastSystemError					= -1;
+	s3_t								lastSystemError					= -1;
 #endif
 	if(lastSystemError) {
 		log_write("\n", 1);
-		::llc::error_t						stringLength					= ::getSystemErrorAsString((uint64_t)lastSystemError, bufferError, ::llc::size(bufferError));
+		::llc::err_t						stringLength					= ::getSystemErrorAsString((u3_t)lastSystemError, bufferError, ::llc::size(bufferError));
 		log_write(prefix, prefixLen);
 		log_write(bufferError, (::llc::u2_t)stringLength);
 		log_write("\n", 1);
@@ -168,10 +164,10 @@ void					llc::_llc_print_system_errors	(const char* prefix, ::llc::u2_t prefixLe
 	if(lastSystemError) {
 		log_write("\n", 1);
 #ifdef LLC_WINDOWS
-		::strerror_s(bufferError, (int32_t)lastSystemError);
+		::strerror_s(bufferError, (s2_t)lastSystemError);
 		{
 #else
-		const char * serr = ::strerror((int32_t)lastSystemError);
+		const char * serr = ::strerror((s2_t)lastSystemError);
 		if(serr) {
 			strcpy_s(bufferError, serr);
 #endif

@@ -8,35 +8,35 @@ namespace llc
 {
 #pragma pack(push, 1)
 	stct SFrameSeconds {
-		double					Total				;
-		double					LastFrame			;
-		double					LastFrameHalfSquared;
+		f3_t					Total				;
+		f3_t					LastFrame			;
+		f3_t					LastFrameHalfSquared;
 		// Helper
-		double					UpdateFromTime		(double secondsToAdd)			noexcept	{
+		f3_t					UpdateFromTime		(f3_t secondsToAdd)			noexcept	{
 			Total					+= LastFrame = secondsToAdd;
 			LastFrameHalfSquared	=  secondsToAdd * secondsToAdd * 0.5;
 			return LastFrame;
 		}
-		inline	double			UpdateFromTimeUs	(uint64_t microsecondsToAdd)	noexcept	{
+		inline	f3_t			UpdateFromTimeUs	(u3_t microsecondsToAdd)	noexcept	{
 			return UpdateFromTime(microsecondsToAdd * .000001);
 		}
 	};
 
 	stct SFrameMicroseconds {
-		uint64_t				Total				;
-		uint64_t				LastFrame			;
+		u3_t				Total				;
+		u3_t				LastFrame			;
 		// Helper
-		inline	void			UpdateFromTime		(uint64_t microsecondsToAdd)	noexcept	{ Total += LastFrame = microsecondsToAdd; }
+		inline	void			UpdateFromTime		(u3_t microsecondsToAdd)	noexcept	{ Total += LastFrame = microsecondsToAdd; }
 	};
 
 	stct SFrameMeter {
-		double					AverageFrameTime	= 0;
-		uint64_t				FrameNumber			= 0;
+		f3_t					AverageFrameTime	= 0;
+		u3_t				FrameNumber			= 0;
 		::llc::u2_t				FramesPerSecond		= 0;
 		::llc::u2_t				FramesThisSecond	= 0;
 		::llc::u2_t				FrameStep			= 0;
 		// Updates frame number and stats from delta time.
-		uint64_t				Frame				(uint64_t deltaMicroseconds)	{
+		u3_t				Frame				(u3_t deltaMicroseconds)	{
 			++FrameNumber;
 			++FramesThisSecond;
 			FrameStep				+= (::llc::u2_t)deltaMicroseconds;
@@ -55,7 +55,7 @@ namespace llc
 		SFrameSeconds			Seconds				= {};
 		SFrameMeter				FrameMeter			= {};
 		// Sets last frame time and number. Returns delta seconds since last time.
-		double					Frame				(uint64_t deltaMicroseconds)						{
+		f3_t					Frame				(u3_t deltaMicroseconds)						{
 			Microseconds	.UpdateFromTime(deltaMicroseconds);
 			Seconds			.UpdateFromTimeUs(deltaMicroseconds);
 			FrameMeter		.Frame(deltaMicroseconds);
@@ -68,7 +68,7 @@ namespace llc
 		::llc::SFrameInfo		FrameInfo			= {};
 
 		// Returns delta seconds since the previous `Frame()` call. Gets delta from timer and use it to update FrameInfo.
-		inline	double			Frame				() {
+		inline	f3_t			Frame				() {
 			Timer.Frame();
 			return FrameInfo.Frame(Timer.LastTimeMicroseconds);
 		}		

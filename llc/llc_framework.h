@@ -32,7 +32,7 @@ namespace llc
 									SFrameworkDetail		() {
 			if(0 == XCBConnection) {
 				XCBConnection				= xcb_connect(NULL, NULL);
-				gthrow_if(0 == XCBConnection, "%s", "Failed to connect to X Server!");
+				if_true_tef(0 == XCBConnection, "%s", "Failed to connect to X Server!");
 				XCBScreen					= xcb_setup_roots_iterator(xcb_get_setup(XCBConnection)).data;
 			}
 		}
@@ -47,7 +47,7 @@ namespace llc
 
 	struct SFramework : llc::SFrameTimer {
 		::llc::SRuntimeValues		& RuntimeValues			;
-		::llc::vcs					FileNameJSONConfig		= "llc_config.json";
+		::llc::vcst_t					FileNameJSONConfig		= "llc_config.json";
 		::llc::pobj<::llc::SGUI>	GUI						= {};
 		::llc::SFrameworkDetail		PlatformDetail			= {};
 		::llc::SWindow				RootWindow				= {};
@@ -58,7 +58,7 @@ namespace llc
 		::std::mutex				LockGUI;
 #endif
 
-		inline						SFramework				(::llc::SRuntimeValues & runtimeValues, ::llc::vcs fileNameJSONConfig = "llc_config.json")
+		inline						SFramework				(::llc::SRuntimeValues & runtimeValues, ::llc::vcst_t fileNameJSONConfig = "llc_config.json")
 			: RuntimeValues(runtimeValues), FileNameJSONConfig(fileNameJSONConfig) {
 			RootWindow.Input.create();
 			GUI.create();
@@ -67,9 +67,9 @@ namespace llc
 		}
 	}; // struct
 
-	::llc::error_t				updateFramework			(::llc::SFramework & framework);
-	::llc::error_t				mainWindowCreate		(::llc::SWindow & mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput> & displayInput);
-	::llc::error_t				mainWindowDestroy		(::llc::SWindow & mainWindow);
+	::llc::err_t				updateFramework			(::llc::SFramework & framework);
+	::llc::err_t				mainWindowCreate		(::llc::SWindow & mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput> & displayInput);
+	::llc::err_t				mainWindowDestroy		(::llc::SWindow & mainWindow);
 } // namespace
 
 #endif // LLC_FRAMEWORK_H_23627

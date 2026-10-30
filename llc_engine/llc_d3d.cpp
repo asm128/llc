@@ -4,7 +4,7 @@
 
 #include <dxgi1_4.h>
 
-::llc::error_t			llc::d3dDeviceValidate				(::llc::pcom<::ID3D11Device3> & d3dDevice)				{
+::llc::err_t			llc::d3dDeviceValidate				(::llc::pcom<::ID3D11Device3> & d3dDevice)				{
 	// The D3D Device is no longer valid if the default adapter changed since the device was created or if the device has been removed. 
 	::llc::pcom<IDXGIDevice3>		dxgiDevice;
 	::llc::pcom<IDXGIAdapter>		deviceAdapter;
@@ -33,7 +33,7 @@
 }
 
 
-::llc::error_t			llc::d3dCreateTextureDynamic		(ID3D11Device* pDevice, ::llc::pcom<ID3D11Texture2D> & texture, ::llc::pcom<ID3D11ShaderResourceView> & shaderResourceView, ::llc::gc8bgra initData) {
+::llc::err_t			llc::d3dCreateTextureDynamic		(ID3D11Device* pDevice, ::llc::pcom<ID3D11Texture2D> & texture, ::llc::pcom<ID3D11ShaderResourceView> & shaderResourceView, ::llc::gc8bgra initData) {
 	D3D11_TEXTURE2D_DESC					desc				= {initData.metrics().x, initData.metrics().y, 1, 1, DXGI_FORMAT_B8G8R8A8_UNORM, {1, 0}, D3D11_USAGE_DYNAMIC, D3D11_BIND_SHADER_RESOURCE, D3D11_CPU_ACCESS_WRITE};
 	D3D11_SUBRESOURCE_DATA					d3dInitData			= {};
 	d3dInitData.pSysMem					= initData.begin();

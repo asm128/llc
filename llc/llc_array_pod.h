@@ -87,20 +87,20 @@ namespace llc
 		TArray&				oper =			(cnst view<cnst T> & other)								{
 			u2_t					sourceOffset		= 0;
 			cnst err_t			aliased			= source_offset(other.begin(), other.size(), sourceOffset);
-			gsthrow_if(aliased < 0);
+			if_true_te(aliased < 0);
 			if(aliased) {
 				memmove(Data, &Data[sourceOffset], other.byte_count());
 				Count					= other.size();
 				Data[Count]				= {};
 				return *this;
 			}
-			gsthrow_if(resize(other.size()) != (s2_t)other.size());
+			if_true_te(resize(other.size()) != (s2_t)other.size());
 			if(Count)
 				memcpy(Data, other.begin(), other.byte_count());
 			return *this;
 		}
 		tplN0u	TArray&		oper =			(cnst T (&init)[N])										{
-			gsthrow_if(resize(N) != N);
+			if_true_te(resize(N) != N);
 			memcpy(Data, init, Count * szof(T));
 			Data[Count]				= {};
 			return *this;
@@ -124,19 +124,19 @@ namespace llc
 		// Returns the index of the pushed value or -1 on failure
 		err_t				push_back			(cnst T & newValue)						noexcept	{
 			cnst s2_t				oldSize				= Count;
-			llc_necs(resize(oldSize + 1, newValue));
+			if_fail_fe(resize(oldSize + 1, newValue));
 			return oldSize;
 		}
 		inln		err_t	append_string		(cnst llc::function<err_t(TArray&)> & funcAppend)	noexcept	{ return funcAppend ? funcAppend(*this) : 0; }
 		
 		tplN2uinln	err_t	append_string		(cnst T (&newChain)[N])								noexcept	{ return append_string(vcst_t{newChain}); }
-		inln		err_t	append_string		(vcst_t newChain)									noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
-		inln		err_t	append_string		(cnst T & element)									noexcept	{ llc_necs(push_back(element)); return 1; }
+		inln		err_t	append_string		(vcst_t newChain)									noexcept	{ if_fail_fe(append(newChain.begin(), newChain.size())); return newChain.size(); }
+		inln		err_t	append_string		(cnst T & element)									noexcept	{ if_fail_fe(push_back(element)); return 1; }
 		inln		err_t	append_strings		(cnst view<cnst vcst_t> & newChains)				noexcept	{ 
 			s2_t					appended				= 0;
 			for(u2_t i = 0, stop = newChains.size(); i < stop; ++i) {
 				cnst vcst_t & newChain = newChains[i];
-				llc_necs(append(newChain));
+				if_fail_fe(append(newChain));
 				appended += newChain.size();
 			}
 			return appended;
@@ -147,7 +147,7 @@ namespace llc
 			s2_t					count				= 0;
 			for(u2_t i = 0, stop = newChains.size(); i < stop; ++i) {
 				cnst view<cnst T> & newChain		= newChains[i];
-				llc_necs(append(newChain));
+				if_fail_fe(append(newChain));
 				count					+= newChain.size();
 			}
 			return count;
@@ -158,9 +158,9 @@ namespace llc
 			if_null_fe(chainToAppend);
 			u2_t					sourceOffset		= 0;
 			cnst err_t			aliased			= source_offset(chainToAppend, chainLength, sourceOffset);
-			llc_necs(aliased);
+			if_fail_fe(aliased);
 			u2_c				newCount			= Count + chainLength;
-			llc_necs(reserve(newCount));
+			if_fail_fe(reserve(newCount));
 			if(aliased)
 				chainToAppend			= &Data[sourceOffset];
 			u2_c				iFirst				= Count;
@@ -191,7 +191,7 @@ namespace llc
 		}
 		// Returns the new size of the array.
 		err_t				resize				(u2_t newCount)							noexcept	{
-			llc_necs(reserve(newCount));
+			if_fail_fe(reserve(newCount));
 			Count					= newCount;
 			if(Data)
 				Data[Count]				= {};
@@ -200,7 +200,7 @@ namespace llc
 		// Returns the new size of the array.
 		err_t				resize				(u2_t newCount, cnst T & newValue)		noexcept	{
 			cnst T				valueCopy			= newValue;
-			llc_necs(reserve(newCount));
+			if_fail_fe(reserve(newCount));
 			if(Data) {
 				for(; Count < newCount; ++Count)
 					Data[Count] = valueCopy;
@@ -243,7 +243,7 @@ namespace llc
 			if_null_fe(chainToInsert);
 			u2_t					sourceOffset		= 0;
 			cnst err_t			aliased			= source_offset(chainToInsert, chainLength, sourceOffset);
-			llc_necs(aliased);
+			if_fail_fe(aliased);
 
 			u2_c				newCount			= Count + chainLength;
 			if(Size < newCount) {
@@ -324,7 +324,7 @@ namespace llc
 	tydf		apod<f2_t>	af2_t;	tdcs	af2_t	af2_c;
 	tydf		apod<f3_t>	af3_t;	tdcs	af3_t	af3_c;
 
-	stin	vs		str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
+	stin	vstr_t		str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
 	stin	vcst_t	str		(asc_c & arg)	{ rtrn {arg.begin(), arg.size()}; }
 
 	tplt<tpnm T, tpnm TView>

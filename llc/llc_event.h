@@ -17,13 +17,13 @@ namespace llc
 		vcu0_t	Data		= {};
 
 		err_t	Save		(au0_t & output)	const	{
-			llc_necs(savePOD (output, Type));
-			llc_necs(saveView(output, Data));
+			if_fail_fe(savePOD (output, Type));
+			if_fail_fe(saveView(output, Data));
 			rtrn 0;
 		}
 		err_t	Load		(vcu0_t & input)			{
-			llc_necs(loadPOD (input, Type));
-			llc_necs(loadView(input, Data));
+			if_fail_fe(loadPOD (input, Type));
+			if_fail_fe(loadView(input, Data));
 			rtrn 0;
 		}
 	};
@@ -44,32 +44,32 @@ namespace llc
 		T				Type		= {};
 		au0_t			Data		= {};
 
-						SEvent		(const TEvent &)							= default;
+						SEvent		(const TEvent &)					= default;
 		constexpr		SEvent		(T type = {})						: Type(type) {}
-						SEvent		(T type, const vcu0_t data)	: Type(type), Data(data.cu8()) {}
+						SEvent		(T type, const vcu0_t data)			: Type(type), Data(data) {}
 						SEvent		(const TEView & eventView)			: Type(eventView.Type), Data(eventView.Data) {}
 
-		TEvent&			oper= 		(const TEvent &)				= default;
-		TEvent&			oper= 		(const TEView & eventView)		{ Type = eventView.Type; Data = eventView.Data; rtrn *this; }
+		TEvent&			oper= 		(const TEvent &)					= default;
+		TEvent&			oper= 		(const TEView & eventView)			{ Type = eventView.Type; Data = eventView.Data; rtrn *this; }
 
-		oper			TEView		()						const	{ rtrn {Type, Data.cu8()}; }
+		oper			TEView		()							const	{ rtrn {Type, Data.cu8()}; }
 
-		err_t			Save		(au0_t & output)	const	{
-			llc_necs(savePOD(output, Type));
-			llc_necs(saveView(output, Data));
+		err_t			Save		(au0_t & output)			const	{
+			if_fail_fe(savePOD(output, Type));
+			if_fail_fe(saveView(output, Data));
 			rtrn 0;
 		}
 
-		err_t	Load		(vcu0_t & input)			{
-			llc_necs(loadPOD(input, Type));
-			llc_necs(loadView(input, Data));
+		err_t			Load		(vcu0_t & input)			{
+			if_fail_fe(loadPOD(input, Type));
+			if_fail_fe(loadView(input, Data));
 			rtrn 0;
 		}
 
 		tplt<tpnm _tETypeOther>
-		err_t	ExtractChild(SEvent<_tETypeOther> & outputEvent)		const	{
+		err_t			ExtractChild(SEvent<_tETypeOther> & outputEvent)	const	{
 			vcu0_t			input				= Data;
-			llc_necs(outputEvent.Load(input));
+			if_fail_fe(outputEvent.Load(input));
 			llc_event_printf("%s", get_value_namep(outputEvent.Type)); 
 			rtrn 0; 
 		}
@@ -77,7 +77,7 @@ namespace llc
 		tplt<tpnm _tETypeOther>
 		err_t	ExtractChild(SEView<_tETypeOther> & outputEvent)	const	{
 			vcu0_t			input				= Data;
-			llc_necs(outputEvent.Load(input));
+			if_fail_fe(outputEvent.Load(input));
 			llc_event_printf("%s", get_value_namep(outputEvent.Type)); 
 			rtrn 0; 
 		}
@@ -98,7 +98,7 @@ namespace llc
 	sttc	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, vcu0_t eventData) {
 		PEvent<_tEvntParent>	parentEvent			= {};
 		parentEvent->Type = parentEventType;
-		llc_necs(eventWrapChild(*parentEvent, childEventType, eventData));
+		if_fail_fe(eventWrapChild(*parentEvent, childEventType, eventData));
 		rtrn eventQueue.push_back(parentEvent);
 	}
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild, tpnm _tPOD>
@@ -112,7 +112,7 @@ namespace llc
 	tplt<tpnm _tChildEvent, tpnm _tParentEvent>
 	sttc	err_t	eventExtractAndHandle	(const SEvent<_tParentEvent> & parentEvent, const function<err_t (const SEventView<_tChildEvent> &)> & funcHandleChild) {
 		SEView<_tChildEvent>	childEvent; 
-		llc_necs(parentEvent.ExtractChild(childEvent)); 
+		if_fail_fe(parentEvent.ExtractChild(childEvent)); 
 		rtrn funcHandleChild(childEvent);
 	}
 	tydf SEvent            <RESULT>	SEventResult;

@@ -17,7 +17,7 @@ static	::llc::cid_t	menuInit		(::llc::SGUI & gui, ::llc::acid & idButtons) {
 	::llc::SControlPlacement	controlItem		= {};
 	controlItem.Margin		= {4, 2, 4, 2};
 	controlItem.Border		= {1, 1, 1, 1};
-	llc_necs(llc::guiCreateControlList<::llc::EDITOR_APP_MENU>(gui, ::llc::DIRECTION_RIGHT, idMenu, controlItem, ::llc::ALIGN_CENTER_LEFT, idButtons));
+	if_fail_fe(llc::guiCreateControlList<::llc::EDITOR_APP_MENU>(gui, ::llc::DIRECTION_RIGHT, idMenu, controlItem, ::llc::ALIGN_CENTER_LEFT, idButtons));
 	return idMenu;
 }
 
@@ -26,11 +26,11 @@ static	::llc::cid_t	menuInit		(::llc::SGUI & gui, ::llc::acid & idButtons) {
 		editor.UI.GUI.create();
 
 	::llc::SGUI					& gui				= *editor.UI.GUI;
-	llc_necs(llc::inputBoxCreate(editor.UI.InputBox, gui));
+	if_fail_fe(llc::inputBoxCreate(editor.UI.InputBox, gui));
 
 	gui.Controls.Placement[editor.UI.InputBox.IdRoot].Align			= ::llc::ALIGN_CENTER_BOTTOM;
 
-	llc_necs(editor.Dialogs.resize(::llc::get_value_count<::llc::EDITOR_APP_DIALOG>()));
+	if_fail_fe(editor.Dialogs.resize(::llc::get_value_count<::llc::EDITOR_APP_DIALOG>()));
 	editor.Dialogs[::llc::EDITOR_APP_DIALOG_Menu] = ::menuInit(gui, editor.Menu);
 	return 0;
 }
@@ -45,8 +45,8 @@ static	::llc::cid_t	menuInit		(::llc::SGUI & gui, ::llc::acid & idButtons) {
 	if(int32_t result = editor.UI.InputBox.Update(gui, editor.UI.InputBox.VirtualKeyboard, queuedEvents, controlsToProcess)) {
 		if(result == INT_MAX) { // enter key pressed
 			::llc::vcst_t					trimmed				= {};
-			llc_necs(editor.UI.InputBox.Text.slice(trimmed, 0, ::llc::min(editor.UI.InputBox.Text.size(), 128U)));
-			llc_necs(llc::trim(trimmed));
+			if_fail_fe(editor.UI.InputBox.Text.slice(trimmed, 0, ::llc::min(editor.UI.InputBox.Text.size(), 128U)));
+			if_fail_fe(llc::trim(trimmed));
 			if(trimmed.size()) {
 				::llc::pobj<::llc::asc_t>	textInput;
 				textInput.create();

@@ -24,19 +24,19 @@
 ::llc::err_t				llc::roGATLoad					(SROGAT & output, vcu0_t input) {
 	::llc::view_stream<::llc::u0_c>	inputStream					= {input.begin(), input.size()};
 	::llc::u0_t				magic[4]					= {};
-	llc_necs(inputStream.read_pod(magic));
+	if_fail_fe(inputStream.read_pod(magic));
 	if_true_fef('G' != magic[0] || 'R' != magic[1] || 'A' != magic[2] || 'T' != magic[3]
 		, "Invalid GAT signature: %02X %02X %02X %02X.", (::llc::u2_t)magic[0], (::llc::u2_t)magic[1], (::llc::u2_t)magic[2], (::llc::u2_t)magic[3]);
-	llc_necs(inputStream.read_pod(output.Version));
+	if_fail_fe(inputStream.read_pod(output.Version));
 	if_true_fef(1 != output.Version.Major || 2 != output.Version.Minor, "Unsupported GAT version: %u.%u.", (::llc::u2_t)output.Version.Major, (::llc::u2_t)output.Version.Minor);
 
 	::llc::u2_c				gridOffset					= inputStream.CursorPosition;
-	llc_necs(inputStream.read_pod(output.Dimensions));
+	if_fail_fe(inputStream.read_pod(output.Dimensions));
 	::llc::grid<cnst ::llc::SROGATTile>	tiles						= {};
 	::llc::err_t				gridBytes					= 0;
-	llc_necs(gridBytes = ::llc::gridPascal(tiles, ::llc::vcu0_t{input.begin() + gridOffset, input.size() - gridOffset}));
+	if_fail_fe(gridBytes = ::llc::gridPascal(tiles, ::llc::vcu0_t{input.begin() + gridOffset, input.size() - gridOffset}));
 	if_true_fef((::llc::u2_t)gridBytes > 0x7FFFFFFFU - gridOffset, "GAT byte count exceeds the result range: %i + %" LLC_FMT_U2 ".", gridBytes, gridOffset);
-	llc_necs(output.Tiles.resize(tiles.size()));
+	if_fail_fe(output.Tiles.resize(tiles.size()));
 	if(tiles.size())
 		memcpy(output.Tiles.begin(), tiles.begin(), tiles.byte_count());
 	return (::llc::err_t)gridOffset + gridBytes;

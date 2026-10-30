@@ -18,8 +18,8 @@ namespace llc
 
 #pragma pack(push, 1)
 	stct SAESLevelProperties {
-		int32_t						KeyLength ;
-		int32_t						KeyExpSize;
+		s2_t						KeyLength ;
+		s2_t						KeyExpSize;
 	};
 #pragma pack(pop)
 

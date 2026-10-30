@@ -56,7 +56,7 @@ namespace llc
 #ifndef LLC_ATMEL
 	tplt<u2_t fmtLen, tpnm... TArgs>
 	sttc	err_t	_llc_debug_printf				(s0_t severity, sc_c * path, u2_t line, sc_c * function, sc_c (&format)[fmtLen], cnst TArgs... args)	{
-		debug_print_prefix((int8_t)severity, path, line, function);
+		debug_print_prefix((s0_t)severity, path, line, function);
 #else
 	tplt<tpnm... TArgs>
 	sttc	err_t	_llc_debug_printf				(sc_c * function, cnst __FlashStringHelper * format, cnst TArgs... args)			{
@@ -89,60 +89,36 @@ namespace llc
 #	define llc_debug_printf(severity, ...)			::llc::debug_printf(severity, __FILE__, __LINE__, __func__, __VA_ARGS__)
 #endif
 
-#ifndef always_printf
-#ifndef logf_always
-#	define always_printf(...)						llc_debug_printf(3, __VA_ARGS__)
-#endif
+#define always_printf(...)						llc_debug_printf(3, __VA_ARGS__)
+
+#if defined (LLC_ERROR_PRINTF_ENABLED)
+#	define error_printf(...)						do { llc_debug_printf(1, __VA_ARGS__); ::llc::debugBreak(); } while(0)
+#else
+#	define error_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); ::llc::debugBreak(); } while(0)
 #endif
 
-#ifndef error_printf
-#ifndef logf_error
-#	if defined (LLC_ERROR_PRINTF_ENABLED)
-#		define error_printf(...)						do { llc_debug_printf(1, __VA_ARGS__); LLC_PLATFORM_CRT_BREAKPOINT(); } while(0)
-#	else
-#		define error_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); LLC_PLATFORM_CRT_BREAKPOINT(); } while(0)
-#	endif
-#endif
+#if defined (LLC_WARNING_PRINTF_ENABLED)
+#	define warning_printf(...)						llc_debug_printf(2, __VA_ARGS__)
+#else
+#	define warning_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
 #endif
 
-#ifndef warning_printf
-#ifndef logf_warning
-#	if defined (LLC_WARNING_PRINTF_ENABLED)
-#		define warning_printf(...)						llc_debug_printf(2, __VA_ARGS__)
-#	else
-#		define warning_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
-#	endif
-#endif
+#if defined (LLC_INFO_PRINTF_ENABLED)
+#	define info_printf(...)							llc_debug_printf(3, __VA_ARGS__)
+#else
+#	define info_printf(format, ...)						do { ::llc::dummy(__VA_ARGS__); } while(0)
 #endif
 
-#ifndef info_printf
-#ifndef logf_info
-#	if defined (LLC_INFO_PRINTF_ENABLED)
-#		define info_printf(...)							llc_debug_printf(3, __VA_ARGS__)
-#	else
-#		define info_printf(format, ...)						do { ::llc::dummy(__VA_ARGS__); } while(0)
-#	endif
-#endif
+#if defined (LLC_SUCCESS_PRINTF_ENABLED)
+#	define success_printf(...)						llc_debug_printf(4, __VA_ARGS__)
+#else
+#	define success_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
 #endif
 
-#ifndef success_printf
-#ifndef logf_success
-#	if defined (LLC_SUCCESS_PRINTF_ENABLED)
-#		define success_printf(...)						llc_debug_printf(4, __VA_ARGS__)
-#	else
-#		define success_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
-#	endif
-#endif
-#endif
-
-#ifndef verbose_printf
-#ifndef logf_verbose
-#	if defined (LLC_VERBOSE_PRINTF_ENABLED)
-#		define verbose_printf(...)						llc_debug_printf(4, __VA_ARGS__)
-#	else
-#		define verbose_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
-#	endif
-#endif
+#if defined (LLC_VERBOSE_PRINTF_ENABLED)
+#	define verbose_printf(...)						llc_debug_printf(4, __VA_ARGS__)
+#else
+#	define verbose_printf(format, ...)					do { ::llc::dummy(__VA_ARGS__); } while(0)
 #endif
 
 //
@@ -152,25 +128,6 @@ namespace llc
 #define llc_hrcall(hr_call)				do { llc_rv_hrcall (-1, hr_call)				; } while(0)		// HRESULT call.
 #define llc_hrecall(hr_call, ...)		do { llc_rve_hrcall(-1, hr_call, __VA_ARGS__)	; } while(0)		// HRESULT call.
 
-#define llc_necs(llcl_call)					do { cnst auto _grr_rslt_val = llcl_call; if(0 > ::llc::err_t(_grr_rslt_val)) { error_printf("%s -> %" LLC_FMT_S2 "", #llcl_call, _grr_rslt_val); return -1; } } while(0) // Non-		propagable error call string.
-#ifdef LLC_WINDOWS
-#	define llc_necall(llcl_call, format, ...)	do { cnst auto _grr_rslt_val = llcl_call; if(0 > ::llc::err_t(_grr_rslt_val)) { error_printf("%s -> %" LLC_FMT_S2 ": " format, #llcl_call, _grr_rslt_val, __VA_ARGS__); return -1; } } while(0)		// Non-propagable error call.
-#else
-#	define llc_necall(llcl_call, format, ...)	do { cnst auto _grr_rslt_val = llcl_call; if(0 > ::llc::err_t(_grr_rslt_val)) { error_printf("%s -> %" LLC_FMT_S2 ": " format, #llcl_call, _grr_rslt_val, ##__VA_ARGS__); return -1; } } while(0)		// Non-propagable error call.
-#endif
-
-#ifndef gthrow_if
-#	define gsthrow_if(condition)	if_true_log_and_throw(error_printf, (condition))
-#	ifndef LLC_WINDOWS
-#		define gthrow_if(condition, format, ...)	if_true_logf_and_throw(error_printf, (condition), format, ##__VA_ARGS__)
-#	else
-#		ifndef LLC_ANDROID
-#			define gthrow_if(condition, format, ...)	if_true_logf_and_throw(error_printf, (condition), format, ##__VA_ARGS__)
-#		else
-#			define gthrow_if(condition, format, ...)	if_true_logf_and_throw(error_printf, (condition), format, __VA_ARGS__)
-#		endif
-#	endif
-#endif
 
 // -- Helpers for the different log levels set during build or runtime.
 

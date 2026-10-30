@@ -25,16 +25,16 @@ sttc ::llc::err_t gatFixture(::llc::au0_t & bytes, ::llc::SROGATTile (&tiles)[2]
 	stxp ::llc::n2u2_t dimensions = {2, 1};
 	tiles[0] = {{1, 2, 3, 4}, 1, {5, 6, 7}};
 	tiles[1] = {{-1, -2, -3, -4}, 6, {8, 9, 10}};
-	llc_necs(bytes.append(GAT_MAGIC));
-	llc_necs(::llc::savePOD(bytes, version));
-	llc_necs(::llc::savePOD(bytes, dimensions));
+	if_fail_fe(bytes.append(GAT_MAGIC));
+	if_fail_fe(::llc::savePOD(bytes, version));
+	if_fail_fe(::llc::savePOD(bytes, dimensions));
 	return bytes.append(::llc::view<cnst ::llc::SROGATTile>{tiles}.cu8());
 }
 
 sttc ::llc::err_t gatSentinel(::llc::SROGAT & output) {
 	output.Version = {9, 8};
 	output.Dimensions = {7, 6};
-	llc_necs(output.Tiles.resize(1));
+	if_fail_fe(output.Tiles.resize(1));
 	output.Tiles[0] = {{5, 4, 3, 2}, 0xA5, {1, 3, 5}};
 	return 0;
 }
@@ -62,21 +62,21 @@ sttc bool gatIsSentinel(cnst ::llc::SROGAT & output) {
 	::llc::au0_t invalid = bytes;
 	invalid[0] = 'X';
 	::llc::SROGAT rejected;
-	llc_necs(gatSentinel(rejected));
+	if_fail_fe(gatSentinel(rejected));
 	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_SIGNATURE, 0 <= ::llc::roGATLoad(rejected, invalid) || false == gatIsSentinel(rejected));
 
 	invalid = bytes;
 	invalid[4] = 2;
-	llc_necs(gatSentinel(rejected));
+	if_fail_fe(gatSentinel(rejected));
 	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_VERSION, (0 <= ::llc::roGATLoad(rejected, invalid) || rejected.Version.Major != 2 || rejected.Version.Minor != 2
 		|| rejected.Dimensions != ::llc::n2u2_t{7, 6} || rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5));
 
 	for(::llc::u2_t byteCount = 0; byteCount < bytes.size(); ++byteCount) {
-		llc_necs(gatSentinel(rejected));
+		if_fail_fe(gatSentinel(rejected));
 		cnst ::llc::err_t truncatedResult = ::llc::roGATLoad(rejected, {bytes.begin(), byteCount});
 		LLC_TEST_CHECKF(errors, RAGNAROK_GAT_RESULT_TRUNCATED, 0 <= truncatedResult, "Accepted prefix:%u/%u, result:%i.", byteCount, bytes.size(), truncatedResult);
 	}
-	llc_necs(gatSentinel(rejected));
+	if_fail_fe(gatSentinel(rejected));
 	cnst ::llc::err_t partialResult = ::llc::roGATLoad(rejected, {bytes.begin(), bytes.size() - 1});
 	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_TRUNCATED, (0 <= partialResult || rejected.Version.Major != 1 || rejected.Version.Minor != 2
 		|| rejected.Dimensions != ::llc::n2u2_t{2, 1} || rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5));
@@ -90,10 +90,10 @@ sttc bool gatIsSentinel(cnst ::llc::SROGAT & output) {
 	::llc::au0_t overflow;
 	stxp ::llc::SROVersion version = {1, 2};
 	stxp ::llc::n2u2_t dimensions = {(::llc::u2_t)-1, (::llc::u2_t)-1};
-	llc_necs(overflow.append(GAT_MAGIC));
-	llc_necs(::llc::savePOD(overflow, version));
-	llc_necs(::llc::savePOD(overflow, dimensions));
-	llc_necs(gatSentinel(rejected));
+	if_fail_fe(overflow.append(GAT_MAGIC));
+	if_fail_fe(::llc::savePOD(overflow, version));
+	if_fail_fe(::llc::savePOD(overflow, dimensions));
+	if_fail_fe(gatSentinel(rejected));
 	LLC_TEST_CHECK(errors, RAGNAROK_GAT_RESULT_OVERFLOW, 0 <= ::llc::roGATLoad(rejected, overflow) || rejected.Version.Major != 1 || rejected.Version.Minor != 2
 		|| rejected.Dimensions != dimensions || rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5);
 
@@ -170,21 +170,21 @@ sttc ::llc::err_t gndFixture(::llc::au0_t & bytes, ::llc::u0_t minor, SGNDFixtur
 	skin.Color = 0xAABBCCDDU;
 	stxp ::llc::f2_t heights[4] = {1, 2, 3, 4};
 
-	llc_necs(bytes.append(GND_MAGIC));
-	llc_necs(::llc::savePOD(bytes, version));
-	llc_necs(::llc::savePOD(bytes, dimensions));
-	llc_necs(::llc::savePOD(bytes, tileScale));
-	llc_necs(::llc::savePOD(bytes, textureCount));
-	llc_necs(::llc::savePOD(bytes, textureNameSize));
-	llc_necs(bytes.append(textureName));
-	llc_necs(::llc::savePOD(bytes, lightmapCount));
+	if_fail_fe(bytes.append(GND_MAGIC));
+	if_fail_fe(::llc::savePOD(bytes, version));
+	if_fail_fe(::llc::savePOD(bytes, dimensions));
+	if_fail_fe(::llc::savePOD(bytes, tileScale));
+	if_fail_fe(::llc::savePOD(bytes, textureCount));
+	if_fail_fe(::llc::savePOD(bytes, textureNameSize));
+	if_fail_fe(bytes.append(textureName));
+	if_fail_fe(::llc::savePOD(bytes, lightmapCount));
 	offsets.LightmapWidth = bytes.size();
-	llc_necs(::llc::savePOD(bytes, lightmapDimensions));
-	llc_necs(::llc::savePOD(bytes, lightmapTiles));
-	llc_necs(::llc::savePOD(bytes, lightmap));
-	llc_necs(::llc::savePOD(bytes, skinCount));
-	llc_necs(::llc::savePOD(bytes, skin));
-	llc_necs(::llc::savePOD(bytes, heights));
+	if_fail_fe(::llc::savePOD(bytes, lightmapDimensions));
+	if_fail_fe(::llc::savePOD(bytes, lightmapTiles));
+	if_fail_fe(::llc::savePOD(bytes, lightmap));
+	if_fail_fe(::llc::savePOD(bytes, skinCount));
+	if_fail_fe(::llc::savePOD(bytes, skin));
+	if_fail_fe(::llc::savePOD(bytes, heights));
 	if(5 == minor) {
 		stxp ::llc::s1_t indicesAndFlags[4] = {0, -1, -1, 0x1234};
 		return ::llc::savePOD(bytes, indicesAndFlags);
@@ -206,17 +206,17 @@ sttc ::llc::err_t gndDetachedFixture(::llc::au0_t & bytes) {
 	stxp ::llc::u2_t skinCount = 0;
 	stxp ::llc::f2_t heights[4] = {1, 2, 3, 4};
 	stxp ::llc::s2_t indices[3] = {0, -1, 0};
-	llc_necs(bytes.append(GND_MAGIC));
-	llc_necs(::llc::savePOD(bytes, version));
-	llc_necs(::llc::savePOD(bytes, dimensions));
-	llc_necs(::llc::savePOD(bytes, tileScale));
-	llc_necs(::llc::savePOD(bytes, textureCount));
-	llc_necs(::llc::savePOD(bytes, textureNameSize));
-	llc_necs(::llc::savePOD(bytes, lightmapCount));
-	llc_necs(::llc::savePOD(bytes, lightmapDimensions));
-	llc_necs(::llc::savePOD(bytes, lightmapTiles));
-	llc_necs(::llc::savePOD(bytes, skinCount));
-	llc_necs(::llc::savePOD(bytes, heights));
+	if_fail_fe(bytes.append(GND_MAGIC));
+	if_fail_fe(::llc::savePOD(bytes, version));
+	if_fail_fe(::llc::savePOD(bytes, dimensions));
+	if_fail_fe(::llc::savePOD(bytes, tileScale));
+	if_fail_fe(::llc::savePOD(bytes, textureCount));
+	if_fail_fe(::llc::savePOD(bytes, textureNameSize));
+	if_fail_fe(::llc::savePOD(bytes, lightmapCount));
+	if_fail_fe(::llc::savePOD(bytes, lightmapDimensions));
+	if_fail_fe(::llc::savePOD(bytes, lightmapTiles));
+	if_fail_fe(::llc::savePOD(bytes, skinCount));
+	if_fail_fe(::llc::savePOD(bytes, heights));
 	return ::llc::savePOD(bytes, indices);
 }
 
@@ -225,19 +225,19 @@ sttc ::llc::err_t gndSentinel(::llc::SROGND & output) {
 	output.Dimensions = {7, 6};
 	output.TileScale = 5;
 	output.TextureNameSize = 8;
-	llc_necs(output.TextureNames.resize(1));
+	if_fail_fe(output.TextureNames.resize(1));
 	output.TextureNames[0].clear();
-	llc_necs(output.TextureNames[0].append_string("sentinel"));
+	if_fail_fe(output.TextureNames[0].append_string("sentinel"));
 	output.LightmapDimensions = {4, 3};
 	output.LightmapTiles = 2;
-	llc_necs(output.Lightmaps.resize(1));
+	if_fail_fe(output.Lightmaps.resize(1));
 	output.Lightmaps[0].Brightness[0][0] = 0xA5;
 	output.Lightmaps[0].ColorRGB[0][0] = {9, 7, 5};
-	llc_necs(output.Skins.resize(1));
+	if_fail_fe(output.Skins.resize(1));
 	output.Skins[0].TextureIndex = 6;
 	output.Skins[0].LightmapIndex = 4;
 	output.Skins[0].Color = 0x12345678U;
-	llc_necs(output.Tiles.resize(1));
+	if_fail_fe(output.Tiles.resize(1));
 	output.Tiles[0] = {{5, 4, 3, 2}, 3, 2, 1, 0x4321};
 	return 0;
 }
@@ -304,24 +304,24 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 	::llc::au0_t invalid = bytes15;
 	invalid[0] = 'X';
 	::llc::SROGND rejected;
-	llc_necs(gndSentinel(rejected));
+	if_fail_fe(gndSentinel(rejected));
 	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_SIGNATURE, 0 <= ::llc::roGNDLoad(rejected, invalid) || false == gndIsSentinel(rejected));
 
 	invalid = bytes15;
 	invalid[5] = 6;
-	llc_necs(gndSentinel(rejected));
+	if_fail_fe(gndSentinel(rejected));
 	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_VERSION, (0 <= ::llc::roGNDLoad(rejected, invalid) || rejected.Version.Major != 1 || rejected.Version.Minor != 6
 		|| rejected.Dimensions != ::llc::n2u2_t{7, 6} || rejected.TextureNames.size() != 1 || 0 != memcmp(rejected.TextureNames[0].begin(), "sentinel", 8)));
 
 	for(::llc::u2_t iFixture = 0; iFixture < 2; ++iFixture) {
 		cnst ::llc::au0_t & bytes = iFixture ? bytes17 : bytes15;
 		for(::llc::u2_t byteCount = 0; byteCount < bytes.size(); ++byteCount) {
-			llc_necs(gndSentinel(rejected));
+			if_fail_fe(gndSentinel(rejected));
 			cnst ::llc::err_t truncatedResult = ::llc::roGNDLoad(rejected, {bytes.begin(), byteCount});
 			LLC_TEST_CHECKF(errors, RAGNAROK_GND_RESULT_TRUNCATED, 0 <= truncatedResult, "Version:%u, accepted prefix:%u/%u, result:%i.", iFixture ? 7U : 5U, byteCount, bytes.size(), truncatedResult);
 		}
 	}
-	llc_necs(gndSentinel(rejected));
+	if_fail_fe(gndSentinel(rejected));
 	cnst ::llc::err_t partialResult = ::llc::roGNDLoad(rejected, {bytes15.begin(), bytes15.size() - 1});
 	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_TRUNCATED, (0 <= partialResult || rejected.Version.Major != 1 || rejected.Version.Minor != 5 || rejected.Dimensions != ::llc::n2u2_t{1, 1}
 		|| rejected.TextureNames.size() != 1 || 0 != memcmp(rejected.TextureNames[0].begin(), "grass.bm", 8) || rejected.Lightmaps.size() != 1 || rejected.Skins.size() != 1
@@ -329,7 +329,7 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 
 	invalid = bytes15;
 	invalid[offsets15.LightmapWidth] = 7;
-	llc_necs(gndSentinel(rejected));
+	if_fail_fe(gndSentinel(rejected));
 	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_LIGHTMAPS, (0 <= ::llc::roGNDLoad(rejected, invalid) || rejected.Version.Minor != 5 || rejected.Dimensions != ::llc::n2u2_t{1, 1}
 		|| rejected.TextureNames.size() != 1 || 0 != memcmp(rejected.TextureNames[0].begin(), "grass.bm", 8) || rejected.LightmapDimensions != ::llc::n2u2_t{7, 8}
 		|| rejected.Lightmaps.size() != 1 || rejected.Lightmaps[0].Brightness[0][0] != 0xA5));
@@ -360,17 +360,17 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 	stxp ::llc::n2u2_t lightmapDimensions = {};
 	stxp ::llc::u2_t lightmapTiles = 0;
 	stxp ::llc::u2_t skinCount = 0;
-	llc_necs(overflow.append(GND_MAGIC));
-	llc_necs(::llc::savePOD(overflow, version));
-	llc_necs(::llc::savePOD(overflow, dimensions));
-	llc_necs(::llc::savePOD(overflow, tileScale));
-	llc_necs(::llc::savePOD(overflow, textureCount));
-	llc_necs(::llc::savePOD(overflow, textureNameSize));
-	llc_necs(::llc::savePOD(overflow, lightmapCount));
-	llc_necs(::llc::savePOD(overflow, lightmapDimensions));
-	llc_necs(::llc::savePOD(overflow, lightmapTiles));
-	llc_necs(::llc::savePOD(overflow, skinCount));
-	llc_necs(gndSentinel(rejected));
+	if_fail_fe(overflow.append(GND_MAGIC));
+	if_fail_fe(::llc::savePOD(overflow, version));
+	if_fail_fe(::llc::savePOD(overflow, dimensions));
+	if_fail_fe(::llc::savePOD(overflow, tileScale));
+	if_fail_fe(::llc::savePOD(overflow, textureCount));
+	if_fail_fe(::llc::savePOD(overflow, textureNameSize));
+	if_fail_fe(::llc::savePOD(overflow, lightmapCount));
+	if_fail_fe(::llc::savePOD(overflow, lightmapDimensions));
+	if_fail_fe(::llc::savePOD(overflow, lightmapTiles));
+	if_fail_fe(::llc::savePOD(overflow, skinCount));
+	if_fail_fe(gndSentinel(rejected));
 	LLC_TEST_CHECK(errors, RAGNAROK_GND_RESULT_OVERFLOW, 0 <= ::llc::roGNDLoad(rejected, overflow) || rejected.Version.Major != 1 || rejected.Version.Minor != 7
 		|| rejected.Dimensions != dimensions || rejected.TextureNames.size() || rejected.Lightmaps.size() || rejected.Skins.size()
 		|| rejected.Tiles.size() != 1 || rejected.Tiles[0].Height[0] != 5 || rejected.Tiles[0].Flags != 0x4321);

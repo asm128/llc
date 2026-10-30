@@ -5,7 +5,7 @@
 
 namespace llc
 {
-    GDEFINE_ENUM_TYPE (ESP_ERROR, int32_t);                 
+    GDEFINE_ENUM_TYPE (ESP_ERROR, s2_t);                 
     GDEFINE_ENUM_VALUE(ESP_ERROR, OK                            , OS_OK                                 );
     GDEFINE_ENUM_VALUE(ESP_ERROR, NO_MEM                        , ESP_NO_MEM                            );
     GDEFINE_ENUM_VALUE(ESP_ERROR, INVALID_ARG                   , ESP_INVALID_ARG                       );
@@ -35,7 +35,7 @@ namespace llc
     GDEFINE_ENUM_VALUE(ESP_ERROR, OTA_ROLLBACK_INVALID_STATE    , ESP_OTA_ROLLBACK_INVALID_STATE        );
     GDEFINE_ENUM_VALUE(ESP_ERROR, FAIL                          , OS_ERROR                              );
 
-    GDEFINE_ENUM_TYPE (ESP_TCP, int32_t);
+    GDEFINE_ENUM_TYPE (ESP_TCP, s2_t);
     GDEFINE_ENUM_VALUE(ESP_TCP, OK                    ,  0);
     GDEFINE_ENUM_VALUE(ESP_TCP, NO_MEMORY             , -1);
     GDEFINE_ENUM_VALUE(ESP_TCP, BUFFER                , -2);
@@ -54,7 +54,7 @@ namespace llc
     GDEFINE_ENUM_VALUE(ESP_TCP, CLOSED                , -15);
     GDEFINE_ENUM_VALUE(ESP_TCP, ILLEGAL_ARGUMENT      , -16);
 
-	GDEFINE_ENUM_TYPE  (ESP_RESET, int32_t); 
+	GDEFINE_ENUM_TYPE  (ESP_RESET, s2_t); 
 #ifdef LLC_ESP8266
 	GDEFINE_ENUM_VALUED(ESP_RESET, POWERON   ,  0, "Reset due to power-on event"                            );
 	GDEFINE_ENUM_VALUED(ESP_RESET, WDT       ,  1, "Reset due to other watchdogs"                           );
@@ -76,7 +76,7 @@ namespace llc
 	GDEFINE_ENUM_VALUED(ESP_RESET, BROWNOUT  ,  9, "Brownout reset (software or hardware)"                  );
 	GDEFINE_ENUM_VALUED(ESP_RESET, SDIO      , 10, "Reset over SDIO"                                        );
 #endif // LLC_ESP8266
-	GDEFINE_ENUM_TYPE  (ESP_AWAKE, int32_t);
+	GDEFINE_ENUM_TYPE  (ESP_AWAKE, s2_t);
     GDEFINE_ENUM_VALUE (ESP_AWAKE, UNDEFINED         ,   0); 
     GDEFINE_ENUM_VALUE (ESP_AWAKE, ALL               ,   1); 
     GDEFINE_ENUM_VALUED(ESP_AWAKE, EXT0              ,   2, "Wakeup by external signal using RTC_IO"  ); 

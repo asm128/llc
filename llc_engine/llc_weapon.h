@@ -40,7 +40,7 @@ namespace llc
 			return PositionDraw	.remove_unordered(iShot);
 		}
 
-		int							SpawnForced			(const ::llc::n3f2_t & position, const ::llc::n3f2_t & direction, float speed, float brightness, float lifetime)	{
+		int							SpawnForced			(const ::llc::n3f2_t & position, const ::llc::n3f2_t & direction, f2_t speed, f2_t brightness, f2_t lifetime)	{
 			PositionDraw.push_back(position);
 			PositionPrev.push_back(position);
 			Brightness	.push_back(brightness);
@@ -49,8 +49,8 @@ namespace llc
 			return Particles.Create(position, direction, speed);
 		}
 
-		int							SpawnForcedDirected	(double stabilityFactor, const ::llc::n3f2_t & position, const ::llc::n3f2_t & direction, float speed, float brightness, float lifetime)	{
-			stacxpr	double					randUnit			= ::llc::math_2pi / RAND_MAX;
+		int							SpawnForcedDirected	(f3_t stabilityFactor, const ::llc::n3f2_t & position, const ::llc::n3f2_t & direction, f2_t speed, f2_t brightness, f2_t lifetime)	{
+			stxp	f3_t					randUnit			= ::llc::math_2pi / RAND_MAX;
 			::llc::n3f2_t					finalDirection		= {0, 1, 0};
 			finalDirection.RotateX(rand() * randUnit);
 			finalDirection.RotateY(rand() * randUnit);
@@ -58,9 +58,9 @@ namespace llc
 			return SpawnForced(position, ::llc::interpolate_linear(finalDirection, direction, stabilityFactor), speed, brightness, lifetime);
 		}
 
-		::llc::error_t				Update				(float secondsLastFrame)	{
-			stacxpr	::llc::u2_t				maxRange			= 200;
-			stacxpr	::llc::u2_t				maxRangeSquared		= maxRange * maxRange;
+		::llc::err_t				Update				(f2_t secondsLastFrame)	{
+			stxp	::llc::u2_t				maxRange			= 200;
+			stxp	::llc::u2_t				maxRangeSquared		= maxRange * maxRange;
 			memcpy(PositionPrev.begin(), Particles.Position.begin(), Particles.Position.size() * sizeof(::llc::n3f2_t));
 			Particles.IntegrateSpeed(secondsLastFrame);
 			for(::llc::u2_t iShot = 0; iShot < Particles.Position.size(); ++iShot) {
@@ -73,27 +73,27 @@ namespace llc
 			return 0;
 		}
 
-		::llc::error_t				Save				(::llc::au0_t & output)	const	{ 
-			llc_necs(Particles.Save(output));
-			llc_necs(llc::saveView(output, PositionDraw	));
-			llc_necs(llc::saveView(output, PositionPrev	));
-			llc_necs(llc::saveView(output, Brightness		));
-			llc_necs(llc::saveView(output, Lifetime		));
+		::llc::err_t				Save				(::llc::au0_t & output)	const	{ 
+			if_fail_fe(Particles.Save(output));
+			if_fail_fe(llc::saveView(output, PositionDraw	));
+			if_fail_fe(llc::saveView(output, PositionPrev	));
+			if_fail_fe(llc::saveView(output, Brightness		));
+			if_fail_fe(llc::saveView(output, Lifetime		));
 			for(::llc::u2_t iParticle = 0; iParticle < Particles.Position.size(); ++iParticle) 
-				llc_necs(llc::saveView(output, DistanceToTargets[iParticle]));
+				if_fail_fe(llc::saveView(output, DistanceToTargets[iParticle]));
 			
 			return 0; 
 		}
 
-		::llc::error_t				Load				(::llc::vcu0_t & input)			{ 
-			llc_necs(Particles.Load(input));
-			llc_necs(llc::loadView(input, PositionPrev	));
-			llc_necs(llc::loadView(input, PositionDraw	));
-			llc_necs(llc::loadView(input, Brightness		));
-			llc_necs(llc::loadView(input, Lifetime		));
-			llc_necs(DistanceToTargets.resize(Particles.Position.size()));
+		::llc::err_t				Load				(::llc::vcu0_t & input)			{ 
+			if_fail_fe(Particles.Load(input));
+			if_fail_fe(llc::loadView(input, PositionPrev	));
+			if_fail_fe(llc::loadView(input, PositionDraw	));
+			if_fail_fe(llc::loadView(input, Brightness		));
+			if_fail_fe(llc::loadView(input, Lifetime		));
+			if_fail_fe(DistanceToTargets.resize(Particles.Position.size()));
 			for(::llc::u2_t iParticle = 0; iParticle < DistanceToTargets.size(); ++iParticle)
-				llc_necs(llc::loadView(input, DistanceToTargets[iParticle]));
+				if_fail_fe(llc::loadView(input, DistanceToTargets[iParticle]));
 
 			return 0;
 		}
@@ -104,17 +104,17 @@ namespace llc
 	struct SWeaponTrigger {
 		gaugemaxf2_t		Delay				= {};	// Trigger delay
 		gaugemaxf2_t		Overheat			= {};	// Cooldown/Reload time in seconds
-		float			OverheatPerShot		= {};	// 
+		f2_t			OverheatPerShot		= {};	// 
 		bool			CoolingDown			= {};	// Reloading
 
-		inlcxpr	float	Busy				()	const			noexcept	{ 
+		inxp	f2_t	Busy				()	const			noexcept	{ 
 			return CoolingDown					? ::llc::max(Delay.Limit - Delay.Value, Overheat.Value)
 				: (Delay.Value < Delay.Limit)	? Delay.Limit - Delay.Value
 				: 0
 				; 
 		}
-		float			Pull				()					noexcept	{ 
-			const float			busy				= Busy();
+		f2_t			Pull				()					noexcept	{ 
+			const f2_t			busy				= Busy();
 			if(busy)
 				return busy;
 
@@ -124,12 +124,12 @@ namespace llc
 				CoolingDown		= true;
 			return 0;
 		}
-		float			Update				(double seconds)	noexcept		{
-			Delay.Value		+= (float)seconds;
+		f2_t			Update				(f3_t seconds)	noexcept		{
+			Delay.Value		+= (f2_t)seconds;
 			if(0 >= Overheat.Value && CoolingDown)
 				CoolingDown		= Overheat.Value	= 0;
 			else
-				Overheat.Value	-= (float)seconds;
+				Overheat.Value	-= (f2_t)seconds;
 
 			return Busy();
 		}
@@ -204,10 +204,10 @@ namespace llc
 		WEAPON_LOAD		Type				= {};	//= WEAPON_LOAD_Bullet;
 		DAMAGE_TYPE		DamageType			= {};	//= WEAPON_DAMAGE_Pierce;
 		::llc::u1_t		ParticleCount		= 1;	//= 1;
-		int32_t			Damage				= 1;	//= 1;
-		float			Stability			= 1;	//= 1.0;
-		float			Lifetime			= .5f;	//= 0;
-		float			Speed				= {};	//= 150;
+		s2_t			Damage				= 1;	//= 1;
+		f2_t			Stability			= 1;	//= 1.0;
+		f2_t			Lifetime			= .5f;	//= 0;
+		f2_t			Speed				= {};	//= 150;
 	};
 
 	// One per orbiter
@@ -216,14 +216,14 @@ namespace llc
 		SWeaponTrigger	Trigger				= {};
 		SWeaponShot		Shot				= {};
 
-		int				Shoot				(::llc::SShots & shots, const ::llc::n3f2_t & position, const ::llc::n3f2_t & direction, float brightness)	{
+		int				Shoot				(::llc::SShots & shots, const ::llc::n3f2_t & position, const ::llc::n3f2_t & direction, f2_t brightness)	{
 			if(Trigger.Pull())
 				return 0;
 
 			if(0 == Shot.ParticleCount) 
 				return shots.SpawnForcedDirected(Shot.Stability, position, direction, Shot.Speed, brightness, Shot.Lifetime);
 
-			const int32_t		indexFirst			= shots.SpawnForcedDirected(Shot.Stability, position, direction, Shot.Speed, brightness, Shot.Lifetime);
+			const s2_t		indexFirst			= shots.SpawnForcedDirected(Shot.Stability, position, direction, Shot.Speed, brightness, Shot.Lifetime);
 			const ::llc::u2_t		stop				= ::llc::u2_t(Shot.ParticleCount - 1);
 			for(::llc::u2_t iDebris = 0; iDebris < stop; ++iDebris)
 				shots.SpawnForcedDirected(Shot.Stability, position, direction, Shot.Speed, brightness, Shot.Lifetime);
@@ -233,16 +233,16 @@ namespace llc
 	};
 
 	struct SWeaponScore {
-		int64_t		ImpactTime		= 0;
-		int64_t		BulletsHit		= 0;
-		int64_t		BulletsUsed		= 0;
-		int64_t		BulletsLoaded	= 0;
-		int64_t		ShotsUsed		= 0;
-		int64_t		ShotsLoaded		= 0;
-		int64_t		ReloadCount		= 0;
-		int64_t		ReloadTime		= 0;
-		int64_t		OverheatCount	= 0;
-		int64_t		OverheatTime	= 0;
+		s3_t		ImpactTime		= 0;
+		s3_t		BulletsHit		= 0;
+		s3_t		BulletsUsed		= 0;
+		s3_t		BulletsLoaded	= 0;
+		s3_t		ShotsUsed		= 0;
+		s3_t		ShotsLoaded		= 0;
+		s3_t		ReloadCount		= 0;
+		s3_t		ReloadTime		= 0;
+		s3_t		OverheatCount	= 0;
+		s3_t		OverheatTime	= 0;
 	};
 #pragma pack(pop)
 
@@ -251,27 +251,27 @@ namespace llc
 		::llc::aobj<::llc::SShots >	Shots			= {};	// One per weapon
 		::llc::apobj<::llc::an3f2_t>	WeaponTargets	= {};	// One per weapon
 
-		int32_t						Clear					()		{ ::llc::clear(Weapons, Shots, WeaponTargets); return 0; }
-		::llc::error_t				Save					(::llc::au0_t & output)	const	{ 
-			llc_necs(llc::saveView(output, Weapons));
+		s2_t						Clear					()		{ ::llc::clear(Weapons, Shots, WeaponTargets); return 0; }
+		::llc::err_t				Save					(::llc::au0_t & output)	const	{ 
+			if_fail_fe(llc::saveView(output, Weapons));
 			info_printf("Saved %s, %i", "Weapons", Weapons.size());
 			for(::llc::u2_t iWeapon = 0; iWeapon < Weapons.size(); ++iWeapon) {
 				if(WeaponTargets[iWeapon] && WeaponTargets[iWeapon]->size())
-					llc_necall(llc::saveView(output, *WeaponTargets[iWeapon]), "iWeapon: %i", iWeapon);
+					if_fail_fef(llc::saveView(output, *WeaponTargets[iWeapon]), "iWeapon: %i", iWeapon);
 				else
-					llc_necall(llc::saveView(output, ::llc::vcn3f2_t{}), "iWeapon: %i", iWeapon);
-				llc_necall(Shots[iWeapon].Save(output), "iWeapon: %i", iWeapon);
+					if_fail_fef(llc::saveView(output, ::llc::vcn3f2_t{}), "iWeapon: %i", iWeapon);
+				if_fail_fef(Shots[iWeapon].Save(output), "iWeapon: %i", iWeapon);
 			}
 			return 0;
 		}
-		::llc::error_t				Load				(::llc::vcu0_t & input) { 
+		::llc::err_t				Load				(::llc::vcu0_t & input) { 
 			Weapons.clear();
-			llc_necs(llc::loadView(input, Weapons));
+			if_fail_fe(llc::loadView(input, Weapons));
 			Shots.resize(Weapons.size());
-			llc_necs(WeaponTargets.reserve(Weapons.size()));
+			if_fail_fe(WeaponTargets.reserve(Weapons.size()));
 			for(::llc::u2_t iWeapon = 0; iWeapon < Weapons.size(); ++iWeapon) {
-				llc_necs(llc::loadView(input, WeaponTargets, iWeapon));
-				llc_necall(Shots[iWeapon].Load(input), "iWeapon: %i", iWeapon);
+				if_fail_fe(llc::loadView(input, WeaponTargets, iWeapon));
+				if_fail_fef(Shots[iWeapon].Load(input), "iWeapon: %i", iWeapon);
 			}
 			return 0;
 		}

@@ -2,10 +2,10 @@
 #include "llc_view_bit.h"
 #include "llc_noise.h"
 
-static_assert(3 == ::llc::bit_offset_field_size<::llc::u0_t>(), "u8 offset width");
-static_assert(4 == ::llc::bit_offset_field_size<::llc::u1_t>(), "u16 offset width");
-static_assert(5 == ::llc::bit_offset_field_size<::llc::u2_t>(), "u32 offset width");
-static_assert(6 == ::llc::bit_offset_field_size<::llc::u3_t>(), "u64 offset width");
+static_assert(3 == ::llc::bit_offset_field_size<::llc::u0_t>(), "u0_t offset width");
+static_assert(4 == ::llc::bit_offset_field_size<::llc::u1_t>(), "u1_t offset width");
+static_assert(5 == ::llc::bit_offset_field_size<::llc::u2_t>(), "u2_t offset width");
+static_assert(6 == ::llc::bit_offset_field_size<::llc::u3_t>(), "u3_t offset width");
 
 GDEFINE_ENUM_TYPE(BIT_VIEW_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(BIT_VIEW_TEST_RESULT, OK						,  0, "All bit-view tests passed.");
@@ -283,7 +283,7 @@ sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 
 ::llc::err_t testViewBit(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
-	if_fail_fe(::llc::testTypePack(::llc::unsigned_integer_types{}, [&](auto type) { rtrn testTypeLogged<typename decltype(type)::type>(errors); }));
+	if_fail_fe(::llc::testTypePack(::llc::type_pack_unsigned{}, [&](auto type) { rtrn testTypeLogged<typename decltype(type)::type>(errors); }));
 	if(failureCount == testErrorCount(errors))
 		always_printf("Element widths tested successfully:\n%u, %u, %u and %u bits."
 			, ::llc::u2_t(szof(::llc::u0_t) * 8), ::llc::u2_t(szof(::llc::u1_t) * 8), ::llc::u2_t(szof(::llc::u2_t) * 8), ::llc::u2_t(szof(::llc::u3_t) * 8)

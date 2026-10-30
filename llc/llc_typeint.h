@@ -1,16 +1,5 @@
 #include "llc_debug.h"
-
-#ifdef LLC_WINDOWS
-#	include <cstdint>
-#else
-#	if defined(LLC_ATMEL)
-#		include <stddef.h>
-#		include <stdint.h>
-#	else
-#		include <cstddef>
-#		include <cstdint>
-#	endif
-#endif
+	
 
 #ifdef LLC_ATMEL
 //#	include "initializer_list.h"
@@ -23,29 +12,35 @@
 
 namespace llc
 {
-	tydf		bool		b8_t, b8u_t;
-	tydf		char		sc_t, c0s_t;
-	tydf		sc_t		s0_t, i0s_t;
-	tydf		int16_t		s1_t, i1s_t;
-	tydf		int32_t		s2_t, i2s_t;
-	tydf		int64_t		s3_t, i3s_t;
-	tydf		unsd char	uc_t, c0u_t;
-	tydf		uint8_t		u0_t, i0u_t;
-	tydf		uint16_t	u1_t, i1u_t;
-	tydf		uint32_t	u2_t, i2u_t;
-	tydf		uint64_t	u3_t, i3u_t;
-	tydf		float		f2_t, f2s_t;
-	tydf		double		f3_t, f3s_t;
-	tydf		size_t		uP_t, iPu_t;
-	tydf		intptr_t	sP_t, iPs_t;
-	tydf		void*		uV_t, iVu_t;
+	tydf	bool							b8_t;
+	tydf	char							sc_t, s0_t;
+	tydf	unsd char						uc_t, u0_t;
+	tydf	short							s1_t;
+	tydf	unsd short						u1_t;
+	tydf	long long						s3_t;
+	tydf	unsd long long					u3_t;
+	tydf	decltype(sizeof(0))				uP_t;
+	tydf	decltype((sc_t*)0 - (sc_t*)0)	sP_t;
+	tydf	void*							uV_t;
+	tydf	float							f2_t;
 
-	tplt<tpnm... T>
-	stct type_pack {};
-	tplt<tpnm T>
-	stct type_tag { using type = T; };
-	using unsigned_integer_types = type_pack<u0_t, u1_t, u2_t, u3_t>;
-	using integer_bounds_types = type_pack<u0_t, u1_t, u2_t, u3_t, s0_t, s1_t, s2_t, s3_t>;
+#if defined(LLC_ATMEL)
+	tydf	long							s2_t;
+	tydf	unsd long						u2_t;
+	tydf	long double						f3_t;
+#	if !defined(__SIZEOF_LONG_DOUBLE__) || (__SIZEOF_LONG_DOUBLE__ != (1 << 3))
+#		warning No native 8-byte floating-point type available; f3_t falls back to f3_t.
+#	endif
+#else
+	tydf	int								s2_t;
+	tydf	unsd int						u2_t;
+	tydf	double							f3_t;
+#endif
+
+	tplt<tpnm... T>	stct type_pack			{};
+	tplt<tpnm T>	stct type_tag			{ usng type = T; };
+	usng			type_pack_unsigned		= type_pack<u0_t, u1_t, u2_t, u3_t>;
+	usng			type_pack_integers		= type_pack<u0_t, u1_t, u2_t, u3_t, s0_t, s1_t, s2_t, s3_t>;
 
 //	tplt<size_t _size>
 //	sinx auto szof() nxpt {
@@ -60,20 +55,20 @@ namespace llc
 	: ::llc::u0_t(sizeof(type) & 0xFFU)											\
 	)
 #define bcof(type) (szof(type) * 8U)
-	tdcs		b8_t	b8_c, b8u_c;
-	tdcs		uc_t	uc_c, c0u_c;
-	tdcs		sc_t	sc_c, c0s_c;
-	tdcs		u0_t	u0_c, i0u_c;
-	tdcs		u1_t	u1_c, i1u_c;
-	tdcs		u2_t	u2_c, i2u_c;
-	tdcs		u3_t	u3_c, i3u_c;
-	tdcs		s0_t	s0_c, i0s_c;
-	tdcs		s1_t	s1_c, i1s_c;
-	tdcs		s2_t	s2_c, i2s_c;
-	tdcs		s3_t	s3_c, i3s_c;
-	tdcs		f2_t	f2_c, f2s_c;
-	tdcs		f3_t	f3_c, f3s_c;
-	tdcs		uP_t	uP_c, iPu_c;
+	tdcs		b8_t	b8_c;
+	tdcs		uc_t	uc_c;
+	tdcs		sc_t	sc_c;
+	tdcs		u0_t	u0_c;
+	tdcs		u1_t	u1_c;
+	tdcs		u2_t	u2_c;
+	tdcs		u3_t	u3_c;
+	tdcs		s0_t	s0_c;
+	tdcs		s1_t	s1_c;
+	tdcs		s2_t	s2_c;
+	tdcs		s3_t	s3_c;
+	tdcs		f2_t	f2_c;
+	tdcs		f3_t	f3_c;
+	tdcs		uP_t	uP_c;
 
 	tplTsinx	T			printf_arg		(T value)			nxpt	{ rtrn value; }
 	tplTsinx	void*		printf_arg		(T * value)			nxpt	{ rtrn value; }
@@ -106,6 +101,8 @@ namespace llc
 #define tplN2usinx	tplN2u	sinx
 #define tplN2ustxp	tplN2u	stxp
 #define tplN2unsix	tplN2u	nsix
+#define tplN2undin	tplN2u	ndin
+#define tplN2undix	tplN2u	ndix
 #define tplTN2stct	tplTN2	stct
 #define tplTN2sttc	tplTN2	sttc
 #define tplTN2inln	tplTN2	inln
@@ -114,6 +111,7 @@ namespace llc
 #define tplTN2sinx	tplTN2	sinx
 #define tplTN2stxp	tplTN2	stxp
 #define tplTN2nsix	tplTN2	nsix
+
 #if defined(LLC_ANDROID) || defined(LLC_CLANG)
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
@@ -163,19 +161,19 @@ namespace llc
 	tpl_tstct srcdst { tdfTTCnst(_t); T src, dst; }; 
 	tpl_tstct dstsrc { tdfTTCnst(_t); T dst, src; };
 #define LLC_USING_TYPEINT()				\
-	using	::llc::b8_t, ::llc::b8_c, ::llc::b8u_t, ::llc::b8u_c	\
-		,	::llc::uc_t, ::llc::uc_c, ::llc::c0u_t, ::llc::c0u_c	\
-		,	::llc::sc_t, ::llc::sc_c, ::llc::c0s_t, ::llc::c0s_c	\
-		,	::llc::u0_t, ::llc::u0_c, ::llc::i0u_t, ::llc::i0u_c	\
-		,	::llc::u1_t, ::llc::u1_c, ::llc::i1u_t, ::llc::i1u_c	\
-		,	::llc::u2_t, ::llc::u2_c, ::llc::i2u_t, ::llc::i2u_c	\
-		,	::llc::u3_t, ::llc::u3_c, ::llc::i3u_t, ::llc::i3u_c	\
-		,	::llc::s0_t, ::llc::s0_c, ::llc::i0s_t, ::llc::i0s_c	\
-		,	::llc::s1_t, ::llc::s1_c, ::llc::i1s_t, ::llc::i1s_c	\
-		,	::llc::s2_t, ::llc::s2_c, ::llc::i2s_t, ::llc::i2s_c	\
-		,	::llc::s3_t, ::llc::s3_c, ::llc::i3s_t, ::llc::i3s_c	\
-		,	::llc::f2_t, ::llc::f2_c, ::llc::f2s_t, ::llc::f2s_c	\
-		,	::llc::f3_t, ::llc::f3_c, ::llc::f3s_t, ::llc::f3s_c	\
+	using	::llc::b8_t, ::llc::b8_c	\
+		,	::llc::uc_t, ::llc::uc_c	\
+		,	::llc::sc_t, ::llc::sc_c	\
+		,	::llc::u0_t, ::llc::u0_c	\
+		,	::llc::u1_t, ::llc::u1_c	\
+		,	::llc::u2_t, ::llc::u2_c	\
+		,	::llc::u3_t, ::llc::u3_c	\
+		,	::llc::s0_t, ::llc::s0_c	\
+		,	::llc::s1_t, ::llc::s1_c	\
+		,	::llc::s2_t, ::llc::s2_c	\
+		,	::llc::s3_t, ::llc::s3_c	\
+		,	::llc::f2_t, ::llc::f2_c	\
+		,	::llc::f3_t, ::llc::f3_c	\
 		,	::llc::uP_t, ::llc::uP_c
 
 } // namespace
@@ -186,10 +184,10 @@ namespace llc
 #	define LLC_DEFAULT_OPERATOR_IC(rightOperand, statement)	inxp	bool	oper==(cnst rightOperand & other) csnx { rtrn statement; }
 #	define LLC_DEFAULT_OPERATOR_D(rightOperand, statement)	bool			oper==(cnst rightOperand & other) csnx { rtrn statement; }
 #else
-#	define LLC_DEFAULT_OPERATOR_I(rightOperand, statement)	inln	bool	oper==(cnst rightOperand & other) csnx { rtrn statement; }	inln	bool	oper!=(cnst rightOperand & other) csnx { rtrn !oper==(other); }	// I had to add this because Clang coming with vs doesn't support C++20
-#	define LLC_DEFAULT_OPERATOR_C(rightOperand, statement)	cxpr	bool	oper==(cnst rightOperand & other) csnx { rtrn statement; }	cxpr	bool	oper!=(cnst rightOperand & other) csnx { rtrn !oper==(other); }	// I had to add this because Clang coming with vs doesn't support C++20
-#	define LLC_DEFAULT_OPERATOR_IC(rightOperand, statement)	inxp	bool	oper==(cnst rightOperand & other) csnx { rtrn statement; }	inxp	bool	oper!=(cnst rightOperand & other) csnx { rtrn !oper==(other); }	// I had to add this because Clang coming with vs doesn't support C++20
-#	define LLC_DEFAULT_OPERATOR_D(rightOperand, statement)	bool			oper==(cnst rightOperand & other) csnx { rtrn statement; }			bool	oper!=(cnst rightOperand & other) csnx { rtrn !oper==(other); }	// I had to add this because Clang coming with vs doesn't support C++20
+#	define LLC_DEFAULT_OPERATOR_I(rightOperand, statement)	inln	bool	oper==(cnst rightOperand & other) csnx { rtrn statement; }	inln	bool	oper!=(cnst rightOperand & other) csnx { rtrn !oper==(other); }	// I had to add this because Clang coming with vstr_t doesn't support C++20
+#	define LLC_DEFAULT_OPERATOR_C(rightOperand, statement)	cxpr	bool	oper==(cnst rightOperand & other) csnx { rtrn statement; }	cxpr	bool	oper!=(cnst rightOperand & other) csnx { rtrn !oper==(other); }	// I had to add this because Clang coming with vstr_t doesn't support C++20
+#	define LLC_DEFAULT_OPERATOR_IC(rightOperand, statement)	inxp	bool	oper==(cnst rightOperand & other) csnx { rtrn statement; }	inxp	bool	oper!=(cnst rightOperand & other) csnx { rtrn !oper==(other); }	// I had to add this because Clang coming with vstr_t doesn't support C++20
+#	define LLC_DEFAULT_OPERATOR_D(rightOperand, statement)	bool			oper==(cnst rightOperand & other) csnx { rtrn statement; }			bool	oper!=(cnst rightOperand & other) csnx { rtrn !oper==(other); }	// I had to add this because Clang coming with vstr_t doesn't support C++20
 #endif // LLC_ANDROID
 
 #define LLC_DEFAULT_OPERATOR LLC_DEFAULT_OPERATOR_IC

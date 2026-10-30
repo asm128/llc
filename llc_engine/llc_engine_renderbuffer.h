@@ -46,20 +46,20 @@ namespace llc
 		SRenderBufferDescription	Desc			= {};
 		::llc::au0_t				Data			= {};
 
-		::llc::error_t				Save			(::llc::apod<u0_t> & output)	const	{ 			
-			llc_necs(llc::savePOD	(output, Desc));
-			llc_necs(llc::saveView(output, Data));
+		::llc::err_t				Save			(::llc::apod<u0_t> & output)	const	{ 			
+			if_fail_fe(llc::savePOD	(output, Desc));
+			if_fail_fe(llc::saveView(output, Data));
 			return 0; 
 		}
 
-		::llc::error_t				Load			(::llc::vcu0_t & input)	{ 
-			llc_necs(llc::loadPOD (input, Desc));
-			llc_necs(llc::loadView(input, Data));
+		::llc::err_t				Load			(::llc::vcu0_t & input)	{ 
+			if_fail_fe(llc::loadPOD (input, Desc));
+			if_fail_fe(llc::loadView(input, Data));
 			return 0;
 		}
 	};
 
-	::llc::error_t				createBuffers
+	::llc::err_t				createBuffers
 		( ::llc::u2_t						vertexCount
 		, ::llc::pobj<SRenderBuffer>	& pIndicesVertex
 		, ::llc::pobj<SRenderBuffer>	& pVertices

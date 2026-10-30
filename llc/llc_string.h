@@ -51,7 +51,7 @@ namespace llc
         const char*     begin       ()  const   { return vcst_t{Data, Count}.begin(); }
         const char*     end         ()  const   { return vcst_t{Data, Count}.end  (); }
 
-        int32_t         initialize  ()          {
+        s2_t         initialize  ()          {
             if_true_block_logf(error_printf, (0 == Data) && (Count || Size), Count = Size = 0, "error|Count:%i, Size:%i.", Count, Size);
             return Count;
         }

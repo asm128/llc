@@ -263,6 +263,6 @@ GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, ROOT_ERROR, 3, "Report-writing errors mu
 	}
 	::llc::au0_t saved;
 	if_fail_fe(::llc::fileToMemory(failedRun.Folder, "console.log", saved));
-	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_ROOT_ERROR, 0 <= reportResult || ::llc::failed(logResult) || failureLog.Failed || !expected.size() || saved != expected.cc().cu8());
+	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_ROOT_ERROR, 0 <= reportResult || ::llc::failed(logResult) || failureLog.Failed || !expected.size() || saved != vcu0_c((u0_c*)expected.begin(), expected.size()));
 	rtrn 0;
 }

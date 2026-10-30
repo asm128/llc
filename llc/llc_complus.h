@@ -12,22 +12,22 @@
 namespace llc
 {
 	tplt<tpnm TUnknown> 
-	error_t		safe_release	(TUnknown ** storage) { 
+	err_t		safe_release	(TUnknown ** storage) { 
 		IUnknown		* p				= *storage;
 		if(p) { 
 			(*storage)	= 0; 
-			return (error_t)p->Release(); 
+			return (err_t)p->Release(); 
 		} 
 		return 0;
 	}
 
 	tplt<tpnm TUnknown> 
-	error_t		safe_addref		(TUnknown ** storage, TUnknown * toAcquire) { 
-		error_t			result			= 0;
+	err_t		safe_addref		(TUnknown ** storage, TUnknown * toAcquire) { 
+		err_t			result			= 0;
 		IUnknown		*p				= *storage;
 		*storage	= toAcquire;
 		if(toAcquire)
-			result		= (error_t)toAcquire->AddRef();
+			result		= (err_t)toAcquire->AddRef();
 
 		if(p)
 			p->Release(); 

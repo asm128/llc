@@ -21,7 +21,7 @@ GDEFINE_ENUM_VALUED(RO_RSM_RESULT, VIEW_RELOAD      , 14, "Reloading a view must
 sttc bool rsmVersionAtLeast(::llc::u0_t minor, ::llc::u0_t requiredMinor) { return minor >= requiredMinor; }
 
 sttc ::llc::err_t rsmSaveName(::llc::au0_t & output, ::llc::vcst_t text) {
-	::llc::astchar<40> value = {};
+	::llc::astsc_t<40> value = {};
 	if_true_fef(text.size() > value.size(), "RSM fixture name is too long: %u.", text.size());
 	if(text.size())
 		memcpy(value.begin(), text.begin(), text.size());
@@ -30,77 +30,77 @@ sttc ::llc::err_t rsmSaveName(::llc::au0_t & output, ::llc::vcst_t text) {
 
 sttc ::llc::err_t rsmFixture(::llc::au0_t & output, ::llc::u0_t minor) {
 	output.clear();
-	llc_necs(output.append((cnst ::llc::u0_t*)"GRSM", 4));
-	llc_necs(::llc::savePOD(output, (::llc::u0_t)1));
-	llc_necs(::llc::savePOD(output, minor));
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)120));
-	llc_necs(::llc::savePOD(output, (::llc::s2_t)2));
+	if_fail_fe(output.append((cnst ::llc::u0_t*)"GRSM", 4));
+	if_fail_fe(::llc::savePOD(output, (::llc::u0_t)1));
+	if_fail_fe(::llc::savePOD(output, minor));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)120));
+	if_fail_fe(::llc::savePOD(output, (::llc::s2_t)2));
 	if(::rsmVersionAtLeast(minor, 4))
-		llc_necs(::llc::savePOD(output, (::llc::u0_t)0x7F));
+		if_fail_fe(::llc::savePOD(output, (::llc::u0_t)0x7F));
 	::llc::astatic<::llc::u0_t, 16> unknown = {};
 	for(::llc::u2_t i = 0; i < unknown.size(); ++i)
 		unknown[i] = (::llc::u0_t)(0x80 + i);
-	llc_necs(::llc::savePOD(output, unknown));
+	if_fail_fe(::llc::savePOD(output, unknown));
 
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
-	llc_necs(::rsmSaveName(output, "texture.bmp"));
-	llc_necs(::rsmSaveName(output, "root"));
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
-	llc_necs(::rsmSaveName(output, "root"));
-	llc_necs(::rsmSaveName(output, "parent"));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
+	if_fail_fe(::rsmSaveName(output, "texture.bmp"));
+	if_fail_fe(::rsmSaveName(output, "root"));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
+	if_fail_fe(::rsmSaveName(output, "root"));
+	if_fail_fe(::rsmSaveName(output, "parent"));
 
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)0));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)0));
 	::llc::m3a3f2_t transform = {};
 	for(::llc::u2_t i = 0; i < ::llc::size(transform.Value); ++i)
 		transform.Value[i] = (::llc::f2_t)(i + 1);
-	llc_necs(::llc::savePOD(output, transform));
-	llc_necs(::llc::savePOD(output, ::llc::n3f2_t{10, 11, 12}));
-	llc_necs(::llc::savePOD(output, ::llc::n3f2_t{13, 14, 15}));
-	llc_necs(::llc::savePOD(output, (::llc::f2_t)16));
-	llc_necs(::llc::savePOD(output, ::llc::n3f2_t{17, 18, 19}));
-	llc_necs(::llc::savePOD(output, ::llc::n3f2_t{20, 21, 22}));
+	if_fail_fe(::llc::savePOD(output, transform));
+	if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{10, 11, 12}));
+	if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{13, 14, 15}));
+	if_fail_fe(::llc::savePOD(output, (::llc::f2_t)16));
+	if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{17, 18, 19}));
+	if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{20, 21, 22}));
 
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
-	llc_necs(::llc::savePOD(output, ::llc::n3f2_t{23, 24, 25}));
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
+	if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{23, 24, 25}));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
 	if(::rsmVersionAtLeast(minor, 2))
-		llc_necs(::llc::savePOD(output, (::llc::u2_t)0x11223344));
-	llc_necs(::llc::savePOD(output, ::llc::n2f2_t{.25f, .75f}));
+		if_fail_fe(::llc::savePOD(output, (::llc::u2_t)0x11223344));
+	if_fail_fe(::llc::savePOD(output, ::llc::n2f2_t{.25f, .75f}));
 
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
 	::llc::astatic<::llc::u1_t, 3> vertexIndices = {}, attributeIndices = {};
 	vertexIndices[0] = 1; vertexIndices[1] = 2; vertexIndices[2] = 3;
 	attributeIndices[0] = 4; attributeIndices[1] = 5; attributeIndices[2] = 6;
-	llc_necs(::llc::savePOD(output, vertexIndices));
-	llc_necs(::llc::savePOD(output, attributeIndices));
-	llc_necs(::llc::savePOD(output, (::llc::u1_t)7));
-	llc_necs(::llc::savePOD(output, (::llc::u1_t)8));
-	llc_necs(::llc::savePOD(output, (::llc::s2_t)1));
+	if_fail_fe(::llc::savePOD(output, vertexIndices));
+	if_fail_fe(::llc::savePOD(output, attributeIndices));
+	if_fail_fe(::llc::savePOD(output, (::llc::u1_t)7));
+	if_fail_fe(::llc::savePOD(output, (::llc::u1_t)8));
+	if_fail_fe(::llc::savePOD(output, (::llc::s2_t)1));
 	if(::rsmVersionAtLeast(minor, 2))
-		llc_necs(::llc::savePOD(output, (::llc::s2_t)0x10203040));
+		if_fail_fe(::llc::savePOD(output, (::llc::s2_t)0x10203040));
 
 	if(::rsmVersionAtLeast(minor, 5)) {
-		llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
-		llc_necs(::llc::savePOD(output, (::llc::u2_t)30));
-		llc_necs(::llc::savePOD(output, ::llc::n3f2_t{31, 32, 33}));
+		if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
+		if_fail_fe(::llc::savePOD(output, (::llc::u2_t)30));
+		if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{31, 32, 33}));
 	}
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)40));
-	llc_necs(::llc::savePOD(output, ::llc::quatf2_t{.1f, .2f, .3f, .4f}));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)40));
+	if_fail_fe(::llc::savePOD(output, ::llc::quatf2_t{.1f, .2f, .3f, .4f}));
 
-	llc_necs(::llc::savePOD(output, (::llc::u2_t)1));
-	llc_necs(::llc::savePOD(output, ::llc::n3f2_t{41, 42, 43}));
-	llc_necs(::llc::savePOD(output, ::llc::n3f2_t{44, 45, 46}));
-	llc_necs(::llc::savePOD(output, ::llc::n3f2_t{47, 48, 49}));
+	if_fail_fe(::llc::savePOD(output, (::llc::u2_t)1));
+	if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{41, 42, 43}));
+	if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{44, 45, 46}));
+	if_fail_fe(::llc::savePOD(output, ::llc::n3f2_t{47, 48, 49}));
 	if(::rsmVersionAtLeast(minor, 3))
-		llc_necs(::llc::savePOD(output, (::llc::u2_t)0x55667788));
+		if_fail_fe(::llc::savePOD(output, (::llc::u2_t)0x55667788));
 	return 0;
 }
 
 sttc ::llc::err_t rsmVersionTest(::llc::ATestError & errors, ::llc::u0_t minor) {
 	::llc::au0_t bytes;
-	llc_necs(::rsmFixture(bytes, minor));
+	if_fail_fe(::rsmFixture(bytes, minor));
 	::llc::SRORSM loaded;
 	cnst ::llc::err_t result = ::llc::roRSMLoad(loaded, bytes);
 	LLC_TEST_REQUIREF(errors, RO_RSM_RESULT_LOAD, result < 0, "Version:1.%u, result:%i, bytes:%u.", minor, result, bytes.size());
@@ -126,7 +126,7 @@ sttc ::llc::err_t rsmVersionTest(::llc::ATestError & errors, ::llc::u0_t minor) 
 
 sttc ::llc::err_t rsmViewTest(::llc::ATestError & errors, ::llc::u0_t minor) {
 	::llc::au0_t bytes;
-	llc_necs(::rsmFixture(bytes, minor));
+	if_fail_fe(::rsmFixture(bytes, minor));
 	::llc::SRORSMView loaded;
 	cnst ::llc::err_t result = ::llc::roRSMViewLoad(bytes, loaded);
 	LLC_TEST_REQUIREF(errors, RO_RSM_RESULT_VIEW_LOAD, result < 0, "Version:1.%u, result:%i, bytes:%u.", minor, result, bytes.size());
@@ -166,27 +166,27 @@ sttc ::llc::err_t rsmViewTest(::llc::ATestError & errors, ::llc::u0_t minor) {
 
 ::llc::err_t testRORSM(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	for(::llc::u0_t minor = 1; minor <= 5; ++minor) {
-		llc_necs(::rsmVersionTest(errors, minor));
-		llc_necs(::rsmViewTest(errors, minor));
+		if_fail_fe(::rsmVersionTest(errors, minor));
+		if_fail_fe(::rsmViewTest(errors, minor));
 	}
 	::llc::au0_t large, small;
-	llc_necs(::rsmFixture(large, 5));
-	llc_necs(::rsmFixture(small, 1));
+	if_fail_fe(::rsmFixture(large, 5));
+	if_fail_fe(::rsmFixture(small, 1));
 	::llc::SRORSMView reused;
-	llc_necs(::llc::roRSMViewLoad(large, reused));
+	if_fail_fe(::llc::roRSMViewLoad(large, reused));
 	cnst ::llc::SRORSMNodeView * nodeStorage = reused.Nodes.begin();
-	llc_necs(::llc::roRSMViewLoad(small, reused));
+	if_fail_fe(::llc::roRSMViewLoad(small, reused));
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_VIEW_RELOAD, reused.Nodes.begin() != nodeStorage || (cnst ::llc::u0_t*)reused.Textures.begin() != small.begin() + 34 || reused.VersionMinor != 1 || reused.Alpha != 0xFF || reused.Nodes.size() != 1 || reused.Nodes[0].PositionKeyCount || reused.Nodes[0].PositionKeys.size() || reused.Nodes[0].Triangles11.size() != 1 || reused.Nodes[0].Triangles12.size());
-	llc_necs(::llc::roRSMViewLoad(small, reused));
+	if_fail_fe(::llc::roRSMViewLoad(small, reused));
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_VIEW_RELOAD, reused.Nodes.begin() != nodeStorage || reused.VersionMinor != 1 || reused.Nodes.size() != 1);
 
 	::llc::au0_t complete;
-	llc_necs(::rsmFixture(complete, 5));
+	if_fail_fe(::rsmFixture(complete, 5));
 	::llc::au0_t invalid = complete;
 	invalid[0] = 'X';
 	::llc::SRORSM output;
 	output.VersionMajor = 9;
-	llc_necs(output.Textures.resize(1));
+	if_fail_fe(output.Textures.resize(1));
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_INVALID_MAGIC, 0 <= ::llc::roRSMLoad(output, invalid));
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_INVALID_MAGIC, output.VersionMajor || output.Textures.size() || output.Alpha != 0xFF);
 	::llc::SRORSMView invalidView;
@@ -194,7 +194,7 @@ sttc ::llc::err_t rsmViewTest(::llc::ATestError & errors, ::llc::u0_t minor) {
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_VIEW_FIELDS, invalidView.VersionMajor || invalidView.Nodes.size());
 
 	output.VersionMajor = 9;
-	llc_necs(output.Textures.resize(1));
+	if_fail_fe(output.Textures.resize(1));
 	stxp ::llc::u2_t partialSize = 4 + szof(::llc::u0_t) * 2 + szof(::llc::u2_t);
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_TRUNCATED, 0 <= ::llc::roRSMLoad(output, {complete.begin(), partialSize}));
 	LLC_TEST_CHECK(errors, RO_RSM_RESULT_PARTIAL_STATE, output.VersionMajor != 1 || output.VersionMinor != 5 || output.FrameCount != 120 || output.ShadeType || output.Textures.size() || output.Alpha != 0xFF);

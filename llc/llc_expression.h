@@ -9,7 +9,7 @@
 
 namespace llc
 {
-	GDEFINE_ENUM_TYPE (EXPRESSION_READER_TYPE, int8_t);
+	GDEFINE_ENUM_TYPE (EXPRESSION_READER_TYPE, s0_t);
 	GDEFINE_ENUM_VALUE(EXPRESSION_READER_TYPE, TERM_ANY		,  0);
 	GDEFINE_ENUM_VALUE(EXPRESSION_READER_TYPE, TERM_KEY		,  1);
 	GDEFINE_ENUM_VALUE(EXPRESSION_READER_TYPE, TERM_INDEX	,  2);
@@ -25,7 +25,7 @@ namespace llc
 
 #pragma pack(push, 1)
 	struct SExpressionToken {
-		int32_t					ParentIndex;
+		s2_t					ParentIndex;
 		EXPRESSION_READER_TYPE	Type;
 		sliceu2_t				Span;
 		bool					ClosingCondition				= false;
@@ -48,7 +48,7 @@ namespace llc
 		SExpressionToken		* Token							= 0;
 		SExpressionNode			* Parent						= 0;
 		apobj<SExpressionNode>	Children						= {};
-		int32_t					ObjectIndex						= -1;
+		s2_t					ObjectIndex						= -1;
 	};
 
 	struct SExpressionReader {
@@ -59,8 +59,8 @@ namespace llc
 		pobj<SExpressionReader>	SubExpressionCache;
 	};
 
-	error_t					expressionReaderParse			(SExpressionReader & reader, vcst_t expression);
-	error_t					expressionReaderParseStep		(SExpressionReader & reader, vcst_t expression);
+	err_t					expressionReaderParse			(SExpressionReader & reader, vcst_t expression);
+	err_t					expressionReaderParseStep		(SExpressionReader & reader, vcst_t expression);
 
 	// Token spans refer to format. Resolved views must survive the callback until the formatter copies them.
 	err_t					expressionStringFormat		(vcst_t format, view<cnst SStripLiteralType> tokens, cnst FError<vcst_c &, vcst_t &> & resolve, asc_t & output);

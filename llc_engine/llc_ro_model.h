@@ -26,7 +26,7 @@
 // 1.4 - alpha added to header
 // 1.5 - position animation for each node instead of global(?)
 //
-// the file seems to end with a uint32_t with te value 0xcccccccc
+// the file seems to end with a u2_t with te value 0xcccccccc
 #include "llc_apod_n2.h"
 #include "llc_apod_n3.h"
 #include "llc_array.h"
@@ -63,8 +63,8 @@ namespace llc
 	};
 
 	struct SRORSMNode {
-		::llc::astchar<40>					Name				= {};
-		::llc::astchar<40>					ParentName			= {};
+		::llc::astsc_t<40>					Name				= {};
+		::llc::astsc_t<40>					ParentName			= {};
 		::llc::apod<::llc::u2_t>			Textures			= {};
 		::llc::m3a3f2_t					Transform			= {};
 		::llc::n3f2_t						Offset				= {};
@@ -93,8 +93,8 @@ namespace llc
 		::llc::s2_t							ShadeType		= {};
 		::llc::u0_t							Alpha			= 0xFFU;
 		::llc::astatic<::llc::u0_t, 16>		Unknown			= {};
-		::llc::aobj<::llc::astchar<40>>		Textures		= {};
-		::llc::astchar<40>					MainNode		= {};
+		::llc::aobj<::llc::astsc_t<40>>		Textures		= {};
+		::llc::astsc_t<40>					MainNode		= {};
 		::llc::aobj<::llc::SRORSMNode>		Nodes			= {};
 		::llc::apod<::llc::SRORSMVolumeBox>	VolumeBoxes		= {};
 	};

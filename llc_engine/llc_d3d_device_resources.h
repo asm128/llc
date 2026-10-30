@@ -15,26 +15,32 @@
 
 namespace DX 
 {
+
+	LLC_USING_APOD();
+	LLC_USING_VIEW();
+	LLC_USING_TYPEINT();
+
+	
 #if defined(_DEBUG)
 	// Check for SDK Layer support.
-	stainli bool	SdkLayersAvailable			()							{ return SUCCEEDED(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_NULL, 0, D3D11_CREATE_DEVICE_DEBUG, nullptr, 0, D3D11_SDK_VERSION, nullptr, nullptr, nullptr)); }
+	stin bool	SdkLayersAvailable			()							{ return SUCCEEDED(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_NULL, 0, D3D11_CREATE_DEVICE_DEBUG, nullptr, 0, D3D11_SDK_VERSION, nullptr, nullptr, nullptr)); }
 #endif
 	// Converts a length in device-independent pixels (DIPs) to a length in physical pixels. Round to nearest integer.
-	stainli float	ConvertDipsToPixels			(float dips, float dpi)		{ stxp	float dipsPerInch = 96.0f; return floorf(dips * dpi / dipsPerInch + 0.5f); } 
+	stin f2_t	ConvertDipsToPixels			(f2_t dips, f2_t dpi)		{ stxp	f2_t dipsPerInch = 96.0f; return floorf(dips * dpi / dipsPerInch + 0.5f); } 
 
 	namespace DisplayMetrics
 	{
 		stxp	bool	SupportHighResolutions		= false;	// High resolution displays can require a lot of GPU and battery power to render. High resolution phones, for example, may suffer from poor battery life if games attempt to render at 60 frames per second at full fidelity. The decision to render at full fidelity across all platforms and form factors should be deliberate.
-		stxp	float	DpiThreshold				= 192.0f;	// 200% of standard desktop display.
-		stxp	float	WidthThreshold				= 1920.f;	// 1080p width.
-		stxp	float	HeightThreshold				= 1080.f;	// 1080p height.
+		stxp	f2_t	DpiThreshold				= 192.0f;	// 200% of standard desktop display.
+		stxp	f2_t	WidthThreshold				= 1920.f;	// 1080p width.
+		stxp	f2_t	HeightThreshold				= 1080.f;	// 1080p height.
 		// The default thresholds that define a "high resolution" display. If the thresholds are exceeded and SupportHighResolutions is false, the dimensions will be scaled by 50%.
 	};
 
 	// Provides an interface for an application that owns DeviceResources to be notified of the device being lost or created.
 	struct IDeviceNotify {
 		virtual void			OnDeviceLost				() = 0;
-		virtual ::llc::error_t	OnDeviceRestored			() = 0;
+		virtual ::llc::err_t	OnDeviceRestored			() = 0;
 	};
 
 	// Controls all the DirectX device resources
@@ -71,21 +77,21 @@ namespace DX
 		::llc::n2f2_t							m_logicalSize				= {};
 		::llc::GRID_ROTATION					m_nativeOrientation			= ::llc::GRID_ROTATION_0;
 		::llc::GRID_ROTATION					m_currentOrientation		= ::llc::GRID_ROTATION_0;
-		float									m_dpi						= 96.0f;
-		float									m_effectiveDpi				= 96.0f;	// This is the DPI that will be reported back to the app. It takes into account whether the app supports high resolution screens or not.
+		f2_t									m_dpi						= 96.0f;
+		f2_t									m_effectiveDpi				= 96.0f;	// This is the DPI that will be reported back to the app. It takes into account whether the app supports high resolution screens or not.
 
 		// Transforms used for display orientation.
 		D2D1::Matrix3x2F						m_orientationTransform2D	= {};
 		DirectX::XMFLOAT4X4						m_orientationTransform3D	= {};
 
-		inline	::llc::error_t					Initialize					()									{
-			llc_necs(CreateIndependentResources());
-			llc_necs(CreateDeviceResources());
+		inline	::llc::err_t					Initialize					()									{
+			if_fail_fe(CreateIndependentResources());
+			if_fail_fe(CreateDeviceResources());
 			return 0;
 		}
 
 		// These resources need to be recreated every time the window size is changed.
-		::llc::error_t							CreateSizeDependentResources()	{
+		::llc::err_t							CreateSizeDependentResources()	{
 			// These resources need to be recreated every time the window size is changed.
 			// Clear the previous window size specific context.
 			ID3D11RenderTargetView						* nullViews	[]				= {{}};
@@ -111,7 +117,7 @@ namespace DX
 				if (hr != DXGI_ERROR_DEVICE_REMOVED && hr != DXGI_ERROR_DEVICE_RESET) 
 					llc_hrcall(hr);
 				else {
-					llc_necs(HandleDeviceLost());	// If the device was removed for any reason, a new device and swap chain will need to be created.
+					if_fail_fe(HandleDeviceLost());	// If the device was removed for any reason, a new device and swap chain will need to be created.
 					return 0;	// Everything is set up now. Do not continue execution of this method. HandleDeviceLost will reenter this method and correctly set up the new device.
 				}
 			} else {
@@ -123,7 +129,7 @@ namespace DX
 				swapChainDesc.Format					= DXGI_FORMAT_B8G8R8A8_UNORM;			// This is the most common swap chain format.
 				swapChainDesc.SampleDesc.Count			= 1;									// Don't use multi-sampling.
 				swapChainDesc.BufferUsage				= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-				swapChainDesc.BufferCount				= 2;									// Use double-buffering to minimize latency.
+				swapChainDesc.BufferCount				= 2;									// Use f3_t-buffering to minimize latency.
 				swapChainDesc.SwapEffect				= DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;	// All Microsoft Store apps must use this SwapEffect.
 				swapChainDesc.Scaling					= scaling;
 				swapChainDesc.AlphaMode					= DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -141,11 +147,11 @@ namespace DX
 				::llc::pcom<IDXGIAdapter>					dxgiAdapter;
 				::llc::pcom<IDXGIFactory4>					dxgiFactory;
 				::llc::pcom<IDXGISwapChain1>				swapChain;
-				llc_necs(m_d3dDevice.as(&dxgiDevice));
+				if_fail_fe(m_d3dDevice.as(&dxgiDevice));
 				llc_hrcall(dxgiDevice->GetAdapter(&dxgiAdapter));
 				llc_hrcall(dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)));
 				llc_hrcall(dxgiFactory->CreateSwapChainForHwnd(m_d3dDevice, m_window, &swapChainDesc, /*&swapChainDescFS*/0, nullptr, &swapChain));
-				llc_necs(swapChain.as(m_swapChain));
+				if_fail_fe(swapChain.as(m_swapChain));
 				llc_hrcall(dxgiDevice->SetMaximumFrameLatency(1));	// Ensure that DXGI does not queue more than one frame at a time. This both reduces latency and ensures that the application will only render after each VSync, minimizing power consumption.
 			}
 	
@@ -232,7 +238,7 @@ namespace DX
 			return rotation;
 		}
 
-		::llc::error_t							CreateIndependentResources	() {
+		::llc::err_t							CreateIndependentResources	() {
 			D2D1_FACTORY_OPTIONS						options						= {};	// Initialize Direct2D resources.
 		#if defined(_DEBUG)
 			options.debugLevel						= D2D1_DEBUG_LEVEL_INFORMATION;		// If the project is in a debug build, enable Direct2D debugging via SDK Layers.
@@ -247,8 +253,8 @@ namespace DX
 		void									UpdateRenderTargetSize		() {
 			m_effectiveDpi							= m_dpi;
 			if (!DisplayMetrics::SupportHighResolutions && m_dpi > DisplayMetrics::DpiThreshold) {	// To improve battery life on high resolution devices, render to a smaller render target and allow the GPU to scale the output when it is presented.
-				float										width						= DX::ConvertDipsToPixels(m_logicalSize.x, m_dpi);
-				float										height						= DX::ConvertDipsToPixels(m_logicalSize.y, m_dpi);
+				f2_t										width						= DX::ConvertDipsToPixels(m_logicalSize.x, m_dpi);
+				f2_t										height						= DX::ConvertDipsToPixels(m_logicalSize.y, m_dpi);
 				if (std::max(width, height) > DisplayMetrics::WidthThreshold && std::min(width, height) > DisplayMetrics::HeightThreshold)	// When the device is in portrait orientation, height > width. Compare the larger dimension against the width threshold and the smaller dimension against the height threshold.
 					m_effectiveDpi									/= 2.0f;	// To scale the app we change the effective DPI. Logical size does not change.
 			}
@@ -259,7 +265,7 @@ namespace DX
 
 		::llc::n2f2_t							GetOutputSize				()	const									{ return m_outputSize; }	// The size of the render target, in pixels.
 		::llc::n2f2_t							GetLogicalSize				()	const									{ return m_logicalSize; }	// The size of the render target, in dips.
-		float									GetDpi						()	const									{ return m_effectiveDpi; }
+		f2_t									GetDpi						()	const									{ return m_effectiveDpi; }
 
 		// D3D Accessors.
 		ID3D11Device3*							GetD3DDevice				()	const									{ return m_d3dDevice.get(); }
@@ -281,68 +287,70 @@ namespace DX
 		D2D1::Matrix3x2F						GetOrientationTransform2D	()	const									{ return m_orientationTransform2D; }
 
 		void									RegisterDeviceNotify		(DX::IDeviceNotify * deviceNotify)			{ m_deviceNotify = deviceNotify; }
-		::llc::error_t							SetLogicalSize				(const ::llc::n2f2_t & logicalSize)			{ if (m_logicalSize			!= logicalSize			) { m_logicalSize			= logicalSize;			llc_necs(CreateSizeDependentResources()); } return 0; } 
-		::llc::error_t							SetCurrentOrientation		(::llc::GRID_ROTATION currentOrientation)	{ if (m_currentOrientation	!= currentOrientation	) { m_currentOrientation	= currentOrientation;	llc_necs(CreateSizeDependentResources()); } return 0; } 
-		::llc::error_t							SetDpi						(float dpi)									{
+		::llc::err_t							SetLogicalSize				(const ::llc::n2f2_t & logicalSize)			{ if (m_logicalSize			!= logicalSize			) { m_logicalSize			= logicalSize;			if_fail_fe(CreateSizeDependentResources()); } return 0; } 
+		::llc::err_t							SetCurrentOrientation		(::llc::GRID_ROTATION currentOrientation)	{ if (m_currentOrientation	!= currentOrientation	) { m_currentOrientation	= currentOrientation;	if_fail_fe(CreateSizeDependentResources()); } return 0; } 
+		::llc::err_t							SetDpi						(f2_t dpi)									{
 			if (dpi != m_dpi) {
 				m_dpi									= dpi;
 				RECT										rect						= {};
 				GetClientRect(m_window, &rect);
-				m_logicalSize							= {float(rect.right - rect.left), float(rect.bottom - rect.top)};	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
+				m_logicalSize							= {f2_t(rect.right - rect.left), f2_t(rect.bottom - rect.top)};	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
 				m_d2dContext->SetDpi(m_dpi, m_dpi);
-				llc_necs(CreateSizeDependentResources());
+				if_fail_fe(CreateSizeDependentResources());
 			}
 			return 0;
 		}
 
 		// Call this method when the app suspends. It provides a hint to the driver that the app is entering an idle state and that temporary buffers can be reclaimed for use by other apps.
-		::llc::error_t							Trim						() {
+		::llc::err_t							Trim						() {
 			::llc::pcom<IDXGIDevice3>				dxgiDevice;
-			llc_necs(m_d3dDevice.as(&dxgiDevice));
+			if_fail_fe(m_d3dDevice.as(&dxgiDevice));
 			dxgiDevice->Trim();
 		}
 
 		// Recreate all device resources and set them back to the current state.
-		::llc::error_t							ValidateDevice				()											{ return ::llc::d3dDeviceValidate(m_d3dDevice) ? HandleDeviceLost() : 0; }
-		::llc::error_t							HandleDeviceLost			()											{
+		::llc::err_t							ValidateDevice				()											{ return ::llc::d3dDeviceValidate(m_d3dDevice) ? HandleDeviceLost() : 0; }
+		::llc::err_t							HandleDeviceLost			()											{
 			m_swapChain								= nullptr;
 			if (m_deviceNotify) 
 				m_deviceNotify->OnDeviceLost();
-			llc_necs(CreateDeviceResources());
+			if_fail_fe(CreateDeviceResources());
 			m_d2dContext->SetDpi(m_dpi, m_dpi);
-			llc_necs(CreateSizeDependentResources());
+			if_fail_fe(CreateSizeDependentResources());
 			if (m_deviceNotify) 
 				m_deviceNotify->OnDeviceRestored();
 
 			return 0;
 		}
 
-		::llc::error_t							SetWindow					(HWND window)		{
+		::llc::err_t							SetWindow					(HWND window)		{
 			m_window								= window;
 
 			RECT										rect						= {};
 			GetClientRect(m_window, &rect);
-			m_logicalSize							= {float(rect.right - rect.left), float(rect.bottom - rect.top)};	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
+			m_logicalSize							= {f2_t(rect.right - rect.left), f2_t(rect.bottom - rect.top)};	// When the display DPI changes, the logical size of the window (measured in Dips) also changes and needs to be updated.
 			m_nativeOrientation						= ScreenRotation();
 			m_currentOrientation					= ScreenRotation();
 
 			::llc::u2_t									dpi							= GetDpiForWindow(m_window);
-			m_dpi									= float(dpi);
+			m_dpi									= f2_t(dpi);
 			m_d2dContext->SetDpi(m_dpi, m_dpi);
-			llc_necs(CreateSizeDependentResources());
+			if_fail_fe(CreateSizeDependentResources());
 			return 0;
 		}
 
 		// Present the contents of the swap chain to the screen.
-		::llc::error_t							Present						() {
+		::llc::err_t							Present						() {
 			DXGI_PRESENT_PARAMETERS						parameters					= {};
 			HRESULT										hr							= m_swapChain->Present1(1, 0, &parameters);	// The first argument instructs DXGI to block until VSync, putting the application to sleep until the next VSync. This ensures we don't waste any cycles rendering frames that will never be displayed to the screen.
 			m_d3dContext->DiscardView1(m_d3dRenderTargetView, nullptr, 0);	// Discard the contents of the render target. This is a valid operation only when the existing contents will be entirely overwritten. If dirty or scroll rects are used, this call should be removed.
 			m_d3dContext->DiscardView1(m_d3dDepthStencilView, nullptr, 0);	// Discard the contents of the depth stencil.
-			if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
-				llc_necs(HandleDeviceLost());	// If the device was removed either by a disconnection or a driver upgrade, we  must recreate all device resources.
-			else 
+			if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
+				if_fail_fe(HandleDeviceLost());	// If the device was removed either by a disconnection or a driver upgrade, we  must recreate all device resources.
+			}
+			else {
 				llc_hrcall(hr);
+			}
 			return 0;
 		}
 
@@ -361,7 +369,7 @@ namespace DX
 
 
 		// Configures the Direct3D device, and stores handles to it and the device context.
-		::llc::error_t							CreateDeviceResources		() {
+		::llc::err_t							CreateDeviceResources		() {
 			// This flag adds support for surfaces with a different color channel ordering than the API default. It is required for compatibility with Direct2D.
 			::llc::u2_t									creationFlags				= D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 		#if defined(_DEBUG)
@@ -391,12 +399,12 @@ namespace DX
 				llc_hrcall(D3D11CreateDevice(nullptr,D3D_DRIVER_TYPE_WARP, 0, creationFlags, featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &m_d3dFeatureLevel, &context));
 
 			// Store pointers to the Direct3D 11.3 API device and immediate context.
-			llc_necs(device.as(m_d3dDevice));
-			llc_necs(context.as(m_d3dContext));
+			if_fail_fe(device.as(m_d3dDevice));
+			if_fail_fe(context.as(m_d3dContext));
 
 			// Create the Direct2D device object and a corresponding context.
 			::llc::pcom<IDXGIDevice3>					dxgiDevice;
-			llc_necs(m_d3dDevice.as(dxgiDevice));
+			if_fail_fe(m_d3dDevice.as(dxgiDevice));
 			llc_hrcall(m_d2dFactory->CreateDevice(dxgiDevice, &m_d2dDevice));
 			llc_hrcall(m_d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_d2dContext));
 			return 0;

@@ -11,7 +11,7 @@
 namespace llc
 {
 #pragma pack(push, 1)
-	stacxpr	::llc::astatic<::llc::bgra, 256>	VOXEL_PALETTE = {
+	stxp	::llc::astatic<::llc::bgra, 256>	VOXEL_PALETTE = {
 		0x00000000, 0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff, 0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff, 0xffff99ff, 0xffcc99ff, 0xff9999ff,
 		0xff6699ff, 0xff3399ff, 0xff0099ff, 0xffff66ff, 0xffcc66ff, 0xff9966ff, 0xff6666ff, 0xff3366ff, 0xff0066ff, 0xffff33ff, 0xffcc33ff, 0xff9933ff, 0xff6633ff, 0xff3333ff, 0xff0033ff, 0xffff00ff,
 		0xffcc00ff, 0xff9900ff, 0xff6600ff, 0xff3300ff, 0xff0000ff, 0xffffffcc, 0xffccffcc, 0xff99ffcc, 0xff66ffcc, 0xff33ffcc, 0xff00ffcc, 0xffffcccc, 0xffcccccc, 0xff99cccc, 0xff66cccc, 0xff33cccc,
@@ -30,7 +30,7 @@ namespace llc
 		0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111
 	};
 
-	stacxpr	::llc::n3f2_t				VOXEL_VERTICES		[8]		=
+	stxp	::llc::n3f2_t				VOXEL_VERTICES		[8]		=
 			{ {0, 1, 0}, {1, 1, 0}, {0, 1, 1}, {1, 1, 1} // Top
 			, {0, 0, 0}, {1, 0, 0}, {0, 0, 1}, {1, 0, 1} // Bottom
 			};
@@ -52,7 +52,7 @@ namespace llc
 		bool		 Right			: 1;
 	};
 
-	stacxpr	::llc::astatic<::llc::quad3f2_t, 6>	VOXEL_FACE_VERTICES			= {
+	stxp	::llc::astatic<::llc::quad3f2_t, 6>	VOXEL_FACE_VERTICES			= {
 		{ {{0, 1, 0}, {1, 1, 0}, {0, 1, 1}, {1, 1, 1}}  // Top		(y = 1)
 		, {{1, 0, 0}, {1, 1, 0}, {1, 0, 1}, {1, 1, 1}}	// Front	(x = 1)
 		, {{0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 1}}	// Right	(z = 1)
@@ -61,7 +61,7 @@ namespace llc
 		, {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}}	// Left		(z = 0)
 		}};
 
-	stacxpr	::llc::astatic<::llc::quad2f2_t, 6>	VOXEL_FACE_UV	= {
+	stxp	::llc::astatic<::llc::quad2f2_t, 6>	VOXEL_FACE_UV	= {
 		{ {{0, 0}, {1, 0}, {0, 1}, {1, 1}}	// Top
 		, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}	// Front
 		, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}	// Right
@@ -70,7 +70,7 @@ namespace llc
 		, {{0, 0}, {1, 0}, {0, 1}, {1, 1}}	// Left
 		}};
 
-	stacxpr	::llc::astatic<::llc::quad3f2_t, 6>	VOXEL_FACE_NORMALS	= {
+	stxp	::llc::astatic<::llc::quad3f2_t, 6>	VOXEL_FACE_NORMALS	= {
 		{ {{0, 1, 0}, {0, 1, 0}, {0, 1, 0}, {0, 1, 0}}	// Top
 		, {{1, 0, 0}, {1, 0, 0}, {1, 0, 0}, {1, 0, 0}}	// Front
 		, {{0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1}}	// Right
@@ -79,8 +79,8 @@ namespace llc
 		, {{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}}	// Left
 		}};
 
-	stacxpr	::llc::n3f2_t				VOXEL_NORMALS				[6]		= {{0, 1, 0}, {1, 0, 0}, {0, 0, 1}, {0, -1, 0}, {-1, 0, 0}, {0, 0, -1}};	// top, front, right, bottom, back, left
-	stacxpr	::llc::quadu0_t				VOXEL_FACE_NORMAL_INDICES	[6]		=
+	stxp	::llc::n3f2_t				VOXEL_NORMALS				[6]		= {{0, 1, 0}, {1, 0, 0}, {0, 0, 1}, {0, -1, 0}, {-1, 0, 0}, {0, 0, -1}};	// top, front, right, bottom, back, left
+	stxp	::llc::quadu0_t				VOXEL_FACE_NORMAL_INDICES	[6]		=
 		{ {0, 0, 0, 0}	// Top
 		, {1, 1, 1, 1}	// Front
 		, {2, 2, 2, 2}	// Right
@@ -89,7 +89,7 @@ namespace llc
 		, {5, 5, 5, 5}	// Left
 		};
 
-	stacxpr	::llc::n3s0_t				VOXEL_DELTAS				[6]		=
+	stxp	::llc::n3s0_t				VOXEL_DELTAS				[6]		=
 		{ { 0, 1, 0} // Top		(y = 1)
 		, { 1, 0, 0} // Front	(x = 1)
 		, { 0, 0, 1} // Right	(z = 1)
@@ -98,7 +98,7 @@ namespace llc
 		, { 0, 0,-1} // Left	(z = -1)
 		};
 
-	stacxpr	::llc::u0_t					VOXEL_FACE_INDICES		[6][6]	=
+	stxp	::llc::u0_t					VOXEL_FACE_INDICES		[6][6]	=
 		{ {0, 2, 1, 1, 2, 3} // Top
 		, {0, 1, 2, 1, 3, 2}
 		, {0, 1, 2, 1, 3, 2}
@@ -107,7 +107,7 @@ namespace llc
 		, {0, 2, 1, 1, 2, 3}
 		};
 
-	stacxpr	::llc::u1_t					VOXEL_FACE_INDICES_16	[6][6]	=
+	stxp	::llc::u1_t					VOXEL_FACE_INDICES_16	[6][6]	=
 		{ {4 * 3 + 0, 4 * 3 + 1, 4 * 3 + 2, 4 * 3 + 1, 4 * 3 + 3, 4 * 3 + 2} // Bottom
 		, {4 * 4 + 0, 4 * 4 + 2, 4 * 4 + 1, 4 * 4 + 1, 4 * 4 + 2, 4 * 4 + 3}
 		, {4 * 5 + 0, 4 * 5 + 2, 4 * 5 + 1, 4 * 5 + 1, 4 * 5 + 2, 4 * 5 + 3}
@@ -117,12 +117,12 @@ namespace llc
 		,
 		};
 
-	stacxpr	::llc::f2_t					VOXEL_UV_SCALE				= 1.0 / 16; // 1/16 is the standard for Minecraft texture mapping format
+	stxp	::llc::f2_t					VOXEL_UV_SCALE				= 1.0 / 16; // 1/16 is the standard for Minecraft texture mapping format
 
 	tplt<tpnm T, ::llc::u1_t _width = 16>
 	struct SVoxelLayer {
-		stacxpr	::llc::u2_t					WIDTH						= _width;
-		stacxpr	::llc::u2_t					DEPTH						= WIDTH;
+		stxp	::llc::u2_t					WIDTH						= _width;
+		stxp	::llc::u2_t					DEPTH						= WIDTH;
 
 		::llc::u1_t									Y							= {};
 		T											Cells	[DEPTH][WIDTH]		= {};
@@ -175,7 +175,7 @@ namespace llc
 			const ::llc::n3u0_t						floor						= voxelPosition / SVoxelLayer<T>::WIDTH;
 			::llc::s2_t									indexChunk					= GetChunk({floor.x, floor.z});
 			if(0 > indexChunk) {
-				llc_necs(indexChunk = Chunks.push_back({}));
+				if_fail_fe(indexChunk = Chunks.push_back({}));
 				cnst ::llc::err_t							indexPosition				= ChunkPositions.push_back({floor.x, floor.z});
 				if(::llc::failed(indexPosition)) {
 					Chunks.pop_back();
@@ -185,23 +185,25 @@ namespace llc
 
 			::llc::SVoxelChunk<T>							& chunk						= Chunks[indexChunk];
 			if(chunk.Layers.size() < (::llc::u2_t)voxelPosition.y + 1)
-				llc_necs(chunk.Layers.resize(voxelPosition.y + 1));
+				if_fail_fe(chunk.Layers.resize(voxelPosition.y + 1));
 
 			::llc::pobj<::llc::SVoxelLayer<T>>			& layer						= chunk.Layers[voxelPosition.y];
 			if(0 == layer.get_ref() && 0 == layer.create())
 				return -1;
 			T												& cell						= layer->Cells[voxelPosition.z % SVoxelLayer<T>::DEPTH][voxelPosition.x % SVoxelLayer<T>::WIDTH];
 			if(cell != cellValue) {
-				if(0 == cell)
-					llc_necs(Voxels.push_back({voxelPosition.x, voxelPosition.y, voxelPosition.z, cellValue}));
+				if(0 == cell) {
+					if_fail_fe(Voxels.push_back({voxelPosition.x, voxelPosition.y, voxelPosition.z, cellValue}));
+				}
 				else {
 					bool											foundVoxel					= false;
 					for(::llc::u2_t iVoxel = 0; iVoxel < Voxels.size(); ++iVoxel) {
 						::llc::SVoxel<::llc::u0_t>					& voxel						= Voxels[iVoxel];
 						if(voxel.Position == voxelPosition) {
 							foundVoxel								= true;
-							if(0 == cellValue)
-								llc_necs(Voxels.remove_unordered(iVoxel));
+							if(0 == cellValue) {
+								if_fail_fe(Voxels.remove_unordered(iVoxel));
+							}
 							else
 								voxel.ColorIndex							= cellValue;
 							break;
@@ -210,7 +212,7 @@ namespace llc
 					}
 					if(false == foundVoxel && 0 != cellValue) {
 						warning_printf("Voxel not found! Voxel value: %i", (::llc::s2_t)cellValue);
-						llc_necs(Voxels.push_back({{voxelPosition.x, voxelPosition.y, voxelPosition.z}, cellValue}));
+						if_fail_fe(Voxels.push_back({{voxelPosition.x, voxelPosition.y, voxelPosition.z}, cellValue}));
 					}
 				}
 				cell		= cellValue;

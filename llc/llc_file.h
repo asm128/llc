@@ -15,20 +15,20 @@ namespace llc
 	err_t			fileDelete			(vcst_t fileName);
 
 	err_t			fileFromMemory		(vcst_t fileName, vcu0_t fileInMemory, bool append = false);
-	err_t			fileToMemory		(vcst_t fileName, au0_t & fileInMemory, ::llc::u2_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0);
-	err_t			fileToMemory		(vcst_t folderPath, vcst_t fileName, au0_t & fileBytes, ::llc::u2_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0);
+	err_t			fileToMemory		(vcst_t fileName, au0_t & fileInMemory, u2_t maxSize = 0xFFFFFFFFU, u3_t offset = 0);
+	err_t			fileToMemory		(vcst_t folderPath, vcst_t fileName, au0_t & fileBytes, u2_t maxSize = 0xFFFFFFFFU, u3_t offset = 0);
 	err_t			fileFromMemory		(vcst_t folderPath, vcst_t fileName, vcu0_t fileInMemory, bool append = false);
 
-	stin	err_t	fileToMemory		(vcst_t fileName, as0_t & fileInMemory, ::llc::u2_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
-	stin	err_t	fileToMemory		(vcst_t fileName, string & fileInMemory, ::llc::u2_t maxSize = 0xFFFFFFFFU, uint64_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
-	stin	err_t	fileFromMemory		(vcst_t fileName, vcs0_t fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.cu8(), append); }
-	stin	err_t	fileFromMemory		(vcst_t fileName, vcst_t fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.cu8(), append); }
+	stin	err_t	fileToMemory		(vcst_t fileName, as0_t & fileInMemory, u2_t maxSize = 0xFFFFFFFFU, u3_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
+	stin	err_t	fileToMemory		(vcst_t fileName, string & fileInMemory, u2_t maxSize = 0xFFFFFFFFU, u3_t offset = 0)	{ rtrn fileToMemory		(fileName, *(au0_t*)&fileInMemory, maxSize, offset); }
+	stin	err_t	fileFromMemory		(vcst_t fileName, vcs0_t fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, vcu0_t{(u0_c*)fileInMemory.begin(), fileInMemory.size()}, append); }
+	stin	err_t	fileFromMemory		(vcst_t fileName, vcst_t fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, vcu0_t{(u0_c*)fileInMemory.begin(), fileInMemory.size()}, append); }
 
-	GDEFINE_ENUM_TYPE(OPEN_MODE, i2u_t);
-	GDEFINE_ENUM_VALUE(OPEN_MODE, CLOSE		, 0);												
-	GDEFINE_ENUM_VALUE(OPEN_MODE, READ		, 'r' + (i1u_t('b') << 8));							//  1
-	GDEFINE_ENUM_VALUE(OPEN_MODE, WRITE		, 'w' + (i1u_t('b') << 8));							//  2
-	GDEFINE_ENUM_VALUE(OPEN_MODE, APPEND	, 'a' + (i2u_t('b') << 8) + (i2u_t('+') << 16));	//  3
+	GDEFINE_ENUM_TYPE(OPEN_MODE, u2_t);
+	GDEFINE_ENUM_VALUE(OPEN_MODE, CLOSE		, 0);
+	GDEFINE_ENUM_VALUE(OPEN_MODE, READ		, 'r' + (u1_t('b') << 8));							//  1
+	GDEFINE_ENUM_VALUE(OPEN_MODE, WRITE		, 'w' + (u1_t('b') << 8));							//  2
+	GDEFINE_ENUM_VALUE(OPEN_MODE, APPEND	, 'a' + (u2_t('b') << 8) + (u2_t('+') << 16));	//  3
 } // namespace
 
 #endif // LLC_FILE_H_23627

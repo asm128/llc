@@ -51,7 +51,7 @@ llc::err_t			processClose			(SProcessWin32 & process) {
 llc::err_t processRedirect(SProcessWin32 & process) {
 	if(process.Info.hProcess || process.Info.hThread)
 		rtrn OS_BUSY;
-	llc_necs(processClose(process));
+	if_fail_fe(processClose(process));
 	SProcessNativeScope<SProcessWin32> rollback{process};
 	SECURITY_ATTRIBUTES security = {sizeof(SECURITY_ATTRIBUTES), 0, TRUE};
 	HANDLE readEnd = 0, writeEnd = 0;
@@ -183,7 +183,7 @@ stct auto_process_writer : auto_handler<HANDLE, nullptr> {
 
 llc::err_t processCommunicate(SProcessWin32 & process, vcu0_t input, au0_t & output) {
 	if(0 == input.size()) {
-		llc_necs(processWrite(process, input));
+		if_fail_fe(processWrite(process, input));
 		rtrn processRead(process, output);
 	}
 	SProcessInput context = {process, input};

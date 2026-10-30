@@ -2,9 +2,15 @@
 #include "llc_view_color.h"
 #include "llc_rect_align.h"
 
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
+LLC_USING_N2();
+LLC_USING_N3();
+
 static ::llc::err_t guiControlResources(ID3D11Device * device, ::llc::SD3DGUIResources<::llc::bgra> & gpu) {
 	::llc::au0_t code;
-	llc_necs(::llc::fileToMemory("vsGUIControl.cso", code));
+	if_fail_fe(::llc::fileToMemory("vsGUIControl.cso", code));
 	llc_hrcall(device->CreateVertexShader(code.begin(), code.size(), nullptr, &gpu.ControlVertexShader));
 	const D3D11_INPUT_ELEMENT_DESC controlLayout[] = {
 		{"POSITION", 0, DXGI_FORMAT_R8G8_UINT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -21,10 +27,10 @@ static ::llc::err_t guiControlResources(ID3D11Device * device, ::llc::SD3DGUIRes
 	static_assert(sizeof(::llc::SD3DGUIControlInstance) == 40);
 	llc_hrcall(device->CreateInputLayout(controlLayout, ARRAYSIZE(controlLayout), code.begin(), code.size(), &gpu.ControlInputLayout));
 	code.clear();
-	llc_necs(::llc::fileToMemory("psGUIControl.cso", code));
+	if_fail_fe(::llc::fileToMemory("psGUIControl.cso", code));
 	llc_hrcall(device->CreatePixelShader(code.begin(), code.size(), nullptr, &gpu.ControlPixelShader));
 
-	llc_necs(::llc::fileToMemory("vsGUITexture.cso", code));
+	if_fail_fe(::llc::fileToMemory("vsGUITexture.cso", code));
 	llc_hrcall(device->CreateVertexShader(code.begin(), code.size(), nullptr, &gpu.ControlTextureVertexShader));
 	const D3D11_INPUT_ELEMENT_DESC textureLayout[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -36,7 +42,7 @@ static ::llc::err_t guiControlResources(ID3D11Device * device, ::llc::SD3DGUIRes
 	static_assert(sizeof(::llc::SD3DGUITextureInstance) == 32);
 	llc_hrcall(device->CreateInputLayout(textureLayout, ARRAYSIZE(textureLayout), code.begin(), code.size(), &gpu.ControlTextureInputLayout));
 	code.clear();
-	llc_necs(::llc::fileToMemory("psGUITexture.cso", code));
+	if_fail_fe(::llc::fileToMemory("psGUITexture.cso", code));
 	llc_hrcall(device->CreatePixelShader(code.begin(), code.size(), nullptr, &gpu.ControlTexturePixelShader));
 
 	D3D11_BUFFER_DESC constants = {16};
@@ -123,10 +129,10 @@ static ::llc::err_t guiFontTexture(::DX::D3DDeviceResources & resources, ::llc::
 	::llc::SD3DGUIFont next; next.Font = font;
 	if_true_fe(0 == font->Texture.Pitch || 0 == font->CharSize.x || 0 == font->CharSize.y);
 	::llc::img8bgra pixels;
-	llc_necs(pixels.resize(::llc::n2u2_t{font->Texture.Pitch, font->Texture.View.size() / font->Texture.Pitch}));
+	if_fail_fe(pixels.resize(::llc::n2u2_t{font->Texture.Pitch, font->Texture.View.size() / font->Texture.Pitch}));
 	for(::llc::u2_t i = 0; i < pixels.Texels.size(); ++i)
 		pixels.Texels[i] = {255, 255, 255, (::llc::u0_t)(font->Texture.View[i] ? 255 : 0)};
-	llc_necs(::llc::d3dCreateTextureDynamic(resources.GetD3DDevice(), next.Texture, next.View, pixels.View));
+	if_fail_fe(::llc::d3dCreateTextureDynamic(resources.GetD3DDevice(), next.Texture, next.View, pixels.View));
 	return gpu.ControlFonts.push_back(next);
 }
 
@@ -199,10 +205,10 @@ static ::llc::err_t guiControlBuild(::DX::D3DDeviceResources & resources, ::llc:
 	if(::llc::controlHidden(gui, id))
 		return 0;
 	::llc::bgra textColor;
-	llc_necs(guiControlInstance(gui, id, gpu.ControlInstances[id], textColor));
+	if_fail_fe(guiControlInstance(gui, id, gpu.ControlInstances[id], textColor));
 	SD3DGUIDrawCommand controlCommand = {};
 	controlCommand.Index = id;
-	llc_necs(commands.push_back(controlCommand));
+	if_fail_fe(commands.push_back(controlCommand));
 	const auto & state = gui.Controls.States[id];
 	const auto & area = gui.Controls.Area[id];
 	const auto & image = gui.Controls.Images[id];
@@ -229,20 +235,20 @@ static ::llc::err_t guiControlBuild(::DX::D3DDeviceResources & resources, ::llc:
 		}
 		if(rect.Size.x > 0 && rect.Size.y > 0) {
 			::llc::n2u2_t size;
-			llc_necs(guiImageTexture(resources, gpu.ControlImages[id], image.Image, size));
-			::llc::rect2f2_t uv = {{source.x / (float)size.x, source.y / (float)size.y}, {rect.Size.x / (float)size.x, rect.Size.y / (float)size.y}};
-			if(image.ImageInvertY) { uv.Offset.y = (image.Image.metrics().y - source.y) / (float)size.y; uv.Size.y = -uv.Size.y; }
+			if_fail_fe(guiImageTexture(resources, gpu.ControlImages[id], image.Image, size));
+			::llc::rect2f2_t uv = {{source.x / (f2_t)size.x, source.y / (f2_t)size.y}, {rect.Size.x / (f2_t)size.x, rect.Size.y / (f2_t)size.y}};
+			if(image.ImageInvertY) { uv.Offset.y = (image.Image.metrics().y - source.y) / (f2_t)size.y; uv.Size.y = -uv.Size.y; }
 			const ::llc::u2_t first = gpu.ControlTextureInstances.size();
-			llc_necs(gpu.ControlTextureInstances.push_back({rect, uv, ::llc::WHITE, 2}));
-			llc_necs(guiTextureCommand(commands, gpu.ControlImages[id].View, first, 1, true));
+			if_fail_fe(gpu.ControlTextureInstances.push_back({rect, uv, ::llc::WHITE, 2}));
+			if_fail_fe(guiTextureCommand(commands, gpu.ControlImages[id].View, first, 1, true));
 		}
 	}
 	const auto & text = gui.Controls.Text[id];
 	if(drawText && text.Text.size()) {
 		const auto & font = gui.Fonts[::llc::in_range(text.FontSelected, (::llc::s1_t)0, (::llc::s1_t)gui.Fonts.size()) ? text.FontSelected : gui.SelectedFont];
 		::llc::s2_t iFont = -1;
-		llc_necs(iFont = guiFontTexture(resources, gpu, font));
-		const ::llc::n2f2_t atlas = {(float)font->Texture.Pitch, (float)(font->Texture.View.size() / font->Texture.Pitch)};
+		if_fail_fe(iFont = guiFontTexture(resources, gpu, font));
+		const ::llc::n2f2_t atlas = {(f2_t)font->Texture.Pitch, (f2_t)(font->Texture.View.size() / font->Texture.Pitch)};
 		const ::llc::u2_t columns = font->Texture.Pitch / font->CharSize.x;
 		::llc::n2s1_t position = area.Text.Offset;
 		if(state.IsHovered() || state.IsPressed()) position += {1, 1};
@@ -251,21 +257,21 @@ static ::llc::err_t guiControlBuild(::DX::D3DDeviceResources & resources, ::llc:
 			const ::llc::u0_t glyph = (::llc::u0_t)text.Text[i];
 			const ::llc::rect2f2_t uv = {{(glyph % columns) * font->CharSize.x / atlas.x, (glyph / columns) * font->CharSize.y / atlas.y}, {font->CharSize.x / atlas.x, font->CharSize.y / atlas.y}};
 			const ::llc::rect2s1_t rectangle = {position, {(::llc::s1_t)font->CharSize.x, (::llc::s1_t)font->CharSize.y}};
-			llc_necs(gpu.ControlTextureInstances.push_back({rectangle, uv, textColor, 1}));
+			if_fail_fe(gpu.ControlTextureInstances.push_back({rectangle, uv, textColor, 1}));
 			position.x += font->CharSize.x;
 		}
-		llc_necs(guiTextureCommand(commands, gpu.ControlFonts[iFont].View, first, gpu.ControlTextureInstances.size() - first, false));
+		if_fail_fe(guiTextureCommand(commands, gpu.ControlFonts[iFont].View, first, gpu.ControlTextureInstances.size() - first, false));
 	}
 	for(::llc::cid_t child : gui.Controls.Children[id])
-		llc_necs(guiControlBuild(resources, gpu, gui, child, targetSize, commands));
+		if_fail_fe(guiControlBuild(resources, gpu, gui, child, targetSize, commands));
 	return 0;
 }
 
 static ::llc::err_t guiInstancesUpload(::DX::D3DDeviceResources & resources, ::llc::SD3DGUIResources<::llc::bgra> & gpu) {
 	ID3D11Device * device = resources.GetD3DDevice();
 	ID3D11DeviceContext * context = resources.GetD3DDeviceContext();
-	llc_necs(guiDynamicBuffer(device, gpu.ControlInstanceBuffer, gpu.ControlInstances.byte_count()));
-	llc_necs(guiDynamicBuffer(device, gpu.ControlTextureInstanceBuffer, gpu.ControlTextureInstances.byte_count()));
+	if_fail_fe(guiDynamicBuffer(device, gpu.ControlInstanceBuffer, gpu.ControlInstances.byte_count()));
+	if_fail_fe(guiDynamicBuffer(device, gpu.ControlTextureInstanceBuffer, gpu.ControlTextureInstances.byte_count()));
 	D3D11_MAPPED_SUBRESOURCE mapped = {};
 	if(gpu.ControlInstances.size()) {
 		llc_hrcall(context->Map(gpu.ControlInstanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
@@ -310,17 +316,17 @@ static void guiTextureCommandDraw(ID3D11DeviceContext * context, ::llc::SD3DGUIR
 
 ::llc::err_t llc::d3dGUIDraw(::DX::D3DDeviceResources & resources, ::llc::SD3DGUIResources<::llc::bgra> & gpu, const ::llc::SGUI & gui, ::llc::n2u1_t targetSize) {
 	if(0 == targetSize.x || 0 == targetSize.y) return 0;
-	if(!gpu.ControlImageBlendState) llc_necs(guiControlResources(resources.GetD3DDevice(), gpu));
-	llc_necs(gpu.ControlInstances.resize(gui.Controls.States.size()));
-	llc_necs(gpu.ControlImages.resize(gui.Controls.States.size()));
+	if(!gpu.ControlImageBlendState) if_fail_fe(guiControlResources(resources.GetD3DDevice(), gpu));
+	if_fail_fe(gpu.ControlInstances.resize(gui.Controls.States.size()));
+	if_fail_fe(gpu.ControlImages.resize(gui.Controls.States.size()));
 	gpu.ControlTextureInstances.clear();
 	::llc::apod<SD3DGUIDrawCommand> commands;
 	for(::llc::u2_t i = 0; i < gui.Controls.States.size(); ++i)
 		if(!::llc::controlInvalid(gui, (::llc::cid_t)i) && ::llc::controlInvalid(gui, gui.Controls.States[i].Parent))
-			llc_necs(guiControlBuild(resources, gpu, gui, (::llc::cid_t)i, targetSize, commands));
-	llc_necs(guiInstancesUpload(resources, gpu));
+			if_fail_fe(guiControlBuild(resources, gpu, gui, (::llc::cid_t)i, targetSize, commands));
+	if_fail_fe(guiInstancesUpload(resources, gpu));
 	auto context = resources.GetD3DDeviceContext();
-	const float scale[] = {2.0f / targetSize.x, -2.0f / targetSize.y, -1, 1};
+	const f2_t scale[] = {2.0f / targetSize.x, -2.0f / targetSize.y, -1, 1};
 	context->UpdateSubresource(gpu.ControlConstants, 0, nullptr, scale, 0, 0);
 	context->VSSetConstantBuffers(0, 1, &gpu.ControlConstants);
 	context->PSSetSamplers(0, 1, &gpu.SamplerState);
@@ -341,17 +347,17 @@ static void guiTextureCommandDraw(ID3D11DeviceContext * context, ::llc::SD3DGUIR
 	context->OMSetRenderTargets(1, targets, resources.GetDepthStencilView());
 	context->ClearRenderTargetView(targets[0], &clearColor.r);
 	context->ClearDepthStencilView(resources.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
-	llc_necs(::llc::d3dGUIDraw(resources, app.GUIStuff, gui, targetSize));
+	if_fail_fe(::llc::d3dGUIDraw(resources, app.GUIStuff, gui, targetSize));
 	rtrn resources.Present();
 }
 
 
 ::llc::err_t llc::Sample3DSceneRenderer::CreateVertexShader(::llc::vcst_t name) {
 	::llc::string filename;
-	llc_necs(filename.append(name));
-	llc_necs(filename.append(::llc::vcst_t{".cso"}));
+	if_fail_fe(filename.append(name));
+	if_fail_fe(filename.append(::llc::vcst_t{".cso"}));
 	::llc::au0_t code;
-	llc_necs(::llc::fileToMemory(filename, code));
+	if_fail_fe(::llc::fileToMemory(filename, code));
 	::llc::pcom<ID3D11VertexShader> shader;
 	llc_hrcall(DeviceResources->GetD3DDevice()->CreateVertexShader(code.begin(), code.size(), nullptr, &shader));
 	return VertexShader.push_back(shader);
@@ -397,9 +403,9 @@ static void guiTextureCommandDraw(ID3D11DeviceContext * context, ::llc::SD3DGUIR
 		llc_hrcall(device->CreateTexture2D(&desc, nullptr, &next.ReadColor));
 		*this = next;
 	}
-	llc_necs(Upload(resources, colors));
+	if_fail_fe(Upload(resources, colors));
 	context->OMSetRenderTargets(1, &Target, DepthView);
-	const D3D11_VIEWPORT viewport = {0, 0, (float)colors.metrics().x, (float)colors.metrics().y, 0, 1};
+	const D3D11_VIEWPORT viewport = {0, 0, (f2_t)colors.metrics().x, (f2_t)colors.metrics().y, 0, 1};
 	context->RSSetViewports(1, &viewport);
 	context->ClearDepthStencilView(DepthView, D3D11_CLEAR_DEPTH, 1, 0);
 	return 0;
@@ -420,9 +426,9 @@ static void guiTextureCommandDraw(ID3D11DeviceContext * context, ::llc::SD3DGUIR
 	context->Unmap(ReadColor, 0);
 	llc_hrcall(context->Map(ReadDepth, 0, D3D11_MAP_READ, 0, &mapped));
 	for(::llc::u2_t y = 0; y < desc.Height; ++y) {
-		const float * row = (const float*)((const ::llc::u0_t*)mapped.pData + y * mapped.RowPitch);
+		const f2_t * row = (const f2_t*)((const ::llc::u0_t*)mapped.pData + y * mapped.RowPitch);
 		for(::llc::u2_t x = 0; x < desc.Width; ++x)
-			depth[y][x] = row[x] >= 1 ? 0xFFFFFFFFU : (::llc::u2_t)(0xFFFFFFFU * (double)row[x]);
+			depth[y][x] = row[x] >= 1 ? 0xFFFFFFFFU : (::llc::u2_t)(0xFFFFFFFU * (f3_t)row[x]);
 	}
 	context->Unmap(ReadDepth, 0);
 	return 0;
@@ -472,18 +478,18 @@ static void guiTextureCommandDraw(ID3D11DeviceContext * context, ::llc::SD3DGUIR
 	return 0;
 }
 
-::llc::error_t			llc::d3dGUIDraw		(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff)	{
+::llc::err_t			llc::d3dGUIDraw		(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff)	{
 	if(!guiStuff.Texture2D) 
 		return 1;
 	
 	D3D11_MAPPED_SUBRESOURCE	mappedTexture				= {};
 	llc_hrcall(d3dResources.GetD3DDeviceContext()->Map(guiStuff.Texture2D.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedTexture));
 	if(mappedTexture.pData) {
-		for(uint32_t y = 0; y < guiStuff.RenderTarget.metrics().y; ++y) {
+		for(u2_t y = 0; y < guiStuff.RenderTarget.metrics().y; ++y) {
 			::llc::vcbgra			scanLineSrc					= guiStuff.RenderTarget[y];
 			::llc::vbgra			scanLineDst					= {(::llc::bgra*)(&((sc_t*)mappedTexture.pData)[y * mappedTexture.RowPitch]), scanLineSrc.size()};
 			memcpy(scanLineDst.begin(), scanLineSrc.begin(), scanLineSrc.byte_count());
-			//for(uint32_t x = 0; x < scanLineDst.size(); ++x)
+			//for(u2_t x = 0; x < scanLineDst.size(); ++x)
 			//	 scanLineDst.begin()[x].a	= scanLineDst.begin()[x].a;
 		}
 	}
@@ -512,7 +518,7 @@ static void guiTextureCommandDraw(ID3D11DeviceContext * context, ::llc::SD3DGUIR
 	return 0;
 }
 
-static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeManager, uint32_t iNode, const ::llc::SEngineSceneConstants & constants, ::llc::SRenderNodeConstants	& nodeConstants) {
+static	::llc::err_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeManager, u2_t iNode, const ::llc::SEngineSceneConstants & constants, ::llc::SRenderNodeConstants	& nodeConstants) {
 	nodeConstants			= nodeManager.Transforms[iNode];
 
 	nodeConstants.Model					= nodeManager.BaseTransforms[iNode].Model * nodeConstants.Model;
@@ -540,14 +546,14 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	const ::llc::rangeu2_t slice = node.Slice < mesh.GeometrySlices.size() ? mesh.GeometrySlices[node.Slice].Slice : ::llc::rangeu2_t{0, indexCount};
 	if_true_fe(slice.Offset > indexCount || slice.Count > indexCount - slice.Offset);
 	::llc::SRenderNodeConstants constants;
-	llc_necs(::getNodeTransform(scene.RenderNodes, iNode, renderer.ConstantBufferScene, constants));
+	if_fail_fe(::getNodeTransform(scene.RenderNodes, iNode, renderer.ConstantBufferScene, constants));
 	constants.Material = material ? *material : skin.Material;
 	const ::llc::m4f2_t model = scene.RenderNodes.BaseTransforms[iNode].Model * scene.RenderNodes.Transforms[iNode].Model;
-	llc_necs(::llc::lightFilter(model.GetTranslation(), lights, renderer.RenderCache.LightsNode));
+	if_fail_fe(::llc::lightFilter(model.GetTranslation(), lights, renderer.RenderCache.LightsNode));
 	return renderer.Render(node.Mesh, slice, skin.Textures, node.Shader, constants.Material.Color.Diffuse.a != 1.0f, constants, renderer.RenderCache.LightsNode, vertexShader, cullMode);
 }
 
-::llc::error_t			llc::d3dDrawEngineScene	(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time)	{
+::llc::err_t			llc::d3dDrawEngineScene	(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time)	{
 	::llc::n3f2_t				cameraFront				= (cameraTarget - cameraPosition).Normalize();
 
 	::llc::SEngineSceneConstants& constants				= d3dScene.ConstantBufferScene;
@@ -558,21 +564,21 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	constants.Time			= (::llc::f2_t)time;
 
 	constants.View.LookAt(cameraPosition, cameraTarget, {0, 1, 0});
-	constants.Perspective.FieldOfView(.25 * ::llc::math_pi, targetMetrics.x / (double)targetMetrics.y, nearFar.Min, nearFar.Max);
+	constants.Perspective.FieldOfView(.25 * ::llc::math_pi, targetMetrics.x / (f3_t)targetMetrics.y, nearFar.Min, nearFar.Max);
 	constants.Screen.ViewportLH(targetMetrics);
 	constants.VP			= constants.View * constants.Perspective;
 	constants.VPS			= constants.VP * constants.Screen;
 
 	::llc::SRenderNodeList						renderList;
-	llc_necs(engineScene.BuildRenderList(cameraPosition, cameraFront, renderList));
-	llc_necs(engineScene.BuildLightList(d3dScene.RenderCache.LightsWorld));
+	if_fail_fe(engineScene.BuildRenderList(cameraPosition, cameraFront, renderList));
+	if_fail_fe(engineScene.BuildLightList(d3dScene.RenderCache.LightsWorld));
 	for(::llc::u2_t node : renderList.Solid)
-		llc_necs(::llc::d3dDrawEngineNode(d3dScene, engineScene, node, d3dScene.RenderCache.LightsWorld));
+		if_fail_fe(::llc::d3dDrawEngineNode(d3dScene, engineScene, node, d3dScene.RenderCache.LightsWorld));
 	for(::llc::u2_t node : renderList.Alpha)
-		llc_necs(::llc::d3dDrawEngineNode(d3dScene, engineScene, node, d3dScene.RenderCache.LightsWorld));
+		if_fail_fe(::llc::d3dDrawEngineNode(d3dScene, engineScene, node, d3dScene.RenderCache.LightsWorld));
 	return 0;
 }
-::llc::error_t							llc::d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time) {
+::llc::err_t							llc::d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time) {
 	{ // Set up render target for this frame
 		ID3D11DeviceContext3						* context							= d3dApp.DeviceResources->GetD3DDeviceContext();
 		const D3D11_VIEWPORT						viewport							= d3dApp.DeviceResources->GetScreenViewport();	// Reset the viewport to target the whole screen.
@@ -586,13 +592,13 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	}
 	{ // Render 3d scene
 		//(void)engineScene; (void)lightPos; (void)cameraPosition; (void)cameraTarget; (void)nearFar;
-		llc_necs(llc::d3dDrawEngineScene(d3dApp.Scene, engineScene, d3dApp.DeviceResources->GetLogicalSize().u1(), lightPos, cameraPosition, cameraTarget, nearFar, time));
+		if_fail_fe(llc::d3dDrawEngineScene(d3dApp.Scene, engineScene, d3dApp.DeviceResources->GetLogicalSize().u1(), lightPos, cameraPosition, cameraTarget, nearFar, time));
 	}
 	{ // Render GUI
-		llc_necs(llc::d3dGUIDraw(*d3dApp.DeviceResources, d3dApp.GUIStuff)); 
+		if_fail_fe(llc::d3dGUIDraw(*d3dApp.DeviceResources, d3dApp.GUIStuff)); 
 
-		llc_necs(d3dApp.Text.Render());
+		if_fail_fe(d3dApp.Text.Render());
 	}
-	llc_necs(d3dApp.DeviceResources->Present());
+	if_fail_fe(d3dApp.DeviceResources->Present());
 	return 0;
 }

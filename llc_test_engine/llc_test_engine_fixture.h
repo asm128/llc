@@ -13,7 +13,7 @@ namespace engine_test {
 		value.Desc.PitchStride = 12;
 		value.Desc.PitchRow = 36;
 		value.Desc.Frequency = 1;
-		llc_necs(value.Data.resize(36));
+		if_fail_fe(value.Data.resize(36));
 		for(::llc::u2_t i = 0; i < value.Data.size(); ++i)
 			value.Data[i] = (::llc::u0_t)(i + index * 17);
 		return 0;
@@ -23,7 +23,7 @@ namespace engine_test {
 		value.Desc.ColorType = ::llc::COLOR_TYPE_BGRA;
 		value.Desc.BitDepth = 8;
 		value.Desc.Dimensions = {3, 2};
-		llc_necs(value.Data.resize(24));
+		if_fail_fe(value.Data.resize(24));
 		for(::llc::u2_t i = 0; i < value.Data.size(); ++i)
 			value.Data[i] = (::llc::u0_t)(255 - i - index * 17);
 		return 0;
@@ -34,9 +34,9 @@ namespace engine_test {
 		value.GeometryBuffers.clear();
 		value.ConstantBuffers.clear();
 		value.GeometrySlices.clear();
-		llc_necs(value.GeometryBuffers.append({index, index + 1, index + 2, index + 3}));
-		llc_necs(value.ConstantBuffers.append({index + 4, index + 5}));
-		llc_necs(value.GeometrySlices.push_back({{index, 3}}));
+		if_fail_fe(value.GeometryBuffers.append({index, index + 1, index + 2, index + 3}));
+		if_fail_fe(value.ConstantBuffers.append({index + 4, index + 5}));
+		if_fail_fe(value.GeometrySlices.push_back({{index, 3}}));
 		return value.GeometrySlices.push_back({{index + 3, 6}});
 	}
 
@@ -55,9 +55,9 @@ namespace engine_test {
 		cnst ::llc::vcst_t names[] = {"first", "second", "third"};
 		for(::llc::u2_t i = 0; i < 3; ++i) {
 			::llc::err_t id;
-			llc_necs(id = manager.Create(names[i]));
+			if_fail_fe(id = manager.Create(names[i]));
 			if_null_fe(manager[id].create());
-			llc_necs(fill(*manager[id], i));
+			if_fail_fe(fill(*manager[id], i));
 		}
 		return 0;
 	}
@@ -66,19 +66,19 @@ namespace engine_test {
 		cnst ::llc::vcst_t names[] = {"root", "spacer", "child", "grandchild"};
 		for(::llc::u2_t i = 0; i < 4; ++i) {
 			::llc::err_t id;
-			llc_necs(id = manager.Create());
+			if_fail_fe(id = manager.Create());
 			manager.Names[id] = names[i];
 			manager[id].RenderNode = i + 10;
 			manager[id].RigidBody = i + 20;
 		}
-		llc_necs(manager.SetParent(2, 0));
+		if_fail_fe(manager.SetParent(2, 0));
 		return manager.SetParent(3, 2);
 	}
 
 	inln ::llc::err_t nodes(::llc::SRenderNodeManager & manager) {
 		for(::llc::u2_t i = 0; i < 3; ++i) {
 			::llc::err_t id;
-			llc_necs(id = manager.Create());
+			if_fail_fe(id = manager.Create());
 			manager[id] = {i + 1, i + 2, i + 3, i + 4};
 			manager.Flags[id].NoDraw = (i == 1);
 			manager.Flags[id].NoSpecular = (i == 2);
@@ -86,19 +86,19 @@ namespace engine_test {
 			manager.BaseTransforms[id].Model.Scale({2, 3, 4}, true);
 			manager.BaseTransforms[id].NodeSize = {4, 6, 8};
 		}
-		llc_necs(manager.Lights[0]->push_back({::llc::LIGHT_TYPE_Directional, 0}));
-		llc_necs(manager.Lights[0]->push_back({::llc::LIGHT_TYPE_Point, 0}));
-		llc_necs(manager.Lights[2]->push_back({::llc::LIGHT_TYPE_Spot, 0}));
+		if_fail_fe(manager.Lights[0]->push_back({::llc::LIGHT_TYPE_Directional, 0}));
+		if_fail_fe(manager.Lights[0]->push_back({::llc::LIGHT_TYPE_Point, 0}));
+		if_fail_fe(manager.Lights[2]->push_back({::llc::LIGHT_TYPE_Spot, 0}));
 		::llc::SCamera camera = {};
 		camera.Position = {5, 6, 7};
 		camera.NearFar = {.25f, 512};
 		camera.Zoom = 2;
-		llc_necs(manager.Cameras[0]->push_back(camera));
+		if_fail_fe(manager.Cameras[0]->push_back(camera));
 		camera.Position = {8, 9, 10};
-		llc_necs(manager.Cameras[0]->push_back(camera));
-		llc_necs(manager.LightsDirectional.resize(2));
-		llc_necs(manager.LightsPoint.resize(2));
-		llc_necs(manager.LightsSpot.resize(2));
+		if_fail_fe(manager.Cameras[0]->push_back(camera));
+		if_fail_fe(manager.LightsDirectional.resize(2));
+		if_fail_fe(manager.LightsPoint.resize(2));
+		if_fail_fe(manager.LightsSpot.resize(2));
 		::llc::SLightDirectional directional = {};
 		directional.Direction = {0, -1, 0};
 		directional.Color.Diffuse = {1, .5f, .25f, 1};
@@ -109,15 +109,15 @@ namespace engine_test {
 		spot.Direction = {1, 0, 0};
 		spot.Range = 64;
 		spot.SpotPower = 8;
-		llc_necs(manager.LightsDirectional[0]->push_back(directional));
-		llc_necs(manager.LightsPoint[0]->push_back(point));
+		if_fail_fe(manager.LightsDirectional[0]->push_back(directional));
+		if_fail_fe(manager.LightsPoint[0]->push_back(point));
 		return manager.LightsSpot[0]->push_back(spot);
 	}
 
 	inln ::llc::err_t bodies(::llc::SRigidBodyIntegrator & manager) {
 		for(::llc::u2_t i = 0; i < 3; ++i) {
 			::llc::err_t id;
-			llc_necs(id = manager.Create());
+			if_fail_fe(id = manager.Create());
 			manager.Flags[id].Active = true;
 			manager.Flags[id].Collides = true;
 			manager.Masses[id].InverseMass = .5f;
@@ -131,7 +131,7 @@ namespace engine_test {
 			manager.Frames[id].AccumulatedTorque = {1, 2, 3};
 			manager.BoundingVolumes[id].HalfSizes = {2 + (::llc::f2_t)i, 3, 4};
 			::llc::m4f2_t transform;
-			llc_necs(manager.GetTransform(id, transform));
+			if_fail_fe(manager.GetTransform(id, transform));
 		}
 		return 0;
 	}
@@ -140,27 +140,27 @@ namespace engine_test {
 	inln ::llc::err_t engine(::llc::SEngine & value) {
 		::llc::SParamsBox params = {};
 		for(::llc::u2_t i = 0; i < 3; ++i) {
-			llc_necs(value.CreateEntityFromGeometry("box", params.HalfSizes, false, params, value.ParamsBox
+			if_fail_fe(value.CreateEntityFromGeometry("box", params.HalfSizes, false, params, value.ParamsBox
 				, [params](::llc::SGeometryBuffers & geometry) { return ::llc::geometryBuildBox(geometry, params); }));
-			llc_necs(value.SetPosition(i, {1 + (::llc::f2_t)i, 2, 3}));
-			llc_necs(value.SetHalfSizes(i, {2 + (::llc::f2_t)i, 3, 4}));
-			llc_necs(value.SetVelocity(i, {1, .5f, .25f}));
-			llc_necs(value.SetPhysicsActive(i, true));
+			if_fail_fe(value.SetPosition(i, {1 + (::llc::f2_t)i, 2, 3}));
+			if_fail_fe(value.SetHalfSizes(i, {2 + (::llc::f2_t)i, 3, 4}));
+			if_fail_fe(value.SetVelocity(i, {1, .5f, .25f}));
+			if_fail_fe(value.SetPhysicsActive(i, true));
 		}
-		llc_necs(value.SetParent(2, 0));
+		if_fail_fe(value.SetParent(2, 0));
 		auto & graphics = *value.Scene->Graphics;
-		llc_necs(resources(graphics.Surfaces));
-		llc_necs(resources(graphics.Skins));
+		if_fail_fe(resources(graphics.Surfaces));
+		if_fail_fe(resources(graphics.Skins));
 		for(::llc::u2_t i = 0; i < value.Entities.size(); ++i) {
 			graphics.Skins[i]->Textures.clear();
-			llc_necs(graphics.Skins[i]->Textures.push_back(i));
+			if_fail_fe(graphics.Skins[i]->Textures.push_back(i));
 			value.Scene->RenderNodes[value.GetRenderNode(i)].Skin = i;
 		}
-		llc_necs(value.Scene->RenderNodes.Cameras[0]->push_back({}));
-		llc_necs(value.CreateLight(::llc::LIGHT_TYPE_Point));
+		if_fail_fe(value.Scene->RenderNodes.Cameras[0]->push_back({}));
+		if_fail_fe(value.CreateLight(::llc::LIGHT_TYPE_Point));
 		::llc::SLightPoint light = {};
 		light.Range = 20;
-		llc_necs(value.Scene->RenderNodes.LightsPoint[0]->push_back(light));
+		if_fail_fe(value.Scene->RenderNodes.LightsPoint[0]->push_back(light));
 		return value.Update(0);
 	}
 }

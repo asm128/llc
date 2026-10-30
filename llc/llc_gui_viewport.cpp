@@ -8,7 +8,7 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 		;
 }
 
-::llc::error_t			llc::viewportActivate	(::llc::SGUI & gui, ::llc::cid_t idParent, ::llc::view<cnst ::llc::SViewport> viewports, ::llc::u0_t iViewport) {
+::llc::err_t			llc::viewportActivate	(::llc::SGUI & gui, ::llc::cid_t idParent, ::llc::view<cnst ::llc::SViewport> viewports, ::llc::u0_t iViewport) {
 	if_true_fe(iViewport >= viewports.size());
 	cnst ::llc::cid_t			idRoot				= viewports[iViewport].IdControl;
 	::llc::acid					& parentChildren		= gui.Controls.Children[idParent];
@@ -26,7 +26,7 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 	rtrn 0;
 }
 
-::llc::error_t			llc::viewportFold		(::llc::SGUI & gui, ::llc::SViewport & viewport) {
+::llc::err_t			llc::viewportFold		(::llc::SGUI & gui, ::llc::SViewport & viewport) {
 	::llc::SControlPlacement	& root					= gui.Controls.Placement[viewport.IdControl];
 	cnst ::llc::cid_t			idClient				= viewport.IdControls[::llc::VIEWPORT_CONTROL_TARGET];
 	if(viewport.Folded) {
@@ -42,11 +42,11 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 	rtrn ::llc::controlMetricsInvalidate(gui, viewport.IdControl);
 }
 
-::llc::error_t			llc::viewportInitialize	(::llc::SGUI & gui, ::llc::SViewport & viewport)			{
+::llc::err_t			llc::viewportInitialize	(::llc::SGUI & gui, ::llc::SViewport & viewport)			{
 	const ::llc::n2u0_t			fontCharSize			= gui.Fonts[gui.SelectedFont]->CharSize;
 	int16_t						heightTitleBar			= fontCharSize.y + 4;
 	::llc::u2_t					widthTarget				= 800;
-	const ::llc::n2f3_t			targetSize				= {(double)widthTarget, widthTarget * (9 / 16.0)};
+	const ::llc::n2f3_t			targetSize				= {(f3_t)widthTarget, widthTarget * (9 / 16.0)};
 
 	//if(-1 == viewport.IdControl)
 	{
@@ -58,13 +58,13 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 		control.Border = control.Margin	= {1, 1, 1, 1};
 
 		const ::llc::u2_t				widthViewport			= (::llc::u2_t)(targetSize.x + ::llc::controlNCSpacing(control).x);
-		const ::llc::u2_t				heightViewport			= (::llc::u2_t)(targetSize.y + ((int64_t)heightTitleBar + ::llc::controlNCSpacing(control).y));
+		const ::llc::u2_t				heightViewport			= (::llc::u2_t)(targetSize.y + ((s3_t)heightTitleBar + ::llc::controlNCSpacing(control).y));
 		control.Area.Size		= {(int16_t)widthViewport, (int16_t)heightViewport};
 		for(::llc::u2_t iElement = 0; iElement < viewport.IdControls.size(); ++iElement) {
-			llc_necs(viewport.IdControls[iElement] = ::llc::controlCreate(gui));
+			if_fail_fe(viewport.IdControls[iElement] = ::llc::controlCreate(gui));
 			::llc::SControlConstraints	& controlConstraints	= gui.Controls.Constraints	[viewport.IdControls[iElement]];
 			controlConstraints.AttachSizeToControl.x	= viewport.IdControls[iElement];
-			llc_necall(llc::controlSetParent(gui, viewport.IdControls[iElement], viewport.IdControl), "iElement: %i, viewport.IdControl: %i", iElement, viewport.IdControl);
+			if_fail_fef(llc::controlSetParent(gui, viewport.IdControls[iElement], viewport.IdControl), "iElement: %i, viewport.IdControl: %i", iElement, viewport.IdControl);
 		}
 		for(::llc::u2_t iElement = 0; iElement < VIEWPORT_CONTROL_TITLE; ++iElement) {
 			gui.Controls.Placement  [viewport.IdControls[iElement]].Area.Size			= {16, 16};
@@ -97,10 +97,10 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 		::llc::SControlPlacement	& control				= gui.Controls.Placement[viewport.IdControls[VIEWPORT_CONTROL_TITLE]];
 		::llc::SControlText			& controlText			= gui.Controls.Text		[viewport.IdControls[VIEWPORT_CONTROL_TITLE]];
 		control.Area.Size.y		= heightTitleBar;
-		static	int32_t				counterVPs				= 0;
+		static	s2_t				counterVPs				= 0;
 		++counterVPs;
 		sc_t						buffer [256];
-		const int32_t				titleLen				= snprintf(buffer, ::llc::size(buffer) - 2, "Viewport #%i", counterVPs);
+		const s2_t				titleLen				= snprintf(buffer, ::llc::size(buffer) - 2, "Viewport #%i", counterVPs);
 		controlText.Text		= {::llc::label(buffer).begin(), (::llc::u2_t)titleLen};
 		controlText.Align		= ::llc::ALIGN_CENTER;
 		control.Area.Offset.x	= heightTitleBar;

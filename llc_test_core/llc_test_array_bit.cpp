@@ -1,6 +1,10 @@
 #include "llc_test_core.h"
 #include "llc_array_bit.h"
 
+LLC_USING_TYPEINT();
+LLC_USING_VIEW();
+LLC_USING_APOD();
+
 GDEFINE_ENUM_TYPE(ARRAY_BIT_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(ARRAY_BIT_TEST_RESULT, OK					,  0, "All array_bit<> tests passed.");
 GDEFINE_ENUM_VALUED(ARRAY_BIT_TEST_RESULT, DEFAULT_SIZE			,  1, "A default array_bit<> reported a nonzero logical size.");
@@ -36,7 +40,7 @@ sttc ::llc::err_t testArrayBitResize(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, ARRAY_BIT_TEST_RESULT_DEFAULT_VIEW, bits.View.begin() != bits.View.end(), "%u-bit backing type, default view is not empty.", ELEMENT_BITS);
 	for(::llc::u2_t iCount = 0; iCount < ::llc::size(BIT_COUNTS); ++iCount) {
 		cnst ::llc::u2_t bitCount = BIT_COUNTS[iCount];
-		cnst ::llc::u2_t elementCount = round_up(bitCount, ELEMENT_BITS);
+		cnst ::llc::u2_t elementCount = ::llc::round_up(bitCount, ELEMENT_BITS);
 		cnst ::llc::err_t resizeResult = bits.resize(bitCount);
 		LLC_TEST_CHECKF(errors, ARRAY_BIT_TEST_RESULT_RESIZE_RESULT, ::llc::failed(resizeResult), "%u-bit backing type, resize bit count:%u, result:%i.", ELEMENT_BITS, bitCount, resizeResult);
 		LLC_TEST_CHECKF(errors, ARRAY_BIT_TEST_RESULT_RESIZE_SIZE, bits.size() != bitCount, "%u-bit backing type, logical size:%u, expected:%u.", ELEMENT_BITS, bits.size(), bitCount);
@@ -144,5 +148,5 @@ sttc ::llc::err_t testArrayBitType(::llc::ATestError & errors) {
 	static_assert(::std::is_same_v<::llc::abitu1_t, ::llc::array_bit<::llc::u1_t>>);
 	static_assert(::std::is_same_v<::llc::abitu2_t, ::llc::array_bit<::llc::u2_t>>);
 	static_assert(::std::is_same_v<::llc::abitu3_t, ::llc::array_bit<::llc::u3_t>>);
-	return ::llc::testTypePack(::llc::unsigned_integer_types{}, [&](auto type) { return testArrayBitType<typename decltype(type)::type>(errors); });
+	return ::llc::testTypePack(::llc::type_pack_unsigned{}, [&](auto type) { return testArrayBitType<typename decltype(type)::type>(errors); });
 }

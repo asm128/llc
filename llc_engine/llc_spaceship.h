@@ -75,13 +75,13 @@ namespace llc
 	};
 
 	struct SSpaceshipScore {
-		uint64_t			Score			= 0;
-		uint64_t			Hits			= 0;
-		uint64_t			Shots			= 0;
-		uint64_t			Bullets			= 0;
-		uint64_t			DamageDone		= 0;
-		uint64_t			DamageReceived	= 0;
-		uint64_t			HitsSurvived	= 0;
+		u3_t			Score			= 0;
+		u3_t			Hits			= 0;
+		u3_t			Shots			= 0;
+		u3_t			Bullets			= 0;
+		u3_t			DamageDone		= 0;
+		u3_t			DamageReceived	= 0;
+		u3_t			HitsSurvived	= 0;
 		::llc::u2_t			OrbitersLost	= 0;
 		::llc::u2_t			KilledShips		= 0;
 		::llc::u2_t			KilledOrbiters	= 0;
@@ -89,22 +89,22 @@ namespace llc
 
 	struct SSpaceshipCore {
 		// Generally constants, little or no variation during level gameplay
-		int32_t				Team			= {};
+		s2_t				Team			= {};
 		::llc::gaugemaxf2_t	Nitro			= {};
 
 		// Variable, may change at any time during 
-		int32_t				Health			= {};
+		s2_t				Health			= {};
 		::llc::u2_t			AvailableNitros	= {};
-		double				TimePlayed		= {};
+		f3_t				TimePlayed		= {};
 	};
 #pragma pack(pop)
 	tplt<tpnm _tPOD> 
-	::llc::error_t			loadView			(::llc::vcu0_t & input, ::llc::apapod<_tPOD> & output, const ::llc::u2_t index) { 
+	::llc::err_t			loadView			(::llc::vcu0_t & input, ::llc::apapod<_tPOD> & output, const ::llc::u2_t index) { 
 		::llc::view<const _tPOD>	viewToLoad;
-		llc_necall(llc::loadView(input, viewToLoad), "index: %i", index);
+		if_fail_fef(llc::loadView(input, viewToLoad), "index: %i", index);
 		if(0 == viewToLoad.size()) {
 			if(index >= output.size()) 
-				llc_necall(output.resize(index + 1), "index: %i", index);
+				if_fail_fef(output.resize(index + 1), "index: %i", index);
 			else {
 				::llc::papod<_tPOD>			& block				= output[index];
 				if(block)
@@ -115,7 +115,7 @@ namespace llc
 			if(index >= output.size()) {
 				::llc::papod<_tPOD>			block;
 				*block.create()			= viewToLoad;
-				llc_necall(output.push_back(block), "index: %i", index);
+				if_fail_fef(output.push_back(block), "index: %i", index);
 			}
 			else {
 				::llc::papod<_tPOD>			& block				= output[index];
@@ -135,13 +135,13 @@ namespace llc
 		::llc::apod<::llc::SSpaceshipOrbiter>	Orbiters					= {};	// One per orbiter	
 		::llc::apapod<::llc::SHIP_ACTION	>	ShipOrbiterActionQueue		= {};
 
-		int32_t						Clear				()	{
+		s2_t						Clear				()	{
 			::llc::clear(ShipScores, ShipCores, ShipParts, Orbiters, ShipOrbiterActionQueue);
 			return 0;
 		}
 
-		int32_t						GetShipHealth		(::llc::u2_t iShipCore)				{ 
-			int32_t							totalHealth			= 0;
+		s2_t						GetShipHealth		(::llc::u2_t iShipCore)				{ 
+			s2_t							totalHealth			= 0;
 			::llc::vcu1_t					shipCoreParts		= ShipParts[iShipCore];
 			for(::llc::u2_t iShipCorePart = 0, countParts = shipCoreParts.size(); iShipCorePart < countParts; ++iShipCorePart)
 				totalHealth += Orbiters[shipCoreParts[iShipCorePart]].Health.Value;
@@ -149,8 +149,8 @@ namespace llc
 			return totalHealth;
 		}
 
-		int32_t						GetTeamHealth		(int32_t teamId) {
-			int32_t							totalHealth			= 0;
+		s2_t						GetTeamHealth		(s2_t teamId) {
+			s2_t							totalHealth			= 0;
 			for(::llc::u2_t iShipCore = 0, countShips = ShipCores.size(); iShipCore < countShips; ++iShipCore) {
 				if(ShipCores[iShipCore].Team != teamId) 
 					continue;
@@ -163,13 +163,13 @@ namespace llc
 		}
 
 
-		::llc::error_t				Save				(::llc::au0_t & output)	const	{ 
-			llc_necs(llc::saveView(output, ShipScores	));
-			llc_necs(llc::saveView(output, ShipCores	));
+		::llc::err_t				Save				(::llc::au0_t & output)	const	{ 
+			if_fail_fe(llc::saveView(output, ShipScores	));
+			if_fail_fe(llc::saveView(output, ShipCores	));
 			::llc::u2_t						totalEntityChildren	= 0;
 			for(::llc::u2_t iShipCore = 0; iShipCore < ShipCores.size(); ++iShipCore) {
 				::llc::vcu1_t					v		{ShipParts[iShipCore]};
-				llc_necall(llc::saveView(output, v), "iPart: %i", iShipCore);
+				if_fail_fef(llc::saveView(output, v), "iPart: %i", iShipCore);
 				totalEntityChildren += v.size();
 			}
 
@@ -177,30 +177,30 @@ namespace llc
 			info_printf("Saved %s, %i", "ShipCores	", ShipCores	.size());
 	
 			// Orbiters
-			llc_necs(llc::saveView(output, Orbiters));
+			if_fail_fe(llc::saveView(output, Orbiters));
 			info_printf("Saved %s, %i", "Orbiters", Orbiters.size());
 			for(::llc::u2_t iShipOrbiter = 0; iShipOrbiter < Orbiters.size(); ++iShipOrbiter) {
 				if(ShipOrbiterActionQueue[iShipOrbiter] && ShipOrbiterActionQueue[iShipOrbiter]->size())
-					llc_necall(llc::saveView(output, *ShipOrbiterActionQueue[iShipOrbiter]), "iShipOrbiter: %i", iShipOrbiter);
+					if_fail_fef(llc::saveView(output, *ShipOrbiterActionQueue[iShipOrbiter]), "iShipOrbiter: %i", iShipOrbiter);
 				else
-					llc_necall(llc::saveView(output, ::llc::vcn3f2_t{}), "iShipOrbiter: %i", iShipOrbiter);
+					if_fail_fef(llc::saveView(output, ::llc::vcn3f2_t{}), "iShipOrbiter: %i", iShipOrbiter);
 			}
 			return 0; 
 		}
-		::llc::error_t				Load				(::llc::vcu0_t & input) { 
+		::llc::err_t				Load				(::llc::vcu0_t & input) { 
 			ShipScores	.clear();
 			ShipCores	.clear();
-			llc_necs(llc::loadView(input, ShipScores	));
-			llc_necs(llc::loadView(input, ShipCores	));
-			llc_necs(ShipParts.resize(ShipCores.size()));
+			if_fail_fe(llc::loadView(input, ShipScores	));
+			if_fail_fe(llc::loadView(input, ShipCores	));
+			if_fail_fe(ShipParts.resize(ShipCores.size()));
 			for(::llc::u2_t iPart = 0; iPart < ShipParts.size(); ++iPart) 
-				llc_necall(llc::loadView(input, ShipParts[iPart]), "iPart: %i", iPart);
+				if_fail_fef(llc::loadView(input, ShipParts[iPart]), "iPart: %i", iPart);
 
 			Orbiters.clear();
-			llc_necs(llc::loadView(input, Orbiters));
-			llc_necs(ShipOrbiterActionQueue.reserve(Orbiters.size()));
+			if_fail_fe(llc::loadView(input, Orbiters));
+			if_fail_fe(ShipOrbiterActionQueue.reserve(Orbiters.size()));
 			for(::llc::u2_t iShipOrbiter = 0; iShipOrbiter < Orbiters.size(); ++iShipOrbiter) {
-				llc_necs(llc::loadView(input, ShipOrbiterActionQueue, iShipOrbiter));
+				if_fail_fe(llc::loadView(input, ShipOrbiterActionQueue, iShipOrbiter));
 			}
 			return 0; 
 		}

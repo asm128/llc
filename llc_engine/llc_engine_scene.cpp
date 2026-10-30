@@ -8,7 +8,11 @@
 #include "llc_view_n2.h"
 #include "llc_view_tri.h"
 
-#include <algorithm>
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
+LLC_USING_N2();
+LLC_USING_N3();
 
 ::llc::err_t llc::SEngineScene::BuildLightList(::llc::apod<::llc::SRenderLight> & lights) const {
 	lights.clear();
@@ -34,13 +38,13 @@
 				if_true_fef(reference.Index >= groups.size(), "Light group:%u, type:%u.", reference.Index, reference.Type);
 				if(groups[reference.Index])
 					for(const auto & light : *groups[reference.Index])
-						llc_necs(append(light));
+						if_fail_fe(append(light));
 				return 0;
 			};
 			switch(reference.Type) {
-			case ::llc::LIGHT_TYPE_Directional: llc_necs(appendGroup(RenderNodes.LightsDirectional)); break;
-			case ::llc::LIGHT_TYPE_Point      : llc_necs(appendGroup(RenderNodes.LightsPoint)); break;
-			case ::llc::LIGHT_TYPE_Spot       : llc_necs(appendGroup(RenderNodes.LightsSpot)); break;
+			case ::llc::LIGHT_TYPE_Directional: if_fail_fe(appendGroup(RenderNodes.LightsDirectional)); break;
+			case ::llc::LIGHT_TYPE_Point      : if_fail_fe(appendGroup(RenderNodes.LightsPoint)); break;
+			case ::llc::LIGHT_TYPE_Spot       : if_fail_fe(appendGroup(RenderNodes.LightsSpot)); break;
 			default: return ::llc::OS_INVALID_PARAMETER;
 			}
 		}
@@ -52,12 +56,12 @@
 	selected.clear();
 	for(const ::llc::SRenderLight & light : lights)
 		if(light.Type == ::llc::LIGHT_TYPE_Directional || (light.Range > 0 && (light.Position - position).LengthSquared() < light.Range * light.Range))
-			llc_necs(selected.push_back(light));
+			if_fail_fe(selected.push_back(light));
 	return 0;
 }
 
 tplt <tpnm _tIndex>
-static	::llc::error_t	transformTriangles					
+static	::llc::err_t	transformTriangles					
 	( ::llc::SVSOutput		& output
 	, ::llc::view<const _tIndex>	indices			
 	, ::llc::vcn3f2_t			positions	
@@ -77,9 +81,9 @@ static	::llc::error_t	transformTriangles
 		transformedNormals.A.Normalize();
 		transformedNormals.B.Normalize();
 		transformedNormals.C.Normalize();
-		double						directionFactorA		= transformedNormals.A.Dot(cameraFront);
-		double						directionFactorB		= transformedNormals.B.Dot(cameraFront);
-		double						directionFactorC		= transformedNormals.C.Dot(cameraFront);
+		f3_t						directionFactorA		= transformedNormals.A.Dot(cameraFront);
+		f3_t						directionFactorB		= transformedNormals.B.Dot(cameraFront);
+		f3_t						directionFactorC		= transformedNormals.C.Dot(cameraFront);
 		if(directionFactorA > .35 && directionFactorB > .35 && directionFactorC > .35)
 			continue;
 
@@ -106,12 +110,12 @@ static	::llc::error_t	transformTriangles
 	return 0; 
 }
 
-static	::llc::error_t	transformTriangles
+static	::llc::err_t	transformTriangles
 	( ::llc::SEngineRenderCache				& renderCache
 	, const ::llc::SEngineScene				& scene
 	, const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SRenderNodeConstants		& transforms
-	, int32_t								iRenderNode
+	, s2_t								iRenderNode
 	) {
 	const ::llc::SRenderNode	& renderNode			= scene.RenderNodes.RenderNodes[iRenderNode];
 	const ::llc::SGeometryMesh	& mesh					= *scene.Graphics->Meshes[renderNode.Mesh];
@@ -147,7 +151,7 @@ static	::llc::error_t	transformTriangles
 	return 0;
 }
 
-static	::llc::error_t	getNodeTransform
+static	::llc::err_t	getNodeTransform
 	( const ::llc::SRenderNodeManager		& nodeManager
 	, ::llc::u2_t							iNode
 	, const ::llc::SEngineSceneConstants	& constants
@@ -163,7 +167,7 @@ static	::llc::error_t	getNodeTransform
 }
 
 
-static	::llc::error_t	drawBuffers
+static	::llc::err_t	drawBuffers
 	( ::llc::g8bgra										& backBufferColors
 	, ::llc::gu2_t										backBufferDepth
 	, ::llc::SVSOutput									& outVS
@@ -188,8 +192,8 @@ static	::llc::error_t	drawBuffers
 	for(::llc::u2_t iTriangle = 0; iTriangle < outVS.PositionsScreen.size(); ++iTriangle) {
 		const ::llc::tri3f2_t		& triPositions				= outVS.PositionsScreen	[iTriangle];
 		if( triPositions.CulledZ({0, 0xFFFFFF})
-		 || triPositions.CulledX({0, (float)offscreenMetrics.x})
-		 || triPositions.CulledY({0, (float)offscreenMetrics.y})
+		 || triPositions.CulledX({0, (f2_t)offscreenMetrics.x})
+		 || triPositions.CulledY({0, (f2_t)offscreenMetrics.y})
 		)
 			continue;
 
@@ -218,7 +222,7 @@ static	::llc::error_t	drawBuffers
 	return 0;
 }
 
-::llc::error_t			llc::SEngineScene::BuildRenderList
+::llc::err_t			llc::SEngineScene::BuildRenderList
 	( const ::llc::n3f2_t		& cameraPosition
 	, const ::llc::n3f2_t		& cameraFront
 	, ::llc::SRenderNodeList	& renderList
@@ -235,18 +239,18 @@ static	::llc::error_t	drawBuffers
 		if((model.GetTranslation() - cameraPosition).Normalize().Dot(cameraFront) <= 0)
 			continue;
 		const ::llc::SSkin		& skin					= *Graphics->Skins[node.Skin];
-		llc_necs((skin.Material.Color.Diffuse.a < 1.0f ? renderList.Alpha : renderList.Solid).push_back(iNode));
+		if_fail_fe((skin.Material.Color.Diffuse.a < 1.0f ? renderList.Alpha : renderList.Solid).push_back(iNode));
 	}
 	const auto nodeDepth = [this, &cameraFront](::llc::u2_t iNode) {
 		const ::llc::m4f2_t model = RenderNodes.BaseTransforms[iNode].Model * RenderNodes.Transforms[iNode].Model;
 		return cameraFront.Dot(model.GetTranslation());
 	};
-	::std::sort(renderList.Solid.begin(), renderList.Solid.end(), [&nodeDepth](::llc::u2_t a, ::llc::u2_t b) { return nodeDepth(a) < nodeDepth(b); });
-	::std::sort(renderList.Alpha.begin(), renderList.Alpha.end(), [&nodeDepth](::llc::u2_t a, ::llc::u2_t b) { return nodeDepth(a) > nodeDepth(b); });
+	//::std::sort(renderList.Solid.begin(), renderList.Solid.end(), [&nodeDepth](::llc::u2_t a, ::llc::u2_t b) { return nodeDepth(a) < nodeDepth(b); });
+	//::std::sort(renderList.Alpha.begin(), renderList.Alpha.end(), [&nodeDepth](::llc::u2_t a, ::llc::u2_t b) { return nodeDepth(a) > nodeDepth(b); });
 	return 0;
 }
 
-::llc::error_t			llc::drawScene									
+::llc::err_t			llc::drawScene									
 	( ::llc::g8bgra				backBufferColors
 	, ::llc::gu2_t				backBufferDepth
 	, ::llc::SEngineRenderCache	& renderCache
@@ -268,23 +272,23 @@ static	::llc::error_t	drawBuffers
 	constants.Time			= (::llc::f2_t)time;
 
 	constants.View.LookAt(cameraPosition, cameraTarget, cameraUp);
-	constants.Perspective.FieldOfView(.25 * ::llc::math_pi, offscreenMetrics.x / (double)offscreenMetrics.y, nearFar.Min, nearFar.Max);
+	constants.Perspective.FieldOfView(.25 * ::llc::math_pi, offscreenMetrics.x / (f3_t)offscreenMetrics.y, nearFar.Min, nearFar.Max);
 	constants.Screen.ViewportLH(offscreenMetrics);
 	constants.VP			= constants.View * constants.Perspective;
 	constants.VPS			= constants.VP * constants.Screen;
 
 	static ::std::function<::llc::TFuncPixelShader>	defaultShader			= {::llc::psSolid};
 	::llc::SRenderNodeList			renderList;
-	llc_necs(scene.BuildRenderList(constants.CameraPosition, constants.CameraFront, renderList));
-	llc_necs(scene.BuildLightList(renderCache.LightsWorld));
-	const auto drawNode = [&](::llc::u2_t iRenderNode, bool alphaBlend) -> ::llc::error_t {
+	if_fail_fe(scene.BuildRenderList(constants.CameraPosition, constants.CameraFront, renderList));
+	if_fail_fe(scene.BuildLightList(renderCache.LightsWorld));
+	const auto drawNode = [&](::llc::u2_t iRenderNode, bool alphaBlend) -> ::llc::err_t {
 		const ::llc::SRenderNode		& renderNode		= scene.RenderNodes.RenderNodes[iRenderNode];
 		const ::llc::SSkin				& skin				= *scene.Graphics->Skins.Elements[renderNode.Skin];
 		::llc::SRenderNodeConstants		transforms			= {};
-		llc_necs(::getNodeTransform(scene.RenderNodes, iRenderNode, constants, transforms));
-		llc_necs(::llc::lightFilter(transforms.Model.GetTranslation(), renderCache.LightsWorld, renderCache.LightsNode));
+		if_fail_fe(::getNodeTransform(scene.RenderNodes, iRenderNode, constants, transforms));
+		if_fail_fe(::llc::lightFilter(transforms.Model.GetTranslation(), renderCache.LightsWorld, renderCache.LightsNode));
 
-		llc_necall(::transformTriangles(renderCache, scene, constants, transforms, iRenderNode), "iRenderNode %i", iRenderNode);
+		if_fail_fef(::transformTriangles(renderCache, scene, constants, transforms, iRenderNode), "iRenderNode %i", iRenderNode);
 
 		const ::llc::SRenderMaterial	& material			= skin.Material;
 		::llc::apod<::llc::gc8bgra>	surfaces;
@@ -293,7 +297,7 @@ static	::llc::error_t	drawBuffers
 			if(iSurface >= scene.Graphics->Surfaces.size())
 				continue;
 			const ::llc::SSurface			& surface			= *scene.Graphics->Surfaces[iSurface];
-			llc_necs(surfaces.push_back({(const ::llc::bgra*)surface.Data.begin(), surface.Desc.Dimensions.u2()}));
+			if_fail_fe(surfaces.push_back({(const ::llc::bgra*)surface.Data.begin(), surface.Desc.Dimensions.u2()}));
 		}
 		const ::std::function<::llc::TFuncPixelShader>	& fx
 			= (renderNode.Shader >= scene.Graphics->Shaders.size()) ? defaultShader : *scene.Graphics->Shaders[renderNode.Shader];
@@ -301,9 +305,9 @@ static	::llc::error_t	drawBuffers
 		return drawBuffers(backBufferColors, backBufferDepth, renderCache.VertexShaderOutput, renderCache.VertexShaderCache, material, surfaces, alphaBlend, constants, transforms, renderCache.LightsNode, fx);
 	};
 	for(::llc::u2_t iNode : renderList.Solid)
-		llc_necs(drawNode(iNode, false));
+		if_fail_fe(drawNode(iNode, false));
 	for(::llc::u2_t iNode : renderList.Alpha)
-		llc_necs(drawNode(iNode, true));
+		if_fail_fe(drawNode(iNode, true));
 
 	::llc::apod<::llc::n3f2_t>					& wireframePixelCoords	= renderCache.VertexShaderCache.WireframePixelCoords;
 
@@ -330,14 +334,14 @@ static	::llc::error_t	drawBuffers
 	return 0;
 }
 
-::llc::error_t			llc::createBuffers	
+::llc::err_t			llc::createBuffers	
 	( const ::llc::SGeometryBuffers		& geometry
 	, ::llc::pobj<::llc::SRenderBuffer>	& pIndicesVertex
 	, ::llc::pobj<::llc::SRenderBuffer>	& pVertices
 	, ::llc::pobj<::llc::SRenderBuffer>	& pNormals
 	, ::llc::pobj<::llc::SRenderBuffer>	& pUV
 	) {
-	llc_necs(llc::createBuffers(geometry.Positions.size(), pIndicesVertex, pVertices, pNormals, pUV));
+	if_fail_fe(llc::createBuffers(geometry.Positions.size(), pIndicesVertex, pVertices, pNormals, pUV));
 
 	pVertices	->Data.resize(geometry.Positions	.byte_count());
 	pNormals	->Data.resize(geometry.Normals		.byte_count());
@@ -363,7 +367,7 @@ static	::llc::error_t	drawBuffers
 	return 0;
 }
 
-::llc::error_t			llc::createBuffers
+::llc::err_t			llc::createBuffers
 	( ::llc::SRenderBufferManager	& bufferManager 
 	, const ::llc::SGeometryBuffers	& geometry
 	, ::llc::u2_t						& iIndicesVertex
@@ -372,15 +376,15 @@ static	::llc::error_t	drawBuffers
 	, ::llc::u2_t						& iUV
 	) {
 	::llc::pobj<::llc::SRenderBuffer>	pIndicesVertex, pVertices, pNormals, pUV;
-	llc_necs(llc::createBuffers(geometry, pIndicesVertex, pVertices, pNormals, pUV));
-	llc_necs(iIndicesVertex			= (::llc::u2_t)bufferManager.push_back(pIndicesVertex));
-	llc_necs(iVertices				= (::llc::u2_t)bufferManager.push_back(pVertices));
-	llc_necs(iNormals				= (::llc::u2_t)bufferManager.push_back(pNormals));
-	llc_necs(iUV					= (::llc::u2_t)bufferManager.push_back(pUV));
+	if_fail_fe(llc::createBuffers(geometry, pIndicesVertex, pVertices, pNormals, pUV));
+	if_fail_fe(iIndicesVertex			= (::llc::u2_t)bufferManager.push_back(pIndicesVertex));
+	if_fail_fe(iVertices				= (::llc::u2_t)bufferManager.push_back(pVertices));
+	if_fail_fe(iNormals				= (::llc::u2_t)bufferManager.push_back(pNormals));
+	if_fail_fe(iUV					= (::llc::u2_t)bufferManager.push_back(pUV));
 	return 0;
 }
 
-::llc::error_t			llc::SEngineScene::CreateRenderNode
+::llc::err_t			llc::SEngineScene::CreateRenderNode
 	( const ::llc::SGeometryBuffers		& geometry
 	, const ::llc::vcst_t				name 
 	, bool								createSkin

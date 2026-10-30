@@ -1142,6 +1142,9 @@
     <ClCompile Include="llc_connection.cpp">
       <Filter>inet</Filter>
     </ClCompile>
+    <ClCompile Include="llc_debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

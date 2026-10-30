@@ -38,14 +38,14 @@ namespace llc
 		::llc::SEngineSceneConstants			ConstantBufferScene				= {};
 
 		// Variables used with the rendering loo
-		double									TotalSecondsElapsed				= 0;
+		f3_t									TotalSecondsElapsed				= 0;
 		
 												~Sample3DSceneRenderer			() { ReleaseDeviceResources(); }
 
-		::llc::error_t							Initialize		(const ::llc::pobj<DX::D3DDeviceResources> & deviceResources) {
+		::llc::err_t							Initialize		(const ::llc::pobj<DX::D3DDeviceResources> & deviceResources) {
 			DeviceResources							= deviceResources;
-			llc_necs(CreateDeviceResources(DeviceResources->GetD3DDevice()));
-			llc_necs(CreateSizeDependentResources(DeviceResources->GetLogicalSize(), DeviceResources->GetOrientationTransform3D()));
+			if_fail_fe(CreateDeviceResources(DeviceResources->GetD3DDevice()));
+			if_fail_fe(CreateSizeDependentResources(DeviceResources->GetLogicalSize(), DeviceResources->GetOrientationTransform3D()));
 			return 0;
 		}
 
@@ -66,7 +66,7 @@ namespace llc
 			LightBuffer = {}; LightConstants = {}; LightView = {};
 		}
 
-		::llc::error_t						Render							(uint32_t iMesh, ::llc::rangeu2_t indexRange, ::llc::vcu2_t iTextures, uint32_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel, ::llc::view<const ::llc::SRenderLight> lights = {}, ::llc::u2_t iVertexShader = 0, ::llc::CULL_MODE cullMode = ::llc::CULL_MODE_CCW) {
+		::llc::err_t						Render							(u2_t iMesh, ::llc::rangeu2_t indexRange, ::llc::vcu2_t iTextures, u2_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel, ::llc::view<const ::llc::SRenderLight> lights = {}, ::llc::u2_t iVertexShader = 0, ::llc::CULL_MODE cullMode = ::llc::CULL_MODE_CCW) {
 			if(cullMode > ::llc::CULL_MODE_NONE || (::llc::u2_t)cullMode >= RasterizerState.size())
 				return ::llc::OS_INVALID_PARAMETER;
 			if(iTextures.size() > D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT)
@@ -77,7 +77,7 @@ namespace llc
 			if(lightSlot != (::llc::u2_t)-1) {
 				if(lightSlot < iTextures.size() || lightSlot >= D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT)
 					return ::llc::OS_INVALID_PARAMETER;
-				llc_necs(SetLights(lights));
+				if_fail_fe(SetLights(lights));
 			}
 			auto										context							= DeviceResources->GetD3DDeviceContext();
 			context->UpdateSubresource1(ConstantBuffer[0], 0, NULL, &constantBufferModel, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
@@ -132,9 +132,9 @@ namespace llc
 			return 0;
 		}
 
-		::llc::error_t							CreateSizeDependentResources	(const ::llc::n2f2_t & outputSize, const DirectX::XMFLOAT4X4 & orientation) {
-			const float									aspectRatio						= outputSize.x / outputSize.y;
-			float										fovAngleY						= 70.0f * DirectX::XM_PI / 180.0f;
+		::llc::err_t							CreateSizeDependentResources	(const ::llc::n2f2_t & outputSize, const DirectX::XMFLOAT4X4 & orientation) {
+			const f2_t									aspectRatio						= outputSize.x / outputSize.y;
+			f2_t										fovAngleY						= 70.0f * DirectX::XM_PI / 180.0f;
 
 			// This is a simple example of change that can be made when the app is in portrait or snapped view.
 			if (aspectRatio < 1.0f)
@@ -148,14 +148,14 @@ namespace llc
 			DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4*)&ConstantBufferScene.Perspective, DirectX::XMMatrixTranspose(perspectiveMatrix * orientationMatrix));
 
 			// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
-			const	DirectX::XMVECTORF32			eye								= { 0.0f, (float)sin(TotalSecondsElapsed) * 5, 5.5f, 0.0f };
-			stacxpr	DirectX::XMVECTORF32			at								= { 0.0f, -0.1f, 0.0f, 0.0f };
-			stacxpr	DirectX::XMVECTORF32			up								= { 0.0f, 1.0f, 0.0f, 0.0f };
+			const	DirectX::XMVECTORF32			eye								= { 0.0f, (f2_t)sin(TotalSecondsElapsed) * 5, 5.5f, 0.0f };
+			stxp	DirectX::XMVECTORF32			at								= { 0.0f, -0.1f, 0.0f, 0.0f };
+			stxp	DirectX::XMVECTORF32			up								= { 0.0f, 1.0f, 0.0f, 0.0f };
 			DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4*)&ConstantBufferScene.View, DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(eye, at, up)));
 			return 0;
 		}
 
-		::llc::error_t							CreateDeviceResources			(ID3D11Device3 * d3dDevice)	{
+		::llc::err_t							CreateDeviceResources			(ID3D11Device3 * d3dDevice)	{
 			ReleaseDeviceResources();
 			{	// Create a point sampler state for fonts 
 				D3D11_SAMPLER_DESC							samDesc						= {};
@@ -191,8 +191,8 @@ namespace llc
 				::llc::pcom<ID3D11VertexShader>				vertexShader;
 
 				::llc::string								fileVS;
-				llc_necs(llc::fileToMemory("SampleVertexShader.cso", fileVS));
-				stacxpr	D3D11_INPUT_ELEMENT_DESC			vertexDesc []			=
+				if_fail_fe(llc::fileToMemory("SampleVertexShader.cso", fileVS));
+				stxp	D3D11_INPUT_ELEMENT_DESC			vertexDesc []			=
 					{	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 00, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					,	{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					,	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
@@ -274,7 +274,7 @@ namespace llc
 				rsDesc.DepthClipEnable		= false;
 				::llc::pcom<ID3D11RasterizerState>	rasterizerState;
 				llc_hrcall(d3dDevice->CreateRasterizerState(&rsDesc, &rasterizerState));
-				llc_necs(RasterizerState.push_back(rasterizerState));
+				if_fail_fe(RasterizerState.push_back(rasterizerState));
 			}
 			{ // enabled
 				D3D11_DEPTH_STENCIL_DESC		depthStencilDesc				= {};

@@ -6,7 +6,7 @@
 namespace llc
 {
 #pragma pack(push, 1)
-	enum VIEWPORT_CONTROL : int8_t
+	enum VIEWPORT_CONTROL : s0_t
 		{ VIEWPORT_CONTROL_RESIZE_LEFT				= 0
 		, VIEWPORT_CONTROL_RESIZE_TOP
 		, VIEWPORT_CONTROL_RESIZE_RIGHT
@@ -21,7 +21,7 @@ namespace llc
 		, VIEWPORT_CONTROL_COUNT
 		};
 
-	enum GUI_CONTROL_TYPE : int8_t
+	enum GUI_CONTROL_TYPE : s0_t
 		{ GUI_CONTROL_TYPE_Viewport					= 0
 		, GUI_CONTROL_TYPE_PaletteGrid
 		, GUI_CONTROL_TYPE_ControlList
@@ -29,18 +29,18 @@ namespace llc
 		};
 
 	struct SViewport {
-		cid_t					IdControl			= (int32_t)-1;
+		cid_t					IdControl			= (s2_t)-1;
 		::llc::astcid<::llc::VIEWPORT_CONTROL_COUNT>	IdControls		= {};
-		cid_t					IdDesktopElement	= (int32_t)-1;
+		cid_t					IdDesktopElement	= (s2_t)-1;
 		GUI_CONTROL_TYPE		ControlType			= (GUI_CONTROL_TYPE)-1;
 		::llc::n2s1_t			UnfoldedSize		= {};
 		bool					Folded				= false;
 	};
 
 	bool					viewportIsPressed		(cnst ::llc::SGUI & gui, cnst ::llc::SViewport & viewport)												nxpt;
-	::llc::error_t			viewportActivate		(::llc::SGUI & gui, ::llc::cid_t idParent, ::llc::view<cnst ::llc::SViewport> viewports, ::llc::u0_t iViewport);
-	::llc::error_t			viewportFold			(::llc::SGUI & gui, ::llc::SViewport & viewport);
-	::llc::error_t			viewportInitialize		(::llc::SGUI & gui, ::llc::SViewport & viewport);
+	::llc::err_t			viewportActivate		(::llc::SGUI & gui, ::llc::cid_t idParent, ::llc::view<cnst ::llc::SViewport> viewports, ::llc::u0_t iViewport);
+	::llc::err_t			viewportFold			(::llc::SGUI & gui, ::llc::SViewport & viewport);
+	::llc::err_t			viewportInitialize		(::llc::SGUI & gui, ::llc::SViewport & viewport);
 #pragma pack(pop)
 }
 

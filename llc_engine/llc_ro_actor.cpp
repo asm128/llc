@@ -12,7 +12,7 @@
 
 void ropp::CleanSPRData( SPR_FILE_DATA& SPRData )
 {
-	uint32_t i;
+	u2_t i;
 	for( i=0; i< SPRData.nPaletteImages; i++ )
 	{
 		if( SPRData.pPaletteImages[i].pImageData )
@@ -43,7 +43,7 @@ void ropp::CleanSPRData( SPR_FILE_DATA& SPRData )
 	}
 }
 
-int32_t ropp::LoadSPRDataFromFile( const wchar_t* pFilename, SPR_FILE_DATA* pSPRData )
+s2_t ropp::LoadSPRDataFromFile( const wchar_t* pFilename, SPR_FILE_DATA* pSPRData )
 {
 	if( 0 == pFilename || 0 == pSPRData )
 		return -1; // invalid args
@@ -89,7 +89,7 @@ int32_t ropp::LoadSPRDataFromFile( const wchar_t* pFilename, SPR_FILE_DATA* pSPR
 	}
 
 	PALETTE_IMAGE_RLE_DATA* p; 
-	uint32_t i;
+	u2_t i;
 
 	if( pSPRData->nVersionMajor > 2 ||  
 		(pSPRData->nVersionMajor == 2 && pSPRData->nVersionMinor >= 1 ) ) 
@@ -125,22 +125,22 @@ int32_t ropp::LoadSPRDataFromFile( const wchar_t* pFilename, SPR_FILE_DATA* pSPR
 			p2 = &pSPRData->pRGBAImages[i];
 			fread( &p2->nWidth, sizeof( uint16_t ), 1, fp );
 			fread( &p2->nHeight, sizeof( uint16_t ), 1, fp );
-			p2->pImageData = (uint32_t*)malloc( sizeof( uint32_t )*p2->nWidth*p2->nHeight );
-			fread( &p2->pImageData[0], sizeof( uint32_t ), p2->nWidth*p2->nHeight, fp );
+			p2->pImageData = (u2_t*)malloc( sizeof( u2_t )*p2->nWidth*p2->nHeight );
+			fread( &p2->pImageData[0], sizeof( u2_t ), p2->nWidth*p2->nHeight, fp );
 		}
 	}
 
 	if( pSPRData->nVersionMajor > 1 || 
 		(pSPRData->nVersionMajor == 1 && pSPRData->nVersionMajor >= 1 ) ) // I hope version 3 still include the palette :P
 	{
-		fread( pSPRData->Palette, sizeof( uint32_t ), 256, fp );
+		fread( pSPRData->Palette, sizeof( u2_t ), 256, fp );
 	}
 
 	fclose( fp );
 	return 0;
 };
 
-int32_t ropp::LoadSPRDataFromMemory( const char* pBuffer, SPR_FILE_DATA* pSPRData )
+s2_t ropp::LoadSPRDataFromMemory( const char* pBuffer, SPR_FILE_DATA* pSPRData )
 {
 	if( 0 == pBuffer || 0 == pSPRData )
 		return -1; // error
@@ -186,7 +186,7 @@ int32_t ropp::LoadSPRDataFromMemory( const char* pBuffer, SPR_FILE_DATA* pSPRDat
 		memset( pSPRData->pRGBAImages, 0, sizeof( RGBA_IMAGE_DATA )*pSPRData->nRGBAImages );
 	}
 	PALETTE_IMAGE_RLE_DATA* p; 
-	uint32_t i;
+	u2_t i;
 
 	if( pSPRData->nVersionMajor > 2 ||  
 		(pSPRData->nVersionMajor == 2 && pSPRData->nVersionMinor >= 1 ) ) 
@@ -230,17 +230,17 @@ int32_t ropp::LoadSPRDataFromMemory( const char* pBuffer, SPR_FILE_DATA* pSPRDat
 			pos += sizeof( uint16_t );
 			memcpy( &p2->nHeight, &pBuffer[pos], sizeof( uint16_t ) );
 			pos += sizeof( uint16_t );
-			p2->pImageData = (uint32_t*)malloc( sizeof( uint32_t )*p2->nWidth*p2->nHeight );
-			memcpy( &p2->pImageData[0], &pBuffer[pos], sizeof( uint32_t )*p2->nWidth*p2->nHeight );
-			pos += sizeof( uint32_t )*p2->nWidth*p2->nHeight;
+			p2->pImageData = (u2_t*)malloc( sizeof( u2_t )*p2->nWidth*p2->nHeight );
+			memcpy( &p2->pImageData[0], &pBuffer[pos], sizeof( u2_t )*p2->nWidth*p2->nHeight );
+			pos += sizeof( u2_t )*p2->nWidth*p2->nHeight;
 		}
 	}
 
 	if( pSPRData->nVersionMajor > 1 || 
 		(pSPRData->nVersionMajor == 1 && pSPRData->nVersionMajor >= 1 ) ) // I hope version 3 still include the palette :P
 	{
-		memcpy( pSPRData->Palette, &pBuffer[pos], sizeof( uint32_t )*256 );
-		pos += sizeof( uint32_t )*256;
+		memcpy( pSPRData->Palette, &pBuffer[pos], sizeof( u2_t )*256 );
+		pos += sizeof( u2_t )*256;
 	}
 
 	return 0;
@@ -248,7 +248,7 @@ int32_t ropp::LoadSPRDataFromMemory( const char* pBuffer, SPR_FILE_DATA* pSPRDat
 
 void ropp::CleanACTData( ACT_FILE_DATA& ActData )
 {
-	uint32_t i, j, nSpriteCount, nActionCount=ActData.nActionCount;
+	u2_t i, j, nSpriteCount, nActionCount=ActData.nActionCount;
 
 	ACT_SPRITE_DATA* pCurrSprite;
 	for( i=0; i<nActionCount; i++ )
@@ -286,7 +286,7 @@ void ropp::CleanACTData( ACT_FILE_DATA& ActData )
 };
 
 
-int32_t ropp::LoadACTDataFromFile( const wchar_t* pFilename, ropp::ACT_FILE_DATA* pACTData )
+s2_t ropp::LoadACTDataFromFile( const wchar_t* pFilename, ropp::ACT_FILE_DATA* pACTData )
 {
 	if( 0 == pFilename || 0 == pACTData )
 		return -1; // invalid args
@@ -314,7 +314,7 @@ int32_t ropp::LoadACTDataFromFile( const wchar_t* pFilename, ropp::ACT_FILE_DATA
 	fread( &pACTData->nActionCount, 2, 1, fp );
 	fread( pACTData->nUknown, 1, 10, fp );
 	pACTData->lstActionData = (ACT_ACTION_DATA*)malloc( sizeof( ACT_ACTION_DATA )*pACTData->nActionCount );
-	uint32_t i, j, k, nActionCount = pACTData->nActionCount, nSpriteCount, nFrameCount, nPivotCount;
+	u2_t i, j, k, nActionCount = pACTData->nActionCount, nSpriteCount, nFrameCount, nPivotCount;
 	memset( pACTData->lstActionData, 0, sizeof( ACT_ACTION_DATA )*nActionCount );
 
 	ACT_ACTION_DATA* pCurrAction;
@@ -392,7 +392,7 @@ int32_t ropp::LoadACTDataFromFile( const wchar_t* pFilename, ropp::ACT_FILE_DATA
 	{
 		//char* pCurrEvent;
 		fread( &pACTData->nEventCount, 4, 1, fp );
-		uint32_t nEventCount = pACTData->nEventCount;
+		u2_t nEventCount = pACTData->nEventCount;
 		pACTData->lstEventNames = (ACT_EVENT_NAME*)malloc(sizeof(ACT_EVENT_NAME)*nEventCount);
 		for( i=0; i<nEventCount; i++ )
 			fread( pACTData->lstEventNames[i], 1, 40, fp );
@@ -401,7 +401,7 @@ int32_t ropp::LoadACTDataFromFile( const wchar_t* pFilename, ropp::ACT_FILE_DATA
 		|| ( 2 == pACTData->nVersionMajor && 2 <= pACTData->nVersionMinor )
 		)
 	{
-		pACTData->lstFrameDelay = (float*)malloc( sizeof( float )*pACTData->nActionCount );
+		pACTData->lstFrameDelay = (f2_t*)malloc( sizeof( f2_t )*pACTData->nActionCount );
 		fread( &pACTData->lstFrameDelay[0], 4, nActionCount, fp );
 	}
 
@@ -410,7 +410,7 @@ int32_t ropp::LoadACTDataFromFile( const wchar_t* pFilename, ropp::ACT_FILE_DATA
 }
 
 
-int32_t ropp::LoadACTDataFromFile( const char* pFilename, ropp::ACT_FILE_DATA* pACTData )
+s2_t ropp::LoadACTDataFromFile( const char* pFilename, ropp::ACT_FILE_DATA* pACTData )
 {
 	if( 0 == pFilename || 0 == pACTData )
 		return -1; // invalid args
@@ -438,7 +438,7 @@ int32_t ropp::LoadACTDataFromFile( const char* pFilename, ropp::ACT_FILE_DATA* p
 	fread( &pACTData->nActionCount, 2, 1, fp );
 	fread( pACTData->nUknown, 1, 10, fp );
 	pACTData->lstActionData = (ACT_ACTION_DATA*)malloc( sizeof( ACT_ACTION_DATA )*pACTData->nActionCount );
-	uint32_t i, j, k, nActionCount = pACTData->nActionCount, nSpriteCount, nFrameCount, nPivotCount;
+	u2_t i, j, k, nActionCount = pACTData->nActionCount, nSpriteCount, nFrameCount, nPivotCount;
 	memset( pACTData->lstActionData, 0, sizeof( ACT_ACTION_DATA )*nActionCount );
 
 	ACT_ACTION_DATA* pCurrAction;
@@ -516,7 +516,7 @@ int32_t ropp::LoadACTDataFromFile( const char* pFilename, ropp::ACT_FILE_DATA* p
 	{
 		//char* pCurrEvent;
 		fread( &pACTData->nEventCount, 4, 1, fp );
-		uint32_t nEventCount = pACTData->nEventCount;
+		u2_t nEventCount = pACTData->nEventCount;
 		pACTData->lstEventNames = (ACT_EVENT_NAME*)malloc(sizeof(ACT_EVENT_NAME)*nEventCount);
 		for( i=0; i<nEventCount; i++ )
 			fread( pACTData->lstEventNames[i], 1, 40, fp );
@@ -525,7 +525,7 @@ int32_t ropp::LoadACTDataFromFile( const char* pFilename, ropp::ACT_FILE_DATA* p
 		|| ( 2 == pACTData->nVersionMajor && 2 <= pACTData->nVersionMinor )
 		)
 	{
-		pACTData->lstFrameDelay = (float*)malloc( sizeof( float )*pACTData->nActionCount );
+		pACTData->lstFrameDelay = (f2_t*)malloc( sizeof( f2_t )*pACTData->nActionCount );
 		fread( &pACTData->lstFrameDelay[0], 4, nActionCount, fp );
 	}
 

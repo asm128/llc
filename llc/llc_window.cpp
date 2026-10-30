@@ -1,6 +1,12 @@
 #include "llc_window.h"
 
-::llc::error_t			llc::fullScreenExit			(::llc::SWindow & window) {
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
+
+usng llc::one_if;
+
+::llc::err_t			llc::fullScreenExit			(::llc::SWindow & window) {
 	if(false == window.FullScreen)
 		return 0;
 
@@ -20,7 +26,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::fullScreenEnter		(::llc::SWindow & window) {
+::llc::err_t			llc::fullScreenEnter		(::llc::SWindow & window) {
 	if(window.FullScreen)
 		return 1;
 
@@ -53,7 +59,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::windowUpdateTick		(::llc::SWindow& displayInstance)											{
+::llc::err_t			llc::windowUpdateTick		(::llc::SWindow& displayInstance)											{
 	bool						quit						= false;
 #if defined(LLC_WINDOWS)
 	::MSG						msg							= {};
@@ -72,7 +78,7 @@
 	return quit ? 1 : 0;
 }
 
-::llc::error_t			llc::windowUpdate		(::llc::SWindow& displayInstance)											{
+::llc::err_t			llc::windowUpdate		(::llc::SWindow& displayInstance)											{
 	displayInstance.EventQueue.clear();
 	displayInstance.Resized	= false;
 	displayInstance.Repaint	= false;
@@ -89,8 +95,8 @@
 }
 
 #if defined(LLC_WINDOWS)
-::llc::error_t			drawBuffer				(::HDC hdc, ::llc::SWindowPlatformDetail & offscreenDetail, int width, int height, const ::llc::g8bgra& colorArray)				{
-	const uint32_t				bytesToCopy				= sizeof(::RGBQUAD) * colorArray.size();
+::llc::err_t			drawBuffer				(::HDC hdc, ::llc::SWindowPlatformDetail & offscreenDetail, int width, int height, const ::llc::g8bgra& colorArray)				{
+	const u2_t				bytesToCopy				= sizeof(::RGBQUAD) * colorArray.size();
 	::llc::n2u1_c				metricsSource			= colorArray.metrics().u1();
 	::llc::n2u1_c				prevSize				= {(uint16_t)offscreenDetail.BitmapInfo.bmiHeader.biWidth, (uint16_t)offscreenDetail.BitmapInfo.bmiHeader.biHeight};
 	if( metricsSource.x != offscreenDetail.BitmapInfo.bmiHeader.biWidth 
@@ -122,10 +128,10 @@
 		if_true_fef(0 == (offscreenDetail.IntermediateBitmap		= ::CreateDIBSection(offscreenDetail.IntermediateDeviceContext, &offscreenDetail.BitmapInfo, DIB_RGB_COLORS, (void**) &pixelBits, NULL, 0)), "%s", "Failed to create intermediate dib section.");
 		offscreenDetail.PixelBits							= {pixelBits, colorArray.area()};
 	}
-	const uint32_t lineWidth	= metricsSource.x * sizeof(::llc::bgra);
-	const uint32_t lastLine		= metricsSource.y - 1;
+	const u2_t lineWidth	= metricsSource.x * sizeof(::llc::bgra);
+	const u2_t lastLine		= metricsSource.y - 1;
 	const ::llc::bgra									* dest										= colorArray.begin();
-	for(uint32_t y = 0, yMax = metricsSource.y; y < yMax; ++y)
+	for(u2_t y = 0, yMax = metricsSource.y; y < yMax; ++y)
 		memcpy(&offscreenDetail.PixelBits[y * metricsSource.x], &dest[(lastLine - y) * metricsSource.x], lineWidth);
 
 	::HBITMAP									hBmpOld										= (::HBITMAP)::SelectObject(offscreenDetail.IntermediateDeviceContext, offscreenDetail.IntermediateBitmap);    // <- altering state
@@ -142,7 +148,7 @@
 }
 #endif // LLC_WINDOWS
 
-::llc::error_t			llc::windowPresentTarget					(::llc::SWindow& displayInstance, const ::llc::g8bgra& targetToPresent)		{
+::llc::err_t			llc::windowPresentTarget					(::llc::SWindow& displayInstance, const ::llc::g8bgra& targetToPresent)		{
 	(void)displayInstance; (void)targetToPresent;
 #if defined(LLC_WINDOWS)
 	::HWND					windowHandle								= displayInstance.PlatformDetail.WindowHandle;

@@ -16,21 +16,21 @@
 
 namespace llc
 {
-	tydf	error_t	(*log_print_t)		(const char * text);
-	error_t			log_print			(const char * text);
-	tydf	error_t	(*log_write_t)		(const char * text, u2_t textLen);
-	error_t			log_write			(const char * text, u2_t textLen);
+	tydf	err_t	(*log_print_t)		(const char * text);
+	err_t			log_print			(const char * text);
+	tydf	err_t	(*log_write_t)		(const char * text, u2_t textLen);
+	err_t			log_write			(const char * text, u2_t textLen);
 
 #ifndef LLC_LOG_ARDUINO_FLASHSTRINGHELPER
-	stin	error_t	log_print_P			(const char * text)	{ rtrn log_print(text); }
-	stin	error_t	log_print_F			(const char * text)	{ rtrn log_print(text); }
+	stin	err_t	log_print_P			(const char * text)	{ rtrn log_print(text); }
+	stin	err_t	log_print_F			(const char * text)	{ rtrn log_print(text); }
 #else
-	error_t			log_print_P			(const __FlashStringHelper * text);
+	err_t			log_print_P			(const __FlashStringHelper * text);
 #	define log_print_F(text) ::llc::log_print_P(F(text))
 #endif
-	error_t			setupDefaultLogCallbacks();
-	error_t			getLogCallbacks(log_print_t & funcLogPrint, log_write_t & funcLogWrite);
-	error_t			setupLogCallbacks
+	err_t			setupDefaultLogCallbacks();
+	err_t			getLogCallbacks(log_print_t & funcLogPrint, log_write_t & funcLogWrite);
+	err_t			setupLogCallbacks
 		( log_print_t	funcLogPrint
 		, log_write_t	funcLogWrite
 		);
@@ -63,11 +63,11 @@ namespace llc
 
 // - Conditional log formatted.
 #ifndef if_true_logf
-#	ifdef LLC_WINDOWS					
+#	ifdef LLC_WINDOWS
 #		define if_true_logf(llc_logFunction, condition, format, ...)						if(condition) { llc_logFunction(#condition "->" format, __VA_ARGS__); }					// - Log condition and custom formatted string args if (condition) == true.
 #		define if_true_block_logf(llc_logFunction, condition, statement, format, ...)		if(condition) block_logf(llc_logFunction, statement, #condition "->" format, __VA_ARGS__)	// - Conditional block with custom statement preceded by a log call with custom formatted string args.
 #	else
-#		ifdef LLC_ATMEL																																																											
+#		ifdef LLC_ATMEL
 #			define if_true_logf(llc_logFunction, condition, format, ...)					if_true_log			(llc_logFunction, condition)				// - Log condition and custom formatted string args if (condition) == true.
 #			define if_true_block_logf(llc_logFunction, condition, statement, format, ...)	if_true_block_log	(llc_logFunction, condition, statement) 	// - Conditional block with custom statement preceded by a log call with custom formatted string args.
 #		else

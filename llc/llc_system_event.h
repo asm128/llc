@@ -33,7 +33,7 @@ namespace llc
 	tydf ::llc::apobj<::llc::SEventSystem>				TQueueSystemEvent;
 	
 	template<typename _t>
-	stin	::llc::error_t	eventEnqueueChild	(::llc::apobj<::llc::SEventSystem> & queue, ::llc::RESULT eventType, _t & eventData)	{ 
+	stin	::llc::err_t	eventEnqueueChild	(::llc::apobj<::llc::SEventSystem> & queue, ::llc::RESULT eventType, _t & eventData)	{ 
 		return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Device, eventType, eventData); 
 	}
 
@@ -72,10 +72,10 @@ namespace llc
 	};
 #pragma pack(pop)
 
-	//stin	::llc::error_t	eventEnqueueRuntimeInit			(::llc::TQueueSystemEvent & queue)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Runtime, ::llc::EVENT_RUNTIME_Init			, ::llc::EVENT_RUNTIME_Init			); }
-	//stin	::llc::error_t	eventEnqueueRuntimeExit			(::llc::TQueueSystemEvent & queue)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Runtime, ::llc::EVENT_RUNTIME_Exit			, ::llc::EVENT_RUNTIME_Exit			); }
-	//stin	::llc::error_t	eventEnqueueRuntimeProcessQueue	(::llc::TQueueSystemEvent & queue)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Runtime, ::llc::EVENT_RUNTIME_Process_queue, ::llc::EVENT_RUNTIME_Process_queue); }
-	//stin	::llc::error_t	eventEnqueueRuntimeProcessEvent	(::llc::TQueueSystemEvent & queue)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Runtime, ::llc::EVENT_RUNTIME_Process_event, ::llc::EVENT_RUNTIME_Process_event); }
+	//stin	::llc::err_t	eventEnqueueRuntimeInit			(::llc::TQueueSystemEvent & queue)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Runtime, ::llc::EVENT_RUNTIME_Init			, ::llc::EVENT_RUNTIME_Init			); }
+	//stin	::llc::err_t	eventEnqueueRuntimeExit			(::llc::TQueueSystemEvent & queue)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Runtime, ::llc::EVENT_RUNTIME_Exit			, ::llc::EVENT_RUNTIME_Exit			); }
+	//stin	::llc::err_t	eventEnqueueRuntimeProcessQueue	(::llc::TQueueSystemEvent & queue)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Runtime, ::llc::EVENT_RUNTIME_Process_queue, ::llc::EVENT_RUNTIME_Process_queue); }
+	//stin	::llc::err_t	eventEnqueueRuntimeProcessEvent	(::llc::TQueueSystemEvent & queue)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Runtime, ::llc::EVENT_RUNTIME_Process_event, ::llc::EVENT_RUNTIME_Process_event); }
 } // namespace
 
 #endif // LLC_SYSTEM_EVENT_H_23627

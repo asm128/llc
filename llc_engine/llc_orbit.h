@@ -9,10 +9,10 @@ namespace llc
 
 #pragma pack(push, 1)
 	struct SOrbit {
-		float		Radius				= {}; // 57.9	// (10^6 km)	// 7
-		float		AxialTilt			= {}; // degrees
-		float		RotationPeriod		= {}; // in units
-		float		RotationUnit		= {}; // 
+		f2_t		Radius				= {}; // 57.9	// (10^6 km)	// 7
+		f2_t		AxialTilt			= {}; // degrees
+		f2_t		RotationPeriod		= {}; // in units
+		f2_t		RotationUnit		= {}; // 
 		::llc::AXIS	RotationAxis		= ::llc::AXIS_Y_POSITIVE; // 
 		::llc::AXIS	TiltAxis			= ::llc::AXIS_X_POSITIVE; // 
 	};
@@ -23,11 +23,11 @@ namespace llc
 	};
 #pragma pack(pop)
 
-	stincxp	double			degreesToRadians		(double degrees) { return ::llc::math_2pi / 360.0 * degrees; }
+	sinx	f3_t			degreesToRadians		(f3_t degrees) { return ::llc::math_2pi / 360.0 * degrees; }
 
 	// Calculate the axial inclination of the planet IN RADIANS
 	tplt<tpnm _tAxis>
-	static ::llc::error_t	orientationFromEuler	(::llc::AXIS iAxis, double axialTilt, ::llc::quat<_tAxis> & orientation) {
+	static ::llc::err_t	orientationFromEuler	(::llc::AXIS iAxis, f3_t axialTilt, ::llc::quat<_tAxis> & orientation) {
 		const _tAxis				rotationValue			= _tAxis(degreesToRadians(axialTilt));
 		switch(iAxis) {
 		case ::llc::AXIS_X_NEGATIVE: orientation.MakeFromEuler(-rotationValue, 0, 0); break;
@@ -43,7 +43,7 @@ namespace llc
 
 	// Calculate the rotation velocity of the planet IN EARTH DAYS
 	tplt<tpnm _tAxis, tpnm _tAxisOrientation>
-	static ::llc::error_t	orbitRotation			(::llc::AXIS iAxis, double rotation_period, double rotation_unit, const ::llc::quat<_tAxisOrientation> & orientation, ::llc::n3<_tAxis> & rotation) {
+	static ::llc::err_t	orbitRotation			(::llc::AXIS iAxis, f3_t rotation_period, f3_t rotation_unit, const ::llc::quat<_tAxisOrientation> & orientation, ::llc::n3<_tAxis> & rotation) {
 		const _tAxis				rotationValue			= _tAxis(::llc::math_2pi / rotation_period * rotation_unit);
 		switch(iAxis) {
 		case ::llc::AXIS_X_NEGATIVE: rotation = {-rotationValue, 0, 0}; break;
@@ -59,7 +59,7 @@ namespace llc
 
 	// Calculate the rotation velocity of the planet IN EARTH DAYS
 	tplt<tpnm _tAxis, tpnm _tAxisOrientation>
-	static ::llc::error_t	orbitCenter			(::llc::AXIS iAxis, double position, ::llc::n3<_tAxis> & center) {
+	static ::llc::err_t	orbitCenter			(::llc::AXIS iAxis, f3_t position, ::llc::n3<_tAxis> & center) {
 		switch(iAxis) {
 		case ::llc::AXIS_X_NEGATIVE: center = {-position, 0, 0}; break;
 		case ::llc::AXIS_X_POSITIVE: center = { position, 0, 0}; break;

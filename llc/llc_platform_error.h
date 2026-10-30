@@ -6,9 +6,9 @@
 namespace llc
 {
 #if defined(LLC_ST)
-	::llc::error_t error_t_from_st_hal_status(HAL_StatusTypeDef halStatus);
+	::llc::err_t error_t_from_st_hal_status(HAL_StatusTypeDef halStatus);
 #else 
-	::llc::error_t error_t_from_st_hal_status(int32_t status);
+	::llc::err_t error_t_from_st_hal_status(s2_t status);
 #endif
 } // namespace
 

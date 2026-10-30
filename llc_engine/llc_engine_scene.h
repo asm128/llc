@@ -26,15 +26,15 @@ namespace llc
 		::llc::m4f2_t			VP						= {}; 
 		::llc::m4f2_t			VPS						= {}; 
 		::llc::n3f2_t			CameraPosition			= {};
-		float					CameraAngle				= 0;
+		f2_t					CameraAngle				= 0;
 		::llc::n3f2_t			CameraFront				= {}; 
-		float					Time					= 0;
+		f2_t					Time					= 0;
 		::llc::n3f2_t			LightDirection			= {}; 
-		float					LightSpotPower			= 0;
+		f2_t					LightSpotPower			= 0;
 		::llc::n3f2_t			LightPosition			= {}; 
-		float					PaddingB				= 0;
+		f2_t					PaddingB				= 0;
 	};
-	stacxpr size_t		SENGINESCENECONSTANTSSIZE = sizeof(SEngineSceneConstants);
+	stxp size_t		SENGINESCENECONSTANTSSIZE = sizeof(SEngineSceneConstants);
 
 
 	struct SRenderLight {
@@ -57,10 +57,10 @@ namespace llc
 		::llc::view<const ::llc::SRenderLight> Lights		= {};
 	};
 
-	stacxpr size_t		SPSINSIZE = sizeof(SPSIn);
+	stxp size_t		SPSINSIZE = sizeof(SPSIn);
 #pragma pack(pop)
 
-	typedef ::llc::error_t	(TFuncPixelShader)
+	typedef ::llc::err_t	(TFuncPixelShader)
 		( const ::llc::SEngineSceneConstants	& constants
 		, const ::llc::SPSIn					& inPS
 		, ::llc::bgra							& outputPixel
@@ -91,14 +91,14 @@ namespace llc
 		::llc::SRenderMaterial	Material;
 		::llc::au2_t				Textures;
 
-		::llc::error_t			Save			(::llc::au0_t & output) const { 
-			llc_necs(llc::savePOD(output, Material));
-			llc_necs(llc::saveView(output, Textures));
+		::llc::err_t			Save			(::llc::au0_t & output) const { 
+			if_fail_fe(llc::savePOD(output, Material));
+			if_fail_fe(llc::saveView(output, Textures));
 			return 0;
 		}
-		::llc::error_t			Load			(::llc::vcu0_t & input) {
-			llc_necs(llc::loadPOD(input, Material));
-			llc_necs(llc::loadView(input, Textures));
+		::llc::err_t			Load			(::llc::vcu0_t & input) {
+			if_fail_fe(llc::loadPOD(input, Material));
+			if_fail_fe(llc::loadView(input, Textures));
 			return 0;
 		}
 	};
@@ -115,22 +115,22 @@ namespace llc
 		::llc::SShaderManager		Shaders		= {};
 		::llc::SRasterFontManager	Fonts		= {};
 
-		::llc::error_t				Save		(::llc::au0_t & output)		const	{
-			llc_necs(Buffers	.Save(output));
-			llc_necs(Surfaces	.Save(output));
-			llc_necs(Meshes		.Save(output));
-			llc_necs(Skins		.Save(output));
-			//llc_necs(Shaders	.Save(output));
-			//llc_necs(Fonts	.Save(output));
+		::llc::err_t				Save		(::llc::au0_t & output)		const	{
+			if_fail_fe(Buffers	.Save(output));
+			if_fail_fe(Surfaces	.Save(output));
+			if_fail_fe(Meshes		.Save(output));
+			if_fail_fe(Skins		.Save(output));
+			//if_fail_fe(Shaders	.Save(output));
+			//if_fail_fe(Fonts	.Save(output));
 			return 0;
 		}
-		::llc::error_t				Load		(::llc::vcu0_t & input) {
-			llc_necs(Buffers	.Load(input));
-			llc_necs(Surfaces	.Load(input));
-			llc_necs(Meshes		.Load(input));
-			llc_necs(Skins		.Load(input));
-			//llc_necs(Shaders	.Load(input));
-			//llc_necs(Fonts	.Load(input));
+		::llc::err_t				Load		(::llc::vcu0_t & input) {
+			if_fail_fe(Buffers	.Load(input));
+			if_fail_fe(Surfaces	.Load(input));
+			if_fail_fe(Meshes		.Load(input));
+			if_fail_fe(Skins		.Load(input));
+			//if_fail_fe(Shaders	.Load(input));
+			//if_fail_fe(Fonts	.Load(input));
 			return 0;
 		}
 	};
@@ -145,38 +145,39 @@ namespace llc
 		::llc::SRenderNodeManager		RenderNodes				= {};
 		::llc::SEngineRenderCache		RenderCache				= {};
 
-		::llc::error_t					BuildRenderList			(const ::llc::n3f2_t & cameraPosition, const ::llc::n3f2_t & cameraFront, ::llc::SRenderNodeList & renderList) const;
+		::llc::err_t					BuildRenderList			(const ::llc::n3f2_t & cameraPosition, const ::llc::n3f2_t & cameraFront, ::llc::SRenderNodeList & renderList) const;
 		::llc::err_t						BuildLightList			(::llc::apod<::llc::SRenderLight> & lights) const;
-		::llc::error_t					CreateRenderNode		(const ::llc::SGeometryBuffers & geometry, ::llc::vcst_c name, bool createSkin);
+		::llc::err_t					CreateRenderNode		(const ::llc::SGeometryBuffers & geometry, ::llc::vcst_c name, bool createSkin);
 
-		::llc::error_t					Load					(::llc::vcu0_t & input) {
-			llc_necs(Graphics		->Load(input));
-			llc_necs(RenderNodes	 .Load(input));
-			//llc_necs(RenderCache	 .Load(input));
+		::llc::err_t					Load					(::llc::vcu0_t & input) {
+			if_fail_fe(Graphics		->Load(input));
+			if_fail_fe(RenderNodes	 .Load(input));
+			//if_fail_fe(RenderCache	 .Load(input));
 			return 0;
 		}
 
-		::llc::error_t					Save					(::llc::au0_t & output)	const	{
-			if(Graphics) 
-				llc_necs(Graphics->Save(output));
+		::llc::err_t					Save					(::llc::au0_t & output)	const	{
+			if(Graphics) {
+				if_fail_fe(Graphics->Save(output));
+			}
 			else {
 				SEngineGraphics{}.Save(output);
 			}
-			llc_necs(RenderNodes.Save(output));
-			//llc_necs(RenderCache.Save(output));
+			if_fail_fe(RenderNodes.Save(output));
+			//if_fail_fe(RenderCache.Save(output));
 			return 0;
 		}
 
-		::llc::error_t					Clone					(::llc::u2_t iRenderNode, bool cloneSkin, bool cloneSurfaces, bool cloneShaders) {
+		::llc::err_t					Clone					(::llc::u2_t iRenderNode, bool cloneSkin, bool cloneSurfaces, bool cloneShaders) {
 			const ::llc::u2_t						iNewNode				= RenderNodes.Clone(iRenderNode);
 			const ::llc::u2_t						idShaderSource			= RenderNodes[iRenderNode].Shader;
 			if(cloneShaders && idShaderSource < Graphics->Shaders.size())
-				llc_necs(RenderNodes[iNewNode].Shader = Graphics->Shaders.Clone(idShaderSource));
+				if_fail_fe(RenderNodes[iNewNode].Shader = Graphics->Shaders.Clone(idShaderSource));
 
 			const ::llc::u2_t						idSkinSource			= RenderNodes[iNewNode].Skin;
 			if(cloneSkin && idSkinSource < Graphics->Skins.size()) {
 				::llc::u2_t							idSkin;
-				llc_necs(idSkin = Graphics->Skins.Clone(idSkinSource));
+				if_fail_fe(idSkin = Graphics->Skins.Clone(idSkinSource));
 				RenderNodes[iNewNode].Skin		= idSkin;
 				if(cloneSurfaces) {
 					if(Graphics->Skins[idSkin]) {
@@ -194,7 +195,7 @@ namespace llc
 
 	::llc::err_t							lightFilter	(const ::llc::n3f2_t & position, ::llc::view<const ::llc::SRenderLight> lights, ::llc::apod<::llc::SRenderLight> & selected);
 
-	::llc::error_t							drawScene
+	::llc::err_t							drawScene
 		( ::llc::g8bgra				backBufferColors
 		, ::llc::gu2_t				backBufferDepth
 		, ::llc::SEngineRenderCache	& renderCache

@@ -7,7 +7,7 @@
 //
 //namespace llc
 //{
-//	stxp	const uint32_t				UDP_PAYLOAD_SIZE_LIMIT		= 60 * 1024;
+//	stxp	const u2_t				UDP_PAYLOAD_SIZE_LIMIT		= 60 * 1024;
 //
 //	struct SSocketConnection : SConnection {
 //		::llc::auto_socket_close			Socket						;

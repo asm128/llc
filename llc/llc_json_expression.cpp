@@ -8,10 +8,15 @@
 
 #define llc_jexpr_info_printf(...) // info_printf
 
+
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
+
 //#define LLC_JSON_EXPRESSION_DEBUG
 
 #if defined(LLC_JSON_EXPRESSION_DEBUG)
-static	::llc::error_t	printNode		(const ::llc::SExpressionNode* node, const ::llc::vcst_t & expression)			{
+static	::llc::err_t	printNode		(const ::llc::SExpressionNode* node, const ::llc::vcst_t & expression)			{
 	const ::llc::apod<sc_t>					viewPrintable					= ::llc::string({&expression[node->Token->Span.Begin], node->Token->Span.End - node->Token->Span.Begin});
 	const ::llc::vcst_t						viewTokenType					= ::llc::get_value_label(node->Token->Type);
 	info_printf("Entering expression node type: %u (%s). Node Span: {%u, %u}. Parent index: %u. Object index: %u. Text: %s", node->Token->Type, viewTokenType.begin(), node->Token->Span.Begin, node->Token->Span.End, node->Token->ParentIndex, node->ObjectIndex, viewPrintable.begin());
@@ -22,8 +27,8 @@ static	::llc::error_t	printNode		(const ::llc::SExpressionNode* node, const ::ll
 }
 #endif
 
-static	::llc::error_t	evaluateJSONBool		(const ::llc::SJSONNode & jsonToEvaluate, ::llc::vcst_c & boolView)	{
-	int32_t												evalResult								= -1;
+static	::llc::err_t	evaluateJSONBool		(const ::llc::SJSONNode & jsonToEvaluate, ::llc::vcst_c & boolView)	{
+	s2_t												evalResult								= -1;
 	if(jsonToEvaluate.Token->Type == ::llc::JSON_TYPE_NULL)
 		evalResult										= 0;
 	else if(jsonToEvaluate.Token->Type == ::llc::JSON_TYPE_BOOLEAN)
@@ -46,8 +51,8 @@ static	::llc::error_t	evaluateJSONBool		(const ::llc::SJSONNode & jsonToEvaluate
 	return evalResult;
 }
 
-static	::llc::error_t	evaluateBoolResult		(const ::llc::SJSONNode * jsonToEvaluate, int32_t indexNodeJSON, const ::llc::vcst_t & boolView)	{
-	::llc::error_t				evalResult								= -1;
+static	::llc::err_t	evaluateBoolResult		(const ::llc::SJSONNode * jsonToEvaluate, s2_t indexNodeJSON, const ::llc::vcst_t & boolView)	{
+	::llc::err_t				evalResult								= -1;
 	if(indexNodeJSON < 0)
 		evalResult										= (0 == boolView.size() || boolView == ::llc::strZero || boolView == ::llc::strBool[0] ||  boolView == ::llc::strNull || boolView == ::llc::strEmptyObj || boolView == ::llc::strEmptyArr) ? 0 : 1;
 	else if(indexNodeJSON >= 0)
@@ -55,27 +60,27 @@ static	::llc::error_t	evaluateBoolResult		(const ::llc::SJSONNode * jsonToEvalua
 	return evalResult;
 }
 
-static	::llc::error_t	evaluateAndClearBoolCarry				(::llc::SEvaluationStepResult & lastResult, const ::llc::SJSONNode * jsonToEvaluate, int32_t indexNodeJSON, const ::llc::vcst_t & boolView)	{
+static	::llc::err_t	evaluateAndClearBoolCarry				(::llc::SEvaluationStepResult & lastResult, const ::llc::SJSONNode * jsonToEvaluate, s2_t indexNodeJSON, const ::llc::vcst_t & boolView)	{
 	if(false == lastResult.LastValueCarry)
-		return ::evaluateBoolResult(jsonToEvaluate, (int32_t)indexNodeJSON, boolView);
+		return ::evaluateBoolResult(jsonToEvaluate, (s2_t)indexNodeJSON, boolView);
 	else {
 		lastResult.LastValueCarry						= false;
 		return lastResult.LastValue ? 1 : 0;
 	}
 }
 
-static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& results, const ::llc::SExpressionReader & readerExpression, const ::llc::u2_t indexNodeExpression, const ::llc::SJSONReader& inputJSON, ::llc::u2_t indexNodeJSON, ::llc::vcst_t & output);
+static	::llc::err_t	evaluateExpression						(::llc::SJSONExpressionSolver& results, const ::llc::SExpressionReader & readerExpression, const ::llc::u2_t indexNodeExpression, const ::llc::SJSONReader& inputJSON, ::llc::u2_t indexNodeJSON, ::llc::vcst_t & output);
 
-static	::llc::error_t	evaluateExpressionAndBoolResult			(::llc::SJSONExpressionSolver& results, const ::llc::SExpressionReader & readerExpression, ::llc::u2_t indexExpressionToken, const ::llc::SJSONReader & jsonInput, const int32_t indexJSONNode)	{
+static	::llc::err_t	evaluateExpressionAndBoolResult			(::llc::SJSONExpressionSolver& results, const ::llc::SExpressionReader & readerExpression, ::llc::u2_t indexExpressionToken, const ::llc::SJSONReader & jsonInput, const s2_t indexJSONNode)	{
 	::llc::vcst_t								viewOfExpressionResult					= {};
-	const int32_t										indexOfResolvedSubExpression			= ::evaluateExpression(results, readerExpression, indexExpressionToken, jsonInput, indexJSONNode, viewOfExpressionResult);
+	const s2_t										indexOfResolvedSubExpression			= ::evaluateExpression(results, readerExpression, indexExpressionToken, jsonInput, indexJSONNode, viewOfExpressionResult);
 	if_true_fef(-1 == indexOfResolvedSubExpression, "Failed to resolve subexpression: '%s'.", ::llc::string(readerExpression.View[indexExpressionToken]).begin());
 	return ::evaluateBoolResult((indexOfResolvedSubExpression >= 0) ? (const ::llc::SJSONNode*)jsonInput[indexOfResolvedSubExpression] : 0, indexOfResolvedSubExpression, viewOfExpressionResult);
 }
 
 
 // Returns an index pointing to the resulting JSON element, or a -0xF - the index of the resulting expression element.
-static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& results, const ::llc::SExpressionReader & readerExpression, const ::llc::u2_t indexNodeExpression, const ::llc::SJSONReader& inputJSON, ::llc::u2_t indexNodeJSON, ::llc::vcst_t & output)	{
+static	::llc::err_t	evaluateExpression						(::llc::SJSONExpressionSolver& results, const ::llc::SExpressionReader & readerExpression, const ::llc::u2_t indexNodeExpression, const ::llc::SJSONReader& inputJSON, ::llc::u2_t indexNodeJSON, ::llc::vcst_t & output)	{
 	if_true_fef(indexNodeExpression >= readerExpression.Tree.size() || 0 == readerExpression.Tree[indexNodeExpression], "Invalid expression node: %u.", indexNodeExpression);
 	if_true_fef(indexNodeJSON >= inputJSON.Tree.size() || 0 == inputJSON.Tree[indexNodeJSON], "Invalid input json or index node: %u.", indexNodeJSON);
 	const ::llc::SExpressionNode	* nodeExpression					= readerExpression.Tree[indexNodeExpression];	// Take this
@@ -83,8 +88,8 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 	::llc::SEvaluationStepResult	lastResult							= {indexNodeJSON,};
 	for(::llc::u2_t iFirstLevelExpression = 0; iFirstLevelExpression < nodeExpression->Children.size(); ++iFirstLevelExpression) {
 		const ::llc::SExpressionNode		& childToSolve					= *nodeExpression->Children[iFirstLevelExpression];
-		const ::llc::SJSONNode				* currentJSON					= (0 <= (int32_t)indexNodeJSON) ? (const ::llc::SJSONNode*)inputJSON.Tree[indexNodeJSON] : 0;
-		//const ::llc::SExpressionNode		* currentLiteral				= (0 <= (int32_t)indexNodeJSON) ? 0 : readerExpression.Tree[(((int32_t)indexNodeJSON) + 0xF) * -1];
+		const ::llc::SJSONNode				* currentJSON					= (0 <= (s2_t)indexNodeJSON) ? (const ::llc::SJSONNode*)inputJSON.Tree[indexNodeJSON] : 0;
+		//const ::llc::SExpressionNode		* currentLiteral				= (0 <= (s2_t)indexNodeJSON) ? 0 : readerExpression.Tree[(((s2_t)indexNodeJSON) + 0xF) * -1];
 		const ::llc::vcst_t					currentView						= lastResult.Output;
 		const ::llc::vcst_t					currentExpressionView			= readerExpression.View[childToSolve.ObjectIndex];
 		const ::llc::JSON_TYPE				currentType						= currentJSON ? currentJSON->Token->Type : ::llc::JSON_TYPE_UNKNOWN;
@@ -113,11 +118,11 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 				::llc::vcst_t				viewOfExpressionResult			= {};
 				if(::llc::EXPRESSION_READER_TYPE_TERM_INDEX == expressionType) {
 					if_true_fef(currentJSON && currentType != ::llc::JSON_TYPE_ARRAY && currentType != ::llc::JSON_TYPE_STRING, "Only arrays can be accessed by index. JSON type: %s.", ::llc::get_value_label(currentType).begin());
-					const int32_t			indexOfResolvedSubExpression	= ::evaluateExpression(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode, viewOfExpressionResult);
+					const s2_t			indexOfResolvedSubExpression	= ::evaluateExpression(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode, viewOfExpressionResult);
 					if_true_fef(-1 == indexOfResolvedSubExpression, "Failed to solve expression: %s.", ::llc::string(currentExpressionView).begin());
 					if_true_fef(indexOfResolvedSubExpression >= 0 && inputJSON.Token[indexOfResolvedSubExpression].Type != ::llc::JSON_TYPE_INTEGER, "Arrays can only be accessed by index with a json integer. Type found: %s.",::llc::get_value_label(inputJSON.Token[indexOfResolvedSubExpression].Type).begin());
-					uint64_t				numberRead						= 0;
-					llc_necs(llc::parseIntegerDecimal(viewOfExpressionResult, numberRead));
+					u3_t				numberRead						= 0;
+					if_fail_fe(llc::parseIntegerDecimal(viewOfExpressionResult, numberRead));
 					if(currentType == ::llc::JSON_TYPE_STRING) {
 						if_true_fef(numberRead >= currentView.size(), "String index out of range: %" LLC_FMT_U3 ". String size: %u.", numberRead, currentView.size());
 						lastResult.Output	= output = {&inputJSON.View[lastResult.IndexJSONResult][(::llc::u2_t)numberRead], 1};
@@ -129,46 +134,46 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 				}
 				else if(::llc::EXPRESSION_READER_TYPE_TERM_KEY == expressionType) {
 					if_true_fef(currentJSON && currentType != ::llc::JSON_TYPE_OBJECT, "Only objects can be accessed by key. JSON type: %s.", ::llc::get_value_label(currentType).begin());
-					int32_t						indexOfResolvedSubExpression			= ::evaluateExpression(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode, viewOfExpressionResult);
+					s2_t						indexOfResolvedSubExpression			= ::evaluateExpression(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode, viewOfExpressionResult);
 					if_true_fef(-1 == (lastResult.IndexJSONResult = indexOfResolvedSubExpression), "Failed to solve expression: %s.", ::llc::string(currentExpressionView).begin());
 					::llc::SExpressionReader	reader;
-					llc_necall(llc::expressionReaderParse(reader, viewOfExpressionResult), "Failed to read JSONeN expression: '%s'.", ::llc::string(viewOfExpressionResult).begin());
+					if_fail_fef(llc::expressionReaderParse(reader, viewOfExpressionResult), "Failed to read JSONeN expression: '%s'.", ::llc::string(viewOfExpressionResult).begin());
 					indexOfResolvedSubExpression	= ::llc::jsonExpressionResolve(reader, inputJSON, indexNodeJSON, results, output);
 					lastResult.Output		= output;
 					if_true_fef(-1 == (lastResult.IndexJSONResult = indexOfResolvedSubExpression), "Failed to evaluate child expression: %.*s.", LLC_VIEW_ARGS(viewOfExpressionResult));
 				}
 				else if(::llc::EXPRESSION_READER_TYPE_UNARY_NOT == expressionType) {
-					const int32_t										evalResult							= ::evaluateExpressionAndBoolResult(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexJSONResult);
+					const s2_t										evalResult							= ::evaluateExpressionAndBoolResult(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexJSONResult);
 					lastResult.SetBoolCarry(0 == evalResult, output);
 					lastResult.Output								= output;
 				}
 				else if(::llc::EXPRESSION_READER_TYPE_TERM_AND == expressionType) {
-					const int32_t										prevResult							= ::evaluateAndClearBoolCarry(lastResult, currentJSON, (int32_t)indexNodeJSON, currentView);
-					int32_t												evalResult							= ::evaluateExpressionAndBoolResult(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode);
+					const s2_t										prevResult							= ::evaluateAndClearBoolCarry(lastResult, currentJSON, (s2_t)indexNodeJSON, currentView);
+					s2_t												evalResult							= ::evaluateExpressionAndBoolResult(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode);
 					lastResult.SetBoolCarry(evalResult && prevResult, output);
 					lastResult.Output								= output;
 				}
 				else if(::llc::EXPRESSION_READER_TYPE_TERM_OR == expressionType) {
-					const int32_t										prevResult							= ::evaluateAndClearBoolCarry(lastResult, currentJSON, (int32_t)indexNodeJSON, currentView);
-					const int32_t										evalResult							= ::evaluateExpressionAndBoolResult(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode);
+					const s2_t										prevResult							= ::evaluateAndClearBoolCarry(lastResult, currentJSON, (s2_t)indexNodeJSON, currentView);
+					const s2_t										evalResult							= ::evaluateExpressionAndBoolResult(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode);
 					lastResult.SetBoolCarry(evalResult || prevResult, output);
 					lastResult.Output								= output;
 				}
 				else if(::llc::EXPRESSION_READER_TYPE_TERM_ANY == expressionType) {
-					const int32_t										indexOfResolvedSubExpression		= ::evaluateExpression(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexJSONResult, viewOfExpressionResult);
+					const s2_t										indexOfResolvedSubExpression		= ::evaluateExpression(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexJSONResult, viewOfExpressionResult);
 					lastResult.Output								= output = viewOfExpressionResult;
 					if_true_fef(-1 == indexOfResolvedSubExpression, "Failed to resolve expression: %s.", ::llc::string(currentExpressionView).begin());
 					lastResult.IndexJSONResult									= indexOfResolvedSubExpression;
 				}
 				else {
 					if(::llc::EXPRESSION_READER_TYPE_TERM_BOOL == expressionType) {
-						const int32_t										prevResult							= ::evaluateAndClearBoolCarry(lastResult, currentJSON, (int32_t)indexNodeJSON, currentView);
-						const int32_t										evalResult							= prevResult ? 0 : 1;
+						const s2_t										prevResult							= ::evaluateAndClearBoolCarry(lastResult, currentJSON, (s2_t)indexNodeJSON, currentView);
+						const s2_t										evalResult							= prevResult ? 0 : 1;
 						{
 							const ::llc::u2_t										expressionResultChildIndex			= (iFirstLevelExpression == nodeExpression->Children.size()-1) ? iFirstLevelExpression : iFirstLevelExpression + evalResult;
 							const ::llc::SExpressionNode						& childEval							= *nodeExpression->Children[expressionResultChildIndex];
 							const ::llc::vcst_t						& childEvalView						= readerExpression.View[childEval.ObjectIndex];(void)childEvalView;
-							const int32_t										indexOfResolvedSubExpression		= ::evaluateExpression(results, readerExpression, childEval.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode, viewOfExpressionResult);
+							const s2_t										indexOfResolvedSubExpression		= ::evaluateExpression(results, readerExpression, childEval.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode, viewOfExpressionResult);
 							if_true_fef(-1 == indexOfResolvedSubExpression, "Failed to resolve subexpression: '%s'.", ::llc::string(childEvalView).begin());
 							lastResult.Output								= output = viewOfExpressionResult;
 							lastResult.IndexJSONResult						= indexOfResolvedSubExpression;
@@ -176,7 +181,7 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 						iFirstLevelExpression							+= prevResult;
 					}
 					else if(::llc::EXPRESSION_READER_TYPE_TERM_EQUALS == expressionType) {
-						const int32_t										indexOfResolvedSubExpression		= ::evaluateExpression(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode, viewOfExpressionResult);
+						const s2_t										indexOfResolvedSubExpression		= ::evaluateExpression(results, readerExpression, childToSolve.ObjectIndex, inputJSON, lastResult.IndexRootJSONNode, viewOfExpressionResult);
 						if_true_fef(-1 == indexOfResolvedSubExpression, "Failed to resolve subexpression: '%s'.", ::llc::string(currentExpressionView).begin());
 						const ::llc::JSON_TYPE								resultType							= (indexOfResolvedSubExpression >= 0) ? inputJSON.Token[indexOfResolvedSubExpression].Type : ::llc::JSON_TYPE_UNKNOWN;
 						const ::llc::SJSONNode								* resultJSON						= (indexOfResolvedSubExpression >= 0) ? (const ::llc::SJSONNode*)inputJSON[indexOfResolvedSubExpression] : nullptr;
@@ -198,37 +203,37 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 							else if((currentType == ::llc::JSON_TYPE_INTEGER	&& resultType == ::llc::JSON_TYPE_INTEGER	)
 								 || (currentType == ::llc::JSON_TYPE_DECIMAL		&& resultType == ::llc::JSON_TYPE_DECIMAL	)
 							) {
-								double												valueLeft				= 0;
-								double												valueRight				= 0;
+								f3_t												valueLeft				= 0;
+								f3_t												valueRight				= 0;
 								if(currentType == ::llc::JSON_TYPE_INTEGER) {
-									valueLeft										= (double)currentJSON->Token->Value;
-									valueRight										= (double)resultJSON->Token->Value;
+									valueLeft										= (f3_t)currentJSON->Token->Value;
+									valueRight										= (f3_t)resultJSON->Token->Value;
 								}
 								else {
-									memcpy(&valueLeft , &currentJSON->Token->Value, sizeof(uint64_t));
-									memcpy(&valueRight, &resultJSON ->Token->Value, sizeof(uint64_t));
+									memcpy(&valueLeft , &currentJSON->Token->Value, sizeof(u3_t));
+									memcpy(&valueRight, &resultJSON ->Token->Value, sizeof(u3_t));
 								}
 								lastResult.SetBoolCarry(valueLeft == valueRight, output);
 								lastResult.Output								= output;
 							}
 							else if(currentType == ::llc::JSON_TYPE_INTEGER	&& resultType == ::llc::JSON_TYPE_DECIMAL) {
-								const double 										valueLeft				= (double)currentJSON->Token->Value;
-								double 												valueRight				= 0;
-								memcpy(&valueRight, &resultJSON->Token->Value, sizeof(uint64_t));
+								const f3_t 										valueLeft				= (f3_t)currentJSON->Token->Value;
+								f3_t 												valueRight				= 0;
+								memcpy(&valueRight, &resultJSON->Token->Value, sizeof(u3_t));
 								lastResult.SetBoolCarry(valueLeft == valueRight, output);
 								lastResult.Output								= output;
 							}
 							else if(currentType == ::llc::JSON_TYPE_DECIMAL && resultType == ::llc::JSON_TYPE_INTEGER) {
-								const double 										valueRight				= (double)resultJSON->Token->Value;
-								double 												valueLeft				= 0;
-								memcpy(&valueLeft, &currentJSON->Token->Value, sizeof(uint64_t));
+								const f3_t 										valueRight				= (f3_t)resultJSON->Token->Value;
+								f3_t 												valueLeft				= 0;
+								memcpy(&valueLeft, &currentJSON->Token->Value, sizeof(u3_t));
 								lastResult.SetBoolCarry(valueLeft == valueRight, output);
 								lastResult.Output								= output;
 							}
 							else if(::llc::JSON_TYPE_BOOLEAN == resultType	|| ::llc::JSON_TYPE_NULL == resultType
 								 || ::llc::JSON_TYPE_BOOLEAN == currentType	|| ::llc::JSON_TYPE_NULL == currentType	) {
-								const int32_t										prevResult							= ::evaluateAndClearBoolCarry	(lastResult, currentJSON, (int32_t)indexNodeJSON, currentView);
-								const int32_t										evalResult							= ::evaluateBoolResult			(resultJSON, indexOfResolvedSubExpression, viewOfExpressionResult);;
+								const s2_t										prevResult							= ::evaluateAndClearBoolCarry	(lastResult, currentJSON, (s2_t)indexNodeJSON, currentView);
+								const s2_t										evalResult							= ::evaluateBoolResult			(resultJSON, indexOfResolvedSubExpression, viewOfExpressionResult);;
 								lastResult.SetBoolCarry(evalResult == prevResult, output);
 								lastResult.Output								= output;
 							}
@@ -263,7 +268,7 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 	return lastResult.IndexJSONResult;
 }
 
-::llc::error_t			llc::jsonExpressionResolve				(const ::llc::SExpressionReader & reader, const ::llc::SJSONReader & inputJSON, ::llc::u2_t indexNodeJSON, ::llc::SJSONExpressionSolver& results, ::llc::vcst_t & output) {
+::llc::err_t			llc::jsonExpressionResolve				(const ::llc::SExpressionReader & reader, const ::llc::SJSONReader & inputJSON, ::llc::u2_t indexNodeJSON, ::llc::SJSONExpressionSolver& results, ::llc::vcst_t & output) {
 	const ::llc::aobj<::llc::vcst_t>	& expressionViews						= reader.View;
 	for(::llc::u2_t iView = 0; iView < expressionViews.size(); ++iView) {
 		const ::llc::vcst_t				& viewExpression						= expressionViews[iView];
@@ -275,7 +280,7 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 	}
 	::llc::vcst_t					evaluated								= {};
 	::llc::SJSONExpressionSolver	pendingResults							= {};
-	int32_t						jsonNodeResultOfEvaluation				= -1;
+	s2_t						jsonNodeResultOfEvaluation				= -1;
 	if(reader.Tree.size()) {
 #if defined(LLC_JSON_EXPRESSION_DEBUG)
 		::printNode(reader.Tree[0], reader.View[0]);
@@ -293,15 +298,15 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 	return jsonNodeResultOfEvaluation;
 }
 
-::llc::error_t			llc::jsonExpressionResolve				(::llc::vcst_t expression, const ::llc::SJSONReader & inputJSON, ::llc::u2_t indexNodeJSON, ::llc::vcst_t & output)								{
+::llc::err_t			llc::jsonExpressionResolve				(::llc::vcst_t expression, const ::llc::SJSONReader & inputJSON, ::llc::u2_t indexNodeJSON, ::llc::vcst_t & output)								{
 	::llc::SExpressionReader	reader;
-	llc_necall(llc::expressionReaderParse(reader, expression), "Failed to read JSONeN expression: '%s'.", ::llc::string(expression).begin());
+	if_fail_fef(llc::expressionReaderParse(reader, expression), "Failed to read JSONeN expression: '%s'.", ::llc::string(expression).begin());
 	return ::llc::jsonExpressionResolve(reader, inputJSON, indexNodeJSON, output);
 }
 
-::llc::error_t			llc::jsonExpressionResolve				(const ::llc::SExpressionReader & reader, const ::llc::SJSONReader & inputJSON, ::llc::u2_t indexNodeJSON, ::llc::vcst_t & output){
+::llc::err_t			llc::jsonExpressionResolve				(const ::llc::SExpressionReader & reader, const ::llc::SJSONReader & inputJSON, ::llc::u2_t indexNodeJSON, ::llc::vcst_t & output){
 	llc::SJSONExpressionSolver	results;
-	::llc::error_t				jsonNodeResultOfEvaluation;
+	::llc::err_t				jsonNodeResultOfEvaluation;
 	jsonNodeResultOfEvaluation = ::llc::jsonExpressionResolve(reader, inputJSON, indexNodeJSON, results, output);
 	if_true_fef(-1 == jsonNodeResultOfEvaluation, "%s", "Failed to resolve JSON expression.");
 	for(::llc::u2_t iResult = 0; iResult < results.Results.size(); ++iResult)
@@ -309,7 +314,7 @@ static	::llc::error_t	evaluateExpression						(::llc::SJSONExpressionSolver& res
 	return jsonNodeResultOfEvaluation;
 }
 
-::llc::error_t			llc::jsonStringFormat					(::llc::vcst_t format, const ::llc::SJSONReader& inputJSON, ::llc::u2_t indexNodeJSON, ::llc::asc_t & output)					{
+::llc::err_t			llc::jsonStringFormat					(::llc::vcst_t format, const ::llc::SJSONReader& inputJSON, ::llc::u2_t indexNodeJSON, ::llc::asc_t & output)					{
 	rtrn ::llc::expressionStringFormat(format, [&](::llc::vcst_c & expression, ::llc::vcst_t & resolved) {
 		rtrn ::llc::jsonExpressionResolve(expression, inputJSON, indexNodeJSON, resolved);
 	}, output);

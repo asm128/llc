@@ -17,15 +17,20 @@
 #	include <xcb/xcb_image.h>
 #endif
 
-using ::llc::sc_t;
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
 
-static	::llc::error_t	updateDPI									(::llc::SFramework & framework)													{
+usng llc::one_if;
+
+
+static	::llc::err_t	updateDPI									(::llc::SFramework & framework)													{
 #if defined(LLC_WINDOWS)
 	if(0 != framework.RootWindow.PlatformDetail.WindowHandle) {
 		RECT			rcWindow									= {};
 		::GetWindowRect(framework.RootWindow.PlatformDetail.WindowHandle, &rcWindow);
 		POINT			point										= {rcWindow.left + 8, rcWindow.top};
-		::llc::n2<uint32_t>																	dpi											= {96, 96};
+		::llc::n2<u2_t>																	dpi											= {96, 96};
 #define LLC_WINDOWS7_COMPAT
 #if defined(LLC_WINDOWS7_COMPAT)
 		if((framework.GUI->Zoom.DPI * 96).u2() != dpi) {
@@ -38,7 +43,7 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 		HRESULT			hr											= ::GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpi.x, &dpi.y);
 		if(0 == hr && (framework.GUI->Zoom.DPI * 96).u2() != dpi) {
 			framework.GUI->Zoom.DPI																	= {dpi.x / 96.0, dpi.y / 96.0};
-			::llc::pobj<::llc::rt<::llc::SFramework::TTexel, uint32_t>>					offscreen									= framework.RootWindow.BackBuffer;
+			::llc::pobj<::llc::rt<::llc::SFramework::TTexel, u2_t>>					offscreen									= framework.RootWindow.BackBuffer;
 			::llc::guiUpdateMetrics(*framework.GUI, offscreen->Color.View.metrics(), true);
 		}
 #endif
@@ -46,7 +51,7 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 #endif
 	return 0;
 }
-::llc::error_t			llc::updateFramework						(::llc::SFramework& framework)													{
+::llc::err_t			llc::updateFramework						(::llc::SFramework& framework)													{
 	if(0 == framework.GUI.get_ref())
 		framework.GUI.create();
 	::llc::SWindow				& mainWindow								= framework.RootWindow;
@@ -54,7 +59,7 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 	input.KeyboardPrevious	= input.KeyboardCurrent;
 	input.MousePrevious		= input.MouseCurrent;
 	input.MouseCurrent.Deltas	= {};
-	for(uint32_t iJoy = 0; iJoy < input.JoystickCurrent.size(); ++iJoy) {
+	for(u2_t iJoy = 0; iJoy < input.JoystickCurrent.size(); ++iJoy) {
 		input.JoystickCurrent[iJoy].Deltas	= {};
 		//XINPUT_STATE xistate = {};
 		//HRESULT err = XInputGetState(iJoy, &xistate);
@@ -73,14 +78,14 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 	::llc::SFrameInfo							& frameInfo									= framework.FrameInfo;
 	::llc::STimer								& timer										= framework.Timer;
 	timer		.Frame();
-	frameInfo	.Frame(::llc::min(timer.LastTimeMicroseconds, (uint64_t)200000));
+	frameInfo	.Frame(::llc::min(timer.LastTimeMicroseconds, (u3_t)200000));
 #if defined(LLC_XCB)
-	::llc::pobj<::llc::rt<::llc::bgra, uint32_t>>
+	::llc::pobj<::llc::rt<::llc::bgra, u2_t>>
 												& guiRenderTarget			= framework.RootWindow.BackBuffer;
 	if(mainWindow.Repaint) {
 		xcb_screen_t								* xcbScreen					= xcb_setup_roots_iterator(xcb_get_setup(framework.PlatformDetail.XCBConnection)).data;
 		const xcb_image_format_t					format						= XCB_IMAGE_FORMAT_Z_PIXMAP;
-		const ::llc::n2<uint32_t>				& guiRenderTargetMetrics	= guiRenderTarget->Color.View.metrics();
+		const ::llc::n2<u2_t>				& guiRenderTargetMetrics	= guiRenderTarget->Color.View.metrics();
 		xcb_image_t									* image						= xcb_image_create_native
 			( mainWindow.PlatformDetail.Connection
 			, guiRenderTargetMetrics.x
@@ -111,10 +116,10 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 		case XCB_BUTTON_RELEASE	: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Button %i Up"	, iev->detail); input.MouseCurrent   .ButtonState	[iev->detail - 1]	= 0; break;	}
 		case XCB_MOTION_NOTIFY	: {
 			xcb_motion_notify_event_t			* mev				= (xcb_motion_notify_event_t*)ev;
-			int32_t								xPos				= mev->same_screen ? mev->event_x : mev->root_x;
-			int32_t								yPos				= mev->same_screen ? mev->event_y : mev->root_y;
-			input.MouseCurrent.Position.x	= ::llc::clamped(xPos, 0, (int32_t)mainWindow.Size.x);
-			input.MouseCurrent.Position.y	= ::llc::clamped(yPos, 0, (int32_t)mainWindow.Size.y);
+			s2_t								xPos				= mev->same_screen ? mev->event_x : mev->root_x;
+			s2_t								yPos				= mev->same_screen ? mev->event_y : mev->root_y;
+			input.MouseCurrent.Position.x	= ::llc::clamped(xPos, 0, (s2_t)mainWindow.Size.x);
+			input.MouseCurrent.Position.y	= ::llc::clamped(yPos, 0, (s2_t)mainWindow.Size.y);
 			input.MouseCurrent.Deltas.x		= input.MouseCurrent.Position.x - input.MousePrevious.Position.x;
 			input.MouseCurrent.Deltas.y		= input.MouseCurrent.Position.y - input.MousePrevious.Position.y;
 			//info_printf("Mouse position: %i, %i", input.MouseCurrent.Position.x, input.MouseCurrent.Position.y);
@@ -123,9 +128,9 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 		}
 		}
 	}
-	::llc::error_t				updateResult		= 0;
+	::llc::err_t				updateResult		= 0;
 #else
-	::llc::error_t				updateResult		= ::llc::windowUpdate(mainWindow);
+	::llc::err_t				updateResult		= ::llc::windowUpdate(mainWindow);
 #endif
 	if_true_fe(llc::failed(updateResult));
 	if_true_vi(1, mainWindow.Closed);
@@ -233,11 +238,11 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 		break;
 	}
-	case WM_CHAR			: verbose_printf("WM_CHAR          '%u'.", wParam); if_fail_e(llc::eventEnqueueTextChar				(mainDisplay.EventQueue, (uint32_t)wParam)); mainDisplay.Repaint = true; break;
-	case WM_KEYDOWN			: verbose_printf("WM_KEYDOWN       '%u'.", wParam); if_fail_e(llc::eventEnqueueKeyboardDown			(mainDisplay.EventQueue, (uint8_t )wParam)); if(wParam < ::llc::size(input.KeyboardPrevious.KeyState)) input.KeyboardCurrent.KeyState[(uint32_t)wParam] = 1; mainDisplay.Repaint = true; break;
-	case WM_KEYUP			: verbose_printf("WM_KEYUP         '%u'.", wParam); if_fail_e(llc::eventEnqueueKeyboardUp			(mainDisplay.EventQueue, (uint8_t )wParam)); if(wParam < ::llc::size(input.KeyboardPrevious.KeyState)) input.KeyboardCurrent.KeyState[(uint32_t)wParam] = 0; mainDisplay.Repaint = true; break;
-	case WM_SYSKEYDOWN		: verbose_printf("WM_SYSKEYDOWN    '%u'.", wParam); if_fail_e(llc::eventEnqueueKeyboardSysDown		(mainDisplay.EventQueue, (uint8_t )wParam)); if(wParam < ::llc::size(input.KeyboardPrevious.KeyState)) input.KeyboardCurrent.KeyState[(uint32_t)wParam] = 1; mainDisplay.Repaint = true; break;
-	case WM_SYSKEYUP		: verbose_printf("WM_SYSKEYUP      '%u'.", wParam); if_fail_e(llc::eventEnqueueKeyboardSysUp		(mainDisplay.EventQueue, (uint8_t )wParam)); if(wParam < ::llc::size(input.KeyboardPrevious.KeyState)) input.KeyboardCurrent.KeyState[(uint32_t)wParam] = 0; mainDisplay.Repaint = true; break;
+	case WM_CHAR			: verbose_printf("WM_CHAR          '%u'.", wParam); if_fail_e(llc::eventEnqueueTextChar				(mainDisplay.EventQueue, (u2_t)wParam)); mainDisplay.Repaint = true; break;
+	case WM_KEYDOWN			: verbose_printf("WM_KEYDOWN       '%u'.", wParam); if_fail_e(llc::eventEnqueueKeyboardDown			(mainDisplay.EventQueue, (uint8_t )wParam)); if(wParam < ::llc::size(input.KeyboardPrevious.KeyState)) input.KeyboardCurrent.KeyState[(u2_t)wParam] = 1; mainDisplay.Repaint = true; break;
+	case WM_KEYUP			: verbose_printf("WM_KEYUP         '%u'.", wParam); if_fail_e(llc::eventEnqueueKeyboardUp			(mainDisplay.EventQueue, (uint8_t )wParam)); if(wParam < ::llc::size(input.KeyboardPrevious.KeyState)) input.KeyboardCurrent.KeyState[(u2_t)wParam] = 0; mainDisplay.Repaint = true; break;
+	case WM_SYSKEYDOWN		: verbose_printf("WM_SYSKEYDOWN    '%u'.", wParam); if_fail_e(llc::eventEnqueueKeyboardSysDown		(mainDisplay.EventQueue, (uint8_t )wParam)); if(wParam < ::llc::size(input.KeyboardPrevious.KeyState)) input.KeyboardCurrent.KeyState[(u2_t)wParam] = 1; mainDisplay.Repaint = true; break;
+	case WM_SYSKEYUP		: verbose_printf("WM_SYSKEYUP      '%u'.", wParam); if_fail_e(llc::eventEnqueueKeyboardSysUp		(mainDisplay.EventQueue, (uint8_t )wParam)); if(wParam < ::llc::size(input.KeyboardPrevious.KeyState)) input.KeyboardCurrent.KeyState[(u2_t)wParam] = 0; mainDisplay.Repaint = true; break;
 	case WM_LBUTTONDOWN		: verbose_printf("WM_LBUTTONDOWN   '%u'.", wParam); if_fail_e(llc::eventEnqueueMouseDown			(mainDisplay.EventQueue, 0)); input.MouseCurrent.ButtonState[0] = 1; mainDisplay.Repaint = true; break;
 	case WM_RBUTTONDOWN		: verbose_printf("WM_RBUTTONDOWN   '%u'.", wParam); if_fail_e(llc::eventEnqueueMouseDown			(mainDisplay.EventQueue, 1)); input.MouseCurrent.ButtonState[1] = 1; mainDisplay.Repaint = true; break;
 	case WM_MBUTTONDOWN		: verbose_printf("WM_MBUTTONDOWN   '%u'.", wParam); if_fail_e(llc::eventEnqueueMouseDown			(mainDisplay.EventQueue, 2)); input.MouseCurrent.ButtonState[2] = 1; mainDisplay.Repaint = true; break;
@@ -291,8 +296,8 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				mainDisplay.Resized				= true;
 				mainDisplay.Repaint				= true;
 				sc_t								buffer		[256]							= {};
-				//snprintf(buffer, ::llc::size(buffer) - 2, "[%u x %u]. Last frame seconds: %g. ", (uint32_t)newMetrics.x, (uint32_t)newMetrics.y, app.Framework.Timer.LastTimeSeconds);
-				snprintf(buffer, ::llc::size(buffer) - 2, "[%u x %u].", (uint32_t)newMetrics.x, (uint32_t)newMetrics.y);
+				//snprintf(buffer, ::llc::size(buffer) - 2, "[%u x %u]. Last frame seconds: %g. ", (u2_t)newMetrics.x, (u2_t)newMetrics.y, app.Framework.Timer.LastTimeSeconds);
+				snprintf(buffer, ::llc::size(buffer) - 2, "[%u x %u].", (u2_t)newMetrics.x, (u2_t)newMetrics.y);
 				SetWindowText(mainDisplay.PlatformDetail.WindowHandle, buffer);
 				if_true_e(llc::failed(::llc::eventEnqueueScreenResize(mainDisplay.EventQueue, newMetrics)));
 			}
@@ -348,7 +353,7 @@ static	void					initWndClass								(::HINSTANCE hInstance, const TCHAR* classNa
 	wndClassToInit.style			= CS_DBLCLKS;
 }
 #elif defined(LLC_XCB)
-static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
+static	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
 	if(0 == window.PlatformDetail.Connection) {
 		window.PlatformDetail.Connection														= xcb_connect(NULL, NULL);
 	}
@@ -357,14 +362,14 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 	xcb_create_pixmap(window.PlatformDetail.Connection, xcbScreen->root_depth, window.PlatformDetail.IdDrawableBackPixmap, xcbScreen->root, window.Size.x, window.Size.y);
 	{	// create graphics context
 		window.PlatformDetail.GC																= xcb_generate_id(window.PlatformDetail.Connection);
-		const uint32_t			mask		= XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
-		const uint32_t			values[3]	= {xcbScreen->black_pixel, xcbScreen->white_pixel, 0};
+		const u2_t			mask		= XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
+		const u2_t			values[3]	= {xcbScreen->black_pixel, xcbScreen->white_pixel, 0};
 		xcb_create_gc(window.PlatformDetail.Connection, window.PlatformDetail.GC, xcbScreen->root, mask, values);
 	}
 	{	// create the window
 		window.PlatformDetail.IdDrawable																		= xcb_generate_id(window.PlatformDetail.Connection);
-		const uint32_t			mask		= XCB_CW_BACK_PIXMAP | XCB_CW_EVENT_MASK;
-		const uint32_t			values[2]	= { window.PlatformDetail.IdDrawableBackPixmap
+		const u2_t			mask		= XCB_CW_BACK_PIXMAP | XCB_CW_EVENT_MASK;
+		const u2_t			values[2]	= { window.PlatformDetail.IdDrawableBackPixmap
 			, XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_STRUCTURE_NOTIFY
 			| XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS  | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_BUTTON_MOTION | XCB_EVENT_MASK_POINTER_MOTION
 		};
@@ -386,7 +391,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 }
 #endif
 
-::llc::error_t			llc::mainWindowDestroy						(::llc::SWindow& mainWindow)				{
+::llc::err_t			llc::mainWindowDestroy						(::llc::SWindow& mainWindow)				{
 #if defined(LLC_WINDOWS)
 	::DestroyWindow(mainWindow.PlatformDetail.WindowHandle);
 	::llc::windowUpdate(mainWindow);
@@ -398,7 +403,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 	return 0;
 }
 
-::llc::error_t			llc::mainWindowCreate	(::llc::SWindow& mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput>& displayInput)	{
+::llc::err_t			llc::mainWindowCreate	(::llc::SWindow& mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput>& displayInput)	{
 	if(0 == displayInput.get_ref())
 		displayInput.create();
 
@@ -433,7 +438,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 	xcb_screen_t				* xcbScreen			= xcb_setup_roots_iterator(xcb_get_setup(mainWindow.PlatformDetail.Connection)).data;
 	::std::shared_ptr<xcb_get_geometry_reply_t>	geometry									(xcb_get_geometry_reply(mainWindow.PlatformDetail.Connection, xcb_get_geometry(mainWindow.PlatformDetail.Connection, xcbScreen->root), nullptr), free);
 	mainWindow.Size						= {geometry->width, geometry->height};
-	llc_necall(xcbWindowCreate(mainWindow), "%s", "Failed to create main window.");
+	if_fail_fef(xcbWindowCreate(mainWindow), "%s", "Failed to create main window.");
 	(void)runtimeValues;
 #else
 	(void)runtimeValues;

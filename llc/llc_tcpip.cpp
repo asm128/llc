@@ -11,29 +11,29 @@
 
 LLC_USING_TYPEINT();
 
-::llc::error_t			llc::tcpipAddress		(::llc::vcst_t strIP, ::llc::u2_t & address, ::llc::u1_t & port) {
+::llc::err_t			llc::tcpipAddress		(::llc::vcst_t strIP, ::llc::u2_t & address, ::llc::u1_t & port) {
 	::llc::u2_t					iOffset					= ::llc::tcpipAddress(strIP, address);
 	return (iOffset < strIP.size())
-		? iOffset + ::llc::parseIntegerDecimal({&strIP[iOffset], strIP.size() - iOffset}, port)
+		? iOffset + parseIntegerDecimal({&strIP[iOffset], strIP.size() - iOffset}, port)
 		: iOffset
 		;
 }
 
-::llc::error_t			jsonTcpipAddress		(llc::vcst_t strIP, ::llc::u2_t & ipv4) {
+::llc::err_t			jsonTcpipAddress		(llc::vcst_t strIP, ::llc::u2_t & ipv4) {
 	::llc::SJSONReader			reader					= {};
 	if_fail_fef(llc::jsonParse(reader, strIP), "Failed to parse ip from string: '%.*s'.", (int)strIP.size(), strIP.begin());
 	ipv4					= 0;
-	{ int32_t iToken; llc_necs(iToken = ::llc::jsonArrayValueGet(reader, 0, 0)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader[iToken]->Token->Value, 0); }
-	{ int32_t iToken; llc_necs(iToken = ::llc::jsonArrayValueGet(reader, 0, 1)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader[iToken]->Token->Value, 1); }
-	{ int32_t iToken; llc_necs(iToken = ::llc::jsonArrayValueGet(reader, 0, 2)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader[iToken]->Token->Value, 2); }
-	{ int32_t iToken; llc_necs(iToken = ::llc::jsonArrayValueGet(reader, 0, 3)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader[iToken]->Token->Value, 3); }
+	{ s2_t iToken; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 0)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader[iToken]->Token->Value, 0); }
+	{ s2_t iToken; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 1)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader[iToken]->Token->Value, 1); }
+	{ s2_t iToken; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 2)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader[iToken]->Token->Value, 2); }
+	{ s2_t iToken; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 3)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader[iToken]->Token->Value, 3); }
 	return 0;
 }
 
-::llc::error_t			llc::tcpipAddress		(llc::vcst_t strIP, ::llc::u2_t & ipv4)	{
+::llc::err_t			llc::tcpipAddress		(llc::vcst_t strIP, ::llc::u2_t & ipv4)	{
 	ipv4					= 0;
 	::llc::ltrim(strIP);
-	if(0 == strIP.size()) 
+	if(0 == strIP.size())
 		return 0;
 
 	::llc::u2_t					iOffset					= 0;
@@ -41,7 +41,7 @@ LLC_USING_TYPEINT();
 	for(u0_t iVal = 0; iVal < 4 && iOffset < strIP.size(); ++iVal) {
 		while(iEnd < strIP.size()) {
 			char curChar = strIP[iEnd];
-			if(0 == iVal && curChar == '[') 
+			if(0 == iVal && curChar == '[')
 				return jsonTcpipAddress(strIP, ipv4);
 
 			if( curChar == ','
@@ -54,7 +54,7 @@ LLC_USING_TYPEINT();
 			++iEnd;
 		}
 		u0_t			valueRead	= 0;
-		llc_necs(llc::parseIntegerDecimal({&strIP[iOffset], iEnd - iOffset}, valueRead));
+		if_fail_fe(llc::parseIntegerDecimal({&strIP[iOffset], iEnd - iOffset}, valueRead));
 
 		ipv4	|= ::llc::byte_to<::llc::u2_t>(valueRead, iVal);
 
@@ -64,8 +64,8 @@ LLC_USING_TYPEINT();
 	return iOffset;
 }
 
-::llc::error_t			llc::tcpipAddress		(::llc::vcst_t strIP, ::llc::vcst_t strPort, ::llc::SIPv4End & ipv4) {
-	if(0 == strPort.size()) 
+::llc::err_t			llc::tcpipAddress		(::llc::vcst_t strIP, ::llc::vcst_t strPort, ::llc::SIPv4End & ipv4) {
+	if(0 == strPort.size())
 		return ::llc::tcpipAddress(strIP, ipv4.IP, ipv4.Port);
 
 	u2_c				iOffset					= ::llc::tcpipAddress(strIP, ipv4.IP);
@@ -85,7 +85,7 @@ LLC_USING_TYPEINT();
 #	include <arpa/inet.h>
 #endif
 
-::llc::error_t			llc::tcpipInitialize						()							{
+::llc::err_t			llc::tcpipInitialize						()							{
 #if defined(LLC_WINDOWS)
 	::WSADATA										w											= {};
 	if_true_fef(::WSAStartup(0x0202, &w) != 0, "Could not open Windows sockets: 0x%X '%s'", WSAGetLastError(), ::llc::getWindowsErrorAsString(WSAGetLastError()).begin());
@@ -94,7 +94,7 @@ LLC_USING_TYPEINT();
 	return 0;
 }
 
-::llc::error_t			llc::tcpipShutdown							()							{
+::llc::err_t			llc::tcpipShutdown							()							{
 #if defined(LLC_WINDOWS)
 	if_true_fef(::WSACleanup() != 0, "Could not shut down Windows sockets: 0x%X '%s'", WSAGetLastError(), ::llc::getWindowsErrorAsString(WSAGetLastError()).begin());		// Open windows connection
 #endif
@@ -102,13 +102,13 @@ LLC_USING_TYPEINT();
 	return 0;
 }
 
-::llc::error_t			llc::tcpipAddressFromSockaddr		(const sockaddr_in & sockaddr_ipv4, ::llc::u2_t & address, ::llc::u1_t & port) {
+::llc::err_t			llc::tcpipAddressFromSockaddr		(const sockaddr_in & sockaddr_ipv4, ::llc::u2_t & address, ::llc::u1_t & port) {
 	port 	= (::llc::u1_t)ntohs(sockaddr_ipv4.sin_port);
 #ifndef LLC_WINDOWS
 	address	= sockaddr_ipv4.sin_addr.s_addr;
 #else
 	address	= ::llc::SIPv4
-		{ sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b1 
+		{ sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b1
 		, sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b2
 		, sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b3
 		, sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b4
@@ -117,7 +117,7 @@ LLC_USING_TYPEINT();
 	return 0;
 }
 
-//::llc::error_t			llc::tcpipAddressFromSockaddr	(const sockaddr_in & sockaddr_ipv4, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4, ::llc::u1_t * port)	{
+//::llc::err_t			llc::tcpipAddressFromSockaddr	(const sockaddr_in & sockaddr_ipv4, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4, ::llc::u1_t * port)	{
 //#if defined(LLC_WINDOWS)
 //	llc_safe_assign(a1, (u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b1);
 //	llc_safe_assign(a2, (u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b2);
@@ -132,7 +132,7 @@ LLC_USING_TYPEINT();
 //	llc_safe_assign(port, (::llc::u1_t)ntohs(sockaddr_ipv4.sin_port));
 //	return 0;
 //}
-::llc::error_t			llc::tcpipAddressToSockaddr		(::llc::u2_t address, ::llc::u1_t port, sockaddr_in & sockaddr_ipv4) {
+::llc::err_t			llc::tcpipAddressToSockaddr		(::llc::u2_t address, ::llc::u1_t port, sockaddr_in & sockaddr_ipv4) {
 	sockaddr_ipv4				= {};
 	sockaddr_ipv4.sin_family	= AF_INET;
 	sockaddr_ipv4.sin_port		= port ? htons(port) : (::llc::u1_t)0;
@@ -147,7 +147,7 @@ LLC_USING_TYPEINT();
 	return 0;
 }
 
-::llc::error_t			llc::tcpipAddressToSockaddr		(u0_t a1, u0_t a2, u0_t a3, u0_t a4, ::llc::u1_t port, sockaddr_in & sockaddr_ipv4)	{
+::llc::err_t			llc::tcpipAddressToSockaddr		(u0_t a1, u0_t a2, u0_t a3, u0_t a4, ::llc::u1_t port, sockaddr_in & sockaddr_ipv4)	{
 	sockaddr_ipv4				= {};
 	sockaddr_ipv4.sin_family	= AF_INET;
 	sockaddr_ipv4.sin_port		= port ? htons(port) : (::llc::u1_t)0;
@@ -162,49 +162,49 @@ LLC_USING_TYPEINT();
 	return 0;
 }
 
-::llc::error_t			llc::tcpipAddress	(SOCKET socket, ::llc::u2_t & ip, ::llc::u1_t & port) {
+::llc::err_t			llc::tcpipAddress	(SOCKET socket, ::llc::u2_t & ip, ::llc::u1_t & port) {
 	sockaddr_in					sockaddr_ipv4		= {};
 	socklen_t					len					= szof(sockaddr_in);
 	if_true_fef(getsockname(socket, (sockaddr*)&sockaddr_ipv4, &len) != 0, "%s", "getpeername failed.");
 	return ::llc::tcpipAddressFromSockaddr(sockaddr_ipv4, ip, port);
 }
 
-::llc::error_t			llc::tcpipAddress	(::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4)										{
+::llc::err_t			llc::tcpipAddress	(::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4)										{
 	char						host_name[257]								= {};
 #if defined(LLC_ESP8266)
 	if_fail_fe(::llc::sprintf_s(host_name, "%s", wifi_station_get_hostname()));
-#else	
+#else
 	gethostname(host_name, 256);
 #endif
 	return ::llc::tcpipAddress(host_name, portRequested, adapterIndex, mode, a1, a2, a3, a4);
 }
 
-::llc::error_t			llc::tcpipAddress	(::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, ::llc::u2_t & address)										{
+::llc::err_t			llc::tcpipAddress	(::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, ::llc::u2_t & address)										{
 	char						host_name[257]								= {};
 #if defined(LLC_ESP8266)
 	if_fail_fe(::llc::sprintf_s(host_name, "%s", wifi_station_get_hostname()));
-#else	
+#else
 	gethostname(host_name, 256);
 #endif
 	return ::llc::tcpipAddress(host_name, portRequested, adapterIndex, mode, address);
 }
 
-::llc::error_t			llc::tcpipAddress	(const char* szHostName, ::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4, ::llc::u1_t * port)				{
-	::llc::SIPv4End 		addr; 
-	llc_necs(llc::tcpipAddress(szHostName, portRequested, adapterIndex, mode, addr.IP, addr.Port));
+::llc::err_t			llc::tcpipAddress	(const char* szHostName, ::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4, ::llc::u1_t * port)				{
+	::llc::SIPv4End 		addr;
+	if_fail_fe(llc::tcpipAddress(szHostName, portRequested, adapterIndex, mode, addr.IP, addr.Port));
 	llc_safe_assign(a1, addr[0]);
 	llc_safe_assign(a2, addr[1]);
 	llc_safe_assign(a3, addr[2]);
-	llc_safe_assign(a4, addr[3]);	
-	llc_safe_assign(port, addr.Port);		
+	llc_safe_assign(a4, addr[3]);
+	llc_safe_assign(port, addr.Port);
 	return 0;
 }
 
-::llc::error_t		llc::tcpipAddress		(::llc::vcst_t hostName, ::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4, ::llc::u1_t* port) { 
-	return ::llc::tcpipAddress(::llc::string(hostName).begin(), portRequested, adapterIndex, mode, a1, a2, a3, a4, port); 
+::llc::err_t		llc::tcpipAddress		(::llc::vcst_t hostName, ::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4, ::llc::u1_t* port) {
+	return ::llc::tcpipAddress(::llc::string(hostName).begin(), portRequested, adapterIndex, mode, a1, a2, a3, a4, port);
 }
 
-::llc::error_t			llc::tcpipAddress	(const char* szHostName, ::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, ::llc::u2_t & address, ::llc::u1_t & port) {
+::llc::err_t			llc::tcpipAddress	(const char* szHostName, ::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, ::llc::u2_t & address, ::llc::u1_t & port) {
 	char						portString			[6]					= {};
 	if_fail_fe(::llc::sprintf_s(portString, "%u", portRequested));
 
@@ -238,7 +238,7 @@ LLC_USING_TYPEINT();
 		(void)sockaddr_ipv4	;
 		//DWORD dwRetval;
 #if defined(LLC_WINDOWS)
-		int32_t						iRetval;
+		s2_t						iRetval;
 		DWORD						ipbufferlength									= 46;
 #else
 		::llc::u2_t					ipbufferlength									= 46;

@@ -14,9 +14,9 @@
 namespace llc 
 {
 #if defined(LLC_ATMEL)
-	int64_t		timeCurrent		()	{ return time(0); }
-	int64_t		timeCurrentInMs	()	{ return time(0) * 1000; }
-	int64_t		timeCurrentInUs	()	{ return time(0) * 1000000; }
+	s3_t		timeCurrent		()	{ return time(0); }
+	s3_t		timeCurrentInMs	()	{ return time(0) * 1000; }
+	s3_t		timeCurrentInUs	()	{ return time(0) * 1000000; }
 #else
 	using ::std::chrono::time_point;
 	using ::std::chrono::system_clock;
@@ -29,9 +29,9 @@ namespace llc
 	long long	timeCurrentInUs	()	{ time_point<system_clock> nowclock = system_clock::now(); return duration_cast<microseconds>(nowclock.time_since_epoch()).count(); }
 	long long	timeCurrentInMs	()	{ time_point<system_clock> nowclock = system_clock::now(); return duration_cast<milliseconds>(nowclock.time_since_epoch()).count(); }
 #	else
-	int64_t		timeCurrent		()	{ time_point<system_clock> nowclock = system_clock::now(); return system_clock::to_time_t(nowclock); }
-	int64_t		timeCurrentInUs	()	{ time_point<system_clock> nowclock = system_clock::now(); return duration_cast<microseconds>(nowclock.time_since_epoch()).count(); }
-	int64_t		timeCurrentInMs	()	{ time_point<system_clock> nowclock = system_clock::now(); return duration_cast<milliseconds>(nowclock.time_since_epoch()).count(); }
+	s3_t		timeCurrent		()	{ time_point<system_clock> nowclock = system_clock::now(); return system_clock::to_time_t(nowclock); }
+	s3_t		timeCurrentInUs	()	{ time_point<system_clock> nowclock = system_clock::now(); return duration_cast<microseconds>(nowclock.time_since_epoch()).count(); }
+	s3_t		timeCurrentInMs	()	{ time_point<system_clock> nowclock = system_clock::now(); return duration_cast<milliseconds>(nowclock.time_since_epoch()).count(); }
 #	endif
 #endif
 } // namespace

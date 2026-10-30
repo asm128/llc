@@ -52,6 +52,7 @@ namespace llc
 #endif
 
 #define LLC_OS_ENTRY_POINT_COMMON_INIT(llc_app_entry_point, main_argc, main_argv, main_envp)	\
+	::llc::setupDefaultLogCallbacks();															\
 	LLC_SYSTEM_OS_DEBUG_INIT_FLAGS();															\
 	if_true_fef(65535 < main_argc, "Invalid parameter count: %" LLC_FMT_U2 ".", main_argc);		\
 	LLC_RO_INIT_MULTITHREADED();																\

@@ -27,7 +27,7 @@ namespace llc
 		};
 
 	// The same palette with an opaque alpha byte.
-	stacxpr	u2_t ASCII_PALETTE [] =
+	stxp	u2_t ASCII_PALETTE [] =
 		{	0xFF000000U | ASCII_COLOR_INDEX_0
 		,	0xFF000000U | ASCII_COLOR_INDEX_1
 		,	0xFF000000U | ASCII_COLOR_INDEX_2
@@ -68,7 +68,7 @@ namespace llc
 		};
 
 	// Swaps the background color and the font color.
-	inlcxpr	ASCII_COLOR			ascii_color_invert		(cnst ASCII_COLOR color)				{ return ASCII_COLOR(((color & 0xF0) >> 4) | ((color & 0xF) << 4));	}
+	inxp	ASCII_COLOR			ascii_color_invert		(cnst ASCII_COLOR color)				{ return ASCII_COLOR(((color & 0xF0) >> 4) | ((color & 0xF) << 4));	}
 }
 
 #endif // LLC_ASCII_COLOR_H_23627

@@ -7,9 +7,9 @@
 namespace llc
 {
 	tplTstin	err_t	append_string			(asc_t & output, cnst T & arg)			{ rtrn output.append_string(arg); }
-	tplN2ustin	err_t	append_string			(asc_t & output, sc_c (&arg)[N])		{ rtrn output.append_string(arg); }
-	tplN2ustin	err_t	append_string			(asc_t & output, cnst astchar<N> & arg)	{ rtrn output.append_string(arg.Storage); }
-	stin		err_t	append_string			(asc_t & output, asc_c & arg)			{ rtrn output.append_string(arg.cc()); }
+	tplN2ustin	err_t	append_string			(asc_t & output, vcst_t arg)			{ rtrn output.append_string(arg); }
+	tplN2ustin	err_t	append_string			(asc_t & output, cnst astsc_t<N> & arg)	{ rtrn output.append_string(arg.Storage); }
+	stin		err_t	append_string			(asc_t & output, asc_c & arg)			{ rtrn output.append_string({arg.begin(), arg.size()}); }
 	tpl_vtArgs	err_t	append_strings			(asc_t & output, _tArgs&&... args)	{ 
 		err_t					err			= 0;
 		s2_c					results[]	= {err = (failed(err) ? -1 : append_string(output, args))..., 0}; 

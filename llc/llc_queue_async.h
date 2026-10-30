@@ -24,7 +24,7 @@ namespace llc
 		// Appends to the `output` container all the messages from the queue
 		inline	err_t	Read	(TContainer & output, bool clearQueue = true) {
 			::llc::lock_guard		locked(Lock);
-			llc_necs(output.append(Queue));
+			if_fail_fe(output.append(Queue));
 			if(clearQueue) {
 				Queue.clear();
 			}
@@ -35,9 +35,9 @@ namespace llc
 			err_t	left;
 			{
 				::std::lock_guard	locked(Lock);
-				rnis_if(0 == Queue.size());
+				if_true_vi(0, 0 == Queue.size());
 				output	= Queue[0];
-				llc_necs(left = Queue.remove(0));
+				if_fail_fe(left = Queue.remove(0));
 			}
 			return 1 + left;
 		}

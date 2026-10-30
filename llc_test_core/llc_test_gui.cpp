@@ -10,6 +10,12 @@
 
 #include "llc_test_core.h"
 
+
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
+LLC_USING_N2();
+
 GDEFINE_ENUM_TYPE(GUI_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, CREATE             ,  0, "A valid GUI control could not be created.");
 GDEFINE_ENUM_VALUED(GUI_TEST_RESULT, TABLES             ,  1, "GUI control parallel storage lost index correspondence.");
@@ -657,7 +663,7 @@ sttc ::llc::err_t testGUIDrawText(::llc::ATestError & errors) {
 		LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_TEXT_ALIGN, gui.Controls.Area[control].Text != expected, "Alignment:%s.", ::llc::get_value_namep(alignments[iAlign]));
 	}
 	gui.Controls.Text[control].Align = ::llc::ALIGN_CENTER;
-	stxp double dpiScales[] = {0.5, 1.0, 1.5};
+	stxp f3_t dpiScales[] = {0.5, 1.0, 1.5};
 	for(::llc::u2_t iScale = 0; iScale < ::llc::size(dpiScales); ++iScale) {
 		gui.Zoom.DPI = {dpiScales[iScale], dpiScales[iScale]};
 		LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_TEXT_ALIGN, 0 > ::llc::controlMetricsInvalidate(gui, control) || 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), true), "DPI:%f.", dpiScales[iScale]);

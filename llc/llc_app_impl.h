@@ -28,7 +28,7 @@ namespace llc																								\
 				::llc::pobj<_mainClass>	app;																\
 				if_true_fe(0 == app.create(runtimeValues));													\
 				info_printf("%s", "Initializing application instance.");									\
-				llc_necs(::setup(*app));																	\
+				if_fail_fe(::setup(*app));																	\
 				info_printf("%s", "Application instance initialized successfully. Executing main loop...");	\
 				while(true) {																				\
 					::llc::err_t			updateResult		= ::update(*app, false);					\
@@ -60,7 +60,7 @@ namespace llc																								\
 		::llc::SRuntimeState			& runtimeState		= *(::llc::SRuntimeState*)pRuntimeState;			\
 		if_true_ref(!runtimeState.Application, "Main module is null:(%s)\"%s\"", #_mainClass, _moduleTitle);	\
 		llc_sync_increment(runtimeState.RenderThreadUsers);														\
-		int32_t							result				= 0;									\
+		::llc::s2_t						result				= 0;									\
 		/*::llc::sleep(1);*/																					\
 		while(result = llc_sync_compare_exchange(runtimeState.RenderThreadUsers, 0, 1) - 1 && result != -1) {	\
 			::draw(*runtimeState.Application);																	\
@@ -81,7 +81,7 @@ namespace llc																								\
 		}																										\
 		else {																									\
 			llc_sync_increment(runtimeState.RenderThreadUsers);	/* Report we're alive	*/						\
-			llc_necs(::threadRenderStart(runtimeState));														\
+			if_fail_fe(::threadRenderStart(runtimeState));														\
 			info_printf("%s", "Application instance initialized successfully. Executing main loop...");			\
 			while(true) {																						\
 				updateResult	= ::update(*runtimeState.Application, false);									\
@@ -94,7 +94,7 @@ namespace llc																								\
 		}																										\
 		{																										\
 			::llc::STimer	timer;																				\
-			double			elapsedTime		= 0;																\
+			::llc::f3_t		elapsedTime		= 0;																\
 			while(-1 != llc_sync_compare_exchange(runtimeState.RenderThreadUsers, -1, 0)) {	/* Wait until the render thread is closed.	*/	\
 				if(elapsedTime > 5.0f)						\
 					break;									\
@@ -112,12 +112,12 @@ namespace llc																								\
 			info_printf("%s", "Initializing application instance.");					\
 			if(::llc::failed(::setup(*runtimeState.Application))) {						\
 				error_printf("%s", "Setup() Failed!");									\
-				llc_necs(::cleanup(*runtimeState.Application));							\
+				if_fail_fe(::cleanup(*runtimeState.Application));							\
 				return -1;																\
 			}																			\
 			::lrt_Loop(runtimeState);													\
 			info_printf("%s", "Cleaning up application instance...");					\
-			llc_necs(::cleanup(*runtimeState.Application));								\
+			if_fail_fe(::cleanup(*runtimeState.Application));								\
 		}																				\
 		info_printf("%s", "Application instance destroyed.");							\
 		return 0;																		\

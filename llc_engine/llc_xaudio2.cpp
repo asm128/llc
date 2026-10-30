@@ -18,19 +18,19 @@
 // Emitters behind the listener are defined here to be more attenuated,
 // have a lower LPF cutoff frequency,
 // yet have a slightly higher reverb send level.
-stacxpr	X3DAUDIO_CONE					Listener_DirectionalCone = { X3DAUDIO_PI*5.0f/6.0f, X3DAUDIO_PI*11.0f/6.0f, 1.0f, 0.75f, 0.0f, 0.25f, 0.708f, 1.0f };
+stxp	X3DAUDIO_CONE					Listener_DirectionalCone = { X3DAUDIO_PI*5.0f/6.0f, X3DAUDIO_PI*11.0f/6.0f, 1.0f, 0.75f, 0.0f, 0.25f, 0.708f, 1.0f };
 
 // Specify LFE level distance curve such that it rolls off much sooner than all non-LFE channels, making use of the subwoofer more dramatic.
-stacxpr	X3DAUDIO_DISTANCE_CURVE_POINT	Emitter_LFE_CurvePoints[3]		= { 0.0f, 1.0f, 0.25f, 0.0f, 1.0f, 0.0f };
+stxp	X3DAUDIO_DISTANCE_CURVE_POINT	Emitter_LFE_CurvePoints[3]		= { 0.0f, 1.0f, 0.25f, 0.0f, 1.0f, 0.0f };
 static	const X3DAUDIO_DISTANCE_CURVE	Emitter_LFE_Curve				= { (X3DAUDIO_DISTANCE_CURVE_POINT*)&Emitter_LFE_CurvePoints[0], 3 };
 
 // Specify reverb send level distance curve such that reverb send increases slightly with distance before rolling off to silence.
 // With the direct channels being increasingly attenuated with distance, this has the effect of increasing the reverb-to-direct sound ratio, reinforcing the perception of distance.
-stacxpr	X3DAUDIO_DISTANCE_CURVE_POINT	Emitter_Reverb_CurvePoints[3]	= { 0.0f, 0.5f, 0.75f, 1.0f, 1.0f, 0.0f };
+stxp	X3DAUDIO_DISTANCE_CURVE_POINT	Emitter_Reverb_CurvePoints[3]	= { 0.0f, 0.5f, 0.75f, 1.0f, 1.0f, 0.0f };
 static	const X3DAUDIO_DISTANCE_CURVE	Emitter_Reverb_Curve			= { (X3DAUDIO_DISTANCE_CURVE_POINT*)&Emitter_Reverb_CurvePoints[0], 3 };
 
 // Must match order of g_PRESET_NAMES
-stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
+stxp	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 {
 	XAUDIO2FX_I3DL2_PRESET_FOREST,
 	XAUDIO2FX_I3DL2_PRESET_DEFAULT,
@@ -67,7 +67,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 //-----------------------------------------------------------------------------------------
 // Initialize the audio by creating the XAudio2 device, mastering voice, etc.
 //-----------------------------------------------------------------------------------------
-::llc::error_t			llc::AUDIO_STATE::InitAudio() {
+::llc::err_t			llc::AUDIO_STATE::InitAudio() {
 	llc_hrcall(CoInitializeEx( nullptr, COINIT_MULTITHREADED ));
 
 #ifdef USING_XAUDIO2_7_DIRECTX
@@ -171,11 +171,11 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 
 	// Speaker geometry configuration on the final mix, specifies assignment of channels to speaker positions, defined as per WAVEFORMATEXTENSIBLE.dwChannelMask
 	// SpeedOfSound - speed of sound in user-defined world units/second, used only for doppler calculations, it must be >= FLT_MIN
-	stacxpr	float				SPEEDOFSOUND		= X3DAUDIO_SPEED_OF_SOUND;
+	stxp	f2_t				SPEEDOFSOUND		= X3DAUDIO_SPEED_OF_SOUND;
 	X3DAudioInitialize(dwChannelMask, SPEEDOFSOUND, x3DInstance);
 
 	vListenerPos			= {};
-	vEmitterPos				= {0, 0, float( ZMAX )};
+	vEmitterPos				= {0, 0, f2_t( ZMAX )};
 
 	fListenerAngle			= 0;
 	fUseListenerCone		= TRUE;
@@ -237,13 +237,13 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 //-----------------------------------------------------------------------------
 // Prepare a looping wave
 //-----------------------------------------------------------------------------
-::llc::error_t			llc::AUDIO_STATE::PrepareAudio(::llc::vcst_t wavname) {
+::llc::err_t			llc::AUDIO_STATE::PrepareAudio(::llc::vcst_t wavname) {
 	safe_destroySourceVoice(SourceVoice);
 
 	// Read in the wave file
 	const WAVEFORMATEX			* pwfx				= 0;
 	::llc::vcu0_t				audioView			= {};
-	llc_necs(DirectX::LoadWAVAudioFromFile(wavname, WaveData, &pwfx, audioView));
+	if_fail_fe(DirectX::LoadWAVAudioFromFile(wavname, WaveData, &pwfx, audioView));
 
 	if_true_fef(pwfx->nChannels != INPUTCHANNELS, "%i == %i", pwfx->nChannels, INPUTCHANNELS);
 
@@ -274,7 +274,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 //-----------------------------------------------------------------------------
 // Perform per-frame update of audio
 //-----------------------------------------------------------------------------
-::llc::error_t			llc::AUDIO_STATE::UpdateAudio(double fElapsedTime) {
+::llc::err_t			llc::AUDIO_STATE::UpdateAudio(f3_t fElapsedTime) {
 	if( nFrameToApply3DAudio == 0 ) {
 		// Calculate listener orientation in x-z plane
 		if (vListenerPos.x != listener.Position.x
@@ -282,7 +282,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 		) {
 			::llc::n3f2_t				vDelta				= vListenerPos - ::llc::n3f2_t{listener.Position.x, listener.Position.y, listener.Position.z};
 
-			fListenerAngle			= float( atan2( vDelta.x, vDelta.z ) );
+			fListenerAngle			= f2_t( atan2( vDelta.x, vDelta.z ) );
 
 			vDelta.y				= 0.0f;
 			vDelta.Normalize();
@@ -312,7 +312,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 			emitter.Velocity		= {eVelocity.x, eVelocity.y, eVelocity.z};
 		}
 
-		uint32_t dwCalcFlags = X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER
+		u2_t dwCalcFlags = X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER
 			| X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_LPF_REVERB
 			| X3DAUDIO_CALCULATE_REVERB;
 
@@ -344,7 +344,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 	return S_OK;
 }
 
-::llc::error_t			llc::AUDIO_STATE::SetReverb(int nReverb) {
+::llc::err_t			llc::AUDIO_STATE::SetReverb(int nReverb) {
 	if( nReverb < 0 || nReverb >= NUM_PRESETS )
 		return E_FAIL;
 
@@ -357,7 +357,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 	return S_OK;
 }
 
-::llc::error_t			llc::AUDIO_STATE::PauseAudio(bool resume) { 
+::llc::err_t			llc::AUDIO_STATE::PauseAudio(bool resume) { 
 	if(resume && false == Playing) 
 		XAudio2->StartEngine();
 	else if(Playing && false == resume) 
@@ -367,7 +367,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 	return 0; 
 }
 
-::llc::error_t			llc::AUDIO_STATE::CleanupAudio	()					{
+::llc::err_t			llc::AUDIO_STATE::CleanupAudio	()					{
 	safe_destroySourceVoice(SourceVoice);	
 	safe_destroyVoice(pSubmixVoice);	
 	safe_destroyVoice(pMasterVoice);
@@ -379,7 +379,7 @@ stacxpr	XAUDIO2FX_REVERB_I3DL2_PARAMETERS	g_PRESET_PARAMS[::llc::NUM_PRESETS]	=
 	return 0;
 }
 
-static	::llc::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::llc::aobj<::llc::AudioDevice> & list) {
+static	::llc::err_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::llc::aobj<::llc::AudioDevice> & list) {
 #if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 	UNREFERENCED_PARAMETER( pXaudio2 );
 
@@ -516,7 +516,7 @@ static	::llc::error_t	enumerateAudio		(_In_ IXAudio2* pXaudio2, _Inout_ ::llc::a
 #else // USING_XAUDIO2_7_DIRECTX
 
 	// Enumerating with XAudio 2.7
-	uint32_t						count			= 0;
+	u2_t						count			= 0;
 	llc_hrcall(pXaudio2->GetDeviceCount(&count));
 	if(!count)
 		return S_FALSE;
@@ -550,7 +550,7 @@ HRESULT					llc::SSoundState::PrepareAudio	(::llc::vcst_t wavname, IXAudio2*	XAu
 	const WAVEFORMATEX			* pwfx				= 0;
 	::llc::vcu0_t				audioView			= {};
 	WaveData.create();
-	llc_hrcall(DirectX::LoadWAVAudioFromFile(::llc::vcs{strFilePath}, *WaveData, &pwfx, audioView));
+	llc_hrcall(DirectX::LoadWAVAudioFromFile(::llc::vcst_t{strFilePath}, *WaveData, &pwfx, audioView));
 
 	// Play the wave using a source voice that sends to both the submix and mastering voices
 	XAUDIO2_SEND_DESCRIPTOR		sendDescriptors[2]	= {};

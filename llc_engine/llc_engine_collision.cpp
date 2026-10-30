@@ -1,31 +1,37 @@
 #include "llc_engine.h"
 
-static	::llc::error_t	detectAABB				(const ::llc::SRigidBodyIntegrator & integrator, uint32_t bodyA, uint32_t bodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)bodyA, (void)bodyB, (void)contactCache, (void)contactsDetected; return 0; }
-static	::llc::error_t	detectCylinder			(const ::llc::SRigidBodyIntegrator & integrator, uint32_t bodyA, uint32_t bodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)bodyA, (void)bodyB, (void)contactCache, (void)contactsDetected; return 0; }
-static	::llc::error_t	detectCylinderAABB		(const ::llc::SRigidBodyIntegrator & integrator, uint32_t cylinder, uint32_t aabb, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)cylinder, (void)aabb, (void)contactCache, (void)contactsDetected; return 0; }
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
 
-static	::llc::error_t	detectSphere			(const ::llc::SRigidBodyIntegrator & integrator, uint32_t rigidBodyA, uint32_t rigidBodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) {
+usng llc::one_if;
+
+static	::llc::err_t	detectAABB				(const ::llc::SRigidBodyIntegrator & integrator, u2_t bodyA, u2_t bodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)bodyA, (void)bodyB, (void)contactCache, (void)contactsDetected; return 0; }
+static	::llc::err_t	detectCylinder			(const ::llc::SRigidBodyIntegrator & integrator, u2_t bodyA, u2_t bodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)bodyA, (void)bodyB, (void)contactCache, (void)contactsDetected; return 0; }
+static	::llc::err_t	detectCylinderAABB		(const ::llc::SRigidBodyIntegrator & integrator, u2_t cylinder, u2_t aabb, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)cylinder, (void)aabb, (void)contactCache, (void)contactsDetected; return 0; }
+
+static	::llc::err_t	detectSphere			(const ::llc::SRigidBodyIntegrator & integrator, u2_t rigidBodyA, u2_t rigidBodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) {
 	const ::llc::n3f2_t			& radiusA				= integrator.BoundingVolumes[rigidBodyA].HalfSizes;
 	const ::llc::n3f2_t			& positionA				= integrator.Centers[rigidBodyA].Position;
 	const ::llc::n3f2_t			& radiusB				= integrator.BoundingVolumes[rigidBodyB].HalfSizes;
 	const ::llc::n3f2_t			& positionB				= integrator.Centers[rigidBodyB].Position;
 
-	const float					maxDistance				= radiusA.x + radiusB.x;
-	const float					collisionThreshold		= maxDistance * maxDistance;
+	const f2_t					maxDistance				= radiusA.x + radiusB.x;
+	const f2_t					collisionThreshold		= maxDistance * maxDistance;
 	contactCache.CenterDistance	= positionB - positionA;
-	const float					distanceSquared			= (float)contactCache.CenterDistance.LengthSquared();
+	const f2_t					distanceSquared			= (f2_t)contactCache.CenterDistance.LengthSquared();
 	if(distanceSquared >= collisionThreshold) 
 		return 0;
 
 	contactCache.DistanceLength	= distanceSquared ? sqrt(distanceSquared) : 0.0f;
-	llc_necs(contactsDetected.push_back(contactCache));
-	return ::llc::error_t(1 + rigidBodyB);
+	if_fail_fe(contactsDetected.push_back(contactCache));
+	return ::llc::err_t(1 + rigidBodyB);
 }
 
-static	::llc::error_t	detectSphereAABB		(const ::llc::SRigidBodyIntegrator & integrator, uint32_t bodySphere, uint32_t bodyAABB    , ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)bodySphere, (void)bodyAABB, (void)contactCache, (void)contactsDetected; return 0; }
-static	::llc::error_t	detectSphereCylinder	(const ::llc::SRigidBodyIntegrator & integrator, uint32_t bodySphere, uint32_t bodyCylinder, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)bodySphere, (void)bodyCylinder, (void)contactCache, (void)contactsDetected; return 0; }
-static	::llc::error_t	detectSame				(const ::llc::SRigidBodyIntegrator & integrator, ::llc::BOUNDING_TYPE bvA, uint32_t rigidBodyA, uint32_t rigidBodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) {
-	::llc::error_t				result					= -1;
+static	::llc::err_t	detectSphereAABB		(const ::llc::SRigidBodyIntegrator & integrator, u2_t bodySphere, u2_t bodyAABB    , ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)bodySphere, (void)bodyAABB, (void)contactCache, (void)contactsDetected; return 0; }
+static	::llc::err_t	detectSphereCylinder	(const ::llc::SRigidBodyIntegrator & integrator, u2_t bodySphere, u2_t bodyCylinder, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) { (void)integrator, (void)bodySphere, (void)bodyCylinder, (void)contactCache, (void)contactsDetected; return 0; }
+static	::llc::err_t	detectSame				(const ::llc::SRigidBodyIntegrator & integrator, ::llc::BOUNDING_TYPE bvA, u2_t rigidBodyA, u2_t rigidBodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) {
+	::llc::err_t				result					= -1;
 	switch(bvA) {
 	default								: warning_printf("Unsupported type: (%i) %s.", bvA, ::llc::get_value_namep(bvA)); break; 
 	case ::llc::BOUNDING_TYPE_Sphere	: result = ::detectSphere  (integrator, rigidBodyA, rigidBodyB, contactCache, contactsDetected); break; 
@@ -35,8 +41,8 @@ static	::llc::error_t	detectSame				(const ::llc::SRigidBodyIntegrator & integra
 	return result;
 }
 
-static	::llc::error_t	collisionDetectAny		(const ::llc::SRigidBodyIntegrator & integrator, ::llc::BOUNDING_TYPE bvA, ::llc::BOUNDING_TYPE bvB, uint32_t rigidBodyA, uint32_t rigidBodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) {
-	::llc::error_t				result					= 0;
+static	::llc::err_t	collisionDetectAny		(const ::llc::SRigidBodyIntegrator & integrator, ::llc::BOUNDING_TYPE bvA, ::llc::BOUNDING_TYPE bvB, u2_t rigidBodyA, u2_t rigidBodyB, ::llc::SContact & contactCache, ::llc::apod<::llc::SContact> & contactsDetected) {
+	::llc::err_t				result					= 0;
 	if(bvA == bvB) 
 		return detectSame(integrator, bvA, rigidBodyA, rigidBodyB, contactCache, contactsDetected);
 
@@ -63,8 +69,8 @@ static	::llc::error_t	collisionDetectAny		(const ::llc::SRigidBodyIntegrator & i
 	return result;
 }
 
-::llc::error_t			llc::collisionDetect	(const ::llc::SEngine & engine, double totalSeconds, ::llc::apod<::llc::SContact> & contactsDetected) {
-	uint32_t					count					= contactsDetected.size();
+::llc::err_t			llc::collisionDetect	(const ::llc::SEngine & engine, f3_t totalSeconds, ::llc::apod<::llc::SContact> & contactsDetected) {
+	u2_t					count					= contactsDetected.size();
 	for(::llc::SContact	contact	= {totalSeconds}; contact.EntityA < engine.Entities.size(); ++contact.EntityA) {
 		const ::llc::SEntity	& entityA				= engine.Entities[contact.EntityA];
 		if(entityA.RigidBody >= engine.Integrator.Flags.size())
@@ -83,7 +89,7 @@ static	::llc::error_t	collisionDetectAny		(const ::llc::SRigidBodyIntegrator & i
 			if(false == flagsB.Collides)
 				continue;
 
-			llc_necs(::collisionDetectAny(engine.Integrator, (::llc::BOUNDING_TYPE)flagsA.BVType, (::llc::BOUNDING_TYPE)flagsB.BVType, entityA.RigidBody, entityB.RigidBody, contact, contactsDetected));
+			if_fail_fe(::collisionDetectAny(engine.Integrator, (::llc::BOUNDING_TYPE)flagsA.BVType, (::llc::BOUNDING_TYPE)flagsB.BVType, entityA.RigidBody, entityB.RigidBody, contact, contactsDetected));
 		}
 	}
 	//ginfo_if(contactsDetected.size() - count, "%i collisions detected.", contactsDetected.size() - count);

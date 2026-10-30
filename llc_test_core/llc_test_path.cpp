@@ -6,6 +6,11 @@
 
 #include <filesystem>
 
+
+LLC_USING_APOD();
+LLC_USING_VIEW();
+LLC_USING_TYPEINT();
+
 GDEFINE_ENUM_TYPE(PATH_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, OK						, 0, "All path tests passed.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LAST_SLASH_NONE			, 1, "findLastSlash() did not report that the path contains no separator.");
@@ -66,7 +71,7 @@ GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_FILE_EQUIVALENT, 55, "Callback a
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_TREE_FOLDER_EQUIVALENT, 56, "Callback and non-callback pathList() trees disagreed on folder count.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, LIST_EXTENSION_FOLDER_COUNT, 57, "Extension-filtered pathList() tree contained the wrong folder count.");
 
-tydf ::llc::err_t (*TFileToString)(::llc::vcst_t, ::llc::string &, ::llc::u2_t, uint64_t);
+tydf ::llc::err_t (*TFileToString)(::llc::vcst_t, ::llc::string &, ::llc::u2_t, u3_t);
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_COUNTS, 58, "SPathTree arrays have inconsistent entry counts.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_STORAGE, 59, "SPathTree names are not consecutive views into Char.");
 GDEFINE_ENUM_VALUED(PATH_TEST_RESULT, TREE_NODE, 60, "SPathTree node does not reference its own information/index.");

@@ -54,7 +54,7 @@ namespace llc
 		json_id_t				ParentIndex;
 		JSON_TYPE				Type;
 		sliceu2_t				Span;
-		uint64_t				Value;
+		u3_t				Value;
 	};
 	stct SJSONNode {
 		cnst SJSONToken			* Token				= 0;

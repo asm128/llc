@@ -17,7 +17,7 @@ namespace llc
 		::llc::u2_t				MaxLength		= 16;
 		bool					Editing			= false;
 
-		inline	::llc::err_t	SetText			(::llc::SGUI & gui, ::llc::vcst_t text)		{ rtrn ::llc::controlTextSet(gui, IdText, (Text = text).cc()); }
+		inline	::llc::err_t	SetText			(::llc::SGUI & gui, ::llc::vcst_t text)		{ rtrn ::llc::controlTextSet(gui, IdText, Text = text); }
 		::llc::err_t			Edit			(::llc::SGUI & gui, bool editing) {
 			Editing = editing;
 			gui.Controls.SetHidden(IdRoot, false == Editing);

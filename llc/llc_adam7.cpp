@@ -1,9 +1,9 @@
 #include "llc_adam7.h"
 
-::llc::err_t			llc::adam7ScaleIndex
-	( ::llc::s2_t			iImage
-	, ::llc::n2u2_t		& offsetMultiplier
-	, ::llc::n2u2_t		& offsetBase
+llc::err_t			llc::adam7ScaleIndex
+	( s2_t			iImage
+	, n2u2_t		& offsetMultiplier
+	, n2u2_t		& offsetBase
 	)
 {
 	if_true_fef(iImage >= 7 || iImage < 0, "Invalid Adam7 image: %i.", iImage);
@@ -18,12 +18,11 @@
 	}
 	return 0;
 }
-
-::llc::err_t	llc::adam7Sizes	(::llc::view<::llc::n2u2_t> & imageSizes, cnst ::llc::n2u2_t & imageSize) {
+llc::err_t	llc::adam7Sizes	(view<n2u2_t> & imageSizes, cnst n2u2_t & imageSize) {
 	if_true_fef(imageSizes.size() < 7, "Pass storage:%u, required:7.", imageSizes.size());
-	for(::llc::u2_t iPass = 0; iPass < 7; ++iPass) {
-		::llc::n2u2_t multiplier = {}, base = {};
-		if_fail_fe(::llc::adam7ScaleIndex(iPass, multiplier, base));
+	for(u2_t iPass = 0; iPass < 7; ++iPass) {
+		n2u2_t multiplier = {}, base = {};
+		if_fail_fe(adam7ScaleIndex(iPass, multiplier, base));
 		imageSizes[iPass] =
 			{ imageSize.x <= base.x ? 0U : round_up(imageSize.x - base.x, multiplier.x)
 			, imageSize.y <= base.y ? 0U : round_up(imageSize.y - base.y, multiplier.y)

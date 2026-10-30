@@ -685,6 +685,9 @@
     <ClInclude Include="llc_ro_model.h" />
     <ClInclude Include="llc_spaceship.h" />
     <ClInclude Include="llc_weapon.h" />
+    <ClInclude Include="llc_xaudio2.h" />
+    <ClInclude Include="Sample3DSceneRenderer.h" />
+    <ClInclude Include="SampleFpsTextRenderer.h" />
     <ClInclude Include="WaveBankReader.h" />
     <ClInclude Include="WAVFileReader.h" />
     <ClInclude Include="XAudio2Versions.h" />

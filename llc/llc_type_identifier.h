@@ -10,8 +10,8 @@ namespace llc
 		vcst_t					NameSpace				= {};
 		vcst_t					Name					= {};
 
-		inlcxpr					STypeIdentifier			()			= default;
-		inlcxpr					STypeIdentifier			(vcst_c & nameSpace, vcst_c & name)	: NameSpace(nameSpace), Name(name)	{}
+		inxp					STypeIdentifier			()			= default;
+		inxp					STypeIdentifier			(vcst_c & nameSpace, vcst_c & name)	: NameSpace(nameSpace), Name(name)	{}
 
 		inline	bool			operator==				(const STypeIdentifier & right)		const	noexcept	{ return NameSpace == right.NameSpace && Name == right.Name; }
 	};	// struct

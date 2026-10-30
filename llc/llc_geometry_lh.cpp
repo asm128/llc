@@ -1,13 +1,13 @@
 #ifndef LLC_ATMEL
 #include "llc_geometry_lh.h"
 
-::llc::error_t			llc::geometryBuildTileListFromImage		(::llc::gc8bgra image, ::llc::apod<::llc::STile> & out_tiles, ::llc::u2_t imagePitch)	{
+::llc::err_t			llc::geometryBuildTileListFromImage		(::llc::gc8bgra image, ::llc::apod<::llc::STile> & out_tiles, ::llc::u2_t imagePitch)	{
 	{
 		::llc::STile											newTile;
 		for(::llc::u2_t z = 0, maxZ = image.metrics().y; z < maxZ ; ++z)
 		for(::llc::u2_t x = 0, maxX = image.metrics().x; x < maxX ; ++x) {
 			::llc::rgbaf										currentPixel							= (0 == imagePitch) ? image[z][x] : image.begin()[z * imagePitch + x];
-			float													pixelHeight								= float((currentPixel.r + (double)currentPixel.g + currentPixel.b) / 3.0);
+			f2_t													pixelHeight								= f2_t((currentPixel.r + (f3_t)currentPixel.g + currentPixel.b) / 3.0);
 			for(::llc::u2_t iCorner = 0; iCorner < 4; ++iCorner)
 				newTile.Height[iCorner]								= pixelHeight;
 			newTile.Top											= 1;
@@ -34,7 +34,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::geometryBuildGridFromTileList		(::llc::SGeometryQuads & geometry, ::llc::grid<const ::llc::STile> tiles, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale) {
+::llc::err_t			llc::geometryBuildGridFromTileList		(::llc::SGeometryQuads & geometry, ::llc::grid<const ::llc::STile> tiles, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale) {
 	::llc::n2f2_t									texCoordUnits						= {1.0f / tiles.metrics().x, 1.0f / tiles.metrics().y};
 	for(::llc::u2_t z = 0; z < tiles.metrics().y; ++z)
 	for(::llc::u2_t x = 0; x < tiles.metrics().x; ++x) {
@@ -156,27 +156,27 @@
 
 
 
-//stacxpr	::llc::n3s0_t	geometryIndexedSquarePositions		[]			= {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}};
-//stacxpr	int8_t		geometryIndexedSquareIndices		[]			= {0, 1, 2, 1, 3, 2};
-//stacxpr	::llc::n3s0_t	geometryIndexedSquareNormal			[]			= {{0, 0, 1}};
-//stacxpr	int8_t		geometryIndexedSquareNormalIndices	[]			= {0};
-//stacxpr	::llc::n3s0_t	geometryIndexedSquareUV				[]			= {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}};
+//stxp	::llc::n3s0_t	geometryIndexedSquarePositions		[]			= {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}};
+//stxp	s0_t		geometryIndexedSquareIndices		[]			= {0, 1, 2, 1, 3, 2};
+//stxp	::llc::n3s0_t	geometryIndexedSquareNormal			[]			= {{0, 0, 1}};
+//stxp	s0_t		geometryIndexedSquareNormalIndices	[]			= {0};
+//stxp	::llc::n3s0_t	geometryIndexedSquareUV				[]			= {{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {1, 1, 0}};
 //
-//stacxpr	int8_t		geometryIndexedSquareUVIndices		[]			= {0, 1, 2, 1, 3, 2};
+//stxp	s0_t		geometryIndexedSquareUVIndices		[]			= {0, 1, 2, 1, 3, 2};
 //
 //// Vertex coordinates for cube faces
-//stacxpr	::llc::n3s0_t	geometryIndexedCubePositions		[8]			=
+//stxp	::llc::n3s0_t	geometryIndexedCubePositions		[8]			=
 //	{ {0, 0, 0}, {0, 1, 0}, {1, 0, 0}, {1, 1, 0}
 //	, {0, 0, 1}, {0, 1, 1}, {1, 0, 1}, {1, 1, 1}
 //	};
 //
-//stacxpr	int8_t		geometryIndexedCubeIndices			[12 * 3]	=
+//stxp	s0_t		geometryIndexedCubeIndices			[12 * 3]	=
 //	{ 0, 2, 1, 1, 2, 3 //
 //	, 
 //	};
 
 // Vertex coordinates for cube faces
-stacxpr	::llc::tri3s0_t	geometryCube	[12]	=
+stxp	::llc::tri3s0_t	geometryCube	[12]	=
 	{ {{0, 0, 0}, {0, 1, 0}, {1, 0, 0}}	// Right	- first
 	, {{0, 1, 0}, {1, 1, 0}, {1, 0, 0}}	// Right	- second
 
@@ -197,7 +197,7 @@ stacxpr	::llc::tri3s0_t	geometryCube	[12]	=
 	};
 
 // Vertex coordinates for cube faces
-stacxpr	::llc::tri2s0_t	texCoordCubeYUp	[12]	=
+stxp	::llc::tri2s0_t	texCoordCubeYUp	[12]	=
 	{ {{0, 1}, {0, 0}, {1, 1}}	// Right	- first
 	, {{0, 0}, {1, 0}, {1, 1}}	// Right	- second
 	//{} //
@@ -217,7 +217,7 @@ stacxpr	::llc::tri2s0_t	texCoordCubeYUp	[12]	=
 	, {{1, 0}, {1, 1}, {0, 0}}	// Top		- second
 	};
 
-stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
+stxp	::llc::n3s0_t		geometryNormals	[6]		=
 	{ { 0, 0,-1} // Right
 	, {-1, 0, 0} // Back
 	, { 0,-1, 0} // Bottom
@@ -226,15 +226,15 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 	, { 0, 1, 0} // Top
 	};
 
-::llc::error_t			llc::geometryBuildCube	(SGeometryQuads & geometry, const ::llc::n3f2_t & scale, const ::llc::n3f2_t & translation)	{
+::llc::err_t			llc::geometryBuildCube	(SGeometryQuads & geometry, const ::llc::n3f2_t & scale, const ::llc::n3f2_t & translation)	{
 	const ::llc::u2_t											firstTriangle					= geometry.Triangles.size(); 
-	llc_necs(llc::geometryBuildCube(geometry, scale));
+	if_fail_fe(llc::geometryBuildCube(geometry, scale));
 	for(::llc::u2_t iTri = firstTriangle; iTri < geometry.Triangles.size(); ++iTri) 
 		geometry.Triangles[iTri].Translate(translation);
 	return 0;
 }
 
-::llc::error_t			llc::geometryBuildCube	(SGeometryQuads & geometry, const ::llc::n3f2_t & scale)	{
+::llc::err_t			llc::geometryBuildCube	(SGeometryQuads & geometry, const ::llc::n3f2_t & scale)	{
 	const ::llc::u2_t				triangleOffset			= geometry.Triangles.size();
 	geometry.Triangles		.resize(triangleOffset + (::llc::u2_t)::llc::size(geometryCube));
 	geometry.Normals		.resize(triangleOffset + (::llc::u2_t)::llc::size(geometryNormals));
@@ -259,7 +259,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 	return 0;
 }
 
-::llc::error_t			llc::geometryBuildGrid	(SGeometryQuads & geometry, ::llc::n2u1_t gridSize, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::err_t			llc::geometryBuildGrid	(SGeometryQuads & geometry, ::llc::n2u1_t gridSize, ::llc::n2f2_t gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t				texCoordUnits			= {1.0f / gridSize.x, 1.0f / gridSize.y};
 	for(::llc::u2_t z = 0; z < gridSize.y; ++z)
 	for(::llc::u2_t x = 0; x < gridSize.x; ++x)  {
@@ -280,12 +280,12 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 		::llc::tri2f2_t				triangleBTex			= {texcoords[1], texcoords[3], texcoords[2]};
 		::llc::tri3f2_t				triangleA				= {coords[0], coords[1], coords[2]};
 		::llc::tri3f2_t				triangleB				= {coords[1], coords[3], coords[2]};
-		triangleA.A				+= {(float)x, 0, (float)z};
-		triangleA.B				+= {(float)x, 0, (float)z};
-		triangleA.C				+= {(float)x, 0, (float)z};
-		triangleB.A				+= {(float)x, 0, (float)z};
-		triangleB.B				+= {(float)x, 0, (float)z};
-		triangleB.C				+= {(float)x, 0, (float)z};
+		triangleA.A				+= {(f2_t)x, 0, (f2_t)z};
+		triangleA.B				+= {(f2_t)x, 0, (f2_t)z};
+		triangleA.C				+= {(f2_t)x, 0, (f2_t)z};
+		triangleB.A				+= {(f2_t)x, 0, (f2_t)z};
+		triangleB.B				+= {(f2_t)x, 0, (f2_t)z};
+		triangleB.C				+= {(f2_t)x, 0, (f2_t)z};
 		triangleA.Scale(scale);
 		triangleB.Scale(scale);
 
@@ -303,7 +303,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 }
 
 //
-::llc::error_t			llc::geometryBuildFigure0	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
+::llc::err_t			llc::geometryBuildFigure0	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, const ::llc::n3f2_t & gridCenter)	{
 	(void)radius;
 	for(::llc::u2_t z = 0; z < stacks; ++z)
 	for(::llc::u2_t x = 0; x < slices; ++x)  {
@@ -335,7 +335,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 	return 0;
 }
 //
-//::llc::error_t			llc::geometryBuildFigure1	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
+//::llc::err_t			llc::geometryBuildFigure1	(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, const ::llc::n3f2_t & gridCenter)	{
 //	(void)radius;
 //	for(::llc::u2_t z = 0; z < stacks; ++z)
 //	for(::llc::u2_t x = 0; x < slices; ++x)  {
@@ -367,7 +367,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 //	return 0;
 //}
 
-::llc::error_t			llc::geometryBuildHelixHalf	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::err_t			llc::geometryBuildHelixHalf	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t									texCoordUnits				= {1.0f / slices, 1.0f / stacks};
 	for(::llc::u2_t z = 0; z < stacks; ++z)
 	for(::llc::u2_t x = 0; x < slices; ++x)  {
@@ -400,7 +400,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 	return 0;
 }
 
-::llc::error_t			llc::geometryBuildHelix		(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::err_t			llc::geometryBuildHelix		(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t									texCoordUnits				= {1.0f / slices, 1.0f / stacks};
 	for(::llc::u2_t z = 0; z < stacks; ++z)
 	for(::llc::u2_t x = 0; x < slices; ++x)  {
@@ -455,7 +455,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 }
 
 //
-::llc::error_t			llc::geometryBuildSphere	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
+::llc::err_t			llc::geometryBuildSphere	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, const ::llc::n3f2_t & gridCenter)	{
 	::llc::n2f2_t									texCoordUnits				= {1.0f / slices, 1.0f / stacks};
 	for(::llc::u2_t z = 0; z < stacks; ++z)
 	for(::llc::u2_t x = 0; x < slices; ++x)  {
@@ -505,12 +505,12 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 }
 
 //
-::llc::error_t			llc::geometryBuildCylinder	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radiusYMin, float radiusYMax, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::err_t			llc::geometryBuildCylinder	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radiusYMin, f2_t radiusYMax, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t				texCoordUnits				= {1.0f / slices, 1.0f / stacks};
-	const double				radiusUnit					= 1.0 / stacks;
+	const f3_t				radiusUnit					= 1.0 / stacks;
 	for(::llc::u2_t y = 0; y < stacks; ++y) {
-		double						radius						= ::llc::interpolate_linear(radiusYMin, radiusYMax, radiusUnit * y);
-		double						radiusNext					= ::llc::interpolate_linear(radiusYMin, radiusYMax, radiusUnit * (y + 1));
+		f3_t						radius						= ::llc::interpolate_linear(radiusYMin, radiusYMax, radiusUnit * y);
+		f3_t						radiusNext					= ::llc::interpolate_linear(radiusYMin, radiusYMax, radiusUnit * (y + 1));
 		for(::llc::u2_t z = 0; z < slices; ++z) {
 			{
 				::llc::n2f2_t				texcoords	[4]				=
@@ -531,10 +531,10 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 					});
 			}
 			::llc::n3f3_t				coords	[4]					=
-				{ {1 * radius, (double)(y		)}
-				, {1 * radius, (double)(y		)}
-				, {1 * radiusNext, (double)(y + 1	)}
-				, {1 * radiusNext, (double)(y + 1	)}
+				{ {1 * radius, (f3_t)(y		)}
+				, {1 * radius, (f3_t)(y		)}
+				, {1 * radiusNext, (f3_t)(y + 1	)}
+				, {1 * radiusNext, (f3_t)(y + 1	)}
 				};
 			coords[0].RotateY(::llc::math_2pi / slices * (z + 0));
 			coords[1].RotateY(::llc::math_2pi / slices * (z + 1));
@@ -559,7 +559,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 }
 
 
-::llc::error_t			llc::geometryBuildTender	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
+::llc::err_t			llc::geometryBuildTender	(SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, f2_t radius, const ::llc::n3f2_t & gridCenter, const ::llc::n3f2_t & scale)	{
 	::llc::n2f2_t				texCoordUnits				= {1.0f / slices, 1.0f / stacks};
 	for(::llc::u2_t z = 0; z < stacks; ++z)
 	for(::llc::u2_t x = 0; x < slices; ++x)  {
@@ -582,15 +582,15 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 				});
 		}
 		//const ::llc::SSinCos		pairSinCos				= ::llc::getSinCos(::llc::math_2pi * z / slices);
-		//const double					px						= x * pairSinCos.Cos - z * pairSinCos.Sin;
+		//const f3_t					px						= x * pairSinCos.Cos - z * pairSinCos.Sin;
 		//z							= (x * pairSinCos.Sin + z * pairSinCos.Cos);
 		//x							= px;
 		(void)radius;
 		::llc::n3f3_t				coords	[4]					=
-			{ {1 * radius, (double)(z		)}
-			, {1 * radius, (double)(z		)}
-			, {1 * radius, (double)(z + 1	)}
-			, {1 * radius, (double)(z + 1	)}
+			{ {1 * radius, (f3_t)(z		)}
+			, {1 * radius, (f3_t)(z		)}
+			, {1 * radius, (f3_t)(z + 1	)}
+			, {1 * radius, (f3_t)(z + 1	)}
 			};
 		coords[0].RotateY(::llc::math_2pi / slices * (x + 0));
 		coords[1].RotateY(::llc::math_2pi / slices * (x + 1));

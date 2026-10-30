@@ -132,8 +132,8 @@ namespace llc
 	//nsix ::llc::packedu32	int_pack	(u2_c value) { return {uint_tail_width(value), uint_tail_multiplier(value), uint_tail_base(value)}; } 
 	//nsix ::llc::packedu64	int_pack	(const u3_t value) { return {uint_tail_width(value), uint_tail_multiplier(value), uint_tail_base(value)}; } 
 	//nsix ::llc::packedi16	int_pack	(const int16_t  value) { return {uint_tail_width(value), uint_tail_multiplier(value), uint_tail_base(value)}; } 
-	//nsix ::llc::packedi32	int_pack	(const int32_t  value) { return {uint_tail_width(value), uint_tail_multiplier(value), uint_tail_base(value)}; } 
-	//nsix ::llc::packedi64	int_pack	(const int64_t  value) { return {uint_tail_width(value), uint_tail_multiplier(value), uint_tail_base(value)}; } 
+	//nsix ::llc::packedi32	int_pack	(const s2_t  value) { return {uint_tail_width(value), uint_tail_multiplier(value), uint_tail_base(value)}; } 
+	//nsix ::llc::packedi64	int_pack	(const s3_t  value) { return {uint_tail_width(value), uint_tail_multiplier(value), uint_tail_base(value)}; } 
 }
 
 #endif // LLC_PACKED_INT_H

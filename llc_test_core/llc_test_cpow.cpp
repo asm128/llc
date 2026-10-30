@@ -72,11 +72,11 @@ sttc ::llc::err_t testCPowTypes(::llc::ATestError & errors) {
 }
 
 ::llc::err_t testCPow(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
-	if_fail_fe((testCPowTypes<
-		::llc::i0u_t, ::llc::i1u_t, ::llc::i2u_t, ::llc::i3u_t,
-		::llc::i0s_t, ::llc::i1s_t, ::llc::i2s_t, ::llc::i3s_t,
-		::llc::f2s_t, ::llc::f3s_t
-	>(errors)));
+	if_fail_fe((testCPowTypes
+		<::llc::u0_t, ::llc::u1_t, ::llc::u2_t, ::llc::u3_t
+		,::llc::s0_t, ::llc::s1_t, ::llc::s2_t, ::llc::s3_t
+		,::llc::f2_t, ::llc::f3_t
+		>(errors)));
 
 	stxp struct { char Remainder, Expected; CPOW_TEST_RESULT Result; } asciiCases[] = {
 		{ 0, '0', CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL}, { 9, '9', CPOW_TEST_RESULT_DIGIT_ASCII_DECIMAL},
