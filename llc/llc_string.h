@@ -10,29 +10,33 @@ namespace llc
 {
 
     struct string : asc_t {
-        usng    asc_t  ::Data;
-        usng    asc_t  ::Count;
+        usng    asc_t       ::Data;
+        usng    asc_t       ::Count;
 
-        inln            string      ()                      nxpt    = dflt;
-        inln            string      (cnst string & other)           = dflt;
-        inln            string      (vcst_t other)                  : asc_t(other)                                          {}
+        inln                string      ()                      nxpt    = dflt;
+        inln                string      (cnst string & other)           = dflt;
+        inln                string      (vcst_t other)                  : asc_t(other)                                          {}
 #ifdef LLC_ARDUINO
-        inln            string      (cnst String & other)          : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    {}
-        inln            string      (cnst IPAddress & other)       : string(other.toString())                              {}
+        inln                string      (cnst String & other)           : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    {}
+        inln                string      (cnst IPAddress & other)        : string(other.toString())                              {}
 #   ifdef LLC_ESP8266
-        ndin    oper    String      ()  cnst   { return String(Data); }
+        ndin        oper    String      ()                      cnst    { return String(Data); }
 #   else
-        ndin    oper    String      ()  cnst   { return String(Data, Count); }
+        ndin        oper    String      ()                      cnst    { return String(Data, Count); }
 #   endif
 #endif
-        inln    b8_t    oper==      (vcst_t other)          cnst    { rtrn asc_t::oper==(other); }
-        inln    b8_t    oper!=      (vcst_t other)          cnst    { rtrn asc_t::oper!=(other); }
+        inln        b8_t    oper==      (cnst string & other)   cnst    = dflt;
+        inln        b8_t    oper!=      (cnst string & other)   cnst    = dflt;
+        inln        b8_t    oper==      (vcst_t other)          cnst    { rtrn asc_t::oper==(other); }
+        inln        b8_t    oper!=      (vcst_t other)          cnst    { rtrn asc_t::oper!=(other); }
+        tplN2uinln  b8_t    oper==      (sc_c (&other)[N])      cnst    { rtrn asc_t::oper==(other); }
+        tplN2uinln  b8_t    oper!=      (sc_c (&other)[N])      cnst    { rtrn asc_t::oper!=(other); }
 
-        ndin    oper    vcst_t      ()  cnst   { return {Data, Count}; }
-        ndin    oper    sc_c*       ()  cnst   { return vcst_t{Data, Count}; }
+        ndin        oper    vcst_t      ()                      cnst    { return {Data, Count}; }
+        ndin        oper    sc_c*       ()                      cnst    { return vcst_t{Data, Count}; }
 
-        sc_c*           begin       ()  cnst   { return vcst_t{Data, Count}.begin(); }
-        sc_c*           end         ()  cnst   { return vcst_t{Data, Count}.end  (); }
+                    sc_c*   begin       ()                      cnst    { return vcst_t{Data, Count}.begin(); }
+                    sc_c*   end         ()                      cnst    { return vcst_t{Data, Count}.end  (); }
 
     }; // struct
 
