@@ -10,32 +10,34 @@ namespace llc
 {
 
     struct string : asc_t {
-        using   asc_t  ::Data;
-        using   asc_t  ::Count;
+        usng    asc_t  ::Data;
+        usng    asc_t  ::Count;
 
-        inline  string      ()                              = default;
-        inline  string      (vcst_t other)                  : asc_t(other)                                          {}
-//        inline  string      (sc_c * unsafe)                 : asc_t(vcst_t{unsafe, (u2_t)-1})                       {}
+        inln            string      ()                      nxpt    = dflt;
+        inln            string      (cnst string & other)           = dflt;
+        inln            string      (vcst_t other)                  : asc_t(other)                                          {}
 #ifdef LLC_ARDUINO
-        inline  string      (const String & other)          : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    {}
-        inline  string      (const IPAddress & other)       : string(other.toString())                              {}
-
+        inln            string      (cnst String & other)          : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    {}
+        inln            string      (cnst IPAddress & other)       : string(other.toString())                              {}
 #   ifdef LLC_ESP8266
-        ndin operator   String      ()  const   { return String(Data); }
+        ndin    oper    String      ()  cnst   { return String(Data); }
 #   else
-        ndin operator   String      ()  const   { return String(Data, Count); }
+        ndin    oper    String      ()  cnst   { return String(Data, Count); }
 #   endif
 #endif
-        ndin operator   vcst_t      ()  const   { return {Data, Count}; }
-        ndin operator   const char* ()  const   { return vcst_t{Data, Count}; }
+        inln    b8_t    oper==      (vcst_t other)          cnst    { rtrn asc_t::oper==(other); }
+        inln    b8_t    oper!=      (vcst_t other)          cnst    { rtrn asc_t::oper!=(other); }
 
-        const char*     begin       ()  const   { return vcst_t{Data, Count}.begin(); }
-        const char*     end         ()  const   { return vcst_t{Data, Count}.end  (); }
+        ndin    oper    vcst_t      ()  cnst   { return {Data, Count}; }
+        ndin    oper    sc_c*       ()  cnst   { return vcst_t{Data, Count}; }
+
+        sc_c*           begin       ()  cnst   { return vcst_t{Data, Count}.begin(); }
+        sc_c*           end         ()  cnst   { return vcst_t{Data, Count}.end  (); }
 
     }; // struct
 
 #ifdef LLC_ARDUINO
-    ndsi string  str (const IPAddress & s)   { return s.toString(); }
+    ndsi string  str (cnst IPAddress & s)   { return s.toString(); }
 #endif
 
 	err_t		camelCase	(vcst_t input, string & camelCased);
