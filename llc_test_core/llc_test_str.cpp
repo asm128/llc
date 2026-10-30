@@ -13,7 +13,7 @@ GDEFINE_ENUM_VALUED(STR_TEST_RESULT, TERMINATOR		, 3, "string storage is not ter
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_TERMINATOR, 0 == text.begin() || 0 != text.begin()[text.size()]);
 	text = "beta";
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ASSIGNMENT, text.size() != 4 || text != "beta");
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_COMPARISON, false == ("beta" == text) || "alpha" == text);
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_COMPARISON, false == ((text == "beta") || (text == "alpha")));
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_TERMINATOR, 0 == text.begin() || 0 != text.begin()[text.size()]);
 	rtrn 0;
 }

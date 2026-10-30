@@ -14,8 +14,8 @@ namespace llc
         usng    asc_t       ::Count;
 
         inln                string      ()                      nxpt    = dflt;
-        inln                string      (cnst string & other)           = dflt;
-        inln                string      (vcst_t other)                  : asc_t(other)                                          {}
+        inln                string      (cnst vcst_t & other)           : asc_t(other)                                          {}
+        tplN2uinln          string      (sc_c (&other)[N])              : asc_t(vcst_t(other))                                  {}
 #ifdef LLC_ARDUINO
         inln                string      (cnst String & other)           : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    {}
         inln                string      (cnst IPAddress & other)        : string(other.toString())                              {}
@@ -25,26 +25,25 @@ namespace llc
         ndin        oper    String      ()                      cnst    { return String(Data, Count); }
 #   endif
 #endif
-        inln        b8_t    oper==      (cnst string & other)   cnst    = dflt;
-        inln        b8_t    oper!=      (cnst string & other)   cnst    = dflt;
-        inln        b8_t    oper==      (vcst_t other)          cnst    { rtrn asc_t::oper==(other); }
-        inln        b8_t    oper!=      (vcst_t other)          cnst    { rtrn asc_t::oper!=(other); }
+        inln        b8_t    oper==      (cnst vcst_t & other)   cnst    { rtrn asc_t::oper==(other); }
+        inln        b8_t    oper!=      (cnst vcst_t & other)   cnst    { rtrn asc_t::oper!=(other); }
         tplN2uinln  b8_t    oper==      (sc_c (&other)[N])      cnst    { rtrn asc_t::oper==(other); }
         tplN2uinln  b8_t    oper!=      (sc_c (&other)[N])      cnst    { rtrn asc_t::oper!=(other); }
 
         ndin        oper    vcst_t      ()                      cnst    { return {Data, Count}; }
         ndin        oper    sc_c*       ()                      cnst    { return vcst_t{Data, Count}; }
 
-                    sc_c*   begin       ()                      cnst    { return vcst_t{Data, Count}.begin(); }
-                    sc_c*   end         ()                      cnst    { return vcst_t{Data, Count}.end  (); }
+        inln        sc_c*   begin       ()                      cnst    { return vcst_t{Data, Count}.begin(); }
+        inln        sc_c*   end         ()                      cnst    { return vcst_t{Data, Count}.end  (); }
+        inln        sc_t*   begin       ()                              { return vstr_t{Data, Count}.begin(); }
+        inln        sc_t*   end         ()                              { return vstr_t{Data, Count}.end  (); }
 
     }; // struct
 
 #ifdef LLC_ARDUINO
-    ndsi string  str (cnst IPAddress & s)   { return s.toString(); }
+    ndsi        string  str         (cnst IPAddress & s)            { return s.toString(); }
 #endif
-
-	err_t		camelCase	(vcst_t input, string & camelCased);
+                err_t   camelCase   (vcst_t input, asc_t & camelCased);
 
 } // namespace
 
