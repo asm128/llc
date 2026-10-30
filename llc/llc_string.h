@@ -31,12 +31,14 @@ namespace llc
         tplN2uinln  b8_t    oper!=      (sc_c (&other)[N])      cnst    { rtrn asc_t::oper!=(other); }
 
         ndin        oper    vcst_t      ()                      cnst    { return {Data, Count}; }
+        ndin        oper    vstr_t      ()                              { return {Data, Count}; }
         ndin        oper    sc_c*       ()                      cnst    { return vcst_t{Data, Count}; }
+        ndin        oper    sc_t*       ()                              { return vstr_t{Data, Count}; }
 
-        inln        sc_c*   begin       ()                      cnst    { return vcst_t{Data, Count}.begin(); }
-        inln        sc_c*   end         ()                      cnst    { return vcst_t{Data, Count}.end  (); }
-        inln        sc_t*   begin       ()                              { return vstr_t{Data, Count}.begin(); }
-        inln        sc_t*   end         ()                              { return vstr_t{Data, Count}.end  (); }
+        ndin        sc_c*   begin       ()                      cnst    { return vcst_t{Data, Count}.begin(); }
+        ndin        sc_c*   end         ()                      cnst    { return vcst_t{Data, Count}.end  (); }
+        ndin        sc_t*   begin       ()                              { return vstr_t{Data, Count}.begin(); }
+        ndin        sc_t*   end         ()                              { return vstr_t{Data, Count}.end  (); }
 
     }; // struct
 
