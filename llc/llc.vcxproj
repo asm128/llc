@@ -90,46 +90,31 @@
     <ClInclude Include="llc_block.h" />
     <ClInclude Include="llc_block_container_nts.h" />
     <ClInclude Include="llc_camera.h" />
-    <ClInclude Include="llc_cdn.h" />
-    <ClInclude Include="llc_cgi.h" />
-    <ClInclude Include="llc_cgi_app_impl.h" />
-    <ClInclude Include="llc_cgi_app_impl_v2.h" />
-    <ClInclude Include="llc_cgi_module.h" />
-    <ClInclude Include="llc_cgi_runtime.h" />
     <ClInclude Include="llc_chrono.h" />
     <ClInclude Include="llc_circle.h" />
-    <ClInclude Include="llc_cloud_register.h" />
     <ClInclude Include="llc_collision.h" />
     <ClInclude Include="llc_color.h" />
     <ClInclude Include="llc_color_type.h" />
     <ClInclude Include="llc_complus.h" />
-    <ClInclude Include="llc_component_scene.h" />
     <ClInclude Include="llc_coord.h" />
     <ClInclude Include="llc_cpow.h" />
     <ClInclude Include="llc_ctti.h" />
     <ClInclude Include="llc_datatype.h" />
     <ClInclude Include="llc_debug.h" />
     <ClInclude Include="llc_deflate.h" />
-    <ClInclude Include="llc_gpio.h" />
     <ClInclude Include="llc_i2c.h" />
-    <ClInclude Include="llc_keyed_bit_array.h" />
     <ClInclude Include="llc_linear_map_pobj.h" />
     <ClInclude Include="llc_event_input.h" />
     <ClInclude Include="llc_event_storage.h" />
     <ClInclude Include="llc_event_screen.h" />
     <ClInclude Include="llc_gauge.h" />
     <ClInclude Include="llc_geometry_buffers.h" />
-    <ClInclude Include="llc_geometry_draw.h" />
     <ClInclude Include="llc_font.h" />
     <ClInclude Include="llc_font_defaults.h" />
-    <ClInclude Include="llc_gltf.h" />
     <ClInclude Include="llc_grid_color.h" />
     <ClInclude Include="llc_gui_control.h" />
     <ClInclude Include="llc_gui_control_state.h" />
-    <ClInclude Include="llc_gui_checkbox.h" />
-    <ClInclude Include="llc_gui_render.h" />
     <ClInclude Include="llc_gui_inputbox.h" />
-    <ClInclude Include="llc_gui_slider.h" />
     <ClInclude Include="llc_gui_viewport.h" />
     <ClInclude Include="llc_img_color.h" />
     <ClInclude Include="llc_img_serialize.h" />
@@ -155,7 +140,6 @@
     <ClInclude Include="llc_range_n2.h" />
     <ClInclude Include="llc_range_n3.h" />
     <ClInclude Include="llc_rxtx.h" />
-    <ClInclude Include="llc_serial.h" />
     <ClInclude Include="llc_slice.h" />
     <ClInclude Include="llc_slice_n2.h" />
     <ClInclude Include="llc_slice_n3.h" />
@@ -191,7 +175,6 @@
     <ClInclude Include="llc_view_tri3.h" />
     <ClInclude Include="llc_virtual_keyboard.h" />
     <ClInclude Include="llc_vox.h" />
-    <ClInclude Include="llc_voxel_geometry.h" />
     <ClInclude Include="llc_wifi.h" />
     <ClInclude Include="llc_window.h" />
     <ClInclude Include="llc_framework.h" />
@@ -213,7 +196,6 @@
     <ClInclude Include="llc_gui.h" />
     <ClInclude Include="llc_gui_text.h" />
     <ClInclude Include="llc_http.h" />
-    <ClInclude Include="llc_http_client.h" />
     <ClInclude Include="llc_image.h" />
     <ClInclude Include="llc_input.h" />
     <ClInclude Include="llc_inout.h" />
@@ -239,11 +221,9 @@
     <ClInclude Include="llc_platform_globals.h" />
     <ClInclude Include="llc_png.h" />
     <ClInclude Include="llc_array_ptr.h" />
-    <ClInclude Include="llc_rsa.h" />
     <ClInclude Include="llc_runtime.h" />
     <ClInclude Include="llc_runtime_module.h" />
     <ClInclude Include="llc_safe.h" />
-    <ClInclude Include="llc_scene.h" />
     <ClInclude Include="llc_size.h" />
     <ClInclude Include="llc_stdsocket.h" />
     <ClInclude Include="llc_connection.h" />
@@ -263,8 +243,6 @@
     <ClInclude Include="llc_view.h" />
     <ClInclude Include="llc_view_bit.h" />
     <ClInclude Include="llc_grid.h" />
-    <ClInclude Include="llc_view_layered.h" />
-    <ClInclude Include="llc_view_manager.h" />
     <ClInclude Include="llc_view_stream.h" />
     <ClInclude Include="llc_windows.h" />
     <ClInclude Include="llc_xml_reader.h" />
@@ -279,7 +257,6 @@
     <ClInclude Include="llc_view_n2.h" />
     <ClInclude Include="llc_comm.h" />
     <ClInclude Include="llc_packed_int.h" />
-    <ClInclude Include="keyed_bit_array.h" />
     <ClInclude Include="llc_queue_async.h" />
   </ItemGroup>
   <ItemGroup>
@@ -299,25 +276,7 @@
     <ClCompile Include="llc_ascii_target.cpp" />
     <ClCompile Include="llc_base64.cpp" />
     <ClCompile Include="llc_block.cpp" />
-    <ClCompile Include="llc_cgi.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_cgi_main.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_cgi_module.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_cgi_runtime.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_chrono.cpp" />
-    <ClCompile Include="llc_component_scene.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_component_scene_draw.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_crc.cpp" />
     <ClCompile Include="llc_datatype.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -325,34 +284,7 @@
     <ClCompile Include="llc_deflate.cpp" />
     <ClCompile Include="llc_file_pack.cpp" />
     <ClCompile Include="llc_geometry.cpp" />
-    <ClCompile Include="llc_geometry_draw.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gltf.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gui_control.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gui_checkbox.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gui_input.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gui_layout.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gui_model.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_gui_render.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_gui_inputbox.cpp" />
-    <ClCompile Include="llc_gui_slider.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_gui_viewport.cpp" />
     <ClCompile Include="llc_i2c.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -403,9 +335,6 @@
     <ClCompile Include="llc_string_compose.cpp" />
     <ClCompile Include="llc_view_color.cpp" />
     <ClCompile Include="llc_virtual_keyboard.cpp" />
-    <ClCompile Include="llc_voxel_geometry.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_wifi.cpp" />
     <ClCompile Include="llc_window.cpp" />
     <ClCompile Include="llc_framework.cpp" />
@@ -418,32 +347,17 @@
     <ClCompile Include="llc_raster_lh.cpp" />
     <ClCompile Include="llc_encoding.cpp" />
     <ClCompile Include="llc_expression.cpp" />
-    <ClCompile Include="llc_scene.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_geometry_lh.cpp" />
     <ClCompile Include="llc_gui.cpp" />
     <ClCompile Include="llc_gui_draw.cpp" />
-    <ClCompile Include="llc_https_client.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="llc_http_client.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_json.cpp" />
     <ClCompile Include="llc_json_expression.cpp" />
     <ClCompile Include="llc_label.cpp" />
     <ClCompile Include="llc_log.cpp" />
-    <ClCompile Include="llc_mapblock.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_noise.cpp" />
     <ClCompile Include="llc_parse.cpp" />
     <ClCompile Include="llc_png.cpp" />
     <ClCompile Include="llc_png_write.cpp" />
-    <ClCompile Include="llc_rsa.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_runtime_module.cpp" />
     <ClCompile Include="llc_stdstring.cpp" />
     <ClCompile Include="llc_stl.cpp" />
@@ -456,9 +370,6 @@
     <ClCompile Include="llc_windows.cpp" />
     <ClCompile Include="llc_xml_reader.cpp" />
     <ClCompile Include="llc_font.cpp" />
-    <ClCompile Include="llc_header_checkingg.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="llc_string.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -468,7 +379,6 @@
     <None Include="country_coords.json" />
     <None Include="cpp.hint" />
     <None Include="llc_module_exports.def" />
-    <None Include="llc_config.json" />
     <None Include="Makefile" />
     <None Include="README.md" />
   </ItemGroup>
@@ -612,7 +522,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -636,7 +545,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -660,7 +568,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -684,7 +591,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -710,7 +616,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -738,7 +643,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -766,7 +670,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -794,7 +697,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)../zlib; </AdditionalIncludeDirectories>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>

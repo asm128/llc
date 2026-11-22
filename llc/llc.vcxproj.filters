@@ -222,24 +222,6 @@
     <ClInclude Include="llc_camera.h">
       <Filter>geometry</Filter>
     </ClInclude>
-    <ClInclude Include="llc_cdn.h">
-      <Filter>cdn</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_cgi.h">
-      <Filter>web_cgi</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_cgi_app_impl.h">
-      <Filter>web_cgi</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_cgi_app_impl_v2.h">
-      <Filter>web_cgi</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_cgi_module.h">
-      <Filter>web_cgi</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_cgi_runtime.h">
-      <Filter>web_cgi</Filter>
-    </ClInclude>
     <ClInclude Include="llc_chrono.h">
       <Filter>time</Filter>
     </ClInclude>
@@ -257,9 +239,6 @@
     </ClInclude>
     <ClInclude Include="llc_complus.h">
       <Filter>pointer</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_component_scene.h">
-      <Filter>scene</Filter>
     </ClInclude>
     <ClInclude Include="llc_coord.h">
       <Filter>math</Filter>
@@ -309,9 +288,6 @@
     <ClInclude Include="llc_geometry2.h">
       <Filter>geometry</Filter>
     </ClInclude>
-    <ClInclude Include="llc_geometry_draw.h">
-      <Filter>geometry</Filter>
-    </ClInclude>
     <ClInclude Include="llc_geometry_lh.h">
       <Filter>geometry</Filter>
     </ClInclude>
@@ -342,19 +318,10 @@
     <ClInclude Include="llc_gui_control_state.h">
       <Filter>gui</Filter>
     </ClInclude>
-    <ClInclude Include="llc_gui_checkbox.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_gui_render.h">
-      <Filter>gui</Filter>
-    </ClInclude>
     <ClInclude Include="llc_gui_desktop.h">
       <Filter>dialog</Filter>
     </ClInclude>
     <ClInclude Include="llc_gui_inputbox.h">
-      <Filter>gui</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_gui_slider.h">
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="llc_gui_text.h">
@@ -364,9 +331,6 @@
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="llc_http.h">
-      <Filter>http</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_http_client.h">
       <Filter>http</Filter>
     </ClInclude>
     <ClInclude Include="llc_image.h">
@@ -495,9 +459,6 @@
     <ClInclude Include="llc_ref.h">
       <Filter>pointer</Filter>
     </ClInclude>
-    <ClInclude Include="llc_rsa.h">
-      <Filter>encoding</Filter>
-    </ClInclude>
     <ClInclude Include="llc_runtime.h">
       <Filter>module</Filter>
     </ClInclude>
@@ -546,12 +507,6 @@
     <ClInclude Include="llc_view_bit.h">
       <Filter>view</Filter>
     </ClInclude>
-    <ClInclude Include="llc_view_layered.h">
-      <Filter>view</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_view_manager.h">
-      <Filter>view</Filter>
-    </ClInclude>
     <ClInclude Include="llc_view_n2.h">
       <Filter>aliases</Filter>
     </ClInclude>
@@ -585,9 +540,6 @@
     <ClInclude Include="llc_voxel.h">
       <Filter>voxel</Filter>
     </ClInclude>
-    <ClInclude Include="llc_voxel_geometry.h">
-      <Filter>voxel</Filter>
-    </ClInclude>
     <ClInclude Include="llc_window.h">
       <Filter>framework</Filter>
     </ClInclude>
@@ -599,9 +551,6 @@
     </ClInclude>
     <ClInclude Include="llc_xml_reader.h">
       <Filter>xml</Filter>
-    </ClInclude>
-    <ClInclude Include="keyed_bit_array.h">
-      <Filter>container</Filter>
     </ClInclude>
     <ClInclude Include="llc_event_input.h">
       <Filter>event</Filter>
@@ -624,17 +573,11 @@
     <ClInclude Include="llc_geometry_buffers.h">
       <Filter>geometry</Filter>
     </ClInclude>
-    <ClInclude Include="llc_gltf.h">
-      <Filter>models</Filter>
-    </ClInclude>
     <ClInclude Include="llc_stl.h">
       <Filter>models</Filter>
     </ClInclude>
     <ClInclude Include="llc_swap.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_scene.h">
-      <Filter>scene</Filter>
     </ClInclude>
     <ClInclude Include="llc_view_color.h">
       <Filter>aliases</Filter>
@@ -708,12 +651,6 @@
     <ClInclude Include="llc_log_core.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="llc_serial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_keyed_bit_array.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="llc_array_circular.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -725,9 +662,6 @@
     </ClInclude>
     <ClInclude Include="llc_ctti.h">
       <Filter>type</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_gpio.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="llc_arduino_string.h">
       <Filter>string</Filter>
@@ -758,9 +692,6 @@
     </ClInclude>
     <ClInclude Include="llc_append_xml.h">
       <Filter>string</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_cloud_register.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="llc_bus.h">
       <Filter>event</Filter>
@@ -887,26 +818,8 @@
     <ClCompile Include="llc_block.cpp">
       <Filter>cdn</Filter>
     </ClCompile>
-    <ClCompile Include="llc_cgi.cpp">
-      <Filter>web_cgi</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_cgi_main.cpp">
-      <Filter>web_cgi</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_cgi_module.cpp">
-      <Filter>web_cgi</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_cgi_runtime.cpp">
-      <Filter>web_cgi</Filter>
-    </ClCompile>
     <ClCompile Include="llc_chrono.cpp">
       <Filter>time</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_component_scene.cpp">
-      <Filter>scene</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_component_scene_draw.cpp">
-      <Filter>scene</Filter>
     </ClCompile>
     <ClCompile Include="llc_datatype.cpp">
       <Filter>type</Filter>
@@ -932,31 +845,10 @@
     <ClCompile Include="llc_geometry.cpp">
       <Filter>geometry</Filter>
     </ClCompile>
-    <ClCompile Include="llc_geometry_draw.cpp">
-      <Filter>geometry</Filter>
-    </ClCompile>
     <ClCompile Include="llc_geometry_lh.cpp">
       <Filter>geometry</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_control.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_checkbox.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_input.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_layout.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_model.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_render.cpp">
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui_control_list.cpp">
@@ -971,17 +863,8 @@
     <ClCompile Include="llc_gui_inputbox.cpp">
       <Filter>gui</Filter>
     </ClCompile>
-    <ClCompile Include="llc_gui_slider.cpp">
-      <Filter>gui</Filter>
-    </ClCompile>
     <ClCompile Include="llc_gui_viewport.cpp">
       <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_http_client.cpp">
-      <Filter>http</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_https_client.cpp">
-      <Filter>http</Filter>
     </ClCompile>
     <ClCompile Include="llc_json.cpp">
       <Filter>json</Filter>
@@ -994,9 +877,6 @@
     </ClCompile>
     <ClCompile Include="llc_log.cpp">
       <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_mapblock.cpp">
-      <Filter>cdn</Filter>
     </ClCompile>
     <ClCompile Include="llc_noise.cpp">
       <Filter>math</Filter>
@@ -1019,9 +899,6 @@
     <ClCompile Include="llc_raster_lh.cpp">
       <Filter>raster</Filter>
     </ClCompile>
-    <ClCompile Include="llc_rsa.cpp">
-      <Filter>encoding</Filter>
-    </ClCompile>
     <ClCompile Include="llc_runtime_module.cpp">
       <Filter>module</Filter>
     </ClCompile>
@@ -1037,9 +914,6 @@
     <ClCompile Include="llc_virtual_keyboard.cpp">
       <Filter>dialog</Filter>
     </ClCompile>
-    <ClCompile Include="llc_voxel_geometry.cpp">
-      <Filter>voxel</Filter>
-    </ClCompile>
     <ClCompile Include="llc_window.cpp">
       <Filter>framework</Filter>
     </ClCompile>
@@ -1052,14 +926,8 @@
     <ClCompile Include="llc_xml_reader.cpp">
       <Filter>xml</Filter>
     </ClCompile>
-    <ClCompile Include="llc_gltf.cpp">
-      <Filter>models</Filter>
-    </ClCompile>
     <ClCompile Include="llc_stl.cpp">
       <Filter>models</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_scene.cpp">
-      <Filter>scene</Filter>
     </ClCompile>
     <ClCompile Include="llc_string_compose.cpp">
       <Filter>string</Filter>
@@ -1112,9 +980,6 @@
     <ClCompile Include="llc_view_color.cpp">
       <Filter>view</Filter>
     </ClCompile>
-    <ClCompile Include="llc_header_checkingg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_process.cpp">
       <Filter>process</Filter>
     </ClCompile>
@@ -1148,7 +1013,6 @@
     <None Include="llc_module_exports.def">
       <Filter>module</Filter>
     </None>
-    <None Include="llc_config.json" />
     <None Include="Makefile" />
     <None Include="character_codes.json" />
     <None Include="copy_llc_config.bat">
