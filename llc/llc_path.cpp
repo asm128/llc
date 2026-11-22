@@ -353,7 +353,15 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	struct dirent				* drnt						= nullptr;
 	while((drnt = readdir(dir))) {
 		cnst ::llc::vcst_t		entryName						= {drnt->d_name, (::llc::u2_t)-1};
-		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, drnt->d_type == DT_DIR), "'%.*s'", (int)entryName.size(), entryName.begin());
+		bool					isFolder						= drnt->d_type == DT_DIR;
+		if(drnt->d_type == DT_UNKNOWN) {
+			::llc::string		entryPath;
+			if_fail_bef(result = ::llc::pathNameCompose(pathToList, entryName, entryPath), "%s", drnt->d_name);
+			struct stat			metadata						= {};
+			if_fail_bef(result = lstat(entryPath.begin(), &metadata), "%s", entryPath.begin());
+			isFolder											= S_ISDIR(metadata.st_mode);
+		}
+		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, isFolder), "'%.*s'", (int)entryName.size(), entryName.begin());
 	}
 	closedir(dir);
 #else
