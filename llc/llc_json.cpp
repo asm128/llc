@@ -104,7 +104,7 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, llc::view<cnst vcst_t
 	}
 		break;
 	case llc::JSON_TYPE_BOOLEAN			:
-		if_fail_fe(output.append(b82vcs(node->Token->Value)));
+		if_fail_fe(output.append(b82st(node->Token->Value)));
 		break;
 	case llc::JSON_TYPE_NULL			:
 		if_fail_fe(output.append(jsonViews[node->ObjectIndex]));
@@ -263,7 +263,7 @@ sttc	llc::err_t	jsonParseKeyword			(llc::vcst_t token, llc::JSON_TYPE jsonType, 
 	if_true_fef(0 != strncmp(token.begin(), &jsonAsString[stateReader.IndexCurrentChar], token.size()), "Unrecognized token found while looking for '%.*s'.", int(token.size()),	 token.begin());
 	json_info_printf("JSON token found: %.*s.", int(token.size()), token.begin());
 
-	llc::SJSONToken			boolElement					= {stateReader.IndexCurrentElement, jsonType, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + token.size()}, llc::vcs2b8(token)};
+	llc::SJSONToken			boolElement					= {stateReader.IndexCurrentElement, jsonType, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + token.size()}, llc::st2b8(token)};
 	llc_necall(::llc::push_back(object, boolElement), "Failed to push! Out of memory? object count: %" LLC_FMT_U2 ".", object.size());
 	stateReader.IndexCurrentChar	+= token.size() - 1;
 	stateReader.CurrentElement		= &object[stateReader.IndexCurrentElement];
@@ -456,9 +456,9 @@ sttc	llc::err_t	jsonParseDocumentCharacter	(llc::SJSONReaderState & stateReader,
 		else
 			stateReader.IndexCurrentChar	= jsonAsString.size() - 1;
 	break;
-	case 'f': LLC_JSON_EXPECTS_SEPARATOR(); if(-1 == stateReader.IndexCurrentElement) if_fail_vef(-1, ::jsonOpenElement(stateReader, tokens, llc::JSON_TYPE_VALUE, stateReader.IndexCurrentChar), "Failed to open element at index %" LLC_FMT_S2 ".", tokens.size()); errVal = ::jsonParseKeyword(llc::VCC_FALSE	, llc::JSON_TYPE_BOOLEAN, stateReader, tokens, jsonAsString); ::jsonTestAndCloseValue(stateReader, tokens); break;
-	case 't': LLC_JSON_EXPECTS_SEPARATOR(); if(-1 == stateReader.IndexCurrentElement) if_fail_vef(-1, ::jsonOpenElement(stateReader, tokens, llc::JSON_TYPE_VALUE, stateReader.IndexCurrentChar), "Failed to open element at index %" LLC_FMT_S2 ".", tokens.size()); errVal = ::jsonParseKeyword(llc::VCC_TRUE	, llc::JSON_TYPE_BOOLEAN, stateReader, tokens, jsonAsString); ::jsonTestAndCloseValue(stateReader, tokens); break;
-	case 'n': LLC_JSON_EXPECTS_SEPARATOR(); if(-1 == stateReader.IndexCurrentElement) if_fail_vef(-1, ::jsonOpenElement(stateReader, tokens, llc::JSON_TYPE_VALUE, stateReader.IndexCurrentChar), "Failed to open element at index %" LLC_FMT_S2 ".", tokens.size()); errVal = ::jsonParseKeyword(llc::VCC_NULL	, llc::JSON_TYPE_NULL, stateReader, tokens, jsonAsString); ::jsonTestAndCloseValue(stateReader, tokens); break;
+	case 'f': LLC_JSON_EXPECTS_SEPARATOR(); if(-1 == stateReader.IndexCurrentElement) if_fail_vef(-1, ::jsonOpenElement(stateReader, tokens, llc::JSON_TYPE_VALUE, stateReader.IndexCurrentChar), "Failed to open element at index %" LLC_FMT_S2 ".", tokens.size()); errVal = ::jsonParseKeyword(llc::VCST_FALSE	, llc::JSON_TYPE_BOOLEAN, stateReader, tokens, jsonAsString); ::jsonTestAndCloseValue(stateReader, tokens); break;
+	case 't': LLC_JSON_EXPECTS_SEPARATOR(); if(-1 == stateReader.IndexCurrentElement) if_fail_vef(-1, ::jsonOpenElement(stateReader, tokens, llc::JSON_TYPE_VALUE, stateReader.IndexCurrentChar), "Failed to open element at index %" LLC_FMT_S2 ".", tokens.size()); errVal = ::jsonParseKeyword(llc::VCST_TRUE	, llc::JSON_TYPE_BOOLEAN, stateReader, tokens, jsonAsString); ::jsonTestAndCloseValue(stateReader, tokens); break;
+	case 'n': LLC_JSON_EXPECTS_SEPARATOR(); if(-1 == stateReader.IndexCurrentElement) if_fail_vef(-1, ::jsonOpenElement(stateReader, tokens, llc::JSON_TYPE_VALUE, stateReader.IndexCurrentChar), "Failed to open element at index %" LLC_FMT_S2 ".", tokens.size()); errVal = ::jsonParseKeyword(llc::VCST_NULL	, llc::JSON_TYPE_NULL, stateReader, tokens, jsonAsString); ::jsonTestAndCloseValue(stateReader, tokens); break;
 	case '0': case '1'	: case '2'	: case '3'	: case '4'	: case '5'	: case '6'	: case '7'	: case '8'	: case '9'	:
 	case '.': case '-'	: case '+'	: //case 'x'	: // parse int or f2_t accordingly
 		LLC_JSON_EXPECTS_SEPARATOR();

@@ -254,28 +254,28 @@ namespace llc
 	inln err_t append(array_obj<T> & output, TArgs&&... args) nxpt {
 		u2_c oldSize = output.size();
 		err_t result = 0;
-		((result = failed(result) ? result : output.append(args)), ...);
+		((result = failed(result) ? result : ::llc::append(output, args)), ...);
 		rtrn failed(result) ? result : output.size() - oldSize;
 	}
 	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
 	inln err_t push_back(array_obj<T> & output, TArgs&&... args) nxpt {
 		u2_c oldSize = output.size();
 		err_t result = 0;
-		((result = failed(result) ? result : output.push_back(args)), ...);
+		((result = failed(result) ? result : ::llc::push_back(output, args)), ...);
 		rtrn failed(result) ? result : output.size() - oldSize;
 	}
 	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
 	inln err_t remove(array_obj<T> & output, TArgs&&... args) {
 		u2_c oldSize = output.size();
 		err_t result = 0;
-		((result = failed(result) ? result : output.remove(args)), ...);
+		((result = failed(result) ? result : ::llc::remove(output, args)), ...);
 		rtrn failed(result) ? result : oldSize - output.size();
 	}
 	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
 	inln err_t pop_back(array_obj<T> & output, TArgs&&... args) nxpt {
 		u2_c oldSize = output.size();
 		err_t result = 0;
-		((result = failed(result) ? result : output.pop_back(args)), ...);
+		((result = failed(result) ? result : ::llc::pop_back(output, args)), ...);
 		rtrn failed(result) ? result : oldSize - output.size();
 	}
 

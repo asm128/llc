@@ -25,8 +25,8 @@ llc::err_t			llc::token_split		(char valueSeparator, vcst_t input_string, keyval
 		? vcst_t{&input_string[indexSeparator + 1U], input_string.size() - (indexSeparator + 1U)}
 		: vcst_t{}	// empty view if there's no data after the separator.
 		;
-	trim(output_views.Key, output_views.Key);
-	trim(output_views.Val, output_views.Val);
+	trim(output_views.Key);
+	trim(output_views.Val);
 	return output_views.Val.size();
 }
 

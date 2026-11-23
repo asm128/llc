@@ -47,7 +47,7 @@ namespace llc
 
 	struct SFramework : llc::SFrameTimer {
 		::llc::SRuntimeValues		& RuntimeValues			;
-		::llc::vcs					FileNameJSONConfig		= "llc_config.json";
+		::llc::vcst_t					FileNameJSONConfig		= "llc_config.json";
 		::llc::pobj<::llc::SGUI>	GUI						= {};
 		::llc::SFrameworkDetail		PlatformDetail			= {};
 		::llc::SWindow				RootWindow				= {};
@@ -58,7 +58,7 @@ namespace llc
 		::std::mutex				LockGUI;
 #endif
 
-		inline						SFramework				(::llc::SRuntimeValues & runtimeValues, ::llc::vcs fileNameJSONConfig = "llc_config.json")
+		inline						SFramework				(::llc::SRuntimeValues & runtimeValues, ::llc::vcst_t fileNameJSONConfig = "llc_config.json")
 			: RuntimeValues(runtimeValues), FileNameJSONConfig(fileNameJSONConfig) {
 			RootWindow.Input.create();
 			GUI.create();

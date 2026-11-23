@@ -550,7 +550,7 @@ HRESULT					llc::SSoundState::PrepareAudio	(::llc::vcst_t wavname, IXAudio2*	XAu
 	const WAVEFORMATEX			* pwfx				= 0;
 	::llc::vcu0_t				audioView			= {};
 	WaveData.create();
-	llc_hrcall(DirectX::LoadWAVAudioFromFile(::llc::vcs{strFilePath}, *WaveData, &pwfx, audioView));
+	llc_hrcall(DirectX::LoadWAVAudioFromFile(::llc::vcst_t{strFilePath}, *WaveData, &pwfx, audioView));
 
 	// Play the wave using a source voice that sends to both the submix and mastering voices
 	XAUDIO2_SEND_DESCRIPTOR		sendDescriptors[2]	= {};

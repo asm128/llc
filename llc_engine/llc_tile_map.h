@@ -45,7 +45,7 @@ namespace llc
 
 	struct STileMap {
 		::llc::STileMapSetup		Config;	// Map constants
-		::llc::an3u32				Coords;	// Block coords
+		::llc::an3u2_t				Coords;	// Block coords
 		::llc::apod<STimestamps>	Stamps;	// 
 		::llc::apobj<STileBlock>	Blocks;	// 
 	

@@ -77,7 +77,7 @@ namespace llc
 				::llc::pcom<ID3D11InputLayout>	inputLayout	;
 				::llc::pcom<ID3D11VertexShader>	vertexShader;
 
-				::llc::vcs					shaderName					= "vsGUI";
+				::llc::vcst_t					shaderName					= "vsGUI";
 				sc_t						shaderFileName	[1024]		= {};
 				cnstxpr	D3D11_INPUT_ELEMENT_DESC	vertexDesc []		=
 					{ { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 00, D3D11_INPUT_PER_VERTEX_DATA, 0 }
@@ -86,7 +86,7 @@ namespace llc
 				sprintf_s(shaderFileName, "%s.cso", shaderName.begin());
 
 				::llc::as0_t				fileVS;
-				llc_necs(llc::fileToMemory(::llc::vcs{shaderFileName}, fileVS));
+				llc_necs(llc::fileToMemory(::llc::vcst_t{shaderFileName}, fileVS));
 				// After the vertex shader file is loaded, create the shader and input layout.
 				llc_hrcall(d3dDevice->CreateVertexShader(&fileVS[0], fileVS.size(), nullptr, &vertexShader));
 				llc_hrcall(d3dDevice->CreateInputLayout(vertexDesc, ARRAYSIZE(vertexDesc), &fileVS[0], fileVS.size(), &inputLayout)); 
@@ -99,7 +99,7 @@ namespace llc
 				::llc::pcom<ID3D11PixelShader>	pixelShader;
 				sprintf_s(shaderFileName, "%s.cso", shaderName.begin());
 				::llc::as0_t					filePS;
-				llc_necs(llc::fileToMemory(::llc::vcs{shaderFileName}, filePS));
+				llc_necs(llc::fileToMemory(::llc::vcst_t{shaderFileName}, filePS));
 
 				llc_hrcall(d3dDevice->CreatePixelShader(&filePS[0], filePS.size(), nullptr, &pixelShader));
 				PixelShader					= pixelShader;

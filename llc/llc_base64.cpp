@@ -19,7 +19,7 @@ static	::llc::err_t	base64SymbolMapValidate						(cnst ::llc::SBase64SymbolMap &
 }
 
 
-static	::llc::error_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::llc::vu8 inputTriplet, ::llc::vu8 out_base64) {
+static	::llc::error_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::llc::vu0_t inputTriplet, ::llc::vu0_t out_base64) {
 	for(::llc::u2_t iSingleIn = 0; iSingleIn < 3; ++iSingleIn) { // reverse bits of each input byte
 		::llc::view_bit<u0_t>									inputBits												= {&inputTriplet[iSingleIn], 8};
 		::llc::reverse_bits(inputBits);
@@ -74,7 +74,7 @@ static	::llc::error_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::
 	return 0;
 }
 
-static	::llc::error_t	base64DecodeQuad								(::llc::vu8 inputQuad, ::llc::vu8 outputBytes) {
+static	::llc::error_t	base64DecodeQuad								(::llc::vu0_t inputQuad, ::llc::vu0_t outputBytes) {
 	for(::llc::u2_t iSingleIn = 0; iSingleIn < 4; ++iSingleIn) { // reverse bits before extracting
 		::llc::view_bit<u0_t>									inputBits												= {&inputQuad[iSingleIn], 6};
 		::llc::reverse_bits(inputBits);

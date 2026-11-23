@@ -46,7 +46,7 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 	::llc::bgra					colorFace			= {0xFF, 0x00, 0xFF, 0xFF};
 	if(0 == gui.Controls.Draw[iControl].UseNewPalettes) {
 		const ::llc::SControlTheme	& theme				= (*gui.Colors->ControlThemes)[(0 == controlDraw.ColorTheme) ? gui.ThemeDefault : controlDraw.ColorTheme - 1];
-		const ::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	
+		const ::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>
 									& colorCombo		= theme.ColorCombos
 			[ bDisabled					? ::llc::GUI_CONTROL_PALETTE_DISABLED
 			: controlState.IsPressed () ? ::llc::GUI_CONTROL_PALETTE_PRESSED
@@ -110,7 +110,7 @@ static	::llc::error_t	fillColorTableBorders3D			(const ::llc::SControlState & co
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_TOP		]	= colorBackground * bright;
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_RIGHT		]	= colorBackground * shaded;
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM	]	= colorBackground * shaded;
-	return 0;					  
+	return 0;
 }
 static	::llc::error_t	fillColorTableNew				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
 	const ::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>
@@ -128,7 +128,7 @@ static	::llc::error_t	fillColorTableNew				(::llc::SGUI & gui, ::llc::GUI_COLOR_
 }
 static	::llc::error_t	fillColorTableOld				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
 	const ::llc::SControlTheme	& theme							= (*gui.Colors->ControlThemes)[(0 == controlDraw.ColorTheme) ? gui.ThemeDefault : controlDraw.ColorTheme - 1];
-	const ::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	
+	const ::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>
 								& colorCombo					= theme.ColorCombos[::paletteIndexFromState(disabled, controlState)];
 	//colors[::llc::GUI_CONTROL_AREA_OLD_BACKGROUND	]	= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_BACKGROUND	]];
 	colors[::llc::GUI_CONTROL_AREA_OLD_CLIENT		]	= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_CLIENT		]];
@@ -145,8 +145,8 @@ static	::llc::error_t	fillColorTable					(::llc::SGUI & gui, ::llc::cid_t iContr
 	const ::llc::SControlDraw	& draw							= gui.Controls.Draw		[iControl];
 	const ::llc::SControlState	& state							= gui.Controls.States	[iControl];
 	::llc::GUI_COLOR_MODE		colorMode						= (::llc::GUI_COLOR_MODE)((draw.ColorMode == ::llc::GUI_COLOR_MODE_Default) ? gui.ColorModeDefault : draw.ColorMode);
-	llc_necs((false == draw.UseNewPalettes) 
-		? fillColorTableOld(gui, colorMode, state, draw, disabled, colors) 
+	llc_necs((false == draw.UseNewPalettes)
+		? fillColorTableOld(gui, colorMode, state, draw, disabled, colors)
 		: fillColorTableNew(gui, colorMode, state, draw, disabled, colors)
 		);
 

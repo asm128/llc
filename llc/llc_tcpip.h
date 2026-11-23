@@ -31,7 +31,7 @@ namespace llc
 		u0_t&			oper[]			(u0_t index)				noexcept	{ return *(((u0_t*)&IP) + index); }
 
 		inxp	oper	::llc::u2_t			()					const	noexcept	{ return IP; }
-		cxpr	oper	llc::astu8<4>		()					const	noexcept	{
+		cxpr	oper	llc::astu0_t<4>		()					const	noexcept	{
 			return 
 				{ ::llc::byte_at(IP, 0)
 				, ::llc::byte_at(IP, 1) 
@@ -41,8 +41,8 @@ namespace llc
 		}
 
 		template<size_t buflen>
-		llc::astchar<(buflen > 16) ? buflen : 16>	toString			(char separator = '.')						const	noexcept	{
-			llc::astchar<(buflen > 16) ? buflen : 16>	result	= {};
+		llc::astsc_t<(buflen > 16) ? buflen : 16>	toString			(char separator = '.')						const	noexcept	{
+			llc::astsc_t<(buflen > 16) ? buflen : 16>	result	= {};
 			print(result.Storage, separator);
 			return result; 
 		}
@@ -59,7 +59,7 @@ namespace llc
 		}
 	};
 
-	stin	::llc::astchar<16>	str			(const llc::SIPv4 ip)	{ return ip.toString<16>(); }
+	stin	::llc::astsc_t<16>	str			(const llc::SIPv4 ip)	{ return ip.toString<16>(); }
 
 	tydf struct SIPv4End : SIPv4 {
 		::llc::u1_t			Port				= {};
@@ -67,11 +67,11 @@ namespace llc
 		LLC_DEFAULT_OPERATOR(SIPv4End, IP == other.IP && Port == other.Port);
 
 		template<size_t buflen>
-		oper			llc::astchar<min((size_t)22, buflen)>	()		const	noexcept	{
+		oper			llc::astsc_t<min((size_t)22, buflen)>	()		const	noexcept	{
 			if(0 == Port)
 				return *(const SIPv4*)this;
 
-			llc::astchar<buflen>	result;
+			llc::astsc_t<buflen>	result;
 			sprintf_s(result.Storage, "%u.%u.%u.%u:%u"
 				, ::llc::byte_at(IP, 0)
 				, ::llc::byte_at(IP, 1)

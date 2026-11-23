@@ -34,22 +34,12 @@ namespace llc
 	tplt<tpnm T>	ndsx	bool		in_range	(const T & valueToTest, const T & rangeStart, const T & rangeStop)	noexcept	{ 
 		return (valueToTest >= rangeStart) && (valueToTest < rangeStop);
 	}
-	tplt<tpnm T>	ndsc	bool		equal		(const T * other, const T * local, ::llc::u2_t count) {
+	tplt<tpnm T>	ndsx	bool		equal		(const T * other, const T * local, ::llc::u2_t count) noexcept {
 		for(::llc::u2_t iElement = 0; iElement < count; ++iElement)
 			if(other[iElement] != local[iElement])
 				return false;
 		return true;
 	}
-//#if !defined(LLC_ATMEL)
-	tplt<>	ndin	bool	equal	(const double	* other, const double	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(double	)*count); }
-	tplt<>	ndin	bool	equal	(const float	* other, const float	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(float		)*count); }
-	tplt<>	ndin	bool	equal	(const int32_t	* other, const int32_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(int32_t	)*count); }
-	tplt<>	ndin	bool	equal	(u2_c	* other, u2_c	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(::llc::u2_t	)*count); }
-	tplt<>	ndin	bool	equal	(const int16_t	* other, const int16_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(int16_t	)*count); }
-	tplt<>	ndin	bool	equal	(const ::llc::u1_t	* other, const ::llc::u1_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(::llc::u1_t	)*count); }
-	tplt<>	ndin	bool	equal	(const int8_t	* other, const int8_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(int8_t	)*count); }
-	tplt<>	ndin	bool	equal	(const u0_t	* other, const u0_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(u0_t	)*count); }
-//#endif
 
 #pragma pack(pop)
 #ifndef truif_true_e 

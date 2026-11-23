@@ -99,7 +99,7 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_DATE, fresh != cached);
 	always_printf("Date formatting, %u values: parse+format=%" LLC_FMT_U3 " us, reused tokens=%" LLC_FMT_U3 " us.", iterations, parseAndFormat, timer.LastTimeMicroseconds);
 	if_fail_fe(::llc::append_strings(examples, "\nTiming for ", ::llc::str(iterations), " dates (microseconds):\nParse + format: ", ::llc::str(parseAndFormat), "\nReused tokens:  ", ::llc::str(timer.LastTimeMicroseconds), "\n"));
-	if_fail_fe(::llc::fileFromMemory(outputFolder, "formatting_examples.txt", examples.cc().cu8()));
+	if_fail_fe(::llc::fileFromMemory(outputFolder, "formatting_examples.txt", examples.template as<::llc::sc_c>().template as<::llc::u0_c>()));
 	rtrn 0;
 }
 

@@ -298,6 +298,6 @@ llc::err_t	llc::fileToMemory		(vcst_t folderPath, vcst_t fileName, llc::au0_t & 
 llc::err_t	llc::fileFromMemory		(vcst_t folderPath, vcst_t fileName, vcu0_c fileInMemory, bool append) {
 	llc::string			filePath			= {}; 
 	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());
-	if_fail_fef(llc::fileFromMemory(filePath, fileInMemory, append), "folderPath: '%.*s', fileName: '%.*s', append: %s.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin(), llc::b82sc(append));
+	if_fail_fef(llc::fileFromMemory(filePath, fileInMemory, append), "folderPath: '%.*s', fileName: '%.*s', append: %s.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin(), llc::b82st(append).begin());
 	return 0;
 }

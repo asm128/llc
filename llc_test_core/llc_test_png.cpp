@@ -109,7 +109,7 @@ sttc ::llc::err_t testPNGLoadPairs(::llc::ATestError & errors, ::llc::vcst_t out
 
 		::llc::au0_t source = {};
 		if_fail_fef(::llc::fileToMemory(interlacedPathView, source), "Failed to read:'%.*s'.", (int)interlacedPathView.size(), interlacedPathView.begin());
-		cnst ::llc::err_t sourceResult = ::llc::pngFileLoad(pngData, source.cu8(), sourceImage);
+		cnst ::llc::err_t sourceResult = ::llc::pngFileLoad(pngData, source.template as<::llc::u0_c>(), sourceImage);
 		LLC_TEST_CHECKF(errors, PNG_TEST_RESULT_SOURCE_LOAD, ::llc::failed(sourceResult) , "File:'%.*s', result:%i." , (int)interlacedPathView.size(), interlacedPathView.begin(), sourceResult );
 		if(::llc::failed(sourceResult))
 			continue;

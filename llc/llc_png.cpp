@@ -1169,7 +1169,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 	}
 	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
 	pngData.Inflated.clear();
-	llc_necs(llc::arrayInflate(pngData.Deflated.cu8(), pngData.Inflated, ::INFLATE_CHUNK_SIZE));
+	llc_necs(llc::arrayInflate(pngData.Deflated.as<u0_c>(), pngData.Inflated, ::INFLATE_CHUNK_SIZE));
 	::pngFilePrintInfo(pngData);
 
 	u2_t					bytesPerPixel				= ::pngBytesPerPixel(imageHeader.ColorType, imageHeader.BitDepth);
@@ -1195,7 +1195,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 ::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcst_t  & filename, ::llc::au0_t & out_Data) {
 	::llc::au0_t					fileInMemory				= {};
 	llc_necs(llc::fileToMemory(filename, fileInMemory));
-	return ::llc::pngFileLoad(pngData, fileInMemory.cu8(), out_Data);
+	return ::llc::pngFileLoad(pngData, fileInMemory.as<u0_c>(), out_Data);
 }
 
 ::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcu0_t &   source, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) {
@@ -1206,7 +1206,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 ::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcst_t  & filename, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) {
 	::llc::au0_t					fileInMemory				= {};
 	llc_necs(llc::fileToMemory(filename, fileInMemory));
-	return ::llc::pngFileLoad(pngData, fileInMemory.cu8(), out_Data, out_View);
+	return ::llc::pngFileLoad(pngData, fileInMemory.as<u0_c>(), out_Data, out_View);
 }
 
 ::llc::err_t			llc::pngFileLoad			(::llc::SPNGData & pngData, const ::llc::vcu0_t & source, ::llc::img8bgra & out_Texture) {

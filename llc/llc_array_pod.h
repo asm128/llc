@@ -83,6 +83,8 @@ namespace llc
 			memcpy(Data, other, _count * szof(T));
 		}
 		inxp	oper		view<cnst T>	()									cnst	noexcept	{ return {Data, Count}; }
+		tplT2 inxp view<T2> as() nxpt { return view<T>{Data, Count}.template as<T2>(); }
+		tplT2 inxp view<T2> as() csnx { return view<cnst T>{Data, Count}.template as<T2>(); }
 		TArray&				oper =			(cnst array_pod<T>& other)								{ return oper=((cnst view<T> &) other); }
 		TArray&				oper =			(cnst view<cnst T> & other)								{
 			u2_t					sourceOffset		= 0;
@@ -318,28 +320,28 @@ namespace llc
 	inln err_t append(array_pod<T> & output, TArgs&&... args) noexcept {
 		u2_c oldSize = output.size();
 		err_t result = 0;
-		((result = failed(result) ? result : output.append(args)), ...);
+		((result = failed(result) ? result : ::llc::append(output, args)), ...);
 		rtrn failed(result) ? result : output.size() - oldSize;
 	}
 	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
 	inln err_t push_back(array_pod<T> & output, TArgs&&... args) noexcept {
 		u2_c oldSize = output.size();
 		err_t result = 0;
-		((result = failed(result) ? result : output.push_back(args)), ...);
+		((result = failed(result) ? result : ::llc::push_back(output, args)), ...);
 		rtrn failed(result) ? result : output.size() - oldSize;
 	}
 	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
 	inln err_t remove(array_pod<T> & output, TArgs&&... args) noexcept {
 		u2_c oldSize = output.size();
 		err_t result = 0;
-		((result = failed(result) ? result : output.remove(args)), ...);
+		((result = failed(result) ? result : ::llc::remove(output, args)), ...);
 		rtrn failed(result) ? result : oldSize - output.size();
 	}
 	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
 	inln err_t pop_back(array_pod<T> & output, TArgs&&... args) noexcept {
 		u2_c oldSize = output.size();
 		err_t result = 0;
-		((result = failed(result) ? result : output.pop_back(args)), ...);
+		((result = failed(result) ? result : ::llc::pop_back(output, args)), ...);
 		rtrn failed(result) ? result : oldSize - output.size();
 	}
 
@@ -356,8 +358,7 @@ namespace llc
 	tydf		apod<s3_t>	as3_t;	tdcs	as3_t	as3_c;
 	tydf		apod<f2_t>	af2_t;	tdcs	af2_t	af2_c;
 	tydf		apod<f3_t>	af3_t;	tdcs	af3_t	af3_c;
-
-	stin	vs		str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
+	stin vstr_t str(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
 	stin	vcst_t	str		(asc_c & arg)	{ rtrn {arg.begin(), arg.size()}; }
 
 	tplt<tpnm T, tpnm TView>

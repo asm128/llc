@@ -8,7 +8,7 @@
 
 namespace llc
 {
-	//ndsi	vcst_t		tovcc   (cnst Stream   & srcstr)							{ rtrn srcstr.length() ? vcst_t{srcstr.begin(), srcstr.length()} : vcs{}; }
+	//ndsi	vcst_t		tovcc   (cnst Stream   & srcstr)							{ rtrn srcstr.length() ? vcst_t{srcstr.begin(), srcstr.length()} : vcst_t{}; }
 	//stin	err_t	tovcc   (vcst_t		& output, cnst Stream	& srcstr)	{ rtrn (output = tovcc(srcstr)).size(); }
 	//stin	err_t	tolabel (vcst_t		& output, cnst Stream	& srcstr)	{ rtrn (output = label(tovcc(srcstr))).size(); }
 	//stin	err_t	toachar (asc_t	& output, cnst Stream	& srcstr)	{ llc_necs(output.reserve(srcstr.length())); rtrn (output = tovcc(srcstr)).size(); }
