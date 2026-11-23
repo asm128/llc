@@ -83,8 +83,6 @@ namespace llc
 			memcpy(Data, other, _count * szof(T));
 		}
 		inxp	oper		view<cnst T>	()									cnst	noexcept	{ return {Data, Count}; }
-		tplT2 inxp view<T2> as() nxpt { return view<T>{Data, Count}.template as<T2>(); }
-		tplT2 inxp view<T2> as() csnx { return view<cnst T>{Data, Count}.template as<T2>(); }
 		TArray&				oper =			(cnst array_pod<T>& other)								{ return oper=((cnst view<T> &) other); }
 		TArray&				oper =			(cnst view<cnst T> & other)								{
 			u2_t					sourceOffset		= 0;

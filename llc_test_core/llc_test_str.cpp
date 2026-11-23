@@ -86,29 +86,32 @@ static_assert([]() constexpr {
 		|| ::llc::vcst_t{constCase.Storage}.size() != testCase.Length)
 			rtrn false;
 	}
-	rtrn ::llc::vcst_t{"hello"}.size() == 5 && ::llc::vcst_t{""}.size() == 0;
+	::llc::sc_t mutableText[] = "hello";
+	rtrn ::llc::vcst_t{"hello"}.size() == 5 && ::llc::vcst_t{""}.size() == 0
+		&& ::llc::vcst_t{"hello", 3}.size() == 3
+		&& ::llc::vstr_t{mutableText, 3}.size() == 3;
 }());
 static_assert([](::llc::vcst_t text) constexpr { rtrn text.size(); }("hello") == 5);
 
 sttc ::llc::err_t testStringArrayScan(::llc::ATestError & errors) {
 	for(auto testCase : StringArrayCases) {
 		cnst auto & constCase = testCase;
-		cnst ::llc::vcst_t expected = {testCase.Storage, testCase.Length};
-		::llc::vstr_t mutableView = {testCase.Storage};
+		cnst ::llc::vcst_t expected = testCase.Storage;
+		::llc::vstr_t mutableView = testCase.Storage;
 		::llc::sc_t separateStorage[8] = {};
 		for(::llc::u2_t i = 0; i < 8; ++i)
 			separateStorage[i] = testCase.Storage[i];
 		LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(mutableView == separateStorage) || mutableView != separateStorage);
 		LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(expected == separateStorage) || expected != separateStorage);
-		LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(::llc::vcst_t{separateStorage} == mutableView) || ::llc::vcst_t{separateStorage} != mutableView);
-		LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(::llc::vcst_t{separateStorage} == expected) || ::llc::vcst_t{separateStorage} != expected);
-		cnst ::llc::vcst_t views[] = {mutableView, {testCase.Storage}, {constCase.Storage}};
+		LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(separateStorage == mutableView) || separateStorage != mutableView);
+		LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(separateStorage == expected) || separateStorage != expected);
+		cnst ::llc::vcst_t views[] = {mutableView, testCase.Storage, constCase.Storage};
 		for(::llc::u2_t iView = 0; iView < ::llc::size(views); ++iView)
 			LLC_TEST_CHECKF(errors, STR_TEST_RESULT_ARRAY_SCAN, views[iView] != expected, "View:%u length:%u, expected:%u.", iView, views[iView].size(), testCase.Length);
 		::llc::string appended;
 		if_fail_fe(appended.append_string(testCase.Storage));
 		LLC_TEST_CHECKF(errors, STR_TEST_RESULT_ARRAY_APPEND, ::llc::vcst_t(appended.begin(), appended.size()) != expected, "Appended length:%u, expected:%u.", appended.size(), testCase.Length);
-		cnst ::llc::view<::llc::sc_c> counted = {testCase.Storage, ::llc::size(testCase.Storage)};
+		cnst ::llc::vcs0_t counted = testCase.Storage;
 		LLC_TEST_CHECK(errors, STR_TEST_RESULT_COUNTED_VIEW_RANGE, counted.size() != ::llc::size(testCase.Storage));
 	}
 	::llc::sc_t padded[64] = "hello";
@@ -143,11 +146,11 @@ sttc ::llc::err_t testNumericStrValue(::llc::ATestError & errors, T value, ::llc
 	auto				text	= ::llc::str(storage);
 	always_printf("STR numeric conversion: source width:%u bits; expected:'%.*s'; actual:'%.*s' (%u bytes); text:%s.", (::llc::u2_t)bcof(T), LLC_VIEW_ARGS(expected), (int)text.size(), text.begin(), text.size(), stringMismatch(text, expected) ? "FAIL" : "PASS");
 	::llc::testTraceBytes("Numeric source representation", ::llc::view<cnst T>{&value, 1}.template as<::llc::u0_c>());
-	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RESULT_TYPE, false == (::std::is_same_v<decltype(storage), ::llc::sstring<N>>) , "result type mismatch. capacity:%u, expected:%u." , (::llc::u2_t)::llc::size(storage.Storage), N );
+	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RESULT_TYPE, false == (::std::is_same_v<decltype(storage), ::llc::sstring<N>>) , "result type mismatch. capacity:%u, expected:%u." , decltype(storage)::N, N );
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_TEXT, stringMismatch(text, expected) , "actual:'%.*s'/%u, expected:'%.*s'/%u." , (int)text.size(), text.begin(), text.size(), (int)expected.size(), expected.begin(), expected.size());
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RANGE, text.begin() != storage.begin() , "numeric text begin:%p, expected:%p.", text.begin(), storage.begin());
-	LLC_TEST_REQUIREF(errors, STR_TEST_RESULT_NUMERIC_CAPACITY, text.size() >= ::llc::size(storage.Storage) , "numeric text size:%u, capacity:%u.", text.size(), (::llc::u2_t)::llc::size(storage.Storage));
-	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_TERMINATION, storage.Storage[text.size()] , "numeric terminator:%i, expected:0.", storage.Storage[text.size()]);
+	LLC_TEST_REQUIREF(errors, STR_TEST_RESULT_NUMERIC_CAPACITY, text.size() >= decltype(storage)::N , "numeric text size:%u, capacity:%u.", text.size(), decltype(storage)::N);
+	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_TERMINATION, storage[text.size()] , "numeric terminator:%i, expected:0.", storage[text.size()]);
 	rtrn 0;
 }
 

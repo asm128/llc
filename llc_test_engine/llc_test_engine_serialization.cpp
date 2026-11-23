@@ -291,7 +291,7 @@ sttc ::llc::err_t testCompleteEnginePersistence(::llc::ATestError & errors, ::ll
 	return 0;
 }
 
-::llc::err_t testEngineSerialization(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
+::llc::err_t test_engine_serialization(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	always_printf("Engine resource serialization: buffers."); llc_necs(testResourcePersistence<::llc::SRenderBufferManager>(errors));
 	always_printf("Engine resource serialization: surfaces."); llc_necs(testResourcePersistence<::llc::SSurfaceManager>(errors));
 	always_printf("Engine resource serialization: meshes."); llc_necs(testResourcePersistence<::llc::SMeshManager>(errors));

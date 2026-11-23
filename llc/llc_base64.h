@@ -7,8 +7,8 @@
 
 namespace llc
 {
-	stxp	vcst_t		b64Symbols		= {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", 64};
-	stxp	vcst_t		b64SymbolsFS	= {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_", 64};
+	stxp	vcst_t		b64Symbols		= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	stxp	vcst_t		b64SymbolsFS	= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 	stct SBase64SymbolMap {
 		vcst_t			Symbols		= {};

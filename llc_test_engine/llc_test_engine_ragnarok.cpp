@@ -47,7 +47,7 @@ sttc bool gatIsSentinel(cnst ::llc::SROGAT & output) {
 		&& 0 == memcmp(&output.Tiles[0], &sentinel, szof(sentinel));
 }
 
-::llc::err_t testRagnarokGAT(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_ragnarok_gat(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::au0_t bytes;
 	::llc::SROGATTile expectedTiles[2] = {};
 	LLC_TEST_REQUIRE(errors, RAGNAROK_GAT_RESULT_FIXTURE, ::llc::failed(gatFixture(bytes, expectedTiles)));
@@ -255,7 +255,7 @@ sttc bool gndIsSentinel(cnst ::llc::SROGND & output) {
 		&& output.Tiles.size() == 1 && output.Tiles[0].Height[0] == 5 && output.Tiles[0].SkinIndexTop == 3 && output.Tiles[0].Flags == 0x4321;
 }
 
-::llc::err_t testRagnarokGND(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_ragnarok_gnd(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::au0_t bytes15, bytes17;
 	SGNDFixtureOffsets offsets15 = {}, offsets17 = {};
 	LLC_TEST_REQUIRE(errors, RAGNAROK_GND_RESULT_FIXTURE, ::llc::failed(gndFixture(bytes15, 5, offsets15)) || ::llc::failed(gndFixture(bytes17, 7, offsets17)));

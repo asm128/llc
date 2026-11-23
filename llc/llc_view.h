@@ -552,6 +552,10 @@ nmsp llc
 	tdcs	vstr_t			vstr_c;
 	tydf	view<vstr_t>	vvstr_t;
 	tydf	view<vstr_c>	vcvstr_t;
+	tplN2u inln b8_t oper==(sc_c (&left)[N], vstr_c & right) { rtrn right.oper==(left); }
+	tplN2u inln b8_t oper!=(sc_c (&left)[N], vstr_c & right) { rtrn !right.oper==(left); }
+	tplN2u inln b8_t oper==(sc_c (&left)[N], vcst_c & right) { rtrn right.oper==(left); }
+	tplN2u inln b8_t oper!=(sc_c (&left)[N], vcst_c & right) { rtrn !right.oper==(left); }
 
 } // nmsp
 

@@ -164,7 +164,7 @@ sttc ::llc::err_t rsmViewTest(::llc::ATestError & errors, ::llc::u0_t minor) {
 	return 0;
 }
 
-::llc::err_t testRORSM(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_ro_rsm(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	for(::llc::u0_t minor = 1; minor <= 5; ++minor) {
 		llc_necs(::rsmVersionTest(errors, minor));
 		llc_necs(::rsmViewTest(errors, minor));

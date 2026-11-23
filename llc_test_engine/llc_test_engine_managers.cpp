@@ -189,7 +189,7 @@ sttc ::llc::err_t testEngineGraph(::llc::ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testEngineManagers(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_engine_managers(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	always_printf("Engine resource operations: buffers."); llc_necs(testEngineResourceManager<::llc::SRenderBufferManager>(errors));
 	always_printf("Engine resource operations: surfaces."); llc_necs(testEngineResourceManager<::llc::SSurfaceManager>(errors));
 	always_printf("Engine resource operations: meshes."); llc_necs(testEngineResourceManager<::llc::SMeshManager>(errors));

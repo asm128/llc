@@ -7,11 +7,11 @@
 // Suites may write any other files/subdirectories there; the runner does not inspect them.
 // The folder view remains valid for the duration of the suite call.
 
-::llc::err_t testEngineManagers			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
-::llc::err_t testEngineSerialization	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
-::llc::err_t testRORSM					(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
-::llc::err_t testD3D					(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
-::llc::err_t testRagnarokGAT			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
-::llc::err_t testRagnarokGND			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_engine_managers			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_engine_serialization	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_ro_rsm					(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_d3d					(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_ragnarok_gat			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_ragnarok_gnd			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 
 #endif // LLC_TEST_ENGINE_SUITES_H
