@@ -81,6 +81,7 @@ sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
 		, LLC_TEST_SUITE(testPointers, "ptr")
 		, LLC_TEST_SUITE(testPNG, "png")
 		, LLC_TEST_SUITE(testProcess, "process")
+		, LLC_TEST_SUITE(testProcessBroker, "process_broker")
 		, LLC_TEST_SUITE(testReporting, "reporting")
 		//, LLC_TEST_SUITE(testRuntimeModule, "runtime_module")
 		, LLC_TEST_SUITE(testView, "view")

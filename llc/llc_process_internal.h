@@ -5,20 +5,24 @@
 namespace llc::process_detail {
 
 	err_t processClose(SProcessWin32 & process);
-	err_t processRedirect(SProcessWin32 & process);
+	err_t processRedirect(SProcessWin32 & process, bool separateError);
 	err_t processCreate(SProcessWin32 & process, vcst_t application, vcst_t commandLine, vcs0_t environment, u2_t creationFlags);
 	err_t processWrite(SProcessWin32 & process, vcu0_t input);
 	err_t processRead(SProcessWin32 & process, au0_t & output);
+	err_t processRead(SProcessWin32 & process, au0_t & output, au0_t & errorOutput);
 	err_t processWait(SProcessWin32 & process, u2_t & exitCode);
 	err_t processCommunicate(SProcessWin32 & process, vcu0_t input, au0_t & output);
+	err_t processCommunicate(SProcessWin32 & process, vcu0_t input, au0_t & output, au0_t & errorOutput);
 
 	err_t processClose(SProcessLinux & process);
-	err_t processRedirect(SProcessLinux & process);
+	err_t processRedirect(SProcessLinux & process, bool separateError);
 	err_t processCreate(SProcessLinux & process, vcst_t application, vcst_t commandLine, vcs0_t environment, u2_t creationFlags);
 	err_t processWrite(SProcessLinux & process, vcu0_t input);
 	err_t processRead(SProcessLinux & process, au0_t & output);
+	err_t processRead(SProcessLinux & process, au0_t & output, au0_t & errorOutput);
 	err_t processWait(SProcessLinux & process, u2_t & exitCode);
 	err_t processCommunicate(SProcessLinux & process, vcu0_t input, au0_t & output);
+	err_t processCommunicate(SProcessLinux & process, vcu0_t input, au0_t & output, au0_t & errorOutput);
 
 	tplt<tpnm TProcess>
 	stct SProcessNativeScope {
@@ -33,7 +37,7 @@ namespace llc::process_detail {
 			if(Inactive) rtrn 0;
 			Inactive = true;
 			cnst err_t result = processClose(Process);
-			if(State) State->Redirected = false;
+			if(State) State->Redirected = State->SeparateError = false;
 			rtrn result;
 		}
 	};

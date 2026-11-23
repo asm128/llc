@@ -837,6 +837,9 @@
     <ClInclude Include="llc_process.h">
       <Filter>process</Filter>
     </ClInclude>
+    <ClInclude Include="llc_process_broker.h">
+      <Filter>process</Filter>
+    </ClInclude>
     <ClInclude Include="llc_process_internal.h">
       <Filter>process</Filter>
     </ClInclude>
@@ -1116,6 +1119,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_process.cpp">
+      <Filter>process</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_process_broker.cpp">
       <Filter>process</Filter>
     </ClCompile>
     <ClCompile Include="llc_process_win32.cpp">

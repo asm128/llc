@@ -49,6 +49,7 @@
 ::llc::err_t testPointers		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testPNG			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testProcess		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t testProcessBroker	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 //::llc::err_t testRuntimeModule	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testSPRNG			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t testSTL			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);

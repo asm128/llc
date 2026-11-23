@@ -99,6 +99,7 @@ namespace llc
 		SWindowsStartupInfo		Startup				= {sizeof(SWindowsStartupInfo)};
 		TWindowsHandle			StdinWrite			= INVALID_WINDOWS_HANDLE;
 		TWindowsHandle			StdoutRead			= INVALID_WINDOWS_HANDLE;
+		TWindowsHandle			StderrRead			= INVALID_WINDOWS_HANDLE;
 	};
 #pragma pack(pop)
 	stct SProcessLinux {
@@ -107,12 +108,15 @@ namespace llc
 		s2_t					StdinWrite			= -1;
 		s2_t					StdoutRead			= -1;
 		s2_t					StdoutWrite			= -1;
+		s2_t					StderrRead			= -1;
+		s2_t					StderrWrite			= -1;
 	};
 
 	stct SProcessState {
 		b8_t					Started				: 1;
 		b8_t					Finished			: 1;
 		b8_t					Redirected			: 1;
+		b8_t					SeparateError		: 1;
 		b8_t					Closed				: 1;
 	};
 	stct SProcess {
@@ -202,13 +206,17 @@ namespace llc
 			rtrn Execute(id, {}, KnownProcesses[id].Output, KnownProcesses[id].ExitCode);
 		}
 		err_t			Execute				(u2_t processId, vcu0_t input, au0_t & output, u2_t & exitCode);
+		err_t			Execute				(u2_t processId, vcu0_t input, au0_t & output, au0_t & errorOutput, u2_t & exitCode);
 		err_t			Launch				(u2_t processId);
 		err_t			Redirect			(u2_t processId);
+		err_t			Redirect			(u2_t processId, bool separateError);
 
 		err_t			Write				(u2_t processId, vcu0_t input);
 		err_t			Read				(u2_t processId, au0_t & output);
+		err_t			Read				(u2_t processId, au0_t & output, au0_t & errorOutput);
 		// Already launched/redirected child: close stdin while draining output; does not launch or reap.
 		err_t			Communicate			(u2_t processId, vcu0_t input, au0_t & output);
+		err_t			Communicate			(u2_t processId, vcu0_t input, au0_t & output, au0_t & errorOutput);
 
 		err_t			Wait				(u2_t processId, u2_t & exitCode);// Linux: signal termination is 128 + signal; wait consumes the child id.
 		err_t			Close				(u2_t processId); // Releases the record; does not kill the child.
@@ -219,6 +227,17 @@ namespace llc
 			TProcessScope scope{*this, (u2_t)id};
 			err_t				result, closed;
 			result = Execute((u2_t)id, input, output, exitCode);
+			if_true_ef(result, "(%" LLC_FMT_S2 ")", result);
+			if_fail_vef(-3, closed = scope.Close(), "(%" LLC_FMT_S2 ")", closed);
+			if(result) rtrn -2;
+			rtrn 0;
+		}
+		err_t			Execute				(vcst_t application, vcst_t commandLine, vcu0_t input, au0_t & output, au0_t & errorOutput, u2_t & exitCode, vcs0_t environment) {
+			err_t				id;
+			if_fail_vef(-1, id = Create(application, commandLine, environment), "(%" LLC_FMT_S2 ")", id);
+			TProcessScope scope{*this, (u2_t)id};
+			err_t				result, closed;
+			result = Execute((u2_t)id, input, output, errorOutput, exitCode);
 			if_true_ef(result, "(%" LLC_FMT_S2 ")", result);
 			if_fail_vef(-3, closed = scope.Close(), "(%" LLC_FMT_S2 ")", closed);
 			if(result) rtrn -2;
