@@ -62,6 +62,7 @@ namespace llc
 			rtrn ::llc::equal(other.begin(), this->begin(), this->size());
 		}
 		// Methods
+		inxp	view<u0_c>		bytes			() 													csnx	{ rtrn {(u0_c*)Data, byte_count()}; }
 		inxp	u2_t			byte_count		()														csnx	{ rtrn u2_t(Count * sizeof(T));	}
 		inxp	u3_t			bit_count		()														csnx	{ rtrn byte_count() * 8ULL;			}
 		inln	view<sc_t>		c				()														nxpt	{ rtrn {(sc_t*)Data, byte_count()}; }
@@ -302,7 +303,7 @@ namespace llc
 
 	struct view_string : view<sc_t> {
 		inxp			view_string				()											= dflt;
-		inxp			view_string				(vs0_c & other)						nxpt	: view(other)							{}
+		explicit inxp	view_string				(vs0_c & other)						nxpt	: view(other)							{}
 		tplN2u	inxp	view_string				(sc_t (&storage)[N])				nxpt	: view(storage)							{
 			for(u2_t i = 0; i < N; ++i)
 				if(0 == storage[i]) { Count = i; break; }
@@ -371,7 +372,7 @@ namespace llc
 	stin		vs		str				(vs & arg)					nxpt	{ rtrn arg; }
 	stin		vcst_t	str				(cnst vs & arg)				nxpt	{ rtrn arg.cc(); }
 	stin		vcst_t	str				(cnst vcst_t & arg)			nxpt	{ rtrn arg; }
-	stin		vs		str				(vs0_t arg)					nxpt	{ rtrn arg; }
+	stin		vs		str				(vs0_t arg)					nxpt	{ rtrn vs{arg}; }
 	stin		vcst_t	str				(vcs0_t arg)				nxpt	{ rtrn arg; }
 	tplN2usinx	vs		str				(sc_t (&arg)[N])			nxpt	{ rtrn arg; }
 	tplN2usinx	vcst_t	str				(sc_c (&arg)[N])			nxpt	{ rtrn arg; }

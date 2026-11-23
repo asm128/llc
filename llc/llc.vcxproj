@@ -248,6 +248,11 @@
     <ClInclude Include="llc_size.h" />
     <ClInclude Include="llc_stdsocket.h" />
     <ClInclude Include="llc_connection.h" />
+    <ClInclude Include="llc_connection_ip.h" />
+    <ClInclude Include="llc_socket_client.h" />
+    <ClInclude Include="llc_socket_server.h" />
+    <ClInclude Include="llc_client_app.h" />
+    <ClInclude Include="llc_server_app.h" />
     <ClInclude Include="llc_stdstring.h" />
     <ClInclude Include="llc_stl.h" />
     <ClInclude Include="llc_file.h" />
@@ -452,6 +457,11 @@
     <ClCompile Include="llc_file.cpp" />
     <ClCompile Include="llc_tcpip.cpp" />
     <ClCompile Include="llc_connection.cpp" />
+    <ClCompile Include="llc_connection_ip.cpp" />
+    <ClCompile Include="llc_socket_client.cpp" />
+    <ClCompile Include="llc_socket_server.cpp" />
+    <ClCompile Include="llc_client_app.cpp" />
+    <ClCompile Include="llc_server_app.cpp" />
     <ClCompile Include="llc_timer.cpp" />
     <ClCompile Include="llc_test_core.cpp" />
     <ClCompile Include="llc_view.cpp" />
