@@ -1,4 +1,4 @@
-#include "llc_args.h"
+#include "llc_runtime.h"
 #include "llc_file.h"
 #include "llc_json.h"
 #include "llc_json_expression.h"
@@ -35,12 +35,14 @@ static ::llc::err_t jenStringFormat(::llc::vcst_t format, const ::llc::SJSONRead
 	}, output);
 }
 
-int main(int argc, char** argv) {
-	::llc::SCommandLineArgs args;
+sttc ::llc::err_t jen_entry_point(::llc::SRuntimeValues & runtimeValues);
+LLC_OS_ENTRY_POINT(::jen_entry_point);
+
+sttc ::llc::err_t jen_entry_point(::llc::SRuntimeValues & runtimeValues) {
+	cnst ::llc::SCommandLineArgs & args = runtimeValues.EntryPointArgs;
 	::llc::SJSONFile file;
-	if_fail_fe(llc::argsParse(args, argc, argv));
-	if(2 != args.Options.size() + args.Positionals.size()) {
-		printf("usage: %s [-f] [json] [-f] [expression]\ninput_json:\n%s\ninput_expression:\n%s\n", argv[0], input_json, input_expression);
+	if(2 != args.Order.size()) {
+		printf("usage: %.*s [-f] [json] [-f] [expression]\ninput_json:\n%s\ninput_expression:\n%s\n", LLC_VIEW_ARGS(args.ProgramName), input_json, input_expression);
 		const ::llc::vcst_t demoJson = {input_json, sizeof(input_json) - 1};
 		const ::llc::vcst_t demoExpression = {input_expression, sizeof(input_expression) - 1};
 		if_fail_fe(llc::jsonParse(file.Reader, demoJson));
@@ -51,27 +53,20 @@ int main(int argc, char** argv) {
 		::llc::asc_t demoResult = {};
 		if_fail_fe(::jenStringFormat(demoExpression, demoReader, demoResult));
 		printf("result:\n%.*s\n", LLC_VIEW_ARGS(demoResult));
-		return argc == 1 ? 0 : -1;
+		return 0 == args.Order.size() ? 0 : -1;
 	}
 	::llc::vcst_t input[2] = {};
 	bool fromFile[2] = {};
-	::llc::u2_t iArg = 1;
-	for(::llc::u2_t iInput = 0; iInput < 2; ++iInput, ++iArg) {
-		char * inputArgs[] = {argv[0], argv[iArg], iArg + 1 < (::llc::u2_t)argc ? argv[iArg + 1] : nullptr};
-		::llc::SCommandLineArgs parsed = {};
-		if_fail_fe(llc::argsParse(parsed, 2, inputArgs));
-		if(parsed.Options.size() && !parsed.Options[0].Val.size()) {
-			if_true_fef(iArg + 1 >= (::llc::u2_t)argc, "%s", "Expected -f followed by a filename.");
-			if_fail_fe(llc::argsParse(parsed, 3, inputArgs));
-			++iArg;
-		}
-		fromFile[iInput] = 0 != parsed.Options.size();
-		if(fromFile[iInput]) {
-			if_true_fef((parsed.Options[0].Key != ::llc::vcst_t{"f", 1}) || !parsed.Options[0].Val.size(), "%s", "Expected -f followed by a filename.");
-			input[iInput] = parsed.Options[0].Val;
+	::llc::u2_t iOption = 0, iPositional = 0;
+	for(::llc::u2_t iInput = 0; iInput < 2; ++iInput) {
+		if(1 == args.Order[iInput]) {
+			fromFile[iInput] = 0 != args.OptionStarts[iOption];
+			if(fromFile[iInput])
+				if_true_fef((args.Options[iOption].Key != ::llc::vcst_t{"f", 1}) || !args.Options[iOption].Val.size(), "%s", "Expected -f followed by a filename.");
+			input[iInput] = args.Options[iOption++].Val;
 		}
 		else
-			input[iInput] = parsed.Positionals[0];
+			input[iInput] = args.Positionals[iPositional++];
 	}
 	if(fromFile[0]) {
 		if_fail_fe(llc::jsonFileRead(file, input[0]));
