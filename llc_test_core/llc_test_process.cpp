@@ -238,7 +238,7 @@ sttc ::llc::err_t processTestWrite(int descriptor, ::llc::vcu0_t bytes) {
 }
 #endif
 
-::llc::err_t testProcess(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_process(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	llc_necs(::testProcessScope(errors));
 	::llc::SProcessCreationFlags copiedFlags = {};
 	cnst ::llc::u2_t originalFlags = 0x08000004U;

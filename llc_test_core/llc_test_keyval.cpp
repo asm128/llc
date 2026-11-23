@@ -100,7 +100,7 @@ sttc ::llc::err_t testKeyValBoundaries(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testKeyVal(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_keyval(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testKeyValTypes(errors));
 	if_fail_fe(::testKeyValConstTypes(errors));
 	if_fail_fe(::testKeyValViewConstness(errors));

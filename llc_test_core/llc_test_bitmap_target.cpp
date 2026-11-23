@@ -390,7 +390,7 @@ sttc ::llc::err_t testBitmapLight(::llc::ATestError& errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBitmapTarget(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_bitmap_target(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testBitmapAxisLines(errors));
 	if_fail_fe(::testBitmapLines(errors));
 	if_fail_fe(::testBitmapLineOutput(errors));

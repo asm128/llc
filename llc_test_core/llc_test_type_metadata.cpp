@@ -262,7 +262,7 @@ sttc ::llc::err_t testPODDefinition(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testTypeMetadata(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_type_metadata(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testDataTypeMatrix(errors));
 	if_fail_fe(::testDataTypeConstants(errors));
 	if_fail_fe(::testTypeIdentifier(errors));

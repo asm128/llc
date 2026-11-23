@@ -281,7 +281,7 @@ sttc ::llc::err_t testStringFunctions(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testStr(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_str(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testStringArrayScan(errors));
 	::llc::sc_t		mutableArray[]		= "alpha";
 	::llc::sc_c		constArray[]		= "beta";

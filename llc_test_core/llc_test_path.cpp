@@ -536,7 +536,7 @@ sttc ::llc::err_t testPathListRecursive(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testPath(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_path(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testFindLastSlash(errors));
 	if_fail_fe(testPathBegin(errors));
 	if_fail_fe(testPathNameCompose(errors));

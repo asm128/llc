@@ -103,7 +103,7 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	rtrn 0;
 }
 
-::llc::err_t testExpression(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
+::llc::err_t test_expression(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testExpressionFormatting(errors, outputFolder));
 	cnst ::llc::vcst_t			validExpression			= "application.test_udp";
 	::llc::SExpressionReader	validReader				= {};

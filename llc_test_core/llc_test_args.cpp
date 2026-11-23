@@ -74,7 +74,7 @@ sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCom
 	rtrn 0;
 }
 
-::llc::err_t testArgs(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_args(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::vcst_t argv[] =
 		{ "app"
 		, "first"

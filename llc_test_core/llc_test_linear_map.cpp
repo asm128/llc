@@ -298,7 +298,7 @@ sttc ::llc::err_t testObjectLinearMap(::llc::ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testLinearMap(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_linear_map(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	TLinearMap map = {};
 	if_fail_fe(testLinearMapOperations(errors, map));
 	if_fail_fe(testLinearMapSerialization(errors, map));
