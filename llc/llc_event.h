@@ -47,13 +47,13 @@ namespace llc
 
 						SEvent		(const TEvent &)							= default;
 		constexpr		SEvent		(T type = {})						: Type(type) {}
-						SEvent		(T type, const vcu0_t data)	: Type(type), Data(data.cu8()) {}
+						SEvent		(T type, const vcu0_t data)	: Type(type), Data(data.template as<::llc::u0_c>()) {}
 						SEvent		(const TEView & eventView)			: Type(eventView.Type), Data(eventView.Data) {}
 
 		TEvent&			oper= 		(const TEvent &)				= default;
 		TEvent&			oper= 		(const TEView & eventView)		{ Type = eventView.Type; Data = eventView.Data; rtrn *this; }
 
-		oper			TEView		()						const	{ rtrn {Type, Data.cu8()}; }
+		oper			TEView		()						const	{ rtrn {Type, Data.template as<::llc::u0_c>()}; }
 
 		error_t			Save		(au0_t & output)	const	{
 			llc_necs(savePOD(output, Type));

@@ -16,6 +16,7 @@ GDEFINE_ENUM_VALUED(ARGS_TEST_RESULT, AMBIGUOUS_VALUE	, 8, "argsOptionValue() ac
 GDEFINE_ENUM_VALUED(ARGS_TEST_RESULT, MISSING_VALUE		, 9, "The option accessors did not report a missing key consistently.");
 GDEFINE_ENUM_VALUED(ARGS_TEST_RESULT, REUSE				, 10, "argsParse() retained state from an earlier parse.");
 GDEFINE_ENUM_VALUED(ARGS_TEST_RESULT, EMPTY_VALUE		, 11, "argsParse() did not preserve empty inline and valueless options.");
+GDEFINE_ENUM_VALUED(ARGS_TEST_RESULT, ORDER			, 12, "argsParse() did not preserve argument order.");
 
 sttc ::llc::err_t testArgsParsedValues(::llc::ATestError & errors, cnst ::llc::SCommandLineArgs & args) {
 	cnst ::llc::keyval<::llc::vcst_t> expectedOptions[] =
@@ -97,8 +98,12 @@ sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCom
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_PROGRAM_NAME, args.ProgramName != "app" , "Program:'%.*s', expected:'app'." , (int)args.ProgramName.size(), args.ProgramName.begin() );
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_ENVIRONMENT, args.Environment.size() != 1 , "Environment entry count:%u, expected:1.", args.Environment.size());
 	if(args.Environment.size()) {
-		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_ENVIRONMENT, args.Environment[0] != "A=B" , "Environment entry 0:'%.*s', expected:'A=B'." , (int)args.Environment[0].size(), args.Environment[0].begin());
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_ENVIRONMENT, args.Environment[0].Key != "A" || args.Environment[0].Val != "B" , "Environment entry 0:'%.*s', expected:'A=B'." , (int)args.Environment[0].Key.size(), args.Environment[0].Key.begin());
 	}
+	cnst ::llc::u0_t expectedOrder[] = {0, 1, 1, 1, 1, 0, 0, 0};
+	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_ORDER, args.Order.size() != ::llc::size(expectedOrder), "Order count:%u, expected:%u.", args.Order.size(), (::llc::u2_t)::llc::size(expectedOrder));
+	for(::llc::u2_t iOrder = 0; iOrder < args.Order.size() && iOrder < ::llc::size(expectedOrder); ++iOrder)
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_ORDER, args.Order[iOrder] != expectedOrder[iOrder], "Order[%u]:%u, expected:%u.", iOrder, args.Order[iOrder], expectedOrder[iOrder]);
 	if_fail_fe(::testArgsParsedValues(errors, args));
 	if_fail_fe(::testArgsAccessors(errors, args));
 
@@ -114,7 +119,7 @@ sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCom
 	}
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Environment.size() != 1 , "Reused environment entry count:%u, expected:1.", args.Environment.size());
 	if(args.Environment.size()) {
-		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Environment[0] != "C=D" , "Reused environment entry 0:'%.*s', expected:'C=D'." , (int)args.Environment[0].size(), args.Environment[0].begin());
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Environment[0].Key != "C" || args.Environment[0].Val != "D" , "Reused environment entry 0:'%.*s', expected:'C=D'." , (int)args.Environment[0].Key.size(), args.Environment[0].Key.begin());
 	}
 	cnst ::llc::err_t cleared = ::llc::argsParse(args, ::llc::view<::llc::vcst_t>{});
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, cleared , "Empty reused parse result:%i, expected:0.", cleared);

@@ -105,7 +105,7 @@ namespace
 			uint32_t       nChannels : 3;        // Channel count (1 - 6)
 			uint32_t       nSamplesPerSec : 18;       // Sampling rate
 			uint32_t       wBlockAlign : 8;        // Block alignment.  For WMA, lower 6 bits block alignment index, upper 2 bits bytes-per-second index.
-			uint32_t       wBitsPerSample : 1;        // Bits per sample (8 vs. 16, PCM only); WMAudio2/WMAudio3 (for WMA)
+			uint32_t       wBitsPerSample : 1;        // Bits per sample (8 vstr_t. 16, PCM only); WMAudio2/WMAudio3 (for WMA)
 		};
 
 		uint32_t           dwValue;

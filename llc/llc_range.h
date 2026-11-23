@@ -10,6 +10,7 @@ namespace llc
 		tydf		_t	T;
 		T							Offset, Count;	
 		LLC_DEFAULT_OPERATOR(range <T>, Offset == other.Offset && Count == other.Count); 
+		inxp b8_t				empty		()	const noexcept { rtrn 0 == Count; }
 
 		tpl_t2
 		inxp	range<_t2>			Cast		()		const	noexcept	{ return{(_t2)Offset, (_t2)Count}; } 

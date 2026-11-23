@@ -293,7 +293,7 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 		  "\n\t, \"properties\" : [{ \"name\" : \"age\", \"type\" : \"int\"}, { \"name\" : \"color\", \"type\" : \"string\"}, { \"name\" : \"race\", \"type\" : \"string\"} ]"
 		  "\n}"
 		;
-	if_fail_fe(::llc::fileFromMemory(outputFolder, "historical_input.jsonc", document.cu8()));
+	if_fail_fe(::llc::fileFromMemory(outputFolder, "historical_input.jsonc", document.template as<::llc::u0_c>()));
 	always_printf("FIXTURE: historical_input.jsonc (exact parser input, including comments)\n%.*s", LLC_VIEW_ARGS(document));
 	::llc::SJSONReader reader = {};
 	cnst ::llc::err_t parseResult = ::llc::jsonParse(reader, document);
@@ -341,7 +341,7 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 ::llc::err_t testJSONExpression(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testJSONExpressionHistorical(errors, outputFolder));
 	cnst ::llc::vcst_t document = "{\"application\":{\"blitter\":{\"database\":{\"name\":\"main\",\"enabled\":true,\"disabled\":false,\"negativeZero\":-0.0,\"path\":{\"database\":\"data\"},\"bind\":[\"id\",\"name\"]}}},\"selector\":\"selectorName\",\"selectorName\":\"name\"}";
-	if_fail_fe(::llc::fileFromMemory(outputFolder, "focused_input.json", document.cu8()));
+	if_fail_fe(::llc::fileFromMemory(outputFolder, "focused_input.json", document.template as<::llc::u0_c>()));
 	always_printf("FIXTURE: focused_input.json (exact parser input)\n%.*s", LLC_VIEW_ARGS(document));
 	::llc::SJSONReader reader = {};
 	cnst ::llc::err_t parseResult = ::llc::jsonParse(reader, document);

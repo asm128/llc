@@ -13,7 +13,7 @@ namespace llc
 		::llc::au0_t					Contents;
 		::llc::au0_t					LoadCache;
 
-		::llc::error_t					AddFile			(::llc::vcst_t fileName, ::llc::vu8 fileContents) {
+		::llc::error_t					AddFile			(::llc::vcst_t fileName, ::llc::vu0_t fileContents) {
 			const uint32_t						ssizes[]		= {Ranges.size(), Contents.size(), Names.size()};
 			uint32_t							itemIndex;
 			::llc::resize(::llc::min<const uint32_t>(ssizes), Ranges, Contents, Names);

@@ -380,7 +380,7 @@ static	::llc::err_t	pngScanlineDecode_6_16	(::llc::gu0_t & out_View, const ::llc
 		const ::llc::au0_t			& scanline				= scanlines[iScanline];
 		if(0 == scanline.size())
 			continue;
-		::llc::v1<const ::llc::rgba16>	viewPixels			= {(const ::llc::rgba16*)scanline.begin(), scanline.size() / 8};
+		::llc::view<const ::llc::rgba16>	viewPixels			= {(const ::llc::rgba16*)scanline.begin(), scanline.size() / 8};
 		::llc::vu0_t					scanlineOut				= out_View[iScanline];
 		for(u2_t iPixel = 0; iPixel < viewPixels.size(); ++iPixel) {
 			::llc::color_rgba<u1_t>	colorReversed			= viewPixels[iPixel];
@@ -1169,7 +1169,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 	}
 	::llc::SPNGIHDR				& imageHeader				= pngData.Header;
 	pngData.Inflated.clear();
-	llc_necs(llc::arrayInflate(pngData.Deflated.cu8(), pngData.Inflated, ::INFLATE_CHUNK_SIZE));
+	llc_necs(llc::arrayInflate(pngData.Deflated.template as<::llc::u0_c>(), pngData.Inflated, ::INFLATE_CHUNK_SIZE));
 	::pngFilePrintInfo(pngData);
 
 	u2_t					bytesPerPixel				= ::pngBytesPerPixel(imageHeader.ColorType, imageHeader.BitDepth);
@@ -1195,7 +1195,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 ::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcst_t  & filename, ::llc::au0_t & out_Data) {
 	::llc::au0_t					fileInMemory				= {};
 	llc_necs(llc::fileToMemory(filename, fileInMemory));
-	return ::llc::pngFileLoad(pngData, fileInMemory.cu8(), out_Data);
+	return ::llc::pngFileLoad(pngData, fileInMemory.template as<::llc::u0_c>(), out_Data);
 }
 
 ::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcu0_t &   source, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) {
@@ -1206,7 +1206,7 @@ stacxpr	u2_t		INFLATE_CHUNK_SIZE			= DEFLATE_CHUNK_SIZE;
 ::llc::err_t	llc::pngFileLoad(::llc::SPNGData & pngData, const ::llc::vcst_t  & filename, ::llc::au0_t & out_Data, ::llc::g8bgra & out_View) {
 	::llc::au0_t					fileInMemory				= {};
 	llc_necs(llc::fileToMemory(filename, fileInMemory));
-	return ::llc::pngFileLoad(pngData, fileInMemory.cu8(), out_Data, out_View);
+	return ::llc::pngFileLoad(pngData, fileInMemory.template as<::llc::u0_c>(), out_Data, out_View);
 }
 
 ::llc::err_t			llc::pngFileLoad			(::llc::SPNGData & pngData, const ::llc::vcu0_t & source, ::llc::img8bgra & out_Texture) {

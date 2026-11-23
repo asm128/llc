@@ -21,7 +21,7 @@ GDEFINE_ENUM_VALUED(RO_RSM_RESULT, VIEW_RELOAD      , 14, "Reloading a view must
 sttc bool rsmVersionAtLeast(::llc::u0_t minor, ::llc::u0_t requiredMinor) { return minor >= requiredMinor; }
 
 sttc ::llc::err_t rsmSaveName(::llc::au0_t & output, ::llc::vcst_t text) {
-	::llc::astchar<40> value = {};
+	::llc::astsc_t<40> value = {};
 	if_true_fef(text.size() > value.size(), "RSM fixture name is too long: %u.", text.size());
 	if(text.size())
 		memcpy(value.begin(), text.begin(), text.size());

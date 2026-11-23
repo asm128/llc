@@ -94,20 +94,20 @@ namespace llc
 			llc_necs(llc::saveView(output, Transforms		));
 			llc_necs(llc::saveView(output, BaseTransforms	));
 			for(::llc::u2_t iEntity = 0; iEntity < RenderNodes.size(); ++iEntity) {
-				llc_necall(llc::saveView(output, Lights	[iEntity] ? ::llc::v1<const ::llc::SLight >{*Lights	[iEntity]} : ::llc::v1<const ::llc::SLight >{}), "iEntity: %i", iEntity);
-				llc_necall(llc::saveView(output, Cameras	[iEntity] ? ::llc::v1<const ::llc::SCamera>{*Cameras[iEntity]} : ::llc::v1<const ::llc::SCamera>{}), "iEntity: %i", iEntity);
+				llc_necall(llc::saveView(output, Lights	[iEntity] ? ::llc::view<const ::llc::SLight >{*Lights	[iEntity]} : ::llc::view<const ::llc::SLight >{}), "iEntity: %i", iEntity);
+				llc_necall(llc::saveView(output, Cameras	[iEntity] ? ::llc::view<const ::llc::SCamera>{*Cameras[iEntity]} : ::llc::view<const ::llc::SCamera>{}), "iEntity: %i", iEntity);
 			}
 			llc_necs(output.append({(const u0_t*)&LightsDirectional.size(), 4}));
 			for(::llc::u2_t iEntity = 0; iEntity < LightsDirectional.size(); ++iEntity)
-				llc_necall(llc::saveView(output, LightsDirectional[iEntity] ? ::llc::v1<const ::llc::SLightDirectional>{*LightsDirectional[iEntity]} : ::llc::v1<const ::llc::SLightDirectional>{}), "iEntity: %i", iEntity);
+				llc_necall(llc::saveView(output, LightsDirectional[iEntity] ? ::llc::view<const ::llc::SLightDirectional>{*LightsDirectional[iEntity]} : ::llc::view<const ::llc::SLightDirectional>{}), "iEntity: %i", iEntity);
 
 			llc_necs(output.append({(const u0_t*)&LightsPoint.size(), 4}));
 			for(::llc::u2_t iEntity = 0; iEntity < LightsPoint.size(); ++iEntity)
-				llc_necall(llc::saveView(output, LightsPoint[iEntity] ? ::llc::v1<const ::llc::SLightPoint>{*LightsPoint[iEntity]} : ::llc::v1<const ::llc::SLightPoint>{}), "iEntity: %i", iEntity);
+				llc_necall(llc::saveView(output, LightsPoint[iEntity] ? ::llc::view<const ::llc::SLightPoint>{*LightsPoint[iEntity]} : ::llc::view<const ::llc::SLightPoint>{}), "iEntity: %i", iEntity);
 
 			llc_necs(output.append({(const u0_t*)&LightsSpot.size(), 4}));
 			for(::llc::u2_t iEntity = 0; iEntity < LightsSpot.size(); ++iEntity)
-				llc_necall(llc::saveView(output, LightsSpot[iEntity] ? ::llc::v1<const ::llc::SLightSpot>{*LightsSpot[iEntity]} : ::llc::v1<const ::llc::SLightSpot>{}), "iEntity: %i", iEntity);
+				llc_necall(llc::saveView(output, LightsSpot[iEntity] ? ::llc::view<const ::llc::SLightSpot>{*LightsSpot[iEntity]} : ::llc::view<const ::llc::SLightSpot>{}), "iEntity: %i", iEntity);
 
 			info_printf("Saved %s, %i", "RenderNodes", RenderNodes.size());
 			return 0;

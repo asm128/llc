@@ -11,7 +11,8 @@ namespace llc
 		vcst_t					ProgramName = {};
 		aobj<keyval<vcst_t>>	Options		= {};
 		aobj<vcst_t>			Positionals	= {};
-		aobj<vcst_t>			Environment	= {};
+		au0_t				Order		= {};
+		aobj<keyval<vcst_t>>	Environment	= {};
 	};
 
 	err_t			argsParse					(SCommandLineArgs & output, view<cnst vcst_t> argv, view<cnst vcst_t> envp = {});

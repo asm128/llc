@@ -129,7 +129,6 @@ namespace llc
 		}
 		inln		err_t	append_string		(cnst llc::function<err_t(TArray&)> & funcAppend)	noexcept	{ return funcAppend ? funcAppend(*this) : 0; }
 		
-		tplN2uinln	err_t	append_string		(cnst T (&newChain)[N])								noexcept	{ return append_string(vcst_t{newChain}); }
 		inln		err_t	append_string		(vcst_t newChain)									noexcept	{ llc_necs(append(newChain.begin(), newChain.size())); return newChain.size(); }
 		inln		err_t	append_string		(cnst T & element)									noexcept	{ llc_necs(push_back(element)); return 1; }
 		inln		err_t	append_strings		(cnst view<cnst vcst_t> & newChains)				noexcept	{ 
@@ -324,7 +323,7 @@ namespace llc
 	tydf		apod<f2_t>	af2_t;	tdcs	af2_t	af2_c;
 	tydf		apod<f3_t>	af3_t;	tdcs	af3_t	af3_c;
 
-	stin	vs		str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
+	stin	vstr_t		str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
 	stin	vcst_t	str		(asc_c & arg)	{ rtrn {arg.begin(), arg.size()}; }
 
 	tplt<tpnm T, tpnm TView>

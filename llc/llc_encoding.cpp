@@ -149,7 +149,7 @@ llc::err_t			llc::ardellDecode				(::llc::as2_t & cache, vcu0_c & input, uint64_
 
 	::llc::u2_t					outputOffset					= output.size();
 	u2_c				finalStringSize					= salt ? n - 4 : n;
-	const ::llc::vci32			finalValues						= {salt ? &sn[2] : sn, finalStringSize};
+	const ::llc::vcs2_t			finalValues						= {salt ? &sn[2] : sn, finalStringSize};
 	llc_necs(output.resize(outputOffset + finalStringSize));
 	u0_t						* outputFast					= output.begin();
 	const int32_t				* finalValuesFast				= finalValues.begin();

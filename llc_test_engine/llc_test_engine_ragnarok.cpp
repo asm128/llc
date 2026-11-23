@@ -28,7 +28,7 @@ sttc ::llc::err_t gatFixture(::llc::au0_t & bytes, ::llc::SROGATTile (&tiles)[2]
 	llc_necs(bytes.append(GAT_MAGIC));
 	llc_necs(::llc::savePOD(bytes, version));
 	llc_necs(::llc::savePOD(bytes, dimensions));
-	return bytes.append(::llc::view<cnst ::llc::SROGATTile>{tiles}.cu8());
+	return bytes.append(::llc::view<cnst ::llc::SROGATTile>{tiles}.template as<::llc::u0_c>());
 }
 
 sttc ::llc::err_t gatSentinel(::llc::SROGAT & output) {

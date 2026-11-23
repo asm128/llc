@@ -78,7 +78,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::controlListPush	(::llc::SGUI & gui, ::llc::SControlList& menu, const ::llc::vcs& text, int64_t eventCode)				{
+::llc::error_t			llc::controlListPush	(::llc::SGUI & gui, ::llc::SControlList& menu, const ::llc::vcst_t& text, int64_t eventCode)				{
 	if(menu.IdControl == -1)
 		llc_necs(llc::controlListInitialize(gui, menu));
 
@@ -136,11 +136,11 @@
 			int32_t						indexColor			= gui.Colors->Palette->push_back(gridCellColor);
 			themeIndex				= gui.Colors->ControlThemes->push_back({});
 			::llc::SControlTheme		& theme				= (*gui.Colors->ControlThemes)[themeIndex];
-			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboDisabled		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	] = {};
-			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboPressed 		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	] = {};
-			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboSelected		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	] = {};
-			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboHover 		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_HOVER	] = {};
-			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboNormal		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_NORMAL	] = {};
+			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboDisabled		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	] = {};
+			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboPressed 		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	] = {};
+			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboSelected		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	] = {};
+			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboHover 		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_HOVER	] = {};
+			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboNormal		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_NORMAL	] = {};
 			comboDisabled	[::llc::UI_CONTROL_AREA_BACKGROUND	]	= indexColor;
 			comboDisabled	[::llc::UI_CONTROL_AREA_CLIENT		]	= comboDisabled[::llc::UI_CONTROL_AREA_BACKGROUND];
 			comboNormal		[::llc::UI_CONTROL_AREA_BACKGROUND	]	= indexColor;

@@ -63,8 +63,8 @@ namespace llc
 	};
 
 	struct SRORSMNode {
-		::llc::astchar<40>					Name				= {};
-		::llc::astchar<40>					ParentName			= {};
+		::llc::astsc_t<40>					Name				= {};
+		::llc::astsc_t<40>					ParentName			= {};
 		::llc::apod<::llc::u2_t>			Textures			= {};
 		::llc::m3a3f2_t					Transform			= {};
 		::llc::n3f2_t						Offset				= {};
@@ -93,8 +93,8 @@ namespace llc
 		::llc::s2_t							ShadeType		= {};
 		::llc::u0_t							Alpha			= 0xFFU;
 		::llc::astatic<::llc::u0_t, 16>		Unknown			= {};
-		::llc::aobj<::llc::astchar<40>>		Textures		= {};
-		::llc::astchar<40>					MainNode		= {};
+		::llc::aobj<::llc::astsc_t<40>>		Textures		= {};
+		::llc::astsc_t<40>					MainNode		= {};
 		::llc::aobj<::llc::SRORSMNode>		Nodes			= {};
 		::llc::apod<::llc::SRORSMVolumeBox>	VolumeBoxes		= {};
 	};

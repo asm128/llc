@@ -28,8 +28,6 @@ namespace llc
 		inln	oper	vcst_t			()							cnst	{ return {Data, Count}; }
 	};
 
-	tplN2u	inln bool	oper==	(sc_c (&left)[N], cnst label & right)	{ rtrn right.operator==(left); }
-	tplN2u	inln bool	oper!=	(sc_c (&left)[N], cnst label & right)	{ rtrn !right.operator==(left); }
 
 	stin err_t		loadLabel		(vcu0_t & input, vcst_t & output) {
 		vcs0_t				serialized		= {};

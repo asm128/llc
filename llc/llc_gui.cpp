@@ -44,11 +44,11 @@ static	::llc::error_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::ll
 }
 
 static	::llc::error_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra> & palette, int32_t iColor, ::llc::SControlTheme & theme, ::llc::u2_t iShades)	{
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboDisabled									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	]	= {};
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboPressed 									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	]	= {};
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboSelected									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	]	= {};
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboHover 										= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_HOVER	]	= {};
-	::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>		& colorComboNormal										= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_NORMAL	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboDisabled									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboPressed 									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboSelected									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboHover 										= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_HOVER	]	= {};
+	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboNormal										= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_NORMAL	]	= {};
 
 	//const int32_t														colorBase												= iColor / iShades;
 	const int32_t														colorShade												= iColor % iShades;
@@ -654,7 +654,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 }
 
 ::llc::error_t			llc::controlTextSet		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::vcst_t text)				{
-	::llc::vcs					& oldText				= gui.Controls.Text[iControl].Text;
+	::llc::vcst_t					& oldText				= gui.Controls.Text[iControl].Text;
 	if(text != oldText) {
 		oldText					= text;
 		gui.Controls.SetUpdated(iControl, false);
@@ -671,7 +671,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	return 0;
 }
 
-static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable, ::llc::cid_t iControl, ::llc::vi16 defaultColors)										{
+static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable, ::llc::cid_t iControl, ::llc::vs1_t defaultColors)										{
 	controlTable.States		[iControl]	= {};
 	controlTable.Placement	[iControl]	= {};
 	controlTable.Area		[iControl]	= {};
@@ -689,7 +689,7 @@ static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable,
 }
 
 
-::llc::cid_t			llc::controlCreate		(::llc::SControlTable & controlTable, ::llc::vi16 defaultColors)	{
+::llc::cid_t			llc::controlCreate		(::llc::SControlTable & controlTable, ::llc::vs1_t defaultColors)	{
 	for(::llc::u2_t iControl = 0; iControl < controlTable.States.size(); ++iControl) {
 		if(controlTable.IsUnused((::llc::cid_t)iControl)) {
 			llc_necall(::controlInstanceReset(controlTable, (::llc::cid_t)iControl, defaultColors), "iControl: %i", iControl);

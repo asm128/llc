@@ -28,7 +28,7 @@ namespace llc
 
 	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	tplt<tpnm _tColor>
-	static	::llc::error_t	textLineDrawFixedSizeLit		(::llc::grid<_tColor> & target, const ::llc::view_bit<uint64_t> & viewTextureFont, const ::llc::n2u2_t & viewMetrics, ::llc::u1_t characterCellsX, int16_t dstOffsetY, const ::llc::n2u0_t & sizeCharCell, const ::llc::vcs & text0, const ::llc::n2s1_t dstTextOffset, const _tColor& color)	{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
+	static	::llc::error_t	textLineDrawFixedSizeLit		(::llc::grid<_tColor> & target, const ::llc::view_bit<uint64_t> & viewTextureFont, const ::llc::n2u2_t & viewMetrics, ::llc::u1_t characterCellsX, int16_t dstOffsetY, const ::llc::n2u0_t & sizeCharCell, const ::llc::vcst_t & text0, const ::llc::n2s1_t dstTextOffset, const _tColor& color)	{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
 		::llc::apod<::llc::n2u1_t>	dstCoords;
 		for(int32_t iChar = 0, charCount = (int32_t)text0.size(); iChar < charCount; ++iChar) {
 			const uc_t					charToDraw						= (uc_t)text0[iChar];
@@ -47,14 +47,14 @@ namespace llc
 	}
 
 	tplt<tpnm _tColor>
-	static	::llc::error_t	textLineDrawAlignedFixedSize	(::llc::grid<_tColor> & targetView, const ::llc::grid<_tColor> & fontAtlas, ::llc::u1_t lineOffset, const ::llc::n2u1_t & targetSize, const ::llc::n2u0_t & sizeCharCell, const ::llc::vcs & text0)	{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
+	static	::llc::error_t	textLineDrawAlignedFixedSize	(::llc::grid<_tColor> & targetView, const ::llc::grid<_tColor> & fontAtlas, ::llc::u1_t lineOffset, const ::llc::n2u1_t & targetSize, const ::llc::n2u0_t & sizeCharCell, const ::llc::vcst_t & text0)	{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
 		const ::llc::n2s1_t			dstTextOffset					= {int16_t((targetSize.x >> 1) - (::llc::textLineCalcWidth(sizeCharCell, text0) >> 1)), };
 		::llc::u1_t					dstOffsetY						= int16_t(lineOffset * sizeCharCell.y);
 		return ::llc::textLineDrawFixedSize(targetView, fontAtlas, 32, dstOffsetY, sizeCharCell, text0, dstTextOffset);
 	}
 
 	tplt<tpnm _tColor>
-	static	::llc::error_t	textLineDrawAlignedFixedSizeLit	(::llc::grid<_tColor> & targetView, const ::llc::view_bit<uint64_t> & fontAtlas, const ::llc::n2u2_t & viewMetrics, ::llc::u1_t lineOffset, const ::llc::n2u1_t & targetSize, const ::llc::n2u0_t & sizeCharCell, const ::llc::vcs & text0, const _tColor & color)	{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
+	static	::llc::error_t	textLineDrawAlignedFixedSizeLit	(::llc::grid<_tColor> & targetView, const ::llc::view_bit<uint64_t> & fontAtlas, const ::llc::n2u2_t & viewMetrics, ::llc::u1_t lineOffset, const ::llc::n2u1_t & targetSize, const ::llc::n2u0_t & sizeCharCell, const ::llc::vcst_t & text0, const _tColor & color)	{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
 		const ::llc::n2s1_t			dstTextOffset					= {int16_t((targetSize.x >> 1) - (::llc::textLineCalcWidth(sizeCharCell, text0) >> 1)), };
 		::llc::u1_t					dstOffsetY						= int16_t(lineOffset * sizeCharCell.y);
 		return ::llc::textLineDrawFixedSizeLit(targetView, fontAtlas, viewMetrics, 32, dstOffsetY, sizeCharCell, text0, dstTextOffset, color);

@@ -90,7 +90,7 @@ static	::llc::err_t	roRSMNodeLoad
 
 ::llc::err_t			llc::roRSMLoad				(::llc::SRORSM & output, ::llc::vcu0_t input) {
 	output						= {};
-	::llc::astchar<4>		magic				= {};
+	::llc::astsc_t<4>		magic				= {};
 	llc_necs(::llc::loadPOD(input, magic));
 	if_true_fef(0 != memcmp(magic.begin(), "GRSM", 4), "Invalid RSM magic: '%c%c%c%c'.", magic[0], magic[1], magic[2], magic[3]);
 	llc_necs(::llc::loadPOD(input, output.VersionMajor));
@@ -156,7 +156,7 @@ static ::llc::err_t roRSMViewInvalidate(::llc::SRORSMView & output) {
 }
 
 static ::llc::err_t roRSMViewParse(::llc::vcu0_t input, ::llc::SRORSMView & output) {
-	::llc::astchar<4> magic = {};
+	::llc::astsc_t<4> magic = {};
 	llc_necs(::llc::loadPOD(input, magic));
 	if_true_fef(0 != memcmp(magic.begin(), "GRSM", 4), "Invalid RSM magic: '%c%c%c%c'.", magic[0], magic[1], magic[2], magic[3]);
 	llc_necs(::llc::loadPOD(input, output.VersionMajor));

@@ -154,11 +154,11 @@ tplt<tpnm T>
 sttc ::llc::err_t testStaticRepresentations(::llc::ATestError & errors) {
 	::llc::array_static<T, 5> data = {T(1), T(2), T(3), T(4), T(5)};
 	cnst ::llc::array_static<T, 5> & constData = data;
-	auto mutableBytes	= data.u8();
-	auto mutableChars	= data.c();
-	auto constBytes		= constData.u8();
-	auto constByteAlias	= constData.cu8();
-	auto constChars		= constData.cc();
+	auto mutableBytes	= data.template as<::llc::u0_t>();
+	auto mutableChars	= data.template as<::llc::sc_t>();
+	auto constBytes		= constData.template as<::llc::u0_c>();
+	auto constByteAlias	= constData.template as<::llc::u0_c>();
+	auto constChars		= constData.template as<::llc::sc_c>();
 	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_TYPE , false == (::std::is_same_v<decltype(mutableBytes), ::llc::view<::llc::u0_t>>));
 	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_MUTABLE_CHAR_TYPE , false == (::std::is_same_v<decltype(mutableChars), ::llc::view<::llc::sc_t>>));
 	LLC_TEST_CHECK(errors, ARRAY_STATIC_TEST_RESULT_CONST_BYTE_TYPE , false == (::std::is_same_v<decltype(constBytes), ::llc::view<::llc::u0_c>>));
@@ -176,10 +176,10 @@ sttc ::llc::err_t testStaticRepresentations(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CONST_CHAR_SIZE, constChars.size() != constData.byte_count() , "const character size:%u, expected:%u.", constChars.size(), constData.byte_count());
 	cnst ::llc::u0_t replacement = (::llc::u0_t)(mutableBytes[0] ^ 0x5AU);
 	mutableBytes[0] = replacement;
-	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_WRITE, constData.cu8()[0] != replacement , "byte representation write mismatch. storage byte:%u, expected:%u." , constData.cu8()[0], replacement );
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_REPRESENTATION_WRITE, constData.template as<::llc::u0_c>()[0] != replacement , "byte representation write mismatch. storage byte:%u, expected:%u." , constData.template as<::llc::u0_c>()[0], replacement );
 	cnst ::llc::sc_t charReplacement = (::llc::sc_t)(mutableChars[1] ^ 0x35);
 	mutableChars[1] = charReplacement;
-	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CHAR_REPRESENTATION_WRITE, constData.cc()[1] != charReplacement , "character representation write mismatch. storage byte:%i, expected:%i." , constData.cc()[1], charReplacement );
+	LLC_TEST_CHECKF(errors, ARRAY_STATIC_TEST_RESULT_CHAR_REPRESENTATION_WRITE, constData.template as<::llc::sc_c>()[1] != charReplacement , "character representation write mismatch. storage byte:%i, expected:%i." , constData.template as<::llc::sc_c>()[1], charReplacement );
 	rtrn 0;
 }
 

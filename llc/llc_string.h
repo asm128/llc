@@ -30,10 +30,8 @@ namespace llc
 
         tplt<size_t buflen>
         inline  string      (sc_c (&other)[buflen])         : asc_t(vcst_t{other})                                  { initialize(); }
-        inline  string      (vs0_c & other)                 : asc_t(other)                                          { initialize(); }
         inline  string      (asc_c & other)                 : asc_t(other)                                          { initialize(); }
         inline  string      (vcst_t other)                  : asc_t(other)                                          { initialize(); }
-        inline  string      (vcs0_t other)                  : asc_t(other)                                          { initialize(); }
         inline  string      (sc_c * unsafe)                 : asc_t(vcst_t{unsafe, (u2_t)-1})                       { initialize(); }
 #ifdef LLC_ARDUINO
         inline  string      (const String & other)          : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    { initialize(); }
@@ -56,8 +54,6 @@ namespace llc
             return Count;
         }
     }; // struct
-    tplN2u inln bool oper== (sc_c (&left)[N], cnst string & right) { rtrn right.operator==(left); }
-    tplN2u inln bool oper!= (sc_c (&left)[N], cnst string & right) { rtrn !right.operator==(left); }
 
 #ifdef LLC_ARDUINO
     ndsi string  str (const IPAddress & s)   { return s.toString(); }

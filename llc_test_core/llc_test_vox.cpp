@@ -81,7 +81,7 @@ GDEFINE_ENUM_VALUED(VOX_TEST_RESULT, PACK_VALUE				, 75, "SVOXData::Load() store
 
 sttc ::llc::err_t testVOXAppendText(::llc::au0_t & output, ::llc::vcst_t text) {
 	if_fail_fe(::llc::savePOD(output, text.size()));
-	if_fail_fe(output.append(text.cu8()));
+	if_fail_fe(output.append(text.template as<::llc::u0_c>()));
 	rtrn 0;
 }
 
@@ -167,7 +167,7 @@ sttc ::llc::err_t testVOXDocumentBuild(::llc::au0_t & output) {
 	if_fail_fe(::llc::savePOD(content, groupId));
 	if_fail_fe(::llc::savePOD(content, emptyDict));
 	if_fail_fe(::llc::savePOD(content, childCount));
-	if_fail_fe(content.append(::llc::view<cnst ::llc::s2_t>{childIds}.cu8()));
+	if_fail_fe(content.append(::llc::view<cnst ::llc::s2_t>{childIds}.template as<::llc::u0_c>()));
 	if_fail_fe(testVOXAppendChunk(children, "nGRP", content));
 
 	content.clear();

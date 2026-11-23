@@ -124,7 +124,7 @@ namespace llc
 		}
 		inline	::llc::error_t		SetMeshPosition		(::llc::u2_t iEntity, const ::llc::n3f2_t & position)				{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].Model.SetTranslation(position, false); return 0; }
 		::llc::error_t				SetColorDiffuse		(::llc::u2_t iEntity, const ::llc::rgbaf & diffuse)				{ Scene->Graphics->Skins[Scene->RenderNodes[GetRenderNode(iEntity)].Skin]->Material.Color.Diffuse = diffuse; return 0; }
-		::llc::error_t				SetShader			(::llc::u2_t iEntity, const ::std::function<::llc::TFuncPixelShader> & shader, ::llc::vcs name) {
+		::llc::error_t				SetShader			(::llc::u2_t iEntity, const ::std::function<::llc::TFuncPixelShader> & shader, ::llc::vcst_t name) {
 			const ::llc::u2_t					iShader				= Scene->RenderNodes[GetRenderNode(iEntity)].Shader;
 			Scene->Graphics->Shaders[iShader].create(shader);
 			Scene->Graphics->Shaders.Names[iShader] = name;
@@ -164,19 +164,19 @@ namespace llc
 		::llc::error_t				CreateCamera		();
 
 
-		::llc::error_t				CreateBox			(const ::llc::SParamsBox			& params, ::llc::vcs entityName = "Box");
-		::llc::error_t				CreateSphere		(const ::llc::SParamsSphere			& params, ::llc::vcs entityName = "Sphere");
-		::llc::error_t				CreateCylinderWall	(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = "Cylinder Wall");
-		::llc::error_t				CreateCylinder		(const ::llc::SParamsCylinderWall	& params, ::llc::vcs entityName = "Cylinder");
-		::llc::error_t				CreateCircleSide	(const ::llc::SParamsCircle			& params, ::llc::vcs entityName = "Circle Side");
-		::llc::error_t				CreateDisc			(const ::llc::SParamsDisc			& params, ::llc::vcs entityName = "Disc");
-		::llc::error_t				CreateTube			(const ::llc::SParamsTube			& params, ::llc::vcs entityName = "Tube");
-		::llc::error_t				CreateRingSide		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = "Ring Side");
-		::llc::error_t				CreateRingFlat		(const ::llc::SParamsRingSide		& params, ::llc::vcs entityName = "Ring flat");
-		::llc::error_t				CreateGrid			(const ::llc::SParamsGrid			& params, ::llc::vcs entityName = "Grid");
-		::llc::error_t				CreateHelixHalf		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = "Helix half");
-		::llc::error_t				CreateHelix			(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = "Helix");
-		::llc::error_t				CreateFigure0		(const ::llc::SParamsHelix			& params, ::llc::vcs entityName = "Figure0");
+		::llc::error_t				CreateBox			(const ::llc::SParamsBox			& params, ::llc::vcst_t entityName = "Box");
+		::llc::error_t				CreateSphere		(const ::llc::SParamsSphere			& params, ::llc::vcst_t entityName = "Sphere");
+		::llc::error_t				CreateCylinderWall	(const ::llc::SParamsCylinderWall	& params, ::llc::vcst_t entityName = "Cylinder Wall");
+		::llc::error_t				CreateCylinder		(const ::llc::SParamsCylinderWall	& params, ::llc::vcst_t entityName = "Cylinder");
+		::llc::error_t				CreateCircleSide	(const ::llc::SParamsCircle			& params, ::llc::vcst_t entityName = "Circle Side");
+		::llc::error_t				CreateDisc			(const ::llc::SParamsDisc			& params, ::llc::vcst_t entityName = "Disc");
+		::llc::error_t				CreateTube			(const ::llc::SParamsTube			& params, ::llc::vcst_t entityName = "Tube");
+		::llc::error_t				CreateRingSide		(const ::llc::SParamsRingSide		& params, ::llc::vcst_t entityName = "Ring Side");
+		::llc::error_t				CreateRingFlat		(const ::llc::SParamsRingSide		& params, ::llc::vcst_t entityName = "Ring flat");
+		::llc::error_t				CreateGrid			(const ::llc::SParamsGrid			& params, ::llc::vcst_t entityName = "Grid");
+		::llc::error_t				CreateHelixHalf		(const ::llc::SParamsHelix			& params, ::llc::vcst_t entityName = "Helix half");
+		::llc::error_t				CreateHelix			(const ::llc::SParamsHelix			& params, ::llc::vcst_t entityName = "Helix");
+		::llc::error_t				CreateFigure0		(const ::llc::SParamsHelix			& params, ::llc::vcst_t entityName = "Figure0");
 
 		::llc::error_t				CreateImageFromFile	(const ::llc::vcst_t & fileFolder, const ::llc::vcst_t & fileName);
 
