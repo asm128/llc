@@ -212,7 +212,7 @@ sttc ::llc::err_t testGUIControlStateMutations(::llc::ATestError & errors) {
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Disabled, ::llc::setDisabled));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Hovered , ::llc::setHovered));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Focused , ::llc::setFocused));
-	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Selected, ::llc::setSelected));
+	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Selected, static_cast<decltype(&::llc::setHidden)>(::llc::setSelected)));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Updated , ::llc::setUpdated));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Action  , ::llc::setAction));
 	for(::llc::u2_t iFlag = 0; iFlag < 0x100U; ++iFlag)
