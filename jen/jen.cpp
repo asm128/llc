@@ -26,6 +26,15 @@ stxp const char input_json [] = R"jenjson(
 )jenjson";
 stxp const char input_expression [] = "{people['2'].name}'s {properties[selection.index].name}: {people['2'].property.(properties[selection.index].name)}";
 
+static ::llc::err_t jenStringFormat(::llc::vcst_t format, const ::llc::SJSONReader & reader, ::llc::asc_t & output) {
+	return ::llc::expressionStringFormat(format, [&](::llc::vcst_c & expression, ::llc::vcst_t & resolved) {
+		::llc::SExpressionReader parsed = {};
+		if_fail_fe(::llc::expressionReaderParse(parsed, expression));
+		const ::llc::err_t result = ::llc::jsonExpressionResolve(parsed, reader, 0, resolved);
+		return result == -1 ? -1 : 0;
+	}, output);
+}
+
 int main(int argc, char** argv) {
 	::llc::SCommandLineArgs args;
 	::llc::SJSONFile file;
@@ -40,7 +49,7 @@ int main(int argc, char** argv) {
 		::llc::SJSONReader demoReader = {};
 		if_fail_fe(llc::jsonParse(demoReader, file.Reader.View[demoRoot]));
 		::llc::asc_t demoResult = {};
-		if_fail_fe(llc::jsonStringFormat(demoExpression, demoReader, 0, demoResult));
+		if_fail_fe(::jenStringFormat(demoExpression, demoReader, demoResult));
 		printf("result:\n%.*s\n", LLC_VIEW_ARGS(demoResult));
 		return argc == 1 ? 0 : -1;
 	}
@@ -76,7 +85,7 @@ int main(int argc, char** argv) {
 		if_fail_fe(expressionBytes.slice(input[1], 0));
 	}
 	::llc::asc_t output = {};
-	if_fail_fe(llc::jsonStringFormat(input[1], file.Reader, 0, output));
+	if_fail_fe(::jenStringFormat(input[1], file.Reader, output));
 	printf("%.*s\n", LLC_VIEW_ARGS(output));
 	return 0;
 }
