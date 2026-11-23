@@ -1,6 +1,11 @@
 #include "llc_process_broker.h"
 #include "llc_string_compose.h"
 #include "llc_test_core.h"
+#ifdef LLC_LINUX
+#	include <errno.h>
+#	include <signal.h>
+#	include <unistd.h>
+#endif
 
 GDEFINE_ENUM_TYPE(PROCESS_BROKER_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(PROCESS_BROKER_TEST_RESULT, EXECUTE			, 1, "SProcessBroker failed to execute the configured child.");
@@ -9,6 +14,85 @@ GDEFINE_ENUM_VALUED(PROCESS_BROKER_TEST_RESULT, STDOUT_BYTES		, 3, "SProcessBrok
 GDEFINE_ENUM_VALUED(PROCESS_BROKER_TEST_RESULT, STDERR_BYTES		, 4, "SProcessBroker lost or changed standard error.");
 GDEFINE_ENUM_VALUED(PROCESS_BROKER_TEST_RESULT, EMPTY_INPUT		, 5, "SProcessBroker mishandled a request without standard input.");
 GDEFINE_ENUM_VALUED(PROCESS_BROKER_TEST_RESULT, REQUEST			, 6, "SProcessBroker accepted a request without an environment terminator.");
+
+#ifdef LLC_WINDOWS
+sttc DWORD WINAPI processBrokerChildTimeout(void * completed) {
+	if(WAIT_OBJECT_0 != WaitForSingleObject((HANDLE)completed, 15000))
+		ExitProcess(124);
+	rtrn 0;
+}
+
+::llc::err_t testProcessEchoChild() {
+	HANDLE completed = CreateEventA(0, TRUE, FALSE, 0);
+	if_null_fe(completed);
+	HANDLE watchdog = CreateThread(0, 0, ::processBrokerChildTimeout, completed, 0, 0);
+	if(0 == watchdog) {
+		CloseHandle(completed);
+		rtrn -1;
+	}
+	cnst ::llc::err_t result = []() -> ::llc::err_t {
+		::llc::u0_t buffer[4096] = {};
+		DWORD transferred = 0;
+		for(::llc::u2_t i = 0; i < 16; ++i) {
+			if(FALSE == WriteFile(GetStdHandle(STD_ERROR_HANDLE), buffer, sizeof(buffer), &transferred, 0) || transferred != sizeof(buffer))
+				rtrn -1;
+		}
+		while(true) {
+			if(FALSE == ReadFile(GetStdHandle(STD_INPUT_HANDLE), buffer, sizeof(buffer), &transferred, 0))
+				rtrn ERROR_BROKEN_PIPE == GetLastError() ? 0 : -1;
+			if(0 == transferred)
+				rtrn 0;
+			DWORD written = 0;
+			if(FALSE == WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, transferred, &written, 0) || written != transferred)
+				rtrn -1;
+		}
+	}();
+	cnst BOOL signaled = SetEvent(completed);
+	cnst DWORD waited = WaitForSingleObject(watchdog, INFINITE);
+	cnst BOOL closedThread = CloseHandle(watchdog);
+	cnst BOOL closedEvent = CloseHandle(completed);
+	rtrn signaled && WAIT_OBJECT_0 == waited && closedThread && closedEvent ? result : -1;
+}
+#elif defined(LLC_LINUX)
+sttc ::llc::err_t processBrokerTestWrite(int descriptor, ::llc::vcu0_t bytes) {
+	for(::llc::u2_t offset = 0; offset < bytes.size(); ) {
+		cnst ssize_t written = write(descriptor, bytes.begin() + offset, bytes.size() - offset);
+		if(0 > written && EINTR == errno)
+			continue;
+		if(0 >= written)
+			rtrn -1;
+		offset += (::llc::u2_t)written;
+	}
+	rtrn 0;
+}
+
+::llc::err_t testProcessMarkerChild() {
+	stxp ::llc::sc_t marker[] = "llc process child";
+	if_fail_fe(::processBrokerTestWrite(STDERR_FILENO, {(cnst ::llc::u0_t*)marker, sizeof(marker) - 1}));
+	rtrn -1;
+}
+
+::llc::err_t testProcessEchoChild() {
+	if(SIG_ERR == signal(SIGALRM, SIG_DFL))
+		rtrn -1;
+	alarm(15);
+	::llc::u0_t buffer[4096] = {};
+	for(::llc::u2_t i = 0; i < 16; ++i)
+		if_fail_fe(::processBrokerTestWrite(STDERR_FILENO, {buffer, sizeof(buffer)}));
+	for(;;) {
+		cnst ssize_t count = read(STDIN_FILENO, buffer, sizeof(buffer));
+		if(0 > count && EINTR == errno)
+			continue;
+		if(0 > count)
+			rtrn -1;
+		if(0 == count)
+			break;
+		if_fail_fe(::processBrokerTestWrite(STDOUT_FILENO, {buffer, (::llc::u2_t)count}));
+	}
+	alarm(0);
+	rtrn 0;
+}
+#endif
 
 ::llc::err_t test_process_broker(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 #if defined(LLC_WINDOWS) || defined(LLC_LINUX)

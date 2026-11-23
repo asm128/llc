@@ -834,13 +834,7 @@
     <ClInclude Include="llc_ccsds.h">
       <Filter>encoding</Filter>
     </ClInclude>
-    <ClInclude Include="llc_process.h">
-      <Filter>process</Filter>
-    </ClInclude>
     <ClInclude Include="llc_process_broker.h">
-      <Filter>process</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_process_internal.h">
       <Filter>process</Filter>
     </ClInclude>
     <ClInclude Include="llc_test_core.h">
@@ -1118,16 +1112,7 @@
     <ClCompile Include="llc_header_checkingg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llc_process.cpp">
-      <Filter>process</Filter>
-    </ClCompile>
     <ClCompile Include="llc_process_broker.cpp">
-      <Filter>process</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_process_win32.cpp">
-      <Filter>process</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_process_linux.cpp">
       <Filter>process</Filter>
     </ClCompile>
     <ClCompile Include="llc_ccsds.cpp">
