@@ -16,6 +16,8 @@ namespace llc
 		memcpy(output.begin(), readView.begin(), ::llc::min(readView.byte_count(), ::llc::view<_tPOD>{output}.byte_count()));
 		return 0;
 	}
+	tplt<tpnm T, ::llc::u2_t N>
+	::llc::error_t load(::llc::vcu0_t & input, ::llc::astatic<T, N> & output) { return loadView(input, output); }
 } // namespace
 
 #endif // LLC_ASTATIC_SERIALIZE_H_23627

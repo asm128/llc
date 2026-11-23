@@ -162,9 +162,9 @@ namespace llc
 	err_t	drawCircle			(n2u2_c& targetMetrics, circle<TCoord> const& circleToDraw, apod<n2s2_t>& output) {
 		if_true_fef(targetMetrics.x > 0x80000000U || targetMetrics.y > 0x80000000U, "Circle target cannot be represented by 32-bit signed coordinates: %u x %u.", targetMetrics.x, targetMetrics.y);
 		apod<n2s2_t> points = {};
-		err_t rasterResult = rasterCircle(targetMetrics, circleToDraw, [&points](n2u2_c& cell) -> err_t { if_fail_fe(points.push_back(cell.s2())); rtrn 1; });
+		err_t rasterResult = rasterCircle(targetMetrics, circleToDraw, [&points](n2u2_c& cell) -> err_t { if_fail_fe(::llc::push_back(points, cell.s2())); rtrn 1; });
 		if_fail_fe(rasterResult);
-		if_fail_fe(output.append(points));
+		if_fail_fe(::llc::append(output, points));
 		rtrn rasterResult;
 	}
 
@@ -215,9 +215,9 @@ namespace llc
 	err_t	drawTriangle		(n2u2_c& targetMetrics, tri2<TCoord> const& triangle, apod<n2s1_t>& output) {
 		if_true_fef(targetMetrics.x > 0x8000U || targetMetrics.y > 0x8000U, "Triangle target cannot be represented by 16-bit signed coordinates: %u x %u.", targetMetrics.x, targetMetrics.y);
 		apod<n2s1_t> points = {};
-		err_t rasterResult = rasterTriangle(targetMetrics, triangle, [&points](n2u2_c& cell) -> err_t { if_fail_fe(points.push_back(cell.s1())); rtrn 1; });
+		err_t rasterResult = rasterTriangle(targetMetrics, triangle, [&points](n2u2_c& cell) -> err_t { if_fail_fe(::llc::push_back(points, cell.s1())); rtrn 1; });
 		if_fail_fe(rasterResult);
-		if_fail_fe(output.append(points));
+		if_fail_fe(::llc::append(output, points));
 		rtrn rasterResult;
 	}
 
@@ -263,9 +263,9 @@ namespace llc
 	err_t	drawLine			(n2u1_c& targetMetrics, line2<TCoord> const& line, apod<n2s1_t>& output) {
 		if_true_fef(targetMetrics.x > 0x8000U || targetMetrics.y > 0x8000U, "Line target cannot be represented by 16-bit signed coordinates: %u x %u.", targetMetrics.x, targetMetrics.y);
 		apod<n2s1_t> points = {};
-		err_t rasterResult = rasterLine(targetMetrics.u2(), line, [&points](n2u2_c& cell) -> err_t { if_fail_fe(points.push_back(cell.s1())); rtrn 1; });
+		err_t rasterResult = rasterLine(targetMetrics.u2(), line, [&points](n2u2_c& cell) -> err_t { if_fail_fe(::llc::push_back(points, cell.s1())); rtrn 1; });
 		if_fail_fe(rasterResult);
-		if_fail_fe(output.append(points));
+		if_fail_fe(::llc::append(output, points));
 		rtrn rasterResult;
 	}
 

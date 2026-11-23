@@ -17,7 +17,7 @@ namespace llc
 	tplT			err_t	saveView					(au0_t & output, cnst view<T> & viewToSerialize)	{
 		cnst packedu32				counterValue				= viewToSerialize.size();
 		if_fail_fe(savePacked(output, counterValue));
-		if_fail_fe(output.append(viewToSerialize.cu8()));
+		if_fail_fe(::llc::append(output, viewToSerialize.cu8()));
 		return counterValue.ValueWidth() + viewToSerialize.byte_count();
 	}
 	//tplT			err_t	saveUIntView		(au0_t & output, cnst view<T> & viewToSerialize)	{
@@ -36,7 +36,7 @@ namespace llc
 	//tplt<>	inln	err_t	saveView	<u3_c>	(au0_t & output, vcu3_c & viewToSerialize)			{ return saveUIntView(output, viewToSerialize); }
 
 	tplTstin		err_t	saveView					(as0_t & output, cnst view<T> & headerToWrite)	{ return saveView(*(au0_t*)&output, headerToWrite); }
-	tplT			err_t	savePOD						(au0_t & output, cnst T & input)				{ if_fail_fe(output.append((cnst u0_t*)&input, szof(T))); return szof(T); }
+	tplT			err_t	savePOD						(au0_t & output, cnst T & input)				{ if_fail_fe(::llc::append(output, (cnst u0_t*)&input, szof(T))); return szof(T); }
 	tplTstin		err_t	savePOD						(as0_t & output, cnst T & input)				{ return savePOD(*(au0_t*)&output, input); }
 	tplTstin	err_t	save		(au0_t & output, cnst T & input)						{ rtrn savePOD(output, input); }
 	tplTstin	err_t	save		(au0_t & output, cnst view<cnst T> & input)		{ rtrn saveView(output, input); }
@@ -71,6 +71,7 @@ namespace llc
 	}
 	tplTstin		err_t	loadView					(vcs0_t & input, apod<T> & output)				{ return loadView(*(vcu0_t*)& input, output); }
 	tplTInTOut err_t load(view<cnst TIn> & input, apod<TOut> & output) { rtrn loadView(input, output); }
+	tplT err_t load(vcs0_t & input, T & output) { rtrn load(*(vcu0_t*)&input, output); }
 	tplTInTArgs requires(sizeof...(TArgs) > 1)
 	err_t load(view<cnst TIn> & input, TArgs &... output) {
 		err_t result = 0;

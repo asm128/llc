@@ -88,7 +88,7 @@ namespace
 
 ::llc::err_t llc::commPayloadNext(SCommPayloadReader & reader, vcu0_t & payload) {
 	if_true_fef(reader.Index >= reader.Count, LLC_FMT_GE_U2, reader.Index, reader.Count);
-	llc_necs(loadView(reader.Input, payload));
+	llc_necs(load(reader.Input, payload));
 	++reader.Index;
 	if_true_fef(reader.Index == reader.Count && reader.Input.size(), "Unexpected trailing payload bytes: %" LLC_FMT_U2 ".", reader.Input.size());
 	rtrn 0;

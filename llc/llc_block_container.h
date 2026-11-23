@@ -61,7 +61,7 @@ namespace llc
 			au2_t							remainingSpace			= {};
 			appod<astatic<T, _size>>		blocks					= {};
 
-			if_fail_fe(loadView(inputToRead, remainingSpace));
+			if_fail_fe(load(inputToRead, remainingSpace));
 			if_fail_fe(blocks.resize(remainingSpace.size()));
 			for(u2_t iBlock = 0; iBlock < blocks.size(); ++iBlock) {
 				if_true_fef(remainingSpace[iBlock] > _size, LLC_FMT_GT_U2, remainingSpace[iBlock], (u2_t)_size);

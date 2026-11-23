@@ -27,7 +27,7 @@ namespace llc
 		inline								CLabelManager				()																{ 
 			Characters	.push_sequence("", 0U, Empty); 
 			Counts		.push_back(0); 
-			Texts		.push_back(Empty.begin()); 
+			::llc::push_back(Texts, Empty.begin());
 		}
 
 		error_t						Save		(au0_t & output)						const	{
@@ -45,7 +45,7 @@ namespace llc
 			apod<sc_c *>			texts		= {};
 			block_container_nts<BLOCK_SIZE>	characters	= {};
 			vcst_t						empty		= {};
-			if_fail_fe(loadView(inputToRead, counts));
+			if_fail_fe(load(inputToRead, counts));
 			if_zero_fe(counts.size());
 			if_true_fe(counts[0]);
 			u2_t offsetByte = {};
@@ -105,10 +105,10 @@ namespace llc
 			}
 
 			llc_necs(Characters.push_sequence(text, ntslen, out_view));
-			llc_necs(Texts.push_back(out_view.begin()));
+			llc_necs(::llc::push_back(Texts, out_view.begin()));
 			cnst err_t iCount = Counts.push_back(out_view.size());
 			if(0 > iCount)
-				Texts.pop_back();
+				::llc::pop_back(Texts);
 			rtrn iCount;
 		}
 	};

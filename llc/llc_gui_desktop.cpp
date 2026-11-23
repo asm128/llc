@@ -100,8 +100,8 @@ static	::llc::error_t	unhideMenuHierarchy			(::llc::SGUI & gui, ::llc::SDesktop&
 		::llc::acid & parentChildren = gui.Controls.Children[parentControlIndex];
 		for(::llc::u2_t iChild = 0, childCount = parentChildren.size(); iChild < childCount; ++iChild) {
 			if(parentChildren[iChild] == menu.IdControl) {
-				parentChildren.remove(iChild);
-				parentChildren.push_back(menu.IdControl);
+				::llc::remove(parentChildren, iChild);
+				::llc::push_back(parentChildren, menu.IdControl);
 				::llc::controlMetricsInvalidate(gui, parentControlIndex);
 				break;
 			}

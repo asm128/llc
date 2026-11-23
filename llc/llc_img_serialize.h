@@ -17,7 +17,7 @@ namespace llc
 	::llc::error_t				loadImage					(::llc::vcu0_t & input, ::llc::img<TPod> & output) {
 		::llc::vcu0_t				inputToRead				= input;
 		::llc::n2u2_t					metrics						= {};
-		llc_necs(llc::loadPOD(inputToRead, metrics));
+		llc_necs(llc::load(inputToRead, metrics));
 		::llc::view<cnst TPod>			texels						= {};
 		::llc::err_t					bytesRead					= 0;
 		llc_necs(bytesRead = llc::viewRead(texels, inputToRead));

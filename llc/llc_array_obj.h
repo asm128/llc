@@ -247,9 +247,37 @@ namespace llc
 	tplT	using ao		= aobj<T>; 
 
 	tplt<tpnm T, tpnm... TArgs> inln err_t append		(array_obj<T> & output, TArgs&&... args) nxpt { rtrn output.append(args...); }
-	tplt<tpnm T, tpnm... TArgs> inln err_t push_back	(array_obj<T> & output, TArgs&&... args) nxpt { rtrn output.push_back(args...); }
+	tplT inln err_t push_back(array_obj<T> & output, typename array_obj<T>::TCnst & value) nxpt { rtrn output.push_back(value); }
 	tplt<tpnm T, tpnm... TArgs> inln err_t remove		(array_obj<T> & output, TArgs&&... args) { rtrn output.remove(args...); }
 	tplt<tpnm T, tpnm... TArgs> inln err_t pop_back	(array_obj<T> & output, TArgs&&... args) nxpt { rtrn output.pop_back(args...); }
+	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1 && !requires(array_obj<T> & target, TArgs&&... values) { target.append(values...); })
+	inln err_t append(array_obj<T> & output, TArgs&&... args) nxpt {
+		u2_c oldSize = output.size();
+		err_t result = 0;
+		((result = failed(result) ? result : output.append(args)), ...);
+		rtrn failed(result) ? result : output.size() - oldSize;
+	}
+	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
+	inln err_t push_back(array_obj<T> & output, TArgs&&... args) nxpt {
+		u2_c oldSize = output.size();
+		err_t result = 0;
+		((result = failed(result) ? result : output.push_back(args)), ...);
+		rtrn failed(result) ? result : output.size() - oldSize;
+	}
+	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
+	inln err_t remove(array_obj<T> & output, TArgs&&... args) {
+		u2_c oldSize = output.size();
+		err_t result = 0;
+		((result = failed(result) ? result : output.remove(args)), ...);
+		rtrn failed(result) ? result : oldSize - output.size();
+	}
+	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
+	inln err_t pop_back(array_obj<T> & output, TArgs&&... args) nxpt {
+		u2_c oldSize = output.size();
+		err_t result = 0;
+		((result = failed(result) ? result : output.pop_back(args)), ...);
+		rtrn failed(result) ? result : oldSize - output.size();
+	}
 
 	tplT	using aview		= aobj	<view<T>>; 
 	tplT	using av		= aview	<T>; 

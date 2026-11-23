@@ -121,7 +121,7 @@ sttc ::llc::err_t virtualKeyboardSetupFail(::llc::SGUI & gui, ::llc::SVirtualKey
 					rtrn 0;
 				::llc::vcu0_t input = eventText.Data;
 				::llc::u2_t character = {};
-				if_fail_fe(::llc::loadPOD(input, character));
+				if_fail_fe(::llc::load(input, character));
 				if_true_fef(input.size(), "Text character payload has %u trailing bytes.", input.size());
 				if(Text.size() < MaxLength && character >= 0x20 && character <= 0xFF) {
 					if_fail_fe(Text.push_back((::llc::sc_t)character));
@@ -136,7 +136,7 @@ sttc ::llc::err_t virtualKeyboardSetupFail(::llc::SGUI & gui, ::llc::SVirtualKey
 					rtrn 0;
 				::llc::vcu0_t input = eventKeyboard.Data;
 				::llc::u0_t key = {};
-				if_fail_fe(::llc::loadPOD(input, key));
+				if_fail_fe(::llc::load(input, key));
 				if_true_fef(input.size(), "Keyboard payload has %u trailing bytes.", input.size());
 				switch((::llc::SYSTEM_KEY)key) {
 				case ::llc::SYSTEM_KEY_Escape:		Edit(gui, false);		break;

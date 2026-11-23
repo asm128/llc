@@ -27,15 +27,15 @@ llc::err_t		llc::environmentBlockViews	(vcs0_t environmentBlock, aobj<kv<vcst_t>
 		if_fail_fe(environmentBlock.slice(viewEnvironVar, offsetBeginVar, offsetEndVar - offsetBeginVar));
 		keyval<vcst_t>	newKeyVal						= {};
 		if(-1 != keyval_split(viewEnvironVar, newKeyVal)) {
-			if_fail_fe(views.push_back(newKeyVal));
+			if_fail_fe(::llc::push_back(views, newKeyVal));
 		}
 		else {
 			newKeyVal.Key			= {viewEnvironVar.begin(), viewEnvironVar.size()};
-			if_fail_fe(views.push_back(newKeyVal));
+			if_fail_fe(::llc::push_back(views, newKeyVal));
 		}
 		offsetBeginVar				= offsetEndVar + 1;
 	}
-	if_fail_fe(out_Views.append(views));
+	if_fail_fe(::llc::append(out_Views, views));
 	return 0;
 }
 
@@ -114,15 +114,15 @@ llc::err_t		llc::argsParse			(SCommandLineArgs & output, view<cnst vcst_t> argv,
 	for(u2_t iArg = 1; iArg < argv.size(); ++iArg) {
 		vcst_t					argument			= argv[iArg];
 		if(positionalOnly) {
-			if_fail_fe(output.Positionals.push_back(argument));
-			if_fail_fe(output.Order.push_back(0));
+			if_fail_fe(::llc::push_back(output.Positionals, argument));
+			if_fail_fe(::llc::push_back(output.Order, 0));
 			continue;
 		}
 		if(argument == "--") {
 			if(option.Key.size() && false == hasOptionValues) {
-				if_fail_fe(output.Options.push_back(option));
-				if_fail_fe(output.Order.push_back(1));
-				if_fail_fe(output.OptionStarts.push_back(1));
+				if_fail_fe(::llc::push_back(output.Options, option));
+				if_fail_fe(::llc::push_back(output.Order, 1));
+				if_fail_fe(::llc::push_back(output.OptionStarts, 1));
 			}
 			option				= {};
 			positionalOnly		= true;
@@ -130,37 +130,37 @@ llc::err_t		llc::argsParse			(SCommandLineArgs & output, view<cnst vcst_t> argv,
 		}
 		if(1 >= argument.size() || '-' != argument[0]) {
 			if(0 == option.Key.size()) {
-				if_fail_fe(output.Positionals.push_back(argument));
-				if_fail_fe(output.Order.push_back(0));
+				if_fail_fe(::llc::push_back(output.Positionals, argument));
+				if_fail_fe(::llc::push_back(output.Order, 0));
 			}
 			else {
 				if_fail_fe(output.Options.emplace_back(option.Key, argument));
-				if_fail_fe(output.Order.push_back(1));
-				if_fail_fe(output.OptionStarts.push_back(!hasOptionValues));
+				if_fail_fe(::llc::push_back(output.Order, 1));
+				if_fail_fe(::llc::push_back(output.OptionStarts, !hasOptionValues));
 				hasOptionValues	= true;
 			}
 			continue;
 		}
 		if(option.Key.size() && false == hasOptionValues) {
-			if_fail_fe(output.Options.push_back(option));
-			if_fail_fe(output.Order.push_back(1));
-			if_fail_fe(output.OptionStarts.push_back(1));
+			if_fail_fe(::llc::push_back(output.Options, option));
+			if_fail_fe(::llc::push_back(output.Order, 1));
+			if_fail_fe(::llc::push_back(output.OptionStarts, 1));
 		}
 		option				= {};
 		hasOptionValues		= false;
 		err_t					hasValue			= {};
 		if_fail_fe(hasValue = argsOptionName(argument, option));
 		if(hasValue) {
-			if_fail_fe(output.Options.push_back(option));
-			if_fail_fe(output.Order.push_back(1));
-			if_fail_fe(output.OptionStarts.push_back(1));
+			if_fail_fe(::llc::push_back(output.Options, option));
+			if_fail_fe(::llc::push_back(output.Order, 1));
+			if_fail_fe(::llc::push_back(output.OptionStarts, 1));
 			option				= {};
 		}
 	}
 	if(option.Key.size() && false == hasOptionValues) {
-		if_fail_fe(output.Options.push_back(option));
-		if_fail_fe(output.Order.push_back(1));
-		if_fail_fe(output.OptionStarts.push_back(1));
+		if_fail_fe(::llc::push_back(output.Options, option));
+		if_fail_fe(::llc::push_back(output.Order, 1));
+		if_fail_fe(::llc::push_back(output.OptionStarts, 1));
 	}
 	rtrn output.Options.size() + output.Positionals.size();
 }

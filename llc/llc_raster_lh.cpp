@@ -135,7 +135,7 @@
 		if( depthCell > intZ ) {
 			depthCell				= intZ;
 			//pixelCoords.push_back({(int32_t)line.A.x, (int32_t)line.A.y});
-			pixelCoords.push_back(lineFloat.A);
+			::llc::push_back(pixelCoords, lineFloat.A);
 		}
 	}
 
@@ -288,7 +288,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 			continue;
 
 		currentDepth			= intZ;
-		pixelCoords.push_back(p.s1());
+		::llc::push_back(pixelCoords, p.s1());
 		proportions.push_back({(float)proportionA, (float)proportionB, (float)proportionC});
 
 	}
@@ -332,7 +332,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 		double						proportionB				= w1 / proportionABC;
 		double						proportionC				= 1.0 - (proportionA + proportionB);
 
-		pixelCoords.push_back(p.s1());
+		::llc::push_back(pixelCoords, p.s1());
 		proportions.push_back({(float)proportionA, (float)proportionB, (float)proportionC});
 
 	}

@@ -198,7 +198,7 @@ llc::err_t			llc::digest				(vcu0_c & input, ::llc::au2_t & digest)		{
 			+  ::llc::noise1DBase32(input[i + 7])
 			;
 		x												+= x ^ (x << 11);
-		filtered.push_back(x);
+		::llc::push_back(filtered, x);
 	}
 	for(::llc::u2_t i = 0; i < filtered.size() - 8; ++i) {
 		filtered[i]	^= ::llc::noise1DBase32(filtered[i])
@@ -233,7 +233,7 @@ llc::err_t			llc::digest						(vcu0_c & input, ::llc::string & digest)		{
 			+  ::llc::noise1DBase32(input[i + 7])
 			;
 		x						+= x ^ (x << 11);
-		filtered.push_back(x);
+		::llc::push_back(filtered, x);
 	}
 	for(::llc::u2_t i = 0; i < filtered.size() - 8; ++i) {
 		filtered[i]	^= ::llc::noise1DBase32(filtered[i])

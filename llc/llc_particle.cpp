@@ -18,9 +18,9 @@
 }
 
 ::llc::error_t			llc::SParticles3::Create				(n3f2_c & position, n3f2_c & direction, float speed)	{
-	Position	.push_back(position);
-	Direction	.push_back(direction);
-	return Speed.push_back(speed);
+	::llc::push_back(Position, position);
+	::llc::push_back(Direction, direction);
+	return ::llc::push_back(Speed, speed);
 }
 
 ::llc::error_t			llc::SParticles3::Save(::llc::au0_t & output) const { 
@@ -34,8 +34,6 @@
 }
 
 ::llc::error_t			llc::SParticles3::Load(::llc::vcu0_t & input) { 
-	llc_necs(llc::loadView(input, Position	));
-	llc_necs(llc::loadView(input, Direction	));
-	llc_necs(llc::loadView(input, Speed		));
+	llc_necs(llc::load(input, Position, Direction, Speed));
 	return 0;
 }

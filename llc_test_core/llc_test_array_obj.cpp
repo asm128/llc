@@ -42,6 +42,11 @@ GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, WRAP_APPEND		, 33, "Free append() did
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, WRAP_PUSH_BACK	, 34, "Free push_back() did not return the new element index.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, WRAP_REMOVE		, 35, "Free remove() did not preserve array order.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, WRAP_POP_BACK	, 36, "Free pop_back() did not forward its output and empty forms.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, BATCH_APPEND	, 37, "Batch append() did not append each range and report the added count.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, BATCH_PUSH_BACK	, 38, "Batch push_back() did not append each value and report the added count.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, BATCH_REMOVE	, 39, "Batch remove() did not remove successive indices and report the removed count.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, BATCH_POP_BACK	, 40, "Batch pop_back() did not return successive values and the removed count.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, BATCH_STOP	, 41, "A batch array operation continued after failure.");
 
 stct SArrayObjTestValue {
 	sttc ::llc::u2_t	LiveCount;
@@ -300,6 +305,14 @@ sttc ::llc::err_t testArrayObjFreeWrappers(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(values) != 2 || values.size() != 2);
 	::llc::aobj<SArrayObjTestValue> empty = {};
 	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(empty) >= 0);
+	::llc::aobj<SArrayObjTestValue> batch = {};
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_BATCH_APPEND, ::llc::append(batch, one, one) != 2 || batch.size() != 2 || batch[0].Index != 3 || batch[1].Index != 3);
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_BATCH_PUSH_BACK, ::llc::push_back(batch, source[1], added) != 2 || batch.size() != 4 || batch[2].Index != 4 || batch[3].Index != 5);
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_BATCH_REMOVE, ::llc::remove(batch, (::llc::u2_t)0, (::llc::u2_t)1) != 2 || batch.size() != 2 || batch[0].Index != 3 || batch[1].Index != 5);
+	SArrayObjTestValue last = {}, previous = {};
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_BATCH_POP_BACK, ::llc::pop_back(batch, last, previous) != 2 || last.Index != 5 || previous.Index != 3 || batch.size() != 0);
+	last.Index = 77; previous.Index = 88;
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_BATCH_STOP, ::llc::pop_back(batch, last, previous) >= 0 || last.Index != 77 || previous.Index != 88);
 	rtrn 0;
 }
 

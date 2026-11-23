@@ -14,7 +14,7 @@
 			newTile.Front										= -1;
 			newTile.Right										= -1;
 			newTile.Flags										= 0;
-			out_tiles.push_back(newTile);
+			::llc::push_back(out_tiles, newTile);
 		}
 	}
 	for(::llc::u2_t z = 0; z < image.metrics().y; ++z)
@@ -46,12 +46,12 @@
 			};
 		const ::llc::STile										& currentTile							= tiles[z][x];
 		{
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[0]
 				, texcoords[2]
 				, texcoords[1]
 				});
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[1]
 				, texcoords[2]
 				, texcoords[3]
@@ -71,9 +71,8 @@
 				triangleB.Scale(scale);
 				triangleA.Translate({-gridCenter.x, 0, -gridCenter.y});
 				triangleB.Translate({-gridCenter.x, 0, -gridCenter.y});
-				geometry.Triangles	.push_back(triangleA);
-				geometry.Triangles	.push_back(triangleB);
-				geometry.Normals.push_back((triangleB.A - triangleB.B).Normalize().Cross((triangleA.A - triangleA.B).Normalize()).Normalize().f2());
+				::llc::push_back(geometry.Triangles, triangleA, triangleB);
+				::llc::push_back(geometry.Normals, (triangleB.A - triangleB.B).Normalize().Cross((triangleA.A - triangleA.B).Normalize()).Normalize().f2());
 				//geometry.Normals.push_back((triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
 			}
 		}
@@ -98,16 +97,15 @@
 			triangleB.Scale(scale);
 			triangleA.Translate({-gridCenter.x, 0, -gridCenter.y});
 			triangleB.Translate({-gridCenter.x, 0, -gridCenter.y});
-			geometry.Triangles	.push_back(triangleA);
-			geometry.Triangles	.push_back(triangleB);
+			::llc::push_back(geometry.Triangles, triangleA, triangleB);
 			//geometry.Normals.push_back((triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
-			geometry.Normals.push_back((triangleB.A - triangleB.B).Normalize().Cross((triangleA.A - triangleA.B).Normalize()).Normalize().f2());
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.Normals, (triangleB.A - triangleB.B).Normalize().Cross((triangleA.A - triangleA.B).Normalize()).Normalize().f2());
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[0]
 				, texcoords[2]
 				, texcoords[1]
 				});
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[1]
 				, texcoords[2]
 				, texcoords[3]
@@ -134,16 +132,15 @@
 			triangleB.Scale(scale);
 			triangleA.Translate({-gridCenter.x, 0, -gridCenter.y});
 			triangleB.Translate({-gridCenter.x, 0, -gridCenter.y});
-			geometry.Triangles	.push_back(triangleA);
-			geometry.Triangles	.push_back(triangleB);
-			geometry.Normals.push_back((triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
+			::llc::push_back(geometry.Triangles, triangleA, triangleB);
+			::llc::push_back(geometry.Normals, (triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
 			//geometry.Normals.push_back((triangleB.A - triangleB.B).Normalize().Cross((triangleA.A - triangleA.B).Normalize()).Normalize().f2());
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[0]
 				, texcoords[2]
 				, texcoords[1]
 				});
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[1]
 				, texcoords[2]
 				, texcoords[3]
@@ -291,13 +288,11 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 
 		triangleA.Translate(::llc::n3f2_t{gridCenter.x, 0, gridCenter.y} * -1);
 		triangleB.Translate(::llc::n3f2_t{gridCenter.x, 0, gridCenter.y} * -1);
-		geometry.Triangles		.push_back(triangleA);
-		geometry.Triangles		.push_back(triangleB);
-		geometry.TextureCoords	.push_back(triangleATex);
-		geometry.TextureCoords	.push_back(triangleBTex);
+		::llc::push_back(geometry.Triangles, triangleA, triangleB);
+		::llc::push_back(geometry.TextureCoords, triangleATex, triangleBTex);
 		::llc::n3f2_t				normal					= (triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize());
 		normal.Normalize();
-		geometry.Normals		.push_back(normal);
+		::llc::push_back(geometry.Normals, normal);
 	}
 	return 0;
 }
@@ -325,12 +320,10 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 		::llc::tri2f2_t				triangleBTex			= {texcoords[1], texcoords[3], texcoords[2]};
 		triangleA.Translate(gridCenter * -1);
 		triangleB.Translate(gridCenter * -1);
-		geometry.Triangles		.push_back(triangleA);
-		geometry.Triangles		.push_back(triangleB);
-		geometry.Normals		.push_back((triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
+		::llc::push_back(geometry.Triangles, triangleA, triangleB);
+		::llc::push_back(geometry.Normals, (triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
 		//geometry.Normals		.push_back((coords[0] - coords[1]).Normalize().Cross((coords[1] - coords[3]).Normalize()).Normalize().f2());
-		geometry.TextureCoords	.push_back(triangleATex);
-		geometry.TextureCoords	.push_back(triangleBTex);
+		::llc::push_back(geometry.TextureCoords, triangleATex, triangleBTex);
 	}
 	return 0;
 }
@@ -391,11 +384,9 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 		triangleB.Scale(scale);
 		triangleA.Translate(gridCenter * -1);
 		triangleB.Translate(gridCenter * -1);
-		geometry.Triangles		.push_back(triangleA);
-		geometry.Triangles		.push_back(triangleB);
-		geometry.Normals		.push_back((triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
-		geometry.TextureCoords	.push_back(triangleATex);																					  
-		geometry.TextureCoords	.push_back(triangleBTex);
+		::llc::push_back(geometry.Triangles, triangleA, triangleB);
+		::llc::push_back(geometry.Normals, (triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
+		::llc::push_back(geometry.TextureCoords, triangleATex, triangleBTex);
 	}
 	return 0;
 }
@@ -439,17 +430,13 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 		triangleC.Translate(gridCenter * -1);
 		triangleD.Translate(gridCenter * -1);
 		::llc::n3f2_t									normal					= (triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2();
-		geometry.Triangles		.push_back(triangleA);
-		geometry.Triangles		.push_back(triangleB);
-		geometry.Triangles		.push_back(triangleC);
-		geometry.Triangles		.push_back(triangleD);
-		geometry.Normals		.push_back(normal);
+		::llc::push_back(geometry.Triangles, triangleA, triangleB);
+		::llc::push_back(geometry.Triangles, triangleC, triangleD);
+		::llc::push_back(geometry.Normals, normal);
 		normal.Scale({-1, -1, 0});
-		geometry.Normals		.push_back(normal);
-		geometry.TextureCoords	.push_back(triangleATex);
-		geometry.TextureCoords	.push_back(triangleBTex);
-		geometry.TextureCoords	.push_back(triangleATex);
-		geometry.TextureCoords	.push_back(triangleBTex);
+		::llc::push_back(geometry.Normals, normal);
+		::llc::push_back(geometry.TextureCoords, triangleATex, triangleBTex);
+		::llc::push_back(geometry.TextureCoords, triangleATex, triangleBTex);
 	}
 	return 0;
 }
@@ -466,12 +453,12 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 				, {(z + 1	) * texCoordUnits.y, (x		) * texCoordUnits.x}
 				, {(z + 1	) * texCoordUnits.y, (x + 1	) * texCoordUnits.x}
 				};
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[0]
 				, texcoords[2]
 				, texcoords[1]
 				});
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[1]
 				, texcoords[2]
 				, texcoords[3]
@@ -488,8 +475,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 			::llc::tri3f2_t								triangleB			= {coords[1].f2() * radius, coords[2].f2() * radius, coords[3].f2() * radius};
 			triangleA.Translate(gridCenter * -1);
 			triangleB.Translate(gridCenter * -1);
-			geometry.Triangles	.push_back(triangleA);
-			geometry.Triangles	.push_back(triangleB);
+			::llc::push_back(geometry.Triangles, triangleA, triangleB);
 		}
 		{
 			::llc::n3f2_t									normal				= coords[0].f2();
@@ -498,7 +484,7 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 			normal												+= coords[3].f2();
 			normal												/= 4;
 			normal.Normalize();
-			geometry.Normals.push_back(normal);
+			::llc::push_back(geometry.Normals, normal);
 		}
 	}
 	return 0;
@@ -519,12 +505,12 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 					, {(z		) * texCoordUnits.x, (y	+ 1	) * texCoordUnits.y}
 					, {(z + 1	) * texCoordUnits.x, (y + 1	) * texCoordUnits.y}
 					};
-				geometry.TextureCoords.push_back(
+				::llc::push_back(geometry.TextureCoords,
 					{ texcoords[0]
 					, texcoords[2]
 					, texcoords[1]
 					});
-				geometry.TextureCoords.push_back(
+				::llc::push_back(geometry.TextureCoords,
 					{ texcoords[1]
 					, texcoords[2]
 					, texcoords[3]
@@ -549,9 +535,8 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 				triangleA.Translate(gridCenter * -1);
 				triangleB.Translate(gridCenter * -1);
 
-				geometry.Triangles	.push_back(triangleA);
-				geometry.Triangles	.push_back(triangleB);
-				geometry.Normals	.push_back((triangleB.A - triangleB.B).Normalize().Cross((triangleA.A - triangleA.B).Normalize()).Normalize().f2());
+				::llc::push_back(geometry.Triangles, triangleA, triangleB);
+				::llc::push_back(geometry.Normals, (triangleB.A - triangleB.B).Normalize().Cross((triangleA.A - triangleA.B).Normalize()).Normalize().f2());
 			}
 		}
 	}
@@ -570,12 +555,12 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 				, {(z + 1	) * texCoordUnits.y, (x		) * texCoordUnits.x}
 				, {(z + 1	) * texCoordUnits.y, (x + 1	) * texCoordUnits.x}
 				};
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[0]
 				, texcoords[2]
 				, texcoords[1]
 				});
-			geometry.TextureCoords.push_back(
+			::llc::push_back(geometry.TextureCoords,
 				{ texcoords[1]
 				, texcoords[2]
 				, texcoords[3]
@@ -608,9 +593,8 @@ stacxpr	::llc::n3s0_t		geometryNormals	[6]		=
 			triangleB.Scale(scale);
 			triangleA.Translate(gridCenter * -1);
 			triangleB.Translate(gridCenter * -1);
-			geometry.Triangles	.push_back(triangleA);
-			geometry.Triangles	.push_back(triangleB);
-			geometry.Normals	.push_back((triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
+			::llc::push_back(geometry.Triangles, triangleA, triangleB);
+			::llc::push_back(geometry.Normals, (triangleA.A - triangleA.B).Normalize().Cross((triangleB.A - triangleB.B).Normalize()).Normalize().f2());
 		}																																	  
 	}
 	return 0;

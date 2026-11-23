@@ -25,10 +25,10 @@ namespace llc
 
 		::llc::error_t				push_back		(const ::llc::pobj<T> & instance, ::llc::vcst_t name = {})	{
 			::llc::err_t				index			= 0;
-			llc_necs(index = Names.push_back(name));
+			llc_necs(index = ::llc::push_back(Names, name));
 			cnst ::llc::err_t		elementIndex	= Elements.push_back(instance);
 			if(::llc::failed(elementIndex)) {
-				Names.pop_back();
+				::llc::pop_back(Names);
 				return elementIndex;
 			}
 			return index;
@@ -75,7 +75,7 @@ namespace llc
 		::llc::error_t				Load			(::llc::vcu0_t & input) {
 			::llc::vcu0_t			inputToRead		= input;
 			::llc::u2_t			elementCount	= {};
-			llc_necs(::llc::loadPOD(inputToRead, elementCount));
+			llc_necs(::llc::load(inputToRead, elementCount));
 			::llc::aobj<TPObj>		loadedElements	= {};
 			::llc::avcsc_t			loadedNames		= {};
 			for(::llc::u2_t iEntity = 0; iEntity < elementCount; ++iEntity) {

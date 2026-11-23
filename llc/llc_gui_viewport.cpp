@@ -15,8 +15,8 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 	if(0 == parentChildren.size() || parentChildren[parentChildren.size() - 1] != idRoot) {
 		cnst ::llc::err_t			iChild				= parentChildren.find(idRoot);
 		if(iChild >= 0)
-			if_fail_fe(parentChildren.remove((::llc::u2_t)iChild));
-		if_fail_fe(parentChildren.push_back(idRoot));
+			if_fail_fe(::llc::remove(parentChildren, (::llc::u2_t)iChild));
+		if_fail_fe(::llc::push_back(parentChildren, idRoot));
 	}
 	for(::llc::u0_t iOther = 0; iOther < viewports.size(); ++iOther) {
 		cnst bool					active				= iOther == iViewport;

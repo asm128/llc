@@ -218,7 +218,7 @@ namespace llc
 	stin err_t		voxDictLoad				(SVOXDict & attributes, vcu0_t & input) {
 		SVOXDict					loaded					= {};
 		u2_t					dictLength				= 0;
-		if_fail_fe(loadPOD(input, dictLength));
+		if_fail_fe(load(input, dictLength));
 		for(u2_t iLength = 0; iLength < dictLength; ++iLength) {
 			vcst_t					readKey					= {};
 			vcst_t					readVal					= {};
@@ -271,12 +271,12 @@ namespace llc
 		err_t					Load					(vcu0_t & input) {
 			vcu0_t					remaining				= input;
 			SVOXData					loaded					= {};
-			if_fail_fe(loadPOD(remaining, loaded.Header));
+			if_fail_fe(load(remaining, loaded.Header));
 			if_true_fe(vcst_t{loaded.Header.MagicNumber} != "VOX ");
 			bool						mainFound				= false;
 			while(remaining.size()) {
 				SVOXChunkHeader			readChunkHeader			= {};
-				if_fail_fe(loadPOD(remaining, readChunkHeader));
+				if_fail_fe(load(remaining, readChunkHeader));
 				if_true_fe(readChunkHeader.ChunkSize > remaining.size());
 				if_true_fe(readChunkHeader.ChildChunks > remaining.size() - readChunkHeader.ChunkSize);
 				vcu0_t					content					= {};
@@ -286,7 +286,7 @@ namespace llc
 				if(readChunkHeader.IsType("MAIN")) {
 					if_true_fe(mainFound || loaded.Chunks.size() || readChunkHeader.ChunkSize || readChunkHeader.ChildChunks != remaining.size());
 					SVOXChunk					newChunk				= {readChunkHeader};
-					if_fail_fe(loaded.Chunks.push_back(newChunk));
+					if_fail_fe(::llc::push_back(loaded.Chunks, newChunk));
 					mainFound				= true;
 					continue;
 				}
@@ -296,13 +296,13 @@ namespace llc
 					u2_c					expectedSize			= readChunkHeader.IsType("SIZE") ? szof(n3u2_t) : readChunkHeader.IsType("PACK") ? szof(u2_t) : szof(bgra) * 256U;
 					if_true_fe(content.size() != expectedSize);
 					SVOXChunk					newChunk				= {readChunkHeader};
-					if_fail_fe(newChunk.Data.append(content));
+					if_fail_fe(::llc::append(newChunk.Data, content));
 					if(readChunkHeader.IsType("RGBA")) {
 						view<bgra>					colors					= {reinterpret_cast<bgra*>(newChunk.Data.begin()), 256};
 						for(u2_t iColor = 0; iColor < colors.size(); ++iColor)
 							swap(colors[iColor].r, colors[iColor].b);
 					}
-					if_fail_fe(loaded.Chunks.push_back(newChunk));
+					if_fail_fe(::llc::push_back(loaded.Chunks, newChunk));
 					continue;
 				}
 
@@ -311,12 +311,12 @@ namespace llc
 					view<cnst SVOXVoxel>	readChunkData			= {};
 					if_fail_fe(voxViewLoadLegacy(content, readChunkData));
 					if_true_fe(content.size());
-					if_fail_fe(newChunk.Data.append(readChunkData));
+					if_fail_fe(::llc::append(newChunk.Data, readChunkData));
 					for(u2_t iVoxel = 0; iVoxel < newChunk.Data.size(); ++iVoxel) {
 						SVOXVoxel					& voxel					= newChunk.Data[iVoxel];
 						voxel						= {voxel.y, voxel.z, voxel.x, voxel.i};
 					}
-					if_fail_fe(loaded.ChunksCoord.push_back(newChunk));
+					if_fail_fe(::llc::push_back(loaded.ChunksCoord, newChunk));
 					continue;
 				}
 
@@ -328,30 +328,30 @@ namespace llc
 				}
 				else if(readChunkHeader.IsType("MATL")) {
 					SVOXChunkMaterial			newChunk				= {readChunkHeader};
-					if_fail_fe(loadPOD(content, newChunk.Id));
+					if_fail_fe(load(content, newChunk.Id));
 					if_fail_fe(voxDictLoad(newChunk.Attributes, content));
 					if_true_fe(content.size());
 					if_fail_fe(loaded.ChunksMaterial.push_back(newChunk));
 				}
 				else if(readChunkHeader.IsType("rCAM")) {
 					SVOXChunkCamera				newChunk				= {readChunkHeader};
-					if_fail_fe(loadPOD(content, newChunk.Id));
+					if_fail_fe(load(content, newChunk.Id));
 					if_fail_fe(voxDictLoad(newChunk.Attributes, content));
 					if_true_fe(content.size());
 					if_fail_fe(loaded.ChunksCamera.push_back(newChunk));
 				}
 				else if(readChunkHeader.IsType("LAYR")) {
 					SVOXChunkLayer				newChunk				= {readChunkHeader};
-					if_fail_fe(loadPOD(content, newChunk.Id));
+					if_fail_fe(load(content, newChunk.Id));
 					if_fail_fe(voxDictLoad(newChunk.Attributes, content));
-					if_fail_fe(loadPOD(content, newChunk.IdReserved));
+					if_fail_fe(load(content, newChunk.IdReserved));
 					if_true_fe(content.size());
 					if_fail_fe(loaded.ChunksLayer.push_back(newChunk));
 				}
 				else if(readChunkHeader.IsType("NOTE")) {
 					SVOXChunkNote				newChunk				= {readChunkHeader};
 					u2_t						countNames				= 0;
-					if_fail_fe(loadPOD(content, countNames));
+					if_fail_fe(load(content, countNames));
 					for(u2_t iName = 0; iName < countNames; ++iName) {
 						vcst_t						readName				= {};
 						if_fail_fe(voxViewLoadLegacy(content, readName));
@@ -362,7 +362,7 @@ namespace llc
 				}
 				else if(readChunkHeader.IsType("nGRP")) {
 					SVOXChunkNode				newChunk				= {readChunkHeader};
-					if_fail_fe(loadPOD(content, newChunk.Id));
+					if_fail_fe(load(content, newChunk.Id));
 					if_fail_fe(voxDictLoad(newChunk.Attributes, content));
 					vcs2_t						readChildren			= {};
 					if_fail_fe(voxViewLoadLegacy(content, readChildren));
@@ -372,13 +372,13 @@ namespace llc
 				}
 				else if(readChunkHeader.IsType("nSHP")) {
 					SVOXChunkShape				newChunk				= {readChunkHeader};
-					if_fail_fe(loadPOD(content, newChunk.Id));
+					if_fail_fe(load(content, newChunk.Id));
 					if_fail_fe(voxDictLoad(newChunk.Attributes, content));
 					u2_t						countModels				= 0;
-					if_fail_fe(loadPOD(content, countModels));
+					if_fail_fe(load(content, countModels));
 					for(u2_t iModel = 0; iModel < countModels; ++iModel) {
 						SVOXShapeModel				newModel				= {};
-						if_fail_fe(loadPOD(content, newModel.Id));
+						if_fail_fe(load(content, newModel.Id));
 						if_fail_fe(voxDictLoad(newModel.Attributes, content));
 						if_fail_fe(newChunk.Models.push_back(newModel));
 					}
@@ -387,13 +387,13 @@ namespace llc
 				}
 				else if(readChunkHeader.IsType("nTRN")) {
 					SVOXChunkTransform			newChunk				= {readChunkHeader};
-					if_fail_fe(loadPOD(content, newChunk.Id));
+					if_fail_fe(load(content, newChunk.Id));
 					if_fail_fe(voxDictLoad(newChunk.Attributes, content));
-					if_fail_fe(loadPOD(content, newChunk.IdChild));
-					if_fail_fe(loadPOD(content, newChunk.IdReserved));
-					if_fail_fe(loadPOD(content, newChunk.IdLayer));
+					if_fail_fe(load(content, newChunk.IdChild));
+					if_fail_fe(load(content, newChunk.IdReserved));
+					if_fail_fe(load(content, newChunk.IdLayer));
 					u2_t						countFrames				= 0;
-					if_fail_fe(loadPOD(content, countFrames));
+					if_fail_fe(load(content, countFrames));
 					for(u2_t iFrame = 0; iFrame < countFrames; ++iFrame) {
 						SVOXDict					frameAttributes			= {};
 						if_fail_fe(voxDictLoad(frameAttributes, content));

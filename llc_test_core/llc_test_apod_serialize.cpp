@@ -1,5 +1,6 @@
 #include "llc_test_core.h"
 #include "llc_apod_serialize.h"
+#include "llc_astatic_serialize.h"
 
 GDEFINE_ENUM_TYPE(APOD_SERIALIZE_TEST_RESULT, ::llc::u0_t);
 GDEFINE_ENUM_VALUED(APOD_SERIALIZE_TEST_RESULT, PACKED_ROUNDTRIP, 1, "Packed integer save/load did not preserve the value and cursor.");
@@ -13,6 +14,8 @@ GDEFINE_ENUM_VALUED(APOD_SERIALIZE_TEST_RESULT, VARIADIC_SAVE, 8, "Variadic save
 GDEFINE_ENUM_VALUED(APOD_SERIALIZE_TEST_RESULT, APOD_LOAD, 9, "Owned array load overload did not restore values and cursor.");
 GDEFINE_ENUM_VALUED(APOD_SERIALIZE_TEST_RESULT, VARIADIC_LOAD, 10, "Variadic load did not restore mixed POD and owned array fields.");
 GDEFINE_ENUM_VALUED(APOD_SERIALIZE_TEST_RESULT, VARIADIC_STOP, 11, "Variadic load continued after a failed owned array read.");
+GDEFINE_ENUM_VALUED(APOD_SERIALIZE_TEST_RESULT, SIGNED_LOAD, 12, "Signed byte load did not preserve the value and cursor.");
+GDEFINE_ENUM_VALUED(APOD_SERIALIZE_TEST_RESULT, STATIC_LOAD, 13, "Static array load did not preserve the values and cursor.");
 
 ::llc::err_t test_apod_serialize(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	stxp ::llc::u1_t POD = 0x1234;
@@ -23,6 +26,19 @@ GDEFINE_ENUM_VALUED(APOD_SERIALIZE_TEST_RESULT, VARIADIC_STOP, 11, "Variadic loa
 	::llc::u2_t packedValue = {};
 	cnst ::llc::err_t packedRead = ::llc::loadPacked(packedInput, packedValue);
 	LLC_TEST_CHECKF(errors, APOD_SERIALIZE_TEST_RESULT_PACKED_ROUNDTRIP, packedWritten != packedRead || packedValue != POD || packedInput.size() != 0, "Widths:%i/%i, value:%u, remaining:%u.", packedWritten, packedRead, packedValue, packedInput.size());
+	::llc::au0_t signedBytes = {};
+	LLC_TEST_REQUIREF(errors, APOD_SERIALIZE_TEST_RESULT_SIGNED_LOAD, ::llc::savePOD(signedBytes, POD) != szof(POD), "%s", "Could not serialize signed byte input.");
+	::llc::vcs0_t signedInput{(cnst ::llc::s0_t*)signedBytes.begin(), signedBytes.size()};
+	::llc::u1_t signedValue = {};
+	cnst ::llc::err_t signedRead = ::llc::load(signedInput, signedValue);
+	LLC_TEST_CHECKF(errors, APOD_SERIALIZE_TEST_RESULT_SIGNED_LOAD, signedRead != szof(POD) || signedValue != POD || signedInput.size() != 0, "Result:%i, value:%u, remaining:%u.", signedRead, signedValue, signedInput.size());
+	::llc::au0_t staticBytes = {};
+	::llc::u1_t staticValues[] = {POD, 0x5678};
+	LLC_TEST_REQUIREF(errors, APOD_SERIALIZE_TEST_RESULT_STATIC_LOAD, ::llc::failed(::llc::saveView(staticBytes, ::llc::view<cnst ::llc::u1_t>{staticValues})), "%s", "Could not serialize static array input.");
+	::llc::vcu0_t staticInput{staticBytes.begin(), staticBytes.size()};
+	::llc::astu1_t<2> staticOutput = {};
+	cnst ::llc::err_t staticRead = ::llc::load(staticInput, staticOutput);
+	LLC_TEST_CHECKF(errors, APOD_SERIALIZE_TEST_RESULT_STATIC_LOAD, staticRead != 0 || staticOutput[0] != staticValues[0] || staticOutput[1] != staticValues[1] || staticInput.size() != 0, "Result:%i, remaining:%u.", staticRead, staticInput.size());
 
 	::llc::apod<::llc::u1_t> values = {};
 	LLC_TEST_REQUIREF(errors, APOD_SERIALIZE_TEST_RESULT_ARRAY_SETUP, ::llc::failed(values.push_back(0x5678)), "%s", "Could not append array value.");

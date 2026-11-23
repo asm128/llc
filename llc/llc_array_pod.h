@@ -311,9 +311,37 @@ namespace llc
 	tplTusng	ap			= apod	<T>;
 
 	tplt<tpnm T, tpnm... TArgs> inln err_t append		(array_pod<T> & output, TArgs&&... args) noexcept { rtrn output.append(args...); }
-	tplt<tpnm T, tpnm... TArgs> inln err_t push_back	(array_pod<T> & output, TArgs&&... args) noexcept { rtrn output.push_back(args...); }
+	tplT inln err_t push_back(array_pod<T> & output, typename array_pod<T>::TCnst & value) noexcept { rtrn output.push_back(value); }
 	tplt<tpnm T, tpnm... TArgs> inln err_t remove		(array_pod<T> & output, TArgs&&... args) noexcept { rtrn output.remove(args...); }
 	tplt<tpnm T, tpnm... TArgs> inln err_t pop_back	(array_pod<T> & output, TArgs&&... args) noexcept { rtrn output.pop_back(args...); }
+	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1 && !requires(array_pod<T> & target, TArgs&&... values) { target.append(values...); })
+	inln err_t append(array_pod<T> & output, TArgs&&... args) noexcept {
+		u2_c oldSize = output.size();
+		err_t result = 0;
+		((result = failed(result) ? result : output.append(args)), ...);
+		rtrn failed(result) ? result : output.size() - oldSize;
+	}
+	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
+	inln err_t push_back(array_pod<T> & output, TArgs&&... args) noexcept {
+		u2_c oldSize = output.size();
+		err_t result = 0;
+		((result = failed(result) ? result : output.push_back(args)), ...);
+		rtrn failed(result) ? result : output.size() - oldSize;
+	}
+	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
+	inln err_t remove(array_pod<T> & output, TArgs&&... args) noexcept {
+		u2_c oldSize = output.size();
+		err_t result = 0;
+		((result = failed(result) ? result : output.remove(args)), ...);
+		rtrn failed(result) ? result : oldSize - output.size();
+	}
+	tplt<tpnm T, tpnm... TArgs> requires(sizeof...(TArgs) > 1)
+	inln err_t pop_back(array_pod<T> & output, TArgs&&... args) noexcept {
+		u2_c oldSize = output.size();
+		err_t result = 0;
+		((result = failed(result) ? result : output.pop_back(args)), ...);
+		rtrn failed(result) ? result : oldSize - output.size();
+	}
 
 	tydf		apod<b8_t>	ab8_t;	tdcs	ab8_t	ab8_c;
 	tydf		apod<uc_t>	auc_t;	tdcs	auc_t	auc_c;

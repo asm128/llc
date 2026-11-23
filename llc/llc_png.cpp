@@ -799,14 +799,14 @@ static	::llc::err_t	pngActualFileLoad		(const ::llc::vcu0_t & source, ::llc::SPN
 	pngData.Header			= {};
 
 	::llc::vcu0_t pngStream = source;
-	if_fail_fef(::llc::loadPOD(pngStream, pngData.Signature), "%s", "Failed to read PNG signature.");
+	if_fail_fef(::llc::load(pngStream, pngData.Signature), "%s", "Failed to read PNG signature.");
 	if_true_fef(0 != memcmp(pngData.Signature, "\x89PNG\r\n\x1A\n", ::llc::size(pngData.Signature)), "%s", "Invalid PNG signature.");
 	while(pngStream.size()) {
 		::llc::SPNGChunk			chunkRead				= {};
 		u2_t					sizeChunk				= 0;
-		if_fail_fef(::llc::loadPOD(pngStream, sizeChunk), "%s", "Failed to read PNG chunk size.");
+		if_fail_fef(::llc::load(pngStream, sizeChunk), "%s", "Failed to read PNG chunk size.");
 		cnst ::llc::vcu0_t			crcData					= pngStream;
-		if_fail_fef(::llc::loadPOD(pngStream, chunkRead.Type), "%s", "Failed to read PNG chunk type.");
+		if_fail_fef(::llc::load(pngStream, chunkRead.Type), "%s", "Failed to read PNG chunk type.");
 		be2le(sizeChunk);
 		if_true_fef(sizeChunk > (0x7FFFFFFF >> 2), "%s", "Chunk too large! Corrupt file?");
 		if_true_fef(pngStream.size() < sizeChunk + 4U, "Chunk size:%u, remaining bytes:%u.", sizeChunk, pngStream.size());
@@ -814,11 +814,11 @@ static	::llc::err_t	pngActualFileLoad		(const ::llc::vcu0_t & source, ::llc::SPN
 		if(sizeChunk)
 			memcpy(chunkRead.Data.begin(), pngStream.begin(), sizeChunk);
 		if_fail_fe(pngStream.slice(pngStream, sizeChunk));
-		if_fail_fef(::llc::loadPOD(pngStream, chunkRead.CRC), "%s", "Failed to read PNG chunk CRC.");
+		if_fail_fef(::llc::load(pngStream, chunkRead.CRC), "%s", "Failed to read PNG chunk CRC.");
 		be2le(chunkRead.CRC);
 		u2_t					crcGenerated			= ::llc::get_crc({crcData.begin(), sizeChunk + 4});
 		if_true_ef(crcGenerated != chunkRead.CRC, "Invalid CRC: File: %X, Generated: %X.", chunkRead.CRC, crcGenerated);
-		llc_necs(pngData.Chunks.push_back(chunkRead));
+		llc_necs(::llc::push_back(pngData.Chunks, chunkRead));
 		if_null_bef(memcmp(chunkRead.Type, "IEND", 4), "%s", "Found IEND chunk (image end).");
 	}
 
@@ -827,7 +827,7 @@ static	::llc::err_t	pngActualFileLoad		(const ::llc::vcu0_t & source, ::llc::SPN
 	for(u2_t iChunk = 0; iChunk < pngData.Chunks.size(); ++iChunk) {
 		const ::llc::SPNGChunk				& newChunk		= pngData.Chunks[iChunk];
 		verbose_printf("Found chunk of type: %c%c%c%c. Data size: %u.", newChunk.Type[0], newChunk.Type[1], newChunk.Type[2], newChunk.Type[3], (u2_t)newChunk.Data.size());
-			 if(0 == memcmp(newChunk.Type, "IDAT", 4)) { indicesIDAT.push_back(iChunk); }
+			 if(0 == memcmp(newChunk.Type, "IDAT", 4)) { ::llc::push_back(indicesIDAT, iChunk); }
 		else if(0 == memcmp(newChunk.Type, "IHDR", 4)) {
 			imageHeader						= *(const ::llc::SPNGIHDR*)newChunk.Data.begin();
 			be2le(imageHeader.Size.x);
@@ -1051,7 +1051,7 @@ static	::llc::err_t	defilterNonInterlaced		(::llc::SPNGData & pngData, u2_t byte
 	u2_t					widthScanline				= ::scanLineSizeFromFormat(imageHeader.ColorType, imageHeader.BitDepth, imageHeader.Size.x);
 	verbose_printf("Scanline size: %u.", widthScanline);
 	for(u2_t y = 0; y < imageHeader.Size.y; ++y) {
-		pngData.Filters.push_back(pngData.Inflated[y * widthScanline + y]);
+		::llc::push_back(pngData.Filters, pngData.Inflated[y * widthScanline + y]);
 		verbose_printf("Filter for scanline %u: %u", y, (u2_t)pngData.Filters[y]);
 		llc_necs(scanlines[y].resize(widthScanline));
 		memcpy(scanlines[y].begin(), &pngData.Inflated[y * widthScanline + y + 1], widthScanline);

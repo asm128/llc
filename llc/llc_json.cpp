@@ -26,7 +26,7 @@ llc::err_t			llc::jsonMapToFields
 	for(u2_t iField = 0; iField < fields.size(); ++iField) {
 		cnst llc::SJSONFieldBinding	& fieldToAdd			= fields[iField];
 		if(fieldToAdd.Field.size() && fieldToAdd.Field == fieldMaps[iMap].Key) {
-			if_fail_fe(indicesOfFields.push_back(iField));
+			if_fail_fe(::llc::push_back(indicesOfFields, iField));
 			break;
 		}
 	}
@@ -44,13 +44,13 @@ llc::err_t			llc::jsonFieldsToMap
 		for(u2_t iMap = 0; iMap < fieldMaps.size(); ++iMap) {
 			cnst llc::SJSONFieldBinding	& fieldToAdd			= fields[iField];
 			if(fieldToAdd.Field.size() && fieldToAdd.Field == fieldMaps[iMap].Key) {
-				if_fail_fe(indicesOfMaps.push_back(iMap));
+				if_fail_fe(::llc::push_back(indicesOfMaps, iMap));
 				bNotAdded				= false;
 				break;
 			}
 		}
 		if(bNotAdded)
-			if_fail_fe(indicesOfMaps.push_back(-1));
+			if_fail_fe(::llc::push_back(indicesOfMaps, -1));
 	}
 	rtrn indicesOfMaps.size();
 }
@@ -187,7 +187,7 @@ sttc	llc::err_t	jsonCloseOrDiscardEmptyKOrV	(llc::SJSONReaderState & stateReader
 	if(tokens[tokens.size() - 1].Type == containerType) {
 		json_info_printf("Discarding empty container element at index %" LLC_FMT_S2 " (%.*s). Level: %" LLC_FMT_S2 "", tokens.size() - 1, (int)labelType.size(), labelType.begin(), stateReader.NestLevel);
 		stateReader.IndexCurrentElement	= tokens[tokens.size() - 1].ParentIndex;
-		if_fail_fe(tokens.pop_back());
+		if_fail_fe(::llc::pop_back(tokens));
 		--stateReader.NestLevel;
 		if((u2_t)stateReader.IndexCurrentElement < tokens.size())
 			stateReader.CurrentElement	= &tokens[stateReader.IndexCurrentElement];
@@ -236,7 +236,7 @@ sttc	llc::err_t	jsonParseStringCharacter	(llc::SJSONReaderState & stateReader, l
 		seterr_break_if(jsonAsString.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. JSON length: %.*s. Current index: %" LLC_FMT_U2 ".", (int)(jsonAsString.size() - stateReader.IndexCurrentChar), &jsonAsString[stateReader.IndexCurrentChar], stateReader.IndexCurrentChar);
 		json_info_printf("Unicode code point found: %4.4s", &jsonAsString[stateReader.IndexCurrentChar]);
 		currentElement		= {stateReader.IndexCurrentElement, llc::JSON_TYPE_CODEPOINT, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}, {}};
-		seterr_if_failed(tokens.push_back(currentElement), "token count: %" LLC_FMT_S2 "", tokens.size());
+		seterr_if_failed(::llc::push_back(tokens, currentElement), "token count: %" LLC_FMT_S2 "", tokens.size());
 		stateReader.CurrentElement		= &tokens[stateReader.IndexCurrentElement];
 		stateReader.IndexCurrentChar	+= 3;	// Parse unicode code point
 		break;
@@ -264,7 +264,7 @@ sttc	llc::err_t	jsonParseKeyword			(llc::vcst_t token, llc::JSON_TYPE jsonType, 
 	json_info_printf("JSON token found: %.*s.", int(token.size()), token.begin());
 
 	llc::SJSONToken			boolElement					= {stateReader.IndexCurrentElement, jsonType, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + token.size()}, llc::vcs2b8(token)};
-	llc_necall(object.push_back(boolElement), "Failed to push! Out of memory? object count: %" LLC_FMT_U2 ".", object.size());
+	llc_necall(::llc::push_back(object, boolElement), "Failed to push! Out of memory? object count: %" LLC_FMT_U2 ".", object.size());
 	stateReader.IndexCurrentChar	+= token.size() - 1;
 	stateReader.CurrentElement		= &object[stateReader.IndexCurrentElement];
 	rtrn 0;
@@ -383,7 +383,7 @@ sttc	llc::err_t	parseJsonNumber				(llc::SJSONReaderState & stateReader, llc::ap
 			memcpy(&currentElement.Value, &finalValue, szof(uint64_t));
 		}
 	}
-	if_fail_fe(tokens.push_back(currentElement));
+	if_fail_fe(::llc::push_back(tokens, currentElement));
 	stateReader.CurrentElement						= &tokens[stateReader.IndexCurrentElement];
 	json_info_printf("Number found: %.*s. Length: %" LLC_FMT_U2 ". Negative: %s. Float: %s."
 		, sizeNum, &jsonAsString[index]
@@ -421,7 +421,7 @@ sttc	llc::err_t	jsonCloseContainer			(llc::SJSONReaderState & stateReader, llc::
 
 sttc	llc::err_t	jsonOpenElement				(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::JSON_TYPE jsonType, u2_t indexChar) {
 	llc::SJSONToken			currentElement				= {stateReader.IndexCurrentElement, jsonType, {indexChar, indexChar}, {}};
-	if_fail_fe(stateReader.IndexCurrentElement = tokens.push_back(currentElement));
+	if_fail_fe(stateReader.IndexCurrentElement = ::llc::push_back(tokens, currentElement));
 	stateReader.CurrentElement	= &tokens[stateReader.IndexCurrentElement];
 	llc::vcst_t				labelType					= llc::get_value_label(currentElement.Type);
 	++stateReader.NestLevel;
@@ -617,8 +617,8 @@ llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, llc::vi
 		cnst llc::vcst_t		nodeTypeName				= llc::get_value_label(node->Token->Type);
 		if_true_fef(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%.*s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, (int)nodeTypeName.size(), nodeTypeName.begin(), llc::JSON_TYPE_STRING);
 		llc::vcst_c			& view					= views[node->ObjectIndex];
-		if_fail_fe(indices.push_back(node->ObjectIndex));
-		if_fail_fe(keys	.push_back(view));
+		if_fail_fe(::llc::push_back(indices, node->ObjectIndex));
+		if_fail_fe(::llc::push_back(keys, view));
 	}
 	rtrn indices.size();
 }
@@ -630,7 +630,7 @@ llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, llc::as
 		cnst llc::SJSONNode		* node						= node_object.Children[iNode];
 		cnst llc::vcst_t		nodeTypeName				= llc::get_value_label(node->Token->Type);
 		if_true_fef(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%.*s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, (int)nodeTypeName.size(), nodeTypeName.begin(), llc::JSON_TYPE_STRING);
-		if_fail_fe(indices.push_back(node->ObjectIndex));
+		if_fail_fe(::llc::push_back(indices, node->ObjectIndex));
 	}
 	rtrn indices.size();
 }
@@ -643,7 +643,7 @@ llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, llc::vi
 		cnst llc::vcst_t		nodeTypeName				= llc::get_value_label(node->Token->Type);
 		if_true_fef(llc::JSON_TYPE_STRING != node->Token->Type, "Invalid node type: %" LLC_FMT_U2 " (%.*s). Only string types (%" LLC_FMT_U2 ") can be keys of JSON objects.", node->Token->Type, (int)nodeTypeName.size(), nodeTypeName.begin(), llc::JSON_TYPE_STRING);
 		llc::vcst_c			& view						= views[node->ObjectIndex];
-		if_fail_fe(keys.push_back(view));
+		if_fail_fe(::llc::push_back(keys, view));
 	}
 	rtrn keys.size();
 }

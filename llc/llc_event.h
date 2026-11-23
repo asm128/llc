@@ -23,8 +23,7 @@ namespace llc
 		}
 
 		error_t	Load		(vcu0_t & input)			{
-			llc_necs(loadPOD (input, Type));
-			llc_necs(loadView(input, Data));
+			llc_necs(load(input, Type, Data));
 			rtrn 0;
 		}
 	};
@@ -62,8 +61,7 @@ namespace llc
 		}
 
 		error_t	Load		(vcu0_t & input)			{
-			llc_necs(loadPOD(input, Type));
-			llc_necs(loadView(input, Data));
+			llc_necs(load(input, Type, Data));
 			rtrn 0;
 		}
 

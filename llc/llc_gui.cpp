@@ -49,7 +49,7 @@
 	if_true_fe(controlCount != controls.Draw.size());
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
 		::llc::SControlText & text = controls.Text[iControl];
-		if_fail_fef(::llc::loadView(input, text.Text), "iControl: %u", iControl);
+		if_fail_fef(::llc::load(input, text.Text), "iControl: %u", iControl);
 		if_fail_fef(::llc::load(input, text.Align, text.Selection, text.FontSelected), "iControl: %u", iControl);
 	}
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
@@ -57,7 +57,7 @@
 		if_fail_fef(::llc::load(input, imageMetrics), "iControl: %u", iControl);
 	}
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl)
-		if_fail_fef(::llc::loadView(input, controls.Children[iControl]), "iControl: %u", iControl);
+		if_fail_fef(::llc::load(input, controls.Children[iControl]), "iControl: %u", iControl);
 	::llc::u2_t eventCount = {};
 	if_fail_fe(::llc::loadPacked(input, eventCount));
 	if_fail_fe(controls.EventQueue.resize(eventCount));
@@ -358,7 +358,7 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 		for(int32_t iChild = 0; iChild < (int32_t)children.size(); ++iChild)
 			if(children[iChild] == iControl) {
 				gui.Controls.SetUpdated(oldParent, false);
-				llc_necall(children.remove(iChild), "Failed to remove child at index: %u.", iChild);
+				llc_necall(::llc::remove(children, iChild), "Failed to remove child at index: %u.", iChild);
 				break;
 			}
 	}
@@ -374,7 +374,7 @@ static	::llc::error_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 			return 0;
 
 	gui.Controls.SetUpdated(iParent , false);
-	llc_necs(children.push_back(iControl));
+	llc_necs(::llc::push_back(children, iControl));
 	return 0;
 }
 
@@ -628,7 +628,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 		if(false == ::llc::controlInvalid(gui, controlState.Parent))
 			continue;
 
-		rootControlsToProcess.push_back((::llc::cid_t)iControl);
+		::llc::push_back(rootControlsToProcess, (::llc::cid_t)iControl);
 	}
 
 	gui.CursorPos			= {(float)input.MouseCurrent.Position.x, (float)input.MouseCurrent.Position.y}; //+= {(float)input.MouseCurrent.Deltas.x, (float)input.MouseCurrent.Deltas.y};
@@ -692,7 +692,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 		const ::llc::SControlState	& controlState					= gui.Controls.States[iControl];
 		if(controlState.IsUnused() || ::llc::controlDisabled(gui, (::llc::cid_t)iControl) || ::llc::controlHidden(gui, (::llc::cid_t)iControl))
 			continue;
-		llc_necs(controlIndices.push_back((::llc::cid_t)iControl));
+		llc_necs(::llc::push_back(controlIndices, (::llc::cid_t)iControl));
 	}
 	return controlIndices.size();
 }

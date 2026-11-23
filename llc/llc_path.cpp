@@ -159,14 +159,14 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 		if(segment == ".") {}
 		else if(segment == "..") {
 			if(segments.size() > protectedSegments && segments[segments.size() - 1] != "..") {
-				if_fail_fe(segments.pop_back());
+				if_fail_fe(::llc::pop_back(segments));
 			}
 			else if(false == isAbsolute) {
-				if_fail_fe(segments.push_back(segment));
+				if_fail_fe(::llc::push_back(segments, segment));
 			}
 		}
 		else if(segment.size())
-			if_fail_fe(segments.push_back(segment));
+			if_fail_fe(::llc::push_back(segments, segment));
 		if(iChar < path.size())
 			++iChar;
 	}
@@ -327,7 +327,7 @@ sttc ::llc::err_t		pathListEntry			(::llc::vcst_t pathToList, ::llc::SPathConten
 	}
 	else {
 		int32_t						indexFile;
-		llc_necall(indexFile = pathContents.Files.push_back(sPath), "%s", "Failed to push path to output list");
+		llc_necall(indexFile = ::llc::push_back(pathContents.Files, sPath), "%s", "Failed to push path to output list");
 		verbose_printf("File %" LLC_FMT_U2 ": %s.", indexFile, sPath.begin());
 	}
 	rtrn 0;
@@ -399,7 +399,7 @@ sttc ::llc::err_t		pathTreeScan			(::llc::SPathTree & output, ::llc::au2_t & len
 		::llc::vcst_t name;
 		if_fail_fe(::llc::pathFilename(entry, name));
 		cnst ::llc::u2_t oldSize = output.Char.size(), index = lengths.size();
-		if_fail_fe(output.Char.append(name));
+		if_fail_fe(::llc::append(output.Char, name));
 		if_true_block_log(error_printf, ::llc::failed(::llc::resize(index + 1, output.Info, lengths)), {
 			if_fail_e(output.Char.resize(oldSize));
 			rtrn -1;

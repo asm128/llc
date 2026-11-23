@@ -7,7 +7,7 @@ using llc::u0_t, llc::u2_t;
 ::llc::err_t			llc::pngFileWrite		(const ::llc::gc8bgra & in_imageView, ::llc::au0_t & out_Bytes)		{
 	stacxpr	const u0_t		signature	[8]			= {0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
 	::llc::au0_t				safe_Bytes				= {};
-	safe_Bytes.append(signature);
+	::llc::append(safe_Bytes, signature);
 
 	u2_t					chunkSize				= sizeof(::llc::SPNGIHDR);
 	stacxpr	const u0_t		typeIHDR	[4]			= {'I', 'H', 'D', 'R'};
@@ -23,13 +23,13 @@ using llc::u0_t, llc::u2_t;
 	be2le(imageHeader.Size.x);
 	be2le(imageHeader.Size.y);
 	be2le(chunkSize);
-	safe_Bytes.append((const u0_t*)&chunkSize, 4);
+	::llc::append(safe_Bytes, (const u0_t*)&chunkSize, 4);
 	u2_t					crcDataStart			= safe_Bytes.size();
-	safe_Bytes.append(typeIHDR);
-	safe_Bytes.append((const u0_t*)&imageHeader, sizeof(::llc::SPNGIHDR));
+	::llc::append(safe_Bytes, typeIHDR);
+	::llc::append(safe_Bytes, (const u0_t*)&imageHeader, (::llc::u2_t)sizeof(::llc::SPNGIHDR));
 	crc						= ::llc::get_crc({&safe_Bytes[crcDataStart], safe_Bytes.size() - crcDataStart});
 	be2le(crc);
-	safe_Bytes.append((const u0_t*)&crc, 4);
+	::llc::append(safe_Bytes, (const u0_t*)&crc, 4);
 
 	// Reverse RGB byte order
 	::llc::img8rgba				convertedScanlines		= {};
@@ -56,26 +56,26 @@ using llc::u0_t, llc::u2_t;
 
 	chunkSize					= deflated.size();
 	be2le(chunkSize);
-	safe_Bytes.append((const u0_t*)&chunkSize, 4);
+	::llc::append(safe_Bytes, (const u0_t*)&chunkSize, 4);
 	crcDataStart				= safe_Bytes.size();
 
 	stacxpr	const u0_t			typeIDAT	[4]			= {'I', 'D', 'A', 'T'};
-	safe_Bytes.append(typeIDAT);
-	safe_Bytes.append(deflated);
+	::llc::append(safe_Bytes, typeIDAT);
+	::llc::append(safe_Bytes, deflated);
 	crc							= ::llc::get_crc({&safe_Bytes[crcDataStart], safe_Bytes.size() - crcDataStart});
 	be2le(crc);
-	safe_Bytes.append((const u0_t*)&crc, 4);
+	::llc::append(safe_Bytes, (const u0_t*)&crc, 4);
 
 	chunkSize					= 0;
 	crc							= 0;
 	stacxpr	const u0_t			typeIEND	[4]			= {'I', 'E', 'N', 'D'};
 	be2le(chunkSize);
-	safe_Bytes.append((const u0_t*)&chunkSize, 4);
+	::llc::append(safe_Bytes, (const u0_t*)&chunkSize, 4);
 	crcDataStart				= safe_Bytes.size();
-	safe_Bytes.append(typeIEND);
+	::llc::append(safe_Bytes, typeIEND);
 	crc							= ::llc::get_crc({&safe_Bytes[crcDataStart], safe_Bytes.size() - crcDataStart});
 	be2le(crc);
-	safe_Bytes.append((const u0_t*)&crc, 4);
+	::llc::append(safe_Bytes, (const u0_t*)&crc, 4);
 
 	u2_t							oldSize					= out_Bytes.size();
 	llc_necs(out_Bytes.resize(oldSize + safe_Bytes.size()));

@@ -59,7 +59,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 
 	// -- Generate texture coordinates
 	const ::llc::n2f3_t			cellUnits					= {1.0f / params.CellCount.x, 1.0f / params.CellCount.y};
-	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { geometry.TextureCoords.push_back(::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f2().InPlaceScale(cellUnits).f2()); });
+	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { ::llc::push_back(geometry.TextureCoords, ::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f2().InPlaceScale(cellUnits).f2()); });
 
 	// -- Generate normals
 	geometry.Normals.resize(geometry.Normals.size() + vertexCount.Area(), params.Orientation.RotateVector({0, params.Reverse ? -1.0f : 1.0f, 0}));	// The normals are all the same for grids
@@ -68,7 +68,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	const ::llc::n2f3_t			scale						= params.Size.f3().InPlaceScale(cellUnits);
 	vertexCount.for_each([&geometry, scale, params](::llc::n2u1_t & coord) {
 		const ::llc::n3f3_t			position					= {coord.x * scale.x, 0, coord.y * scale.y};
-		geometry.Positions.push_back(params.Orientation.RotateVector(position.f2() - params.Origin));
+		::llc::push_back(geometry.Positions, params.Orientation.RotateVector(position.f2() - params.Origin));
 	});
 	return ::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, params.Reverse, params.Outward); 
 }
@@ -78,7 +78,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 
 	// -- Generate texture coordinates
 	const ::llc::n2f3_t			cellUnits					= {1.0f / params.CellCount.x, 1.0f / params.CellCount.y};
-	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { geometry.TextureCoords.push_back(::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f3().InPlaceScale(cellUnits).f2()); });
+	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { ::llc::push_back(geometry.TextureCoords, ::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f3().InPlaceScale(cellUnits).f2()); });
 
 	// -- Generate normals and positions
 	const double				reverseScale				= params.Reverse ? -1.0 : 1.0;
@@ -90,8 +90,8 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 		for(::llc::u2_t x = 0; x < vertexCount.x; ++x) {
 			const double				currentX					= sliceScale.x * x + sliceOffset;
 			const ::llc::n3f3_t			coord 						= ::llc::n3f3_t{currentRadius * cos(currentX), -cos(currentY), currentRadius * sin(currentX)};
-			llc_necs(geometry.Normals	.push_back(params.Orientation.RotateVector((coord * reverseScale).f2())));
-			llc_necs(geometry.Positions	.push_back(params.Orientation.RotateVector((coord * params.Radius).f2() - params.Origin)));
+			llc_necs(::llc::push_back(geometry.Normals, params.Orientation.RotateVector((coord * reverseScale).f2())));
+			llc_necs(::llc::push_back(geometry.Positions, params.Orientation.RotateVector((coord * params.Radius).f2() - params.Origin)));
 		}
 	}
 	return ::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false); 
@@ -105,12 +105,12 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	const double				sliceOffset					= 0; //::llc::math_2pi * (1.0 - params.Circumference);
 
 	// -- Generate positions and texture coordinates
-	llc_necs(geometry.Positions		.push_back(params.Orientation.RotateVector(-params.Origin)));	// The first vertex is the center of the circle
-	llc_necs(geometry.TextureCoords	.push_back(::llc::n2f2_t{.5f, .5f}));					// The first vertex is the center of the circle
+	llc_necs(::llc::push_back(geometry.Positions, params.Orientation.RotateVector(-params.Origin)));	// The first vertex is the center of the circle
+	llc_necs(::llc::push_back(geometry.TextureCoords, ::llc::n2f2_t{.5f, .5f}));					// The first vertex is the center of the circle
 	for(::llc::u2_t iVertex = 0; iVertex < vertexCount; ++iVertex) {
 		double						angle						= sliceScale * iVertex + sliceOffset;
-		llc_necs(geometry.Positions		.push_back(params.Orientation.RotateVector(::llc::n3f3_t{params.Radius}.RotateY(angle).f2() - params.Origin)));
-		llc_necs(geometry.TextureCoords	.push_back(::llc::n2f3_t{.5}.Rotate(angle).f2() + ::llc::n2f2_t{.5f, .5f}));
+		llc_necs(::llc::push_back(geometry.Positions, params.Orientation.RotateVector(::llc::n3f3_t{params.Radius}.RotateY(angle).f2() - params.Origin)));
+		llc_necs(::llc::push_back(geometry.TextureCoords, ::llc::n2f3_t{.5}.Rotate(angle).f2() + ::llc::n2f2_t{.5f, .5f}));
 	}
 
 	// -- Generate normals
@@ -127,7 +127,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 
 	// -- Generate texture coordinates
 	const ::llc::n2f3_t			cellUnits					= {1.0f / params.CellCount.x, 1.0f / params.CellCount.y};
-	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { geometry.TextureCoords.push_back(::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f3().InPlaceScale(cellUnits).f2()); });
+	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { ::llc::push_back(geometry.TextureCoords, ::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f3().InPlaceScale(cellUnits).f2()); });
 
 	// -- Generate normals
 	const double				reverseScale				= params.Reverse ? -1.0 : 1.0;
@@ -135,13 +135,13 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	const ::llc::n3f3_t			normalBase					= llc::n3f3_t{params.Height, -(params.Radius.Max - params.Radius.Min)}.Normalize() * reverseScale;
 	const double				sliceScale					= cellUnits.x * ::llc::math_2pi * params.Circumference * reverseScale;
 	const double				sliceOffset					= 0; //::llc::math_pi * (1.0 - params.Circumference) * .5;
-	vertexCount.for_each([&geometry, &normalBase, sliceScale, sliceOffset, &params](::llc::n2u1_t & coord) { geometry.Normals.push_back(params.Orientation.RotateVector((::llc::n3f3_t{normalBase}.RotateY(sliceScale * coord.x + sliceOffset)).f2())); });
+	vertexCount.for_each([&geometry, &normalBase, sliceScale, sliceOffset, &params](::llc::n2u1_t & coord) { ::llc::push_back(geometry.Normals, params.Orientation.RotateVector((::llc::n3f3_t{normalBase}.RotateY(sliceScale * coord.x + sliceOffset)).f2())); });
 
 	// -- Generate positions
 	for(::llc::u2_t y = 0; y < vertexCount.y; ++y) {
 		const double				radius						= ::llc::interpolate_linear(params.Radius.Min, params.Radius.Max, cellUnits.y * y);
 		for(::llc::u2_t x = 0; x < vertexCount.x; ++x)
-			geometry.Positions.push_back(params.Orientation.RotateVector(::llc::n3f3_t{radius, (double)y * lengthScale}.RotateY(sliceScale * x + sliceOffset).f2() - params.Origin));
+			::llc::push_back(geometry.Positions, params.Orientation.RotateVector(::llc::n3f3_t{radius, (double)y * lengthScale}.RotateY(sliceScale * x + sliceOffset).f2() - params.Origin));
 	}
 	return ::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false); 
 }
@@ -155,7 +155,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	geometry.TextureCoords	.reserve(vertexCount.Area());
 	geometry.Positions		.reserve(vertexCount.Area());
 	geometry.Normals		.reserve(vertexCount.Area());
-	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { geometry.TextureCoords.push_back(::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f2().InPlaceScale(cellUnits).f2()); });
+	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { ::llc::push_back(geometry.TextureCoords, ::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f2().InPlaceScale(cellUnits).f2()); });
 
 	//const double				lengthScale					= cellUnits.y * params.Length;
 	const ::llc::n2f3_t			sliceScale					= ::llc::n2f3_t{::llc::math_2pi * cellUnits.x, ::llc::math_pi * cellUnits.y};
@@ -163,7 +163,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 		const double				radius						= ::llc::interpolate_linear(params.Radius.Min, params.Radius.Max, cellUnits.y * y);
 		for(::llc::u2_t x = 0; x < vertexCount.x; ++x) {
 			::llc::n3f3_t				position					= {sin(sliceScale.y * y) * sin(sliceScale.x * x) * radius, sin(sliceScale.y * y) * sin(::llc::math_pi * x / params.CellCount.x) * params.Length, cos(sliceScale.x * x) * radius};
-			geometry.Positions.push_back(params.Orientation.RotateVector(position.f2() - params.Origin));
+			::llc::push_back(geometry.Positions, params.Orientation.RotateVector(position.f2() - params.Origin));
 		}
 	}
 	const ::llc::u2_t				indexOffset				= geometry.PositionIndices.size();
@@ -172,7 +172,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 		const ::llc::n3f2_t	a	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 0]];
 		const ::llc::n3f2_t	b	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 1]];
 		const ::llc::n3f2_t	c	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 2]];
-		geometry.Normals.push_back(params.Orientation.RotateVector((a - b).Normalize().Cross((a - c).Normalize()).Normalize()));
+		::llc::push_back(geometry.Normals, params.Orientation.RotateVector((a - b).Normalize().Cross((a - c).Normalize()).Normalize()));
 	}
 	return 0;
 }
@@ -185,7 +185,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	geometry.TextureCoords	.reserve(vertexCount.Area());
 	geometry.Positions		.reserve(vertexCount.Area());
 	geometry.Normals		.reserve(vertexCount.Area());
-	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { geometry.TextureCoords.push_back(::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f2().InPlaceScale(cellUnits).f2()); });
+	vertexCount.for_each([&geometry, &params, cellUnits](::llc::n2u1_t & coord) { ::llc::push_back(geometry.TextureCoords, ::llc::n2u2_t{coord.x, (::llc::u2_t)params.CellCount.y - coord.y}.f2().InPlaceScale(cellUnits).f2()); });
 
 	//const double				lengthScale					= cellUnits.y * params.Length;
 	const ::llc::n2f3_t			sliceScale					= ::llc::n2f3_t{::llc::math_2pi * cellUnits.x, ::llc::math_pi * cellUnits.y};
@@ -193,7 +193,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 		const double				radius						= ::llc::interpolate_linear(params.Radius.Min, params.Radius.Max, cellUnits.y * y);
 		for(::llc::u2_t x = 0; x < vertexCount.x; ++x) {
 			::llc::n3f3_t				position					= {sin(sliceScale.y * y) * sin(sliceScale.x * x) * radius, sin(sliceScale.y * y) * cos(::llc::math_pi * x / params.CellCount.x) * params.Length, cos(sliceScale.x * x) * radius};
-			geometry.Positions.push_back(params.Orientation.RotateVector(position.f2() - params.Origin));
+			::llc::push_back(geometry.Positions, params.Orientation.RotateVector(position.f2() - params.Origin));
 		}
 	}
 
@@ -203,7 +203,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 		const ::llc::n3f2_t	a	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 0]];
 		const ::llc::n3f2_t	b	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 1]];
 		const ::llc::n3f2_t	c	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 2]];
-		geometry.Normals.push_back(params.Orientation.RotateVector((a - b).Normalize().Cross((a - c).Normalize()).Normalize()));
+		::llc::push_back(geometry.Normals, params.Orientation.RotateVector((a - b).Normalize().Cross((a - c).Normalize()).Normalize()));
 	}
 	return 0;
 }
@@ -219,7 +219,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	llc_necs(geometry.Positions		.append({&geometry.Positions	[vertexOffset], vertexCount}));
 	llc_necs(geometry.Normals		.append({&geometry.Normals		[normalOffset], normalCount}));
 	for(::llc::u2_t iIndex = 0; iIndex < indexCount; ++iIndex)
-		llc_necs(geometry.PositionIndices.push_back(geometry.PositionIndices[indexOffset + iIndex] + vertexCount));
+		llc_necs(::llc::push_back(geometry.PositionIndices, geometry.PositionIndices[indexOffset + iIndex] + vertexCount));
 	geometry.Positions	.for_each([](::llc::n3f2_t & coord){ coord.z *= -1; coord.y *= -1; return 0; }, vertexOffset + vertexCount);
 	geometry.Normals	.for_each([](::llc::n3f2_t & coord){ coord.z *= -1; coord.y *= -1; return 0; }, normalOffset + normalCount);
 	return 0;

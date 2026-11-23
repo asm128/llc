@@ -88,8 +88,8 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 				continue;
 			if(currentPayloadMsg->Time == client.KeyPing)
 				keyPing						= true;
-			llc_necs(payloadSizes.push_back((uint16_t)currentPayloadView.size()));
-			llc_necs(serialized.append(currentPayloadView));
+			llc_necs(::llc::push_back(payloadSizes, (uint16_t)currentPayloadView.size()));
+			llc_necs(::llc::append(serialized, currentPayloadView));
 			llc_necs(payloadsToRemove.push_back(currentPayloadMsg));
 			llc_necs(messageCacheSent.push_back(currentPayloadMsg));
 		}
@@ -100,9 +100,9 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 		::llc::au0_t				& optimizedPayloadBuffer			= optimizedMsg->Payload;
 		llc_necall(optimizedPayloadBuffer.resize(sizeRequired), "Out of memory? Size required: %u.", sizeRequired);
 		optimizedPayloadBuffer.clear();
-		optimizedPayloadBuffer.append((const uint8_t*)&packetCount, sizeof(uint16_t));
-		optimizedPayloadBuffer.append((const uint8_t*)payloadSizes.begin(), sizeof(uint16_t) * payloadSizes.size());
-		optimizedPayloadBuffer.append(serialized.begin(), serialized.size());
+		::llc::append(optimizedPayloadBuffer, (const uint8_t*)&packetCount, (::llc::u2_t)sizeof(uint16_t));
+		::llc::append(optimizedPayloadBuffer, (const uint8_t*)payloadSizes.begin(), (::llc::u2_t)(sizeof(uint16_t) * payloadSizes.size()));
+		::llc::append(optimizedPayloadBuffer, serialized.begin(), serialized.size());
 		if_true_fef(sizeRequired != optimizedPayloadBuffer.size(), "Invalid sizes! Size required: %u. Actual size: %u.", sizeRequired, optimizedPayloadBuffer.size());
 		optimizedMsg->Command.Compressed	= 1;
 		optimizedMsg->Command.Encrypted		= 1;

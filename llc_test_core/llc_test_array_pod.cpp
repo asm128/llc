@@ -88,6 +88,11 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, WRAP_APPEND, 82, "Free append() did n
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, WRAP_PUSH_BACK, 83, "Free push_back() did not return the new element index.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, WRAP_REMOVE, 84, "Free remove() did not preserve array order.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, WRAP_POP_BACK, 85, "Free pop_back() did not forward its output and empty forms.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, BATCH_APPEND, 86, "Batch append() did not append each range and report the added count.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, BATCH_PUSH_BACK, 87, "Batch push_back() did not append each value and report the added count.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, BATCH_REMOVE, 88, "Batch remove() did not remove successive indices and report the removed count.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, BATCH_POP_BACK, 89, "Batch pop_back() did not return successive values and the removed count.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, BATCH_STOP, 90, "A batch array operation continued after failure.");
 
 tplt<tpnm TCall>
 sttc ::llc::err_t podExpectedFailure(TCall call) {
@@ -650,6 +655,14 @@ sttc ::llc::err_t testPodFreeWrappers(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(values, popped) != 3 || popped != 5);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(values) != 2 || values.size() != 2);
 	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(nested) != 0 || ::llc::pop_back(nested) >= 0);
+	::llc::au1_t batch = {};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_BATCH_APPEND, ::llc::append(batch, one, one) != 2 || batch.size() != 2 || batch[0] != 3 || batch[1] != 3);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_BATCH_PUSH_BACK, ::llc::push_back(batch, (::llc::u1_t)4, (::llc::u1_t)5) != 2 || batch.size() != 4 || batch[2] != 4 || batch[3] != 5);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_BATCH_REMOVE, ::llc::remove(batch, (::llc::u2_t)0, (::llc::u2_t)1) != 2 || batch.size() != 2 || batch[0] != 3 || batch[1] != 5);
+	::llc::u1_t last = {}, previous = {};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_BATCH_POP_BACK, ::llc::pop_back(batch, last, previous) != 2 || last != 5 || previous != 3 || batch.size() != 0);
+	last = 77; previous = 88;
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_BATCH_STOP, ::llc::pop_back(batch, last, previous) >= 0 || last != 77 || previous != 88);
 	rtrn 0;
 }
 
