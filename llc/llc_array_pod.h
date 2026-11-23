@@ -310,6 +310,11 @@ namespace llc
 	tplTusng	apod		= array_pod<T>;
 	tplTusng	ap			= apod	<T>;
 
+	tplt<tpnm T, tpnm... TArgs> inln err_t append		(array_pod<T> & output, TArgs&&... args) noexcept { rtrn output.append(args...); }
+	tplt<tpnm T, tpnm... TArgs> inln err_t push_back	(array_pod<T> & output, TArgs&&... args) noexcept { rtrn output.push_back(args...); }
+	tplt<tpnm T, tpnm... TArgs> inln err_t remove		(array_pod<T> & output, TArgs&&... args) noexcept { rtrn output.remove(args...); }
+	tplt<tpnm T, tpnm... TArgs> inln err_t pop_back	(array_pod<T> & output, TArgs&&... args) noexcept { rtrn output.pop_back(args...); }
+
 	tydf		apod<b8_t>	ab8_t;	tdcs	ab8_t	ab8_c;
 	tydf		apod<uc_t>	auc_t;	tdcs	auc_t	auc_c;
 	tydf		apod<sc_t>	asc_t;	tdcs	asc_t	asc_c;

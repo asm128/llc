@@ -1,8 +1,70 @@
 #include "llc_gui.h"
+#include "llc_apod_serialize.h"
 #include "llc_gui_text.h"
 #include "llc_base64.h"
 #include "llc_rect_align.h"
 #include "llc_apod_color.h"
+
+::llc::error_t llc::guiSave(::llc::au0_t & output, const ::llc::SGUI & gui) {
+	const ::llc::SControlTable & controls = gui.Controls;
+	const ::llc::u2_t controlCount = controls.States.size();
+	if_true_fe(controlCount != controls.Placement.size());
+	if_true_fe(controlCount != controls.Area.size());
+	if_true_fe(controlCount != controls.Constraints.size());
+	if_true_fe(controlCount != controls.Draw.size());
+	if_true_fe(controlCount != controls.Text.size());
+	if_true_fe(controlCount != controls.Images.size());
+	if_true_fe(controlCount != controls.Children.size());
+
+	if_fail_fe(::llc::save(output, controls.States, controls.Constraints, controls.Placement, controls.Area, controls.Draw));
+	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
+		const ::llc::SControlText & text = controls.Text[iControl];
+		if_fail_fef(::llc::saveView(output, text.Text), "iControl: %u", iControl);
+		if_fail_fef(::llc::save(output, text.Align, text.Selection, text.FontSelected), "iControl: %u", iControl);
+	}
+	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
+		const ::llc::n2u2_t imageMetrics = controls.Images[iControl].Image.metrics();
+		if_fail_fef(::llc::savePOD(output, imageMetrics), "iControl: %u", iControl);
+	}
+	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl)
+		if_fail_fef(::llc::saveView(output, controls.Children[iControl]), "iControl: %u", iControl);
+	const ::llc::packedu32 eventCount = controls.EventQueue.size();
+	if_fail_fe(::llc::savePacked(output, eventCount));
+	for(::llc::u2_t iEvent = 0; iEvent < controls.EventQueue.size(); ++iEvent) {
+		const ::llc::SEventSystem * event = controls.EventQueue[iEvent];
+		if_fail_fef(event ? event->Save(output) : ::llc::SEventSystem{}.Save(output), "iEvent: %u", iEvent);
+	}
+	return 0;
+}
+
+::llc::error_t llc::guiLoad(::llc::SGUI & gui, ::llc::vcu0_t & input) {
+	::llc::SControlTable & controls = gui.Controls;
+	if_fail_fe(::llc::load(input, controls.States));
+	const ::llc::u2_t controlCount = controls.States.size();
+	if_fail_fe(::llc::resize(controlCount, controls.Text, controls.Images, controls.Children));
+	if_fail_fe(::llc::load(input, controls.Constraints, controls.Placement, controls.Area, controls.Draw));
+	if_true_fe(controlCount != controls.Constraints.size());
+	if_true_fe(controlCount != controls.Placement.size());
+	if_true_fe(controlCount != controls.Area.size());
+	if_true_fe(controlCount != controls.Draw.size());
+	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
+		::llc::SControlText & text = controls.Text[iControl];
+		if_fail_fef(::llc::loadView(input, text.Text), "iControl: %u", iControl);
+		if_fail_fef(::llc::load(input, text.Align, text.Selection, text.FontSelected), "iControl: %u", iControl);
+	}
+	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
+		::llc::n2u2_t imageMetrics = {};
+		if_fail_fef(::llc::load(input, imageMetrics), "iControl: %u", iControl);
+	}
+	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl)
+		if_fail_fef(::llc::loadView(input, controls.Children[iControl]), "iControl: %u", iControl);
+	::llc::u2_t eventCount = {};
+	if_fail_fe(::llc::loadPacked(input, eventCount));
+	if_fail_fe(controls.EventQueue.resize(eventCount));
+	for(::llc::u2_t iEvent = 0; iEvent < eventCount; ++iEvent)
+		if_fail_fef(controls.EventQueue[iEvent]->Load(input), "iEvent: %u", iEvent);
+	return 0;
+}
 
 ::llc::error_t			llc::controlInvalid			(const ::llc::SGUI & gui, cid_t iControl)				{
 	if(gui.Controls.States.size() <= ::llc::u2_t(iControl)	) 
