@@ -3,176 +3,176 @@
 #ifndef LLC_DIALOG_CONTROLS_H_23627
 #define LLC_DIALOG_CONTROLS_H_23627
 
-nmsp llc
+namespace llc
 {
 	struct SDialogSlider;
-	cid_t			sliderCreate		(SDialog			& dialog);
-	err_t			sliderSetValue		(SDialogSlider		& control, s3_t value);
-	err_t			sliderUpdate		(SDialogSlider		& control);
+	::llc::cid_t			sliderCreate		(::llc::SDialog					& dialog);
+	::llc::err_t			sliderSetValue		(::llc::SDialogSlider			& control, int64_t value);
+	::llc::err_t			sliderUpdate		(::llc::SDialogSlider			& control);
 
 	struct SDialogCheckBox;
-	cid_t			checkBoxCreate		(SDialog			& dialog);
-	err_t			checkBoxUpdate		(SDialogCheckBox	& control);
+	::llc::cid_t			checkBoxCreate		(::llc::SDialog					& dialog);
+	::llc::err_t			checkBoxUpdate		(::llc::SDialogCheckBox			& control);
 
 	struct SDialogEditBox;
-	cid_t			editBoxCreate		(SDialog			& dialog);
-	err_t			editBoxUpdate		(SDialogEditBox		& control);
+	::llc::cid_t			editBoxCreate		(::llc::SDialog					& dialog);
+	::llc::err_t			editBoxUpdate		(::llc::SDialogEditBox			& control);
 
 	struct SDialogViewport;
-	cid_t			viewportCreate		(SDialog			& dialog);
-	err_t			viewportUpdate		(SDialogViewport	& control);
-	err_t			viewportFold		(SDialogViewport	& control, b8_t fold);
-	err_t			viewportAdjustSize	(n2s1_t				& sizeViewport, cnst n2s1_t & sizeClient);
+	::llc::cid_t			viewportCreate		(::llc::SDialog					& dialog);
+	::llc::err_t			viewportUpdate		(::llc::SDialogViewport			& control);
+	::llc::err_t			viewportFold		(::llc::SDialogViewport			& control, bool fold);
+	::llc::err_t			viewportAdjustSize	(::llc::n2<int16_t>		& sizeViewport, const ::llc::n2<int16_t> & sizeClient);
 
-	stin	cid_t	sliderCreate		(SDialog			& dialog, pnco<SDialogSlider	>	& createdControl)	 { cid_t index = -1; if_fail_fe(index = sliderCreate	(dialog)); return dialog.Get(index, createdControl); }
-	stin	cid_t	checkBoxCreate		(SDialog			& dialog, pnco<SDialogCheckBox	>	& createdControl)	 { cid_t index = -1; if_fail_fe(index = checkBoxCreate	(dialog)); return dialog.Get(index, createdControl); }
-	stin	cid_t	editBoxCreate		(SDialog			& dialog, pnco<SDialogEditBox	>	& createdControl)	 { cid_t index = -1; if_fail_fe(index = editBoxCreate	(dialog)); return dialog.Get(index, createdControl); }
-	stin	cid_t	viewportCreate		(SDialog			& dialog, pnco<SDialogViewport	>	& createdControl)	 { cid_t index = -1; if_fail_fe(index = viewportCreate	(dialog)); return dialog.Get(index, createdControl); }
+	stin	::llc::cid_t	sliderCreate		(::llc::SDialog			& dialog, ::llc::pnco<SDialogSlider		>	& createdControl)	 { ::llc::cid_t index = -1; llc_necs(index = sliderCreate	(dialog)); return dialog.Get(index, createdControl); }
+	stin	::llc::cid_t	checkBoxCreate		(::llc::SDialog			& dialog, ::llc::pnco<SDialogCheckBox	>	& createdControl)	 { ::llc::cid_t index = -1; llc_necs(index = checkBoxCreate	(dialog)); return dialog.Get(index, createdControl); }
+	stin	::llc::cid_t	editBoxCreate		(::llc::SDialog			& dialog, ::llc::pnco<SDialogEditBox	>	& createdControl)	 { ::llc::cid_t index = -1; llc_necs(index = editBoxCreate	(dialog)); return dialog.Get(index, createdControl); }
+	stin	::llc::cid_t	viewportCreate		(::llc::SDialog			& dialog, ::llc::pnco<SDialogViewport	>	& createdControl)	 { ::llc::cid_t index = -1; llc_necs(index = viewportCreate	(dialog)); return dialog.Get(index, createdControl); }
 
 #pragma pack(push, 1)
 	struct SDialogViewportSettings {
-		b8_t					Dragging			: 1;
-		b8_t					Unfolded			: 1;
-		b8_t					DisplacementLockX	: 1;
-		b8_t					DisplacementLockY	: 1;
-		b8_t					ScrollBarX			: 1;
-		b8_t					ScrollBarY			: 1;
+		bool					Dragging			: 1;
+		bool					Unfolded			: 1;
+		bool					DisplacementLockX	: 1;
+		bool					DisplacementLockY	: 1;
+		bool					ScrollBarX			: 1;
+		bool					ScrollBarY			: 1;
 	};
 
-	struct SDialogViewport : public IDialogControl {
+	struct SDialogViewport : public ::llc::IDialogControl {
 		cid_t					IdClose				= -1;
 		cid_t					IdMinimize			= -1;
 		cid_t					IdMaximize			= -1;
 		cid_t					IdScrollBarX		= -1;
 		cid_t					IdScrollBarY		= -1;
-		cid_t					IdResizeBottomRight	= -1;
 		cid_t					IdTitle				= -1;
 		cid_t					IdClient			= -1;
 		SDialogViewportSettings	Settings			= {};
 		SDialogViewportSettings	SettingsOld			= {};
 
-		virtual	err_t	Update				(view<cnst pobj<SEventSystem>> )	{ return viewportUpdate(*this); }
+		virtual	::llc::err_t	Update				(::llc::view<const ::llc::pobj<::llc::SEventSystem>> )	{ return ::llc::viewportUpdate(*this); }
 	};
 #pragma pack(pop)
 
-	struct SDialogEditBox : public IDialogControl {
-		minmaxu2_t		Selection			= {};
-		string			String				= {};
+	struct SDialogEditBox : public ::llc::IDialogControl {
+		::llc::minmax<uint32_t>	Selection			= {};
+		::llc::apod<sc_t>		String				= {};
 
-		virtual	err_t	Update				(view<cnst pobj<SEventSystem>> )	{ return editBoxUpdate(*this); }
+		virtual	::llc::err_t	Update				(::llc::view<const ::llc::pobj<::llc::SEventSystem>> )	{ return ::llc::editBoxUpdate(*this); }
 	};
 
-	struct SDialogCheckBox : public IDialogControl {
-		b8_t					Checked				= false;
+	struct SDialogCheckBox : public ::llc::IDialogControl {
+		bool					Checked				= false;
 
-		virtual	err_t	Update				(view<cnst pobj<SEventSystem>> )	{ return checkBoxUpdate(*this); }
+		virtual	::llc::err_t	Update				(::llc::view<const ::llc::pobj<::llc::SEventSystem>> )	{ return ::llc::checkBoxUpdate(*this); }
 	};
 
-	struct SDialogSlider : public IDialogControl {
-		tydf	function<err_t(vcst_t & format, s3_t value, cnst minmaxs3_t & limits)>
-						TCallback;
+	struct SDialogSlider : public ::llc::IDialogControl {
+		typedef	::llc::function<::llc::err_t(::llc::vcst_t & format, int64_t value, const ::llc::minmax<int64_t> & limits)>	
+								TCallback;
 
-		cid_t			IdButton			= (cid_t)-1;
-		b8_t			Vertical			= false;
-		minmaxs3_t		ValueLimits			= {0, 100};// 0x7fFFffFF};
-		s3_t			ValueCurrent		= -1;
-		astsc_t<64>		ValueString			= {};
+		cid_t					IdButton			= (cid_t)-1;
+		bool					Vertical			= false;
+		::llc::minmax<int64_t>	ValueLimits			= {0, 100};// 0x7fFFffFF};
+		int64_t					ValueCurrent		= -1;
+		sc_t					ValueString	[64]	= {};
 
-		TCallback		FuncValueFormat		= []	(vcst_t & format, s3_t, cnst minmaxs3_t &)		mutable	{ format = "%lli"; return 0; };
-		TCallback		FuncGetString		= [this](vcst_t & inouts, s3_t value, cnst minmaxs3_t &)			{
-			inouts	= {ValueString.Storage, (u2_t)sprintf_s(ValueString.Storage, inouts, value)};
-			return 0;
+		TCallback				FuncValueFormat		= []	(::llc::vcst_t & format, int64_t, const ::llc::minmax<int64_t> &)			mutable	{ format = ::llc::vcs("%lli"); return 0; };
+		TCallback				FuncGetString		= [this](::llc::vcst_t & inouts, int64_t value, const ::llc::minmax<int64_t> &)			{ 
+			inouts	= {ValueString, (uint32_t)snprintf(ValueString, ::llc::size(ValueString) - 2, inouts.begin(), value)}; 
+			return 0; 
 		};
 
-		virtual	err_t	Update				(view<cnst pobj<SEventSystem>> )	{ return sliderUpdate(*this); }
+		virtual	::llc::err_t	Update				(::llc::view<const ::llc::pobj<::llc::SEventSystem>> )	{ return ::llc::sliderUpdate(*this); }
 	};
 
 	tplt<tpnm _tValue>
-	struct SDialogTuner : public IDialogControl {
-		tydf	function<err_t(vcst_t & format, _tValue value, cnst minmax<_tValue> & limits)>
+	struct SDialogTuner : public ::llc::IDialogControl {
+		typedef	::llc::function<::llc::err_t(::llc::vcst_t & format, _tValue value, const ::llc::minmax<_tValue> & limits)>	
 								TCallback;
 
 		cid_t					IdDecrease			= -1;
 		cid_t					IdIncrease			= -1;
 
-		minmax<_tValue>	ValueLimits			= {0, 0x7F};
+		::llc::minmax<_tValue>	ValueLimits			= {0, 0x7F};
 		_tValue					ValueCurrent		= 0;
-		astsc_t<64>				ValueString			= {};
+		sc_t					ValueString	[64]	= {};
 
-		TCallback				FuncValueFormat	= [this](vcst_t & format, _tValue/*value*/, cnst minmax<_tValue> &)	mutable	{ format = "%lli"; return 0; };
-		TCallback				FuncGetString	= [this](vcst_t & inouts, _tValue value, cnst minmax<_tValue> &)				{
-			inouts	= {ValueString.Storage, (u2_t)sprintf_s(ValueString.Storage, inouts, value)};
-			return 0;
+		TCallback				FuncValueFormat	= [this](::llc::vcst_t & format, _tValue/*value*/, const ::llc::minmax<_tValue> &)	mutable	{ format = ::llc::vcs("%lli"); return 0; };
+		TCallback				FuncGetString	= [this](::llc::vcst_t & inouts, _tValue value, const ::llc::minmax<_tValue> &)			{ 
+			inouts	= {ValueString, (uint32_t)snprintf(ValueString, ::llc::size(ValueString) - 2, inouts.begin(), value)}; 
+			return 0; 
 		};
 
-		virtual	err_t	Update				(view<cnst pobj<SEventSystem>> eventsIn) {
-			SDialog				& dialog			= *Dialog;
-			SControlTable		& controlTable		= dialog.GUI->Controls;
-			for(u2_t iEvent = 0; iEvent < eventsIn.size(); ++iEvent) {
-				if(eventsIn[iEvent]->Type == SYSTEM_EVENT_GUI) {
-					if_fail_e(eventExtractAndHandle<EVENT_GUI_CONTROL>(*eventsIn[iEvent], [this, &controlTable](cnst SEventView<EVENT_GUI_CONTROL> & eventGui) {
+		virtual	::llc::err_t	Update				(::llc::view<const ::llc::pobj<::llc::SEventSystem>> eventsIn) { 
+			::llc::SDialog				& dialog			= *Dialog;
+			::llc::SControlTable		& controlTable		= dialog.GUI->Controls;
+			for(uint32_t iEvent = 0; iEvent < eventsIn.size(); ++iEvent) {
+				if(eventsIn[iEvent]->Type == ::llc::SYSTEM_EVENT_GUI) {
+					::llc::eventExtractAndHandle<::llc::EVENT_GUI_CONTROL>(*eventsIn[iEvent], [this, &controlTable](const ::llc::SEventView<::llc::EVENT_GUI_CONTROL> & eventGui) {
 						switch(eventGui.Type) {
 						default: break;
-						case EVENT_GUI_CONTROL_StateChange: {
-							cnst SChangeControlState	stateChange		= *(cnst SChangeControlState*)eventGui.Data.begin();
-							if((stateChange.Set & GUI_CONTROL_FLAG_Action) && stateChange.Id == IdDecrease)
+						case ::llc::EVENT_GUI_CONTROL_StateChange: {
+							const ::llc::SChangeControlState	stateChange		= *(const ::llc::SChangeControlState*)eventGui.Data.begin();
+							if((stateChange.Set & ::llc::GUI_CONTROL_FLAG_Action) && stateChange.Id == IdDecrease) 
 								 return SetValue(ValueCurrent - 1);
-							else if((stateChange.Set & GUI_CONTROL_FLAG_Action) && stateChange.Id == IdIncrease)
+							else if((stateChange.Set & ::llc::GUI_CONTROL_FLAG_Action) && stateChange.Id == IdIncrease) 
 								return SetValue(ValueCurrent + 1);
 							break;
 						}
 						}
 						return 0;
-					}));
+					});
 				}
 			}
 
 			return 0;
 		}
 
-		err_t			SetValue			(_tValue value)	{
+		::llc::err_t			SetValue			(_tValue value)	{
 			if(value < ValueLimits.Min)
 				value					= ValueLimits.Min;
 			else if(value > ValueLimits.Max)
 				value					= ValueLimits.Max;
 			ValueCurrent			= value;
 
-			vcst_t				valueString;
+			::llc::vcst_t				valueString;
 			FuncValueFormat	(valueString, value, ValueLimits);
 			FuncGetString	(valueString, ValueCurrent, ValueLimits);
-			if_fail_fe(controlTextSet(*Dialog->GUI, IdGUIControl, valueString));
-			if_fail_fe(controlMetricsInvalidate(*Dialog->GUI, IdGUIControl));
+			llc_necs(llc::controlTextSet(*Dialog->GUI, IdGUIControl, valueString));
+			llc_necs(llc::controlMetricsInvalidate(*Dialog->GUI, IdGUIControl));
 			return 0;
 		}
 	};
 
 	tplt<tpnm _tValue>
-	cid_t			tunerCreate							(SDialog	& dialog)								{
-		cid_t				index								= -1;
-		pobj<SDialogTuner<_tValue>>	tuner;
-		if_fail_fe(index = dialog.Create(tuner));
+	::llc::cid_t			tunerCreate							(::llc::SDialog	& dialog)								{
+		::llc::cid_t				index								= -1;
+		::llc::pobj<::llc::SDialogTuner<_tValue>>	tuner;
+		llc_necs(index = dialog.Create(tuner));
 		tuner->ValueCurrent		= 0; //tuner->ValueLimits.Min;
-		if_fail_fe(tuner->IdDecrease = controlCreateChild(*dialog.GUI, tuner->IdGUIControl));
-		if_fail_fe(tuner->IdIncrease = controlCreateChild(*dialog.GUI, tuner->IdGUIControl));
-		SControlTable		& controlTable						= dialog.GUI->Controls;
+		llc_necs(tuner->IdDecrease = ::llc::controlCreateChild(*dialog.GUI, tuner->IdGUIControl));
+		llc_necs(tuner->IdIncrease = ::llc::controlCreateChild(*dialog.GUI, tuner->IdGUIControl));
+		::llc::SControlTable		& controlTable						= dialog.GUI->Controls;
 		controlTable.Placement[tuner->IdGUIControl].Margin	= {};
-		for(s2_t iControl = tuner->IdDecrease; iControl < tuner->IdIncrease + 1; ++iControl) {
-			SControlPlacement	& controlButton						= controlTable.Placement[iControl];
-			controlButton.Align		= (iControl == tuner->IdDecrease) ? ALIGN_CENTER_LEFT : ALIGN_CENTER_RIGHT;
-			memcpy_s(controlTable.Draw[iControl].Palettes.Storage, dialog.Colors->Button.Storage);
+		for(int32_t iControl = tuner->IdDecrease; iControl < tuner->IdIncrease + 1; ++iControl) {
+			::llc::SControlPlacement	& controlButton						= controlTable.Placement[iControl];
+			controlButton.Align		= (iControl == tuner->IdDecrease) ? ::llc::ALIGN_CENTER_LEFT : ::llc::ALIGN_CENTER_RIGHT;
+			::llc::memcpy_s(controlTable.Draw[iControl].Palettes.Storage, dialog.Colors->Button.Storage);
 			controlTable.Text			[iControl].Text						= (iControl == tuner->IdDecrease) ? "-" : "+";
-			controlTable.Draw			[iControl].ColorMode				= GUI_COLOR_MODE_3D;
-			controlTable.Constraints	[iControl].AttachSizeToControl.y	= (cid_t)iControl;
+			controlTable.Draw			[iControl].UseNewPalettes			= true;
+			controlTable.Draw			[iControl].ColorMode				= ::llc::GUI_COLOR_MODE_3D;
+			controlTable.Constraints	[iControl].AttachSizeToControl.y	= (::llc::cid_t)iControl;
 		}
 		tuner->SetValue(tuner->ValueCurrent);
-		controlTable.Text[tuner->IdGUIControl].Align		= ALIGN_CENTER;
+		controlTable.Text[tuner->IdGUIControl].Align		= ::llc::ALIGN_CENTER;
 		return index;
 	}
 
-	tplt<tpnm _tValue>
-	stin	cid_t	tunerCreate							(SDialog & dialog, pnco<SDialogTuner<_tValue>>	& createdControl)	 {
-		cid_t				index								= -1;
-		if_fail_fe(index = tunerCreate<_tValue>(dialog));
+	tplt<tpnm _tValue>	
+	stin	::llc::cid_t	tunerCreate							(::llc::SDialog & dialog, ::llc::pnco<::llc::SDialogTuner<_tValue>>	& createdControl)	 { 
+		::llc::cid_t				index								= -1; 
+		llc_necs(index = ::llc::tunerCreate<_tValue>(dialog)); 
 		return dialog.Get(index, createdControl);
 	}
 

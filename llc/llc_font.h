@@ -23,24 +23,22 @@ namespace llc
 
 	::llc::err_t	rasterFontDefaults	(::llc::SRasterFontManager & manager);
 
-	tplt<tpnm TCell>
-	::llc::err_t	rasterFontLoad		(::llc::imgmono<TCell> & image, ::llc::n2u0_c & charSize, ::llc::vcu0_c decoded) {
-		cnst ::llc::u2_t	imageHeight	= charSize.y * 256U;
-		if_fail_fef(image.resize(charSize.x, imageHeight), "Character size: {%u, %u}.", charSize.x, charSize.y);
+	tplt<tpnm _sizeChunk>
+	::llc::err_t	rasterFontLoad		(::llc::imgmono<_sizeChunk> & image, const ::llc::n2u0_t & charSize, ::llc::vcu0_c decoded) {
+		const uint32_t		imageHeight			= charSize.y * 256;
+		llc_necall(image.resize(charSize.x, imageHeight), "charSize: {%i, %i}", charSize.x, charSize.y);
 		memcpy(image.Texels.begin(), decoded.begin(), ::llc::min(image.Texels.byte_count(), decoded.byte_count()));
-		rtrn 0;
+		return 0;
 	}
-	tplt<tpnm TCell>
-	::llc::err_t	rasterFontLoadB64	(::llc::imgmono<TCell> & image, ::llc::n2u0_c & charSize, ::llc::vcu0_c & base64String) {
+	tplt<tpnm _sizeChunk>
+	::llc::err_t	rasterFontLoadB64	(::llc::imgmono<_sizeChunk> & image, const ::llc::n2u0_t & charSize, ::llc::vcu0_c & base64String) {
 		::llc::au0_t		decoded;
-		if_fail_fe(::llc::base64Decode(base64String, decoded));
-		rtrn rasterFontLoad(image, charSize, decoded);
+		llc_necs(llc::base64Decode(base64String, decoded));
+		return rasterFontLoad(image, charSize, decoded);
 	}
-	tplt<tpnm TCell>
-	::llc::err_t	rasterFontLoadB64	(::llc::imgmono<TCell> & image, ::llc::n2u0_c & charSize, ::llc::vcst_t base64String) {
-		::llc::au0_t		decoded;
-		if_fail_fe(::llc::base64Decode(base64String, decoded));
-		rtrn rasterFontLoad(image, charSize, decoded);
+	tplt<tpnm _sizeChunk>
+	::llc::err_t	rasterFontLoadB64	(::llc::imgmono<_sizeChunk> & image, const ::llc::n2u0_t & charSize, ::llc::vcst_c & base64String) {
+		return ::llc::rasterFontLoadB64(image, charSize, *(::llc::vcu0_c*)&base64String);
 	}
 };
 

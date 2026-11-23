@@ -2,98 +2,71 @@
 #include "llc_dialog_controls.h"
 #include "llc_png.h"
 
-usns llc;
-
-llc::IDialogControl::~IDialogControl		() {
-	if(-1 != IdGUIControl && DeleteControl && Dialog->GUI)
-		controlDelete(*Dialog->GUI, IdGUIControl, true);
+								::llc::IDialogControl::~IDialogControl		() { 
+	if(-1 != IdGUIControl && DeleteControl && Dialog->GUI) 
+		::llc::controlDelete(*Dialog->GUI, IdGUIControl, true); 
 }
 
-sttc s2_t dialogPalettePush				(apod<astatic<bgra, UI_CONTROL_AREA_COUNT>> & palettes, bgra background, bgra client, bgra borderLeft, bgra borderTop, bgra borderRight, bgra borderBottom, bgra textFace) {
-	astatic<bgra, UI_CONTROL_AREA_COUNT>	palette	= {};
-	palette[UI_CONTROL_AREA_BACKGROUND]					= background;
-	palette[UI_CONTROL_AREA_CLIENT]						= client;
-	palette[UI_CONTROL_AREA_BORDER_LEFT]				= borderLeft;
-	palette[UI_CONTROL_AREA_BORDER_TOP]					= borderTop;
-	palette[UI_CONTROL_AREA_BORDER_RIGHT]				= borderRight;
-	palette[UI_CONTROL_AREA_BORDER_BOTTOM]				= borderBottom;
-	palette[UI_CONTROL_AREA_TEXT_BACKGROUND]			= background;
-	palette[UI_CONTROL_AREA_TEXT_FACE]					= textFace;
-	palette[UI_CONTROL_AREA_MARGIN_LEFT]				=
-	palette[UI_CONTROL_AREA_MARGIN_TOP]					=
-	palette[UI_CONTROL_AREA_MARGIN_RIGHT]				=
-	palette[UI_CONTROL_AREA_MARGIN_BOTTOM]				= background;
-	palette[UI_CONTROL_AREA_CORNER_LEFT_TOP_TOP]		= borderTop;
-	palette[UI_CONTROL_AREA_CORNER_LEFT_TOP_LEFT]		= borderLeft;
-	palette[UI_CONTROL_AREA_CORNER_RIGHT_TOP_TOP]		= borderTop;
-	palette[UI_CONTROL_AREA_CORNER_RIGHT_TOP_RIGHT]		= borderRight;
-	palette[UI_CONTROL_AREA_CORNER_LEFT_BOTTOM_LEFT]	= borderLeft;
-	palette[UI_CONTROL_AREA_CORNER_LEFT_BOTTOM_BOTTOM]	= borderBottom;
-	palette[UI_CONTROL_AREA_CORNER_RIGHT_BOTTOM_RIGHT]	= borderRight;
-	palette[UI_CONTROL_AREA_CORNER_RIGHT_BOTTOM_BOTTOM]	= borderBottom;
-	return palettes.push_back(palette);
-}
+static	::llc::err_t	dialogInitializeColors			(::llc::SDialogColors & dialogColors, ::llc::apod<::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>> & palettes) {
+	dialogColors.Control		[::llc::GUI_CONTROL_PALETTE_NORMAL	]			= (uint16_t)palettes.push_back({{::llc::DARKGRAY			, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, {}, ::llc::WHITE		* .85	,}});
+	dialogColors.Control		[::llc::GUI_CONTROL_PALETTE_DISABLED]			= (uint16_t)palettes.push_back({{::llc::LIGHTGRAY * 1.3	, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::LIGHTGRAY	* 1.2	,}});
+	dialogColors.Control		[::llc::GUI_CONTROL_PALETTE_HOVER	]			= (uint16_t)palettes.push_back({{::llc::GRAY	 			, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, {}, ::llc::WHITE				,}});
+	dialogColors.Control		[::llc::GUI_CONTROL_PALETTE_PRESSED	]			= (uint16_t)palettes.push_back({{::llc::LIGHTGRAY			, ::llc::LIGHTBLUE	, ::llc::LIGHTBLUE	, ::llc::LIGHTBLUE	, ::llc::LIGHTBLUE	, {}, ::llc::WHITE				,}});
+	dialogColors.Control		[::llc::GUI_CONTROL_PALETTE_ACTION	]			= (uint16_t)palettes.push_back({{::llc::BLUE				, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
+	dialogColors.Control		[::llc::GUI_CONTROL_PALETTE_OUTDATED]			= (uint16_t)palettes.push_back({{::llc::BLUE				, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
 
-sttc llc::err_t dialogInitializeColors			(SDialogColors & dialogColors, apod<astatic<bgra, UI_CONTROL_AREA_COUNT>> & palettes) {
-	dialogColors.Control		[GUI_CONTROL_PALETTE_NORMAL	]			= (u1_t)::dialogPalettePush(palettes, DARKGRAY			, DARKGRAY	, DARKGRAY	, DARKGRAY	, DARKGRAY	, {}, WHITE		* .85);
-	dialogColors.Control		[GUI_CONTROL_PALETTE_DISABLED]			= (u1_t)::dialogPalettePush(palettes, LIGHTGRAY * 1.3	, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, LIGHTGRAY	* 1.2);
-	dialogColors.Control		[GUI_CONTROL_PALETTE_HOVER	]			= (u1_t)::dialogPalettePush(palettes, GRAY	 			, GRAY		, GRAY		, GRAY		, GRAY		, {}, WHITE				);
-	dialogColors.Control		[GUI_CONTROL_PALETTE_PRESSED	]			= (u1_t)::dialogPalettePush(palettes, LIGHTGRAY			, LIGHTBLUE	, LIGHTBLUE	, LIGHTBLUE	, LIGHTBLUE	, {}, WHITE				);
-	dialogColors.Control		[GUI_CONTROL_PALETTE_ACTION]			= (u1_t)::dialogPalettePush(palettes, BLUE				, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
-	dialogColors.Control		[GUI_CONTROL_PALETTE_OUTDATED]			= (u1_t)::dialogPalettePush(palettes, BLUE				, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
+	dialogColors.Button			[::llc::GUI_CONTROL_PALETTE_NORMAL	]			= (uint16_t)palettes.push_back({{::llc::GRAY				, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, {}, ::llc::WHITE				,}});
+	dialogColors.Button			[::llc::GUI_CONTROL_PALETTE_DISABLED]			= (uint16_t)palettes.push_back({{::llc::LIGHTGRAY			, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::LIGHTGRAY * 1.1	,}});
+	dialogColors.Button			[::llc::GUI_CONTROL_PALETTE_HOVER	]			= (uint16_t)palettes.push_back({{::llc::GRAY	 	* 1.1	, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, {}, ::llc::WHITE				,}});
+	dialogColors.Button			[::llc::GUI_CONTROL_PALETTE_PRESSED	]			= (uint16_t)palettes.push_back({{::llc::LIGHTGRAY			, ::llc::ORANGE		, ::llc::ORANGE		, ::llc::ORANGE		, ::llc::ORANGE		, {}, ::llc::BLUE				,}});
+	dialogColors.Button			[::llc::GUI_CONTROL_PALETTE_ACTION	]			= (uint16_t)palettes.push_back({{::llc::BLUE				, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
+	dialogColors.Button			[::llc::GUI_CONTROL_PALETTE_OUTDATED]			= (uint16_t)palettes.push_back({{::llc::BLUE				, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
 
-	dialogColors.Button			[GUI_CONTROL_PALETTE_NORMAL	]			= (u1_t)::dialogPalettePush(palettes, GRAY				, DARKGRAY	, DARKGRAY	, DARKGRAY	, DARKGRAY	, {}, WHITE				);
-	dialogColors.Button			[GUI_CONTROL_PALETTE_DISABLED]			= (u1_t)::dialogPalettePush(palettes, LIGHTGRAY			, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, LIGHTGRAY * 1.1	);
-	dialogColors.Button			[GUI_CONTROL_PALETTE_HOVER	]			= (u1_t)::dialogPalettePush(palettes, GRAY	 	* 1.1	, GRAY		, GRAY		, GRAY		, GRAY		, {}, WHITE				);
-	dialogColors.Button			[GUI_CONTROL_PALETTE_PRESSED	]			= (u1_t)::dialogPalettePush(palettes, LIGHTGRAY			, ORANGE		, ORANGE		, ORANGE		, ORANGE		, {}, BLUE				);
-	dialogColors.Button			[GUI_CONTROL_PALETTE_ACTION]			= (u1_t)::dialogPalettePush(palettes, BLUE				, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
-	dialogColors.Button			[GUI_CONTROL_PALETTE_OUTDATED]			= (u1_t)::dialogPalettePush(palettes, BLUE				, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
+	dialogColors.CheckBox		[::llc::GUI_CONTROL_PALETTE_NORMAL	]			= (uint16_t)palettes.push_back({{::llc::WHITE		* 0.7	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, {}, ::llc::WHITE				,}});
+	dialogColors.CheckBox		[::llc::GUI_CONTROL_PALETTE_DISABLED]			= (uint16_t)palettes.push_back({{::llc::LIGHTGRAY			, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::LIGHTGRAY * 1.1	,}});
+	dialogColors.CheckBox		[::llc::GUI_CONTROL_PALETTE_HOVER	]			= (uint16_t)palettes.push_back({{::llc::WHITE		* 0.85	, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, {}, ::llc::WHITE				,}});
+	dialogColors.CheckBox		[::llc::GUI_CONTROL_PALETTE_PRESSED	]			= (uint16_t)palettes.push_back({{::llc::WHITE		 		, ::llc::BLUE		, ::llc::BLUE		, ::llc::BLUE		, ::llc::BLUE		, {}, ::llc::WHITE				,}});
+	dialogColors.CheckBox		[::llc::GUI_CONTROL_PALETTE_ACTION	]			= (uint16_t)palettes.push_back({{::llc::BLUE				, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
+	dialogColors.CheckBox		[::llc::GUI_CONTROL_PALETTE_OUTDATED]			= (uint16_t)palettes.push_back({{::llc::BLUE				, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
 
-	dialogColors.CheckBox		[GUI_CONTROL_PALETTE_NORMAL	]			= (u1_t)::dialogPalettePush(palettes, WHITE		* 0.7	, DARKGRAY	, DARKGRAY	, DARKGRAY	, DARKGRAY	, {}, WHITE				);
-	dialogColors.CheckBox		[GUI_CONTROL_PALETTE_DISABLED]			= (u1_t)::dialogPalettePush(palettes, LIGHTGRAY			, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, LIGHTGRAY * 1.1	);
-	dialogColors.CheckBox		[GUI_CONTROL_PALETTE_HOVER	]			= (u1_t)::dialogPalettePush(palettes, WHITE		* 0.85	, GRAY		, GRAY		, GRAY		, GRAY		, {}, WHITE				);
-	dialogColors.CheckBox		[GUI_CONTROL_PALETTE_PRESSED	]			= (u1_t)::dialogPalettePush(palettes, WHITE		 		, BLUE		, BLUE		, BLUE		, BLUE		, {}, WHITE				);
-	dialogColors.CheckBox		[GUI_CONTROL_PALETTE_ACTION]			= (u1_t)::dialogPalettePush(palettes, BLUE				, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
-	dialogColors.CheckBox		[GUI_CONTROL_PALETTE_OUTDATED]			= (u1_t)::dialogPalettePush(palettes, BLUE				, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
+	dialogColors.Viewport		[::llc::GUI_CONTROL_PALETTE_NORMAL	]			= (uint16_t)palettes.push_back({{::llc::WHITE		* 0.7	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, {}, ::llc::WHITE				,}});
+	dialogColors.Viewport		[::llc::GUI_CONTROL_PALETTE_DISABLED]			= (uint16_t)palettes.push_back({{::llc::LIGHTGRAY			, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::LIGHTGRAY * 1.1	,}});
+	dialogColors.Viewport		[::llc::GUI_CONTROL_PALETTE_HOVER	]			= (uint16_t)palettes.push_back({{::llc::WHITE		* 0.85	, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, {}, ::llc::WHITE				,}});
+	dialogColors.Viewport		[::llc::GUI_CONTROL_PALETTE_PRESSED	]			= (uint16_t)palettes.push_back({{::llc::WHITE		 		, ::llc::BLUE		, ::llc::BLUE		, ::llc::BLUE		, ::llc::BLUE		, {}, ::llc::WHITE				,}});
+	dialogColors.Viewport		[::llc::GUI_CONTROL_PALETTE_ACTION	]			= (uint16_t)palettes.push_back({{::llc::BLUE				, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
+	dialogColors.Viewport		[::llc::GUI_CONTROL_PALETTE_OUTDATED]			= (uint16_t)palettes.push_back({{::llc::BLUE				, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
 
-	dialogColors.Viewport		[GUI_CONTROL_PALETTE_NORMAL	]			= (u1_t)::dialogPalettePush(palettes, WHITE		* 0.7	, DARKGRAY	, DARKGRAY	, DARKGRAY	, DARKGRAY	, {}, WHITE				);
-	dialogColors.Viewport		[GUI_CONTROL_PALETTE_DISABLED]			= (u1_t)::dialogPalettePush(palettes, LIGHTGRAY			, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, LIGHTGRAY * 1.1	);
-	dialogColors.Viewport		[GUI_CONTROL_PALETTE_HOVER	]			= (u1_t)::dialogPalettePush(palettes, WHITE		* 0.85	, GRAY		, GRAY		, GRAY		, GRAY		, {}, WHITE				);
-	dialogColors.Viewport		[GUI_CONTROL_PALETTE_PRESSED	]			= (u1_t)::dialogPalettePush(palettes, WHITE		 		, BLUE		, BLUE		, BLUE		, BLUE		, {}, WHITE				);
-	dialogColors.Viewport		[GUI_CONTROL_PALETTE_ACTION]			= (u1_t)::dialogPalettePush(palettes, BLUE				, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
-	dialogColors.Viewport		[GUI_CONTROL_PALETTE_OUTDATED]			= (u1_t)::dialogPalettePush(palettes, BLUE				, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
-
-	dialogColors.ViewportTitle	[GUI_CONTROL_PALETTE_NORMAL	]			= dialogColors.Button[GUI_CONTROL_PALETTE_NORMAL		]; ::dialogPalettePush(palettes, WHITE		* 0.7	, DARKGRAY	, DARKGRAY	, DARKGRAY	, DARKGRAY	, {}, WHITE				);
-	dialogColors.ViewportTitle	[GUI_CONTROL_PALETTE_DISABLED]			= dialogColors.Button[GUI_CONTROL_PALETTE_DISABLED	]; ::dialogPalettePush(palettes, LIGHTGRAY			, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, LIGHTGRAY * 1.1	);
-	dialogColors.ViewportTitle	[GUI_CONTROL_PALETTE_HOVER	]			= dialogColors.Button[GUI_CONTROL_PALETTE_HOVER		]; ::dialogPalettePush(palettes, WHITE		* 0.85	, GRAY		, GRAY		, GRAY		, GRAY		, {}, WHITE				);
-	dialogColors.ViewportTitle	[GUI_CONTROL_PALETTE_PRESSED	]			= dialogColors.Button[GUI_CONTROL_PALETTE_PRESSED	]; ::dialogPalettePush(palettes, WHITE		 		, BLUE		, BLUE		, BLUE		, BLUE		, {}, WHITE				);
-	dialogColors.ViewportTitle	[GUI_CONTROL_PALETTE_ACTION]			= dialogColors.Button[GUI_CONTROL_PALETTE_ACTION]; ::dialogPalettePush(palettes, BLUE					, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
-	dialogColors.ViewportTitle	[GUI_CONTROL_PALETTE_OUTDATED]			= dialogColors.Button[GUI_CONTROL_PALETTE_OUTDATED	]; ::dialogPalettePush(palettes, BLUE					, ORANGE		, YELLOW		, MAGENTA	, CYAN		, {}, WHITE				);
-	for(u2_t i=0; i < 4; ++i) {
-		dialogColors.Control		[GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.Control			[GUI_CONTROL_PALETTE_NORMAL	+ i];
-		dialogColors.Button			[GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.Button			[GUI_CONTROL_PALETTE_NORMAL	+ i];
-		dialogColors.CheckBox		[GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.CheckBox			[GUI_CONTROL_PALETTE_NORMAL	+ i];
-		dialogColors.Viewport		[GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.Viewport			[GUI_CONTROL_PALETTE_NORMAL	+ i];
-		dialogColors.ViewportTitle	[GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.ViewportTitle	[GUI_CONTROL_PALETTE_NORMAL	+ i];
+	dialogColors.ViewportTitle	[::llc::GUI_CONTROL_PALETTE_NORMAL	]			= dialogColors.Button[::llc::GUI_CONTROL_PALETTE_NORMAL		]; palettes.push_back({{::llc::WHITE		* 0.7	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, ::llc::DARKGRAY	, {}, ::llc::WHITE				,}});
+	dialogColors.ViewportTitle	[::llc::GUI_CONTROL_PALETTE_DISABLED]			= dialogColors.Button[::llc::GUI_CONTROL_PALETTE_DISABLED	]; palettes.push_back({{::llc::LIGHTGRAY			, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::LIGHTGRAY * 1.1	,}});
+	dialogColors.ViewportTitle	[::llc::GUI_CONTROL_PALETTE_HOVER	]			= dialogColors.Button[::llc::GUI_CONTROL_PALETTE_HOVER		]; palettes.push_back({{::llc::WHITE		* 0.85	, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, ::llc::GRAY		, {}, ::llc::WHITE				,}});
+	dialogColors.ViewportTitle	[::llc::GUI_CONTROL_PALETTE_PRESSED	]			= dialogColors.Button[::llc::GUI_CONTROL_PALETTE_PRESSED	]; palettes.push_back({{::llc::WHITE		 		, ::llc::BLUE		, ::llc::BLUE		, ::llc::BLUE		, ::llc::BLUE		, {}, ::llc::WHITE				,}});
+	dialogColors.ViewportTitle	[::llc::GUI_CONTROL_PALETTE_ACTION	]			= dialogColors.Button[::llc::GUI_CONTROL_PALETTE_ACTION	]; palettes.push_back({{::llc::BLUE					, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
+	dialogColors.ViewportTitle	[::llc::GUI_CONTROL_PALETTE_OUTDATED]			= dialogColors.Button[::llc::GUI_CONTROL_PALETTE_OUTDATED	]; palettes.push_back({{::llc::BLUE					, ::llc::ORANGE		, ::llc::YELLOW		, ::llc::MAGENTA	, ::llc::CYAN		, {}, ::llc::WHITE				,}});
+	for(uint32_t i=0; i < 4; ++i) {
+		dialogColors.Control		[::llc::GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.Control			[::llc::GUI_CONTROL_PALETTE_NORMAL	+ i];
+		dialogColors.Button			[::llc::GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.Button			[::llc::GUI_CONTROL_PALETTE_NORMAL	+ i];
+		dialogColors.CheckBox		[::llc::GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.CheckBox			[::llc::GUI_CONTROL_PALETTE_NORMAL	+ i];
+		dialogColors.Viewport		[::llc::GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.Viewport			[::llc::GUI_CONTROL_PALETTE_NORMAL	+ i];
+		dialogColors.ViewportTitle	[::llc::GUI_CONTROL_PALETTE_SELECTED + i]		= dialogColors.ViewportTitle	[::llc::GUI_CONTROL_PALETTE_NORMAL	+ i];
 	}
 	return 0;
 }
 
-sttc llc::err_t dialogInitialize				(SDialog & dialog) {
-	llc::SGUI						& gui							= *dialog.GUI;
-	if_fail_fe(dialog.Root = controlCreate(gui));
+static	::llc::err_t	dialogInitialize				(::llc::SDialog & dialog) {
+	::llc::SGUI						& gui							= *dialog.GUI; 
+	llc_necs(dialog.Root = ::llc::controlCreate(gui));
 	gui.Controls.Placement		[dialog.Root].Margin				= {};
 	gui.Controls.Placement		[dialog.Root].Border				= {};
 	gui.Controls.Constraints	[dialog.Root].AttachSizeToControl	= {dialog.Root, dialog.Root};
-	gui.Controls.States			[dialog.Root].Mask					&= ~GUI_CONTROL_FLAG_Hovered;
-	gui.Controls.States			[dialog.Root].Mask					&= ~GUI_CONTROL_FLAG_Action;
-	gui.Controls.States			[dialog.Root].Mask					&= ~GUI_CONTROL_FLAG_Pressed;
+	gui.Controls.States			[dialog.Root].Mask					&= ~::llc::GUI_CONTROL_FLAG_Hovered;
+	gui.Controls.States			[dialog.Root].Mask					&= ~::llc::GUI_CONTROL_FLAG_Action;
+	gui.Controls.States			[dialog.Root].Mask					&= ~::llc::GUI_CONTROL_FLAG_Pressed;
 	dialog.DefaultControlDraw.FrameOut			= 1;
-	dialog.DefaultControlDraw.UseNewPalettes	= false;
+	dialog.DefaultControlDraw.UseNewPalettes	= 1;
 	if(!dialog.Colors) {
-		sttc pobj<SDialogColors>	globalDefaultColors			= {};
+		static ::llc::pobj<::llc::SDialogColors>	globalDefaultColors			= {};
 		if(!globalDefaultColors) {
-			if_fail_fe(::dialogInitializeColors(*globalDefaultColors.create(), gui.Colors->Palettes));
+			llc_necs(::dialogInitializeColors(*globalDefaultColors.create(), gui.Colors->Palettes));
 		}
 		dialog.Colors = globalDefaultColors;
 	}
@@ -101,42 +74,42 @@ sttc llc::err_t dialogInitialize				(SDialog & dialog) {
 	return 0;
 }
 
-llc::SDialog::SDialog			()										{ GUI.create(); ::dialogInitialize(*this); }
-llc::SDialog::SDialog			(pobj<SGUI> & pgui)	{
+::llc::SDialog::SDialog			()										{ GUI.create(); ::dialogInitialize(*this); }
+::llc::SDialog::SDialog			(::llc::pobj<::llc::SGUI> & pgui)	{
 	if(!pgui)
 		pgui.create();
 	GUI								= pgui;
 	::dialogInitialize(*this);
 }
-llc::SDialog::SDialog			(cnst pobj<SGUI> & pgui)	{
+::llc::SDialog::SDialog			(const ::llc::pobj<::llc::SGUI> & pgui)	{
 	GUI								= pgui;
 	if(!GUI)
 		GUI.create();
 	::dialogInitialize(*this);
 }
 
-stxp	llc::u2_c	heightOfField			= 18;
-llc::cid_t			llc::checkBoxCreate		(SDialog			& dialog)								{
+stxp	const uint32_t	heightOfField			= 18;
+::llc::cid_t			llc::checkBoxCreate		(::llc::SDialog			& dialog)								{
 	cid_t						index					= -1;
-	pobj<SDialogCheckBox>	checkBox;
-	SControlTable		& controlTable			= dialog.GUI->Controls;
-	if_fail_fe(index = dialog.Create(checkBox));
+	::llc::pobj<::llc::SDialogCheckBox>	checkBox;
+	::llc::SControlTable		& controlTable			= dialog.GUI->Controls;
+	llc_necs(index = dialog.Create(checkBox));
 	controlTable.States[checkBox->IdGUIControl].Mask	= dialog.DefaultControlMask;
-	memcpy_s(controlTable.Draw[checkBox->IdGUIControl].Palettes.Storage, dialog.Colors->CheckBox.Storage);
+	::llc::memcpy_s(controlTable.Draw[checkBox->IdGUIControl].Palettes.Storage, dialog.Colors->CheckBox.Storage);
 	return index;
 }
-llc::err_t			llc::checkBoxUpdate			(SDialogCheckBox	& checkbox)								{
-	SDialog				& dialog					= *checkbox.Dialog;
-	SControlTable		& controlTable				= dialog.GUI->Controls;
-	img<bgra>		& imageCross				= dialog.ImageCrossBGRA;
+::llc::err_t			llc::checkBoxUpdate			(::llc::SDialogCheckBox	& checkbox)								{
+	::llc::SDialog				& dialog					= *checkbox.Dialog;
+	::llc::SControlTable		& controlTable				= dialog.GUI->Controls;
+	::llc::img<::llc::bgra>		& imageCross				= dialog.ImageCrossBGRA;
 	if(controlTable.IsAction(checkbox.IdGUIControl)) {
 		if(dialog.ImageCross.Texels.size() < 4) {
 #if !(defined(LLC_ESP32) || defined(LLC_ARDUINO))
-			if_fail_e(pngFileLoad("../llc_data/images/cross.png", imageCross));
+			if_fail_e(::llc::pngFileLoad("../llc_data/images/cross.png", imageCross));
 #endif
 			dialog.ImageCross.resize(imageCross.metrics());
-			for(u2_t iTexel = 0; iTexel < imageCross.Texels.size(); ++iTexel) {
-				if(imageCross.Texels[iTexel] == (bgra)BLACK)
+			for(uint32_t iTexel = 0; iTexel < imageCross.Texels.size(); ++iTexel) {
+				if(imageCross.Texels[iTexel] == (::llc::bgra)::llc::BLACK)
 					dialog.ImageCross.View[iTexel]	=  true;
 				else {
 					imageCross.Texels[iTexel].a		= 0;
@@ -145,46 +118,47 @@ llc::err_t			llc::checkBoxUpdate			(SDialogCheckBox	& checkbox)								{
 			}
 		}
 		checkbox.Checked									= !checkbox.Checked;
-		controlTable.Images[checkbox.IdGUIControl].Image	= (false == checkbox.Checked) ? g8bgra{} : imageCross.View;
+		controlTable.Images[checkbox.IdGUIControl].Image	= (false == checkbox.Checked) ? ::llc::g8bgra{} : imageCross.View;
 	}
 	return 0;
 }
 
-llc::cid_t			llc::sliderCreate							(SDialog & dialog)								{
-	cid_t				index										= -1;
-	pobj<SDialogSlider>	slider;
-	if_fail_fe(index = dialog.Create(slider));
-	if_fail_fe(slider->IdButton = controlCreateChild(*dialog.GUI, slider->IdGUIControl));
-	SControlTable		& controlTable								= dialog.GUI->Controls;
+::llc::cid_t			llc::sliderCreate							(::llc::SDialog & dialog)								{
+	::llc::cid_t				index										= -1;
+	::llc::pobj<::llc::SDialogSlider>	slider;
+	llc_necs(index = dialog.Create(slider));
+	llc_necs(slider->IdButton = ::llc::controlCreateChild(*dialog.GUI, slider->IdGUIControl));
+	::llc::SControlTable		& controlTable								= dialog.GUI->Controls;
 	controlTable.Placement	[slider->IdGUIControl].Margin				= {};
 	controlTable.Placement	[slider->IdButton].Area.Size				= {16, 16};
 	controlTable.Text		[slider->IdButton].Text						= "-";
 	controlTable.Constraints[slider->IdButton].AttachSizeToControl.y	= slider->IdButton;
-	controlTable.Draw		[slider->IdButton].UseNewPalettes			= false;
-	controlTable.Draw		[slider->IdButton].ColorMode				= GUI_COLOR_MODE_3D;
-	memcpy_s(controlTable.Draw[slider->IdButton		].Palettes.Storage, dialog.Colors->Button	.Storage);
-	memcpy_s(controlTable.Draw[slider->IdGUIControl	].Palettes.Storage, dialog.Colors->CheckBox	.Storage);
-	SControlText			& tunerText									= controlTable.Text[slider->IdGUIControl];
-	tunerText.Text			= {slider->ValueString.Storage, (u2_t)llc::sprintf_s(slider->ValueString.Storage, "%lli", (long long int)slider->ValueCurrent)};
+	controlTable.Draw		[slider->IdButton].UseNewPalettes			= true;
+	controlTable.Draw		[slider->IdButton].ColorMode				= ::llc::GUI_COLOR_MODE_3D;
+	::llc::memcpy_s(controlTable.Draw[slider->IdButton		].Palettes.Storage, dialog.Colors->Button		.Storage);
+	::llc::memcpy_s(controlTable.Draw[slider->IdGUIControl	].Palettes.Storage, dialog.Colors->CheckBox	.Storage);
+	::llc::SControlText			& tunerText									= controlTable.Text[slider->IdGUIControl];
+	tunerText.Text			= {slider->ValueString, (uint32_t)snprintf(slider->ValueString, ::llc::size(slider->ValueString) - 2, "%lli", (long long int)slider->ValueCurrent)};
 	return index;
 }
-llc::err_t			llc::sliderSetValue		(SDialogSlider & slider, s3_t value)				{
-	SDialog				& dialog				= *slider.Dialog;
-	SControlTable		& controlTable			= dialog.GUI->Controls;
-	cnst s3_t					newValue				= max(min(value, slider.ValueLimits.Max), slider.ValueLimits.Min);;
-	b8_t						updateMetrics			= slider.ValueCurrent != newValue;
-	slider.ValueCurrent			= newValue;
+::llc::err_t			llc::sliderSetValue		(::llc::SDialogSlider & slider, int64_t value)				{
+	::llc::SDialog				& dialog				= *slider.Dialog;
+	::llc::SControlTable		& controlTable			= dialog.GUI->Controls;
+	const int64_t				newValue				= ::llc::max(::llc::min(value, slider.ValueLimits.Max), slider.ValueLimits.Min);;
+	bool						updateMetrics			= slider.ValueCurrent != newValue;
+	slider.ValueCurrent		= newValue;
 
-	cnst f3_t				proportion				= (slider.ValueCurrent - slider.ValueLimits.Min) * (1.0 / (slider.ValueLimits.Max - slider.ValueLimits.Min));
+	const double				proportion				= (slider.ValueCurrent - slider.ValueLimits.Min) * (1.0 / (slider.ValueLimits.Max - slider.ValueLimits.Min));
 
-	SControlPlacement	& controlButton			= controlTable.Placement[slider.IdButton];
-	cnst n2f3_t			controlSliderSize		= controlTable.Area[slider.IdGUIControl].Client.Global.Size.f3();
-	if(slider.Vertical)
-		controlButton.Area.Offset.y	= s1_t((controlSliderSize.y - controlButton.Area.Size.y) * proportion);
-	else
-		controlButton.Area.Offset.x	= s1_t((controlSliderSize.x - controlButton.Area.Size.x) * proportion);
+	::llc::SControlPlacement	& controlButton			= controlTable.Placement[slider.IdButton];
+	::llc::SControlPlacement	& controlSlider			= controlTable.Placement[slider.IdGUIControl];
+	::llc::n2f3_t				ncSpacing				= ::llc::controlNCSpacing(controlSlider) .f3();
+	if(slider.Vertical)	
+		controlButton.Area.Offset.y	= int16_t((controlSlider.Area.Size.y - controlButton.Area.Size.y - ncSpacing.y) * proportion);
+	else				
+		controlButton.Area.Offset.x	= int16_t((controlSlider.Area.Size.x - controlButton.Area.Size.x - ncSpacing.x) * proportion);
 
-	SControlConstraints	& buttonConstraints		= controlTable.Constraints[slider.IdButton];
+	::llc::SControlConstraints	& buttonConstraints		= controlTable.Constraints[slider.IdButton];
 	if(slider.Vertical) {
 		buttonConstraints.AttachSizeToControl.y	= -1;
 		buttonConstraints.AttachSizeToControl.x	= slider.IdButton;
@@ -193,134 +167,106 @@ llc::err_t			llc::sliderSetValue		(SDialogSlider & slider, s3_t value)				{
 		buttonConstraints.AttachSizeToControl.x	= -1;
 		buttonConstraints.AttachSizeToControl.y	= slider.IdButton;
 	}
-	vcst_t				valueString;
-	if_fail_fe(slider.FuncValueFormat(valueString, slider.ValueCurrent, slider.ValueLimits));
-	if_fail_fe(slider.FuncGetString(valueString, slider.ValueCurrent, slider.ValueLimits));
-	if_fail_fe(controlTextSet(*dialog.GUI, slider.IdGUIControl, valueString));
+	::llc::vcst_t					valueString;
+	llc_necs(slider.FuncValueFormat(valueString, slider.ValueCurrent, slider.ValueLimits));
+	llc_necs(slider.FuncGetString(valueString, slider.ValueCurrent, slider.ValueLimits));
+	llc_necs(llc::controlTextSet(*dialog.GUI, slider.IdGUIControl, valueString));
 	if(updateMetrics)
-		if_fail_fe(controlMetricsInvalidate(*dialog.GUI, slider.IdGUIControl));
+		llc_necs(llc::controlMetricsInvalidate(*dialog.GUI, slider.IdGUIControl));
 	return 0;
 }
 
-llc::err_t			llc::sliderUpdate			(SDialogSlider	& slider)								{
-	SDialog				& dialog					= *slider.Dialog;
-	SControlTable		& controlTable				= dialog.GUI->Controls;
-	cnst s3_t				valueRange					= slider.ValueLimits.Max - slider.ValueLimits.Min;
+::llc::err_t			llc::sliderUpdate			(::llc::SDialogSlider	& slider)								{
+	::llc::SDialog				& dialog					= *slider.Dialog;
+	::llc::SControlTable		& controlTable				= dialog.GUI->Controls;
+	const int64_t				valueRange					= slider.ValueLimits.Max - slider.ValueLimits.Min;
 	if(controlTable.States[slider.IdButton].IsPressed()) {
 		if(dialog.Input->MouseCurrent.Position != dialog.Input->MousePrevious.Position) {
-			SInput											& input										= *dialog.Input;
-			//cnst SGUIZoom									& zoom										= dialog.GUI->Zoom;
-			//n2d												scale										=
+			::llc::SInput											& input										= *dialog.Input;
+			//const ::llc::SGUIZoom									& zoom										= dialog.GUI->Zoom;
+			//::llc::n2d												scale										=
 			//	{ 1.0 / (zoom.ZoomLevel * zoom.DPI.x)
 			//	, 1.0 / (zoom.ZoomLevel * zoom.DPI.y)
 			//	};
-			cnst n2f3_t			controlSliderPos			= controlTable.Area[slider.IdGUIControl].Client.Global.Offset.f3();
-			cnst n2f3_t			controlSliderSize			= controlTable.Area[slider.IdGUIControl].Client.Global.Size.f3();
-			n2f3_t				effectiveSize				= controlSliderSize - (controlTable.Placement[slider.IdButton].Area.Size).f3();;
+			const ::llc::n2f3_t			controlSliderPos			= controlTable.Area[slider.IdGUIControl].Client.Global.Offset .f3();
+			const ::llc::n2f3_t			controlSliderSize			= controlTable.Area[slider.IdGUIControl].Client.Global.Size .f3();
+			::llc::n2f3_t				effectiveSize				= controlSliderSize - (controlTable.Placement[slider.IdButton].Area.Size) .f3();;
 			//
 
-			n2f3_t				currentValue				= input.MouseCurrent.Position.f3();
-			cnst n2f3_t			valueUnit					= {1.0 / effectiveSize.x, 1.0 / effectiveSize.y};
-			currentValue			-= controlSliderPos + controlTable.Placement[slider.IdButton].Area.Size.f3() / 2.0;
-			currentValue.InPlaceScale(valueUnit);
+			::llc::n2f3_t				currentValue				= input.MouseCurrent.Position .f3();
+			const ::llc::n2f3_t			valueUnit					= {1.0 / effectiveSize.x, 1.0 / effectiveSize.y};
+			currentValue			-= controlSliderPos + controlTable.Placement[slider.IdButton].Area.Size .f3() / 2.0;
+			currentValue.x			*= valueUnit.x;
+			currentValue.y			*= valueUnit.y;
 
-			if_fail_fe(llc::sliderSetValue(slider, (s3_t)((slider.Vertical ? currentValue.y : currentValue.x) * valueRange + slider.ValueLimits.Min)));
+			llc_necs(llc::sliderSetValue(slider, (int64_t)((slider.Vertical ? currentValue.y : currentValue.x) * valueRange + slider.ValueLimits.Min)));
 		}
 	}
 	else
 		if(dialog.Input->ButtonDown(0) && controlTable.States[slider.IdGUIControl].IsPressed()) {	//
-			SInput				& input						= *dialog.Input;
-			cnst s3_t				valuePage					= max((s3_t)1LL, (valueRange > 10) ? (s3_t)(valueRange * .1) : valueRange / 2);
-			cnst n2s1_t	& controlButtonPosition		= controlTable.Area[slider.IdButton].Total.Global.Offset;
+			::llc::SInput				& input						= *dialog.Input;
+			const int64_t				valuePage					= ::llc::max((int64_t)1LL, (valueRange > 10) ? (int64_t)(valueRange * .1) : valueRange / 2);
+			const ::llc::n2<int16_t>	& controlButtonPosition		= controlTable.Area[slider.IdButton].Total.Global.Offset;
 			if(slider.Vertical) {
-				cnst s3_t				finalValue					= slider.ValueCurrent + ((input.MouseCurrent.Position.y > controlButtonPosition.y) ? valuePage : -valuePage);
-				if_fail_fe(llc::sliderSetValue(slider, finalValue));
+				const int64_t				finalValue					= slider.ValueCurrent + ((input.MouseCurrent.Position.y > controlButtonPosition.y) ? valuePage : -valuePage);
+				llc_necs(llc::sliderSetValue(slider, finalValue));
 			}
 			else {
-				cnst s3_t				finalValue					= slider.ValueCurrent + ((input.MouseCurrent.Position.x > controlButtonPosition.x) ? valuePage : -valuePage);
-				if_fail_fe(llc::sliderSetValue(slider, finalValue));
+				const int64_t				finalValue					= slider.ValueCurrent + ((input.MouseCurrent.Position.x > controlButtonPosition.x) ? valuePage : -valuePage);
+				llc_necs(llc::sliderSetValue(slider, finalValue));
 			}
 		}
 	return 0;
 }
 
-llc::cid_t			llc::editBoxCreate		(SDialog & dialog)								{
-	cid_t				index					= -1;
-	pobj<SDialogEditBox>	editBox;
-	SControlTable		& controlTable			= dialog.GUI->Controls;
-	if_fail_fe(index = dialog.Create(editBox));
-	controlTable.Draw[editBox->IdGUIControl].UseNewPalettes	= false;
-	controlTable.Draw[editBox->IdGUIControl].ColorMode		= GUI_COLOR_MODE_Flat;
-	memcpy_s(controlTable.Draw[editBox->IdGUIControl].Palettes.Storage, dialog.Colors->CheckBox.Storage);
+::llc::cid_t			llc::editBoxCreate		(::llc::SDialog & dialog)								{
+	::llc::cid_t				index					= -1;
+	::llc::pobj<::llc::SDialogEditBox>	editBox;
+	::llc::SControlTable		& controlTable			= dialog.GUI->Controls;
+	llc_necs(index = dialog.Create(editBox));
+	controlTable.Draw[editBox->IdGUIControl].UseNewPalettes	= true;
+	controlTable.Draw[editBox->IdGUIControl].ColorMode		= ::llc::GUI_COLOR_MODE_Flat;
+	::llc::memcpy_s(controlTable.Draw[editBox->IdGUIControl].Palettes.Storage, dialog.Colors->CheckBox.Storage);
 	return index;
 }
-llc::err_t			llc::editBoxUpdate		(SDialogEditBox	& control)								{
-	SDialog				& dialog				= *control.Dialog;
+::llc::err_t			llc::editBoxUpdate		(::llc::SDialogEditBox	& control)								{
+	::llc::SDialog				& dialog				= *control.Dialog;
 	if(dialog.Input->ButtonDown(0)) {
 	}
 	return 0;
 }
-llc::cid_t			llc::viewportCreate		(SDialog & dialog) {
-	cid_t				index					= -1;
-	pobj<SDialogViewport>	viewport;
-	SControlTable		& controlTable			= dialog.GUI->Controls;
-	if_fail_fe(index = dialog.Create(viewport));
-	if_fail_fe(controlSetParent(*dialog.GUI, viewport->IdGUIControl, dialog.Root));
-	controlTable.Draw[viewport->IdGUIControl].UseNewPalettes	= false;
+::llc::cid_t			llc::viewportCreate		(::llc::SDialog & dialog) {
+	::llc::cid_t				index					= -1;
+	::llc::pobj<::llc::SDialogViewport>	viewport;
+	::llc::SControlTable		& controlTable			= dialog.GUI->Controls;
+	llc_necs(index = dialog.Create(viewport));
+	controlTable.Draw[viewport->IdGUIControl].UseNewPalettes	= true;
 	controlTable.Draw[viewport->IdGUIControl].FrameOut			= true;
-	controlTable.States[viewport->IdGUIControl].Mask			&= ~GUI_CONTROL_FLAG_Hovered;
+	//controlTable.Modes[viewport->IdGUIControl].NoHover			= true;
 	controlTable.Placement[viewport->IdGUIControl].Margin		= {};
-	memcpy_s(controlTable.Draw[viewport->IdGUIControl].Palettes.Storage, dialog.Colors->Viewport.Storage);
-	{ // Create close control
-		cid_t				idControl;
-		if_fail_fe(viewport->IdClose = idControl = controlCreateChild(*dialog.GUI, viewport->IdGUIControl));
-		SControlPlacement	& control				= controlTable.Placement[idControl];
-		control.Area.Size		= {heightOfField, heightOfField};
-		control.Align			= ALIGN_TOP_RIGHT;
-		controlTable.Constraints[idControl].AttachSizeToControl	= {-1, -1};
-		controlTable.States[idControl].Mask		= dialog.DefaultControlMask;
-		controlTable.Draw[idControl].UseNewPalettes	= false;
-		controlTable.Draw[idControl].Palettes		= dialog.Colors->ViewportTitle;
-		controlTable.Text[idControl].Text			= "X";
-		controlTable.Text[idControl].Align			= ALIGN_CENTER;
-	}
-	{ // Create bottom-right resize control
-		cid_t				idControl;
-		if_fail_fe(viewport->IdResizeBottomRight = idControl = controlCreateChild(*dialog.GUI, viewport->IdGUIControl));
-		SControlPlacement	& control				= controlTable.Placement[idControl];
-		control.Area.Size		= {16, 16};
-		control.Area.Offset		= {-2, -2};
-		control.Align			= ALIGN_BOTTOM_RIGHT;
-		controlTable.Constraints[idControl].AttachSizeToControl	= {-1, -1};
-		controlTable.States[idControl].Mask		= dialog.DefaultControlMask;
-		controlTable.Draw[idControl].UseNewPalettes	= false;
-		controlTable.Draw[idControl].Palettes		= dialog.Colors->Viewport;
-	}
+	::llc::memcpy_s(controlTable.Draw[viewport->IdGUIControl].Palettes.Storage, dialog.Colors->Viewport.Storage);
 	{ // Create field group
 		// Set up client area control
-		cid_t				idControl;
-		if_fail_fe(viewport->IdClient = idControl = controlCreateChild(*dialog.GUI, viewport->IdGUIControl));		// Create group control array
-		SControlPlacement	& control				= controlTable.Placement[idControl];
+		::llc::cid_t				idControl;
+		llc_necs(viewport->IdClient = idControl = ::llc::controlCreateChild(*dialog.GUI, viewport->IdGUIControl));		// Create group control array
+		::llc::SControlPlacement	& control				= controlTable.Placement[idControl];
 		control.Area.Offset		= {0, heightOfField + 1};
 		control.Area.Size		= {2, 2};
 		control.Margin			= {};
 		controlTable.Constraints[idControl].AttachSizeToControl.x	= idControl;
 		controlTable.States[idControl].Mask		= dialog.DefaultControlMask;
-		controlTable.States[idControl].Mask		&= ~GUI_CONTROL_FLAG_Hovered;
-		controlTable.States[idControl].Mask		&= ~GUI_CONTROL_FLAG_Action;
 		controlTable.Draw [idControl].Palettes	= dialog.Colors->Viewport;
 	}
 	{ // Create section title
-		cid_t				idControl;
-		if_fail_fef(viewport->IdTitle = idControl = controlCreateChild(*dialog.GUI, viewport->IdGUIControl), "%s", "????");	// Create group control array
+		::llc::cid_t				idControl;
+		llc_necall(viewport->IdTitle = idControl = ::llc::controlCreateChild(*dialog.GUI, viewport->IdGUIControl), "%s", "????");	// Create group control array
 
-		SControlPlacement	& control				= controlTable.Placement[idControl];
+		::llc::SControlPlacement	& control				= controlTable.Placement[idControl];
 		control.Area.Offset		= {};
 		control.Area.Size		= {2, heightOfField};
-		control.Align			= ALIGN_TOP_LEFT;
+		control.Align			= ::llc::ALIGN_TOP_LEFT;
 		control.Margin.Left		= 4;
 		controlTable.Constraints[idControl].AttachSizeToControl.x	= idControl;
-		controlTable.Constraints[idControl].DockToControl.Right	= viewport->IdClose;
 		controlTable.States[idControl].Mask		= dialog.DefaultControlMask;
 		controlTable.Draw [idControl].Palettes	= dialog.Colors->ViewportTitle;
 		controlTable.Text [idControl].Text		= "Viewport";
@@ -329,150 +275,79 @@ llc::cid_t			llc::viewportCreate		(SDialog & dialog) {
 	return index;
 }
 
-llc::err_t			llc::viewportAdjustSize	(n2s1_t & sizeViewport, cnst n2s1_t & sizeClient)		{
-	sizeViewport			= sizeClient + n2s1_t{4, 5 + heightOfField};
+::llc::err_t			llc::viewportAdjustSize	(::llc::n2<int16_t> & sizeViewport, const ::llc::n2<int16_t> & sizeClient)		{
+	sizeViewport			= sizeClient;
+	sizeViewport.x			+= 4;
+	sizeViewport.y			+= 4 + 1 + heightOfField;
 	return 0;
 }
 
-llc::err_t			llc::viewportFold		(SDialogViewport	& control, b8_t fold)														{
+::llc::err_t			llc::viewportFold		(::llc::SDialogViewport	& control, bool fold)														{
 	if((fold && control.Settings.Unfolded) || (false == control.Settings.Unfolded && false == fold)) {
-		SDialog				& dialog				= *control.Dialog;
-		SGUI					& gui					= *dialog.GUI;
-		SControlTable		& controlTable			= gui.Controls;
-		SControlPlacement	& placementMain			= controlTable.Placement[control.IdGUIControl];
-		SControlPlacement	& placementTitle		= controlTable.Placement[control.IdTitle];
+		::llc::SDialog				& dialog				= *control.Dialog;
+		::llc::SGUI					& gui					= *dialog.GUI;
+		::llc::SControlTable		& controlTable			= gui.Controls;
+		::llc::SControlPlacement	& placementMain			= controlTable.Placement[control.IdGUIControl];
+		::llc::SControlPlacement	& placementTitle		= controlTable.Placement[control.IdTitle];
 		if(fold && control.Settings.Unfolded)
-			placementMain.Area.Size.y	= placementTitle.Area.Size.y + controlNCSpacing(placementMain).y;
+			placementMain.Area.Size.y	= placementTitle.Area.Size.y + ::llc::controlNCSpacing(placementMain).y;
 		else if(false == control.Settings.Unfolded && false == fold) {
-			SControlPlacement	& controlClient			= controlTable.Placement[control.IdClient];
-			placementMain.Area.Size.y	= controlClient.Area.Size.y + placementTitle.Area.Size.y + controlNCSpacing(placementMain).y + 1;
+			::llc::SControlPlacement	& controlClient			= controlTable.Placement[control.IdClient];
+			placementMain.Area.Size.y	= controlClient.Area.Size.y + placementTitle.Area.Size.y + ::llc::controlNCSpacing(placementMain).y + 1;
 		}
 
-		SControlState			& controlMain	= controlTable.States[control.IdGUIControl];
-		if(-1 != controlMain.Parent) {
-			if_fail_fe(controlMetricsInvalidate(gui, controlMain.Parent));
-		}
+		::llc::SControlState			& controlMain	= controlTable.States[control.IdGUIControl];
+		if(-1 != controlMain.Parent)
+			llc_necs(llc::controlMetricsInvalidate(gui, controlMain.Parent));
 		else
-			if_fail_fe(controlMetricsInvalidate(gui, control.IdGUIControl));
+			llc_necs(llc::controlMetricsInvalidate(gui, control.IdGUIControl));
 
-		SControlState		& stateClient			= controlTable.States[control.IdClient];
+		::llc::SControlState		& stateClient			= controlTable.States[control.IdClient];
 		stateClient.SetHidden(control.IdClient, controlTable.EventQueue, fold);
 		control.Settings.Unfolded	= !fold;
 	}
 	return one_if(false == control.Settings.Unfolded);
 }
 
-sttc llc::err_t viewportDrag		(SDialogViewport	& control, SControlPlacement & controlMain, SDialog & dialog, n2<bool> locked, n2s1_t mouseDeltas) {
+static	::llc::err_t	viewportDrag			(::llc::SDialogViewport	& control, ::llc::SControlPlacement & controlMain, ::llc::SDialog & dialog, ::llc::n2<bool> locked, ::llc::n2s1_t mouseDeltas) {
 	mouseDeltas.InPlaceScale(1 / dialog.GUI->Zoom.DPI.x, 1 / dialog.GUI->Zoom.DPI.y);
 	mouseDeltas.InPlaceScale(1 / dialog.GUI->Zoom.ZoomLevel);
 	control.Settings.Dragging	= true;
 	if(false == locked.x)
-		controlMain.Area.Offset.x	+= ((controlMain.Align & ALIGN_HCENTER) == ALIGN_RIGHT) ? -mouseDeltas.x : mouseDeltas.x;
+		controlMain.Area.Offset.x	+= ((controlMain.Align & ::llc::ALIGN_HCENTER) == ::llc::ALIGN_RIGHT) ? -mouseDeltas.x : mouseDeltas.x;
 	if(false == locked.y)
-		controlMain.Area.Offset.y	+= ((controlMain.Align & ALIGN_VCENTER) == ALIGN_BOTTOM) ? -mouseDeltas.y : mouseDeltas.y;
-	controlMetricsInvalidate(*dialog.GUI, control.IdGUIControl);
+		controlMain.Area.Offset.y	+= ((controlMain.Align & ::llc::ALIGN_VCENTER) == ::llc::ALIGN_BOTTOM) ? -mouseDeltas.y : mouseDeltas.y;
+	::llc::controlMetricsInvalidate(*dialog.GUI, control.IdGUIControl);
 	return 0;
 }
 
-sttc llc::err_t controlToFront		(SGUI & gui, cid_t iControl) {
-	cnst cid_t	idParent	= gui.Controls.States[iControl].Parent;
-	if(controlInvalid(gui, idParent))
-		return 0;
-	vcid		children	= gui.Controls.Children[idParent];
-	for(u2_t iChild = 0; iChild < children.size(); ++iChild)
-		if(children[iChild] == iControl) {
-			if_fail_fe(gui.Controls.Children[idParent].remove(iChild));
-			if_fail_fe(gui.Controls.Children[idParent].push_back(iControl));
-			return controlMetricsInvalidate(gui, idParent);
-		}
-	return 0;
-}
-
-llc::err_t	llc::viewportUpdate		(SDialogViewport	& control)																{
-	SDialog				& dialog				= *control.Dialog;
-	SGUI					& gui					= *dialog.GUI;
-	SControlTable		& controlTable			= dialog.GUI->Controls;
-	if(controlTable.IsAction(control.IdClose)) {
-		controlTable.SetHidden(control.IdGUIControl, true);
-		return 0;
-	}
-	SControlPlacement	& controlMain			= controlTable.Placement[control.IdGUIControl];
-	SControlState		& controlTitleState		= controlTable.States[control.IdTitle];
-	SControlState		& controlResizeState	= controlTable.States[control.IdResizeBottomRight];
-	if(dialog.Input->ButtonDown(0) && controlTitleState.IsPressed())
-		if_fail_e(::controlToFront(gui, control.IdGUIControl));
+::llc::err_t			llc::viewportUpdate		(::llc::SDialogViewport	& control)																{
+	::llc::SDialog				& dialog				= *control.Dialog;
+	::llc::SControlTable		& controlTable			= dialog.GUI->Controls;
+	::llc::SControlPlacement	& controlMain			= controlTable.Placement[control.IdGUIControl];
+	::llc::SControlState		& controlTitleState		= controlTable.States[control.IdTitle];
 	if(controlTitleState.IsPressed()) {
-		cnst n2<bool>	locked					= {control.Settings.DisplacementLockX, control.Settings.DisplacementLockY};
+		const ::llc::n2<bool>		locked					= {control.Settings.DisplacementLockX, control.Settings.DisplacementLockY};
 		if(false == locked.x || false == locked.y) {
-			n2s1_t				mouseDeltas				= (dialog.Input->MouseCurrent.Position - dialog.Input->MousePrevious.Position).s1(); //{dialog.Input->MouseCurrent.Deltas.x, dialog.Input->MouseCurrent.Deltas.y};
+			::llc::n2s1_t				mouseDeltas				= (dialog.Input->MouseCurrent.Position - dialog.Input->MousePrevious.Position) .s1(); //{dialog.Input->MouseCurrent.Deltas.x, dialog.Input->MouseCurrent.Deltas.y};
 			if(mouseDeltas.x || mouseDeltas.y)
-				if_fail_e(::viewportDrag(control, controlMain, dialog, locked, mouseDeltas));
-		}
-	}
-	else if(controlResizeState.IsPressed()) {
-		n2s1_t				mouseDeltas			= dialog.Input->MouseCurrent.Position - dialog.Input->MousePrevious.Position;
-		if(mouseDeltas.x || mouseDeltas.y) {
-			mouseDeltas.InPlaceScale(1 / dialog.GUI->Zoom.DPI.x, 1 / dialog.GUI->Zoom.DPI.y);
-			mouseDeltas.InPlaceScale(1 / dialog.GUI->Zoom.ZoomLevel);
-			SControlPlacement	& controlClient			= controlTable.Placement[control.IdClient];
-			mouseDeltas.x								= max(mouseDeltas.x, (s1_t)-controlClient.Area.Size.x);
-			mouseDeltas.y								= max(mouseDeltas.y, (s1_t)-controlClient.Area.Size.y);
-			controlMain.Area.Size						+= mouseDeltas;
-			controlClient.Area.Size						+= mouseDeltas;
-			if_fail_fe(controlMetricsInvalidate(gui, control.IdGUIControl));
+				llc_necs(::viewportDrag(control, controlMain, dialog, locked, mouseDeltas));
 		}
 	}
 	else {
-		if(controlTable.IsAction(control.IdTitle) && false == control.Settings.Dragging)
-			if_fail_e(viewportFold(control, control.Settings.Unfolded));
-		control.Settings.Dragging = false;
-	}
+		if(controlTitleState.IsAction() && false == control.Settings.Dragging)
+			llc_necs(llc::viewportFold(control, control.Settings.Unfolded));
 
+		control.Settings.Dragging	= false;
+	}
 	if(control.Settings.Unfolded != control.SettingsOld.Unfolded)
 		if(true == control.Settings.Unfolded) {
-			n2s1_t				clientFinalSize			= {controlMain.Area.Size};
-			clientFinalSize			-= controlNCSpacing(controlMain).s1();
+			::llc::n2s1_t				clientFinalSize			= {controlMain.Area.Size};
+			clientFinalSize			-= ::llc::controlNCSpacing(controlMain) .s1();
 			clientFinalSize.y		-=  heightOfField + 1;
-
-			SControlPlacement	& controlClient			= controlTable.Placement[control.IdClient];
+			::llc::SControlPlacement	& controlClient			= controlTable.Placement[control.IdClient];
 			controlClient.Area.Size	= clientFinalSize;
 		}
-	if(false == controlInvalid(gui, control.IdScrollBarY)) {
-		if(controlTable.States[control.IdScrollBarY].Parent != control.IdClient)
-			if_fail_e(controlSetParent(gui, control.IdScrollBarY, control.IdClient))
-			//else {
-				SControlPlacement	& placementScroll		= controlTable.Placement[control.IdScrollBarY];
-				placementScroll.Area.Offset							= {};
-				placementScroll.Area.Size.x							= 12;
-				placementScroll.Align								= ALIGN_TOP_RIGHT;
-
-				SControlConstraints	& constraintsScroll		= controlTable.Constraints[control.IdScrollBarY];
-				constraintsScroll.AttachSizeToControl				= {-1, control.IdScrollBarY};
-				constraintsScroll.DockToControl						= {-1, -1, -1, -1};
-				controlTable.SetHidden(control.IdScrollBarY, false == control.Settings.ScrollBarY || false == control.Settings.Unfolded);
-			//}
-	}
-	if(false == controlInvalid(gui, control.IdScrollBarX)) {
-		if(controlTable.States[control.IdScrollBarX].Parent != control.IdClient)
-			if_fail_e(controlSetParent(gui, control.IdScrollBarX, control.IdClient))
-			//else {
-				SControlPlacement	& placementScroll			= controlTable.Placement[control.IdScrollBarX];
-				placementScroll.Area.Offset					= {};
-				placementScroll.Area.Size.y					= 12;
-				placementScroll.Align						= ALIGN_BOTTOM_LEFT;
-
-				SControlConstraints	& constraintsScroll			= controlTable.Constraints[control.IdScrollBarX];
-				constraintsScroll.AttachSizeToControl.x		= control.IdScrollBarX;
-				constraintsScroll.DockToControl				= {-1, -1, control.Settings.ScrollBarY ? control.IdScrollBarY : (cid_t)-1, -1};
-				controlTable.SetHidden(control.IdScrollBarX, false == control.Settings.ScrollBarX || false == control.Settings.Unfolded);
-			//}
-	}
-	if(control.Settings.ScrollBarX != control.SettingsOld.ScrollBarX || control.Settings.ScrollBarY != control.SettingsOld.ScrollBarY) {
-		if(false == controlInvalid(gui, control.IdScrollBarX))
-			if_fail_e(controlMetricsInvalidate(gui, control.IdScrollBarX));
-		if(false == controlInvalid(gui, control.IdScrollBarY))
-			if_fail_e(controlMetricsInvalidate(gui, control.IdScrollBarY));
-	}
 	control.SettingsOld		= control.Settings;
 	return 0;
 }

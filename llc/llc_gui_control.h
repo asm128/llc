@@ -21,15 +21,15 @@ namespace llc
 	typedef	n2<cid_t>		n2cid;
 	typedef	rect<cid_t>		rectcid;
 
-	tplt<::llc::u2_t _sizeArray>	
+	tplt<uint32_t _sizeArray>	
 	using	astcid	= ::llc::astatic<cid_t, _sizeArray>;
 
-	GDEFINE_ENUM_TYPE(GUI_COLOR_MODE, u0_t)
+	GDEFINE_ENUM_TYPE(GUI_COLOR_MODE, uint8_t)
 	GDEFINE_ENUM_VALUE(GUI_COLOR_MODE, Default	, 0);
 	GDEFINE_ENUM_VALUE(GUI_COLOR_MODE, 3D		, 1);
 	GDEFINE_ENUM_VALUE(GUI_COLOR_MODE, Flat		, 2);
 
-	GDEFINE_ENUM_TYPE(GUI_CONTROL_LIMIT, u0_t);
+	GDEFINE_ENUM_TYPE(GUI_CONTROL_LIMIT, uint8_t);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_LIMIT, Left		, ::llc::ALIGN_LEFT		);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_LIMIT, Top		, ::llc::ALIGN_TOP		);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_LIMIT, Right		, ::llc::ALIGN_RIGHT	);
@@ -38,7 +38,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_LIMIT, Inner		, ::llc::ALIGN_NEAR		);
 	
 
-	GDEFINE_ENUM_TYPE (GUI_CONTROL_METRICS_FLAG, ::llc::u1_t);
+	GDEFINE_ENUM_TYPE (GUI_CONTROL_METRICS_FLAG, uint16_t);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_METRICS_FLAG, XSize		, 1 << 0);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_METRICS_FLAG, YSize		, 1 << 1);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_METRICS_FLAG, XSizeMin	, 1 << 2);
@@ -62,12 +62,12 @@ namespace llc
 		GUI_CONTROL_METRICS_FLAG	RelativeMetrics		= {};
 	}; 
 
-	stincxp	::llc::rectu1_t	controlNCRect		(const ::llc::SControlPlacement & ctl)	noexcept	{ return ctl.Border + ctl.Margin; }
-	stacxpr	::llc::n2u1_t	controlNCSpacing	(const ::llc::SControlPlacement & ctl)	noexcept	{ const rectu1_t rc = controlNCRect(ctl); return ::llc::n2s2_t{rc.Left + rc.Right, rc.Top + rc.Bottom}.u1(); }
-	stincxp	void			controlNCSpacing	(const ::llc::SControlPlacement & ctl, ::llc::rectu1_t & ncSpacing)	noexcept	{ ncSpacing = controlNCRect(ctl); }
-	stincxp	void			controlNCSpacing	(const ::llc::SControlPlacement & ctl, ::llc::n2u1_t   & ncSpacing)	noexcept	{ ncSpacing = controlNCSpacing(ctl); }
+	sinx	::llc::rectu1_t	controlNCRect		(const ::llc::SControlPlacement & ctl)	noexcept	{ return ctl.Border + ctl.Margin; }
+	stxp	::llc::n2u1_t	controlNCSpacing	(const ::llc::SControlPlacement & ctl)	noexcept	{ const rectu1_t rc = controlNCRect(ctl); return ::llc::n2s2_t{rc.Left + rc.Right, rc.Top + rc.Bottom} .u1(); }
+	sinx	void			controlNCSpacing	(const ::llc::SControlPlacement & ctl, ::llc::rectu1_t & ncSpacing)	noexcept	{ ncSpacing = controlNCRect(ctl); }
+	sinx	void			controlNCSpacing	(const ::llc::SControlPlacement & ctl, ::llc::n2u1_t   & ncSpacing)	noexcept	{ ncSpacing = controlNCSpacing(ctl); }
 
-	GDEFINE_ENUM_TYPE(GUI_CONTROL_PALETTE, u0_t)
+	GDEFINE_ENUM_TYPE(GUI_CONTROL_PALETTE, uint8_t)
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_PALETTE, NORMAL				, 0);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_PALETTE, DISABLED			, 1);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_PALETTE, HOVER				, 2);
@@ -82,19 +82,19 @@ namespace llc
 	
 
 	struct SControlDraw {
-		u0_t			ColorMode			: 2;
-		u0_t			FrameOut			: 1;
-		u0_t			NoBorder			: 1;	// skip drawing border area
-		u0_t			NoClient			: 1;	// skip drawing client area
+		uint8_t			ColorMode			: 2;
+		uint8_t			FrameOut			: 1;
+		uint8_t			NoBorder			: 1;	// skip drawing border area
+		uint8_t			NoClient			: 1;	// skip drawing client area
 		
 		bool			UseNewPalettes		: 1;	// -- Legacy property (don't use in the new implementation!)
 
 		int16_t			ColorTheme			= 0;
-		::llc::asti16<::llc::GUI_CONTROL_PALETTE_COUNT>	
+		::llc::asts1_t<::llc::GUI_CONTROL_PALETTE_COUNT>	
 						Palettes			= {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9,}};
 	};
 
-	enum CONTROL_AREA_BASE : u0_t 
+	enum CONTROL_AREA_BASE : uint8_t 
 		{ CONTROL_AREA_BASE_BACKGROUND		= 0
 		, CONTROL_AREA_BASE_CONTENT
 		, CONTROL_AREA_BASE_BORDER_LEFT
@@ -108,7 +108,7 @@ namespace llc
 		, CONTROL_AREA_BASE_COUNT
 		};
 
-	enum GUI_CONTROL_AREA_OLD : u0_t
+	enum GUI_CONTROL_AREA_OLD : uint8_t
 		{ GUI_CONTROL_AREA_OLD_CLIENT		= 0
 		, GUI_CONTROL_AREA_OLD_BORDER_LEFT
 		, GUI_CONTROL_AREA_OLD_BORDER_TOP
@@ -118,7 +118,7 @@ namespace llc
 		};
 
 
-	enum UI_CONTROL_AREA : u0_t
+	enum UI_CONTROL_AREA : uint8_t
 		{ UI_CONTROL_AREA_BACKGROUND		= 0
 		, UI_CONTROL_AREA_CLIENT
 		, UI_CONTROL_AREA_BORDER_LEFT
@@ -188,19 +188,19 @@ namespace llc
 	};
 
 	struct SControlTheme {
-		::llc::astatic<::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>, ::llc::GUI_CONTROL_PALETTE_COUNT>
+		::llc::astatic<::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>, ::llc::GUI_CONTROL_PALETTE_COUNT>
 									ColorCombos			= {};
 	};
 #pragma pack(pop)
 
 	struct SControlImage {
-		::llc::rt<::llc::bgra, ::llc::u2_t>			Temp				= {};
+		::llc::rtbgra8d32			Temp				= {};
 		::llc::g8bgra				Image				= {};
 		::llc::n2s1_t				ImageOffset			= {};
-		u0_t						ImageAlign			= ::llc::ALIGN_CENTER;
-		u0_t						ImageInvertX		: 1;
-		u0_t						ImageInvertY		: 1;
-		u0_t						Rotation			: 2;
+		uint8_t						ImageAlign			= ::llc::ALIGN_CENTER;
+		uint8_t						ImageInvertX		: 1;
+		uint8_t						ImageInvertY		: 1;
+		uint8_t						Rotation			: 2;
 	};
 
 	struct SControlTable {
@@ -236,7 +236,7 @@ namespace llc
 		inline	bool		IsUnused		(cid_t iControl)		const	noexcept	{ return States[iControl].IsUnused   (); }
 	};
 
-	::llc::cid_t		controlCreate					(::llc::SControlTable & gui, ::llc::vi16 defaultColors);
+	::llc::cid_t		controlCreate					(::llc::SControlTable & gui, ::llc::vs1_t defaultColors);
 } // namespace
 
 #endif // LLC_GUI_CONTROL_H_23627
