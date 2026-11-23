@@ -246,6 +246,11 @@ namespace llc
 	tplT	using aobj		= array_obj<T>; 
 	tplT	using ao		= aobj<T>; 
 
+	tplt<tpnm T, tpnm... TArgs> inln err_t append		(array_obj<T> & output, TArgs&&... args) nxpt { rtrn output.append(args...); }
+	tplt<tpnm T, tpnm... TArgs> inln err_t push_back	(array_obj<T> & output, TArgs&&... args) nxpt { rtrn output.push_back(args...); }
+	tplt<tpnm T, tpnm... TArgs> inln err_t remove		(array_obj<T> & output, TArgs&&... args) { rtrn output.remove(args...); }
+	tplt<tpnm T, tpnm... TArgs> inln err_t pop_back	(array_obj<T> & output, TArgs&&... args) nxpt { rtrn output.pop_back(args...); }
+
 	tplT	using aview		= aobj	<view<T>>; 
 	tplT	using av		= aview	<T>; 
 

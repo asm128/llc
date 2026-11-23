@@ -84,6 +84,10 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE_NULL				, 78, "array_pod<>::era
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE_UNRELATED			, 79, "array_pod<>::erase() accepted unrelated storage.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE_MISALIGNED			, 80, "array_pod<>::erase() accepted a misaligned element address.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, RESIZE_INVALID_FILLED_COUNT, 81, "array_pod<>::resize(count, value) accepted an unsupported count.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, WRAP_APPEND, 82, "Free append() did not forward array, view, or pointer/count inputs.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, WRAP_PUSH_BACK, 83, "Free push_back() did not return the new element index.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, WRAP_REMOVE, 84, "Free remove() did not preserve array order.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, WRAP_POP_BACK, 85, "Free pop_back() did not forward its output and empty forms.");
 
 tplt<tpnm TCall>
 sttc ::llc::err_t podExpectedFailure(TCall call) {
@@ -630,7 +634,27 @@ sttc ::llc::err_t testPodTypeLogged(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testPodFreeWrappers(::llc::ATestError & errors) {
+	::llc::au1_t values = {};
+	cnst ::llc::u1_t source[] = {3, 4};
+	cnst ::llc::view<cnst ::llc::u1_t> one{source, 1};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_APPEND, ::llc::append(values, source) != 0 || values.size() != 2);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_APPEND, ::llc::append(values, one) != 2 || values.size() != 3);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_APPEND, ::llc::append(values, source, 1) != 3 || values.size() != 4);
+	::llc::au1_t nested = {};
+	cnst ::llc::view<cnst ::llc::view<cnst ::llc::u1_t>> chains{&one, 1};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_APPEND, ::llc::append(nested, chains) != 1 || nested.size() != 1 || nested[0] != 3);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_PUSH_BACK, ::llc::push_back(values, (::llc::u1_t)5) != 4 || values[4] != 5);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_REMOVE, ::llc::remove(values, (::llc::u2_t)1) != 4 || values[1] != 3);
+	::llc::u1_t popped = {};
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(values, popped) != 3 || popped != 5);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(values) != 2 || values.size() != 2);
+	LLC_TEST_CHECK(errors, ARRAY_POD_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(nested) != 0 || ::llc::pop_back(nested) >= 0);
+	rtrn 0;
+}
+
 ::llc::err_t test_array_pod(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+	if_fail_fe(testPodFreeWrappers(errors));
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testPodTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testPodTypeLogged<::llc::u1_t>(errors));
