@@ -16,17 +16,11 @@
 	if_true_fe(controlCount != controls.Images.size());
 	if_true_fe(controlCount != controls.Children.size());
 
-	if_fail_fe(::llc::saveView(output, controls.States));
-	if_fail_fe(::llc::saveView(output, controls.Constraints));
-	if_fail_fe(::llc::saveView(output, controls.Placement));
-	if_fail_fe(::llc::saveView(output, controls.Area));
-	if_fail_fe(::llc::saveView(output, controls.Draw));
+	if_fail_fe(::llc::save(output, controls.States, controls.Constraints, controls.Placement, controls.Area, controls.Draw));
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
 		const ::llc::SControlText & text = controls.Text[iControl];
 		if_fail_fef(::llc::saveView(output, text.Text), "iControl: %u", iControl);
-		if_fail_fef(::llc::savePOD(output, text.Align), "iControl: %u", iControl);
-		if_fail_fef(::llc::savePOD(output, text.Selection), "iControl: %u", iControl);
-		if_fail_fef(::llc::savePOD(output, text.FontSelected), "iControl: %u", iControl);
+		if_fail_fef(::llc::save(output, text.Align, text.Selection, text.FontSelected), "iControl: %u", iControl);
 	}
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
 		const ::llc::n2u2_t imageMetrics = controls.Images[iControl].Image.metrics();
