@@ -183,7 +183,7 @@ namespace llc
 	struct SControlText {
 		::llc::vcs					Text				= {};
 		::llc::ALIGN				Align				= ::llc::ALIGN_CENTER;
-		::llc::minmaxu1_t			Selection			= {0, 1};
+		::llc::minmaxu1_t			Selection			= {0, 0};
 		int16_t						FontSelected		= -1;
 	};
 

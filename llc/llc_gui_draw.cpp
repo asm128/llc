@@ -84,10 +84,29 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 	::llc::apod<::llc::n2u1_t>	dstCoords;
 	const ::llc::u2_t				iFont				= ::llc::in_range(controlText.FontSelected, (int16_t)0, (int16_t)gui.Fonts.size()) ? controlText.FontSelected : gui.SelectedFont;
 	const ::llc::SRasterFont	& selectedFont		= *gui.Fonts[iFont];
+	::llc::bgra colorSelectedFace = colorFace;
+	::llc::bgra colorSelectedBack = {};
+	if(0 == controlDraw.UseNewPalettes) {
+		const ::llc::SControlTheme & theme = (*gui.Colors->ControlThemes)[(0 == controlDraw.ColorTheme) ? gui.ThemeDefault : controlDraw.ColorTheme - 1];
+		const ::llc::astu32<::llc::UI_CONTROL_AREA_COUNT> & selectedColors = theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED];
+		colorSelectedFace = (*gui.Colors->Palette)[selectedColors[::llc::UI_CONTROL_AREA_TEXT_FACE]];
+		colorSelectedBack = (*gui.Colors->Palette)[selectedColors[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND]];
+	}
+	else {
+		const ::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT> & selectedColors = gui.Colors->Palettes[controlDraw.Palettes[::llc::GUI_CONTROL_PALETTE_SELECTED]];
+		colorSelectedFace = selectedColors[::llc::UI_CONTROL_AREA_TEXT_FACE];
+		colorSelectedBack = selectedColors[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND];
+	}
+	for(::llc::u2_t iCharacter = controlText.Selection.Min, countCharacter = ::llc::min((::llc::u2_t)controlText.Selection.Max, controlText.Text.size()); iCharacter < countCharacter; ++iCharacter) {
+		const ::llc::rect2s1_t characterRectangle = {{(::llc::s1_t)(rectText.Offset.x + selectedFont.CharSize.x * iCharacter), rectText.Offset.y}, selectedFont.CharSize.s1()};
+		::drawRectangle(target, colorSelectedBack, characterRectangle);
+	}
 	llc_necs(llc::textLineRaster(target.metrics(), selectedFont.CharSize, rectText, selectedFont.Texture, controlText.Text, dstCoords));
 	for(::llc::u2_t iCoord = 0; iCoord < dstCoords.size(); ++iCoord) {
 		const ::llc::n2u1_t			dstCoord			= dstCoords[iCoord];
-		target[dstCoord.y][dstCoord.x]	= colorFace;
+		const ::llc::s2_t characterOffsetX = (::llc::s2_t)dstCoord.x - rectText.Offset.x;
+		const ::llc::u2_t iCharacter = 0 <= characterOffsetX && selectedFont.CharSize.x ? characterOffsetX / selectedFont.CharSize.x : controlText.Text.size();
+		target[dstCoord.y][dstCoord.x] = iCharacter >= controlText.Selection.Min && iCharacter < controlText.Selection.Max ? colorSelectedFace : colorFace;
 		//::llc::drawPixelLight(target, dstCoords[iCoord], colorFace, controlState.Pressed ? 0.75f : 0.5f, controlState.Pressed ? 1.0f : 0.95);
 	}
 	return 0;
