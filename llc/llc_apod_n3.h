@@ -9,6 +9,7 @@ namespace llc
 {
 #pragma pack(push, 1)
 	tplT using	an3	= ::llc::apod<::llc::n3<T>>;
+	tplT using	a3	= ::llc::an3<T>;
 
 	tydf	::llc::an3<sc_t>	an3sc_t;	tdcs	an3sc_t	an3sc_c;
 	tydf	::llc::an3<uc_t>	an3uc_t;	tdcs	an3uc_t	an3uc_c;
@@ -22,6 +23,19 @@ namespace llc
 	tydf	::llc::an3<s3_t>	an3s3_t;	tdcs	an3s3_t	an3s3_c;
 	tydf	::llc::an3<f2_t>	an3f2_t;	tdcs	an3f2_t	an3f2_c;
 	tydf	::llc::an3<f3_t>	an3f3_t;	tdcs	an3f3_t	an3f3_c;
+
+	tydf	::llc::a3<sc_t>	a3sc_t;	tdcs	a3sc_t	a3sc_c;
+	tydf	::llc::a3<uc_t>	a3uc_t;	tdcs	a3uc_t	a3uc_c;
+	tydf	::llc::a3<u0_t>	a3u0_t;	tdcs	a3u0_t	a3u0_c;
+	tydf	::llc::a3<u1_t>	a3u1_t;	tdcs	a3u1_t	a3u1_c;
+	tydf	::llc::a3<u2_t>	a3u2_t;	tdcs	a3u2_t	a3u2_c;
+	tydf	::llc::a3<u3_t>	a3u3_t;	tdcs	a3u3_t	a3u3_c;
+	tydf	::llc::a3<s0_t>	a3s0_t;	tdcs	a3s0_t	a3s0_c;
+	tydf	::llc::a3<s1_t>	a3s1_t;	tdcs	a3s1_t	a3s1_c;
+	tydf	::llc::a3<s2_t>	a3s2_t;	tdcs	a3s2_t	a3s2_c;
+	tydf	::llc::a3<s3_t>	a3s3_t;	tdcs	a3s3_t	a3s3_c;
+	tydf	::llc::a3<f2_t>	a3f2_t;	tdcs	a3f2_t	a3f2_c;
+	tydf	::llc::a3<f3_t>	a3f3_t;	tdcs	a3f3_t	a3f3_c;
 
 #pragma pack(pop)
 } // namespace

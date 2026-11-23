@@ -29,6 +29,7 @@ namespace llc
 	stct SSinCos { double Sin, Cos; };
 
 	stin	SSinCos		getSinCos			(double theta)												noexcept	{ return {sin(theta), cos(theta)};						}
+	stin	f2_t		fabsf				(f2_t value)												noexcept	{ return value == 0 ? 0 : value < 0 ? -value : value;	}
 
 	// Calculate determinant of matrix:
 	// [a b]
