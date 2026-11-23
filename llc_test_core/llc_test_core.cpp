@@ -67,6 +67,7 @@ sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
 		, LLC_TEST_SUITE(array_static)
 		, LLC_TEST_SUITE(array_bit)
 		, LLC_TEST_SUITE(apod_minmax)
+		, LLC_TEST_SUITE(apod_serialize)
 		, LLC_TEST_SUITE(array_obj)
 		, LLC_TEST_SUITE(array_pod)
 		, LLC_TEST_SUITE(base64)

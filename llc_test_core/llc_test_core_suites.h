@@ -14,6 +14,7 @@
 ::llc::err_t test_ascii_target		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_array_bit		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_apod_minmax		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_apod_serialize	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_array_obj		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_array_pod		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_args			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
