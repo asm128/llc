@@ -132,6 +132,7 @@
     <ClInclude Include="llc_gui_inputbox.h" />
     <ClInclude Include="llc_gui_slider.h" />
     <ClInclude Include="llc_gui_viewport.h" />
+    <ClInclude Include="llc_gui_composite.h" />
     <ClInclude Include="llc_img_color.h" />
     <ClInclude Include="llc_img_serialize.h" />
     <ClInclude Include="llc_line.h" />
