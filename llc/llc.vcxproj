@@ -112,6 +112,7 @@
     <ClInclude Include="llc_deflate.h" />
     <ClInclude Include="llc_gpio.h" />
     <ClInclude Include="llc_i2c.h" />
+    <ClInclude Include="llc_index.h" />
     <ClInclude Include="llc_keyed_bit_array.h" />
     <ClInclude Include="llc_linear_map_pobj.h" />
     <ClInclude Include="llc_event_input.h" />
@@ -411,9 +412,7 @@
     <ClCompile Include="llc_wifi.cpp" />
     <ClCompile Include="llc_window.cpp" />
     <ClCompile Include="llc_framework.cpp" />
-    <ClCompile Include="llc_gui_control_list.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_gui_control_list.cpp" />
     <ClCompile Include="llc_gui_desktop.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -432,6 +431,7 @@
     <ClCompile Include="llc_http_client.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_index.cpp" />
     <ClCompile Include="llc_json.cpp" />
     <ClCompile Include="llc_json_expression.cpp" />
     <ClCompile Include="llc_label.cpp" />

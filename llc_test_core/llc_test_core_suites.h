@@ -39,6 +39,7 @@
 ::llc::err_t test_grid_operations	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_gui			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_input			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_index(::llc::ATestError & errors, ::llc::vcst_t outputFolder);
 ::llc::err_t test_json_expression	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_json		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_keyval			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
