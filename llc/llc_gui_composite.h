@@ -138,11 +138,14 @@ namespace llc {
 			return id;
 		gui.Controls.Placement[id] = gui.Controls.Placement[source.IdControl];
 		gui.Controls.Draw[id] = gui.Controls.Draw[source.IdControl];
+		gui.Controls.Text[id] = gui.Controls.Text[source.IdControl];
+		gui.Controls.TextState[id] = gui.Controls.TextState[source.IdControl];
 		for(::llc::u0_t i = 0; i < ::llc::VIEWPORT_CONTROL_COUNT; ++i) {
 			const ::llc::cid_t from = source.IdControls[i], to = target.IdControls[i];
 			gui.Controls.Placement[to] = gui.Controls.Placement[from];
 			gui.Controls.Draw[to] = gui.Controls.Draw[from];
 			gui.Controls.Text[to] = gui.Controls.Text[from];
+			gui.Controls.TextState[to] = gui.Controls.TextState[from];
 			gui.Controls.SetHidden(to, gui.Controls.IsHidden(from));
 		}
 		for(::llc::u0_t i = 0; i < GUI_VIEWPORT_ACTION_COUNT; ++i) {
@@ -150,6 +153,7 @@ namespace llc {
 			gui.Controls.Placement[to] = gui.Controls.Placement[from];
 			gui.Controls.Draw[to] = gui.Controls.Draw[from];
 			gui.Controls.Text[to] = gui.Controls.Text[from];
+			gui.Controls.TextState[to] = gui.Controls.TextState[from];
 			gui.Controls.SetHidden(to, gui.Controls.IsHidden(from));
 			gui.Controls.SetDisabled(to, gui.Controls.IsDisabled(from));
 		}
