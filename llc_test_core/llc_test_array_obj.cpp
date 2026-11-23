@@ -281,7 +281,7 @@ sttc ::llc::err_t testArrayObjFind(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testArrayObj(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_array_obj(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	SArrayObjTestValue::LiveCount			= {};
 	SArrayObjTestValue::ConstructorCount	= {};
 	SArrayObjTestValue::CopyCount			= {};

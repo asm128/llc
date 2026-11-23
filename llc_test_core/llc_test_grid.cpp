@@ -7,7 +7,7 @@ GDEFINE_ENUM_VALUED(GRID_TEST_RESULT, GRID_ROW		, 2, "grid<> returned the wrong 
 GDEFINE_ENUM_VALUED(GRID_TEST_RESULT, GRID_FILL	, 3, "grid<>::fill() changed the wrong cells.");
 GDEFINE_ENUM_VALUED(GRID_TEST_RESULT, GRID_BOUNDS	, 4, "grid<> accepted an invalid row or cell.");
 
-::llc::err_t testGrid(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_grid(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	::llc::u2_t cells[2][3] = {{1, 2, 3}, {4, 5, 6}};
 	::llc::grid<::llc::u2_t> grid = {cells};
 	LLC_TEST_CHECKF(errors, GRID_TEST_RESULT_GRID_METRICS, 3 != grid.metrics().x, "Width:%u, expected:3.", grid.metrics().x);

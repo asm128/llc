@@ -4,46 +4,95 @@
 #include "llc_parse.h"
 #include "llc_string_compose.h"
 
+#include <cstdio>
+
+#if defined(LLC_WINDOWS)
+#	include <io.h>
+#elif defined(LLC_LINUX)
+#	include <unistd.h>
+#endif
+
+#if defined(LLC_WINDOWS)
+#	define llc_test_dup		_dup
+#	define llc_test_dup2		_dup2
+#	define llc_test_close	_close
+#	define llc_test_fileno	_fileno
+#elif defined(LLC_LINUX)
+#	define llc_test_dup		dup
+#	define llc_test_dup2		dup2
+#	define llc_test_close	close
+#	define llc_test_fileno	fileno
+#endif
+
 namespace llc {
 sttc u3_t TestSeedOverride = {};
 sttc bool TestSeedOverrideEnabled = false;
 u3_t testSeed(u3_t fallback) { rtrn TestSeedOverrideEnabled ? TestSeedOverride : fallback; }
 
-sttc STestLogBuffer * TestActiveLog = {};
-sttc STestLogWriters TestConsoleWriters;
-sttc bool TestConsoleEnabled = false;
+STestLogCapture::~STestLogCapture() { close(); }
 
-sttc ::llc::err_t testCaptureWrite(const char * text, ::llc::u2_t length) {
-	// LLC allocation failures can log through this same callback.
-	sttc thread_local bool writing = false;
-	if(TestActiveLog && !writing) {
-		writing = true;
-		try {
-			::llc::lock_guard lock(TestActiveLog->Mutex);
-			if(::llc::failed(TestActiveLog->Text.append({text, length}))) TestActiveLog->Failed = true;
-		}
-		catch(...) { TestActiveLog->Failed = true; }
-		writing = false;
-	}
-	rtrn TestConsoleEnabled && TestConsoleWriters.Write ? TestConsoleWriters.Write(text, length) : 0;
-}
-sttc ::llc::err_t testCapturePrint(const char * text) { rtrn testCaptureWrite(text, (::llc::u2_t)strlen(text)); }
+::llc::err_t STestLogCapture::open(::llc::vcst_t fileName) {
+	if_true_fe(Active);
+	if_true_fe(0 == fileName.size());
+	if(0 != ::fflush(stdout) || 0 != ::fflush(stderr))
+		rtrn -1;
 
-STestLogCapture::STestLogCapture(STestLogBuffer & buffer, bool console) : PreviousBuffer(TestActiveLog) {
-	::llc::getLogCallbacks(Previous.Print, Previous.Write);
-	if(!PreviousBuffer) {
-		TestConsoleWriters = Previous;
-		TestConsoleEnabled = console;
+	cnst int stdOut = llc_test_fileno(stdout);
+	cnst int stdErr = llc_test_fileno(stderr);
+	if(0 > stdOut || 0 > stdErr)
+		rtrn -1;
+	SavedStdOut = (::llc::s2_t)llc_test_dup(stdOut);
+	SavedStdErr = (::llc::s2_t)llc_test_dup(stdErr);
+	if(0 > SavedStdOut || 0 > SavedStdErr) {
+		if(0 <= SavedStdOut) llc_test_close(SavedStdOut);
+		if(0 <= SavedStdErr) llc_test_close(SavedStdErr);
+		SavedStdOut = SavedStdErr = -1;
+		rtrn -1;
 	}
-	TestActiveLog = &buffer;
-	if(Previous.Print != testCapturePrint || Previous.Write != testCaptureWrite)
-		::llc::setupLogCallbacks(testCapturePrint, testCaptureWrite);
-	if(!PreviousBuffer && !TestConsoleEnabled) Previous = {};
+	FILE * outputFile = {};
+#if defined(LLC_WINDOWS)
+	cnst int openResult = ::fopen_s(&outputFile, fileName.begin(), "wb");
+#elif defined(LLC_LINUX)
+	outputFile = ::fopen(fileName.begin(), "wb");
+	cnst int openResult = outputFile ? 0 : -1;
+#endif
+	if(0 != openResult || 0 == outputFile) {
+		llc_test_close(SavedStdOut);
+		llc_test_close(SavedStdErr);
+		SavedStdOut = SavedStdErr = -1;
+		rtrn -1;
+	}
+	cnst int output = llc_test_fileno(outputFile);
+	cnst int stdoutResult = llc_test_dup2(output, stdOut);
+	cnst int stderrResult = llc_test_dup2(output, stdErr);
+	::fclose(outputFile);
+	if(0 > stdoutResult || 0 > stderrResult) {
+		llc_test_dup2(SavedStdOut, stdOut);
+		llc_test_dup2(SavedStdErr, stdErr);
+		llc_test_close(SavedStdOut);
+		llc_test_close(SavedStdErr);
+		SavedStdOut = SavedStdErr = -1;
+		rtrn -1;
+	}
+	Active = true;
+	rtrn 0;
 }
-STestLogCapture::~STestLogCapture() {
-	TestActiveLog = PreviousBuffer;
-	if(Previous.Print != testCapturePrint || Previous.Write != testCaptureWrite)
-		::llc::setupLogCallbacks(Previous.Print, Previous.Write);
+
+::llc::err_t STestLogCapture::close() {
+	if(false == Active)
+		rtrn 0;
+	::llc::err_t result = 0;
+	if(0 != ::fflush(stdout) || 0 != ::fflush(stderr))
+		result = -1;
+	cnst int stdOut = llc_test_fileno(stdout);
+	cnst int stdErr = llc_test_fileno(stderr);
+	if(0 > llc_test_dup2(SavedStdOut, stdOut)) result = -1;
+	if(0 > llc_test_dup2(SavedStdErr, stdErr)) result = -1;
+	if(0 != llc_test_close(SavedStdOut)) result = -1;
+	if(0 != llc_test_close(SavedStdErr)) result = -1;
+	SavedStdOut = SavedStdErr = -1;
+	Active = false;
+	rtrn result;
 }
 
 sttc ::llc::err_t testJSONString(::llc::vcst_t text, ::llc::string & result) {
@@ -79,7 +128,7 @@ sttc ::llc::err_t testSummaryJSON(cnst STestSuiteReport & report, ::llc::string 
 		, ",\"failed\":", ::llc::str(report.Failures)
 		, ",\"result_groups\":", ::llc::str(report.Groups));
 }
-::llc::err_t testSuiteReportWrite(::llc::vcst_t folder, cnst STestSuiteReport & report, cnst ATestError & results, cnst STestLogBuffer & log) {
+::llc::err_t testSuiteReportWrite(::llc::vcst_t folder, cnst STestSuiteReport & report, cnst ATestError & results) {
 	::llc::string json;
 	if_fail_fe(testSummaryJSON(report, json));
 	if_fail_fe(json.append_string(",\"schema_version\":1,\"results\":["));
@@ -98,9 +147,7 @@ sttc ::llc::err_t testSummaryJSON(cnst STestSuiteReport & report, ::llc::string 
 			, ",\"failed\":", ::llc::str(item.Count), '}'));
 	}
 	if_fail_fe(json.append_string("]}\n"));
-	cnst ::llc::err_t logResult = testReportWrite(folder, "console.log", log.Text);
-	cnst ::llc::err_t jsonResult = testReportWrite(folder, "results.json", json);
-	rtrn ::llc::min(logResult, jsonResult);
+	rtrn testReportWrite(folder, "results.json", json);
 }
 
 sttc ::llc::err_t testRunFolder(::llc::vcst_t parent, ::llc::string & folder) {
@@ -138,18 +185,6 @@ sttc ::llc::err_t testRunReportWrite(cnst STestRunReport & run, ::llc::err_t sta
 	if_fail_fe(::llc::append_strings(json, ",\"checks\":", ::llc::str(checks), ",\"passed\":", ::llc::str(checks - failures)
 		, ",\"failed\":", ::llc::str(failures), ",\"suites\":[", suites, "]}\n"));
 	rtrn testReportWrite(run.Folder, "results.json", json);
-}
-
-sttc ::llc::err_t testRootLogWrite(::llc::vcst_t folder, cnst STestLogBuffer & log) {
-	// File diagnostics append to the active log; write from separate storage.
-	::llc::string snapshot;
-	if_fail_fe(snapshot.append(log.Text));
-	if(folder.size() && !::llc::failed(testReportWrite(folder, "console.log", snapshot)))
-		rtrn 0;
-	snapshot.clear();
-	if_fail_fe(snapshot.append(log.Text));
-	if_fail_fe(testReportWrite(".", "llc_test_core.log", snapshot));
-	rtrn -1;
 }
 
 err_t testRunPrepare(SRuntimeValues & runtimeValues, STestRunReport & run, aobj<vcst_t> & selectedSuites) {
@@ -200,51 +235,53 @@ err_t testRunSummary(cnst ATestError & results, err_t result, u3_t microseconds)
 	rtrn ::llc::failed(result) ? result : failureCount ? ::llc::OS_ERROR : 0;
 }
 
-err_t testRunFinish(cnst STestRunReport & run, cnst STestLogBuffer & log, err_t status, u3_t microseconds) {
-	if(log.Failed) status = -1;
+err_t testRunFinish(cnst STestRunReport & run, err_t status, u3_t microseconds) {
 	if(run.Folder.size()) {
 		try { status = ::llc::min(status, testRunReportWrite(run, status, microseconds, TestSeedOverrideEnabled, TestSeedOverride)); }
 		catch(...) { status = -1; error_printf("%s", "Cannot write run reports."); }
 	}
-	try { status = ::llc::min(status, testRootLogWrite(run.Folder, log)); }
-	catch(...) { status = -1; }
-	rtrn log.Failed ? -1 : status;
+	rtrn status;
 }
 } // namespace llc
 
 GDEFINE_ENUM_TYPE(TEST_REPORT_RESULT, ::llc::u0_t);
-GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, CAPTURE, 0, "Log capture must preserve print/write bytes and restore the enclosing buffer.");
-GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, QUIET, 1, "File-only capture must not forward to the console writer.");
-GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, CONSOLE, 2, "Opt-in console capture must forward each byte once.");
-GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, ROOT_ERROR, 3, "Report-writing errors must survive in the root log.");
+GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, OUTER_TEXT, 0, "The outer descriptor capture must receive stdout, stderr, LLC diagnostics and restored output exactly once.");
+GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, INNER_TEXT, 1, "The nested descriptor capture must isolate its stdout and stderr bytes.");
+GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, ROOT_ERROR, 2, "Report-writing errors must survive in a descriptor log.");
 
-::llc::err_t llc::testReporting(ATestError & errors, ::llc::vcst_t outputFolder) {
-	STestLogBuffer captured;
-	cnst STestLogWriters previousWriters = TestConsoleWriters;
-	cnst bool previousConsole = TestConsoleEnabled;
-	STestLogBuffer * previousBuffer = TestActiveLog;
-	sttc ::llc::u2_t forwarded = 0;
-	forwarded = 0;
-	::llc::u2_t quietForwarded = 0;
-	::llc::err_t captureResult = 0;
-	TestConsoleWriters.Write = [](const char *, ::llc::u2_t length) -> ::llc::err_t { forwarded += length; rtrn 0; };
-	{
-		STestLogCapture capture(captured);
-		TestConsoleEnabled = false;
-		captureResult = ::llc::log_print("quiet");
-		captureResult = ::llc::min(captureResult, ::llc::log_write(":raw", 4));
-		quietForwarded = forwarded;
-		TestConsoleEnabled = true;
-		captureResult = ::llc::min(captureResult, ::llc::log_print("echo"));
-		captureResult = ::llc::min(captureResult, ::llc::log_write(":raw", 4));
-	}
-	TestConsoleEnabled = previousConsole;
-	TestConsoleWriters = previousWriters;
-	STestLogWriters restored;
-	if_fail_fe(::llc::getLogCallbacks(restored.Print, restored.Write));
-	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_CAPTURE, ::llc::failed(captureResult) || captured.Failed || captured.Text != "quiet:rawecho:raw" || TestActiveLog != previousBuffer || restored.Print != testCapturePrint || restored.Write != testCaptureWrite);
-	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_QUIET, quietForwarded != 0);
-	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_CONSOLE, forwarded != 8);
+::llc::err_t llc::test_reporting(ATestError & errors, ::llc::vcst_t outputFolder) {
+	::llc::string outerPath, innerPath;
+	if_fail_fe(::llc::pathNameCompose(outputFolder, "capture_outer.log", outerPath));
+	if_fail_fe(::llc::pathNameCompose(outputFolder, "capture_inner.log", innerPath));
+
+	STestLogCapture outer;
+	if_fail_fe(outer.open(outerPath));
+	::fprintf(stdout, "%s", "stdout\n");
+	::fflush(stdout);
+	::fprintf(stderr, "%s", "stderr\n");
+	::fflush(stderr);
+	if_fail_fe(::llc::log_print("framework\n"));
+
+	STestLogCapture inner;
+	if_fail_fe(inner.open(innerPath));
+	::fprintf(stdout, "%s", "inner-out\n");
+	::fflush(stdout);
+	::fprintf(stderr, "%s", "inner-err\n");
+	::fflush(stderr);
+	if_fail_fe(inner.close());
+	::fprintf(stderr, "%s", "restored\n");
+	::fflush(stderr);
+	if_fail_fe(outer.close());
+
+	::llc::au0_t outerBytes, innerBytes;
+	if_fail_fe(::llc::fileToMemory(outerPath, outerBytes));
+	if_fail_fe(::llc::fileToMemory(innerPath, innerBytes));
+	stxp ::llc::sc_c expectedOuter[] = "stdout\nstderr\nframework\nrestored\n";
+	stxp ::llc::sc_c expectedInner[] = "inner-out\ninner-err\n";
+	cnst ::llc::vcu0_c outerExpected = {(cnst ::llc::u0_t*)expectedOuter, ::llc::size(expectedOuter) - 1};
+	cnst ::llc::vcu0_c innerExpected = {(cnst ::llc::u0_t*)expectedInner, ::llc::size(expectedInner) - 1};
+	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_OUTER_TEXT, outerBytes != outerExpected);
+	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_INNER_TEXT, innerBytes != innerExpected);
 
 	STestRunReport failedRun;
 	::llc::string blockedFile;
@@ -252,17 +289,14 @@ GDEFINE_ENUM_VALUED(TEST_REPORT_RESULT, ROOT_ERROR, 3, "Report-writing errors mu
 	if_fail_fe(::llc::pathCreate(failedRun.Folder));
 	if_fail_fe(::llc::pathNameCompose(failedRun.Folder, "results.json", blockedFile));
 	if_fail_fe(::llc::pathCreate(blockedFile)); // A directory cannot be replaced with the JSON file.
-	STestLogBuffer failureLog;
-	::llc::string expected;
-	::llc::err_t reportResult, logResult;
-	{
-		STestLogCapture capture(failureLog);
-		reportResult = testRunReportWrite(failedRun, -1, 0, false, 0);
-		if_fail_fe(expected.append(failureLog.Text));
-		logResult = testRootLogWrite(failedRun.Folder, failureLog);
-	}
+	::llc::string failurePath;
+	if_fail_fe(::llc::pathNameCompose(outputFolder, "report_write_failure.log", failurePath));
+	STestLogCapture failureCapture;
+	if_fail_fe(failureCapture.open(failurePath));
+	cnst ::llc::err_t reportResult = testRunReportWrite(failedRun, -1, 0, false, 0);
+	cnst ::llc::err_t closeResult = failureCapture.close();
 	::llc::au0_t saved;
-	if_fail_fe(::llc::fileToMemory(failedRun.Folder, "console.log", saved));
-	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_ROOT_ERROR, 0 <= reportResult || ::llc::failed(logResult) || failureLog.Failed || !expected.size() || saved != expected.cc().cu8());
+	if_fail_fe(::llc::fileToMemory(failurePath, saved));
+	LLC_TEST_CHECK(errors, TEST_REPORT_RESULT_ROOT_ERROR, 0 <= reportResult || ::llc::failed(closeResult) || !saved.size());
 	rtrn 0;
 }

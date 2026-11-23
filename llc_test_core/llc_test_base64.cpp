@@ -435,7 +435,7 @@ sttc ::llc::err_t testBase64Random(::llc::ATestError & errors, bool fileSafe) {
 	rtrn 0;
 }
 
-::llc::err_t testBase64(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_base64(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testBase64Vectors			(errors));
 	if_fail_fe(testBase64Append			(errors));
 	if_fail_fe(testBase64Alphabets		(errors));

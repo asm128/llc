@@ -338,7 +338,7 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 	rtrn 0;
 }
 
-::llc::err_t testJSONExpression(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_json_expression(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testJSONExpressionHistorical(errors, outputFolder));
 	cnst ::llc::vcst_t document = "{\"application\":{\"blitter\":{\"database\":{\"name\":\"main\",\"enabled\":true,\"disabled\":false,\"negativeZero\":-0.0,\"path\":{\"database\":\"data\"},\"bind\":[\"id\",\"name\"]}}},\"selector\":\"selectorName\",\"selectorName\":\"name\"}";
 	if_fail_fe(::llc::fileFromMemory(outputFolder, "focused_input.json", document.cu8()));

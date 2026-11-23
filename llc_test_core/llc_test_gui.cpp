@@ -987,7 +987,7 @@ sttc ::llc::err_t testGUIVisualScene(::llc::ATestError & errors, ::llc::vcst_t o
 	rtrn 0;
 }
 
-::llc::err_t testGUI(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_gui(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testGUIVisualScene(errors, outputFolder));
 	if_fail_fe(::testGUIUpdateDrawOrder(errors));
 	if_fail_fe(::testGUITextCore(errors));

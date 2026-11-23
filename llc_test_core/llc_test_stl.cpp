@@ -82,7 +82,7 @@ sttc ::llc::err_t testSTLGeometry(::llc::ATestError & errors, ::llc::vcst_t outp
 	rtrn 0;
 }
 
-::llc::err_t testSTL(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_stl(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testSTLGeometry(errors, outputFolder));
 	stxp ::llc::u2_t				HEADER_SIZE				= 80;
 	::llc::SSTLTriangle			expected[2]				= {};

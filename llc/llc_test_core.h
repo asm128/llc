@@ -1,5 +1,4 @@
 #include "llc_enum.h"
-#include "llc_mutex.h"
 #include "llc_path.h"
 #include "llc_runtime.h"
 #include "llc_timer.h"
@@ -93,23 +92,16 @@ namespace llc
 		}
 		always_printf("%.*s: %u bytes; showing %u%s\n%s", LLC_VIEW_ARGS(label), bytes.size(), count, count < bytes.size() ? " (prefix only)" : "", text);
 	}
-struct STestLogWriters {
-	::llc::log_print_t Print = {};
-	::llc::log_write_t Write = {};
-};
-
-struct STestLogBuffer {
-	::llc::string Text;
-	::llc::mutex Mutex;
-	bool Failed = false;
-};
 struct STestLogCapture {
-	STestLogWriters Previous;
-	STestLogBuffer * PreviousBuffer = {};
-	STestLogCapture(STestLogBuffer & buffer, bool console = false);
+	::llc::s2_t SavedStdOut = -1;
+	::llc::s2_t SavedStdErr = -1;
+	bool Active = false;
+	STestLogCapture() = default;
 	~STestLogCapture();
 	STestLogCapture(cnst STestLogCapture &) = delete;
 	STestLogCapture & operator=(cnst STestLogCapture &) = delete;
+	::llc::err_t open(::llc::vcst_t fileName);
+	::llc::err_t close();
 };
 
 struct STestSuiteReport {
@@ -125,11 +117,11 @@ struct STestRunReport {
 };
 
 
-	err_t testSuiteReportWrite(vcst_t folder, cnst STestSuiteReport & report, cnst ATestError & results, cnst STestLogBuffer & log);
+	err_t testSuiteReportWrite(vcst_t folder, cnst STestSuiteReport & report, cnst ATestError & results);
 	err_t testRunPrepare(SRuntimeValues & runtimeValues, STestRunReport & run, aobj<vcst_t> & selectedSuites);
 	err_t testRunSummary(cnst ATestError & results, err_t result, u3_t microseconds);
-	err_t testRunFinish(cnst STestRunReport & run, cnst STestLogBuffer & log, err_t status, u3_t microseconds);
-	err_t testReporting(ATestError & errors, vcst_t outputFolder);
+	err_t testRunFinish(cnst STestRunReport & run, err_t status, u3_t microseconds);
+	err_t test_reporting(ATestError & errors, vcst_t outputFolder);
 
 tplt<tpnm TFunction>
 stct STestSuite {
@@ -154,9 +146,12 @@ sttc ::llc::err_t testSuiteRun(ATestError & results, STestRunReport & run, ::llc
 		rtrn -1;
 	}
 	ATestError suiteResults;
-	STestLogBuffer log;
+	::llc::string logPath;
+	::llc::err_t captureStatus = ::llc::pathNameCompose(folder, "console.log", logPath);
+	STestLogCapture capture;
+	if(0 <= captureStatus)
+		captureStatus = capture.open(logPath);
 	{
-		STestLogCapture capture(log);
 		::llc::STimer timer;
 		try { report.Status = suite.Function(suiteResults, folder); }
 		catch(...) { report.Status = -1; error_printf("%s", "Unhandled suite exception."); }
@@ -176,8 +171,9 @@ sttc ::llc::err_t testSuiteRun(ATestError & results, STestRunReport & run, ::llc
 		else
 			always_printf("%.*s() result OK in %" LLC_FMT_U3 " us: %u checks passed.", LLC_VIEW_ARGS(suite.Name), report.Microseconds, report.Checks);
 	}
-	if(log.Failed) report.ReportStatus = -1;
-	try { report.ReportStatus = ::llc::min(report.ReportStatus, testSuiteReportWrite(folder, report, suiteResults, log)); }
+	captureStatus = ::llc::min(captureStatus, capture.close());
+	report.ReportStatus = ::llc::min(report.ReportStatus, captureStatus);
+	try { report.ReportStatus = ::llc::min(report.ReportStatus, testSuiteReportWrite(folder, report, suiteResults)); }
 	catch(...) { report.ReportStatus = -1; error_printf("Could not serialize suite '%.*s'.", LLC_VIEW_ARGS(suite.Name)); }
 	if_fail_fe(run.Suites.push_back(report));
 	for(cnst auto & item : suiteResults)
@@ -189,15 +185,19 @@ sttc ::llc::err_t testSuiteRun(ATestError & results, STestRunReport & run, ::llc
 
 	tplt<tpnm... TSuites>
 	err_t runSuites(SRuntimeValues & runtimeValues, cnst TSuites &... suites) {
-		STestLogBuffer log;
-		STestLogCapture capture(log, 0 <= argsOptionIndex(runtimeValues.EntryPointArgs, "console"));
 		STestRunReport run;
 		err_t status = 0;
+		err_t captureStatus = 0;
+		STestLogCapture capture;
 		STimer timer;
 		try {
 			status = [&]() -> err_t {
 				aobj<vcst_t> selectedSuites;
 				if_fail_fe(testRunPrepare(runtimeValues, run, selectedSuites));
+				::llc::string logPath;
+				captureStatus = ::llc::pathNameCompose(run.Folder, "console.log", logPath);
+				if(0 <= captureStatus)
+					captureStatus = capture.open(logPath);
 				for(cnst vcst_t & selectedSuite : selectedSuites) {
 					cnst bool found = ((suites.Name == selectedSuite) || ...);
 					if_zero_fef(found, "Unknown test suite:'%.*s'.", LLC_VIEW_ARGS(selectedSuite));
@@ -212,10 +212,13 @@ sttc ::llc::err_t testSuiteRun(ATestError & results, STestRunReport & run, ::llc
 		}
 		catch(...) { status = -1; error_printf("%s", "Runner setup or execution exception."); }
 		timer.Frame();
-		rtrn testRunFinish(run, log, status, timer.LastTimeMicroseconds);
+		status = ::llc::min(status, captureStatus);
+		status = ::llc::min(status, testRunFinish(run, status, timer.LastTimeMicroseconds));
+		captureStatus = capture.close();
+		rtrn ::llc::min(status, captureStatus);
 	}
 } // namespace
 
-#define LLC_TEST_SUITE(funcSuite, folder) ::llc::testSuite(funcSuite, #funcSuite, folder)
+#define LLC_TEST_SUITE(funcSuite) ::llc::testSuite(test_##funcSuite, #funcSuite, #funcSuite)
 
 #endif // LLC_TEST_CORE_H

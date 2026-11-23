@@ -248,7 +248,7 @@ sttc ::llc::err_t testCOMArray(::llc::ATestError& errors) {
 	rtrn 0;
 }
 
-::llc::err_t testCOMPlus(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_complus(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testCOMSafeFunctions(errors));
 	if_fail_fe(testCOMOwnership(errors));
 	if_fail_fe(testCOMReplacement(errors));
@@ -258,6 +258,6 @@ sttc ::llc::err_t testCOMArray(::llc::ATestError& errors) {
 
 #else
 
-::llc::err_t testCOMPlus(::llc::ATestError&, [[maybe_unused]] ::llc::vcst_t outputFolder) { rtrn 0; }
+::llc::err_t test_complus(::llc::ATestError&, [[maybe_unused]] ::llc::vcst_t outputFolder) { rtrn 0; }
 
 #endif

@@ -176,7 +176,7 @@ sttc ::llc::err_t testASCIITargetResizeGuards(::llc::ATestError& errors, ::llc::
 	rtrn 0;
 }
 
-::llc::err_t testASCIITarget(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_ascii_target(::llc::ATestError& errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testASCIITargetDefaults(errors));
 	::llc::SASCIITarget target = {};
 	if_fail_fe(::testASCIITargetClear(errors, target));

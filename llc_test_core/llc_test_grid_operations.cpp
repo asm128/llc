@@ -154,7 +154,7 @@ sttc ::llc::err_t testGridStatic(::llc::ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testGridOperations(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_grid_operations(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testGridCopy(errors));
 	if_fail_fe(testGridScale(errors));
 	return testGridStatic(errors);

@@ -100,7 +100,7 @@ sttc ::llc::err_t testXMLStorage(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testXMLReader(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_xml(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCountBefore = testErrorCount(errors);
 	if_fail_fe(::testXMLDocuments(errors));
 	if_fail_fe(::testXMLFailures(errors));
