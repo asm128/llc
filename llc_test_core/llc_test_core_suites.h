@@ -49,6 +49,7 @@
 ::llc::err_t test_ptr		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_png			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_process		(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
+::llc::err_t test_process_broker	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 //::llc::err_t test_runtime_module	(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_noise			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);
 ::llc::err_t test_stl			(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder);

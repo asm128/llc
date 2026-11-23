@@ -4,13 +4,22 @@
 namespace llc {
 tplt<tpnm T>
 err_t SProcessManager<T>::Redirect(u2_t id) {
+	rtrn Redirect(id, false);
+}
+
+tplt<tpnm T>
+err_t SProcessManager<T>::Redirect(u2_t id, bool separateError) {
 	err_t result;
 	if_fail_vef(-1, result = Validate(id), "(%" LLC_FMT_S2 ")", result);
 	SProcess & record = KnownProcesses[id];
 	if_true_fe(record.State.Started);
-	if(record.State.Redirected) rtrn 0;
-	if_fail_vef(-1, result = process_detail::processRedirect(PlatformState[id]), "(%" LLC_FMT_S2 ")", result);
+	if(record.State.Redirected) {
+		if_true_fef(record.State.SeparateError != separateError, "%s", "Process redirection mode cannot be changed after pipes are created.");
+		rtrn 0;
+	}
+	if_fail_vef(-1, result = process_detail::processRedirect(PlatformState[id], separateError), "(%" LLC_FMT_S2 ")", result);
 	record.State.Redirected = true;
+	record.State.SeparateError = separateError;
 	rtrn 0;
 }
 
@@ -49,12 +58,32 @@ err_t SProcessManager<T>::Read(u2_t id, au0_t & output) {
 }
 
 tplt<tpnm T>
+err_t SProcessManager<T>::Read(u2_t id, au0_t & output, au0_t & errorOutput) {
+	err_t result;
+	if_fail_vef(-1, result = Validate(id), "(%" LLC_FMT_S2 ")", result);
+	cnst auto & state = KnownProcesses[id].State;
+	if_true_fe(!state.Started || !state.Redirected || !state.SeparateError);
+	if_fail_vef(result, result = process_detail::processRead(PlatformState[id], output, errorOutput), "(%" LLC_FMT_S2 ")", result);
+	rtrn result;
+}
+
+tplt<tpnm T>
 err_t SProcessManager<T>::Communicate(u2_t id, vcu0_t input, au0_t & output) {
 	err_t result;
 	if_fail_vef(-1, result = Validate(id), "(%" LLC_FMT_S2 ")", result);
 	cnst auto & state = KnownProcesses[id].State;
 	if_true_fe(!state.Started || !state.Redirected || state.Finished);
 	if_fail_vef(result, result = process_detail::processCommunicate(PlatformState[id], input, output), "(%" LLC_FMT_S2 ")", result);
+	rtrn result;
+}
+
+tplt<tpnm T>
+err_t SProcessManager<T>::Communicate(u2_t id, vcu0_t input, au0_t & output, au0_t & errorOutput) {
+	err_t result;
+	if_fail_vef(-1, result = Validate(id), "(%" LLC_FMT_S2 ")", result);
+	cnst auto & state = KnownProcesses[id].State;
+	if_true_fe(!state.Started || !state.Redirected || !state.SeparateError || state.Finished);
+	if_fail_vef(result, result = process_detail::processCommunicate(PlatformState[id], input, output, errorOutput), "(%" LLC_FMT_S2 ")", result);
 	rtrn result;
 }
 
@@ -80,6 +109,18 @@ err_t SProcessManager<T>::Execute(u2_t id, vcu0_t input, au0_t & output, u2_t & 
 	if_fail_vef(-1, result = Redirect(id), "(%" LLC_FMT_S2 ")", result);
 	if_fail_vef(-1, result = Launch(id), "(%" LLC_FMT_S2 ")", result);
 	if_fail_vef(result, result = Communicate(id, input, output), "(%" LLC_FMT_S2 ")", result);
+	if_fail_vef(result, result = Wait(id, exitCode), "(%" LLC_FMT_S2 ")", result);
+	rtrn result;
+}
+
+tplt<tpnm T>
+err_t SProcessManager<T>::Execute(u2_t id, vcu0_t input, au0_t & output, au0_t & errorOutput, u2_t & exitCode) {
+	err_t result;
+	if_fail_vef(-1, result = Validate(id), "(%" LLC_FMT_S2 ")", result);
+	if_true_fe(KnownProcesses[id].State.Started);
+	if_fail_vef(-1, result = Redirect(id, true), "(%" LLC_FMT_S2 ")", result);
+	if_fail_vef(-1, result = Launch(id), "(%" LLC_FMT_S2 ")", result);
+	if_fail_vef(result, result = Communicate(id, input, output, errorOutput), "(%" LLC_FMT_S2 ")", result);
 	if_fail_vef(result, result = Wait(id, exitCode), "(%" LLC_FMT_S2 ")", result);
 	rtrn result;
 }

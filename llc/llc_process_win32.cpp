@@ -39,6 +39,8 @@ llc::err_t			processClose			(SProcessWin32 & process) {
 		failedToClose			= true;
 	if(failed(processHandleClose(process.StdoutRead)))
 		failedToClose			= true;
+	if(failed(processHandleClose(process.StderrRead)))
+		failedToClose			= true;
 	if(failed(processHandleClose(process.Info.hThread)))
 		failedToClose			= true;
 	if(failed(processHandleClose(process.Info.hProcess)))
@@ -48,7 +50,7 @@ llc::err_t			processClose			(SProcessWin32 & process) {
 	rtrn failedToClose ? OS_ERROR : 0;
 }
 
-llc::err_t processRedirect(SProcessWin32 & process) {
+llc::err_t processRedirect(SProcessWin32 & process, bool separateError) {
 	if(process.Info.hProcess || process.Info.hThread)
 		rtrn OS_BUSY;
 	llc_necs(processClose(process));
@@ -58,8 +60,16 @@ llc::err_t processRedirect(SProcessWin32 & process) {
 	if(!CreatePipe(&readEnd, &writeEnd, &security, 0))
 		rtrn OS_ERROR;
 	process.StdoutRead = (TWindowsHandle)readEnd;
-	process.Startup.HandleStdOutput = process.Startup.HandleStdError = (TWindowsHandle)writeEnd;
+	process.Startup.HandleStdOutput = (TWindowsHandle)writeEnd;
 	if_true_ve(OS_ERROR, !SetHandleInformation(readEnd, HANDLE_FLAG_INHERIT, 0));
+	if(separateError) {
+		if_true_ve(OS_ERROR, !CreatePipe(&readEnd, &writeEnd, &security, 0));
+		process.StderrRead = (TWindowsHandle)readEnd;
+		process.Startup.HandleStdError = (TWindowsHandle)writeEnd;
+		if_true_ve(OS_ERROR, !SetHandleInformation(readEnd, HANDLE_FLAG_INHERIT, 0));
+	}
+	else
+		process.Startup.HandleStdError = process.Startup.HandleStdOutput;
 	if_true_ve(OS_ERROR, !CreatePipe(&readEnd, &writeEnd, &security, 0));
 	process.Startup.HandleStdInput = (TWindowsHandle)readEnd;
 	process.StdinWrite = (TWindowsHandle)writeEnd;
@@ -117,14 +127,14 @@ llc::err_t			processWrite			(SProcessWin32 & process, vcu0_t input) {
 	rtrn scope.Close();
 }
 
-llc::err_t			processRead			(SProcessWin32 & process, au0_t & output) {
-	if(0 == process.StdoutRead || INVALID_WINDOWS_HANDLE == process.StdoutRead)
+sttc llc::err_t		processPipeRead		(TWindowsHandle & pipe, au0_t & output) {
+	if(0 == pipe || INVALID_WINDOWS_HANDLE == pipe)
 		rtrn OS_ERROR;
-	auto_process_handle scope{process.StdoutRead};
+	auto_process_handle scope{pipe};
 	u0_t					buffer[4096]					= {};
 	while(true) {
 		DWORD					readCount						= 0;
-		if(FALSE == ReadFile((HANDLE)process.StdoutRead, buffer, sizeof(buffer), &readCount, 0)) {
+		if(FALSE == ReadFile((HANDLE)pipe, buffer, sizeof(buffer), &readCount, 0)) {
 			cnst DWORD				lastError						= GetLastError();
 			rtrn ERROR_BROKEN_PIPE == lastError ? 0 : OS_ERROR;
 		}
@@ -133,6 +143,46 @@ llc::err_t			processRead			(SProcessWin32 & process, au0_t & output) {
 		if_fail_ve(OS_ERROR, output.append(buffer, readCount));
 	}
 	rtrn scope.Close();
+}
+
+llc::err_t			processRead			(SProcessWin32 & process, au0_t & output) {
+	rtrn processPipeRead(process.StdoutRead, output);
+}
+
+stct SProcessOutput {
+	TWindowsHandle	& Pipe;
+	au0_t			& Output;
+	llc::err_t	Result		= OS_ERROR;
+};
+
+sttc DWORD WINAPI threadOutputRead(void * parameter) {
+	SProcessOutput & context = *(SProcessOutput*)parameter;
+	context.Result = processPipeRead(context.Pipe, context.Output);
+	rtrn 0;
+}
+
+stct auto_process_reader : auto_handler<HANDLE, nullptr> {
+	~auto_process_reader() { if_fail_e(Close()); }
+	err_t Close() {
+		if(!Handle) rtrn 0;
+		cnst DWORD waited = WaitForSingleObject(Handle, INFINITE);
+		cnst HANDLE closing = Handle;
+		Handle = 0;
+		cnst BOOL closed = CloseHandle(closing);
+		rtrn WAIT_OBJECT_0 == waited && closed ? 0 : OS_ERROR;
+	}
+};
+
+llc::err_t processRead(SProcessWin32 & process, au0_t & output, au0_t & errorOutput) {
+	if(0 == process.StderrRead || INVALID_WINDOWS_HANDLE == process.StderrRead)
+		rtrn OS_ERROR;
+	SProcessOutput context = {process.StderrRead, errorOutput};
+	auto_process_reader reader;
+	reader.Handle = CreateThread(0, 0, threadOutputRead, &context, 0, 0);
+	if_null_fef(reader.Handle, "Cannot start process error reader: %lu.", GetLastError());
+	cnst err_t outputResult = processPipeRead(process.StdoutRead, output);
+	cnst err_t closeResult = reader.Close();
+	rtrn failed(outputResult) ? outputResult : failed(context.Result) ? context.Result : closeResult;
 }
 
 llc::err_t			processWait			(SProcessWin32 & process, u2_t & exitCode) {
@@ -191,6 +241,20 @@ llc::err_t processCommunicate(SProcessWin32 & process, vcu0_t input, au0_t & out
 	writer.Handle = CreateThread(0, 0, threadInputWrite, &context, 0, 0);
 	if_null_fef(writer.Handle, "Cannot start process input writer: %lu.", GetLastError());
 	writer.Result = processRead(process, output);
+	cnst err_t closeResult = writer.Close();
+	rtrn failed(writer.Result) ? writer.Result : failed(context.Result) ? context.Result : closeResult;
+}
+
+llc::err_t processCommunicate(SProcessWin32 & process, vcu0_t input, au0_t & output, au0_t & errorOutput) {
+	if(0 == input.size()) {
+		llc_necs(processWrite(process, input));
+		rtrn processRead(process, output, errorOutput);
+	}
+	SProcessInput context = {process, input};
+	auto_process_writer writer;
+	writer.Handle = CreateThread(0, 0, threadInputWrite, &context, 0, 0);
+	if_null_fef(writer.Handle, "Cannot start process input writer: %lu.", GetLastError());
+	writer.Result = processRead(process, output, errorOutput);
 	cnst err_t closeResult = writer.Close();
 	rtrn failed(writer.Result) ? writer.Result : failed(context.Result) ? context.Result : closeResult;
 }
