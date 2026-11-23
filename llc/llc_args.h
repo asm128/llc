@@ -1,6 +1,5 @@
 #include "llc_string.h"
 #include "llc_array_obj.h"
-#include "llc_array_pod.h"
 #include "llc_keyval.h"
 
 #ifndef LLC_ARGS_H_23627
@@ -12,8 +11,6 @@ namespace llc
 		vcst_t					ProgramName = {};
 		aobj<keyval<vcst_t>>	Options		= {};
 		aobj<vcst_t>			Positionals	= {};
-		au0_t					Order		= {};
-		au0_t					OptionStarts	= {};
 		aobj<vcst_t>			Environment	= {};
 	};
 

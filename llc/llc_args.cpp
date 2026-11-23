@@ -115,14 +115,11 @@ llc::err_t		llc::argsParse			(SCommandLineArgs & output, view<cnst vcst_t> argv,
 		vcst_t					argument			= argv[iArg];
 		if(positionalOnly) {
 			if_fail_fe(output.Positionals.push_back(argument));
-			if_fail_fe(output.Order.push_back(0));
 			continue;
 		}
 		if(argument == "--") {
 			if(option.Key.size() && false == hasOptionValues) {
 				if_fail_fe(output.Options.push_back(option));
-				if_fail_fe(output.Order.push_back(1));
-				if_fail_fe(output.OptionStarts.push_back(1));
 			}
 			option				= {};
 			positionalOnly		= true;
@@ -131,20 +128,15 @@ llc::err_t		llc::argsParse			(SCommandLineArgs & output, view<cnst vcst_t> argv,
 		if(1 >= argument.size() || '-' != argument[0]) {
 			if(0 == option.Key.size()) {
 				if_fail_fe(output.Positionals.push_back(argument));
-				if_fail_fe(output.Order.push_back(0));
 			}
 			else {
 				if_fail_fe(output.Options.emplace_back(option.Key, argument));
-				if_fail_fe(output.Order.push_back(1));
-				if_fail_fe(output.OptionStarts.push_back(!hasOptionValues));
 				hasOptionValues	= true;
 			}
 			continue;
 		}
 		if(option.Key.size() && false == hasOptionValues) {
 			if_fail_fe(output.Options.push_back(option));
-			if_fail_fe(output.Order.push_back(1));
-			if_fail_fe(output.OptionStarts.push_back(1));
 		}
 		option				= {};
 		hasOptionValues		= false;
@@ -152,15 +144,10 @@ llc::err_t		llc::argsParse			(SCommandLineArgs & output, view<cnst vcst_t> argv,
 		if_fail_fe(hasValue = argsOptionName(argument, option));
 		if(hasValue) {
 			if_fail_fe(output.Options.push_back(option));
-			if_fail_fe(output.Order.push_back(1));
-			if_fail_fe(output.OptionStarts.push_back(1));
 			option				= {};
 		}
 	}
-	if(option.Key.size() && false == hasOptionValues) {
+	if(option.Key.size() && false == hasOptionValues)
 		if_fail_fe(output.Options.push_back(option));
-		if_fail_fe(output.Order.push_back(1));
-		if_fail_fe(output.OptionStarts.push_back(1));
-	}
 	rtrn output.Options.size() + output.Positionals.size();
 }
