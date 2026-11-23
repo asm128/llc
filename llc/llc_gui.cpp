@@ -13,6 +13,7 @@
 	if_true_fe(controlCount != controls.Constraints.size());
 	if_true_fe(controlCount != controls.Draw.size());
 	if_true_fe(controlCount != controls.Text.size());
+	if_true_fe(controlCount != controls.TextState.size());
 	if_true_fe(controlCount != controls.Images.size());
 	if_true_fe(controlCount != controls.Children.size());
 
@@ -20,7 +21,7 @@
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
 		const ::llc::SControlText & text = controls.Text[iControl];
 		if_fail_fef(::llc::saveView(output, text.Text), "iControl: %u", iControl);
-		if_fail_fef(::llc::save(output, text.Align, text.Selection, text.FontSelected), "iControl: %u", iControl);
+		if_fail_fef(::llc::save(output, text.Align, controls.TextState[iControl], text.FontSelected), "iControl: %u", iControl);
 	}
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
 		const ::llc::n2u2_t imageMetrics = controls.Images[iControl].Image.metrics();
@@ -41,7 +42,7 @@
 	::llc::SControlTable & controls = gui.Controls;
 	if_fail_fe(::llc::load(input, controls.States));
 	const ::llc::u2_t controlCount = controls.States.size();
-	if_fail_fe(::llc::resize(controlCount, controls.Text, controls.Images, controls.Children));
+	if_fail_fe(::llc::resize(controlCount, controls.Text, controls.TextState, controls.Images, controls.Children));
 	if_fail_fe(::llc::load(input, controls.Constraints, controls.Placement, controls.Area, controls.Draw));
 	if_true_fe(controlCount != controls.Constraints.size());
 	if_true_fe(controlCount != controls.Placement.size());
@@ -50,7 +51,7 @@
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
 		::llc::SControlText & text = controls.Text[iControl];
 		if_fail_fef(::llc::loadView(input, text.Text), "iControl: %u", iControl);
-		if_fail_fef(::llc::load(input, text.Align, text.Selection, text.FontSelected), "iControl: %u", iControl);
+		if_fail_fef(::llc::load(input, text.Align, controls.TextState[iControl], text.FontSelected), "iControl: %u", iControl);
 	}
 	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
 		::llc::n2u2_t imageMetrics = {};
@@ -735,6 +736,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 
 static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable, ::llc::cid_t iControl, ::llc::vi16 defaultColors)										{
 	controlTable.States		[iControl]	= {};
+	controlTable.TextState	[iControl].clear();
 	controlTable.Placement	[iControl]	= {};
 	controlTable.Area		[iControl]	= {};
 	controlTable.Constraints[iControl]	= {};
@@ -762,6 +764,7 @@ static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable,
 	::llc::cid_t				iControl				= -1;
 	llc_necs(iControl = (::llc::cid_t)::llc::resize(controlTable.States.size() + 1
 		, controlTable.States
+		, controlTable.TextState
 		, controlTable.Placement
 		, controlTable.Area
 		, controlTable.Constraints
