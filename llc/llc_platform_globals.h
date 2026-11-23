@@ -158,6 +158,7 @@
 
 #define tplTInTOut		tplt<tpnm TIn, tpnm TOut>
 #define tplTOutTIn		tplt<tpnm TOut, tpnm TIn>
+#define tplTInTArgs		tplt<tpnm TIn, tpnm... TArgs>
 
 #define cxpr_if(condition)		if cxpr(condition)
 #define cxpr_if_not(condition)	if cxpr(not(condition))
