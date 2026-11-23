@@ -51,6 +51,13 @@ namespace llc
 		return 0;
 	}
 	tplTstin		err_t	loadView					(vcs0_t & input, apod<T> & output)				{ return loadView(*(vcu0_t*)& input, output); }
+	tplTInTOut err_t load(view<cnst TIn> & input, apod<TOut> & output) { rtrn loadView(input, output); }
+	tplTInTArgs requires(sizeof...(TArgs) > 1)
+	err_t load(view<cnst TIn> & input, TArgs &... output) {
+		err_t result = 0;
+		((result = failed(result) ? result : load(input, output)), ...);
+		rtrn failed(result) ? result : 0;
+	}
 
 	//err_t					keyValConstStringSerialize	(view<cnst keyval<vcst_t>> keyVals, view<cnst vcst_t> keysToSave, au0_t & output);
 } // namespace
