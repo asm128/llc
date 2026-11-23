@@ -81,6 +81,7 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 	// Changhing the state from idle to hover however doesn't cause the control metrics to become outdated (and in general it's pointless for other than the effect we're applying here).
 
 	::llc::SControlText			& controlText		= gui.Controls.Text		[iControl];
+	const ::llc::apod<::llc::STextState> & textStates = gui.Controls.TextState[iControl];
 	::llc::apod<::llc::n2u1_t>	dstCoords;
 	const ::llc::u2_t				iFont				= ::llc::in_range(controlText.FontSelected, (int16_t)0, (int16_t)gui.Fonts.size()) ? controlText.FontSelected : gui.SelectedFont;
 	const ::llc::SRasterFont	& selectedFont		= *gui.Fonts[iFont];
@@ -97,7 +98,9 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 		colorSelectedFace = selectedColors[::llc::UI_CONTROL_AREA_TEXT_FACE];
 		colorSelectedBack = selectedColors[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND];
 	}
-	for(::llc::u2_t iCharacter = controlText.Selection.Min, countCharacter = ::llc::min((::llc::u2_t)controlText.Selection.Max, controlText.Text.size()); iCharacter < countCharacter; ++iCharacter) {
+	for(::llc::u2_t iCharacter = 0, countCharacter = ::llc::min(textStates.size(), controlText.Text.size()); iCharacter < countCharacter; ++iCharacter) {
+		if(false == textStates[iCharacter].IsSelected())
+			continue;
 		const ::llc::rect2s1_t characterRectangle = {{(::llc::s1_t)(rectText.Offset.x + selectedFont.CharSize.x * iCharacter), rectText.Offset.y}, selectedFont.CharSize.s1()};
 		::drawRectangle(target, colorSelectedBack, characterRectangle);
 	}
@@ -106,7 +109,7 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 		const ::llc::n2u1_t			dstCoord			= dstCoords[iCoord];
 		const ::llc::s2_t characterOffsetX = (::llc::s2_t)dstCoord.x - rectText.Offset.x;
 		const ::llc::u2_t iCharacter = 0 <= characterOffsetX && selectedFont.CharSize.x ? characterOffsetX / selectedFont.CharSize.x : controlText.Text.size();
-		target[dstCoord.y][dstCoord.x] = iCharacter >= controlText.Selection.Min && iCharacter < controlText.Selection.Max ? colorSelectedFace : colorFace;
+		target[dstCoord.y][dstCoord.x] = iCharacter < textStates.size() && textStates[iCharacter].IsSelected() ? colorSelectedFace : colorFace;
 		//::llc::drawPixelLight(target, dstCoords[iCoord], colorFace, controlState.Pressed ? 0.75f : 0.5f, controlState.Pressed ? 1.0f : 0.95);
 	}
 	return 0;

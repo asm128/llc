@@ -673,6 +673,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 
 static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable, ::llc::cid_t iControl, ::llc::vi16 defaultColors)										{
 	controlTable.States		[iControl]	= {};
+	controlTable.TextState	[iControl].clear();
 	controlTable.Placement	[iControl]	= {};
 	controlTable.Area		[iControl]	= {};
 	controlTable.Constraints[iControl]	= {};
@@ -700,6 +701,7 @@ static	::llc::error_t	controlInstanceReset	(::llc::SControlTable & controlTable,
 	::llc::cid_t				iControl				= -1;
 	llc_necs(iControl = (::llc::cid_t)::llc::resize(controlTable.States.size() + 1
 		, controlTable.States
+		, controlTable.TextState
 		, controlTable.Placement
 		, controlTable.Area
 		, controlTable.Constraints

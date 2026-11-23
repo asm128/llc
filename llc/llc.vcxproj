@@ -126,6 +126,7 @@
     <ClInclude Include="llc_grid_color.h" />
     <ClInclude Include="llc_gui_control.h" />
     <ClInclude Include="llc_gui_control_state.h" />
+    <ClInclude Include="llc_gui_text_flag.h" />
     <ClInclude Include="llc_gui_checkbox.h" />
     <ClInclude Include="llc_gui_render.h" />
     <ClInclude Include="llc_gui_inputbox.h" />
