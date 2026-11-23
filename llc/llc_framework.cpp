@@ -275,7 +275,7 @@ sttc	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		break;
 		}
 	case WM_ACTIVATE: {
-		switch(wParam) {
+		switch(LOWORD(wParam)) {
 		case WA_ACTIVE		: if_true_e(llc::failed(eventEnqueueScreenActivate  (mainDisplay.EventQueue, 0))); /*XInputEnable(1); */break; // Activated by some method other than a mouse click (for example, by a call to the SetActiveWindow function or by use of the keyboard interface to select the window).
 		case WA_CLICKACTIVE	: if_true_e(llc::failed(eventEnqueueScreenActivate  (mainDisplay.EventQueue, 1))); /*XInputEnable(1); */break; // Activated by a mouse click.
 		case WA_INACTIVE	: if_true_e(llc::failed(eventEnqueueScreenDeactivate(mainDisplay.EventQueue, 0))); /*XInputEnable(0); */break;
