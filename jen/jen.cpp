@@ -3,7 +3,7 @@
 #include "llc_json.h"
 #include "llc_json_expression.h"
 
-stxp const char input_json [] = R"jenjson(
+stxp ::llc::vcst_c input_json = R"jenjson(
 [
         { "properties" : [{ "name" : "color", "type" : "string"}, { "name" : "age", "type" : "int"} ]
         , "selection"  : {"index" : 1 , "active" : true }
@@ -24,7 +24,7 @@ stxp const char input_json [] = R"jenjson(
         },
 ]
 )jenjson";
-stxp const char input_expression [] = "{people['2'].name}'s {properties[selection.index].name}: {people['2'].property.(properties[selection.index].name)}";
+stxp ::llc::vcst_c input_expression = "{people['2'].name}'s {properties[selection.index].name}: {people['2'].property.(properties[selection.index].name)}";
 
 static ::llc::err_t jenStringFormat(::llc::vcst_t format, const ::llc::SJSONReader & reader, ::llc::asc_t & output) {
 	return ::llc::expressionStringFormat(format, [&](::llc::vcst_c & expression, ::llc::vcst_t & resolved) {
@@ -42,16 +42,14 @@ sttc ::llc::err_t jen_entry_point(::llc::SRuntimeValues & runtimeValues) {
 	cnst ::llc::SCommandLineArgs & args = runtimeValues.EntryPointArgs;
 	::llc::SJSONFile file;
 	if(2 != args.Order.size()) {
-		printf("usage: %.*s [-f] [json] [-f] [expression]\ninput_json:\n%s\ninput_expression:\n%s\n", LLC_VIEW_ARGS(args.ProgramName), input_json, input_expression);
-		const ::llc::vcst_t demoJson = {input_json, sizeof(input_json) - 1};
-		const ::llc::vcst_t demoExpression = {input_expression, sizeof(input_expression) - 1};
-		if_fail_fe(llc::jsonParse(file.Reader, demoJson));
+		printf("usage: %.*s [-f] [json] [-f] [expression]\ninput_json:\n%.*s\ninput_expression:\n%.*s\n", LLC_VIEW_ARGS(args.ProgramName), LLC_VIEW_ARGS(input_json), LLC_VIEW_ARGS(input_expression));
+		if_fail_fe(llc::jsonParse(file.Reader, input_json));
 		::llc::err_t demoRoot = {};
 		if_fail_fe(demoRoot = llc::jsonArrayValueGet(file.Reader, 0, 0));
 		::llc::SJSONReader demoReader = {};
 		if_fail_fe(llc::jsonParse(demoReader, file.Reader.View[demoRoot]));
 		::llc::asc_t demoResult = {};
-		if_fail_fe(::jenStringFormat(demoExpression, demoReader, demoResult));
+		if_fail_fe(::jenStringFormat(input_expression, demoReader, demoResult));
 		printf("result:\n%.*s\n", LLC_VIEW_ARGS(demoResult));
 		return 0 == args.Order.size() ? 0 : -1;
 	}
