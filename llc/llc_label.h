@@ -25,7 +25,6 @@ namespace llc
 		tplN2u	bool	oper==			(sc_c (&other)[N])			cnst	{ rtrn vcst_t::operator==(other); }
 		tplN2u	bool	oper!=			(sc_c (&other)[N])			cnst	{ rtrn !operator==(other); }
 
-		inln	oper	vcst_t			()							cnst	{ return {Data, Count}; }
 	};
 
 	tplN2u	inln bool	oper==	(sc_c (&left)[N], cnst label & right)	{ rtrn right.operator==(left); }

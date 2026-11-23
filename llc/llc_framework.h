@@ -14,7 +14,7 @@
 #ifndef LLC_FRAMEWORK_H_23627
 #define LLC_FRAMEWORK_H_23627
 
-namespace llc
+nmsp llc
 {
 	struct SFrameworkDetail {
 #if defined(LLC_WINDOWS)
@@ -32,44 +32,44 @@ namespace llc
 									SFrameworkDetail		() {
 			if(0 == XCBConnection) {
 				XCBConnection				= xcb_connect(NULL, NULL);
-				gthrow_if(0 == XCBConnection, "%s", "Failed to connect to X Server!");
+				if_true_tef(0 == XCBConnection, "%s", "Failed to connect to X Server!");
 				XCBScreen					= xcb_setup_roots_iterator(xcb_get_setup(XCBConnection)).data;
 			}
 		}
 
-									
+
 #endif
 	};
 
 	struct SFrameworkSettings {
-		bool						GUIZoom					: 1;
+		b8_t						GUIZoom					: 1;
 	};
 
-	struct SFramework : llc::SFrameTimer {
-		::llc::SRuntimeValues		& RuntimeValues			;
-		::llc::vcs					FileNameJSONConfig		= "llc_config.json";
-		::llc::pobj<::llc::SGUI>	GUI						= {};
-		::llc::SFrameworkDetail		PlatformDetail			= {};
-		::llc::SWindow				RootWindow				= {};
-		::llc::SFrameworkSettings	Settings				= {};
-		::llc::SJSONFile			JSONConfig				= {};
+	struct SFramework : SFrameTimer {
+		SRuntimeValues		& RuntimeValues			;
+		vcst_t				FileNameJSONConfig		= "llc_config.json";
+		pobj<SGUI>			GUI						= {};
+		SFrameworkDetail	PlatformDetail			= {};
+		SWindow				RootWindow				= {};
+		SFrameworkSettings	Settings				= {};
+		SJSONFile			JSONConfig				= {};
 
 #ifndef LLC_ATMEL
-		::std::mutex				LockGUI;
+		::std::mutex			LockGUI;
 #endif
 
-		inline						SFramework				(::llc::SRuntimeValues & runtimeValues, ::llc::vcs fileNameJSONConfig = "llc_config.json")
+		inln						SFramework				(SRuntimeValues & runtimeValues, vcst_t fileNameJSONConfig = "llc_config.json")
 			: RuntimeValues(runtimeValues), FileNameJSONConfig(fileNameJSONConfig) {
-			RootWindow.Input.create();
-			GUI.create();
+			if_null_e(RootWindow.Input.create());
+			if_null_e(GUI.create());
 			if(fileNameJSONConfig.size())	// Attempt to load config file.
-				if_fail_if(::llc::jsonFileRead(JSONConfig, fileNameJSONConfig), "File name: '%s'.", fileNameJSONConfig.begin());
+				if_fail_w(jsonFileRead(JSONConfig, fileNameJSONConfig));
 		}
 	}; // struct
 
-	::llc::error_t				updateFramework			(::llc::SFramework & framework);
-	::llc::error_t				mainWindowCreate		(::llc::SWindow & mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput> & displayInput);
-	::llc::error_t				mainWindowDestroy		(::llc::SWindow & mainWindow);
-} // namespace
+	err_t 			updateFramework			(SFramework & framework);
+	err_t 			mainWindowCreate		(SWindow & mainWindow, SRuntimeValuesDetail & runtimeValues, pobj<SInput> & displayInput);
+	err_t 			mainWindowDestroy		(SWindow & mainWindow);
+} // nmsp
 
 #endif // LLC_FRAMEWORK_H_23627

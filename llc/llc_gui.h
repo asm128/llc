@@ -32,6 +32,7 @@ namespace llc
 		::llc::apod<::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>>
 											Palettes;
 	};
+	tydf SGUIColors SControlColors;
 
 	struct SGUI {
 		::llc::n2u1_t						LastSize			= {};

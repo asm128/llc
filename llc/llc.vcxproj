@@ -110,6 +110,8 @@
     <ClInclude Include="llc_datatype.h" />
     <ClInclude Include="llc_debug.h" />
     <ClInclude Include="llc_deflate.h" />
+    <ClInclude Include="llc_dialog.h" />
+    <ClInclude Include="llc_dialog_controls.h" />
     <ClInclude Include="llc_gpio.h" />
     <ClInclude Include="llc_i2c.h" />
     <ClInclude Include="llc_keyed_bit_array.h" />
@@ -324,6 +326,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_deflate.cpp" />
+    <ClCompile Include="llc_dialog.cpp" />
     <ClCompile Include="llc_file_pack.cpp" />
     <ClCompile Include="llc_geometry.cpp" />
     <ClCompile Include="llc_geometry_draw.cpp">
@@ -411,9 +414,7 @@
     <ClCompile Include="llc_wifi.cpp" />
     <ClCompile Include="llc_window.cpp" />
     <ClCompile Include="llc_framework.cpp" />
-    <ClCompile Include="llc_gui_control_list.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="llc_gui_control_list.cpp" />
     <ClCompile Include="llc_gui_desktop.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
