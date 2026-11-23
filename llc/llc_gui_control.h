@@ -1,4 +1,5 @@
 #include "llc_gui_control_state.h"
+#include "llc_gui_text_flag.h"
 
 #include "llc_tri2.h"
 #include "llc_rect.h"
@@ -183,7 +184,6 @@ namespace llc
 	struct SControlText {
 		::llc::vcst_t					Text				= {};
 		::llc::ALIGN				Align				= ::llc::ALIGN_CENTER;
-		::llc::minmaxu1_t			Selection			= {0, 1};
 		int16_t						FontSelected		= -1;
 	};
 
@@ -205,6 +205,7 @@ namespace llc
 
 	struct SControlTable {
 		::llc::apod<::llc::SControlState		>	States			= {};
+		::llc::aobj<::llc::apod<::llc::STextState>> TextState	= {};
 		::llc::apod<::llc::SControlPlacement	>	Placement		= {};
 		::llc::apod<::llc::SControlArea			>	Area			= {};
 		::llc::apod<::llc::SControlConstraints	>	Constraints		= {};
