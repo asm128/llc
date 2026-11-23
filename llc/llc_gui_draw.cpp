@@ -44,6 +44,7 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 	::llc::SControlState		& controlState		= gui.Controls.States	[iControl];
 	::llc::SControlDraw			& controlDraw		= gui.Controls.Draw	[iControl];
 	::llc::bgra					colorFace			= {0xFF, 0x00, 0xFF, 0xFF};
+	::llc::bgra					colorBack			= {};
 	if(0 == gui.Controls.Draw[iControl].UseNewPalettes) {
 		const ::llc::SControlTheme	& theme				= (*gui.Colors->ControlThemes)[(0 == controlDraw.ColorTheme) ? gui.ThemeDefault : controlDraw.ColorTheme - 1];
 		const ::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	
@@ -55,7 +56,7 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 			: ::llc::GUI_CONTROL_PALETTE_NORMAL
 			];
 		colorFace				= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_TEXT_FACE]];
-		//const ::llc::bgra			colorBack			= gui.Palette[colorCombo[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND]];
+		colorBack				= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_CLIENT]];
 	}
 	else {
 		const ::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>	& colorCombo											=
@@ -68,6 +69,7 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 				]]
 				;
 		colorFace				= colorCombo[::llc::UI_CONTROL_AREA_TEXT_FACE];
+		colorBack				= colorCombo[::llc::UI_CONTROL_AREA_CLIENT];
 	}
 
 	::llc::SControlArea		& controlMetrics	= gui.Controls.Area[iControl];
@@ -99,17 +101,24 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 		colorSelectedBack = selectedColors[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND];
 	}
 	for(::llc::u2_t iCharacter = 0, countCharacter = ::llc::min(textStates.size(), controlText.Text.size()); iCharacter < countCharacter; ++iCharacter) {
-		if(false == textStates[iCharacter].IsSelected())
+		if(false == textStates[iCharacter].IsSelected() && false == textStates[iCharacter].IsSwapColors())
 			continue;
 		const ::llc::rect2s1_t characterRectangle = {{(::llc::s1_t)(rectText.Offset.x + selectedFont.CharSize.x * iCharacter), rectText.Offset.y}, selectedFont.CharSize.s1()};
-		::drawRectangle(target, colorSelectedBack, characterRectangle);
+		::drawRectangle(target, textStates[iCharacter].IsSwapColors() ? colorFace : colorSelectedBack, characterRectangle);
 	}
 	llc_necs(llc::textLineRaster(target.metrics(), selectedFont.CharSize, rectText, selectedFont.Texture, controlText.Text, dstCoords));
 	for(::llc::u2_t iCoord = 0; iCoord < dstCoords.size(); ++iCoord) {
 		const ::llc::n2u1_t			dstCoord			= dstCoords[iCoord];
 		const ::llc::s2_t characterOffsetX = (::llc::s2_t)dstCoord.x - rectText.Offset.x;
 		const ::llc::u2_t iCharacter = 0 <= characterOffsetX && selectedFont.CharSize.x ? characterOffsetX / selectedFont.CharSize.x : controlText.Text.size();
-		target[dstCoord.y][dstCoord.x] = iCharacter < textStates.size() && textStates[iCharacter].IsSelected() ? colorSelectedFace : colorFace;
+		::llc::bgra colorGlyph = colorFace;
+		if(iCharacter < textStates.size()) {
+			if(textStates[iCharacter].IsSwapColors())
+				colorGlyph = colorBack;
+			else if(textStates[iCharacter].IsSelected())
+				colorGlyph = colorSelectedFace;
+		}
+		target[dstCoord.y][dstCoord.x] = colorGlyph;
 		//::llc::drawPixelLight(target, dstCoords[iCoord], colorFace, controlState.Pressed ? 0.75f : 0.5f, controlState.Pressed ? 1.0f : 0.95);
 	}
 	return 0;
