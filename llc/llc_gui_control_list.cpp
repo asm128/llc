@@ -17,7 +17,7 @@
 	return controlId;
 }
 
-::llc::err_t			llc::controlListInitialize	(::llc::SGUI & gui, ::llc::SControlList& menu)													{
+::llc::error_t			llc::controlListInitialize	(::llc::SGUI & gui, ::llc::SControlList& menu)													{
 	menu					= {};
 	llc_necall(menu.IdControl = ::llc::controlCreate(gui), "%s", "Failed to create menu control!");
 	gui.Controls.Placement	[menu.IdControl].Border				= {};
@@ -28,14 +28,14 @@
 	return 0;
 }
 
-::llc::err_t			llc::controlListArrange	(::llc::SGUI & gui, ::llc::SControlList& menu)													{
+::llc::error_t			llc::controlListArrange	(::llc::SGUI & gui, ::llc::SControlList& menu)													{
 	const ::llc::SRasterFont	& selectedFont			= *gui.Fonts[::llc::in_range(gui.Controls.Text[menu.IdControl].FontSelected, (int16_t)0, (int16_t)gui.Fonts.size()) ? gui.Controls.Text[menu.IdControl].FontSelected : gui.SelectedFont];
-	for(uint32_t iItem = 0; iItem < menu.IdControls.size(); ++iItem) {
-		const uint32_t				idControl				= menu.IdControls[iItem];
+	for(::llc::u2_t iItem = 0; iItem < menu.IdControls.size(); ++iItem) {
+		const ::llc::u2_t				idControl				= menu.IdControls[iItem];
 		::llc::SControlConstraints	& controlConstraints	= gui.Controls.Constraints	[idControl];
 		::llc::SControlPlacement	& control				= gui.Controls.Placement	[idControl];
 		::llc::SControlText			& controlText			= gui.Controls.Text			[idControl];
-		const uint32_t				iPrevItem				= iItem - 1;
+		const ::llc::u2_t				iPrevItem				= iItem - 1;
 		const ::llc::n2u0_t			fontCharSize			= selectedFont.CharSize;
 		control.Area.Size.y		= fontCharSize.y + ::llc::controlNCSpacing(control).y;
 		switch(menu.Orientation) {
@@ -56,8 +56,8 @@
 	::llc::SControlPlacement	& controlMenu			= gui.Controls.Placement[menu.IdControl];
 	controlMenu.Area.Size	= {};
 	const ::llc::n2u0_t			fontCharSize			= selectedFont.CharSize;
-	for(uint32_t iItem = 0; iItem < menu.IdControls.size(); ++iItem) {
-		const uint32_t				idControl			= menu.IdControls		[iItem];
+	for(::llc::u2_t iItem = 0; iItem < menu.IdControls.size(); ++iItem) {
+		const ::llc::u2_t				idControl			= menu.IdControls		[iItem];
 		::llc::SControlPlacement	& control			= gui.Controls.Placement[idControl];
 		::llc::SControlText			& controlText		= gui.Controls.Text		[idControl];
 		switch(menu.Orientation) {
@@ -78,7 +78,7 @@
 	return 0;
 }
 
-::llc::err_t			llc::controlListPush	(::llc::SGUI & gui, ::llc::SControlList& menu, const ::llc::vcs& text, int64_t eventCode)				{
+::llc::error_t			llc::controlListPush	(::llc::SGUI & gui, ::llc::SControlList& menu, const ::llc::vcs& text, int64_t eventCode)				{
 	if(menu.IdControl == -1)
 		llc_necs(llc::controlListInitialize(gui, menu));
 
@@ -96,19 +96,19 @@
 	return 0;
 }
 
-::llc::err_t			llc::paletteGridInitialize	(::llc::SGUI & gui, ::llc::SPaletteGrid& palette)				{
+::llc::error_t			llc::paletteGridInitialize	(::llc::SGUI & gui, ::llc::SPaletteGrid& palette)				{
 	const ::llc::n2f3_t			targetSize					= {256.0, 256.0};
 	palette.IdControl		= ::llc::controlCreate(gui);
 
 	::llc::SControlPlacement	& control					= gui.Controls.Placement[palette.IdControl];
-	const uint32_t				widthViewport				= (uint32_t)(targetSize.x + ((int64_t)control.Border.Left + control.Border.Right + control.Margin.Left + control.Margin.Right));
-	const uint32_t				heightViewport				= (uint32_t)(targetSize.y + ((int64_t)control.Border.Top + control.Border.Bottom + control.Margin.Top + control.Margin.Bottom));
+	const ::llc::u2_t				widthViewport				= (::llc::u2_t)(targetSize.x + ((int64_t)control.Border.Left + control.Border.Right + control.Margin.Left + control.Margin.Right));
+	const ::llc::u2_t				heightViewport				= (::llc::u2_t)(targetSize.y + ((int64_t)control.Border.Top + control.Border.Bottom + control.Margin.Top + control.Margin.Bottom));
 	control.Area.Size		= {(int16_t)widthViewport, (int16_t)heightViewport};
 	control.Align			= ::llc::ALIGN_CENTER;
 	return 0;
 }
 
-::llc::err_t			llc::paletteGridColorsSet	(::llc::SGUI & gui, ::llc::SPaletteGrid& palette, const ::llc::g8bgra& colors)			{
+::llc::error_t			llc::paletteGridColorsSet	(::llc::SGUI & gui, ::llc::SPaletteGrid& palette, const ::llc::g8bgra& colors)			{
 	if(-1 == palette.IdControl)
 		::llc::paletteGridInitialize(gui, palette);
 
@@ -118,13 +118,13 @@
 	palette.IdControls.resize(colors.size());
 	palette.Colors			= colors;
 
-	const ::llc::n2f3_t			targetSize					= gui.Controls.Area[palette.IdControl].Client.Global.Size .f3(); //{256.0, 256.0};
+	const ::llc::n2f3_t			targetSize					= gui.Controls.Area[palette.IdControl].Client.Global.Size.f3(); //{256.0, 256.0};
 	::llc::n2f3_t				controlSize					= {targetSize.x / colors.metrics().x, targetSize.y / colors.metrics().y};
 
-	for(uint32_t y = 0; y < gridMetrics.y; ++y)
-	for(uint32_t x = 0; x < gridMetrics.x; ++x) {
+	for(::llc::u2_t y = 0; y < gridMetrics.y; ++y)
+	for(::llc::u2_t x = 0; x < gridMetrics.x; ++x) {
 		const int32_t				linearIndex					= y * gridMetrics.x + x;
-		uint32_t					iFoundColor					= 0;
+		::llc::u2_t					iFoundColor					= 0;
 		int32_t						themeIndex					= -1;
 		const ::llc::bgra			& gridCellColor				= colors[y][x];
 		for(; iFoundColor < gui.Colors->Palette->size(); ++iFoundColor)
@@ -136,11 +136,11 @@
 			int32_t						indexColor			= gui.Colors->Palette->push_back(gridCellColor);
 			themeIndex				= gui.Colors->ControlThemes->push_back({});
 			::llc::SControlTheme		& theme				= (*gui.Colors->ControlThemes)[themeIndex];
-			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboDisabled		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	] = {};
-			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboPressed 		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	] = {};
-			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboSelected		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	] = {};
-			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboHover 		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_HOVER	] = {};
-			::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	& comboNormal		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_NORMAL	] = {};
+			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboDisabled		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	] = {};
+			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboPressed 		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	] = {};
+			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboSelected		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	] = {};
+			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboHover 		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_HOVER	] = {};
+			::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	& comboNormal		= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_NORMAL	] = {};
 			comboDisabled	[::llc::UI_CONTROL_AREA_BACKGROUND	]	= indexColor;
 			comboDisabled	[::llc::UI_CONTROL_AREA_CLIENT		]	= comboDisabled[::llc::UI_CONTROL_AREA_BACKGROUND];
 			comboNormal		[::llc::UI_CONTROL_AREA_BACKGROUND	]	= indexColor;
@@ -151,17 +151,17 @@
 			comboHover		[::llc::UI_CONTROL_AREA_CLIENT		]	= comboDisabled[::llc::UI_CONTROL_AREA_BACKGROUND];
 			comboPressed	[::llc::UI_CONTROL_AREA_BACKGROUND	]	= indexColor;
 			comboPressed	[::llc::UI_CONTROL_AREA_CLIENT		]	= comboDisabled[::llc::UI_CONTROL_AREA_BACKGROUND];
-			//for(uint32_t iState = 0; iState < theme.ColorCombos.size(); ++iState)
-			//for(uint32_t iArea = 0; iArea < ::llc::GUI_CONTROL_COLOR_COUNT; ++iArea)
-			//	theme.ColorCombos[iState][iArea]	= ::llc::min((uint32_t)theme.ColorCombos[iState][iArea], gui.Palette.size() - 1);
+			//for(::llc::u2_t iState = 0; iState < theme.ColorCombos.size(); ++iState)
+			//for(::llc::u2_t iArea = 0; iArea < ::llc::GUI_CONTROL_COLOR_COUNT; ++iArea)
+			//	theme.ColorCombos[iState][iArea]	= ::llc::min((::llc::u2_t)theme.ColorCombos[iState][iArea], gui.Palette.size() - 1);
 		}
-		const uint32_t				paletteElemIndex	= linearIndex;
+		const ::llc::u2_t				paletteElemIndex	= linearIndex;
 		palette.IdControls[paletteElemIndex] = ::llc::controlCreate(gui);
 		::llc::SControlPlacement	& control			= gui.Controls.Placement[palette.IdControls[paletteElemIndex]];
 		::llc::SControlDraw			& controlDraw		= gui.Controls.Draw[palette.IdControls[paletteElemIndex]];
 		controlDraw.ColorTheme	= int8_t(themeIndex + 1);
 		control.Area.Offset		= {(int16_t)(controlSize.x * x), (int16_t)(controlSize.y * y)};
-		control.Area.Size		= controlSize .s1();
+		control.Area.Size		= controlSize.s1();
 		llc_necs(llc::controlSetParent(gui, palette.IdControls[paletteElemIndex], palette.IdControl));
 	}
 	return 0;
@@ -169,7 +169,7 @@
 
 ::llc::cid_t			llc::guiCreateControlList		(::llc::SGUI & gui, ::llc::DIRECTION direction, ::llc::view<::llc::vcst_c> buttonText, ::llc::cid_t iParent, const ::llc::SControlPlacement & args, ::llc::ALIGN textAlign, ::llc::vcid out_ids) {
 	::llc::cid_t				result						= -1;
-	for(uint16_t iButton = 0; iButton < buttonText.size(); ++iButton) {
+	for(::llc::u1_t iButton = 0; iButton < buttonText.size(); ++iButton) {
 		::llc::cid_t				idControl					= ::llc::controlCreate(gui);
 		if(out_ids.size() > iButton)
 			out_ids[iButton]		= idControl;
@@ -215,7 +215,7 @@
 ::llc::cid_t			llc::guiCreateControlList		(::llc::SGUI & gui, ::llc::view<::llc::vcst_c> buttonText, ::llc::cid_t iParent, ::llc::n2u1_c & buttonSize, ::llc::n2s1_c & offset, ::llc::ALIGN controlAlign, ::llc::ALIGN textAlign, ::llc::vcid out_ids) {
 	::llc::SControlPlacement	controlArgs					= {};
 	controlArgs.Align		= controlAlign;
-	controlArgs.Area		= {offset, buttonSize .s1()};
+	controlArgs.Area		= {offset, buttonSize.s1()};
 	controlArgs.Border		= {1, 1, 1, 1};
 	controlArgs.Margin		= {1, 1, 1, 1};
 	return ::llc::guiCreateControlList(gui, {}, buttonText, iParent, controlArgs, textAlign, out_ids);

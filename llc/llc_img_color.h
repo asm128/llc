@@ -11,11 +11,6 @@ namespace llc
 	tydf img<bgra>	img8bgra;
 	tydf img<rgba>	img8rgba;
 	tydf img<rgbaf>	imgfrgba;
-
-	tydf rt<bgra, u2_t>	rtbgra8d32;
-	tydf rt<rgba, u2_t>	rtrgba8d32;
-	tydf rt<bgra, u0_t>	rtbgra8s8;
-	tydf rt<rgba, u0_t>	rtrgba8s8;
 } // namespace llc
 
 #endif // LLC_IMG_COLOR_H_23627

@@ -71,14 +71,14 @@ namespace llc
 	stin	err_t	base64DecodeFS	(vcu0_c & in_base64, asc_t & out_binary) { rtrn base64DecodeFS		(in_base64, *(au0_t*)&out_binary	); }
 
 	stin	err_t	base64Encode	(vcu0_c & in_binary	, string & out_base64) { rtrn base64Encode		(in_binary, *(au0_t*)&out_base64 	); }
-	stin	err_t	base64Decode	(vcst_t in_base64	, au0_t  & out_binary) { rtrn base64Decode		(in_base64.u8(), out_binary	); }
+	stin	err_t	base64Decode	(vcst_t in_base64	, au0_t  & out_binary) { rtrn base64Decode		(*(vcu0_t*)&in_base64, out_binary	); }
 	stin	err_t	base64EncodeFS	(vcu0_c & in_binary	, string & out_base64) { rtrn base64EncodeFS	(in_binary, *(au0_t*)&out_base64 	); }
-	stin	err_t	base64DecodeFS	(vcst_t in_base64	, au0_t  & out_binary) { rtrn base64DecodeFS	(in_base64.u8(), out_binary	); }
+	stin	err_t	base64DecodeFS	(vcst_t in_base64	, au0_t  & out_binary) { rtrn base64DecodeFS	(*(vcu0_t*)&in_base64, out_binary	); }
 
 	stin	err_t	base64Encode	(vcs0_c & in_binary	, string & out_base64) { rtrn base64Encode		(*(vcu0_t*)&in_binary, *(au0_t*)&out_base64); }
-	stin	err_t	base64Decode	(vcst_t in_base64	, asc_t  & out_binary) { rtrn base64Decode		(in_base64.u8(), *(au0_t*)(void*)&out_binary); }
+	stin	err_t	base64Decode	(vcst_t in_base64	, asc_t  & out_binary) { rtrn base64Decode		(*(vcu0_t*)&in_base64, *(au0_t*)&out_binary); }
 	stin	err_t	base64EncodeFS	(vcs0_c & in_binary	, string & out_base64) { rtrn base64EncodeFS	(*(vcu0_t*)&in_binary, *(au0_t*)&out_base64); }
-	stin	err_t	base64DecodeFS	(vcst_t in_base64	, asc_t  & out_binary) { rtrn base64DecodeFS	(in_base64.u8(), *(au0_t*)(void*)&out_binary); }
+	stin	err_t	base64DecodeFS	(vcst_t in_base64	, asc_t  & out_binary) { rtrn base64DecodeFS	(*(vcu0_t*)&in_base64, *(au0_t*)&out_binary); }
 } // namespace
 
 #endif // LLC_BASE64_H_23627
