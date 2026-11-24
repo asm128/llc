@@ -134,10 +134,10 @@ namespace llc
 					continue;
 				}
 			}
-			if(LastSize != gui.Controls.LastSize) {
+			if(LastSize != gui.Controls.TargetMetrics) {
 				for(uint32_t iControl = 0; iControl < Controls.size(); ++iControl)
-					Controls[iControl]->Resize(gui.Controls.LastSize);
-				LastSize				= gui.Controls.LastSize;
+					Controls[iControl]->Resize(gui.Controls.TargetMetrics);
+				LastSize				= gui.Controls.TargetMetrics;
 			}
 			//if(0 != Input)
 			//	llc_necall(llc::guiProcessInput(gui, *Input), "%s", "Unknown reason.");

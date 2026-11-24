@@ -342,6 +342,9 @@
     <ClInclude Include="llc_gui_control.h">
       <Filter>gui</Filter>
     </ClInclude>
+    <ClInclude Include="llc_gui_control_table.h">
+      <Filter>gui</Filter>
+    </ClInclude>
     <ClInclude Include="llc_gui_control_list.h">
       <Filter>gui</Filter>
     </ClInclude>
@@ -349,6 +352,9 @@
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="llc_gui_text_flag.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_image_flag.h">
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="llc_gui_checkbox.h">

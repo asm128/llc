@@ -203,47 +203,6 @@ namespace llc
 		u0_t						Rotation			: 2;
 	};
 
-	struct SControlTable {
-		::llc::n2u1_t						LastSize		= {};
-		::llc::apod<::llc::SControlState		>	States			= {};
-		::llc::aobj<::llc::apod<::llc::STextState>> TextState	= {};
-		::llc::apod<::llc::SControlPlacement	>	Placement		= {};
-		::llc::apod<::llc::SControlArea			>	Area			= {};
-		::llc::apod<::llc::SControlConstraints	>	Constraints		= {};
-		::llc::apod<::llc::SControlDraw			>	Draw			= {};
-		::llc::aobj<::llc::SControlText			>	Text			= {};
-		::llc::aobj<::llc::SControlImage		>	Images			= {};
-		::llc::aobj<::llc::acid					>	Children		= {};
-		//
-		::llc::apobj<::llc::SEventSystem		>	EventQueue		= {};
-
-		inline	bool		SetHovered		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetHovered (iControl, EventQueue, value); }
-		inline	bool		SetPressed		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetPressed (iControl, EventQueue, value); }
-		inline	bool		SetHidden		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetHidden  (iControl, EventQueue, value); }
-		inline	bool		SetFocused		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetFocused (iControl, EventQueue, value); }
-		inline	bool		SetSelected		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetSelected(iControl, EventQueue, value); }
-		inline	bool		SetDisabled		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetDisabled(iControl, EventQueue, value); }
-		inline	bool		SetUpdated		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetUpdated (iControl, EventQueue, value); }
-		inline	bool		SetAction		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetAction  (iControl, EventQueue, value); }
-		inline	bool		SetUnused		(cid_t iControl, bool value)	noexcept	{ return States[iControl].SetUnused  (iControl, EventQueue, value); }
-
-		inline	bool		IsHovered		(cid_t iControl)		const	noexcept	{ return States[iControl].IsHovered  (); }
-		inline	bool		IsPressed		(cid_t iControl)		const	noexcept	{ return States[iControl].IsPressed  (); }
-		inline	bool		IsHidden		(cid_t iControl)		const	noexcept	{ return States[iControl].IsHidden   (); }
-		inline	bool		IsFocused		(cid_t iControl)		const	noexcept	{ return States[iControl].IsFocused  (); }
-		inline	bool		IsSelected		(cid_t iControl)		const	noexcept	{ return States[iControl].IsSelected (); }
-		inline	bool		IsDisabled		(cid_t iControl)		const	noexcept	{ return States[iControl].IsDisabled (); }
-		inline	bool		IsUpdated		(cid_t iControl)		const	noexcept	{ return States[iControl].IsUpdated  (); }
-		inline	bool		IsAction		(cid_t iControl)		const	noexcept	{ return States[iControl].IsAction   (); }
-		inline	bool		IsUnused		(cid_t iControl)		const	noexcept	{ return States[iControl].IsUnused   (); }
-	};
-
-	::llc::err_t		controlHidden					(const ::llc::SControlTable & controls, ::llc::cid_t iControl);
-	::llc::err_t		controlDisabled				(const ::llc::SControlTable & controls, ::llc::cid_t iControl);
-	::llc::err_t		controlInvalid					(const ::llc::SControlTable & controls, ::llc::cid_t iControl);
-	::llc::err_t		controlMetricsInvalidate		(::llc::SControlTable & controls, ::llc::cid_t iControl);
-	::llc::err_t		controlUpdateHierarchy			(::llc::SControlTable & controls, ::llc::cid_t iControl, const ::llc::n2u1_t & targetMetrics);
-	::llc::cid_t		controlCreate					(::llc::SControlTable & gui, ::llc::vs1_t defaultColors);
 } // namespace
 
 #endif // LLC_GUI_CONTROL_H_23627

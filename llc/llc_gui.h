@@ -1,4 +1,4 @@
-#include "llc_gui_control.h"
+#include "llc_gui_control_table.h"
 #include "llc_input.h"
 #include "llc_font.h"
 

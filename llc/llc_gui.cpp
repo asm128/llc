@@ -1,70 +1,15 @@
 #include "llc_gui.h"
-#include "llc_apod_serialize.h"
 #include "llc_gui_text.h"
 #include "llc_base64.h"
 #include "llc_rect_align.h"
 #include "llc_apod_color.h"
 
 ::llc::err_t llc::guiSave(::llc::au0_t & output, const ::llc::SGUI & gui) {
-	const ::llc::SControlTable & controls = gui.Controls;
-	const ::llc::u2_t controlCount = controls.States.size();
-	if_true_fe(controlCount != controls.Placement.size());
-	if_true_fe(controlCount != controls.Area.size());
-	if_true_fe(controlCount != controls.Constraints.size());
-	if_true_fe(controlCount != controls.Draw.size());
-	if_true_fe(controlCount != controls.Text.size());
-	if_true_fe(controlCount != controls.TextState.size());
-	if_true_fe(controlCount != controls.Images.size());
-	if_true_fe(controlCount != controls.Children.size());
-
-	if_fail_fe(::llc::save(output, controls.States, controls.Constraints, controls.Placement, controls.Area, controls.Draw));
-	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
-		const ::llc::SControlText & text = controls.Text[iControl];
-		if_fail_fef(::llc::saveView(output, text.Text), "iControl: %u", iControl);
-		if_fail_fef(::llc::save(output, text.Align, controls.TextState[iControl], text.FontSelected), "iControl: %u", iControl);
-	}
-	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
-		const ::llc::n2u2_t imageMetrics = controls.Images[iControl].Image.metrics();
-		if_fail_fef(::llc::savePOD(output, imageMetrics), "iControl: %u", iControl);
-	}
-	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl)
-		if_fail_fef(::llc::saveView(output, controls.Children[iControl]), "iControl: %u", iControl);
-	const ::llc::packedu32 eventCount = controls.EventQueue.size();
-	if_fail_fe(::llc::savePacked(output, eventCount));
-	for(::llc::u2_t iEvent = 0; iEvent < controls.EventQueue.size(); ++iEvent) {
-		const ::llc::SEventSystem * event = controls.EventQueue[iEvent];
-		if_fail_fef(event ? event->Save(output) : ::llc::SEventSystem{}.Save(output), "iEvent: %u", iEvent);
-	}
-	return 0;
+	return gui.Controls.Save(output);
 }
 
 ::llc::err_t llc::guiLoad(::llc::SGUI & gui, ::llc::vcu0_t & input) {
-	::llc::SControlTable & controls = gui.Controls;
-	if_fail_fe(::llc::load(input, controls.States));
-	const ::llc::u2_t controlCount = controls.States.size();
-	if_fail_fe(::llc::resize(controlCount, controls.Text, controls.TextState, controls.Images, controls.Children));
-	if_fail_fe(::llc::load(input, controls.Constraints, controls.Placement, controls.Area, controls.Draw));
-	if_true_fe(controlCount != controls.Constraints.size());
-	if_true_fe(controlCount != controls.Placement.size());
-	if_true_fe(controlCount != controls.Area.size());
-	if_true_fe(controlCount != controls.Draw.size());
-	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
-		::llc::SControlText & text = controls.Text[iControl];
-		if_fail_fef(::llc::loadView(input, text.Text), "iControl: %u", iControl);
-		if_fail_fef(::llc::load(input, text.Align, controls.TextState[iControl], text.FontSelected), "iControl: %u", iControl);
-	}
-	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl) {
-		::llc::n2u2_t imageMetrics = {};
-		if_fail_fef(::llc::load(input, imageMetrics), "iControl: %u", iControl);
-	}
-	for(::llc::u2_t iControl = 0; iControl < controlCount; ++iControl)
-		if_fail_fef(::llc::loadView(input, controls.Children[iControl]), "iControl: %u", iControl);
-	::llc::u2_t eventCount = {};
-	if_fail_fe(::llc::loadPacked(input, eventCount));
-	if_fail_fe(controls.EventQueue.resize(eventCount));
-	for(::llc::u2_t iEvent = 0; iEvent < eventCount; ++iEvent)
-		if_fail_fef(controls.EventQueue[iEvent]->Load(input), "iEvent: %u", iEvent);
-	return 0;
+	return gui.Controls.Load(input);
 }
 
 ::llc::err_t			llc::controlInvalid			(const ::llc::SGUI & gui, cid_t iControl)				{
@@ -280,7 +225,7 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	for(::llc::u2_t iFont = 0; iFont < g_managedFonts.Fonts.size(); ++iFont)
 		gui.Fonts[iFont] = g_managedFonts.Fonts[iFont];
 
-	if_fail_fe(llc::guiUpdateMetrics(gui, gui.Controls.LastSize, true));
+	if_fail_fe(llc::guiUpdateMetrics(gui, gui.Controls.TargetMetrics, true));
 	return 0;
 }
 
@@ -304,14 +249,14 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 }
 
 ::llc::err_t			llc::guiUpdate			(::llc::SGUI & gui, const ::llc::n2u1_t & targetMetrics) {
-	if_true_block_logf(info_printf, gui.Controls.LastSize != targetMetrics || gui.LastZoom != gui.Zoom, {
+	if_true_block_logf(info_printf, gui.Controls.TargetMetrics != targetMetrics || gui.LastZoom != gui.Zoom, {
 			info_printf("GUI Render target size or dpi changed changed.");
 			for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
 				gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
-			gui.Controls.LastSize		= targetMetrics;
+			gui.Controls.TargetMetrics	= targetMetrics;
 			gui.LastZoom				= gui.Zoom;
 		}, "%ux%u != %ux%u || %f != %f"
-		, gui.Controls.LastSize.x, gui.Controls.LastSize.y
+		, gui.Controls.TargetMetrics.x, gui.Controls.TargetMetrics.y
 		, targetMetrics.x, targetMetrics.y
 		, gui.LastZoom, gui.Zoom
 		);
@@ -323,81 +268,11 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 }
 
 ::llc::err_t			llc::controlDelete		(::llc::SGUI & gui, cid_t iControl, bool recursive)			{
-	if_fail_fef(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
-	info_printf("Deleting control id: %i.", iControl);
-	{
-		::llc::acid					children				= gui.Controls.Children[iControl];
-		for(::llc::u2_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild) {
-			if(recursive) {
-				if_true_ef(failed(::llc::controlDelete(gui, children[iChild], true)), "Failed to delete control! Invalid control id? %i.", children[iChild]);
-			}
-			else {
-				if_true_ef(failed(::llc::controlSetParent(gui, children[iChild], ::llc::CID_INVALID)), "Failed to detach child control: %i.", children[iChild]);
-			}
-		}
-	}
-	// Remove from parent list
-	const ::llc::cid_t			indexParent				= gui.Controls.States[iControl].Parent;
-#if defined(LLC_DEBUG_ENABLED)
-	::llc::u2_t					childrenRemoved			= 0;
-#endif
-	if((::llc::u2_t)indexParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(indexParent)) {
-		::llc::acid					& children				= gui.Controls.Children[indexParent];
-		for(::llc::u2_t iChild = 0; iChild < children.size(); ++iChild)
-			if(children[iChild] == iControl) {
-				if_fail_fef(children.remove_unordered(iChild), "Failed to remove child at index: %u.", iChild);
-#if defined(LLC_DEBUG_ENABLED)
-				--iChild;
-				++childrenRemoved;
-#else
-				break;
-#endif
-			}
-	}
-#if defined(LLC_DEBUG_ENABLED)
-	if_true_ef(childrenRemoved > 1, "Parent should not reference a child control more than once. References found: %i.", childrenRemoved);
-#endif
-	gui.Controls.SetUnused(iControl, true);
-	return 0;
+	return ::llc::controlDelete(gui.Controls, iControl, recursive);
 }
 
 ::llc::err_t			llc::controlSetParent	(::llc::SGUI & gui, cid_t iControl, cid_t iParent)	{
-	if_fail_fef(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
-	const ::llc::cid_t			oldParent				= gui.Controls.States[iControl].Parent;
-	::llc::SControlState		& control				= gui.Controls.States[iControl];
-	if(control.Parent == iParent)	// Exit early if there is nothing to do here.
-		return 0;
-
-	if_true_fef(::llc::CID_INVALID != iParent && ::llc::controlInvalid(gui, iParent), "Invalid parent control id: %u.", iParent);
-	if_true_fef(iControl == iParent, "A control cannot be its own parent: %u.", iControl);
-	for(::llc::cid_t ancestor = iParent, iDepth = 0; false == ::llc::controlInvalid(gui, ancestor) && iDepth < (::llc::cid_t)gui.Controls.States.size(); ++iDepth) {
-		if_true_fef(ancestor == iControl, "Parent cycle for control: %u.", iControl);
-		ancestor = gui.Controls.States[ancestor].Parent;
-	}
-
-	if((::llc::u2_t)oldParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(oldParent)) {
-		::llc::acid					& children				= gui.Controls.Children[oldParent];
-		for(int32_t iChild = 0; iChild < (int32_t)children.size(); ++iChild)
-			if(children[iChild] == iControl) {
-				gui.Controls.SetUpdated(oldParent, false);
-				if_fail_fef(children.remove(iChild), "Failed to remove child at index: %u.", iChild);
-				break;
-			}
-	}
-	control.Parent			= iParent;
-	gui.Controls.SetUpdated(iControl, false);
-	if(::llc::CID_INVALID == iParent)
-		return 0;
-
-	// Set iControl to parent's children array.
-	::llc::acid					& children				= gui.Controls.Children[iParent];
-	for(int32_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild)
-		if(children[iChild] == iControl)
-			return 0;
-
-	gui.Controls.SetUpdated(iParent , false);
-	if_fail_fe(children.push_back(iControl));
-	return 0;
+	return ::llc::controlSetParent(gui.Controls, iControl, iParent);
 }
 
 static	::llc::err_t	buildControlGeometry	(const ::llc::SControlPlacement & control, const ::llc::SControlArea & controlMetrics, const ::llc::SGUIZoom & zoom, ::llc::view<::llc::rect2s1_t> finalRects, ::llc::view<::llc::tri2s1_t> triangles)					{
@@ -581,6 +456,8 @@ static	::llc::err_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iContr
 		if(::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent) && false == ::llc::controlInvalid(gui, (::llc::cid_t)iControl)) {
 			if_fail_fef(llc::controlUpdateMetricsTopToDown(gui, (::llc::cid_t)iControl, targetSize, forceUpdate), "Failed to update metrics for control %i", iControl);
 		}
+	gui.Controls.TargetMetrics = targetSize;
+	gui.LastZoom = gui.Zoom;
 	return 0;
 }
 
@@ -626,7 +503,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 }
 
 ::llc::err_t			llc::guiProcessInput	(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> sysEvents)	{
-	if(0 == gui.Controls.LastSize.LengthSquared())
+	if(0 == gui.Controls.TargetMetrics.LengthSquared())
 		return 0;
 
 	gui.Controls.EventQueue.clear();
@@ -677,17 +554,11 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 }
 
 ::llc::err_t			llc::guiDeselect		(::llc::SGUI & gui)	{
-	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
-		gui.Controls.SetSelected((::llc::cid_t)iControl, false);
-
-	return 0;
+	return ::llc::controlDeselect(gui.Controls);
 }
 
 ::llc::err_t			llc::guiSelect			(::llc::SGUI & gui, ::llc::cid_t controlToSelect)	{
-	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl) 
-		gui.Controls.SetSelected((::llc::cid_t)iControl, controlToSelect == (::llc::cid_t)iControl);
-
-	return 0;
+	return ::llc::controlSelect(gui.Controls, controlToSelect);
 }
 
 ::llc::err_t			llc::controlHidden		(const ::llc::SGUI & gui, ::llc::cid_t iControl)	{
@@ -703,90 +574,21 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 }
 
 ::llc::err_t			llc::guiGetProcessableControls	(const ::llc::SGUI & gui, ::llc::acid & controlIndices)													{
-	for(::llc::u2_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {	// Only process root parents
-		const ::llc::SControlState	& controlState					= gui.Controls.States[iControl];
-		if(controlState.IsUnused() || ::llc::controlDisabled(gui, (::llc::cid_t)iControl) || ::llc::controlHidden(gui, (::llc::cid_t)iControl))
-			continue;
-		if_fail_fe(controlIndices.push_back((::llc::cid_t)iControl));
-	}
-	return controlIndices.size();
+	return ::llc::controlActions(gui.Controls, controlIndices);
 }
 
 ::llc::err_t			llc::guiProcessControls		(const ::llc::SGUI & gui, const ::llc::function<::llc::err_t(::llc::cid_t iControl)> & funcOnExecute) {
-	::llc::acid					controlsToProcess			= {};
-	if_fail_fe(llc::guiGetProcessableControls(gui, controlsToProcess));
-	return guiProcessControls(gui, controlsToProcess, funcOnExecute);
+	return ::llc::controlHandle(gui.Controls, funcOnExecute);
 }
 
 ::llc::err_t			llc::guiProcessControls		(const ::llc::SGUI & gui, ::llc::vcid controlsToProcess, const ::llc::function<::llc::err_t(::llc::cid_t iControl)> & funcOnExecute) {
-	for(::llc::u2_t iControl = 0, countControls = controlsToProcess.size(); iControl < countControls; ++iControl) {
-		const ::llc::cid_t			idControl					= controlsToProcess[iControl];
-		const ::llc::SControlState	& controlState				= gui.Controls.States[idControl];
-		if(controlState.IsAction()) {
-			info_printf("Executed control %i (0x%x).", idControl, idControl);
-			return funcOnExecute(idControl);
-		}
-	}
-	return 0;
+	return ::llc::controlHandle(gui.Controls, controlsToProcess, funcOnExecute);
 }
 
 ::llc::err_t			llc::controlTextSet		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::vcst_t text)				{
-	::llc::vcst_t					& oldText				= gui.Controls.Text[iControl].Text;
-	if(text != oldText) {
-		oldText					= text;
-		gui.Controls.SetUpdated(iControl, false);
-	}
-	return 0;
+	return ::llc::controlTextSet(gui.Controls, iControl, text);
 }
 
 ::llc::err_t			llc::controlFontSet		(::llc::SGUI & gui, ::llc::cid_t iControl, int16_t iFont)				{
-	int16_t						& oldText				= gui.Controls.Text[iControl].FontSelected;
-	if(iFont != oldText) {
-		oldText					= iFont;
-		gui.Controls.SetUpdated(iControl, false);
-	}
-	return 0;
-}
-
-static	::llc::err_t	controlInstanceReset	(::llc::SControlTable & controlTable, ::llc::cid_t iControl, ::llc::vs1_t defaultColors)										{
-	controlTable.States		[iControl]	= {};
-	controlTable.TextState	[iControl].clear();
-	controlTable.Placement	[iControl]	= {};
-	controlTable.Area		[iControl]	= {};
-	controlTable.Constraints[iControl]	= {};
-	controlTable.Draw		[iControl]	= {};
-	controlTable.Text		[iControl]	= {};
-	controlTable.Children	[iControl]	= ::llc::vcid{};
-	controlTable.Images		[iControl]	= {};
-	
-	::llc::SControlDraw			& controlDraw			= controlTable.Draw[iControl];
-	for(::llc::u2_t iColor = 0, countColors = ::llc::min(controlDraw.Palettes.size(), defaultColors.size()); iColor < countColors; ++iColor)
-		controlDraw.Palettes[iColor] = defaultColors[iColor];
-
-	return 0;
-}
-
-
-::llc::cid_t			llc::controlCreate		(::llc::SControlTable & controlTable, ::llc::vs1_t defaultColors)	{
-	for(::llc::u2_t iControl = 0; iControl < controlTable.States.size(); ++iControl) {
-		if(controlTable.IsUnused((::llc::cid_t)iControl)) {
-			if_fail_fef(::controlInstanceReset(controlTable, (::llc::cid_t)iControl, defaultColors), "iControl: %i", iControl);
-			return (::llc::cid_t)iControl;
-		}
-	}
-
-	::llc::cid_t				iControl				= -1;
-	if_fail_fe(iControl = (::llc::cid_t)::llc::resize(controlTable.States.size() + 1
-		, controlTable.States
-		, controlTable.TextState
-		, controlTable.Placement
-		, controlTable.Area
-		, controlTable.Constraints
-		, controlTable.Draw
-		, controlTable.Text
-		, controlTable.Images
-		, controlTable.Children
-		) - 1);
-	if_fail_fe(::controlInstanceReset(controlTable, iControl, defaultColors));
-	return iControl;
+	return ::llc::controlFontSet(gui.Controls, iControl, iFont);
 }
