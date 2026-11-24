@@ -250,7 +250,9 @@ static	bool		xcbDoubleClick			(::llc::SWindowPlatformDetail & detail, const xcb_
 			xkb_state_update_key(detail.XKBState, key.detail, pressed ? XKB_KEY_DOWN : XKB_KEY_UP);
 			input.KeyboardCurrent.KeyState[keyCode] = pressed ? 1 : 0;
 
-			const bool			systemKey						= ::llc::SYSTEM_KEY_Enter == keyCode && input.KeyboardCurrent.KeyState[::llc::SYSTEM_KEY_Menu];
+			const bool			menuKey							= input.KeyboardCurrent.KeyState[::llc::SYSTEM_KEY_Menu]
+				|| input.KeyboardCurrent.KeyState[::llc::SYSTEM_KEY_LMenu] || input.KeyboardCurrent.KeyState[::llc::SYSTEM_KEY_RMenu];
+			const bool			systemKey						= ::llc::SYSTEM_KEY_Enter == keyCode && menuKey;
 			if_fail_e(pressed
 				? systemKey ? ::llc::eventEnqueueKeyboardSysDown(displayInstance.EventQueue, keyCode) : ::llc::eventEnqueueKeyboardDown(displayInstance.EventQueue, keyCode)
 				: systemKey ? ::llc::eventEnqueueKeyboardSysUp  (displayInstance.EventQueue, keyCode) : ::llc::eventEnqueueKeyboardUp  (displayInstance.EventQueue, keyCode)
