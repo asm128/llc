@@ -2,6 +2,8 @@
 #include "llc_functional.h"
 #include "llc_log.h"
 
+#include <type_traits>
+
 
 #if defined(LLC_ATMEL)
 #	ifdef max
@@ -62,6 +64,7 @@ namespace llc
 			rtrn ::llc::equal(other.begin(), this->begin(), this->size());
 		}
 		// Methods
+		inxp	view<u0_c>		bytes			() 													csnx	{ rtrn {(u0_c*)Data, byte_count()}; }
 		inxp	u2_t			byte_count		()														csnx	{ rtrn u2_t(Count * sizeof(T));	}
 		inxp	u3_t			bit_count		()														csnx	{ rtrn byte_count() * 8ULL;			}
 		inln	view<sc_t>		c				()														nxpt	{ rtrn {(sc_t*)Data, byte_count()}; }
@@ -213,7 +216,8 @@ namespace llc
 
 	tydf	view<b8_c>	vcb8_t;
 	tydf	view<uc_c>	vcuc_t, vcuc, vcuchar;
-	tydf	view<sc_c>	vcsc_t, vcchar;
+	tydf	view<sc_c>	vcchar;
+	tydf	view<sc_c>	vcsc_t;
 	tydf	view<u0_c>	vcu0_t, vcu0_t;
 	tydf	view<u1_c>	vcu1_t, vcu1_t;
 	tydf	view<u2_c>	vcu2_t, vcu2_t;
@@ -303,7 +307,9 @@ namespace llc
 
 	struct view_string : view<sc_t> {
 		inxp			view_string				()											= dflt;
-		inxp			view_string				(vs0_c & other)						nxpt	: view(other)							{}
+		tplT requires(::std::is_same_v<T, vsc_t>)
+		inxp			view_string				(T & other)							nxpt	: view(other)							{}
+		explicit inxp	view_string				(vs0_c & other)						nxpt	: view(other)							{}
 		tplN2u	inxp	view_string				(sc_t (&storage)[N])				nxpt	: view(storage)							{
 			for(u2_t i = 0; i < N; ++i)
 				if(0 == storage[i]) { Count = i; break; }
@@ -372,7 +378,7 @@ namespace llc
 	stin		vstr_t		str				(vstr_t & arg)					nxpt	{ rtrn arg; }
 	stin		vcst_t	str				(cnst vstr_t & arg)				nxpt	{ rtrn arg.cc(); }
 	stin		vcst_t	str				(cnst vcst_t & arg)			nxpt	{ rtrn arg; }
-	stin		vstr_t		str				(vs0_t arg)					nxpt	{ rtrn arg; }
+	stin		vstr_t		str				(vs0_t arg)					nxpt	{ rtrn vstr_t{arg}; }
 	stin		vcst_t	str				(vcs0_t arg)				nxpt	{ rtrn arg; }
 	tplN2usinx	vstr_t		str				(sc_t (&arg)[N])			nxpt	{ rtrn arg; }
 	tplN2usinx	vcst_t	str				(sc_c (&arg)[N])			nxpt	{ rtrn arg; }

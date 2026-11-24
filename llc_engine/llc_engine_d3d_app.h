@@ -3,6 +3,7 @@
 #include "llc_d3d_device_resources.h"
 
 #include "llc_engine_d3d.h"
+#include "llc_window.h"
 
 #include "llc_image.h"
 #include "llc_file.h"
@@ -235,6 +236,7 @@ namespace llc
 			if_fail_fe(Text .Initialize(DeviceResources));
 			return 0;
 		}
+		::llc::error_t			Initialize				(::llc::SWindow & window, const ::llc::pobj<::llc::SEngineGraphics> & engineGraphics)	{ return Initialize(window.PlatformDetail.WindowHandle, engineGraphics); }
 
 		// Notifies renderers that device resources need to be released.
 		void					ReleaseDeviceResources	()	{

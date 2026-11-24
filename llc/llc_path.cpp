@@ -124,7 +124,7 @@ sttc	::llc::err_t	validatePathSeparators	(::llc::vcst_t path, bool allowUNC) {
 	rtrn 0;
 }
 
-sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & output) {
+sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::asc_t & output) {
 	::llc::u2_t			written				= 0;
 	for(::llc::u2_t iChar = 0; iChar < path.size(); ++iChar) {
 		::llc::sc_t			curChar				= path[iChar];
@@ -224,7 +224,7 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 #endif
 }
 //
-::llc::err_t			llc::pathNameCompose		(::llc::vcst_t path, ::llc::vcst_t fileName, ::llc::string & out_composed)		{
+::llc::err_t			llc::pathNameCompose		(::llc::vcst_t path, ::llc::vcst_t fileName, ::llc::asc_t & out_composed)		{
 	if_fail_fe(::validatePathSeparators(path, true));
 	if_fail_fe(::validatePathSeparators(fileName, 0 == path.size()));
 	::llc::u2_t				pathLength				= 0;
@@ -244,6 +244,10 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 		if_fail_fe(::appendPathNormalized(fileToAppend, out_composed));
 	}
 	rtrn out_composed.size();
+}
+
+::llc::err_t			llc::pathNameCompose		(::llc::vcst_t path, ::llc::vcst_t fileName, ::llc::string & out_composed)		{
+	rtrn ::llc::pathNameCompose(path, fileName, static_cast<::llc::asc_t &>(out_composed));
 }
 
 ::llc::err_t			llc::pathList				(const ::llc::SPathContents & input, ::llc::aobj<vcst_t> & output, ::llc::vcst_c extension)					{
