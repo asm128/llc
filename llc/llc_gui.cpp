@@ -360,7 +360,6 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 		ancestor = gui.Controls.States[ancestor].Parent;
 	}
 
-	control.Parent			= iParent;
 	if((::llc::u2_t)oldParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(oldParent)) {
 		::llc::acid					& children				= gui.Controls.Children[oldParent];
 		for(int32_t iChild = 0; iChild < (int32_t)children.size(); ++iChild)
@@ -370,6 +369,7 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 				break;
 			}
 	}
+	control.Parent			= iParent;
 	gui.Controls.SetUpdated(iControl, false);
 	if(::llc::CID_INVALID == iParent)
 		return 0;
@@ -390,7 +390,8 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	cnst ::llc::cid_t iParent = gui.Controls.States[iControl].Parent;
 	if_true_fe(::llc::controlInvalid(gui, iParent));
 	if_fail_fe(::llc::controlSetParent(gui, iControl, ::llc::CID_INVALID));
-	return ::llc::controlSetParent(gui, iControl, iParent);
+	if_fail_fe(::llc::controlSetParent(gui, iControl, iParent));
+	return 0;
 }
 
 static	::llc::err_t	buildControlGeometry	(const ::llc::SControlPlacement & control, const ::llc::SControlArea & controlMetrics, const ::llc::SGUIZoom & zoom, ::llc::view<::llc::rect2s1_t> finalRects, ::llc::view<::llc::tri2s1_t> triangles)					{
