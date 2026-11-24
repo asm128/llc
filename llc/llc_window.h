@@ -77,6 +77,7 @@ namespace llc
 
 	err_t						windowPresentTarget		(SWindow & windowInstance, const g8bgra & targetToPresent);
 	err_t						windowSaveFramebuffer	(SWindow & windowInstance);
+	err_t						windowScreenshotHotkey	(SWindow & windowInstance, vcst_t programName, vcst_t screenshotDirectory);
 	err_t						windowUpdate			(SWindow & windowInstance);
 	err_t						windowUpdateTick		(SWindow & windowInstance);
 	err_t						fullScreenExit			(SWindow & windowInstance);

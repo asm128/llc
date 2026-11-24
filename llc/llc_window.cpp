@@ -2,6 +2,47 @@
 #include "llc_file.h"
 #include "llc_path.h"
 #include "llc_png.h"
+#include "llc_chrono.h"
+#include "llc_string_compose.h"
+#include "llc_system_key.h"
+#include <filesystem>
+
+::llc::err_t			llc::windowScreenshotHotkey(::llc::SWindow & window, ::llc::vcst_t programName, ::llc::vcst_t screenshotDirectory) {
+	cnst ::llc::SInput & input = *window.Input;
+	cnst ::llc::u0_t ctrl = ::llc::SYSTEM_KEY_Control, shift = ::llc::SYSTEM_KEY_Shift, s = 'S';
+	if(false == (input.KeyboardPrevious.KeyState[ctrl] && input.KeyboardPrevious.KeyState[shift] && input.KeyboardPrevious.KeyState[s]
+	&& (input.KeyUp(ctrl) || input.KeyUp(shift) || input.KeyUp(s))))
+		rtrn 0;
+	::llc::vcst_t executable = {};
+	if_fail_fe(::llc::pathStem(programName, executable));
+	::llc::string filename = {};
+	if_fail_fe(::llc::timeStringFormat("{yy}{MM}{dd}_{hh}{mm}{ss}", ::llc::timeCurrentInMs(), filename));
+#if defined(LLC_DEBUG_ENABLED)
+	stxp ::llc::vcst_c configuration = "Debug";
+#else
+	stxp ::llc::vcst_c configuration = "Release";
+#endif
+	if_fail_fe(::llc::append_strings(filename, "_", executable, "_", configuration, ".png"));
+	if_fail_fe(window.ScreenshotFile.clear());
+	if_fail_fe(::llc::pathNameCompose(screenshotDirectory, filename, window.ScreenshotFile));
+	cnst ::llc::string baseName = filename;
+	::std::error_code fileError = {};
+	for(::llc::u2_t repeat = 1; ::std::filesystem::exists(window.ScreenshotFile.begin(), fileError); ++repeat) {
+		filename = baseName;
+		if_fail_fe(filename.resize(filename.size() - 4));
+		if_fail_fe(::llc::append_strings(filename, "_", ::llc::str(repeat), ".png"));
+		if_fail_fe(window.ScreenshotFile.clear());
+		if_fail_fe(::llc::pathNameCompose(screenshotDirectory, filename, window.ScreenshotFile));
+	}
+	if(fileError) {
+		warning_printf("Screenshot collision check failed: %s.", fileError.message().c_str());
+		rtrn 0;
+	}
+	if_fail_fe(::llc::eventEnqueueScreenSaveFramebuffer(window.EventQueue));
+	::llc::vcst_t screenshot_path = window.ScreenshotFile;
+	info_printf("Screenshot expected at: \"%.*s\"", LLC_VIEW_ARGS(screenshot_path));
+	rtrn 0;
+}
 
 ::llc::err_t			llc::windowSaveFramebuffer(::llc::SWindow & window) {
 	if_zero_fe(window.ScreenshotFile.size());
