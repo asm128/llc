@@ -360,6 +360,7 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 		ancestor = gui.Controls.States[ancestor].Parent;
 	}
 
+	control.Parent			= iParent;
 	if((::llc::u2_t)oldParent < gui.Controls.States.size() && false == gui.Controls.IsUnused(oldParent)) {
 		::llc::acid					& children				= gui.Controls.Children[oldParent];
 		for(int32_t iChild = 0; iChild < (int32_t)children.size(); ++iChild)
@@ -369,7 +370,6 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 				break;
 			}
 	}
-	control.Parent			= iParent;
 	gui.Controls.SetUpdated(iControl, false);
 	if(::llc::CID_INVALID == iParent)
 		return 0;
