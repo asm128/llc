@@ -1,4 +1,19 @@
 #include "llc_window.h"
+#include "llc_file.h"
+#include "llc_path.h"
+#include "llc_png.h"
+
+::llc::err_t			llc::windowSaveFramebuffer(::llc::SWindow & window) {
+	if_zero_fe(window.ScreenshotFile.size());
+	if_null_fe(window.BackBuffer.get_ref());
+	if_zero_fe(window.BackBuffer->Color.View.size());
+	::llc::vcst_t			folder			= {};
+	if_fail_fe(::llc::pathDirectory(window.ScreenshotFile, folder));
+	if_fail_fe(::llc::pathCreate(folder));
+	::llc::au0_t			pngBytes		= {};
+	if_fail_fe(::llc::pngFileWrite(window.BackBuffer->Color.View, pngBytes));
+	rtrn ::llc::fileFromMemory(window.ScreenshotFile, pngBytes);
+}
 
 ::llc::err_t			llc::fullScreenExit			(::llc::SWindow & window) {
 	if(false == window.FullScreen)
@@ -73,9 +88,24 @@
 }
 
 ::llc::err_t			llc::windowUpdate		(::llc::SWindow& displayInstance)											{
+	::llc::view<::llc::pobj<::llc::SEventSystem>> events = displayInstance.EventQueue;
+	if_fail_fe(events.for_each([&displayInstance](cnst ::llc::pobj<::llc::SEventSystem> & event) -> ::llc::err_t {
+		if_null_fe(event.get_ref());
+		if(event->Type != ::llc::SYSTEM_EVENT_Screen)
+			rtrn 0;
+		rtrn ::llc::eventExtractAndHandle<::llc::EVENT_SCREEN>(*event, [&displayInstance](cnst ::llc::SScreenEventView & eventScreen) -> ::llc::err_t {
+			if(eventScreen.Type == ::llc::EVENT_SCREEN_SaveFramebuffer) {
+				cnst ::llc::err_t result = ::llc::windowSaveFramebuffer(displayInstance);
+				if(::llc::failed(result)) error_printf("Screenshot save failed: %.*s.", LLC_VIEW_ARGS(displayInstance.ScreenshotFile));
+			}
+			rtrn 0;
+		});
+	}));
 	displayInstance.EventQueue.clear();
+#if !defined(LLC_XCB)
 	displayInstance.Resized	= false;
 	displayInstance.Repaint	= false;
+#endif
 	bool						quit					= false;
 #if defined(LLC_WINDOWS)
 	::MSG						msg						= {};

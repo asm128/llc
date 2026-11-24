@@ -7,6 +7,7 @@
 #include "llc_image.h"
 #include "llc_rect.h"
 #include "llc_grid_color.h"
+#include "llc_string.h"
 
 #if defined(LLC_WINDOWS)
 #	include <Windows.h>
@@ -62,6 +63,7 @@ namespace llc
 		apobj<SEventSystem>				EventQueue				= {};
 		pobj<TOffscreen>				BackBuffer				= {};
 		pobj<SInput>					Input					= {};
+		string							ScreenshotFile		= {};
 		n2u1_t							PreviousSize			= {};
 		n2u1_t							Size					= {320, 200};
 		rectu1_t						WindowedWindowRect		= {0, 0, 320, 200};
@@ -74,6 +76,7 @@ namespace llc
 	};
 
 	err_t						windowPresentTarget		(SWindow & windowInstance, const g8bgra & targetToPresent);
+	err_t						windowSaveFramebuffer	(SWindow & windowInstance);
 	err_t						windowUpdate			(SWindow & windowInstance);
 	err_t						windowUpdateTick		(SWindow & windowInstance);
 	err_t						fullScreenExit			(SWindow & windowInstance);

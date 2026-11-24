@@ -97,6 +97,7 @@ static	::llc::err_t	updateDPI									(::llc::SFramework & framework)											
 		xcb_flush(mainWindow.PlatformDetail.Connection);
 		framework.RootWindow.Repaint	= false;
 	}
+	::llc::err_t				updateResult		= ::llc::windowUpdate(mainWindow);
 	while (xcb_generic_event_t * ev = xcb_poll_for_event(mainWindow.PlatformDetail.Connection)) {
 		switch (ev->response_type & ~0x80) {
 		default					: break;
@@ -123,7 +124,6 @@ static	::llc::err_t	updateDPI									(::llc::SFramework & framework)											
 		}
 		}
 	}
-	::llc::err_t				updateResult		= 0;
 #else
 	::llc::err_t				updateResult		= ::llc::windowUpdate(mainWindow);
 #endif
@@ -430,8 +430,8 @@ static	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
 	//		framework.PlatformDetail.XCBConnection													= xcb_connect(0, 0);
 	//	mainWindow.PlatformDetail.Connection													= framework.PlatformDetail.XCBConnection;
 	//}
-	if(0 == displayDetail.Connection) {
-		displayDetail.Connection	= xcb_connect(0, 0);
+	if(0 == mainWindow.PlatformDetail.Connection) {
+		mainWindow.PlatformDetail.Connection = xcb_connect(0, 0);
 	}
 	xcb_screen_t				* xcbScreen			= xcb_setup_roots_iterator(xcb_get_setup(mainWindow.PlatformDetail.Connection)).data;
 	::std::shared_ptr<xcb_get_geometry_reply_t>	geometry									(xcb_get_geometry_reply(mainWindow.PlatformDetail.Connection, xcb_get_geometry(mainWindow.PlatformDetail.Connection, xcbScreen->root), nullptr), free);
