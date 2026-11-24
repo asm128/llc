@@ -10,6 +10,7 @@
 	if(false == window.FullScreen)
 		return 0;
 
+	window.PreviousSize		= window.Size;
 	window.Size				= window.WindowedWindowRect.Dimensions();
 #if defined(LLC_WINDOWS)
 	HWND						windowHandle				= window.PlatformDetail.WindowHandle;
@@ -25,6 +26,7 @@
 	xcb_configure_window(window.PlatformDetail.Connection, window.PlatformDetail.IdDrawable, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
 	xcb_flush(window.PlatformDetail.Connection);
 #endif // LLC_WINDOWS
+	window.Resized = window.Repaint = true;
 	if_true_e(failed(::llc::eventEnqueueScreenResize(window.EventQueue, window.Size)));
 	window.FullScreen		= false;
 	return 0;
@@ -34,6 +36,7 @@
 	if(window.FullScreen)
 		return 1;
 
+	window.PreviousSize		= window.Size;
 #if defined(LLC_WINDOWS)
 	HWND						windowHandle				= window.PlatformDetail.WindowHandle;
 	MONITORINFO					monitor_info				= {sizeof(monitor_info)};
@@ -71,6 +74,7 @@
 	xcb_configure_window(window.PlatformDetail.Connection, window.PlatformDetail.IdDrawable, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
 	xcb_flush(window.PlatformDetail.Connection);
 #endif // LLC_WINDOWS
+	window.Resized = window.Repaint = true;
 	if_true_e(failed(::llc::eventEnqueueScreenResize(window.EventQueue, window.Size)));
 	window.FullScreen		= true;
 	return 0;
