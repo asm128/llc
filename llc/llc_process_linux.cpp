@@ -19,13 +19,13 @@ sttc llc::err_t processDescriptorClose(int & descriptor) {
 		rtrn 0;
 	int cancellation = 0;
 	if(0 != pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cancellation))
-		rtrn OS_ERROR;
+		rtrn -1;
 	cnst int closing = descriptor;
 	descriptor = -1;
 	// Linux releases the descriptor even on EINTR; retrying could close a reused fd.
 	cnst int result = close(closing);
 	cnst int restored = pthread_setcancelstate(cancellation, 0);
-	rtrn result || restored ? OS_ERROR : 0;
+	rtrn result || restored ? -1 : 0;
 }
 
 stct auto_process_descriptor : auto_handler<int*, nullptr> {
@@ -48,8 +48,8 @@ stct auto_process_attributes : auto_handler<pthread_attr_t*, nullptr> {
 		pthread_attr_t * closing = Handle;
 		Handle = 0;
 		if(0 == pthread_attr_destroy(closing)) rtrn 0;
-		Result = OS_ERROR;
-		rtrn OS_ERROR;
+		Result = -1;
+		rtrn -1;
 	}
 };
 
@@ -60,18 +60,18 @@ stct auto_process_actions : auto_handler<posix_spawn_file_actions_t*, nullptr> {
 		if(!Handle) rtrn 0;
 		posix_spawn_file_actions_t * closing = Handle;
 		Handle = 0;
-		rtrn posix_spawn_file_actions_destroy(closing) ? OS_ERROR : 0;
+		rtrn posix_spawn_file_actions_destroy(closing) ? -1 : 0;
 	}
 };
 
 sttc llc::err_t processPipesClose(SProcessLinux & process) {
 	llc::err_t result = 0;
-	if(failed(processDescriptorClose(process.StdinRead))) result = OS_ERROR;
-	if(failed(processDescriptorClose(process.StdinWrite))) result = OS_ERROR;
-	if(failed(processDescriptorClose(process.StdoutRead))) result = OS_ERROR;
-	if(failed(processDescriptorClose(process.StdoutWrite))) result = OS_ERROR;
-	if(failed(processDescriptorClose(process.StderrRead))) result = OS_ERROR;
-	if(failed(processDescriptorClose(process.StderrWrite))) result = OS_ERROR;
+	if(failed(processDescriptorClose(process.StdinRead))) result = -1;
+	if(failed(processDescriptorClose(process.StdinWrite))) result = -1;
+	if(failed(processDescriptorClose(process.StdoutRead))) result = -1;
+	if(failed(processDescriptorClose(process.StdoutWrite))) result = -1;
+	if(failed(processDescriptorClose(process.StderrRead))) result = -1;
+	if(failed(processDescriptorClose(process.StderrWrite))) result = -1;
 	rtrn result;
 }
 
@@ -90,21 +90,21 @@ llc::err_t processClose(SProcessLinux & process) {
 	if(0 == waited) {
 		cnst err_t error = [&]() -> err_t {
 			pthread_attr_t attributes;
-			if_true_ve(OS_ERROR, pthread_attr_init(&attributes));
+			if_true_ve(-1, pthread_attr_init(&attributes));
 			auto_process_attributes scope{attributes, result};
-			if_true_ve(OS_ERROR, pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_DETACHED));
+			if_true_ve(-1, pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_DETACHED));
 			pthread_t waiter;
-			if_true_ve(OS_ERROR, pthread_create(&waiter, &attributes, processReap, (void*)(intptr_t)process.PID));
+			if_true_ve(-1, pthread_create(&waiter, &attributes, processReap, (void*)(intptr_t)process.PID));
 			rtrn 0;
 		}();
 		if(error) {
 			// Resource exhaustion must not leave a zombie; fall back to a blocking reap.
 			processReap((void*)(intptr_t)process.PID);
-			result = OS_ERROR;
+			result = -1;
 		}
 	}
 	else if(0 > waited && ECHILD != errno)
-		rtrn OS_ERROR;
+		rtrn -1;
 	process.PID = -1;
 	rtrn result;
 }
@@ -112,7 +112,7 @@ llc::err_t processClose(SProcessLinux & process) {
 sttc llc::err_t processPipe(int & readEnd, int & writeEnd) {
 	int descriptors[2] = {-1, -1};
 	if(0 != pipe2(descriptors, O_CLOEXEC))
-		rtrn OS_ERROR;
+		rtrn -1;
 	auto_process_descriptor writeScope{descriptors[1]}, readScope{descriptors[0]};
 	// Keep spawn's source descriptors distinct from stdin/stdout/stderr, even if closed.
 	for(int & descriptor : descriptors) {
@@ -121,7 +121,7 @@ sttc llc::err_t processPipe(int & readEnd, int & writeEnd) {
 		cnst int moved = fcntl(descriptor, F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
 		cnst llc::err_t closed = processDescriptorClose(descriptor);
 		descriptor = moved;
-		if_true_ve(OS_ERROR, 0 > moved || failed(closed));
+		if_true_ve(-1, 0 > moved || failed(closed));
 	}
 	readEnd = descriptors[0];
 	writeEnd = descriptors[1];
@@ -131,13 +131,14 @@ sttc llc::err_t processPipe(int & readEnd, int & writeEnd) {
 
 llc::err_t processRedirect(SProcessLinux & process, bool separateError) {
 	if(0 < process.PID)
-		rtrn OS_BUSY;
-	llc_necs(processPipesClose(process));
+		rtrn -1;
+	if_fail_fe(processPipesClose(process));
 	SProcessNativeScope<SProcessLinux> rollback{process};
-	if_fail_ve(OS_ERROR, processPipe(process.StdinRead, process.StdinWrite));
-	if_fail_ve(OS_ERROR, processPipe(process.StdoutRead, process.StdoutWrite));
-	if(separateError)
-		if_fail_ve(OS_ERROR, processPipe(process.StderrRead, process.StderrWrite));
+	if_fail_ve(-1, processPipe(process.StdinRead, process.StdinWrite));
+	if_fail_ve(-1, processPipe(process.StdoutRead, process.StdoutWrite));
+	if(separateError) {
+		if_fail_ve(-1, processPipe(process.StderrRead, process.StderrWrite));
+	}
 	rollback.Inactive = true;
 	rtrn 0;
 }
@@ -150,7 +151,7 @@ sttc llc::err_t processArguments(as0_t & storage, apod<char*> & arguments) {
 		while(' ' == storage[read] || '\t' == storage[read]) ++read;
 		if(!storage[read]) break;
 		cnst bool programName = 0 == arguments.size();
-		llc_necs(arguments.push_back(storage.begin() + write));
+		if_fail_fe(arguments.push_back(storage.begin() + write));
 		bool quoted = false;
 		while(storage[read] && (quoted || (' ' != storage[read] && '\t' != storage[read]))) {
 			u2_t slashes = 0;
@@ -178,48 +179,48 @@ sttc llc::err_t processArguments(as0_t & storage, apod<char*> & arguments) {
 		storage[write++] = 0;
 	}
 	if_true_fef(!arguments.size() || !arguments[0][0], "%s", "Command line must include a nonempty program name.");
-	llc_necs(arguments.push_back(0));
+	if_fail_fe(arguments.push_back(0));
 	rtrn 0;
 }
 
 llc::err_t processCreate(SProcessLinux & process, vcst_t application, vcst_t commandLine, vcs0_t environment, u2_t creationFlags) {
 	if(0 < process.PID)
-		rtrn OS_BUSY;
+		rtrn -1;
 	if_true_fef(creationFlags, "%s", "Windows process creation flags are unsupported on Linux.");
 	if_true_fef(application.size() && memchr(application.begin(), 0, application.size()), "%s", "Application contains an embedded zero.");
 	if_true_fef(commandLine.size() && memchr(commandLine.begin(), 0, commandLine.size()), "%s", "Command line contains an embedded zero.");
 	as0_t argumentStorage, environmentStorage = environment;
 	apod<char*> argv, envp;
-	llc_necs(argumentStorage.append(commandLine.begin(), commandLine.size()));
-	llc_necs(argumentStorage.push_back(0));
-	llc_necs(processArguments(argumentStorage, argv));
+	if_fail_fe(argumentStorage.append(commandLine.begin(), commandLine.size()));
+	if_fail_fe(argumentStorage.push_back(0));
+	if_fail_fe(processArguments(argumentStorage, argv));
 	string executable = application;
 	for(u2_t offset = 0; offset < environmentStorage.size() && environmentStorage[offset]; ) {
 		char * end = (char*)memchr(environmentStorage.begin() + offset, 0, environmentStorage.size() - offset);
 		if_null_fef(end, "%s", "Unterminated process environment entry.");
-		llc_necs(envp.push_back(environmentStorage.begin() + offset));
+		if_fail_fe(envp.push_back(environmentStorage.begin() + offset));
 		offset = (u2_t)(end - environmentStorage.begin()) + 1;
 	}
-	llc_necs(envp.push_back(0));
+	if_fail_fe(envp.push_back(0));
 	cnst bool separateError = 0 <= process.StderrRead && 0 <= process.StderrWrite;
 	cnst bool redirected = 0 <= process.StdinRead && 0 <= process.StdinWrite && 0 <= process.StdoutRead && 0 <= process.StdoutWrite;
 	if_true_fef((0 <= process.StderrRead) != (0 <= process.StderrWrite), "%s", "Incomplete process error pipe setup.");
 	if_true_fef(!redirected && (0 <= process.StdinRead || 0 <= process.StdinWrite || 0 <= process.StdoutRead || 0 <= process.StdoutWrite || separateError), "%s", "Incomplete process pipe setup.");
 	posix_spawn_file_actions_t actions;
 	if(0 != posix_spawn_file_actions_init(&actions))
-		rtrn OS_ERROR;
+		rtrn -1;
 	auto_process_actions scope{actions};
 	if(redirected) {
-		if_true_ve(OS_ERROR, posix_spawn_file_actions_adddup2(&actions, process.StdinRead, STDIN_FILENO));
-		if_true_ve(OS_ERROR, posix_spawn_file_actions_adddup2(&actions, process.StdoutWrite, STDOUT_FILENO));
-		if_true_ve(OS_ERROR, posix_spawn_file_actions_adddup2(&actions, separateError ? process.StderrWrite : process.StdoutWrite, STDERR_FILENO));
-		if_true_ve(OS_ERROR, posix_spawn_file_actions_addclose(&actions, process.StdinRead));
-		if_true_ve(OS_ERROR, posix_spawn_file_actions_addclose(&actions, process.StdinWrite));
-		if_true_ve(OS_ERROR, posix_spawn_file_actions_addclose(&actions, process.StdoutRead));
-		if_true_ve(OS_ERROR, posix_spawn_file_actions_addclose(&actions, process.StdoutWrite));
+		if_true_ve(-1, posix_spawn_file_actions_adddup2(&actions, process.StdinRead, STDIN_FILENO));
+		if_true_ve(-1, posix_spawn_file_actions_adddup2(&actions, process.StdoutWrite, STDOUT_FILENO));
+		if_true_ve(-1, posix_spawn_file_actions_adddup2(&actions, separateError ? process.StderrWrite : process.StdoutWrite, STDERR_FILENO));
+		if_true_ve(-1, posix_spawn_file_actions_addclose(&actions, process.StdinRead));
+		if_true_ve(-1, posix_spawn_file_actions_addclose(&actions, process.StdinWrite));
+		if_true_ve(-1, posix_spawn_file_actions_addclose(&actions, process.StdoutRead));
+		if_true_ve(-1, posix_spawn_file_actions_addclose(&actions, process.StdoutWrite));
 		if(separateError) {
-			if_true_ve(OS_ERROR, posix_spawn_file_actions_addclose(&actions, process.StderrRead));
-			if_true_ve(OS_ERROR, posix_spawn_file_actions_addclose(&actions, process.StderrWrite));
+			if_true_ve(-1, posix_spawn_file_actions_addclose(&actions, process.StderrRead));
+			if_true_ve(-1, posix_spawn_file_actions_addclose(&actions, process.StderrWrite));
 		}
 	}
 	cnst int error = application.size()
@@ -227,13 +228,13 @@ llc::err_t processCreate(SProcessLinux & process, vcst_t application, vcst_t com
 		: posix_spawnp(&process.PID, argv[0], &actions, 0, argv.begin(), environment.size() ? envp.begin() : environ);
 	if(error) {
 		process.PID = -1;
-		rtrn OS_ERROR;
+		rtrn -1;
 	}
 	cnst err_t destroyed = scope.Close();
 	cnst llc::err_t closedInput = processDescriptorClose(process.StdinRead);
 	cnst llc::err_t closedOutput = processDescriptorClose(process.StdoutWrite);
 	cnst llc::err_t closedError = processDescriptorClose(process.StderrWrite);
-	rtrn destroyed || failed(closedInput) || failed(closedOutput) || failed(closedError) ? OS_ERROR : 0;
+	rtrn destroyed || failed(closedInput) || failed(closedOutput) || failed(closedError) ? -1 : 0;
 }
 
 stct SProcessWriteScope {
@@ -252,21 +253,21 @@ stct SProcessWriteScope {
 		}
 		cnst int restored = pthread_sigmask(SIG_SETMASK, &Previous, 0);
 		cnst err_t closed = Pipe.Close();
-		rtrn restored ? OS_ERROR : closed;
+		rtrn restored ? -1 : closed;
 	}
 };
 
 llc::err_t processWrite(SProcessLinux & process, vcu0_t input) {
 	if(0 > process.StdinWrite)
-		rtrn input.size() ? OS_ERROR : 0;
+		rtrn input.size() ? -1 : 0;
 	// Block SIGPIPE only in this thread; never change the application's signal disposition.
 	sigset_t blocked, previous, pending;
 	sigemptyset(&blocked);
 	sigaddset(&blocked, SIGPIPE);
 	if(0 != pthread_sigmask(SIG_BLOCK, &blocked, &previous))
-		rtrn OS_ERROR;
+		rtrn -1;
 	SProcessWriteScope scope{process.StdinWrite, blocked, previous};
-	if_true_ve(OS_ERROR, sigpending(&pending));
+	if_true_ve(-1, sigpending(&pending));
 	scope.AlreadyPending = 1 == sigismember(&pending, SIGPIPE);
 	for(u2_t offset = 0; offset < input.size(); ) {
 		cnst ssize_t written = write(process.StdinWrite, input.begin() + offset, input.size() - offset);
@@ -274,7 +275,7 @@ llc::err_t processWrite(SProcessLinux & process, vcu0_t input) {
 			continue;
 		if(0 >= written) {
 			scope.BrokenPipe = 0 > written && EPIPE == errno;
-			rtrn OS_ERROR;
+			rtrn -1;
 		}
 		offset += (u2_t)written;
 	}
@@ -283,23 +284,23 @@ llc::err_t processWrite(SProcessLinux & process, vcu0_t input) {
 
 llc::err_t processRead(SProcessLinux & process, au0_t & output) {
 	if(0 > process.StdoutRead)
-		rtrn OS_ERROR;
+		rtrn -1;
 	auto_process_descriptor scope{process.StdoutRead};
 	u0_t buffer[4096] = {};
 	for(;;) {
 		cnst ssize_t count = read(process.StdoutRead, buffer, sizeof(buffer));
 		if(0 > count && EINTR == errno)
 			continue;
-		if_true_ve(OS_ERROR, 0 > count);
+		if_true_ve(-1, 0 > count);
 		if(0 == count) break;
-		if_fail_ve(OS_ERROR, output.append(buffer, (u2_t)count));
+		if_fail_ve(-1, output.append(buffer, (u2_t)count));
 	}
 	rtrn scope.Close();
 }
 
 llc::err_t processRead(SProcessLinux & process, au0_t & output, au0_t & errorOutput) {
 	if(0 > process.StdoutRead || 0 > process.StderrRead)
-		rtrn OS_ERROR;
+		rtrn -1;
 	::pollfd descriptors[2] = {
 		{process.StdoutRead, POLLIN | POLLHUP, 0},
 		{process.StderrRead, POLLIN | POLLHUP, 0},
@@ -310,7 +311,7 @@ llc::err_t processRead(SProcessLinux & process, au0_t & output, au0_t & errorOut
 		cnst int pollResult = poll(descriptors, 2, -1);
 		if(0 > pollResult && EINTR == errno)
 			continue;
-		if_true_ve(OS_ERROR, 0 > pollResult);
+		if_true_ve(-1, 0 > pollResult);
 		for(u0_t index = 0; index < 2; ++index) {
 			::pollfd & descriptor = descriptors[index];
 			if(0 > descriptor.fd || 0 == (descriptor.revents & (POLLIN | POLLHUP | POLLERR | POLLNVAL)))
@@ -318,13 +319,13 @@ llc::err_t processRead(SProcessLinux & process, au0_t & output, au0_t & errorOut
 			cnst ssize_t count = read(descriptor.fd, buffer, sizeof(buffer));
 			if(0 > count && EINTR == errno)
 				continue;
-			if_true_ve(OS_ERROR, 0 > count && EAGAIN != errno && EWOULDBLOCK != errno);
+			if_true_ve(-1, 0 > count && EAGAIN != errno && EWOULDBLOCK != errno);
 			if(0 < count) {
-				if_fail_ve(OS_ERROR, (index ? errorOutput : output).append(buffer, (u2_t)count));
+				if_fail_ve(-1, (index ? errorOutput : output).append(buffer, (u2_t)count));
 				continue;
 			}
 			if(0 == count || descriptor.revents & (POLLHUP | POLLERR | POLLNVAL)) {
-				if_fail_ve(OS_ERROR, processDescriptorClose(index ? process.StderrRead : process.StdoutRead));
+				if_fail_ve(-1, processDescriptorClose(index ? process.StderrRead : process.StdoutRead));
 				descriptor.fd = -1;
 				--descriptorsOpen;
 			}
@@ -335,13 +336,13 @@ llc::err_t processRead(SProcessLinux & process, au0_t & output, au0_t & errorOut
 
 llc::err_t processWait(SProcessLinux & process, u2_t & exitCode) {
 	if(0 >= process.PID)
-		rtrn OS_ERROR;
+		rtrn -1;
 	int status = 0;
 	pid_t waited;
 	do { waited = waitpid(process.PID, &status, 0); } while(0 > waited && EINTR == errno);
 	if(0 > waited) {
 		if(ECHILD == errno) process.PID = -1;
-		rtrn OS_ERROR;
+		rtrn -1;
 	}
 	process.PID = -1;
 	exitCode = WIFEXITED(status) ? (u2_t)WEXITSTATUS(status) : 128U + (u2_t)WTERMSIG(status);
@@ -351,7 +352,7 @@ llc::err_t processWait(SProcessLinux & process, u2_t & exitCode) {
 stct SProcessInput {
 	SProcessLinux & Process;
 	vcu0_t Input;
-	llc::err_t Result = OS_ERROR;
+	llc::err_t Result = -1;
 };
 
 sttc void * processInputWrite(void * parameter) {
@@ -361,46 +362,46 @@ sttc void * processInputWrite(void * parameter) {
 }
 
 stct auto_process_writer : auto_handler<pthread_t*, nullptr> {
-	err_t Result = OS_ERROR;
+	err_t Result = -1;
 	explicit auto_process_writer(pthread_t & writer) nxpt { Handle = &writer; }
 	~auto_process_writer() { if_fail_e(Close()); }
 	err_t Close() {
 		if(!Handle) rtrn 0;
 		cnst pthread_t closing = *Handle;
 		Handle = 0;
-		if(failed(Result) && 0 != pthread_cancel(closing)) Result = OS_ERROR;
-		rtrn pthread_join(closing, 0) ? OS_ERROR : 0;
+		if(failed(Result) && 0 != pthread_cancel(closing)) Result = -1;
+		rtrn pthread_join(closing, 0) ? -1 : 0;
 	}
 };
 
 llc::err_t processCommunicate(SProcessLinux & process, vcu0_t input, au0_t & output) {
 	if(!input.size()) {
-		llc_necs(processWrite(process, input));
+		if_fail_fe(processWrite(process, input));
 		rtrn processRead(process, output);
 	}
 	SProcessInput context = {process, input};
 	pthread_t writer;
 	if(0 != pthread_create(&writer, 0, processInputWrite, &context))
-		rtrn OS_ERROR;
+		rtrn -1;
 	auto_process_writer scope{writer};
 	scope.Result = processRead(process, output);
 	cnst err_t joined = scope.Close();
-	rtrn failed(joined) || failed(context.Result) ? OS_ERROR : scope.Result;
+	rtrn failed(joined) || failed(context.Result) ? -1 : scope.Result;
 }
 
 llc::err_t processCommunicate(SProcessLinux & process, vcu0_t input, au0_t & output, au0_t & errorOutput) {
 	if(!input.size()) {
-		llc_necs(processWrite(process, input));
+		if_fail_fe(processWrite(process, input));
 		rtrn processRead(process, output, errorOutput);
 	}
 	SProcessInput context = {process, input};
 	pthread_t writer;
 	if(0 != pthread_create(&writer, 0, processInputWrite, &context))
-		rtrn OS_ERROR;
+		rtrn -1;
 	auto_process_writer scope{writer};
 	scope.Result = processRead(process, output, errorOutput);
 	cnst err_t joined = scope.Close();
-	rtrn failed(joined) || failed(context.Result) ? OS_ERROR : scope.Result;
+	rtrn failed(joined) || failed(context.Result) ? -1 : scope.Result;
 }
 }
 #endif

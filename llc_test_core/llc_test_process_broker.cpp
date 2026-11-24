@@ -16,18 +16,18 @@ GDEFINE_ENUM_VALUED(PROCESS_BROKER_TEST_RESULT, STDERR_BYTES		, 4, "SProcessBrok
 	cnst DWORD modulePathLength = GetModuleFileNameA(0, modulePath, ::llc::size(modulePath));
 	LLC_TEST_REQUIREF(errors, PROCESS_BROKER_TEST_RESULT_EXECUTE, 0 == modulePathLength || ::llc::size(modulePath) == modulePathLength, "Executable path length:%u.", modulePathLength);
 	job.CommandLineApp = ::llc::vcst_t{modulePath, modulePathLength};
-	llc_necs(::llc::append_strings(job.CommandLine, '"', ::llc::vcst_t{modulePath, modulePathLength}, "\" --process-echo"));
+	if_fail_fe(::llc::append_strings(job.CommandLine, '"', ::llc::vcst_t{modulePath, modulePathLength}, "\" --process-echo"));
 #else
 	job.CommandLineApp = "/proc/self/exe";
 	job.CommandLine = "llc_test_core --process-echo";
 #endif
-	llc_necs(job.Request.push_back(0));
-	llc_necs(job.Request.push_back(0));
+	if_fail_fe(job.Request.push_back(0));
+	if_fail_fe(job.Request.push_back(0));
 	::llc::au0_t input;
-	llc_necs(input.resize(1024 * 1024));
+	if_fail_fe(input.resize(1024 * 1024));
 	for(::llc::u2_t i = 0; i < input.size(); ++i)
 		input[i] = (::llc::u0_t)i;
-	llc_necs(job.Request.append(input));
+	if_fail_fe(job.Request.append(input));
 	cnst ::llc::err_t result = ::llc::processBrokerRun(job);
 	LLC_TEST_REQUIREF(errors, PROCESS_BROKER_TEST_RESULT_EXECUTE, ::llc::failed(result) || job.ExitCode, "Result:%i, exit:%u.", result, job.ExitCode);
 	LLC_TEST_CHECKF(errors, PROCESS_BROKER_TEST_RESULT_COMPLETION, 1 != job.Done || 1 != job.ErrorDone || job.ErrorResult, "Done:%i, error done:%i, error result:%i.", (int)job.Done, (int)job.ErrorDone, job.ErrorResult);

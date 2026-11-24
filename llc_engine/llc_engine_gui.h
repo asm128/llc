@@ -33,7 +33,7 @@ namespace llc
 		
 		inline				SEngineGUI		()	{ Reset(); }
 
-		::llc::error_t		Reset			()	{
+		::llc::err_t		Reset			()	{
 			Engine				= {};
 			GUI					= {};
 			Entities.clear();
@@ -42,13 +42,13 @@ namespace llc
 			params.CellCount	= {4, 4};
 			params.Origin		= {1, 1};
 			params.Size			= {2, 2};
-			llc_necs(Entities.resize(::llc::get_value_count<GUI_ENTITY>()));
-			llc_necs(Entities[GUI_ENTITY_Label]		= Engine.CreateGrid(params));
-			llc_necs(Entities[GUI_ENTITY_Button]	= Engine.CreateGrid(params));
+			if_fail_fe(Entities.resize(::llc::get_value_count<GUI_ENTITY>()));
+			if_fail_fe(Entities[GUI_ENTITY_Label]		= Engine.CreateGrid(params));
+			if_fail_fe(Entities[GUI_ENTITY_Button]	= Engine.CreateGrid(params));
 
-			llc_necs(Entities[GUI_ENTITY_Menu]		= Engine.Clone(Entities[GUI_ENTITY_Button], false, false, false));
-			llc_necs(Entities[GUI_ENTITY_Viewport]	= Engine.Clone(Entities[GUI_ENTITY_Button], false, false, false));
-			llc_necs(Entities[GUI_ENTITY_Palette]	= Engine.Clone(Entities[GUI_ENTITY_Button], false, false, false));
+			if_fail_fe(Entities[GUI_ENTITY_Menu]		= Engine.Clone(Entities[GUI_ENTITY_Button], false, false, false));
+			if_fail_fe(Entities[GUI_ENTITY_Viewport]	= Engine.Clone(Entities[GUI_ENTITY_Button], false, false, false));
+			if_fail_fe(Entities[GUI_ENTITY_Palette]	= Engine.Clone(Entities[GUI_ENTITY_Button], false, false, false));
 
 			rees_if(0 != ::llc::controlCreate(GUI));
 			return 0;

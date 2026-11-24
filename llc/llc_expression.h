@@ -59,8 +59,8 @@ namespace llc
 		pobj<SExpressionReader>	SubExpressionCache;
 	};
 
-	error_t					expressionReaderParse			(SExpressionReader & reader, vcst_t expression);
-	error_t					expressionReaderParseStep		(SExpressionReader & reader, vcst_t expression);
+	err_t					expressionReaderParse			(SExpressionReader & reader, vcst_t expression);
+	err_t					expressionReaderParseStep		(SExpressionReader & reader, vcst_t expression);
 
 	// Token spans refer to format. Resolved views must survive the callback until the formatter copies them.
 	err_t					expressionStringFormat		(vcst_t format, view<cnst SStripLiteralType> tokens, cnst FError<vcst_c &, vcst_t &> & resolve, asc_t & output);

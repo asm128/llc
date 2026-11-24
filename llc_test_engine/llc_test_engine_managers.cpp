@@ -19,32 +19,32 @@ tplt<tpnm TManager>
 sttc ::llc::err_t testEngineResourceManager(::llc::ATestError & errors) {
 	TManager manager;
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CREATE, manager.size() || manager.Elements.size());
-	llc_necs(::engine_test::resources(manager));
+	if_fail_fe(::engine_test::resources(manager));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.size() != 3 || manager.Elements.size() != 3);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CREATE, manager.find("second") != 1);
 	::llc::au0_t original;
-	llc_necs(manager[0U]->Save(original));
+	if_fail_fe(manager[0U]->Save(original));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CLONE_VALUE, manager.Clone(0) != 3);
 	::llc::au0_t clone;
-	llc_necs(manager[3]->Save(clone));
+	if_fail_fe(manager[3]->Save(clone));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLONE_VALUE, manager.Names[3] != manager.Names[0] || ::llc::vcu0_t{clone} != ::llc::vcu0_t{original});
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLONE_OWNERSHIP, &*manager[0U] == &*manager[3]);
-	llc_necs(::engine_test::fill(*manager[3], 7));
+	if_fail_fe(::engine_test::fill(*manager[3], 7));
 	::llc::au0_t unchanged;
-	llc_necs(manager[0U]->Save(unchanged));
+	if_fail_fe(manager[0U]->Save(unchanged));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLONE_OWNERSHIP, ::llc::vcu0_t{unchanged} != ::llc::vcu0_t{original});
 	::llc::au0_t last;
-	llc_necs(manager[3]->Save(last));
-	llc_necs(manager.Delete(1));
+	if_fail_fe(manager[3]->Save(last));
+	if_fail_fe(manager.Delete(1));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager.size() != 3 || manager.Elements.size() != 3);
 	::llc::au0_t moved;
-	llc_necs(manager[1]->Save(moved));
+	if_fail_fe(manager[1]->Save(moved));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager.Names[1] != manager.Names[0] || ::llc::vcu0_t{moved} != ::llc::vcu0_t{last});
 	::llc::au0_t before, after;
-	llc_necs(manager.Save(before));
+	if_fail_fe(manager.Save(before));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_INVALID_INDEX, manager.Clone(manager.size()) >= 0);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_INVALID_INDEX, manager.Delete(manager.size()) >= 0);
-	llc_necs(manager.Save(after));
+	if_fail_fe(manager.Save(after));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_INVALID_INDEX, ::llc::vcu0_t{before} != ::llc::vcu0_t{after});
 	return 0;
 }
@@ -54,22 +54,22 @@ sttc ::llc::err_t testEngineEntityManager(::llc::ATestError & errors) {
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create() != 0);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DEFAULTS, manager[0].Parent != ::llc::EID_INVALID || manager[0].RenderNode != (::llc::u2_t)-1 || manager[0].RigidBody != (::llc::u2_t)-1 || manager.GetChildCount(0));
 	manager.clear();
-	llc_necs(::engine_test::entities(manager));
+	if_fail_fe(::engine_test::entities(manager));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.size() != 4 || manager.Entities.size() != 4 || manager.Children.size() != 4);
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_PARENT, manager.GetChildCount(0) != 1 || manager.GetChildCount(2) != 1);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_PARENT, manager.GetIndexChild(0, 0) != 2 || manager.GetIndexChild(2, 0) != 3 || manager[3].Parent != 2);
-	llc_necs(manager.SetParent(2, 1));
+	if_fail_fe(manager.SetParent(2, 1));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_PARENT, manager.GetChildCount(0) || manager.GetChildCount(1) != 1);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_PARENT, manager.GetIndexChild(1, 0) != 2 || manager[2].Parent != 1);
-	llc_necs(manager.SetParent(2, 1));
+	if_fail_fe(manager.SetParent(2, 1));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_PARENT, manager.GetChildCount(1) != 1);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_PARENT, manager.SetParent(2, 40) >= 0);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_PARENT, manager[2].Parent != 1 || manager.GetChildCount(1) != 1);
-	llc_necs(manager.SetParent(2, ::llc::EID_INVALID));
-	llc_necs(manager.SetParent(3, ::llc::EID_INVALID));
+	if_fail_fe(manager.SetParent(2, ::llc::EID_INVALID));
+	if_fail_fe(manager.SetParent(3, ::llc::EID_INVALID));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_PARENT, manager.GetChildCount(1) || manager.GetChildCount(2) || manager[2].Parent != ::llc::EID_INVALID);
 	// Delete isolated entries: hierarchy-ID repair is not provided by this low-level API.
-	llc_necs(manager.Delete(1));
+	if_fail_fe(manager.Delete(1));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager.size() != 3 || manager.Entities.size() != 3 || manager.Children.size() != 3);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager.Names[1] != ::llc::vcst_t{"grandchild"} || manager[1].RenderNode != 13 || manager[1].RigidBody != 23 || manager.GetChildCount(1));
 	manager.clear();
@@ -82,8 +82,8 @@ sttc ::llc::err_t testEngineNodeManager(::llc::ATestError & errors) {
 	::llc::SRenderNodeManager manager;
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create() != 0);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DEFAULTS, manager[0].Mesh != (::llc::u2_t)-1 || manager[0].Skin != (::llc::u2_t)-1 || manager[0].Shader != (::llc::u2_t)-1 || manager.Lights[0] || manager.Cameras[0]);
-	llc_necs(manager.Delete(0));
-	llc_necs(::engine_test::nodes(manager));
+	if_fail_fe(manager.Delete(0));
+	if_fail_fe(::engine_test::nodes(manager));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CLONE_VALUE, manager.Clone(0) != 3);
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.size() != 4 || manager.Flags.size() != 4 || manager.Transforms.size() != 4 || manager.BaseTransforms.size() != 4 || manager.Lights.size() != 4 || manager.Cameras.size() != 4);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLONE_VALUE, memcmp(&manager[0], &manager[3], sizeof(::llc::SRenderNode)) || memcmp(&manager.Transforms[0], &manager.Transforms[3], sizeof(::llc::SRenderNodeConstants)));
@@ -92,7 +92,7 @@ sttc ::llc::err_t testEngineNodeManager(::llc::ATestError & errors) {
 	manager.Transforms[3].NodeSize.x = 42;
 	manager.Flags[3].NoDraw = true;
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLONE_OWNERSHIP, manager.Transforms[0].NodeSize.x == 42 || manager.Flags[0].NoDraw);
-	llc_necs(manager.Delete(1));
+	if_fail_fe(manager.Delete(1));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager.size() != 3 || manager.Flags.size() != 3 || manager.Transforms.size() != 3 || manager.BaseTransforms.size() != 3 || manager.Lights.size() != 3 || manager.Cameras.size() != 3);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager[1].Mesh != manager[0].Mesh || manager.Transforms[1].NodeSize.x != 42 || !manager.Flags[1].NoDraw || &*manager.Lights[1] != &*manager.Lights[0] || &*manager.Cameras[1] != &*manager.Cameras[0]);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, memcmp(&manager.BaseTransforms[0], &manager.BaseTransforms[1], sizeof(::llc::SRenderNodeConstants)));
@@ -104,8 +104,8 @@ sttc ::llc::err_t testEngineBodyManager(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create(0) != 0 || manager.Centers.size());
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Create(2) != 0);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DEFAULTS, (manager.Centers[1].Orientation != ::llc::quatf2_t{0, 0, 0, 1} || manager.BoundingVolumes[1].HalfSizes != ::llc::n3f2_t{.5f, .5f, .5f}));
-	llc_necs(manager.Clear());
-	llc_necs(::engine_test::bodies(manager));
+	if_fail_fe(manager.Clear());
+	if_fail_fe(::engine_test::bodies(manager));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CLONE_VALUE, manager.Clone(0) != 3);
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_CREATE, manager.Centers.size() != 4 || manager.Frames.size() != 4 || manager.Flags.size() != 4 || manager.Forces.size() != 4 || manager.Masses.size() != 4 || manager.BoundingVolumes.size() != 4 || manager.TransformsLocal.size() != 4);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLONE_VALUE, memcmp(&manager.Centers[0], &manager.Centers[3], sizeof(::llc::SBodyCenter)) || manager.BoundingVolumes[0].HalfSizes != manager.BoundingVolumes[3].HalfSizes);
@@ -117,7 +117,7 @@ sttc ::llc::err_t testEngineBodyManager(::llc::ATestError & errors) {
 	manager.Centers[3].Position.x = 42;
 	manager.BoundingVolumes[3].HalfSizes.x = 43;
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLONE_OWNERSHIP, manager.Centers[0].Position.x == 42 || manager.BoundingVolumes[0].HalfSizes.x == 43);
-	llc_necs(manager.Delete(1));
+	if_fail_fe(manager.Delete(1));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager.Centers.size() != 3 || manager.Frames.size() != 3 || manager.Flags.size() != 3 || manager.Forces.size() != 3 || manager.Masses.size() != 3 || manager.BoundingVolumes.size() != 3 || manager.TransformsLocal.size() != 3);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager.Centers[1].Position.x != 42 || manager.BoundingVolumes[1].HalfSizes.x != 43);
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, memcmp(&manager.Frames[0], &manager.Frames[1], sizeof(::llc::SBodyFrame)));
@@ -125,7 +125,7 @@ sttc ::llc::err_t testEngineBodyManager(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, memcmp(&manager.Forces[0], &manager.Forces[1], sizeof(::llc::SBodyForces)));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, memcmp(&manager.Masses[0], &manager.Masses[1], sizeof(::llc::SBodyMass)));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, memcmp(&manager.TransformsLocal[0], &manager.TransformsLocal[1], sizeof(::llc::m4f2_t)));
-	llc_necs(manager.Clear());
+	if_fail_fe(manager.Clear());
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLEAR, manager.Centers.size() || manager.Frames.size() || manager.Flags.size() || manager.Forces.size() || manager.Masses.size() || manager.BoundingVolumes.size() || manager.TransformsLocal.size());
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_CLEAR, manager.Create() != 0);
 	return 0;
@@ -136,7 +136,7 @@ sttc ::llc::err_t testEngineBufferFormats(::llc::ATestError & errors) {
 	cnst ::llc::u2_t widths[] = {1, 1, 1, 2, 2, 4};
 	::llc::pobj<::llc::SRenderBuffer> indices, positions, normals, uv;
 	for(::llc::u2_t i = 0; i < ::llc::size(counts); ++i) {
-		llc_necs(::llc::createBuffers(counts[i], indices, positions, normals, uv));
+		if_fail_fe(::llc::createBuffers(counts[i], indices, positions, normals, uv));
 		LLC_TEST_REQUIREF(errors, ENGINE_MANAGER_RESULT_BUFFER_FORMAT, !indices || !positions || !normals || !uv, "Vertex count:%u.", counts[i]);
 		LLC_TEST_CHECKF(errors, ENGINE_MANAGER_RESULT_BUFFER_FORMAT, indices->Desc.Format.TotalBytes() != widths[i] || indices->Desc.Usage != ::llc::BUFFER_USAGE_Index, "Vertex count:%u, index bytes:%u, expected:%u.", counts[i], (::llc::u2_t)indices->Desc.Format.TotalBytes(), widths[i]);
 		LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_BUFFER_FORMAT, positions->Desc.Format != ::llc::DATA_TYPE_FLOAT32_3 || normals->Desc.Format != ::llc::DATA_TYPE_FLOAT32_3 || uv->Desc.Format != ::llc::DATA_TYPE_FLOAT32_2);
@@ -153,23 +153,23 @@ sttc ::llc::err_t testEngineShaderManager(::llc::ATestError & errors) {
 	::llc::SRenderNodeConstants constants = {};
 	::llc::SPSIn input = {constants};
 	::llc::bgra source = {}, clone = {};
-	llc_necs((*manager[0U])({}, input, source));
-	llc_necs((*manager[1])({}, input, clone));
+	if_fail_fe((*manager[0U])({}, input, source));
+	if_fail_fe((*manager[1])({}, input, clone));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_SHADER, source != clone || manager.Names[0] != manager.Names[1]);
 	if_null_fe(manager[1].create([](cnst ::llc::SEngineSceneConstants &, cnst ::llc::SPSIn &, ::llc::bgra & output) -> ::llc::err_t { output = {4, 5, 6, 255}; return 0; }));
-	llc_necs((*manager[0U])({}, input, source));
-	llc_necs((*manager[1])({}, input, clone));
+	if_fail_fe((*manager[0U])({}, input, source));
+	if_fail_fe((*manager[1])({}, input, clone));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_SHADER, source.b != 1 || source.g != 2 || source.r != 3 || clone.b != 4 || clone.g != 5 || clone.r != 6);
-	llc_necs(manager.Delete(0));
+	if_fail_fe(manager.Delete(0));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_DELETE_PAIR, manager.size() != 1 || manager.Elements.size() != 1);
-	llc_necs((*manager[0U])({}, input, clone));
+	if_fail_fe((*manager[0U])({}, input, clone));
 	LLC_TEST_CHECK(errors, ENGINE_MANAGER_RESULT_SHADER, clone.b != 4 || manager.Names[0] != ::llc::vcst_t{"shader"});
 	return 0;
 }
 
 sttc ::llc::err_t testEngineGraph(::llc::ATestError & errors) {
 	::llc::SEngine engine;
-	llc_necs(::engine_test::engine(engine));
+	if_fail_fe(::engine_test::engine(engine));
 	LLC_TEST_REQUIRE(errors, ENGINE_MANAGER_RESULT_BUILD_GRAPH, engine.Entities.size() != 4 || engine.Integrator.Centers.size() != 3 || engine.Scene->RenderNodes.size() != 4 || engine.Scene->Graphics->Meshes.size() != 1);
 	for(::llc::u2_t i = 0; i < 3; ++i) {
 		LLC_TEST_CHECKF(errors, ENGINE_MANAGER_RESULT_BUILD_GRAPH, engine.GetRigidBody(i) != (::llc::err_t)i || engine.GetRenderNode(i) != (::llc::err_t)i || engine.Scene->RenderNodes[i].Mesh != 0 || engine.Scene->RenderNodes[i].Skin != i, "Entity:%u.", i);
@@ -190,14 +190,14 @@ sttc ::llc::err_t testEngineGraph(::llc::ATestError & errors) {
 }
 
 ::llc::err_t testEngineManagers(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
-	always_printf("Engine resource operations: buffers."); llc_necs(testEngineResourceManager<::llc::SRenderBufferManager>(errors));
-	always_printf("Engine resource operations: surfaces."); llc_necs(testEngineResourceManager<::llc::SSurfaceManager>(errors));
-	always_printf("Engine resource operations: meshes."); llc_necs(testEngineResourceManager<::llc::SMeshManager>(errors));
-	always_printf("Engine resource operations: skins."); llc_necs(testEngineResourceManager<::llc::SSkinManager>(errors));
-	llc_necs(testEngineEntityManager(errors));
-	llc_necs(testEngineNodeManager(errors));
-	llc_necs(testEngineBodyManager(errors));
-	llc_necs(testEngineBufferFormats(errors));
-	llc_necs(testEngineShaderManager(errors));
+	always_printf("Engine resource operations: buffers."); if_fail_fe(testEngineResourceManager<::llc::SRenderBufferManager>(errors));
+	always_printf("Engine resource operations: surfaces."); if_fail_fe(testEngineResourceManager<::llc::SSurfaceManager>(errors));
+	always_printf("Engine resource operations: meshes."); if_fail_fe(testEngineResourceManager<::llc::SMeshManager>(errors));
+	always_printf("Engine resource operations: skins."); if_fail_fe(testEngineResourceManager<::llc::SSkinManager>(errors));
+	if_fail_fe(testEngineEntityManager(errors));
+	if_fail_fe(testEngineNodeManager(errors));
+	if_fail_fe(testEngineBodyManager(errors));
+	if_fail_fe(testEngineBufferFormats(errors));
+	if_fail_fe(testEngineShaderManager(errors));
 	return testEngineGraph(errors);
 }

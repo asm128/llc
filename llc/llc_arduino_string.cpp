@@ -3,7 +3,7 @@
 #ifdef LLC_ARDUINO
 stxp llc::vcst_c    trim_blanks = " \n\r\t";
 
-llc::error_t    llc::rtrim      (String & trimmed, const String & input) {
+llc::err_t    llc::rtrim      (String & trimmed, const String & input) {
     trimmed = input;
     int         trimCount   = 0;
     while(trimmed.length()) {   // Loop to trim trailing whitespace characters from 'trimmed'.

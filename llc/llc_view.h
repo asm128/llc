@@ -37,7 +37,7 @@ namespace llc
 
 		tplN2u	inxp			view			(T (&elements)[N])					nxpt	: Data(elements), Count(N)								{}
 		tplN2u	inxp			view			(u2_t elementCount, T (&elements)[N])		: Data(elements), Count(::llc::min(N, elementCount))	{}
-		inln					view			(T * elements, u2_t elementCount)			: Data(elements), Count(elementCount)					{ gthrow_if(0 == elements && 0 != elementCount, "%" LLC_FMT_U2 " -> 0.", elementCount);	}
+		inln					view			(T * elements, u2_t elementCount)			: Data(elements), Count(elementCount)					{ if_true_tef(0 == elements && 0 != elementCount, "%" LLC_FMT_U2 " -> 0.", elementCount);	}
 
 		// Operators
 		inxp	oper			view<TCnst>		()									csnx	{ rtrn {Data, Count}; }
@@ -200,30 +200,30 @@ namespace llc
 	tydf	view<b8_t>	vb8_t;
 	tydf	view<uc_t>	vuc_t, vuc, vuchar;
 	tydf	view<sc_t>	vsc_t, vc, vchar;
-	tydf	view<u0_t>	vu0_t, vu8;
-	tydf	view<u1_t>	vu1_t, vu16;
-	tydf	view<u2_t>	vu2_t, vu32;
-	tydf	view<u3_t>	vu3_t, vu64;
-	tydf	view<s0_t>	vs0_t, vi8;
-	tydf	view<s1_t>	vs1_t, vi16;
-	tydf	view<s2_t>	vs2_t, vi32;
-	tydf	view<s3_t>	vs3_t, vi64;
-	tydf	view<f2_t>	vf2_t, vf32;
-	tydf	view<f3_t>	vf3_t, vf64;
+	tydf	view<u0_t>	vu0_t, vu0_t;
+	tydf	view<u1_t>	vu1_t, vu1_t;
+	tydf	view<u2_t>	vu2_t, vu2_t;
+	tydf	view<u3_t>	vu3_t, vu3_t;
+	tydf	view<s0_t>	vs0_t, vs0_t;
+	tydf	view<s1_t>	vs1_t, vs1_t;
+	tydf	view<s2_t>	vs2_t, vs2_t;
+	tydf	view<s3_t>	vs3_t, vs3_t;
+	tydf	view<f2_t>	vf2_t, vf2_t;
+	tydf	view<f3_t>	vf3_t, vf3_t;
 
 	tydf	view<b8_c>	vcb8_t;
 	tydf	view<uc_c>	vcuc_t, vcuc, vcuchar;
 	tydf	view<sc_c>	vcsc_t, vcchar;
 	tydf	view<u0_c>	vcu0_t, vcu0_t;
-	tydf	view<u1_c>	vcu1_t, vcu16;
-	tydf	view<u2_c>	vcu2_t, vcu32;
-	tydf	view<u3_c>	vcu3_t, vcu64;
+	tydf	view<u1_c>	vcu1_t, vcu1_t;
+	tydf	view<u2_c>	vcu2_t, vcu2_t;
+	tydf	view<u3_c>	vcu3_t, vcu3_t;
 	tydf	view<s0_c>	vcs0_t, vcs0_t;
-	tydf	view<s1_c>	vcs1_t, vci16;
-	tydf	view<s2_c>	vcs2_t, vci32;
-	tydf	view<s3_c>	vcs3_t, vci64;
-	tydf	view<f2_c>	vcf2_t, vcf32;
-	tydf	view<f3_c>	vcf3_t, vcf64;
+	tydf	view<s1_c>	vcs1_t, vcs1_t;
+	tydf	view<s2_c>	vcs2_t, vcs2_t;
+	tydf	view<s3_c>	vcs3_t, vcs3_t;
+	tydf	view<f2_c>	vcf2_t, vcf2_t;
+	tydf	view<f3_c>	vcf3_t, vcf3_t;
 
 	tdcs	 vb8_t 	vb8_c;
 	tdcs	 vuc_t 	vuc_c;
@@ -323,7 +323,7 @@ namespace llc
 		inln	sc_t*	end						()	nxpt	{ rtrn begin() + Count; }
 		ndin	oper	sc_t* 					()  nxpt	{ rtrn begin(); }
 	};
-	tydf	view_string			vstr_t, vs;
+	tydf	view_string			vstr_t, vstr_t;
 	tdcs	vstr_t				vstr_c;
 
 	struct view_const_string : view<sc_c> {
@@ -348,7 +348,7 @@ namespace llc
 		ndin	oper	sc_c* 					()  csnx	{ rtrn begin(); }
 	};
 	tplN2u	bool	view_string::oper==	(sc_c (&other)[N])	cnst	{ rtrn view<sc_t>::operator==(view_const_string(other)); }
-	tydf	view_const_string	vcst_t, vcs;
+	tydf	view_const_string	vcst_t, vcst_t;
 	tdcs	vcst_t				vcst_c;
 	tplN2u	inln bool	oper==	(sc_c (&left)[N], vstr_c & right)	{ rtrn right.operator==(left); }
 	tplN2u	inln bool	oper!=	(sc_c (&left)[N], vstr_c & right)	{ rtrn !right.operator==(left); }
@@ -369,12 +369,12 @@ namespace llc
 	stin		sc_c*	b82sc			(bool b, vcst_t & output)	nxpt	{ rtrn (output = b ? VCC_TRUE : VCC_FALSE).begin(); }
 	stin		bool	vcs2b8			(vcst_t b)					nxpt	{ rtrn b.size() && b != VCC_FALSE; }
 
-	stin		vs		str				(vs & arg)					nxpt	{ rtrn arg; }
-	stin		vcst_t	str				(cnst vs & arg)				nxpt	{ rtrn arg.cc(); }
+	stin		vstr_t		str				(vstr_t & arg)					nxpt	{ rtrn arg; }
+	stin		vcst_t	str				(cnst vstr_t & arg)				nxpt	{ rtrn arg.cc(); }
 	stin		vcst_t	str				(cnst vcst_t & arg)			nxpt	{ rtrn arg; }
-	stin		vs		str				(vs0_t arg)					nxpt	{ rtrn arg; }
+	stin		vstr_t		str				(vs0_t arg)					nxpt	{ rtrn arg; }
 	stin		vcst_t	str				(vcs0_t arg)				nxpt	{ rtrn arg; }
-	tplN2usinx	vs		str				(sc_t (&arg)[N])			nxpt	{ rtrn arg; }
+	tplN2usinx	vstr_t		str				(sc_t (&arg)[N])			nxpt	{ rtrn arg; }
 	tplN2usinx	vcst_t	str				(sc_c (&arg)[N])			nxpt	{ rtrn arg; }
 	sinx		vcst_t	str				(cnst bool arg)				nxpt	{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
 	//
@@ -410,10 +410,10 @@ namespace llc
 	GDEFINE_TYPE_NAME_STR(f2_c);
 	GDEFINE_TYPE_NAME_STR(f3_c);
 	//
-	tydf	view<vs		>	vvs;
-	tydf	view<vcst_t		>	vvcs;
-	tydf	view<cnst vs	>	vcvs;
-	tydf	view<cnst vcst_t	>	vcvcs;
+	tydf	view<vstr_t		>	vvs;
+	tydf	view<vcst_t		>	vvcst_t;
+	tydf	view<cnst vstr_t	>	vcvs;
+	tydf	view<cnst vcst_t	>	vcvcst_t;
 
 	stxp	vcst_t		TRIM_CHARACTERS		= " \t\b\n\r";
 
@@ -496,8 +496,8 @@ namespace llc
 			right							= {};
 		}
 		else {
-			llc_necs(original.slice(left, 0, (u2_t)iValue));
-			llc_necs(original.slice(right, iValue, (u2_t)original.size() - iValue));
+			if_fail_fe(original.slice(left, 0, (u2_t)iValue));
+			if_fail_fe(original.slice(right, iValue, (u2_t)original.size() - iValue));
 		}
 		rtrn iValue;
 	}
@@ -516,8 +516,8 @@ namespace llc
 			right							= {};
 		}
 		else {
-			llc_necs(original.slice(right, iValue + sequenceToFind.size()));
-			llc_necs(original.slice(left, 0, iValue));
+			if_fail_fe(original.slice(right, iValue + sequenceToFind.size()));
+			if_fail_fe(original.slice(left, 0, iValue));
 		}
 		rtrn iValue;
 	}
@@ -541,8 +541,8 @@ namespace llc
 			right							= {};
 		}
 		else {
-			llc_necall(original.slice(left, 0, (u2_t)iValue), "%s", "Invalid slice");
-			llc_necall(original.slice(right, iValue, (u2_t)original.size() - iValue), "%s", "Invalid slice");
+			if_fail_fef(original.slice(left, 0, (u2_t)iValue), "%s", "Invalid slice");
+			if_fail_fef(original.slice(right, iValue, (u2_t)original.size() - iValue), "%s", "Invalid slice");
 		}
 		rtrn iValue;
 	}
@@ -585,7 +585,7 @@ namespace llc
 	tplT		T&	max		(view<T> elements)		{ T * rmax	{}; if_fail_e(max(elements, &rmax));	rtrn *rmax; }
 	tplT		T&	min		(view<T> elements)		{ T * rmin	{}; if_fail_e(min(elements, &rmin));	rtrn *rmin; }
 	tplT		T	sum		(view<cnst T> elements)	{ T result	{}; for(T element : elements) result += element; rtrn result; }
-	tplTstin	T&	be2le	(T & number)			{ reverse<i0u_t>({(i0u_t*)&number, sizeof(T)}); rtrn number; }
+	tplTstin	T&	be2le	(T & number)			{ reverse<u0_t>({(u0_t*)&number, sizeof(T)}); rtrn number; }
 
 #define LLC_USING_VIEW()												\
 	usng	::llc::vb8_t, ::llc::vb8_c, ::llc::vcb8_t, ::llc::vcb8_c	\

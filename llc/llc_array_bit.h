@@ -14,7 +14,7 @@ namespace llc
 		::llc::apod<T>			Data			;
 		::llc::view_bit<T>		View			;
 
-		cnstxpr					array_bit		()					noexcept	= default;
+		cxpr					array_bit		()					noexcept	= default;
 								array_bit		(const ::llc::view_bit<T> & other)
 			:	Data(::llc::view<cnst T>{other.begin().Begin, round_up(other.size(), TView::ELEMENT_BITS)})
 			,	View(Data.begin(), other.size())
@@ -36,10 +36,10 @@ namespace llc
 			return *this;
 		}
 
-		inlcxpr	const u2_t&		size			()				const	noexcept	{ return View.size(); }
+		inxp	const u2_t&		size			()				const	noexcept	{ return View.size(); }
 
-		::llc::error_t			resize			(u2_t newSize)			noexcept	{
-			llc_necs(Data.resize(round_up(newSize, TView::ELEMENT_BITS)));
+		::llc::err_t			resize			(u2_t newSize)			noexcept	{
+			if_fail_fe(Data.resize(round_up(newSize, TView::ELEMENT_BITS)));
 			View					= {Data.begin(), newSize};
 			return 0;
 		}

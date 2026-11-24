@@ -164,8 +164,9 @@ namespace llc
 
 						~SProcessManager	() {
 			for(u2_t id = 0; id < KnownProcesses.size(); ++id) {
-				if(false == KnownProcesses[id].State.Closed)
+				if(false == KnownProcesses[id].State.Closed) {
 					if_fail_e(Close(id));
+				}
 			}
 		}
 						 SProcessManager	() = default;
@@ -202,7 +203,7 @@ namespace llc
 			rtrn (err_t)id;
 		}
 		err_t			Execute				(u2_t id) {
-			llc_necs(Validate(id));
+			if_fail_fe(Validate(id));
 			rtrn Execute(id, {}, KnownProcesses[id].Output, KnownProcesses[id].ExitCode);
 		}
 		err_t			Execute				(u2_t processId, vcu0_t input, au0_t & output, u2_t & exitCode);

@@ -15,31 +15,33 @@
 	llc_necs(llc::utoken##Initialize(gui, elementToSetUp));								\
 	llc_necall(llc::controlSetParent(gui, elementToSetUp.IdControl, desktop.IdControl), "%I - %I", elementToSetUp.IdControl, desktop.IdControl);
 
-::llc::error_t			llc::desktopDeletePaletteGrid	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement) { 
+::llc::err_t			llc::desktopDeletePaletteGrid	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement) { 
 	desktop.Items.PaletteGrids.Unused[iElement] = true; 
 	::llc::controlDelete(gui, desktop.Items.PaletteGrids[iElement].IdControl); 
 	desktop.Items.PaletteGrids[iElement] = {}; 
 	return 0; 
 }
 
-::llc::error_t			llc::desktopCreateViewport		(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{ NEW_OR_UNUSED(Viewport	, viewport		); return iViewport		; }
-::llc::error_t			llc::desktopCreatePaletteGrid	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{ NEW_OR_UNUSED(PaletteGrid	, paletteGrid	); return iPaletteGrid	; }
-::llc::error_t			llc::desktopCreateControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{ NEW_OR_UNUSED(ControlList	, controlList	);
-	if(iControlList >= desktop.Children.size())
-		llc_necs(desktop.Children.resize(iControlList + 1));
+::llc::err_t			llc::desktopCreateViewport		(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{ NEW_OR_UNUSED(Viewport	, viewport		); return iViewport		; }
+::llc::err_t			llc::desktopCreatePaletteGrid	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{ NEW_OR_UNUSED(PaletteGrid	, paletteGrid	); return iPaletteGrid	; }
+::llc::err_t			llc::desktopCreateControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{ NEW_OR_UNUSED(ControlList	, controlList	);
+	if(iControlList >= desktop.Children.size()) {
+		if_fail_fe(desktop.Children.resize(iControlList + 1));
+	}
 
 	desktop.Children[iControlList].clear();
 	return iControlList;
 }
 
-::llc::error_t			llc::desktopDeleteControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement)	{
-	llc_necall(desktop.Items.ControlLists.size() <= (::llc::u2_t)iElement, "%s", "Invalid control list.");
+::llc::err_t			llc::desktopDeleteControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement)	{
+	if_fail_fef(desktop.Items.ControlLists.size() <= (::llc::u2_t)iElement, "%s", "Invalid control list.");
 	::llc::SControlList			& controlListToDelete			= desktop.Items.ControlLists[iElement];
 	::llc::acid					childLists						= desktop.Children[iElement];
 	for(::llc::u2_t iOption = 0, countOptions = childLists.size(); iOption < countOptions; ++iOption) {
 		::llc::cid_t				childControlListIndex			= childLists[iOption];
-		if(desktop.Items.ControlLists.size() > (::llc::u2_t)childControlListIndex && false == desktop.Items.ControlLists.Unused[childControlListIndex])
-			llc_necall(llc::desktopDeleteControlList(gui, desktop, childControlListIndex), "%s", "??");
+		if(desktop.Items.ControlLists.size() > (::llc::u2_t)childControlListIndex && false == desktop.Items.ControlLists.Unused[childControlListIndex]) {
+			if_fail_fef(llc::desktopDeleteControlList(gui, desktop, childControlListIndex), "%s", "??");
+		}
 		else
 			if_true_ef(childControlListIndex != -1, "%s", "");
 	}
@@ -48,12 +50,12 @@
 			desktop.Children[controlListToDelete.IndexParentList][controlListToDelete.IndexParentItem]	= -1;
 	}
 	desktop.Items.ControlLists.Unused[iElement]	= true;
-	llc_necall(llc::controlDelete(gui, controlListToDelete.IdControl, true), "%s", "Failed to delete control! Deleted already?");
+	if_fail_fef(llc::controlDelete(gui, controlListToDelete.IdControl, true), "%s", "Failed to delete control! Deleted already?");
 	controlListToDelete		= {};
 	return 0;
 }
 
-::llc::error_t			llc::desktopDeleteViewport	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement)						{
+::llc::err_t			llc::desktopDeleteViewport	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement)						{
 	desktop.Items.Viewports.Unused[iElement]	= true;
 	const ::llc::SViewport		& viewport						= desktop.Items.Viewports[iElement];
 	switch(viewport.ControlType) {
@@ -70,27 +72,28 @@
 	return 0;
 }
 
-static	::llc::error_t	displace					(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<double> & mouseDeltas)	{
+static	::llc::err_t	displace					(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<double> & mouseDeltas)	{
 	const ::llc::n2<double>		currentScale									= gui.Zoom.DPI * gui.Zoom.ZoomLevel;
 	::llc::n2<double>			deltasScaled									= mouseDeltas.f3().GetScaled(1.0 / currentScale.x, 1.0 / currentScale.y);
 	gui.Controls.Placement[iControl].Area.Offset								+= deltasScaled.s1();
 	return ::llc::controlMetricsInvalidate(gui, iControl);
 }
 
-static	::llc::error_t	pushToFrontAndDisplace		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::SInput & input)							{
+static	::llc::err_t	pushToFrontAndDisplace		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::SInput & input)							{
 	const ::llc::cid_t			parentControlId				= gui.Controls.States[iControl].Parent;
 	for(::llc::u2_t iChild = 0, childCount = gui.Controls.Children[parentControlId].size(); iChild < childCount; ++iChild)
 		if(gui.Controls.Children[parentControlId][iChild] == iControl) {
-			llc_necs(gui.Controls.Children[parentControlId].remove(iChild));
-			llc_necs(gui.Controls.Children[parentControlId].push_back(iControl));
+			if_fail_fe(gui.Controls.Children[parentControlId].remove(iChild));
+			if_fail_fe(gui.Controls.Children[parentControlId].push_back(iControl));
 			break;
 		}
-	if(input.MouseCurrent.Deltas.x || input.MouseCurrent.Deltas.y)
-		llc_necall(::displace(gui, iControl, {(double)input.MouseCurrent.Deltas.x, (double)input.MouseCurrent.Deltas.y}), "%s", "Unknown issue!");
+	if(input.MouseCurrent.Deltas.x || input.MouseCurrent.Deltas.y) {
+		if_fail_fef(::displace(gui, iControl, {(double)input.MouseCurrent.Deltas.x, (double)input.MouseCurrent.Deltas.y}), "%s", "Unknown issue!");
+	}
 	return 0;
 }
 
-static	::llc::error_t	unhideMenuHierarchy			(::llc::SGUI & gui, ::llc::SDesktop& desktop, ::llc::SControlList& menu)	{
+static	::llc::err_t	unhideMenuHierarchy			(::llc::SGUI & gui, ::llc::SDesktop& desktop, ::llc::SControlList& menu)	{
 	if(menu.IndexParentList != -1 && false == desktop.Items.ControlLists.Unused[menu.IndexParentList])
 		::unhideMenuHierarchy(gui, desktop, desktop.Items.ControlLists[menu.IndexParentList]);
 
@@ -110,7 +113,7 @@ static	::llc::error_t	unhideMenuHierarchy			(::llc::SGUI & gui, ::llc::SDesktop&
 	return 0;
 }
 
-static	::llc::error_t	selectMenuHierarchy				(::llc::SGUI & gui, ::llc::SDesktop& desktop, ::llc::SControlList& menu)	{
+static	::llc::err_t	selectMenuHierarchy				(::llc::SGUI & gui, ::llc::SDesktop& desktop, ::llc::SControlList& menu)	{
 	if(menu.IndexParentList != -1 && false == desktop.Items.ControlLists.Unused[menu.IndexParentList]) {
 		::selectMenuHierarchy(gui, desktop, desktop.Items.ControlLists[menu.IndexParentList]);
 		desktop.Items.ControlLists[menu.IndexParentList].IdSelected	= menu.IndexParentItem;
@@ -120,7 +123,7 @@ static	::llc::error_t	selectMenuHierarchy				(::llc::SGUI & gui, ::llc::SDesktop
 	return 0;
 }
 
-static	::llc::error_t	unhoverMenuHierarchy						(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SControlList & menu)	{
+static	::llc::err_t	unhoverMenuHierarchy						(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SControlList & menu)	{
 	if(desktop.Items.ControlLists.size() > (::llc::u2_t)menu.IndexParentList)
 		::unhoverMenuHierarchy(gui, desktop, desktop.Items.ControlLists[menu.IndexParentList]);
 	
@@ -132,7 +135,7 @@ static	::llc::error_t	unhoverMenuHierarchy						(::llc::SGUI & gui, ::llc::SDesk
 	return 0;
 }
 
-static	::llc::error_t	clearMenuHierarchy	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{
+static	::llc::err_t	clearMenuHierarchy	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{
 	::llc::SRecyclableElementContainer<::llc::SControlList>	& menus	= desktop.Items.ControlLists;
 	for(::llc::u2_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
 		::llc::SControlList			& menu				= menus[iMenu];
@@ -254,7 +257,7 @@ int64_t					llc::desktopUpdate						(::llc::SGUI & gui, ::llc::SDesktop & deskto
 	return resultEvent;
 }
 
-::llc::error_t			llc::desktopControlListSetParent(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iControlList, ::llc::cid_t iParentControlList, ::llc::cid_t iParentListItem)			{
+::llc::err_t			llc::desktopControlListSetParent(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iControlList, ::llc::cid_t iParentControlList, ::llc::cid_t iParentListItem)			{
 	if_true_fef((desktop.Items.ControlLists.size() <= (::llc::u2_t)iControlList) || desktop.Items.ControlLists.Unused[iControlList], "Invalid control list: %u.", iControlList);
 	::llc::SControlList			& controlList				= desktop.Items.ControlLists[iControlList];
 	const int32_t				oldParentList				= controlList.IndexParentList;

@@ -44,7 +44,7 @@ namespace llc
 	stin	err_t				pathList				(vcst_t pathToList, aobj<string> & output, vcst_t extension = {}) {
 		SPathContents			tree					= {};
 		s2_t							error					= pathList(pathToList, tree, extension);
-		llc_necs(error |= pathList(tree, output, extension));
+		if_fail_fe(error |= pathList(tree, output, extension));
 		return 0;
 	}	// Recursive
 	// this function was ceated in order to work around the problem of the JSON system returning pointers to the original string, without having the opportunity of processing escaped path slashes.
