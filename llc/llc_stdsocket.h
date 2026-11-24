@@ -32,10 +32,22 @@ tydf int SOCKET;
 #	endif
 #endif
 
+	stin	::llc::err_t	safe_closesocket				(SOCKET & handle)	{
+		if(handle != INVALID_SOCKET) {
+#ifdef LLC_WINDOWS
+			closesocket(handle);
+#else
+			::close(handle);
+#endif
+			handle = INVALID_SOCKET;
+		}
+		return 0;
+	}
+
 	struct auto_socket_close : public ::llc::auto_handler<SOCKET, INVALID_SOCKET>					{
 		using			TWrapper						::auto_handler;
 		inline											~auto_socket_close					()	noexcept	{ close(); }
-		inline			void							close								()	noexcept	{ if(INVALID_SOCKET != Handle) { closesocket(Handle); Handle = INVALID_SOCKET; } }
+		inline			void							close								()	noexcept	{ safe_closesocket(Handle); }
 	};
 
 	::llc::error_t			tcpipAddressToSockaddr		(u0_t a1, u0_t a2, u0_t a3, u0_t a4, ::llc::u1_t port, sockaddr_in & sockaddr);
