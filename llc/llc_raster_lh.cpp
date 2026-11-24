@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-::llc::error_t			llc::pixelBlend			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color)	{
+::llc::err_t			llc::pixelBlend			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color)	{
 	if( (position.x >= 0 && position.x < (int32_t)pixels.metrics().x)
 	 && (position.y >= 0 && position.y < (int32_t)pixels.metrics().y)
 	) {
@@ -16,7 +16,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::setPixel			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color)	{
+::llc::err_t			llc::setPixel			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color)	{
 	if( (position.x >= 0 && position.x < (int32_t)pixels.metrics().x)
 	 && (position.y >= 0 && position.y < (int32_t)pixels.metrics().y)
 	) {
@@ -27,7 +27,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::drawRectangle		(::llc::g8bgra pixels, ::llc::rect2<int16_t> rectangle, ::llc::bgra color)	{
+::llc::err_t			llc::drawRectangle		(::llc::g8bgra pixels, ::llc::rect2<int16_t> rectangle, ::llc::bgra color)	{
 	int32_t						countPixels				= 0;
 	for(int16_t y = 0; y < (int16_t)rectangle.Size.y; ++y)
 	for(int16_t x = 0; x < (int16_t)rectangle.Size.x; ++x)
@@ -35,7 +35,7 @@
 	return countPixels;
 }
 
-::llc::error_t			llc::drawCircle			(::llc::g8bgra pixels, ::llc::circle<int16_t> circle, ::llc::bgra color)	{
+::llc::err_t			llc::drawCircle			(::llc::g8bgra pixels, ::llc::circle<int16_t> circle, ::llc::bgra color)	{
 	int32_t						countPixels				= 0;
 	for(int16_t y = (int16_t)-circle.Radius; y < (int16_t)circle.Radius; ++y)
 	for(int16_t x = (int16_t)-circle.Radius; x < (int16_t)circle.Radius; ++x) {
@@ -47,7 +47,7 @@
 }
 
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-::llc::error_t			llc::drawLine       	(::llc::g8bgra pixels, ::llc::line2s1_t line, ::llc::bgra color)	{
+::llc::err_t			llc::drawLine       	(::llc::g8bgra pixels, ::llc::line2s1_t line, ::llc::bgra color)	{
 	int32_t						countPixels				= 0;
 	int32_t						dx						= (int32_t)fabs(line.B.x - line.A.x);
 	int32_t						sx						= (int32_t)line.A.x < line.B.x ? 1 : -1;
@@ -75,7 +75,7 @@
 
 
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-::llc::error_t			llc::drawLine       	(const ::llc::n2u1_t offscreenMetrics, ::llc::line2s1_t line, ::llc::apod<::llc::n2s1_t> & pixelCoords)	{
+::llc::err_t			llc::drawLine       	(const ::llc::n2u1_t offscreenMetrics, ::llc::line2s1_t line, ::llc::apod<::llc::n2s1_t> & pixelCoords)	{
 	int32_t						dx						= (int32_t)fabs(line.B.x - line.A.x);
 	int32_t						sx						= (int32_t)line.A.x < line.B.x ? 1 : -1;
 	int32_t						dy						= (int32_t)-fabs(line.B.y - line.A.y );
@@ -110,7 +110,7 @@
 
 
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-::llc::error_t			llc::drawLine
+::llc::err_t			llc::drawLine
 	( const ::llc::n2u1_t		offscreenMetrics
 	, const ::llc::line3f2_t		& lineFloat
 	, ::llc::apod<::llc::n3f2_t>	& pixelCoords
@@ -204,7 +204,7 @@ static	double		orient2d		(const ::llc::n3f2_t & start, const ::llc::n2f2_t & edg
 tplt <tpnm _tValue>	_tValue	max3		(_tValue & a, _tValue & b, _tValue & c)			{ return ::std::max(::std::max(a, b), c); }
 tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ return ::std::min(::std::min(a, b), c); }
 
-::llc::error_t			llc::drawTriangle		(::llc::g8bgra pixels, const ::llc::tri2<int16_t> & triangle, ::llc::bgra color){
+::llc::err_t			llc::drawTriangle		(::llc::g8bgra pixels, const ::llc::tri2<int16_t> & triangle, ::llc::bgra color){
 	// Compute triangle bounding box
 	int16_t						minX					= ::min3(triangle.A.x, triangle.B.x, triangle.C.x);
 	int16_t						minY					= ::min3(triangle.A.y, triangle.B.y, triangle.C.y);
@@ -234,7 +234,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return countPixels;
 }
 
-::llc::error_t			llc::drawTriangle
+::llc::err_t			llc::drawTriangle
 	( const ::llc::n2u2_t			targetSize
 	, const ::llc::tri3f2_t			& triangle
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
@@ -295,7 +295,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return 0;
 }
 
-::llc::error_t			llc::drawTriangle
+::llc::err_t			llc::drawTriangle
 	( const ::llc::n2u2_t			targetSize
 	, const ::llc::tri2f2_t			& triangle
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
@@ -339,7 +339,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return 0;
 }
 
-::llc::error_t			llc::drawPixels
+::llc::err_t			llc::drawPixels
 	( ::llc::g8bgra		targetPixels
 	, const ::llc::tri3f2_t				& triangleWorld
 	, const ::llc::n3f2_t				& normal
@@ -350,7 +350,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, ::llc::gc8bgra					textureImage
 	, ::llc::apod<::llc::n3f2_t>			& lightPoints
 	, ::llc::a8bgra			& lightColors
-	, const ::llc::function<::llc::error_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
+	, const ::llc::function<::llc::err_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
 	) {
 	const ::llc::n2f2_t			imageUnit				= {textureImage.metrics().x - 0.000001f, textureImage.metrics().y - 0.000001f};
 	double						lightFactorDirectional	= normal.Dot(lightVector);
@@ -365,9 +365,9 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 		const ::llc::u2_t				countLights				= lightPoints.size();
 		const ::llc::rgbaf			ambientPerLight			= countLights ? texelColor / (10.0 * countLights) : ::llc::rgbaf{};
 		::llc::rgbaf				fragmentColor			= {};
-		stacxpr	double				rangeLight				= 10.0;
-		stacxpr	double				rangeLightSquared		= rangeLight * rangeLight;
-		stacxpr	double				rangeUnit				= 1.0 / rangeLightSquared;
+		stxp	double				rangeLight				= 10.0;
+		stxp	double				rangeLightSquared		= rangeLight * rangeLight;
+		stxp	double				rangeUnit				= 1.0 / rangeLightSquared;
 		for(::llc::u2_t iLight = 0; iLight < countLights; ++iLight) {
 			const ::llc::n3f2_t			lightToPoint			= lightPoints[iLight] - position;
 			const double				distanceToLight			= lightToPoint.LengthSquared();
@@ -385,7 +385,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return countPixels;
 }
 
-::llc::error_t			llc::drawPixels
+::llc::err_t			llc::drawPixels
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::tri3f2_t			& triangleWorld
 	, const ::llc::n3f2_t			& normal
@@ -401,7 +401,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return llc::drawPixels(targetPixels, triangleWorld, normal, triangleTexCoords, lightVector, pixelCoords, pixelVertexWeights, textureImage, lightPoints, lightColors, setPixel);
 }
 
-::llc::error_t			llc::drawQuadTriangle
+::llc::err_t			llc::drawQuadTriangle
 	( const ::llc::n2u2_t			& targetSize
 	, const ::llc::tri3f2_t		& triangleScreen
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
@@ -411,7 +411,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return ::llc::drawTriangle(targetSize, triangleScreen, pixelCoords, pixelVertexWeights, depthBuffer);
 }
 
-::llc::error_t			llc::drawQuadTriangle
+::llc::err_t			llc::drawQuadTriangle
 	( const ::llc::n2u2_t			& targetSize
 	, ::llc::tri3f2_t				triangle
 	, const ::llc::m4f2_t			& matrixTransformVP
@@ -428,7 +428,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return ::llc::drawQuadTriangle(targetSize, triangle, pixelCoords, pixelVertexWeights, depthBuffer);
 }
 
-::llc::error_t			llc::drawQuadTriangle
+::llc::err_t			llc::drawQuadTriangle
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryQuads	& geometry
 	, const int						iTriangle
@@ -445,7 +445,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return ::llc::drawQuadTriangle(targetPixels, geometry, iTriangle, matrixTransform, matrixTransformVP, lightVector, pixelCoords, pixelVertexWeights, textureImage, lightPoints, lightColors, depthBuffer, setPixel);
 }
 
-::llc::error_t			llc::drawQuadTriangle
+::llc::err_t			llc::drawQuadTriangle
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryQuads	& geometry
 	, const int						iTriangle
@@ -458,7 +458,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, ::llc::apod<::llc::n3f2_t>		& lightPoints
 	, ::llc::a8bgra		& lightColors
 	, ::llc::grid<::llc::u2_t>		depthBuffer
-	, const ::llc::function<::llc::error_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
+	, const ::llc::function<::llc::err_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
 	) {
 	const ::llc::tri3f2_t		& triangle			= geometry.Triangles	[iTriangle];;
 	const ::llc::tri2f2_t		& triangleTexCoords	= geometry.TextureCoords[iTriangle];
@@ -470,7 +470,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return ::llc::drawPixels(targetPixels, triangleWorld, xnormal, triangleTexCoords, lightVector, pixelCoords, pixelVertexWeights, textureImage, lightPoints, lightColors, funcSetPixel);
 }
 
-::llc::error_t			llc::drawQuadTriangle
+::llc::err_t			llc::drawQuadTriangle
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryQuads	& geometry
 	, const int						iTriangle
@@ -503,7 +503,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return countPixels;
 }
 
-::llc::error_t			llc::drawTriangle
+::llc::err_t			llc::drawTriangle
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryTriangles	& geometry
 	, const int						iTriangle
@@ -537,7 +537,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return countPixels;
 }
 
-::llc::error_t			llc::drawTriangle
+::llc::err_t			llc::drawTriangle
 	( const ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryTriangles	& geometry
 	, const int							iTriangle
@@ -579,7 +579,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return countPixels;
 }
 
-::llc::error_t			llc::drawTriangle
+::llc::err_t			llc::drawTriangle
 	( const ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryTriangles	& geometry
 	, const int							iTriangle

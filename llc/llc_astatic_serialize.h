@@ -8,11 +8,11 @@
 namespace llc
 {
 	tplt<tpnm _tPOD, ::llc::u2_t _nSize> 
-	::llc::error_t			loadView					(::llc::vcu0_t & input, ::llc::astatic<_tPOD, _nSize> & output) { 
+	::llc::err_t			loadView					(::llc::vcu0_t & input, ::llc::astatic<_tPOD, _nSize> & output) { 
 		::llc::view<const _tPOD>	readView					= {}; 
 		::llc::u2_t					bytesRead					= 0;
-		llc_necs(bytesRead = ::llc::viewRead(readView, input)); 
-		llc_necs(input.slice(input, bytesRead));
+		if_fail_fe(bytesRead = ::llc::viewRead(readView, input)); 
+		if_fail_fe(input.slice(input, bytesRead));
 		memcpy(output.begin(), readView.begin(), ::llc::min(readView.byte_count(), ::llc::view<_tPOD>{output}.byte_count()));
 		return 0;
 	}

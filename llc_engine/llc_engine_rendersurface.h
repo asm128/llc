@@ -23,8 +23,8 @@ namespace llc
 		::llc::SSurfaceDescription	Desc			= {};
 		::llc::au0_t				Data			= {};
 
-		::llc::error_t				Save			(::llc::au0_t & output)	const	{ llc_necs(llc::savePOD(output, Desc)); return ::llc::saveView(output, Data); }
-		::llc::error_t				Load			(::llc::vcu0_t & input)			{ llc_necs(llc::loadPOD(input, Desc)); return ::llc::loadView(input, Data); }
+		::llc::err_t				Save			(::llc::au0_t & output)	const	{ if_fail_fe(llc::savePOD(output, Desc)); return ::llc::saveView(output, Data); }
+		::llc::err_t				Load			(::llc::vcu0_t & input)			{ if_fail_fe(llc::loadPOD(input, Desc)); return ::llc::loadView(input, Data); }
 	};
 
 	typedef	::llc::llc_linear_map_pobj<::llc::SSurface>	SSurfaceManager;

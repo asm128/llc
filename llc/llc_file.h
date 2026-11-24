@@ -24,11 +24,11 @@ namespace llc
 	stin	err_t	fileFromMemory		(vcst_t fileName, vcs0_t fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.as<u0_c>(), append); }
 	stin	err_t	fileFromMemory		(vcst_t fileName, vcst_t fileInMemory, bool append = false)									{ rtrn fileFromMemory	(fileName, fileInMemory.as<u0_c>(), append); }
 
-	GDEFINE_ENUM_TYPE(OPEN_MODE, i2u_t);
+	GDEFINE_ENUM_TYPE(OPEN_MODE, u2_t);
 	GDEFINE_ENUM_VALUE(OPEN_MODE, CLOSE		, 0);												
-	GDEFINE_ENUM_VALUE(OPEN_MODE, READ		, 'r' + (i1u_t('b') << 8));							//  1
-	GDEFINE_ENUM_VALUE(OPEN_MODE, WRITE		, 'w' + (i1u_t('b') << 8));							//  2
-	GDEFINE_ENUM_VALUE(OPEN_MODE, APPEND	, 'a' + (i2u_t('b') << 8) + (i2u_t('+') << 16));	//  3
+	GDEFINE_ENUM_VALUE(OPEN_MODE, READ		, 'r' + (u1_t('b') << 8));							//  1
+	GDEFINE_ENUM_VALUE(OPEN_MODE, WRITE		, 'w' + (u1_t('b') << 8));							//  2
+	GDEFINE_ENUM_VALUE(OPEN_MODE, APPEND	, 'a' + (u2_t('b') << 8) + (u2_t('+') << 16));	//  3
 	// FILE wrapper
 	tpl_t struct SFile {	
 		tdfTTCnst(_t);

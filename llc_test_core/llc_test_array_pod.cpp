@@ -1,3 +1,4 @@
+#include "llc_string_compose.h"
 #include "llc_array_pod.h"
 #include "llc_string.h"
 
@@ -290,20 +291,20 @@ sttc ::llc::err_t testPodAppend(::llc::ATestError & errors) {
 
 sttc ::llc::err_t testPodStringAppend(::llc::ATestError & errors) {
 	::llc::asc_t text = {'s', 'e', 'e', 'd'};
-	::llc::err_t result = text.append_string("ab");
+	::llc::err_t result = ::llc::append_string(text, "ab");
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, result != 2 , "Array string append written:%i, expected:2.", result );
 	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, text, ::llc::vcst_t{"seedab"}));
 
-	result = text.append_string(::llc::vcst_t{"xyz"});
+	result = ::llc::append_string(text, ::llc::vcst_t{"xyz"});
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, result != 3 , "View string append written:%i, expected:3.", result );
 	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, text, ::llc::vcst_t{"seedabxyz"}));
 
-	result = text.append_string('!');
+	result = ::llc::append_string(text, '!');
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, result != 1 , "Element string append written:%i, expected:1.", result );
 	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, text, ::llc::vcst_t{"seedabxyz!"}));
 
 	::llc::function<::llc::err_t(::llc::asc_t&)> formatter = [](::llc::asc_t & output) {
-		if_fail_fe(output.append_string("ok"));
+		if_fail_fe(::llc::append_string(output, "ok"));
 		rtrn 2;
 	};
 	result = text.append_string(formatter);

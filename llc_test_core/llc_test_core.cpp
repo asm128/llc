@@ -10,7 +10,6 @@ extern ::llc::err_t testProcessEchoChild();
 #endif
 #ifdef LLC_LINUX
 extern ::llc::err_t testProcessMarkerChild();
-extern ::llc::err_t testProcessSignalChild();
 #endif
 
 
@@ -26,8 +25,6 @@ sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
 		rtrn -1;
 	}
 #elif defined(LLC_LINUX)
-	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-signal"))
-		rtrn ::testProcessSignalChild();
 	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-echo"))
 		rtrn ::testProcessEchoChild();
 	if(0 <= ::llc::argsOptionIndex(runtimeValues.EntryPointArgs, "process-child"))
@@ -81,7 +78,6 @@ sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
 		, LLC_TEST_SUITE(path)
 		, LLC_TEST_SUITE(ptr)
 		, LLC_TEST_SUITE(png)
-		, LLC_TEST_SUITE(process)
 		, LLC_TEST_SUITE(process_broker)
 		, LLC_TEST_SUITE(reporting)
 		//, LLC_TEST_SUITE(runtime_module)

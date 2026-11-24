@@ -2,25 +2,25 @@
 #include "llc_apod_serialize.h"
 #include "llc_axis.h"
 
-::llc::error_t			llc::SRigidBodyIntegrator::Load	(::llc::vcu0_t & input) { 
-	llc_necs(llc::loadView(input, Frames			));
-	llc_necs(llc::loadView(input, Flags			));
-	llc_necs(llc::loadView(input, Forces			));
-	llc_necs(llc::loadView(input, Masses			));
-	llc_necs(llc::loadView(input, Centers			));
-	llc_necs(llc::loadView(input, TransformsLocal	));
-	llc_necs(llc::loadView(input, BoundingVolumes	));
+::llc::err_t			llc::SRigidBodyIntegrator::Load	(::llc::vcu0_t & input) { 
+	if_fail_fe(llc::loadView(input, Frames			));
+	if_fail_fe(llc::loadView(input, Flags			));
+	if_fail_fe(llc::loadView(input, Forces			));
+	if_fail_fe(llc::loadView(input, Masses			));
+	if_fail_fe(llc::loadView(input, Centers			));
+	if_fail_fe(llc::loadView(input, TransformsLocal	));
+	if_fail_fe(llc::loadView(input, BoundingVolumes	));
 	return 0;											
 }
 
-::llc::error_t			llc::SRigidBodyIntegrator::Save	(::llc::au0_t & output) const { 
-	llc_necs(llc::saveView(output, Frames			));
-	llc_necs(llc::saveView(output, Flags			));
-	llc_necs(llc::saveView(output, Forces			));
-	llc_necs(llc::saveView(output, Masses			));
-	llc_necs(llc::saveView(output, Centers		));
-	llc_necs(llc::saveView(output, TransformsLocal));
-	llc_necs(llc::saveView(output, BoundingVolumes));
+::llc::err_t			llc::SRigidBodyIntegrator::Save	(::llc::au0_t & output) const { 
+	if_fail_fe(llc::saveView(output, Frames			));
+	if_fail_fe(llc::saveView(output, Flags			));
+	if_fail_fe(llc::saveView(output, Forces			));
+	if_fail_fe(llc::saveView(output, Masses			));
+	if_fail_fe(llc::saveView(output, Centers		));
+	if_fail_fe(llc::saveView(output, TransformsLocal));
+	if_fail_fe(llc::saveView(output, BoundingVolumes));
 
 	info_printf("Saved %s, %i", "Frames"			, Frames			.size());
 	info_printf("Saved %s, %i", "Flags"				, Flags				.size());
@@ -61,7 +61,7 @@ void					llc::updateTransform	(::llc::SBodyCenter & bodyTransform, ::llc::m4f2_t
 	transformLocal.SetTranslation(bodyTransform.Position, false);
 }
 
-::llc::error_t			llc::integrateForces	(double duration, ::llc::SBodyFrame & bodyFrame, ::llc::SBodyForces & bodyForce, const ::llc::SBodyMass & bodyMass) {
+::llc::err_t			llc::integrateForces	(double duration, ::llc::SBodyFrame & bodyFrame, ::llc::SBodyForces & bodyForce, const ::llc::SBodyMass & bodyMass) {
 	// -- Calculate linear acceleration from force inputs.
 	bodyFrame.LastFrameAcceleration	= bodyForce.Acceleration;
 	bodyFrame.LastFrameAcceleration.AddScaled(bodyFrame.AccumulatedForce, bodyMass.InverseMass);
@@ -79,7 +79,7 @@ void					llc::updateTransform	(::llc::SBodyCenter & bodyTransform, ::llc::m4f2_t
 	return 0;
 }
 
-::llc::error_t			llc::integratePosition	(double duration, double durationHalfSquared, ::llc::SBodyFlags & bodyFlags, ::llc::SBodyCenter & bodyTransform, const ::llc::SBodyForces & bodyForces) {
+::llc::err_t			llc::integratePosition	(double duration, double durationHalfSquared, ::llc::SBodyFlags & bodyFlags, ::llc::SBodyCenter & bodyTransform, const ::llc::SBodyForces & bodyForces) {
 	bodyTransform.Position		.AddScaled(bodyForces.Velocity, duration);
 	bodyTransform.Position		.AddScaled(bodyForces.Velocity, durationHalfSquared);
 	bodyTransform.Orientation	.AddScaled(bodyForces.Rotation, duration);	// Update angular position.

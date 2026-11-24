@@ -46,17 +46,17 @@ namespace llc
 		SGameState			State				= {};
 		astagestate			Stages				= {};
 
-		::llc::error_t		Save				(::llc::au0_t & output)	const	{ 
-			llc_necs(llc::savePOD(output, Setup)); 
-			llc_necs(llc::savePOD(output, State)); 
-			llc_necs(llc::saveView(output, Stages));
+		::llc::err_t		Save				(::llc::au0_t & output)	const	{ 
+			if_fail_fe(llc::savePOD(output, Setup)); 
+			if_fail_fe(llc::savePOD(output, State)); 
+			if_fail_fe(llc::saveView(output, Stages));
 			return 0;
 		}
 
-		::llc::error_t		Load				(::llc::vcu0_t & input)	{ 
-			llc_necs(llc::loadPOD(input, Setup));
-			llc_necs(llc::loadPOD(input, State)); 
-			llc_necs(llc::loadView(input, Stages));
+		::llc::err_t		Load				(::llc::vcu0_t & input)	{ 
+			if_fail_fe(llc::loadPOD(input, Setup));
+			if_fail_fe(llc::loadPOD(input, State)); 
+			if_fail_fe(llc::loadView(input, Stages));
 			return 0;
 		}
 

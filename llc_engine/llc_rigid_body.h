@@ -24,7 +24,7 @@ namespace llc
 		float				InverseMass						= 0;
 		::llc::m3a3f2_t		InverseAngularMassTensor		= {1,0,0,0,1,0,0,0,1};
 
-		inlcxpr	double		GetMass							()	{
+		inxp	double		GetMass							()	{
 			return (InverseMass == 0) ? DBL_MAX : 1.0 / InverseMass; 
 		}
 	};
@@ -79,13 +79,13 @@ namespace llc
 		::llc::apod<::llc::SBodyVolume	>	BoundingVolumes					= {};
 		::llc::apod<::llc::m4f2_t		>	TransformsLocal					= {};
 
-		stacxpr	::llc::m4f2_t				MatrixIdentity4					= {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
-		stacxpr	::llc::m3a3f2_t				MatrixIdentity3					= {1,0,0,0,1,0,0,0,1};
+		stxp	::llc::m4f2_t				MatrixIdentity4					= {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+		stxp	::llc::m3a3f2_t				MatrixIdentity3					= {1,0,0,0,1,0,0,0,1};
 
-		::llc::error_t						Load							(::llc::vcu0_t & input);
-		::llc::error_t						Save							(::llc::au0_t & output)	const;
-		inline	::llc::error_t				Load							(::llc::vcst_t & input)			{ return Load(*((::llc::vcu0_t*)&input)); }
-		inline	::llc::error_t				Save							(::llc::as0_t & output)	const	{ return Save(*((::llc::apod<u0_t>*)&output)); }
+		::llc::err_t						Load							(::llc::vcu0_t & input);
+		::llc::err_t						Save							(::llc::au0_t & output)	const;
+		inline	::llc::err_t				Load							(::llc::vcst_t & input)			{ return Load(*((::llc::vcu0_t*)&input)); }
+		inline	::llc::err_t				Save							(::llc::as0_t & output)	const	{ return Save(*((::llc::apod<u0_t>*)&output)); }
 
 		int32_t 							ZeroCenters						()	{ return Centers.fill({}); }
 		int32_t 							ZeroForces						()	{ return Forces.fill({}); }
@@ -135,13 +135,13 @@ namespace llc
 		int32_t 							Create							(::llc::u2_t bodyCount)	{
 			const ::llc::u2_t							indexFirstBody					= Centers.size();
 			const ::llc::u2_t							newSize							= indexFirstBody + bodyCount;
-			llc_necs(Frames				.resize(newSize, {}));				
-			llc_necs(Flags				.resize(newSize, {}));
-			llc_necs(Forces				.resize(newSize, {}));
-			llc_necs(Masses				.resize(newSize, {}));
-			llc_necs(Centers			.resize(newSize, {}));
-			llc_necs(BoundingVolumes	.resize(newSize, {}));		
-			llc_necs(TransformsLocal	.resize(newSize, MatrixIdentity4));
+			if_fail_fe(Frames				.resize(newSize, {}));				
+			if_fail_fe(Flags				.resize(newSize, {}));
+			if_fail_fe(Forces				.resize(newSize, {}));
+			if_fail_fe(Masses				.resize(newSize, {}));
+			if_fail_fe(Centers			.resize(newSize, {}));
+			if_fail_fe(BoundingVolumes	.resize(newSize, {}));		
+			if_fail_fe(TransformsLocal	.resize(newSize, MatrixIdentity4));
 			return indexFirstBody;
 		}
 
