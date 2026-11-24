@@ -1,6 +1,6 @@
 #include "llc_window.h"
 
-::llc::error_t			llc::fullScreenExit			(::llc::SWindow & window) {
+::llc::err_t			llc::fullScreenExit			(::llc::SWindow & window) {
 	if(false == window.FullScreen)
 		return 0;
 
@@ -20,7 +20,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::fullScreenEnter		(::llc::SWindow & window) {
+::llc::err_t			llc::fullScreenEnter		(::llc::SWindow & window) {
 	if(window.FullScreen)
 		return 1;
 
@@ -53,7 +53,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::windowUpdateTick		(::llc::SWindow& displayInstance)											{
+::llc::err_t			llc::windowUpdateTick		(::llc::SWindow& displayInstance)											{
 	bool						quit						= false;
 #if defined(LLC_WINDOWS)
 	::MSG						msg							= {};
@@ -72,7 +72,7 @@
 	return quit ? 1 : 0;
 }
 
-::llc::error_t			llc::windowUpdate		(::llc::SWindow& displayInstance)											{
+::llc::err_t			llc::windowUpdate		(::llc::SWindow& displayInstance)											{
 	displayInstance.EventQueue.clear();
 	displayInstance.Resized	= false;
 	displayInstance.Repaint	= false;
@@ -89,7 +89,7 @@
 }
 
 #if defined(LLC_WINDOWS)
-::llc::error_t			drawBuffer				(::HDC hdc, ::llc::SWindowPlatformDetail & offscreenDetail, int width, int height, const ::llc::g8bgra& colorArray)				{
+::llc::err_t			drawBuffer				(::HDC hdc, ::llc::SWindowPlatformDetail & offscreenDetail, int width, int height, const ::llc::g8bgra& colorArray)				{
 	const uint32_t				bytesToCopy				= sizeof(::RGBQUAD) * colorArray.size();
 	::llc::n2u1_c				metricsSource			= colorArray.metrics().u1();
 	::llc::n2u1_c				prevSize				= {(uint16_t)offscreenDetail.BitmapInfo.bmiHeader.biWidth, (uint16_t)offscreenDetail.BitmapInfo.bmiHeader.biHeight};
@@ -142,7 +142,7 @@
 }
 #endif // LLC_WINDOWS
 
-::llc::error_t			llc::windowPresentTarget					(::llc::SWindow& displayInstance, const ::llc::g8bgra& targetToPresent)		{
+::llc::err_t			llc::windowPresentTarget					(::llc::SWindow& displayInstance, const ::llc::g8bgra& targetToPresent)		{
 	(void)displayInstance; (void)targetToPresent;
 #if defined(LLC_WINDOWS)
 	::HWND					windowHandle								= displayInstance.PlatformDetail.WindowHandle;

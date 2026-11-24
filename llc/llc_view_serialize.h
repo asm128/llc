@@ -43,7 +43,7 @@ namespace llc
 	}
 	tplTstin	err_t	viewRead		(view<cnst T> & headerToRead, cnst vcu0_t & input)	{ rtrn viewRead<cnst T, u0_c>(headerToRead, input); }
 	tplTstin	err_t	viewRead		(view<cnst T> & headerToRead, cnst vcs0_t  & input)	{ rtrn viewRead<cnst T, s0_c>(headerToRead, input); }
-	tplTstin	err_t	viewRead		(view<T> & headerToRead, vu8 input)					{ rtrn viewRead<T, u0_t>(headerToRead, input); }
+	tplTstin	err_t	viewRead		(view<T> & headerToRead, vu0_t input)					{ rtrn viewRead<T, u0_t>(headerToRead, input); }
 	tplTstin	err_t	viewRead		(view<T> & headerToRead, vs0_t input)					{ rtrn viewRead<T, s0_t>(headerToRead, input); }
 	//
 	tplT		err_t	loadView		(vcu0_t & input, view<cnst T> & output) { 

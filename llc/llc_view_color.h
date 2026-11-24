@@ -18,8 +18,8 @@ namespace llc
 	tydf	::llc::view<cnst ::llc::u8rgba	>	vcrgba	, vc8rgba	;
 	tydf	::llc::view<cnst ::llc::u8rgb	>	vcrgb	, vc8rgb		;
 
-	::llc::error_t 		vcu82bgra8	(vcu0_t bytes, ::llc::bgra8 & colorToSet);
-	::llc::error_t 		vcu82bgr8	(vcu0_t bytes, ::llc::bgr8 & colorToSet);
+	::llc::err_t 		vcu82bgra8	(vcu0_t bytes, ::llc::bgra8 & colorToSet);
+	::llc::err_t 		vcu82bgr8	(vcu0_t bytes, ::llc::bgr8 & colorToSet);
 } // namespace
 
 #endif // LLC_VIEW_COLOR_H_23627

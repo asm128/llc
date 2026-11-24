@@ -18,9 +18,9 @@ namespace llc {
 		view<SSTLTriangle>	Triangles		= {};
 	};
 
-	error_t						stlFileLoad		(vcst_t filename, SSTLFile & file);
-	error_t						stlFileLoad		(vu0_t fileInMemory, vcu0_t & out_Header, view<SSTLTriangle> & out_Triangles);
-	error_t						stlFileLoad		(vcu0_t fileInMemory, vcu0_t & out_Header, view<cnst SSTLTriangle> & out_Triangles);
+	err_t						stlFileLoad		(vcst_t filename, SSTLFile & file);
+	err_t						stlFileLoad		(vu0_t fileInMemory, vcu0_t & out_Header, view<SSTLTriangle> & out_Triangles);
+	err_t						stlFileLoad		(vcu0_t fileInMemory, vcu0_t & out_Header, view<cnst SSTLTriangle> & out_Triangles);
 }
 
 #endif // LLC_STL_H_23627

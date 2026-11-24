@@ -360,10 +360,10 @@
     <Compile Include="llc_png_write.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="llc_process.cpp">
+    <Compile Include="llc_process_broker.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="llc_process.h">
+    <Compile Include="llc_process_broker.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="llc_ptr.h">

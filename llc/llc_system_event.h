@@ -33,7 +33,7 @@ namespace llc
 	tydf ::llc::apobj<::llc::SEventSystem>				TQueueSystemEvent;
 	
 	template<typename _t>
-	stin	::llc::error_t	eventEnqueueChild	(::llc::apobj<::llc::SEventSystem> & queue, ::llc::RESULT eventType, _t & eventData)	{ 
+	stin	::llc::err_t	eventEnqueueChild	(::llc::apobj<::llc::SEventSystem> & queue, ::llc::RESULT eventType, _t & eventData)	{ 
 		return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Device, eventType, eventData); 
 	}
 

@@ -78,7 +78,6 @@
     <ClCompile Include="llc_test_packed_int.cpp" />
     <ClCompile Include="llc_test_path.cpp" />
     <ClCompile Include="llc_test_png.cpp" />
-    <ClCompile Include="llc_test_process.cpp" />
     <ClCompile Include="llc_test_process_broker.cpp" />
     <ClCompile Include="llc_test_ptr.cpp" />
     <ClCompile Include="llc_test_runtime_module.cpp" />

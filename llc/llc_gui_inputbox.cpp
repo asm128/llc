@@ -5,9 +5,9 @@
 
 #include <limits.h>
 
-stacxpr	::llc::n2u1_t		VIRTUAL_KEYBOARD_KEY_SIZE_437	= {14, 22};
-stacxpr	::llc::n2u1_t		VIRTUAL_KEYBOARD_COMMAND_SIZE	= {88, 20};
-stacxpr	::llc::SYSTEM_KEY	VIRTUAL_KEYBOARD_COMMANDS	[]	=
+stxp	::llc::n2u1_t		VIRTUAL_KEYBOARD_KEY_SIZE_437	= {14, 22};
+stxp	::llc::n2u1_t		VIRTUAL_KEYBOARD_COMMAND_SIZE	= {88, 20};
+stxp	::llc::SYSTEM_KEY	VIRTUAL_KEYBOARD_COMMANDS	[]	=
 	{ ::llc::SYSTEM_KEY_Escape
 	, ::llc::SYSTEM_KEY_Enter
 	, ::llc::SYSTEM_KEY_Backspace

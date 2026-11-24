@@ -36,7 +36,7 @@ LLC_USING_TYPEINT();
 
 llc::err_t		llc::with			(vcst_t filepath, vcst_t mode, const llc::function<llc::err_t(FILE*&)> & funcFile)	{ 
 	FILE					* fp				= {};
-	llc_necs(llc::fopen_s(fp, filepath, mode)); if_null_ve(-1, fp);
+	if_fail_fe(llc::fopen_s(fp, filepath, mode)); if_null_ve(-1, fp);
 	llc::err_t	result;
 	if_fail_ef(result = funcFile(fp), "filepath:'%.*s'.", (int)filepath.size(), filepath.begin());
 	if(fp)
@@ -79,7 +79,7 @@ s3_t	llc::	fileSize			(llc::vcst_t fileName)			{
 #	endif // LLC_ESP32
 #else
 	::FILE				* fp					= 0;
-	llc_necall(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
+	if_fail_fef(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
 	if_true_fef(0 == fp, "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
 	if(0 != llc::fseek(fp, 0, FSEEK_END)) {
 		error_printf("Unknown error reading '%.*s'.", (int)fileName.size(), fileName.begin());
@@ -116,17 +116,17 @@ llc::err_t	llc::fileLastWriteTime	(vcst_t fileName, s3_t & modified) {
 // Retain the whole-file fast path for files below the streaming threshold.
 sttc llc::err_t fileSplitSmall(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
 	llc::as0_t			fileInMemory;
-	llc_necs(llc::fileToMemory(fileNameSrc, fileInMemory));
+	if_fail_fe(llc::fileToMemory(fileNameSrc, fileInMemory));
 	cnst u2_t			countParts = fileInMemory.size() / sizePartMax + one_if(fileInMemory.size() % sizePartMax);
 	if_true_fe(countParts > 0x7FFFFFFFU);
 	llc::string			fileNameDst;
 	for(u2_t iPart = 0; iPart < countParts; ++iPart) {
 		cnst u2_t		offsetPart = sizePartMax * iPart;
 		fileNameDst.clear();
-		llc_necs(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
+		if_fail_fe(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
 		info_printf("Creating part %u: '%s'.", iPart, fileNameDst.begin());
 		cnst u2_t		countBytes = llc::min(sizePartMax, fileInMemory.size() - offsetPart);
-		llc_necs(llc::fileFromMemory(fileNameDst, llc::vcs0_t{fileInMemory.begin() + offsetPart, countBytes}));
+		if_fail_fe(llc::fileFromMemory(fileNameDst, llc::vcs0_t{fileInMemory.begin() + offsetPart, countBytes}));
 	}
 	return (llc::err_t)countParts;
 }
@@ -139,14 +139,14 @@ sttc llc::err_t fileSplitLarge(llc::vcst_t fileNameSrc, u2_c sizePartMax, u3_c s
 	u3_t				offset = 0;
 	for(u2_t iPart = 0; iPart < countParts; ++iPart) {
 		fileNameDst.clear();
-		llc_necs(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
+		if_fail_fe(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
 		cnst u3_t		partSize = llc::min(sizeFile - offset, (u3_t)sizePartMax);
 		u3_t			partOffset = 0;
 		while(partOffset < partSize) {
 			cnst u2_t	count = (u2_t)llc::min(partSize - partOffset, (u3_t)(1024U * 1024U));
-			llc_necs(llc::fileToMemory(fileNameSrc, buffer, count, offset));
+			if_fail_fe(llc::fileToMemory(fileNameSrc, buffer, count, offset));
 			if_true_fef(buffer.size() != count, "Short read at offset %" LLC_FMT_U3 ": '%.*s'.", offset, LLC_VIEW_ARGS(fileNameSrc));
-			llc_necs(llc::fileFromMemory(fileNameDst, buffer, partOffset != 0));
+			if_fail_fe(llc::fileFromMemory(fileNameDst, buffer, partOffset != 0));
 			partOffset += count;
 			offset += count;
 		}
@@ -201,9 +201,9 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, :
 	u2_c				fileSize					= (::llc::u2_t)fp.size();
 	fileInMemory.clear();
 #		ifdef LLC_ESP32
-	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
+	if_fail_fef(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
 #		else
-	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
+	if_fail_fef(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
 #		endif // LLC_ESP32
 	if_true_fe(fileSize != (::llc::u2_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
 	fp.close();

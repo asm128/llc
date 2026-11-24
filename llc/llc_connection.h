@@ -86,34 +86,34 @@ namespace llc
 
 	stxp	const uint32_t				UDP_PAYLOAD_SIZE_LIMIT		= 60 * 1024;
 
-	::llc::error_t						connectionPayloadCollect	(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & receivedMessages);
-	::llc::error_t						connectionSendQueue			(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage>& messageCacheSent, ::llc::apobj<::llc::SUDPMessage>& messageCacheSend, bool packPayloads = true);
-	::llc::error_t						connectionHandleCommand		(::llc::SUDPConnection & client, ::llc::SUDPCommand & command, ::llc::au0_t & receiveBuffer);
-	::llc::error_t						connectionPushData			(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, const ::llc::vcu0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0);
-	stin	::llc::error_t				connectionPushData			(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, const ::llc::vcs0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0) {
+	::llc::err_t						connectionPayloadCollect	(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & receivedMessages);
+	::llc::err_t						connectionSendQueue			(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage>& messageCacheSent, ::llc::apobj<::llc::SUDPMessage>& messageCacheSend, bool packPayloads = true);
+	::llc::err_t						connectionHandleCommand		(::llc::SUDPConnection & client, ::llc::SUDPCommand & command, ::llc::au0_t & receiveBuffer);
+	::llc::err_t						connectionPushData			(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, const ::llc::vcu0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0);
+	stin	::llc::err_t				connectionPushData			(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, const ::llc::vcs0_t & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0) {
 		return ::llc::connectionPushData(client, queue, *(const ::llc::vcu0_t*)&data, bEncrypted, bCompress, retryCount);
 	}
-	stin	::llc::error_t				connectionPushData			(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, ::llc::vcst_c & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0) {
+	stin	::llc::err_t				connectionPushData			(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, ::llc::vcst_c & data, bool bEncrypted = true, bool bCompress = true, uint8_t retryCount = 0) {
 		return ::llc::connectionPushData(client, queue, *(const ::llc::vcu0_t*)&data, bEncrypted, bCompress, retryCount);
 	}
 
 	tplt<tpnm _tWithLoad, tpnm _tState> 
-	::llc::error_t						processUDPClientQueueEvents	
+	::llc::err_t						processUDPClientQueueEvents	
 		( _tWithLoad						& eventCache
 		, uint32_t							iClient
 		, ::llc::vpobj<::llc::SUDPMessage>	clientQueue
 		, _tState							& state
-		, const ::std::function<::llc::error_t (uint32_t iClient, _tState &, const _tWithLoad &)>	& funcProcessRequest
+		, const ::std::function<::llc::err_t (uint32_t iClient, _tState &, const _tWithLoad &)>	& funcProcessRequest
 		) {
 		for(uint32_t iMessage = 0; iMessage < clientQueue.size(); ++iMessage) {
 			const ::llc::SUDPMessage				& message					= *clientQueue[iMessage];
 			switch(message.Command.Command) {
 			case ::llc::ENDPOINT_COMMAND_PAYLOAD: {
 				::llc::vcu0_t							payloadInput				= {(const uint8_t*)message.Payload.begin(), message.Payload.size()};
-				llc_necs(eventCache.Load(payloadInput));
+				if_fail_fe(eventCache.Load(payloadInput));
 				switch(message.Command.Type) {
 				case ::llc::ENDPOINT_COMMAND_TYPE_REQUEST	: 
-					llc_necs(funcProcessRequest(iClient, state, eventCache)); 
+					if_fail_fe(funcProcessRequest(iClient, state, eventCache)); 
 					break;
 				}
 				break;
@@ -124,26 +124,26 @@ namespace llc
 	}
 
 	tplt<tpnm _tWithLoad, tpnm _tState> 
-	stin	::llc::error_t				processUDPClientQueueEvents	
+	stin	::llc::err_t				processUDPClientQueueEvents	
 		( uint32_t							iClient
 		, ::llc::vcpobj<::llc::SUDPMessage>	clientQueue
 		, _tState							& state
-		, const ::std::function<::llc::error_t (uint32_t iClient, _tState &, const _tWithLoad &)>	& funcProcessRequest
+		, const ::std::function<::llc::err_t (uint32_t iClient, _tState &, const _tWithLoad &)>	& funcProcessRequest
 		) {
 		_tWithLoad								eventCache					= {};
 		return ::llc::processUDPClientQueueEvents(eventCache, iClient, clientQueue, state, funcProcessRequest);
 	}
 
 	tplt<tpnm _tEvent, tpnm _tState> 
-	::llc::error_t						processUDPEvents
+	::llc::err_t						processUDPEvents
 		( ::llc::view<::llc::apobj<::llc::SUDPMessage>>	queueReceived
 		, _tState										& state
-		, const ::std::function<::llc::error_t (uint32_t iClient, _tState &, const _tEvent &)>	& funcProcessRequest
+		, const ::std::function<::llc::err_t (uint32_t iClient, _tState &, const _tEvent &)>	& funcProcessRequest
 		) {
 		_tEvent									eventReceived				= {};
 		for(uint32_t iClient = 0; iClient < queueReceived.size(); ++iClient) {
 			 const ::llc::apobj<::llc::SUDPMessage>	& clientQueue				= queueReceived[iClient];
-			 llc_necs(llc::processUDPClientQueueEvents(eventReceived, iClient, clientQueue, state, funcProcessRequest));
+			 if_fail_fe(llc::processUDPClientQueueEvents(eventReceived, iClient, clientQueue, state, funcProcessRequest));
 		}
 		return 0;
 	}

@@ -131,7 +131,7 @@ sttc ::llc::err_t testSummaryJSON(cnst STestSuiteReport & report, ::llc::string 
 ::llc::err_t testSuiteReportWrite(::llc::vcst_t folder, cnst STestSuiteReport & report, cnst ATestError & results) {
 	::llc::string json;
 	if_fail_fe(testSummaryJSON(report, json));
-	if_fail_fe(json.append_string(",\"schema_version\":1,\"results\":["));
+	if_fail_fe(::llc::append_string(json, ",\"schema_version\":1,\"results\":["));
 	for(::llc::u2_t i = 0; i < results.size(); ++i) {
 		cnst auto & item = results[i];
 		::llc::string enumName, valueName, description;
@@ -146,7 +146,7 @@ sttc ::llc::err_t testSummaryJSON(cnst STestSuiteReport & report, ::llc::string 
 			, ",\"passed\":", ::llc::str(item.SuccessCount)
 			, ",\"failed\":", ::llc::str(item.Count), '}'));
 	}
-	if_fail_fe(json.append_string("]}\n"));
+	if_fail_fe(::llc::append_string(json, "]}\n"));
 	rtrn testReportWrite(folder, "results.json", json);
 }
 
@@ -181,7 +181,7 @@ sttc ::llc::err_t testRunReportWrite(cnst STestRunReport & run, ::llc::err_t sta
 		, ",\"pointer_bits\":", ::llc::str((::llc::u2_t)(sizeof(void*) * 8))
 		, ",\"status\":", ::llc::str(status), ",\"duration_us\":", ::llc::str(duration), ",\"seed_override\":"));
 	if(seedEnabled) { if_fail_fe(::llc::append_strings(json, '"', ::llc::str(seed), '"')); }
-	else { if_fail_fe(json.append_string("null")); }
+	else { if_fail_fe(::llc::append_string(json, "null")); }
 	if_fail_fe(::llc::append_strings(json, ",\"checks\":", ::llc::str(checks), ",\"passed\":", ::llc::str(checks - failures)
 		, ",\"failed\":", ::llc::str(failures), ",\"suites\":[", suites, "]}\n"));
 	rtrn testReportWrite(run.Folder, "results.json", json);
@@ -232,7 +232,7 @@ err_t testRunSummary(cnst ATestError & results, err_t result, u3_t microseconds)
 	else {
 		always_printf("Test run completed in %" LLC_FMT_U3 " us: all %u checks passed across %u result groups.", microseconds, successCount, results.size());
 	}
-	rtrn ::llc::failed(result) ? result : failureCount ? ::llc::OS_ERROR : 0;
+	rtrn ::llc::failed(result) ? result : failureCount ? -1 : 0;
 }
 
 err_t testRunFinish(cnst STestRunReport & run, err_t status, u3_t microseconds) {

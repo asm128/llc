@@ -14,7 +14,7 @@ namespace llc {
 	};
 
 	template<typename TLines>
-	inline ::llc::error_t guiViewportTextRowsBuild(const TLines & source, ::llc::u2_t charactersPerRow, bool wrap, ::llc::aobj<::llc::SGUIViewportTextRow> & rows) {
+	inline ::llc::err_t guiViewportTextRowsBuild(const TLines & source, ::llc::u2_t charactersPerRow, bool wrap, ::llc::aobj<::llc::SGUIViewportTextRow> & rows) {
 		if_fail_fe(rows.clear());
 		charactersPerRow = ::llc::max((::llc::u2_t)1, charactersPerRow);
 		for(::llc::u2_t iLine = 0; iLine < source.size(); ++iLine) {
@@ -37,10 +37,10 @@ namespace llc {
 		return (::llc::u2_t)::llc::max((::llc::s2_t)1, (::llc::s2_t)gui.Controls.Area[row].Client.Global.Size.x / ::llc::max((::llc::u0_t)1, gui.Fonts[font]->CharSize.x));
 	}
 
-	inline ::llc::error_t guiViewportEvent(const ::llc::SEventSystem & event, const ::llc::astcid<GUI_VIEWPORT_ACTION_COUNT> & actions, ::llc::cid_t resizedControl, ::llc::GUI_VIEWPORT_ACTION & action, bool & resized) {
+	inline ::llc::err_t guiViewportEvent(const ::llc::SEventSystem & event, const ::llc::astcid<GUI_VIEWPORT_ACTION_COUNT> & actions, ::llc::cid_t resizedControl, ::llc::GUI_VIEWPORT_ACTION & action, bool & resized) {
 		return ::llc::eventExtractAndHandle<::llc::EVENT_GUI_CONTROL>(event, [&actions, resizedControl, &action, &resized](const ::llc::SEView<::llc::EVENT_GUI_CONTROL> & child) {
 			if(child.Type != ::llc::EVENT_GUI_CONTROL_StateChange)
-				return (::llc::error_t)0;
+				return (::llc::err_t)0;
 			::llc::vcu0_t payload = child.Data;
 			::llc::SChangeControlState change = {};
 			if_fail_fe(::llc::loadPOD(payload, change));
@@ -50,11 +50,11 @@ namespace llc {
 				for(::llc::u0_t i = 0; i < ::llc::GUI_VIEWPORT_ACTION_COUNT; ++i)
 					if(change.Id == actions[i])
 						action = (::llc::GUI_VIEWPORT_ACTION)i;
-			return (::llc::error_t)0;
+			return (::llc::err_t)0;
 		});
 	}
 
-	inline ::llc::error_t guiViewportEvents(const ::llc::SGUI & gui, const ::llc::astcid<GUI_VIEWPORT_ACTION_COUNT> & actions, ::llc::cid_t resizedControl, ::llc::GUI_VIEWPORT_ACTION & action, bool & resized) {
+	inline ::llc::err_t guiViewportEvents(const ::llc::SGUI & gui, const ::llc::astcid<GUI_VIEWPORT_ACTION_COUNT> & actions, ::llc::cid_t resizedControl, ::llc::GUI_VIEWPORT_ACTION & action, bool & resized) {
 		for(::llc::u2_t i = 0; i < gui.Controls.EventQueue.size(); ++i)
 			if(gui.Controls.EventQueue[i].get_ref())
 				if_fail_fe(::llc::guiViewportEvent(*gui.Controls.EventQueue[i], actions, resizedControl, action, resized));
@@ -83,7 +83,7 @@ namespace llc {
 		return id;
 	}
 
-	inline ::llc::error_t guiViewportActionsLayout(::llc::SGUI & gui, const ::llc::SViewport & viewport, const ::llc::astcid<GUI_VIEWPORT_ACTION_COUNT> & actions) {
+	inline ::llc::err_t guiViewportActionsLayout(::llc::SGUI & gui, const ::llc::SViewport & viewport, const ::llc::astcid<GUI_VIEWPORT_ACTION_COUNT> & actions) {
 		const ::llc::cid_t close = viewport.IdControls[::llc::VIEWPORT_CONTROL_CLOSE];
 		const ::llc::GUI_VIEWPORT_ACTION order[] = {GUI_VIEWPORT_ACTION_SELECT_ALL, GUI_VIEWPORT_ACTION_SAVE, GUI_VIEWPORT_ACTION_WRAP};
 		::llc::cid_t right = close;
@@ -102,7 +102,7 @@ namespace llc {
 		return ::llc::controlMetricsInvalidate(gui, viewport.IdControl);
 	}
 
-	inline ::llc::error_t guiViewportActionShow(::llc::SGUI & gui, const ::llc::SViewport & viewport, const ::llc::astcid<GUI_VIEWPORT_ACTION_COUNT> & actions, ::llc::GUI_VIEWPORT_ACTION action, bool show) {
+	inline ::llc::err_t guiViewportActionShow(::llc::SGUI & gui, const ::llc::SViewport & viewport, const ::llc::astcid<GUI_VIEWPORT_ACTION_COUNT> & actions, ::llc::GUI_VIEWPORT_ACTION action, bool show) {
 		if(action >= GUI_VIEWPORT_ACTION_COUNT)
 			return -1;
 		gui.Controls.SetHidden(actions[action], !show);
@@ -164,7 +164,7 @@ namespace llc {
 		return id;
 	}
 
-	inline ::llc::error_t guiViewportFold(::llc::SGUI & gui, ::llc::SViewport & viewport) {
+	inline ::llc::err_t guiViewportFold(::llc::SGUI & gui, ::llc::SViewport & viewport) {
 		return ::llc::viewportFold(gui, viewport);
 	}
 }
