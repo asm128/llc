@@ -14,8 +14,8 @@ ifeq ($(DEBUG), 1)
 	C_DEFS			+= -DDEBUG
 endif
 
-OutDir	:= ../$(Platform).$(Configuration)
-IntDir	:= ../obj/$(Platform).$(Configuration)/$(ProjectName)
+OutDir	:= ../../$(Platform).$(Configuration)
+IntDir	:= ../../obj/$(Platform).$(Configuration)/$(ProjectName)
 
 OBJDIRS	:= $(patsubst %, $(IntDir), $(ProjectName))
 INCDIR	:= $(patsubst %,-I%,$(ExtraIncDir))
