@@ -44,6 +44,8 @@
     <ClInclude Include="llc_circuit.h" />
     <ClInclude Include="llc_crc.h" />
     <ClInclude Include="llc_file_pack.h" />
+    <ClInclude Include="llc_gauge_n2.h" />
+    <ClInclude Include="llc_gauge_n3.h" />
     <ClInclude Include="llc_grid_serialize.h" />
     <ClInclude Include="llc_keyval_view.h" />
     <ClInclude Include="llc_micro.h" />
@@ -609,7 +611,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -634,7 +635,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -659,7 +659,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -684,7 +683,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -711,7 +709,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -740,7 +737,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -769,7 +765,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -798,7 +793,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
