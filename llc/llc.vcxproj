@@ -44,6 +44,8 @@
     <ClInclude Include="llc_circuit.h" />
     <ClInclude Include="llc_crc.h" />
     <ClInclude Include="llc_file_pack.h" />
+    <ClInclude Include="llc_gauge_n2.h" />
+    <ClInclude Include="llc_gauge_n3.h" />
     <ClInclude Include="llc_grid_serialize.h" />
     <ClInclude Include="llc_keyval_view.h" />
     <ClInclude Include="llc_micro.h" />
@@ -151,9 +153,7 @@
     <ClInclude Include="llc_path.h" />
     <ClInclude Include="llc_platform_error.h" />
     <ClInclude Include="llc_pod_definition.h" />
-    <ClInclude Include="llc_process.h" />
     <ClInclude Include="llc_process_broker.h" />
-    <ClInclude Include="llc_process_internal.h" />
     <ClInclude Include="llc_quad3.h" />
     <ClInclude Include="llc_queue_event.h" />
     <ClInclude Include="llc_range.h" />
@@ -383,10 +383,7 @@
     <ClCompile Include="llc_pack.cpp" />
     <ClCompile Include="llc_particle.cpp" />
     <ClCompile Include="llc_path.cpp" />
-    <ClCompile Include="llc_process.cpp" />
     <ClCompile Include="llc_process_broker.cpp" />
-    <ClCompile Include="llc_process_win32.cpp" />
-    <ClCompile Include="llc_process_linux.cpp" />
     <ClCompile Include="llc_typeint.cpp" />
     <ClCompile Include="llc_spi.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -617,7 +614,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -642,7 +638,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -667,7 +662,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -692,7 +686,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -719,7 +712,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -748,7 +740,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -777,7 +768,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
@@ -806,7 +796,6 @@
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
-
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
