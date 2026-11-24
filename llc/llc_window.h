@@ -53,6 +53,8 @@ namespace llc
 		::xkb_compose_table			* XKBComposeTable			= {};
 		::xkb_compose_state			* XKBComposeState			= {};
 		s2_t						XKBDeviceId				= -1;
+		uint32_t					ButtonPressTime			[32] = {};
+		::llc::n2s1_t				ButtonPressPosition		[32] = {};
 
 									~SWindowPlatformDetail		()	{
 			if(GC && Connection) {

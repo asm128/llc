@@ -200,6 +200,20 @@ static	uint32_t	xcbTextCodePoint		(const ::llc::SWindowPlatformDetail & detail, 
 		return composed;
 	} }
 }
+
+static	bool		xcbDoubleClick			(::llc::SWindowPlatformDetail & detail, const xcb_button_press_event_t & button) {
+	if(0 == button.detail || 3 < button.detail)
+		return false;
+	const uint32_t index = button.detail - 1;
+	const uint32_t previousTime = detail.ButtonPressTime[index];
+	const ::llc::n2s1_t previousPosition = detail.ButtonPressPosition[index];
+	const int32_t deltaX = (int32_t)button.event_x - previousPosition.x;
+	const int32_t deltaY = (int32_t)button.event_y - previousPosition.y;
+	const bool doubleClick = previousTime && (button.time - previousTime <= 500) && deltaX >= -4 && deltaX <= 4 && deltaY >= -4 && deltaY <= 4;
+	detail.ButtonPressTime[index] = doubleClick ? 0 : button.time;
+	detail.ButtonPressPosition[index] = {(int16_t)button.event_x, (int16_t)button.event_y};
+	return doubleClick;
+}
 #endif
 
 ::llc::error_t			llc::windowUpdateTick		(::llc::SWindow& displayInstance)											{
@@ -255,7 +269,10 @@ static	uint32_t	xcbTextCodePoint		(const ::llc::SWindowPlatformDetail & detail, 
 			}
 			else if(button.detail && button.detail <= input.MouseCurrent.ButtonState.size()) {
 				input.MouseCurrent.ButtonState[button.detail - 1] = 1;
-				if_fail_e(::llc::eventEnqueueMouseDown(displayInstance.EventQueue, button.detail - 1));
+				if_fail_e(::xcbDoubleClick(displayInstance.PlatformDetail, button)
+					? ::llc::eventEnqueueMouseDoubleClick(displayInstance.EventQueue, button.detail - 1)
+					: ::llc::eventEnqueueMouseDown(displayInstance.EventQueue, button.detail - 1)
+					);
 			}
 			break;
 		}
