@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-::llc::err_t			llc::pixelBlend			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color)	{
+::llc::error_t			llc::pixelBlend			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color)	{
 	if( (position.x >= 0 && position.x < (int32_t)pixels.metrics().x)
 	 && (position.y >= 0 && position.y < (int32_t)pixels.metrics().y)
 	) {
@@ -16,18 +16,18 @@
 	return 0;
 }
 
-::llc::err_t			llc::setPixel			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color)	{
+::llc::error_t			llc::setPixel			(::llc::g8bgra pixels, ::llc::n2s1_t position, ::llc::bgra color)	{
 	if( (position.x >= 0 && position.x < (int32_t)pixels.metrics().x)
 	 && (position.y >= 0 && position.y < (int32_t)pixels.metrics().y)
 	) {
 		::llc::bgra					& targetPixel = pixels[position.y][position.x];
-		targetPixel				= {color.b, color.g, color.r, (uint8_t)::llc::clamped(targetPixel.a + (uint32_t)color.a, 0U, 255U)};
+		targetPixel				= {color.b, color.g, color.r, (u0_t)::llc::clamped(targetPixel.a + (::llc::u2_t)color.a, 0U, 255U)};
 		return 1;
 	}
 	return 0;
 }
 
-::llc::err_t			llc::drawRectangle		(::llc::g8bgra pixels, ::llc::rect2<int16_t> rectangle, ::llc::bgra color)	{
+::llc::error_t			llc::drawRectangle		(::llc::g8bgra pixels, ::llc::rect2<int16_t> rectangle, ::llc::bgra color)	{
 	int32_t						countPixels				= 0;
 	for(int16_t y = 0; y < (int16_t)rectangle.Size.y; ++y)
 	for(int16_t x = 0; x < (int16_t)rectangle.Size.x; ++x)
@@ -35,7 +35,7 @@
 	return countPixels;
 }
 
-::llc::err_t			llc::drawCircle			(::llc::g8bgra pixels, ::llc::circle<int16_t> circle, ::llc::bgra color)	{
+::llc::error_t			llc::drawCircle			(::llc::g8bgra pixels, ::llc::circle<int16_t> circle, ::llc::bgra color)	{
 	int32_t						countPixels				= 0;
 	for(int16_t y = (int16_t)-circle.Radius; y < (int16_t)circle.Radius; ++y)
 	for(int16_t x = (int16_t)-circle.Radius; x < (int16_t)circle.Radius; ++x) {
@@ -47,7 +47,7 @@
 }
 
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-::llc::err_t			llc::drawLine       	(::llc::g8bgra pixels, ::llc::line2s1_t line, ::llc::bgra color)	{
+::llc::error_t			llc::drawLine       	(::llc::g8bgra pixels, ::llc::line2s1_t line, ::llc::bgra color)	{
 	int32_t						countPixels				= 0;
 	int32_t						dx						= (int32_t)fabs(line.B.x - line.A.x);
 	int32_t						sx						= (int32_t)line.A.x < line.B.x ? 1 : -1;
@@ -75,7 +75,7 @@
 
 
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-::llc::err_t			llc::drawLine       	(const ::llc::n2u1_t offscreenMetrics, ::llc::line2s1_t line, ::llc::apod<::llc::n2s1_t> & pixelCoords)	{
+::llc::error_t			llc::drawLine       	(const ::llc::n2u1_t offscreenMetrics, ::llc::line2s1_t line, ::llc::apod<::llc::n2s1_t> & pixelCoords)	{
 	int32_t						dx						= (int32_t)fabs(line.B.x - line.A.x);
 	int32_t						sx						= (int32_t)line.A.x < line.B.x ? 1 : -1;
 	int32_t						dy						= (int32_t)-fabs(line.B.y - line.A.y );
@@ -110,11 +110,11 @@
 
 
 // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-::llc::err_t			llc::drawLine
+::llc::error_t			llc::drawLine
 	( const ::llc::n2u1_t		offscreenMetrics
 	, const ::llc::line3f2_t		& lineFloat
 	, ::llc::apod<::llc::n3f2_t>	& pixelCoords
-	, ::llc::grid<uint32_t>	depthBuffer
+	, ::llc::grid<::llc::u2_t>	depthBuffer
 	) {
 	::llc::line2s2_t				line					= {{(int32_t)lineFloat.A.x, (int32_t)lineFloat.A.y}, {(int32_t)lineFloat.B.x, (int32_t)lineFloat.B.y}};
 	int32_t						xDiff					= (int32_t)fabs(line.B.x - line.A.x);
@@ -130,8 +130,8 @@
 	 && lineFloat.A.z >= 0 && lineFloat.A.z <= 1
 	) {
 		depthBufferRow			= depthBuffer[line.A.y];
-		uint32_t					& depthCell				= depthBufferRow[line.A.x];
-		uint32_t					intZ					= uint32_t((double)0xFFFFFFFU * lineFloat.A.z);
+		::llc::u2_t					& depthCell				= depthBufferRow[line.A.x];
+		::llc::u2_t					intZ					= ::llc::u2_t((double)0xFFFFFFFU * lineFloat.A.z);
 		if( depthCell > intZ ) {
 			depthCell				= intZ;
 			//pixelCoords.push_back({(int32_t)line.A.x, (int32_t)line.A.y});
@@ -156,8 +156,8 @@
 				const double				finalZ					= ::llc::interpolate_linear(lineFloat.A.z, lineFloat.B.z, factor);// lineFloat.B.z * factor + (lineFloat.A.z * (1.0 - factor));
 				if (finalZ <= 0 || finalZ >= 1)
 					continue;
-				const uint32_t				intZ					= uint32_t(0xFFFFFFFU * finalZ);
-				uint32_t					& depthCell				= depthBufferRow[line.A.x];
+				const ::llc::u2_t				intZ					= ::llc::u2_t(0xFFFFFFFU * finalZ);
+				::llc::u2_t					& depthCell				= depthBufferRow[line.A.x];
 				if(depthCell <= intZ)
 					continue;
 
@@ -178,8 +178,8 @@
 				const double				finalZ					= ::llc::interpolate_linear(lineFloat.A.z, lineFloat.B.z, factor);// lineFloat.B.z * factor + (lineFloat.A.z * (1.0 - factor));
 				if (finalZ <= 0 || finalZ >= 1)
 					continue;
-				const uint32_t				intZ					= uint32_t(0xFFFFFFFU * finalZ);
-				uint32_t					& depthCell				= depthBufferRow[line.A.x];
+				const ::llc::u2_t				intZ					= ::llc::u2_t(0xFFFFFFFU * finalZ);
+				::llc::u2_t					& depthCell				= depthBufferRow[line.A.x];
 				if(depthCell <= intZ)
 					continue;
 
@@ -197,13 +197,14 @@
 //https://fgiesen.wordpress.com/2013/02/08/triangle-rasterization-in-practice/
 static	double		orient2d		(const ::llc::line2s1_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
 //static	double		orient2d		(const ::llc::line3s1_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
-static	double		orient2d		(const ::llc::line3f2_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
+//static	double		orient2d		(const ::llc::line3f2_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
 static	double		orient2d		(const ::llc::line2f2_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
+static	double		orient2d		(const ::llc::n3f2_t & start, const ::llc::n2f2_t & edge, const ::llc::n2s1_t & point)	{ return edge.x * (point.y - (double)start.y) - edge.y * (point.x - (double)start.x); }
 
 tplt <tpnm _tValue>	_tValue	max3		(_tValue & a, _tValue & b, _tValue & c)			{ return ::std::max(::std::max(a, b), c); }
 tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ return ::std::min(::std::min(a, b), c); }
 
-::llc::err_t			llc::drawTriangle		(::llc::g8bgra pixels, const ::llc::tri2<int16_t> & triangle, ::llc::bgra color){
+::llc::error_t			llc::drawTriangle		(::llc::g8bgra pixels, const ::llc::tri2<int16_t> & triangle, ::llc::bgra color){
 	// Compute triangle bounding box
 	int16_t						minX					= ::min3(triangle.A.x, triangle.B.x, triangle.C.x);
 	int16_t						minY					= ::min3(triangle.A.y, triangle.B.y, triangle.C.y);
@@ -233,12 +234,12 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return countPixels;
 }
 
-::llc::err_t			llc::drawTriangle
+::llc::error_t			llc::drawTriangle
 	( const ::llc::n2u2_t			targetSize
 	, const ::llc::tri3f2_t			& triangle
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 	, ::llc::apod<::llc::trif2_t>	& proportions
-	, ::llc::grid<uint32_t>		depthBuffer
+	, ::llc::grid<::llc::u2_t>		depthBuffer
 	)	{
 	// Compute triangle bounding box
 	int16_t						minX					= (int16_t)::min3(triangle.A.x, triangle.B.x, triangle.C.x);
@@ -253,13 +254,16 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	maxY					= ::std::min(maxY, (int16_t)((int32_t)targetSize.y - 1));
 
 	// Rasterize
+	const ::llc::n2f2_t			edgeBC					= {triangle.C.x - triangle.B.x, triangle.C.y - triangle.B.y};
+	const ::llc::n2f2_t			edgeCA					= {triangle.A.x - triangle.C.x, triangle.A.y - triangle.C.y};
+	const ::llc::n2f2_t			edgeAB					= {triangle.B.x - triangle.A.x, triangle.B.y - triangle.A.y};
 	::llc::n2s1_t				p;
 	for (p.y = minY; p.y <= maxY; ++p.y)
 	for (p.x = minX; p.x <= maxX; ++p.x) {
 		// Determine barycentric coordinates
-		double						w0						= ::orient2d({triangle.B, triangle.C}, p);
-		double						w1						= ::orient2d({triangle.C, triangle.A}, p);
-		double						w2						= ::orient2d({triangle.A, triangle.B}, p);
+		double						w0						= ::orient2d(triangle.B, edgeBC, p);
+		double						w1						= ::orient2d(triangle.C, edgeCA, p);
+		double						w2						= ::orient2d(triangle.A, edgeAB, p);
 		// If p is on or inside all edges, render pixel.
 		if (w0 < 0 || w1 < 0 || w2 < 0)
 			continue;
@@ -278,20 +282,20 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 		if(finalZ >= 1.0 || finalZ <= 0)
 			continue;
 
-		uint32_t					intZ					= uint32_t(0xFFFFFFFU * finalZ);
-		uint32_t					& currentDepth			= depthBuffer[p.y][p.x];
+		::llc::u2_t					intZ					= ::llc::u2_t(0xFFFFFFFU * finalZ);
+		::llc::u2_t					& currentDepth			= depthBuffer[p.y][p.x];
 		if(currentDepth <= intZ)
 			continue;
 
 		currentDepth			= intZ;
-		pixelCoords.push_back(p .s1());
+		pixelCoords.push_back(p.s1());
 		proportions.push_back({(float)proportionA, (float)proportionB, (float)proportionC});
 
 	}
 	return 0;
 }
 
-::llc::err_t			llc::drawTriangle
+::llc::error_t			llc::drawTriangle
 	( const ::llc::n2u2_t			targetSize
 	, const ::llc::tri2f2_t			& triangle
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
@@ -328,14 +332,14 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 		double						proportionB				= w1 / proportionABC;
 		double						proportionC				= 1.0 - (proportionA + proportionB);
 
-		pixelCoords.push_back(p .s1());
+		pixelCoords.push_back(p.s1());
 		proportions.push_back({(float)proportionA, (float)proportionB, (float)proportionC});
 
 	}
 	return 0;
 }
 
-::llc::err_t			llc::drawPixels
+::llc::error_t			llc::drawPixels
 	( ::llc::g8bgra		targetPixels
 	, const ::llc::tri3f2_t				& triangleWorld
 	, const ::llc::n3f2_t				& normal
@@ -346,30 +350,31 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, ::llc::gc8bgra					textureImage
 	, ::llc::apod<::llc::n3f2_t>			& lightPoints
 	, ::llc::a8bgra			& lightColors
-	, const ::llc::function<::llc::err_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
+	, const ::llc::function<::llc::error_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
 	) {
 	const ::llc::n2f2_t			imageUnit				= {textureImage.metrics().x - 0.000001f, textureImage.metrics().y - 0.000001f};
 	double						lightFactorDirectional	= normal.Dot(lightVector);
 	(void)lightFactorDirectional;
 	int32_t						countPixels				= 0;
-	for(uint32_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
+	for(::llc::u2_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
 		::llc::n2s1_t				pixelCoord				= pixelCoords		[iPixelCoord];
 		const ::llc::trif2_t			& vertexWeights			= pixelVertexWeights[iPixelCoord];
 		const ::llc::n2f2_t			texCoord				= ::llc::triangleWeight(vertexWeights, triangleTexCoords);
 		const ::llc::n3f2_t			position				= ::llc::triangleWeight(vertexWeights, triangleWorld);
-		const ::llc::rgbaf			texelColor				= textureImage.size() ? textureImage[(uint32_t)(texCoord.y * imageUnit.y) % textureImage.metrics().y][(uint32_t)(texCoord.x * imageUnit.x) % textureImage.metrics().x] : ::llc::bgra{::llc::GRAY};
+		const ::llc::rgbaf			texelColor				= textureImage.size() ? textureImage[(::llc::u2_t)(texCoord.y * imageUnit.y) % textureImage.metrics().y][(::llc::u2_t)(texCoord.x * imageUnit.x) % textureImage.metrics().x] : ::llc::bgra{::llc::GRAY};
+		const ::llc::u2_t				countLights				= lightPoints.size();
+		const ::llc::rgbaf			ambientPerLight			= countLights ? texelColor / (10.0 * countLights) : ::llc::rgbaf{};
 		::llc::rgbaf				fragmentColor			= {};
-		stxp	double				rangeLight				= 10.0;
-		stxp	double				rangeLightSquared		= rangeLight * rangeLight;
-		stxp	double				rangeUnit				= 1.0 / rangeLightSquared;
-		for(uint32_t iLight = 0; iLight < lightPoints.size(); ++iLight) {
+		stacxpr	double				rangeLight				= 10.0;
+		stacxpr	double				rangeLightSquared		= rangeLight * rangeLight;
+		stacxpr	double				rangeUnit				= 1.0 / rangeLightSquared;
+		for(::llc::u2_t iLight = 0; iLight < countLights; ++iLight) {
 			const ::llc::n3f2_t			lightToPoint			= lightPoints[iLight] - position;
-			const ::llc::n3f2_t			vectorToLight			= lightToPoint;
-			const double				lightFactor				= vectorToLight.Dot(normal);
 			const double				distanceToLight			= lightToPoint.LengthSquared();
 			if(distanceToLight > rangeLightSquared)
 				continue;
-			fragmentColor			+= texelColor / (10.0 * lightPoints.size());
+			fragmentColor			+= ambientPerLight;
+			const double				lightFactor				= lightToPoint.Dot(normal);
 			if(lightFactor <= 0)
 				continue;
 			const double				invAttenuation			= ::std::max(0.0, 1.0 - (distanceToLight * rangeUnit));
@@ -380,7 +385,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return countPixels;
 }
 
-::llc::err_t			llc::drawPixels
+::llc::error_t			llc::drawPixels
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::tri3f2_t			& triangleWorld
 	, const ::llc::n3f2_t			& normal
@@ -396,23 +401,23 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return llc::drawPixels(targetPixels, triangleWorld, normal, triangleTexCoords, lightVector, pixelCoords, pixelVertexWeights, textureImage, lightPoints, lightColors, setPixel);
 }
 
-::llc::err_t			llc::drawQuadTriangle
+::llc::error_t			llc::drawQuadTriangle
 	( const ::llc::n2u2_t			& targetSize
 	, const ::llc::tri3f2_t		& triangleScreen
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 	, ::llc::apod<::llc::trif2_t>	& pixelVertexWeights
-	, ::llc::grid<uint32_t>		depthBuffer
+	, ::llc::grid<::llc::u2_t>		depthBuffer
 	) {
 	return ::llc::drawTriangle(targetSize, triangleScreen, pixelCoords, pixelVertexWeights, depthBuffer);
 }
 
-::llc::err_t			llc::drawQuadTriangle
+::llc::error_t			llc::drawQuadTriangle
 	( const ::llc::n2u2_t			& targetSize
 	, ::llc::tri3f2_t				triangle
 	, const ::llc::m4f2_t			& matrixTransformVP
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 	, ::llc::apod<::llc::trif2_t>	& pixelVertexWeights
-	, ::llc::grid<uint32_t>		depthBuffer
+	, ::llc::grid<::llc::u2_t>		depthBuffer
 	) {
 	::llc::transform(triangle, matrixTransformVP);
 	if( triangle.A.z <= 0 || triangle.A.z >= 1
@@ -423,7 +428,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return ::llc::drawQuadTriangle(targetSize, triangle, pixelCoords, pixelVertexWeights, depthBuffer);
 }
 
-::llc::err_t			llc::drawQuadTriangle
+::llc::error_t			llc::drawQuadTriangle
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryQuads	& geometry
 	, const int						iTriangle
@@ -435,12 +440,12 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, ::llc::gc8bgra	textureImage
 	, ::llc::apod<::llc::n3f2_t>		& lightPoints
 	, ::llc::a8bgra		& lightColors
-	, ::llc::grid<uint32_t>		depthBuffer
+	, ::llc::grid<::llc::u2_t>		depthBuffer
 	) {
 	return ::llc::drawQuadTriangle(targetPixels, geometry, iTriangle, matrixTransform, matrixTransformVP, lightVector, pixelCoords, pixelVertexWeights, textureImage, lightPoints, lightColors, depthBuffer, setPixel);
 }
 
-::llc::err_t			llc::drawQuadTriangle
+::llc::error_t			llc::drawQuadTriangle
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryQuads	& geometry
 	, const int						iTriangle
@@ -452,8 +457,8 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, ::llc::gc8bgra	textureImage
 	, ::llc::apod<::llc::n3f2_t>		& lightPoints
 	, ::llc::a8bgra		& lightColors
-	, ::llc::grid<uint32_t>		depthBuffer
-	, const ::llc::function<::llc::err_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
+	, ::llc::grid<::llc::u2_t>		depthBuffer
+	, const ::llc::function<::llc::error_t(::llc::g8bgra targetPixels, const ::llc::n2s1_t & pixelCoord, const ::llc::bgra & color)> & funcSetPixel
 	) {
 	const ::llc::tri3f2_t		& triangle			= geometry.Triangles	[iTriangle];;
 	const ::llc::tri2f2_t		& triangleTexCoords	= geometry.TextureCoords[iTriangle];
@@ -465,7 +470,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return ::llc::drawPixels(targetPixels, triangleWorld, xnormal, triangleTexCoords, lightVector, pixelCoords, pixelVertexWeights, textureImage, lightPoints, lightColors, funcSetPixel);
 }
 
-::llc::err_t			llc::drawQuadTriangle
+::llc::error_t			llc::drawQuadTriangle
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryQuads	& geometry
 	, const int						iTriangle
@@ -475,7 +480,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, const ::llc::bgra				color
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 	, ::llc::apod<::llc::trif2_t>	& pixelVertexWeights
-	, ::llc::grid<uint32_t>		depthBuffer
+	, ::llc::grid<::llc::u2_t>		depthBuffer
 	) {
 	::llc::tri3f2_t				triangle			= geometry.Triangles	[iTriangle];
 	::llc::n3f2_t				normal				= geometry.Normals		[iTriangle / 2];
@@ -491,14 +496,14 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 
 	int32_t						countPixels			= 0;
 	::llc::drawTriangle(targetPixels.metrics(), triangle, pixelCoords, pixelVertexWeights, depthBuffer);
-	for(uint32_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
+	for(::llc::u2_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
 		::llc::n2s1_t				pixelCoord			= pixelCoords[iPixelCoord];
 		countPixels += ::llc::setPixel(targetPixels, pixelCoord, (color * 0.1) + color * lightFactor);
 	}
 	return countPixels;
 }
 
-::llc::err_t			llc::drawTriangle
+::llc::error_t			llc::drawTriangle
 	( ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryTriangles	& geometry
 	, const int						iTriangle
@@ -508,7 +513,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, const ::llc::bgra				color
 	, ::llc::apod<::llc::n2s1_t>		& pixelCoords
 	, ::llc::apod<::llc::trif2_t>	& pixelVertexWeights
-	, ::llc::grid<uint32_t>		depthBuffer
+	, ::llc::grid<::llc::u2_t>		depthBuffer
 	) {
 	::llc::tri3f2_t				triangle			= geometry.Triangles	[iTriangle];
 	const ::llc::tri3f2_t		& triangleNormals	= geometry.Normals		[iTriangle];
@@ -521,7 +526,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 
 	::llc::drawTriangle(targetPixels.metrics(), triangle, pixelCoords, pixelVertexWeights, depthBuffer);
 	int32_t						countPixels				= 0;
-	for(uint32_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
+	for(::llc::u2_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
 		const ::llc::n2s1_t			pixelCoord				= pixelCoords		[iPixelCoord];
 		const ::llc::trif2_t			& vertexWeights			= pixelVertexWeights[iPixelCoord];
 		::llc::n3f2_t				normal					= ::llc::triangleWeight(vertexWeights, triangleNormals);
@@ -532,7 +537,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	return countPixels;
 }
 
-::llc::err_t			llc::drawTriangle
+::llc::error_t			llc::drawTriangle
 	( const ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryTriangles	& geometry
 	, const int							iTriangle
@@ -542,7 +547,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, ::llc::apod<::llc::n2s1_t>			& pixelCoords
 	, ::llc::apod<::llc::trif2_t>		& pixelVertexWeights
 	, ::llc::gc8bgra	textureImage
-	, ::llc::grid<uint32_t>			depthBuffer
+	, ::llc::grid<::llc::u2_t>			depthBuffer
 	) {
 	::llc::tri3f2_t				triangle			= geometry.Triangles		[iTriangle];
 	const ::llc::tri3f2_t		& triangleNormals	= geometry.Normals			[iTriangle];
@@ -557,7 +562,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	int32_t						countPixels				= 0;
 	::llc::drawTriangle(targetPixels.metrics(), triangle, pixelCoords, pixelVertexWeights, depthBuffer);
 	const ::llc::n2f2_t			imageUnit				= {textureImage.metrics().x - 0.000001f, textureImage.metrics().y - 0.000001f};
-	for(uint32_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
+	for(::llc::u2_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
 		const ::llc::n2s1_t			pixelCoord				= pixelCoords		[iPixelCoord];
 		const ::llc::trif2_t			& vertexWeights			= pixelVertexWeights[iPixelCoord];
 		::llc::n3f2_t				normal					= ::llc::triangleWeight(vertexWeights, triangleNormals);
@@ -568,13 +573,13 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 		::llc::n2f2_t				texCoord				= triangleTexCoords.A * vertexWeights.A;
 		texCoord				+= triangleTexCoords.B * vertexWeights.B;
 		texCoord				+= triangleTexCoords.C * vertexWeights.C;
-		::llc::bgra					texelColor				= textureImage[(uint32_t)(texCoord.y * imageUnit.y)][(uint32_t)(texCoord.x * imageUnit.x)];
+		::llc::bgra					texelColor				= textureImage[(::llc::u2_t)(texCoord.y * imageUnit.y)][(::llc::u2_t)(texCoord.x * imageUnit.x)];
 		countPixels += ::llc::setPixel(targetPixels, pixelCoord, (::llc::rgbaf(texelColor) * .3 + ::llc::rgbaf(texelColor) * lightFactor).Clamp());
 	}
 	return countPixels;
 }
 
-::llc::err_t			llc::drawTriangle
+::llc::error_t			llc::drawTriangle
 	( const ::llc::g8bgra	targetPixels
 	, const ::llc::SGeometryTriangles	& geometry
 	, const int							iTriangle
@@ -587,7 +592,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	, ::llc::gc8bgra	textureImage
 	, ::llc::apod<::llc::SLight3>		& lightPoints
 	, ::llc::a8bgra			& lightColors
-	, ::llc::grid<uint32_t>			depthBuffer
+	, ::llc::grid<::llc::u2_t>			depthBuffer
 	) {
 	::llc::tri3f2_t				triangleWorld			= geometry.Triangles		[iTriangle];
 	::llc::tri3f2_t				triangle				= triangleWorld;
@@ -605,7 +610,7 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 	const ::llc::tri3f2_t		& triangleNormals		= geometry.Normals			[iTriangle];
 	const ::llc::tri2f2_t		& triangleTexCoords		= geometry.TextureCoords	[iTriangle];
 	const ::llc::n2f2_t			imageUnit				= {textureImage.metrics().x - 0.000001f, textureImage.metrics().y - 0.000001f};
-	for(uint32_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
+	for(::llc::u2_t iPixelCoord = 0; iPixelCoord < pixelCoords.size(); ++iPixelCoord) {
 		const ::llc::n2s1_t			pixelCoord				= pixelCoords		[iPixelCoord];
 		const ::llc::trif2_t			& vertexWeights			= pixelVertexWeights[iPixelCoord];
 
@@ -614,10 +619,10 @@ tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ re
 		double						lightFactorDirectional	= normal.Dot(lightVector);
 		::llc::n3f2_t				position				= ::llc::triangleWeight(vertexWeights, triangleWorld);
 		::llc::n2f2_t				texCoord				= ::llc::triangleWeight(vertexWeights, triangleTexCoords);
-		::llc::rgbaf				texelColor				= textureImage[(uint32_t)(texCoord.y * imageUnit.y) % textureImage.metrics().y][(uint32_t)(texCoord.x * imageUnit.x) % textureImage.metrics().x];
+		::llc::rgbaf				texelColor				= textureImage[(::llc::u2_t)(texCoord.y * imageUnit.y) % textureImage.metrics().y][(::llc::u2_t)(texCoord.x * imageUnit.x) % textureImage.metrics().x];
 		::llc::rgbaf				fragmentColor			= {};
 
-		for(uint32_t iLight = 0; iLight < lightPoints.size(); ++iLight) {
+		for(::llc::u2_t iLight = 0; iLight < lightPoints.size(); ++iLight) {
 			const ::llc::SLight3		& light					= lightPoints[iLight];
 
 			::llc::n3f2_t				lightToPoint			= light.Position - position;

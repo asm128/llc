@@ -213,7 +213,7 @@ namespace llc
 
 	tydf	view<b8_c>	vcb8_t;
 	tydf	view<uc_c>	vcuc_t, vcuc, vcuchar;
-	tydf	view<sc_c>	vcsc_t, vcchar;
+	tydf	view<sc_c>	vcchar;
 	tydf	view<u0_c>	vcu0_t, vcu0_t;
 	tydf	view<u1_c>	vcu1_t, vcu16;
 	tydf	view<u2_c>	vcu2_t, vcu32;
@@ -241,7 +241,6 @@ namespace llc
 
 	tdcs	 vcb8_t vcb8_c;
 	tdcs	 vcuc_t vcuc_c;
-	tdcs	 vcsc_t vcsc_c;
 	tdcs	 vcu0_t vcu0_c;
 	tdcs	 vcu1_t vcu1_c;
 	tdcs	 vcu2_t vcu2_c;
@@ -416,13 +415,6 @@ namespace llc
 	tydf	view<cnst vcst_t	>	vcvcs;
 
 	stxp	vcst_t		TRIM_CHARACTERS		= " \t\b\n\r";
-
-	err_t			rtrim				(vcsc_t & trimmed, vcsc_t original, vcsc_t characters = {TRIM_CHARACTERS.begin(), TRIM_CHARACTERS.size()});
-	err_t			ltrim				(vcsc_t & trimmed, vcsc_t original, vcsc_t characters = {TRIM_CHARACTERS.begin(), TRIM_CHARACTERS.size()});
-	err_t			trim				(vcsc_t & trimmed, vcsc_t original, vcsc_t characters = {TRIM_CHARACTERS.begin(), TRIM_CHARACTERS.size()});
-	stin	err_t	rtrim				(vcsc_t & trimmed) 	{ rtrn rtrim(trimmed, trimmed); }
-	stin	err_t	ltrim				(vcsc_t & trimmed) 	{ rtrn ltrim(trimmed, trimmed); }
-	stin	err_t	trim				(vcsc_t & trimmed) 	{ rtrn trim(trimmed, trimmed); }
 
 	err_t			rtrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
 	err_t			ltrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);

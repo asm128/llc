@@ -1,16 +1,9 @@
-FRAMEBUFFER		?= 0
-Platform		?= Linux.x64
+Platform		:= esp32 # Linux.ARM
 ProjectName		:= llc
 Configuration	:= Release
 
 C_DEFS			:= -DNOMINMAX
-PLATFORM_C_DEFS	:= -DLLC_DEBUG_ENABLED -DLLC_XCB
 OPT				:= 3
-
-ifeq ($(FRAMEBUFFER), 1)
-	Platform		:= LinuxFB.x64
-	PLATFORM_C_DEFS	:= -DLLC_DEBUG_ENABLED -DLLC_FRAMEBUFFER
-endif
 
 ifeq ($(DEBUG), 1)
 	Configuration	:= Debug
@@ -24,20 +17,23 @@ IntDir	:= ../obj/$(Platform).$(Configuration)/$(ProjectName)
 OBJDIRS	:= $(patsubst %, $(IntDir), $(ProjectName))
 INCDIR	:= $(patsubst %,-I%,$(IncDir))
 
-CFLAGS	:= -std=c++20 -Wall -Werror -O$(OPT) $(INCDIR) $(C_DEFS)
+CFLAGS	:= -std=c++17 -Wall -O$(OPT) $(INCDIR) $(C_DEFS)
 CC		:= g++
 
 _OBJ	:= $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 OBJ		:= $(patsubst %,$(IntDir)/%,$(_OBJ))
 
-all: build
+# Platform-specific flags
+C_DEFS_LINUX	:= -DLLC_DEBUG_ENABLED -DLLC_XCB
+C_DEFS_ESP32	:= -DLLC_DEBUG_ENABLED
 
-build: $(OutDir)/$(ProjectName).a
+all: linux esp32
 
-linux: build
+linux: PLATFORM_C_DEFS := $(C_DEFS_LINUX) # Platform-specific definitions
+linux: $(OutDir)/$(ProjectName).a
 
-esp32:
-	$(MAKE) build Platform=esp32 FRAMEBUFFER=0 PLATFORM_C_DEFS=-DLLC_DEBUG_ENABLED
+esp32: PLATFORM_C_DEFS := $(C_DEFS_ESP32) # Platform-specific definitions
+esp32: $(OutDir)/$(ProjectName).a
 
 $(OutDir)/$(ProjectName).a: $(OBJDIRS) $(OBJ)
 	mkdir -p $(OutDir)

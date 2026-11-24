@@ -34,9 +34,8 @@ namespace llc
 	tplT	T*			ref_allocate			(gref<T>* * llc_reference)	nxpt	{
 		tydf	gref<T>			TRef;
 		TRef					* newRef;
-		if_null_ve(0, malloc(newRef));
-		if_true_block_log(error_printf, 0 == malloc(newRef->Instance), llc_free(newRef); return 0;);
-		newRef->References	= 1;
+		if_null_ve(0, newRef = malloc(newRef));
+		if_true_block_log(error_printf, 0 == (newRef->References = one_if(malloc(newRef->Instance))), llc_free(newRef); return 0;);
 		TRef					* oldRef				= *llc_reference;
 		*llc_reference		= newRef;
 		ref_release(&oldRef);
