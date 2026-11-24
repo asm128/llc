@@ -867,6 +867,12 @@
     <ClInclude Include="llc_crc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_gauge_n3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gauge_n2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">

@@ -21,3 +21,4 @@ llc.win32.server/
 llc_cloner_win32/
 llc_test_core/codex_build
 /llc_test_core_[0-9]*/
+/llc/gpk_*
