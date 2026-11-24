@@ -183,8 +183,10 @@ sttc ::llc::err_t	readFromPipes			(SProcess & process, SProcessHandles & handles
 	while(descriptorsOpen) {
 		cnst int pollResult = ::poll(descriptors, 2, -1);
 		if(0 > pollResult) {
-			if_true_fef(EINTR == errno, ("Failed waiting for child process output. errno: %i.", errno);
-			continue;
+			if(EINTR == errno)
+				continue;
+			error_printf("Failed waiting for child process output. errno: %i.", errno);
+			return -1;
 		}
 		for(::llc::u0_t index = 0; index < 2; ++index) {
 			::pollfd & descriptor = descriptors[index];
@@ -205,7 +207,10 @@ sttc ::llc::err_t	readFromPipes			(SProcess & process, SProcessHandles & handles
 			}
 			if(0 > bytesRead && EINTR == errno)
 				continue;
-			if_true_fef(0 > bytesRead && EAGAIN != errno && EWOULDBLOCK != errno, ("Failed reading child process output. errno: %i.", errno);
+			if(0 > bytesRead && EAGAIN != errno && EWOULDBLOCK != errno) {
+				error_printf("Failed reading child process output. errno: %i.", errno);
+				return -1;
+			}
 			if(0 == bytesRead || descriptor.revents & (POLLHUP | POLLERR | POLLNVAL)) {
 				if(0 == index) {
 					if_fail_fe(::closeDescriptor(handles.ChildStd_OUT_Read));

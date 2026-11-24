@@ -204,6 +204,7 @@ namespace llc
 	};
 
 	struct SControlTable {
+		::llc::n2u1_t						LastSize		= {};
 		::llc::apod<::llc::SControlState		>	States			= {};
 		::llc::aobj<::llc::apod<::llc::STextState>> TextState	= {};
 		::llc::apod<::llc::SControlPlacement	>	Placement		= {};
@@ -237,6 +238,11 @@ namespace llc
 		inline	bool		IsUnused		(cid_t iControl)		const	noexcept	{ return States[iControl].IsUnused   (); }
 	};
 
+	::llc::err_t		controlHidden					(const ::llc::SControlTable & controls, ::llc::cid_t iControl);
+	::llc::err_t		controlDisabled				(const ::llc::SControlTable & controls, ::llc::cid_t iControl);
+	::llc::err_t		controlInvalid					(const ::llc::SControlTable & controls, ::llc::cid_t iControl);
+	::llc::err_t		controlMetricsInvalidate		(::llc::SControlTable & controls, ::llc::cid_t iControl);
+	::llc::err_t		controlUpdateHierarchy			(::llc::SControlTable & controls, ::llc::cid_t iControl, const ::llc::n2u1_t & targetMetrics);
 	::llc::cid_t		controlCreate					(::llc::SControlTable & gui, ::llc::vs1_t defaultColors);
 } // namespace
 

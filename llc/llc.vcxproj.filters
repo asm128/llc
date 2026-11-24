@@ -270,6 +270,12 @@
     <ClInclude Include="llc_deflate.h">
       <Filter>encoding</Filter>
     </ClInclude>
+    <ClInclude Include="llc_dialog.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_dialog_controls.h">
+      <Filter>gui</Filter>
+    </ClInclude>
     <ClInclude Include="llc_encoding.h">
       <Filter>encoding</Filter>
     </ClInclude>
@@ -923,6 +929,9 @@
     <ClCompile Include="llc_deflate.cpp">
       <Filter>encoding</Filter>
     </ClCompile>
+    <ClCompile Include="llc_dialog.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
     <ClCompile Include="llc_encoding.cpp">
       <Filter>encoding</Filter>
     </ClCompile>
@@ -951,6 +960,9 @@
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui_control.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_gui_control_table.cpp">
       <Filter>gui</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui_checkbox.cpp">

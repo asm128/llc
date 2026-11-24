@@ -34,7 +34,6 @@ namespace llc
 	};
 
 	struct SGUI {
-		::llc::n2u1_t						LastSize			= {};
 		::llc::n2f2_t						CursorPos			= {};
 		::llc::SControlTable				Controls			= {};
 		::llc::pobj<::llc::SGUIColors>		Colors;
@@ -53,6 +52,7 @@ namespace llc
 	// Loaded text views borrow input bytes; keep the input storage alive while the GUI uses them.
 	::llc::err_t			guiLoad							(::llc::SGUI & gui, ::llc::vcu0_t & input);
 	::llc::err_t			guiProcessInput					(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> in_Events = {});
+	::llc::err_t			guiUpdate						(::llc::SGUI & gui, const ::llc::n2u1_t & targetMetrics);
 	::llc::err_t			guiUpdateMetrics				(::llc::SGUI & gui, const ::llc::n2u1_t & targetSize, bool forceUpdate);
 	// Process input against the previous update, apply changes, then update metrics before drawing.
 	// Drawing does not update layout or adopt the render target's size.

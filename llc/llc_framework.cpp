@@ -30,16 +30,12 @@ static	::llc::err_t	updateDPI									(::llc::SFramework & framework)											
 #if defined(LLC_WINDOWS7_COMPAT)
 		if((framework.GUI->Zoom.DPI * 96).u2() != dpi) {
 			framework.GUI->Zoom.DPI																	= {dpi.x / 96.0, dpi.y / 96.0};
-			::llc::pobj<::llc::SWindow::TOffscreen>												offscreen									= framework.RootWindow.BackBuffer;
-			::llc::guiUpdateMetrics(*framework.GUI, offscreen->Color.View.metrics().u1(), true);
 		}
 #else
 		HMONITOR				hMonitor									= ::MonitorFromPoint(point, MONITOR_DEFAULTTONEAREST);
 		HRESULT			hr											= ::GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpi.x, &dpi.y);
 		if(0 == hr && (framework.GUI->Zoom.DPI * 96).u2() != dpi) {
 			framework.GUI->Zoom.DPI																	= {dpi.x / 96.0, dpi.y / 96.0};
-			::llc::pobj<::llc::rt<::llc::SFramework::TTexel, uint32_t>>					offscreen									= framework.RootWindow.BackBuffer;
-			::llc::guiUpdateMetrics(*framework.GUI, offscreen->Color.View.metrics(), true);
 		}
 #endif
 	}
@@ -158,17 +154,12 @@ static	::llc::err_t	updateDPI									(::llc::SFramework & framework)											
 				else
 					gui.Zoom.ZoomLevel		*= .5;
 			}
-			::llc::guiUpdateMetrics(gui, framework.RootWindow.Size, true);
 		}
 	}
 	if_fail_fe(::updateDPI(framework));
-	if(gui.LastSize != mainWindow.Size || gui.LastZoom != gui.Zoom) {
-		for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
-			gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
-	}
 	{
 		::std::lock_guard lock(framework.LockGUI);
-		return ::llc::guiUpdateMetrics(gui, mainWindow.Size, false);
+		return ::llc::guiUpdate(gui, mainWindow.Size);
 	}
 }
 

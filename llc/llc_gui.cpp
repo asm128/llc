@@ -68,11 +68,7 @@
 }
 
 ::llc::err_t			llc::controlInvalid			(const ::llc::SGUI & gui, cid_t iControl)				{
-	if(gui.Controls.States.size() <= ::llc::u2_t(iControl)	) 
-		return -1;
-	if(gui.Controls.IsUnused(iControl)) 
-		return -1;
-	return 0;
+	return ::llc::controlInvalid(gui.Controls, iControl);
 }
 
 static	::llc::err_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::llc::view<const ::llc::bgra> & colors, ::llc::u2_t iShades)	{
@@ -284,7 +280,7 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	for(::llc::u2_t iFont = 0; iFont < g_managedFonts.Fonts.size(); ++iFont)
 		gui.Fonts[iFont] = g_managedFonts.Fonts[iFont];
 
-	if_fail_fe(llc::guiUpdateMetrics(gui, gui.LastSize, true));
+	if_fail_fe(llc::guiUpdateMetrics(gui, gui.Controls.LastSize, true));
 	return 0;
 }
 
@@ -305,6 +301,25 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 		gui.SelectedFont = ::llc::u1_t(gui.Fonts.size() - 1);
 
 	return ::llc::controlCreate(gui.Controls, gui.Colors->DefaultColors);
+}
+
+::llc::err_t			llc::guiUpdate			(::llc::SGUI & gui, const ::llc::n2u1_t & targetMetrics) {
+	if_true_block_logf(info_printf, gui.Controls.LastSize != targetMetrics || gui.LastZoom != gui.Zoom, {
+			info_printf("GUI Render target size or dpi changed changed.");
+			for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
+				gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
+			gui.Controls.LastSize		= targetMetrics;
+			gui.LastZoom				= gui.Zoom;
+		}, "%ux%u != %ux%u || %f != %f"
+		, gui.Controls.LastSize.x, gui.Controls.LastSize.y
+		, targetMetrics.x, targetMetrics.y
+		, gui.LastZoom, gui.Zoom
+		);
+	if_fail_fe(::llc::guiUpdateMetrics(gui, targetMetrics, false));
+	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
+		if(false == ::llc::controlInvalid(gui.Controls, (::llc::cid_t)iControl) && ::llc::controlInvalid(gui.Controls, gui.Controls.States[iControl].Parent))
+			if_fail_e(::llc::controlUpdateHierarchy(gui.Controls, (::llc::cid_t)iControl, targetMetrics));
+	return 0;
 }
 
 ::llc::err_t			llc::controlDelete		(::llc::SGUI & gui, cid_t iControl, bool recursive)			{
@@ -566,8 +581,6 @@ static	::llc::err_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iContr
 		if(::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent) && false == ::llc::controlInvalid(gui, (::llc::cid_t)iControl)) {
 			if_fail_fef(llc::controlUpdateMetricsTopToDown(gui, (::llc::cid_t)iControl, targetSize, forceUpdate), "Failed to update metrics for control %i", iControl);
 		}
-	gui.LastSize = targetSize;
-	gui.LastZoom = gui.Zoom;
 	return 0;
 }
 
@@ -613,7 +626,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 }
 
 ::llc::err_t			llc::guiProcessInput	(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> sysEvents)	{
-	if(0 == gui.LastSize.LengthSquared()) 
+	if(0 == gui.Controls.LastSize.LengthSquared())
 		return 0;
 
 	gui.Controls.EventQueue.clear();
@@ -678,22 +691,15 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 }
 
 ::llc::err_t			llc::controlHidden		(const ::llc::SGUI & gui, ::llc::cid_t iControl)	{
-	bool						imHidden				= ::llc::controlInvalid(gui, iControl) || gui.Controls.States[iControl].IsHidden();
-	return imHidden ? imHidden : (0 == ::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent) && ::llc::controlHidden(gui, gui.Controls.States[iControl].Parent));
+	return ::llc::controlHidden(gui.Controls, iControl);
 }
 
 ::llc::err_t			llc::controlDisabled	(const ::llc::SGUI & gui, ::llc::cid_t iControl)	{
-	bool						imDisabled				= ::llc::controlInvalid(gui, iControl) || gui.Controls.States[iControl].IsDisabled();
-	return imDisabled ? imDisabled : (false == ::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent) && ::llc::controlDisabled(gui, gui.Controls.States[iControl].Parent));
+	return ::llc::controlDisabled(gui.Controls, iControl);
 }
 
 ::llc::err_t			llc::controlMetricsInvalidate	(::llc::SGUI & gui, ::llc::cid_t iControl)	{
-	gui.Controls.SetUpdated(iControl, false);
-	const ::llc::vcid			& controlChildren		= gui.Controls.Children[iControl];
-	for(::llc::u2_t iChild = 0, countChild = controlChildren.size(); iChild < countChild; ++iChild)
-		if_fail_fef(llc::controlMetricsInvalidate(gui, controlChildren[iChild]), "%s", "Invalid child?");
-
-	return 0;
+	return ::llc::controlMetricsInvalidate(gui.Controls, iControl);
 }
 
 ::llc::err_t			llc::guiGetProcessableControls	(const ::llc::SGUI & gui, ::llc::acid & controlIndices)													{
