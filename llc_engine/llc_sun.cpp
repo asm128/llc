@@ -9,7 +9,11 @@ double					llc::calcSunlightFactor(double daylightRatioExtra, uint32_t daylightO
 ::llc::n3f2_t			llc::calcSunPosition	()	{ 
 	const time_t				now						= time(0);
 	tm							ltm						= {};
+	#if defined(LLC_WINDOWS)
 	localtime_s(&ltm, &now);
+	#else
+	::localtime_r(&now, &ltm);
+	#endif
 
 	const uint32_t				hourInSeconds			= ltm.tm_hour * 60 * 60;
 	const uint32_t				minsInSeconds			= ltm.tm_min * 60;

@@ -248,7 +248,7 @@ static	::llc::err_t	initCloud				(::llc::SEngine & engine, int32_t iEntity, bool
 
 static	::llc::err_t	textureNumber			(::llc::g8bgra view, uint32_t number, const ::llc::SRasterFont & font) { 
 	sc_t						strNumber[4]			= {};
-	sprintf_s(strNumber, "%i", number);
+	::llc::sprintf_s(strNumber, "%i", number);
 	const ::llc::rect2s1_t		targetRect				=
 		{ {int16_t(view.metrics().x / 2 - (font.CharSize.x * strlen(strNumber)) / 2), int16_t(view.metrics().y / 2 - font.CharSize.y / 2)}
 		, font.CharSize.s1()

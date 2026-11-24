@@ -3,6 +3,7 @@
 #include "llc_view.h"
 #include "llc_array_obj.h"
 #include "llc_enum.h"
+#include <cfloat>
 
 #ifndef LLC_RIGIDBODY_H_23627
 #define LLC_RIGIDBODY_H_23627

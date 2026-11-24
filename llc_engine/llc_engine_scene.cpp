@@ -54,7 +54,9 @@ static	::llc::err_t	transformTriangles
 		 || transformedUVs.C.x > 1.0f
 		 || transformedUVs.C.y > 1.0f
 		) 
+		#if defined(LLC_WINDOWS)
 			_CrtDbgBreak();
+		#endif
 		output.UVs.push_back(transformedUVs);
 	}
 	return 0; 

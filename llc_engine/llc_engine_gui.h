@@ -50,7 +50,7 @@ namespace llc
 			if_fail_fe(Entities[GUI_ENTITY_Viewport]	= Engine.Clone(Entities[GUI_ENTITY_Button], false, false, false));
 			if_fail_fe(Entities[GUI_ENTITY_Palette]	= Engine.Clone(Entities[GUI_ENTITY_Button], false, false, false));
 
-			rees_if(0 != ::llc::controlCreate(GUI));
+			if_true_ve(-1, 0 != ::llc::controlCreate(GUI));
 			return 0;
 		}
 

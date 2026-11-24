@@ -209,7 +209,7 @@
 
 ::llc::err_t			llc::SEngine::CreateImageFromFile(const ::llc::vcst_t & fileFolder, const ::llc::vcst_t & fileName) {
 	sc_t						filePath	[2048]				= {};
-	if_fail_fe(sprintf_s(filePath, "%.*s/%.*s", (int)fileFolder.size(), fileFolder.begin(), (int)fileName.size(), fileName.begin()));
+	if_fail_fe(::llc::sprintf_s(filePath, "%.*s/%.*s", (int)fileFolder.size(), fileFolder.begin(), (int)fileName.size(), fileName.begin()));
 	int32_t						index							= Images.Keys.find(filePath);
 	if(index != -1)
 		return Images.Values[index];

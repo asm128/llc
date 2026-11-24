@@ -404,9 +404,9 @@ static	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
 ::llc::err_t			llc::mainWindowCreate	(::llc::SWindow& mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput>& displayInput)	{
 	if(0 == displayInput.get_ref())
 		displayInput.create();
+	::llc::SWindowPlatformDetail	& displayDetail			= mainWindow.PlatformDetail;
 
 #if defined(LLC_WINDOWS)
-	::llc::SWindowPlatformDetail	& displayDetail			= mainWindow.PlatformDetail;
 	HINSTANCE						hInstance				= runtimeValues.hInstance;
 	::initWndClass(hInstance, ::llc::SWindowPlatformDetail::DefaultRootWindowClassName.begin(), ::mainWndProc, displayDetail.WindowClass);
 	::RegisterClassEx(&displayDetail.WindowClass);
