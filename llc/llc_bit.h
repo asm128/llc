@@ -86,12 +86,7 @@ namespace llc
 		}
 
 	};
-	tplT ndxp	T		bit_make		(u0_t bitIndex)	nxpt	{
-#ifdef LLC_DEBUG_ENABLED
-//		if_true_tef(bitIndex >= (szof(T) * BYTE_SIZE), "bit index: %i", bitIndex);
-#endif // LLC_DEBUG_ENABLED
-		rtrn (T)(((T)1) << bitIndex);
-	}
+	tplTnsix	T		bit_make		(u0_t bitIndex)	nxpt	{ rtrn (T)(((T)1) << bitIndex); }
 //#ifdef LLC_BIGENDIAN
 //	sinx	u0_t		le_byte_at		(::llc::u2_t bytes, u0_t byteIndex)	nxpt	{ return ((0xFF000000 >> (byteIndex * 8)) & bytes) >> ((szof(bytes) - byteIndex) * 8); }
 //#else
