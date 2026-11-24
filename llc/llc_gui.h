@@ -32,6 +32,7 @@ namespace llc
 		::llc::apod<::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>>
 											Palettes;
 	};
+	tydf SGUIColors SControlColors;
 
 	struct SGUI {
 		::llc::n2u1_t						LastSize			= {};
@@ -43,14 +44,19 @@ namespace llc
 
 		::llc::SGUIZoom						LastZoom			= {};
 		::llc::SGUIZoom						Zoom				= {};
-		uint16_t							SelectedFont		= 7;
-		uint16_t							ThemeDefault		= ::llc::ASCII_COLOR_CYAN * 16 + 8;
+		::llc::u1_t							SelectedFont		= 7;
+		::llc::u1_t							ThemeDefault		= ::llc::ASCII_COLOR_CYAN * 16 + 8;
 		::llc::GUI_COLOR_MODE				ColorModeDefault	= ::llc::GUI_COLOR_MODE_3D;//::llc::GUI_COLOR_MODE_DEFAULT;
 		bool								InputModeTouch		= true;
 	};
 
+	::llc::err_t			guiSave							(::llc::au0_t & output, const ::llc::SGUI & gui);
+	// Loaded text views borrow input bytes; keep the input storage alive while the GUI uses them.
+	::llc::err_t			guiLoad							(::llc::SGUI & gui, ::llc::vcu0_t & input);
 	::llc::err_t			guiProcessInput					(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> in_Events = {});
 	::llc::err_t			guiUpdateMetrics				(::llc::SGUI & gui, const ::llc::n2u1_t & targetSize, bool forceUpdate);
+	// Process input against the previous update, apply changes, then update metrics before drawing.
+	// Drawing does not update layout or adopt the render target's size.
 	::llc::err_t			guiDraw							(::llc::SGUI & gui, ::llc::g8bgra target);
 	::llc::err_t			guiGetProcessableControls		(const ::llc::SGUI & gui, ::llc::acid & controlIndices);
 	::llc::err_t			guiDeselect						(::llc::SGUI & gui);
@@ -61,9 +67,9 @@ namespace llc
 	::llc::cid_t			controlCreateChild				(::llc::SGUI & gui, cid_t iParent);
 	::llc::err_t			controlSetParent				(::llc::SGUI & gui, cid_t iControl, cid_t iParent);
 	::llc::err_t			controlDrawHierarchy			(::llc::SGUI & gui, cid_t iControl, ::llc::g8bgra target);
-	::llc::err_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, const ::llc::vcs & text);
+	::llc::err_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, vcst_t text);
 	::llc::err_t			controlFontSet					(::llc::SGUI & gui, cid_t iControl, int16_t iFont);
-	//::llc::err_t			controlUpdateMetrics			(::llc::SGUI & gui, int32_t iControl, const ::llc::n2<uint32_t> & targetSize);
+	//::llc::error_t			controlUpdateMetrics			(::llc::SGUI & gui, int32_t iControl, const ::llc::n2<::llc::u2_t> & targetSize);
 	::llc::err_t			controlUpdateMetricsTopToDown	(::llc::SGUI & gui, cid_t iControl, const ::llc::n2u1_t & targetSize, bool forceUpdate);
 	::llc::err_t			controlMetricsInvalidate		(::llc::SGUI & gui, cid_t iControl);
 	::llc::err_t			controlHidden					(const ::llc::SGUI & gui, cid_t iControl);

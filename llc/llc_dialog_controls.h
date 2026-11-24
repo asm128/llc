@@ -77,7 +77,7 @@ namespace llc
 		int64_t					ValueCurrent		= -1;
 		sc_t					ValueString	[64]	= {};
 
-		TCallback				FuncValueFormat		= []	(::llc::vcst_t & format, int64_t, const ::llc::minmax<int64_t> &)			mutable	{ format = ::llc::vcs("%lli"); return 0; };
+		TCallback				FuncValueFormat		= []	(::llc::vcst_t & format, int64_t, const ::llc::minmax<int64_t> &)			mutable	{ format = ::llc::vcst_t{"%lli"}; return 0; };
 		TCallback				FuncGetString		= [this](::llc::vcst_t & inouts, int64_t value, const ::llc::minmax<int64_t> &)			{ 
 			inouts	= {ValueString, (uint32_t)snprintf(ValueString, ::llc::size(ValueString) - 2, inouts.begin(), value)}; 
 			return 0; 
@@ -98,7 +98,7 @@ namespace llc
 		_tValue					ValueCurrent		= 0;
 		sc_t					ValueString	[64]	= {};
 
-		TCallback				FuncValueFormat	= [this](::llc::vcst_t & format, _tValue/*value*/, const ::llc::minmax<_tValue> &)	mutable	{ format = ::llc::vcs("%lli"); return 0; };
+		TCallback				FuncValueFormat	= [this](::llc::vcst_t & format, _tValue/*value*/, const ::llc::minmax<_tValue> &)	mutable	{ format = ::llc::vcst_t{"%lli"}; return 0; };
 		TCallback				FuncGetString	= [this](::llc::vcst_t & inouts, _tValue value, const ::llc::minmax<_tValue> &)			{ 
 			inouts	= {ValueString, (uint32_t)snprintf(ValueString, ::llc::size(ValueString) - 2, inouts.begin(), value)}; 
 			return 0; 
