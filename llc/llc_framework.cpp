@@ -374,6 +374,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 		const uint32_t			values[2]	= { window.PlatformDetail.IdDrawableBackPixmap
 			, XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_STRUCTURE_NOTIFY
 			| XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS  | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_BUTTON_MOTION | XCB_EVENT_MASK_POINTER_MOTION
+			| XCB_EVENT_MASK_FOCUS_CHANGE
 		};
 		xcb_create_window
 			( window.PlatformDetail.Connection			// connection
@@ -460,6 +461,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 		displayDetail.Connection	= xcb_connect(0, 0);
 	}
 	llc_necall(xcbWindowCreate(mainWindow), "%s", "Failed to create main window.");
+	if_fail_fe(::llc::eventEnqueueScreenCreate(mainWindow.EventQueue, {mainWindow.Size}));
 	(void)runtimeValues;
 #else
 	(void)runtimeValues;

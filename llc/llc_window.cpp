@@ -220,6 +220,10 @@ static	uint32_t	xcbTextCodePoint		(const ::llc::SWindowPlatformDetail & detail, 
 		switch(event->response_type & ~0x80) {
 		default					: break;
 		case XCB_EXPOSE			: displayInstance.Repaint = true; if_fail_e(::llc::eventEnqueueScreenRedraw(displayInstance.EventQueue, 0)); break;
+		case XCB_FOCUS_IN		: if_fail_e(::llc::eventEnqueueScreenActivate(displayInstance.EventQueue, 0)); break;
+		case XCB_FOCUS_OUT		: if_fail_e(::llc::eventEnqueueScreenDeactivate(displayInstance.EventQueue, 0)); break;
+		case XCB_MAP_NOTIFY		: displayInstance.Repaint = true; if_fail_e(::llc::eventEnqueueScreenShow(displayInstance.EventQueue, 0)); break;
+		case XCB_UNMAP_NOTIFY	: if_fail_e(::llc::eventEnqueueScreenHide(displayInstance.EventQueue, 0)); break;
 		case XCB_KEY_PRESS		:
 		case XCB_KEY_RELEASE	: {
 			const bool				pressed						= XCB_KEY_PRESS == (event->response_type & ~0x80);
@@ -279,9 +283,21 @@ static	uint32_t	xcbTextCodePoint		(const ::llc::SWindowPlatformDetail & detail, 
 		case XCB_CONFIGURE_NOTIFY: {
 			const xcb_configure_notify_event_t & configure = *(xcb_configure_notify_event_t*)event;
 			const ::llc::n2<uint16_t> size = {configure.width, configure.height};
+			const ::llc::n2<uint16_t> position = {(uint16_t)configure.x, (uint16_t)configure.y};
+			if(false == displayInstance.FullScreen && (position.x != displayInstance.WindowedWindowRect.Left || position.y != displayInstance.WindowedWindowRect.Top)) {
+				displayInstance.WindowedWindowRect.Left = position.x;
+				displayInstance.WindowedWindowRect.Top = position.y;
+				displayInstance.WindowedWindowRect.Right = position.x + size.x;
+				displayInstance.WindowedWindowRect.Bottom = position.y + size.y;
+				if_fail_e(::llc::eventEnqueueScreenMove(displayInstance.EventQueue, position));
+			}
 			if(size != displayInstance.Size) {
 				displayInstance.PreviousSize = displayInstance.Size;
 				displayInstance.Size = size;
+				if(false == displayInstance.FullScreen) {
+					displayInstance.WindowedWindowRect.Right = displayInstance.WindowedWindowRect.Left + size.x;
+					displayInstance.WindowedWindowRect.Bottom = displayInstance.WindowedWindowRect.Top + size.y;
+				}
 				displayInstance.Resized = displayInstance.Repaint = true;
 				if_fail_e(::llc::eventEnqueueScreenResize(displayInstance.EventQueue, size));
 			}
