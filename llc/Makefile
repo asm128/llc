@@ -1,8 +1,11 @@
-Platform		:= esp32 # Linux.ARM
+Platform		?= Linux.x64
 ProjectName		:= llc
 Configuration	:= Release
+ExtraIncDir		?=
+ExcludeSrc		?=
+DefaultExcludeSrc	:= llc_test_core.cpp
 
-C_DEFS			:= -DNOMINMAX
+C_DEFS			:= -DNOMINMAX -DLLC_DEBUG_ENABLED -DLLC_XCB
 OPT				:= 3
 
 ifeq ($(DEBUG), 1)
@@ -15,32 +18,27 @@ OutDir	:= ../$(Platform).$(Configuration)
 IntDir	:= ../obj/$(Platform).$(Configuration)/$(ProjectName)
 
 OBJDIRS	:= $(patsubst %, $(IntDir), $(ProjectName))
-INCDIR	:= $(patsubst %,-I%,$(IncDir))
+INCDIR	:= $(patsubst %,-I%,$(ExtraIncDir))
 
-CFLAGS	:= -std=c++17 -Wall -O$(OPT) $(INCDIR) $(C_DEFS)
+CFLAGS	?= -std=c++20 -Wall -O$(OPT) $(INCDIR) $(C_DEFS)
 CC		:= g++
 
-_OBJ	:= $(patsubst %.cpp,%.o,$(wildcard *.cpp))
+_SRC	:= $(filter-out $(DefaultExcludeSrc) $(ExcludeSrc),$(wildcard *.cpp))
+_OBJ	:= $(patsubst %.cpp,%.o,$(_SRC))
 OBJ		:= $(patsubst %,$(IntDir)/%,$(_OBJ))
 
-# Platform-specific flags
-C_DEFS_LINUX	:= -DLLC_DEBUG_ENABLED -DLLC_XCB
-C_DEFS_ESP32	:= -DLLC_DEBUG_ENABLED
+all: build
 
-all: linux esp32
+build: $(OutDir)/$(ProjectName).a
 
-linux: PLATFORM_C_DEFS := $(C_DEFS_LINUX) # Platform-specific definitions
-linux: $(OutDir)/$(ProjectName).a
-
-esp32: PLATFORM_C_DEFS := $(C_DEFS_ESP32) # Platform-specific definitions
-esp32: $(OutDir)/$(ProjectName).a
+linux: build
 
 $(OutDir)/$(ProjectName).a: $(OBJDIRS) $(OBJ)
 	mkdir -p $(OutDir)
 	ar rcs $@ $(OBJ)
 
 $(IntDir)/%.o: %.cpp
-	$(CC) $(CFLAGS) $(PLATFORM_C_DEFS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIRS):
 	mkdir -p $@
