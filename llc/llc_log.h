@@ -463,6 +463,7 @@ namespace llc
 #define if_true_e  if_true_log_error
 #define if_true_w  if_true_log_warning
 #define if_true_i  if_true_log_info
+#define if_true_if if_true_logf_info
 #define if_true_v  if_true_log_verbose
 #define if_fail_a  if_fail_log_always
 #define if_fail_e  if_fail_log_error

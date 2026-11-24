@@ -117,21 +117,21 @@ LLC_USING_TYPEINT();
 	return 0;
 }
 
-//::llc::error_t			llc::tcpipAddressFromSockaddr	(const sockaddr_in & sockaddr_ipv4, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4, ::llc::u1_t * port)	{
-//#if defined(LLC_WINDOWS)
-//	llc_safe_assign(a1, (u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b1);
-//	llc_safe_assign(a2, (u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b2);
-//	llc_safe_assign(a3, (u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b3);
-//	llc_safe_assign(a4, (u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b4);
-//#else
-//	llc_safe_assign(a1, ::llc::byte_at(sockaddr_ipv4.sin_addr.s_addr, 0));
-//	llc_safe_assign(a2, ::llc::byte_at(sockaddr_ipv4.sin_addr.s_addr, 1));
-//	llc_safe_assign(a3, ::llc::byte_at(sockaddr_ipv4.sin_addr.s_addr, 2));
-//	llc_safe_assign(a4, ::llc::byte_at(sockaddr_ipv4.sin_addr.s_addr, 3));
-//#endif
-//	llc_safe_assign(port, (::llc::u1_t)ntohs(sockaddr_ipv4.sin_port));
-//	return 0;
-//}
+::llc::error_t			llc::tcpipAddressFromSockaddr	(const sockaddr_in & sockaddr_ipv4, ::llc::u0_t * a1, ::llc::u0_t * a2, ::llc::u0_t * a3, ::llc::u0_t * a4, ::llc::u1_t * port)	{
+#if defined(LLC_WINDOWS)
+	llc_safe_assign(a1, (::llc::u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b1);
+	llc_safe_assign(a2, (::llc::u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b2);
+	llc_safe_assign(a3, (::llc::u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b3);
+	llc_safe_assign(a4, (::llc::u0_t)sockaddr_ipv4.sin_addr.S_un.S_un_b.s_b4);
+#else
+	llc_safe_assign(a1, ::llc::byte_at(sockaddr_ipv4.sin_addr.s_addr, 0));
+	llc_safe_assign(a2, ::llc::byte_at(sockaddr_ipv4.sin_addr.s_addr, 1));
+	llc_safe_assign(a3, ::llc::byte_at(sockaddr_ipv4.sin_addr.s_addr, 2));
+	llc_safe_assign(a4, ::llc::byte_at(sockaddr_ipv4.sin_addr.s_addr, 3));
+#endif
+	llc_safe_assign(port, (::llc::u1_t)ntohs(sockaddr_ipv4.sin_port));
+	return 0;
+}
 ::llc::error_t			llc::tcpipAddressToSockaddr		(::llc::u2_t address, ::llc::u1_t port, sockaddr_in & sockaddr_ipv4) {
 	sockaddr_ipv4				= {};
 	sockaddr_ipv4.sin_family	= AF_INET;
@@ -162,11 +162,13 @@ LLC_USING_TYPEINT();
 	return 0;
 }
 
-::llc::error_t			llc::tcpipAddress	(SOCKET socket, ::llc::u2_t & ip, ::llc::u1_t & port) {
-	sockaddr_in					sockaddr_ipv4		= {};
-	socklen_t					len					= szof(sockaddr_in);
-	if_true_fef(getsockname(socket, (sockaddr*)&sockaddr_ipv4, &len) != 0, "%s", "getpeername failed.");
-	return ::llc::tcpipAddressFromSockaddr(sockaddr_ipv4, ip, port);
+namespace llc {
+	::llc::error_t			tcpipAddress	(SOCKET socket, ::llc::u2_t & ip, ::llc::u1_t & port) {
+		sockaddr_in					sockaddr_ipv4		= {};
+		socklen_t					len					= szof(sockaddr_in);
+		if_true_fef(getsockname(socket, (sockaddr*)&sockaddr_ipv4, &len) != 0, "%s", "getpeername failed.");
+		return ::llc::tcpipAddressFromSockaddr(sockaddr_ipv4, ip, port);
+	}
 }
 
 ::llc::error_t			llc::tcpipAddress	(::llc::u1_t portRequested, ::llc::u2_t adapterIndex, TRANSPORT_PROTOCOL mode, u0_t * a1, u0_t * a2, u0_t * a3, u0_t * a4)										{
