@@ -68,6 +68,7 @@
     <ClCompile Include="llc_test_gui.cpp" />
     <ClCompile Include="llc_test_input.cpp" />
     <ClCompile Include="llc_test_json.cpp" />
+    <ClCompile Include="llc_test_index.cpp" />
     <ClCompile Include="llc_test_json_expression.cpp" />
     <ClCompile Include="llc_test_keyval.cpp" />
     <ClCompile Include="llc_test_label.cpp" />

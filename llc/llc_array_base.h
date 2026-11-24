@@ -40,7 +40,7 @@ namespace llc
 	// Base for arrays that keeps track of its actual size.
 #pragma pack(push, 1)
 	tplT class array_base : public view<T> {
-		static	::llc::err_t	calc_reserve_count		(u2_c newCountRequested, u2_t & outCount)	noexcept	{ 
+		static	err_t		calc_reserve_count		(u2_c newCountRequested, u2_t & outCount)	noexcept	{ 
 			stxp	u2_t			MAX_COUNT				= 0x3FFFFFFFU;
 			if(MAX_COUNT < newCountRequested)
 				return (u2_t)-1;
@@ -49,7 +49,7 @@ namespace llc
 #else
 			u2_c				desiredCount			= 2 + newCountRequested + (newCountRequested >> 2);
 #endif
-			return outCount = (desiredCount > MAX_COUNT || desiredCount < newCountRequested) ? MAX_COUNT : desiredCount; 
+			return err_t(outCount = (desiredCount > MAX_COUNT || desiredCount < newCountRequested) ? MAX_COUNT : desiredCount); 
 		}
 
 	protected:
