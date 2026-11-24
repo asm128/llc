@@ -117,9 +117,6 @@
     <ClCompile Include="llc_test_png.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llc_test_process.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="llc_test_process_broker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
