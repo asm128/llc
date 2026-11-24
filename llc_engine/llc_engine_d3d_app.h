@@ -51,13 +51,13 @@ namespace llc
 			Texture2D				= {};
 		}
 
-		::llc::error_t			CreateSizeDependentResources(ID3D11Device3 * d3dDevice, ::llc::n2u1_t windowSize)	{
-			llc_necs(RenderTarget.resize(windowSize.u2(), {0, 0, 0, 0}));
-			llc_necs(llc::d3dCreateTextureDynamic(d3dDevice, Texture2D, ShaderResourceView, RenderTarget));
+		::llc::err_t			CreateSizeDependentResources(ID3D11Device3 * d3dDevice, ::llc::n2u1_t windowSize)	{
+			if_fail_fe(RenderTarget.resize(windowSize.u2(), {0, 0, 0, 0}));
+			if_fail_fe(llc::d3dCreateTextureDynamic(d3dDevice, Texture2D, ShaderResourceView, RenderTarget));
 			return 0;
 		}
 
-		::llc::error_t			CreateDeviceResources		(ID3D11Device3 * d3dDevice)	{
+		::llc::err_t			CreateDeviceResources		(ID3D11Device3 * d3dDevice)	{
 			{		
 				::llc::pcom<ID3D11Buffer>	constantBuffer;
 				D3D11_BUFFER_DESC			constantBufferDesc			= {sizeof(::llc::SRenderNodeConstants)};
@@ -79,7 +79,7 @@ namespace llc
 
 				::llc::vcst_t					shaderName					= "vsGUI";
 				sc_t						shaderFileName	[1024]		= {};
-				cnstxpr	D3D11_INPUT_ELEMENT_DESC	vertexDesc []		=
+				cxpr	D3D11_INPUT_ELEMENT_DESC	vertexDesc []		=
 					{ { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 00, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					, { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					};
@@ -203,7 +203,7 @@ namespace llc
 
 	};
 
-	::llc::error_t			d3dGUIDraw				(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff);
+	::llc::err_t			d3dGUIDraw				(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff);
 
 	struct SD3DApplication : DX::IDeviceNotify {
 		::llc::pobj<::llc::SEngineGraphics>		EngineGraphics;
@@ -214,9 +214,9 @@ namespace llc
 		::llc::SD3DGUIResources<::llc::bgra>	GUIStuff				;
 	
 		virtual void			OnDeviceLost			() { return ReleaseDeviceResources(); }
-		virtual ::llc::error_t	OnDeviceRestored		() { return CreateDeviceResources(*EngineGraphics); }
+		virtual ::llc::err_t	OnDeviceRestored		() { return CreateDeviceResources(*EngineGraphics); }
 
-		::llc::error_t			Shutdown				()	{
+		::llc::err_t			Shutdown				()	{
 			DeviceResources->m_swapChain->SetFullscreenState(FALSE, 0);
 			ReleaseDeviceResources();
 			Scene			= {};
@@ -225,14 +225,14 @@ namespace llc
 			DeviceResources	= {};
 			return 0;
 		}
-		::llc::error_t			Initialize				(HWND hWnd, const ::llc::pobj<::llc::SEngineGraphics> & engineGraphics)	{
+		::llc::err_t			Initialize				(HWND hWnd, const ::llc::pobj<::llc::SEngineGraphics> & engineGraphics)	{
 			EngineGraphics			= engineGraphics;
 
-			llc_necs(DeviceResources->Initialize());
-			llc_necs(DeviceResources->SetWindow(hWnd));
+			if_fail_fe(DeviceResources->Initialize());
+			if_fail_fe(DeviceResources->SetWindow(hWnd));
 			DeviceResources->RegisterDeviceNotify(this);
-			llc_necs(Scene.Initialize(DeviceResources));
-			llc_necs(Text .Initialize(DeviceResources));
+			if_fail_fe(Scene.Initialize(DeviceResources));
+			if_fail_fe(Text .Initialize(DeviceResources));
 			return 0;
 		}
 
@@ -244,36 +244,36 @@ namespace llc
 		}
 		// Notifies renderers that device resources may now be recreated.
 
-		::llc::error_t			CreateDeviceDependentEngineResources(ID3D11Device3 * d3dDevice,  const ::llc::SEngineGraphics & engineGraphics)	{
-			llc_necs(llc::d3dCreateBuffersFromEngineMeshes		(d3dDevice, engineGraphics.Meshes	, engineGraphics.Buffers, Scene.IndexBuffer, Scene.VertexBuffer));
-			llc_necs(llc::d3dCreateTexturesFromEngineSurfaces		(d3dDevice, engineGraphics.Surfaces	, Scene.ShaderResourceView));
-			llc_necs(llc::d3dCreatePixelShadersFromEngineShaders	(d3dDevice, engineGraphics.Shaders	, Scene.PixelShader));
+		::llc::err_t			CreateDeviceDependentEngineResources(ID3D11Device3 * d3dDevice,  const ::llc::SEngineGraphics & engineGraphics)	{
+			if_fail_fe(llc::d3dCreateBuffersFromEngineMeshes		(d3dDevice, engineGraphics.Meshes	, engineGraphics.Buffers, Scene.IndexBuffer, Scene.VertexBuffer));
+			if_fail_fe(llc::d3dCreateTexturesFromEngineSurfaces		(d3dDevice, engineGraphics.Surfaces	, Scene.ShaderResourceView));
+			if_fail_fe(llc::d3dCreatePixelShadersFromEngineShaders	(d3dDevice, engineGraphics.Shaders	, Scene.PixelShader));
 			return 0;
 		}
-		::llc::error_t			CreateDeviceResources	(const ::llc::SEngineGraphics & engineGraphics)	{
+		::llc::err_t			CreateDeviceResources	(const ::llc::SEngineGraphics & engineGraphics)	{
 			ID3D11Device3				* pd3dDevice			= DeviceResources->GetD3DDevice();
-			llc_necs(Scene		.CreateDeviceResources(pd3dDevice));
-			llc_necs(Text		.CreateDeviceResources(DeviceResources->GetD2DDeviceContext()));
-			llc_necs(GUIStuff	.CreateDeviceResources(pd3dDevice));
-			llc_necs(CreateDeviceDependentEngineResources(pd3dDevice, engineGraphics));
+			if_fail_fe(Scene		.CreateDeviceResources(pd3dDevice));
+			if_fail_fe(Text		.CreateDeviceResources(DeviceResources->GetD2DDeviceContext()));
+			if_fail_fe(GUIStuff	.CreateDeviceResources(pd3dDevice));
+			if_fail_fe(CreateDeviceDependentEngineResources(pd3dDevice, engineGraphics));
 			return 0; 
 		}
 
-		::llc::error_t			CreateSizeDependentResources(::llc::n2u1_t windowSize)	{
-			llc_necs(Scene		.CreateSizeDependentResources(DeviceResources->GetOutputSize(), DeviceResources->GetOrientationTransform3D()));
-			llc_necs(GUIStuff	.CreateSizeDependentResources(DeviceResources->GetD3DDevice(), windowSize));
+		::llc::err_t			CreateSizeDependentResources(::llc::n2u1_t windowSize)	{
+			if_fail_fe(Scene		.CreateSizeDependentResources(DeviceResources->GetOutputSize(), DeviceResources->GetOrientationTransform3D()));
+			if_fail_fe(GUIStuff	.CreateSizeDependentResources(DeviceResources->GetD3DDevice(), windowSize));
 			return 0;
 		}
 
-		::llc::error_t			SetWindowSize			(::llc::n2u1_t windowSize)	{
-			llc_necs(DeviceResources->SetLogicalSize(windowSize.f2()));
-			llc_necs(CreateSizeDependentResources(windowSize));
+		::llc::err_t			SetWindowSize			(::llc::n2u1_t windowSize)	{
+			if_fail_fe(DeviceResources->SetLogicalSize(windowSize.f2()));
+			if_fail_fe(CreateSizeDependentResources(windowSize));
 			return 0;
 		}
 	};
 
-	::llc::error_t			d3dDrawEngineScene		(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
-	::llc::error_t			d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
+	::llc::err_t			d3dDrawEngineScene		(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
+	::llc::err_t			d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time = 0);
 };
 
 #endif // LLC_ENGINE_D3D_APP_H_28903749823

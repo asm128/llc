@@ -8,14 +8,15 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 		;
 }
 
-::llc::error_t			llc::viewportActivate	(::llc::SGUI & gui, ::llc::cid_t idParent, ::llc::view<cnst ::llc::SViewport> viewports, ::llc::u0_t iViewport) {
+::llc::err_t			llc::viewportActivate	(::llc::SGUI & gui, ::llc::cid_t idParent, ::llc::view<cnst ::llc::SViewport> viewports, ::llc::u0_t iViewport) {
 	if_true_fe(iViewport >= viewports.size());
 	cnst ::llc::cid_t			idRoot				= viewports[iViewport].IdControl;
 	::llc::acid					& parentChildren		= gui.Controls.Children[idParent];
 	if(0 == parentChildren.size() || parentChildren[parentChildren.size() - 1] != idRoot) {
 		cnst ::llc::err_t			iChild				= parentChildren.find(idRoot);
-		if(iChild >= 0)
+		if(iChild >= 0) {
 			if_fail_fe(parentChildren.remove((::llc::u2_t)iChild));
+		}
 		if_fail_fe(parentChildren.push_back(idRoot));
 	}
 	for(::llc::u0_t iOther = 0; iOther < viewports.size(); ++iOther) {
@@ -26,7 +27,7 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 	rtrn 0;
 }
 
-::llc::error_t			llc::viewportFold		(::llc::SGUI & gui, ::llc::SViewport & viewport) {
+::llc::err_t			llc::viewportFold		(::llc::SGUI & gui, ::llc::SViewport & viewport) {
 	::llc::SControlPlacement	& root					= gui.Controls.Placement[viewport.IdControl];
 	cnst ::llc::cid_t			idClient				= viewport.IdControls[::llc::VIEWPORT_CONTROL_TARGET];
 	if(viewport.Folded) {
@@ -42,7 +43,7 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 	rtrn ::llc::controlMetricsInvalidate(gui, viewport.IdControl);
 }
 
-::llc::error_t			llc::viewportInitialize	(::llc::SGUI & gui, ::llc::SViewport & viewport)			{
+::llc::err_t			llc::viewportInitialize	(::llc::SGUI & gui, ::llc::SViewport & viewport)			{
 	const ::llc::n2u0_t			fontCharSize			= gui.Fonts[gui.SelectedFont]->CharSize;
 	int16_t						heightTitleBar			= fontCharSize.y + 4;
 	::llc::u2_t					widthTarget				= 800;
@@ -61,10 +62,10 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 		const ::llc::u2_t				heightViewport			= (::llc::u2_t)(targetSize.y + ((int64_t)heightTitleBar + ::llc::controlNCSpacing(control).y));
 		control.Area.Size		= {(int16_t)widthViewport, (int16_t)heightViewport};
 		for(::llc::u2_t iElement = 0; iElement < viewport.IdControls.size(); ++iElement) {
-			llc_necs(viewport.IdControls[iElement] = ::llc::controlCreate(gui));
+			if_fail_fe(viewport.IdControls[iElement] = ::llc::controlCreate(gui));
 			::llc::SControlConstraints	& controlConstraints	= gui.Controls.Constraints	[viewport.IdControls[iElement]];
 			controlConstraints.AttachSizeToControl.x	= viewport.IdControls[iElement];
-			llc_necall(llc::controlSetParent(gui, viewport.IdControls[iElement], viewport.IdControl), "iElement: %i, viewport.IdControl: %i", iElement, viewport.IdControl);
+			if_fail_fef(llc::controlSetParent(gui, viewport.IdControls[iElement], viewport.IdControl), "iElement: %i, viewport.IdControl: %i", iElement, viewport.IdControl);
 		}
 		for(::llc::u2_t iElement = 0; iElement < VIEWPORT_CONTROL_TITLE; ++iElement) {
 			gui.Controls.Placement  [viewport.IdControls[iElement]].Area.Size			= {16, 16};

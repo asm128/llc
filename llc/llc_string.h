@@ -21,7 +21,7 @@ namespace llc
         tplN2u string & oper = (sc_c (&other)[N]) {
             u2_t count = 0;
             for(; count < N && other[count]; ++count) {}
-            gsthrow_if(resize(count) != (s2_t)count);
+            if_true_te(resize(count) != (s2_t)count);
             if(count) memcpy(Data, other, count * szof(sc_t));
             rtrn *this;
         }

@@ -119,7 +119,7 @@ sttc ::llc::err_t testBlockContainerNTS(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBlockContainer(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_block_container(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u1_t>(errors));
 	if_fail_fe(::testBlockContainerTypeLogged<::llc::u2_t>(errors));

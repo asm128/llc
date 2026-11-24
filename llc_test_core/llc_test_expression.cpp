@@ -25,7 +25,7 @@ GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, DATE					, 14, "Date field formattin
 sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::keyval<::llc::vcst_t> bindings[] = {{"hh", "03"}, {"mm", "04"}, {"empty", ""}};
 	::llc::string examples;
-	if_fail_fe(examples.append_string("Lambda bindings (quoted text is literal):\n"));
+	if_fail_fe(::llc::append_string(examples, "Lambda bindings (quoted text is literal):\n"));
 	for(cnst auto & binding : bindings)
 		if_fail_fe(::llc::append_strings(examples, binding.Key, " = \"", binding.Val, "\"\n"));
 	::llc::u2_t calls = 0;
@@ -49,7 +49,7 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	if_fail_fe(::llc::stripLiteralParse(state, tokens, format));
 	bindings[0].Val = "23";
 	::llc::string output;
-	if_fail_fe(output.append_string("prefix:"));
+	if_fail_fe(::llc::append_string(output, "prefix:"));
 	LLC_TEST_REQUIRE(errors, EXPRESSION_TEST_RESULT_REUSE, ::llc::failed(::llc::expressionStringFormat(format, tokens, resolve, output)));
 	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_REUSE, output != "prefix:23:04");
 	if_fail_fe(::llc::append_strings(examples, "\nReused tokens after hh = \"", bindings[0].Val, "\"; initial output = \"prefix:\"\nTemplate: \"", format, "\"\nExpected: \"prefix:23:04\"\nActual:   \"", output, "\"\n"));
@@ -103,7 +103,7 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	rtrn 0;
 }
 
-::llc::err_t testExpression(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
+::llc::err_t test_expression(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testExpressionFormatting(errors, outputFolder));
 	cnst ::llc::vcst_t			validExpression			= "application.test_udp";
 	::llc::SExpressionReader	validReader				= {};

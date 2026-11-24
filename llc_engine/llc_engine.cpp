@@ -4,7 +4,7 @@
 #include "llc_geometry_lh.h"
 #include "llc_engine_shader.h"
 
-::llc::error_t			llc::updateEntityTransforms			
+::llc::err_t			llc::updateEntityTransforms			
 	( ::llc::u2_t								iEntity
 	, const ::llc::SEntity			& entity
 	, const ::llc::SVirtualEntityManager	& managedEntities	
@@ -56,7 +56,7 @@
 	return 0;
 }
 
-::llc::error_t			llc::SEngine::CreateLight(::llc::LIGHT_TYPE type) {
+::llc::err_t			llc::SEngine::CreateLight(::llc::LIGHT_TYPE type) {
 	int32_t							iEntity				= this->Entities.Create();
 	::llc::SEntity			& entity			= Entities[iEntity];
 	entity.RenderNode			= Scene->RenderNodes.Create();
@@ -75,7 +75,7 @@
 	return iEntity;
 }
 
-::llc::error_t			llc::SEngine::CreateCamera() {
+::llc::err_t			llc::SEngine::CreateCamera() {
 	int32_t						iEntity						= this->Entities.Create();
 	::llc::SEntity				& entity					= Entities[iEntity];
 	entity.RenderNode		= Scene->RenderNodes.Create();
@@ -91,8 +91,8 @@
 	Scene->RenderNodes.Transforms	[entity.RenderNode]		= {};
 
 	int32_t						iSphere;
-	llc_necs(iSphere = CreateSphere({}, "Camera reference"));
-	llc_necs(Entities.SetParent(iSphere, iEntity));
+	if_fail_fe(iSphere = CreateSphere({}, "Camera reference"));
+	if_fail_fe(Entities.SetParent(iSphere, iEntity));
 	return iEntity;
 }
 
@@ -107,7 +107,7 @@
 	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Height * .5f, radius}, true, params, ParamsCylinder
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildCylinder(geometry, params));
+			if_fail_fe(llc::geometryBuildCylinder(geometry, params));
 			return 0;
 		});
 }
@@ -122,7 +122,7 @@
 ::llc::error_t			llc::SEngine::CreateGrid		(const ::llc::SParamsGrid & params, ::llc::vcst_t entityName)	{
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{params.Size.x * .5f, 0, params.Size.y * .5f}, true, params, ParamsGrid
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildGrid(geometry, params));
+			if_fail_fe(llc::geometryBuildGrid(geometry, params));
 			return 0;
 		});
 }
@@ -131,7 +131,7 @@
 	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Length * .5f, radius}, true, params, ParamsHelix
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildHelixHalf(geometry, params));
+			if_fail_fe(llc::geometryBuildHelixHalf(geometry, params));
 			return 0;
 		});
 }
@@ -140,7 +140,7 @@
 	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Length * .5f, radius}, true, params, ParamsHelix
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildHelix(geometry, params));
+			if_fail_fe(llc::geometryBuildHelix(geometry, params));
 			return 0;
 		});
 }
@@ -149,7 +149,7 @@
 	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Length * .5f, radius}, true, params, ParamsHelix
 		, [params](::llc::SGeometryBuffers & geometry) {
-			llc_necs(llc::geometryBuildHelix(geometry, params));
+			if_fail_fe(llc::geometryBuildHelix(geometry, params));
 			return 0;
 		});
 }
@@ -158,7 +158,7 @@
 	const float					radius							= ::llc::max(params.Radius.Min, params.Radius.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, params.Height * .5f, radius}, true, params, ParamsCylinderWall
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildCylinderWall(geometry, params));
+			if_fail_fe(llc::geometryBuildCylinderWall(geometry, params));
 			return 0;
 		});
 }
@@ -167,7 +167,7 @@
 	const float					radius							= params.Radius;
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, 0, radius}, true, params, ParamsCircleSide
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildCircleSide(geometry, params));
+			if_fail_fe(llc::geometryBuildCircleSide(geometry, params));
 			return 0;
 		});
 }
@@ -176,7 +176,7 @@
 	const float					radius							= params.Radius;
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, 0, radius}, true, params, ParamsDisc
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildDisc(geometry, params));
+			if_fail_fe(llc::geometryBuildDisc(geometry, params));
 			return 0;
 		});
 }
@@ -185,7 +185,7 @@
 	const float					radius							= params.Radius.Max;
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, radius, radius}, true, params, ParamsRingSide
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildRingSide(geometry, params));
+			if_fail_fe(llc::geometryBuildRingSide(geometry, params));
 			return 0;
 		});
 }
@@ -193,7 +193,7 @@
 	const float					radius							= params.Radius.Max;
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, radius, radius}, true, params, ParamsRingFlat
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildRingFlat(geometry, params));
+			if_fail_fe(llc::geometryBuildRingFlat(geometry, params));
 			return 0;
 		});
 }
@@ -202,7 +202,7 @@
 	const float					radius							= ::llc::max(params.RadiusYMax.Max, params.RadiusYMin.Max);
 	return CreateEntityFromGeometry(entityName, ::llc::n3f2_t{radius, radius, radius}, true, params, ParamsTube
 		, [params](::llc::SGeometryBuffers & geometry) { 
-			llc_necs(llc::geometryBuildRing(geometry, params));
+			if_fail_fe(llc::geometryBuildRing(geometry, params));
 			return 0;
 		});
 }
@@ -216,7 +216,7 @@
 
 	index					= Scene->Graphics->Surfaces.Create(::llc::label(filePath));
 	::llc::pobj<::llc::SSurface>	& surface					= Scene->Graphics->Surfaces[index];
-	llc_necs(llc::pngFileLoad(PNGCache, filePath, surface->Data));
+	if_fail_fe(llc::pngFileLoad(PNGCache, filePath, surface->Data));
 	surface->Desc.Dimensions	= PNGCache.Header.Size.u1();
 	surface->Desc.BitDepth		= PNGCache.Header.BitDepth;
 	surface->Desc.ColorType		= PNGCache.Header.ColorType;

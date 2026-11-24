@@ -26,7 +26,7 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	return lightFactor ? diffuserMaterial * (float)lightFactor : ::llc::BLACK;
 }
 
-::llc::error_t			llc::psSolid
+::llc::err_t			llc::psSolid
 	( const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -39,7 +39,7 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	return 0;
 }
 
-::llc::error_t			llc::psHidden
+::llc::err_t			llc::psHidden
 	( const ::llc::SEngineSceneConstants	& /*constants*/
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -50,7 +50,7 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	return 0;
 }
 
-::llc::error_t			llc::psGrid
+::llc::err_t			llc::psGrid
 	( const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -71,7 +71,7 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	return 0;
 }
 
-::llc::error_t			llc::psGridRuler
+::llc::err_t			llc::psGridRuler
 	( const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -102,7 +102,7 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	}
 }
 
-::llc::error_t			llc::psCylinderIn
+::llc::err_t			llc::psCylinderIn
 	( const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -114,9 +114,9 @@ static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2
 	return 0;
 }
 
-stacxpr	float			LIGHT_FACTOR_AMBIENT		= .025f;
-stacxpr	float			LIGHT_FACTOR_SPECULAR_POWER	= 30.0f;
-stacxpr	::llc::bgra8	PIXEL_BLACK_NUMBER			= ::llc::bgra{0, 0, 0, 255};
+stxp	float			LIGHT_FACTOR_AMBIENT		= .025f;
+stxp	float			LIGHT_FACTOR_SPECULAR_POWER	= 30.0f;
+stxp	::llc::bgra8	PIXEL_BLACK_NUMBER			= ::llc::bgra{0, 0, 0, 255};
 
 static	float			shaderRand				(const ::llc::n2f2_t & uv) {
 	const double				value					= ::sin(uv.Dot({12.9898f, 78.233f})) * 43758.5453123;
@@ -202,7 +202,7 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return materialColor;
 }
 
-::llc::error_t			llc::psCylinder
+::llc::err_t			llc::psCylinder
 	( const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -216,7 +216,7 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return 0;
 }
 
-::llc::error_t			llc::psSphereAxis
+::llc::err_t			llc::psSphereAxis
 	( const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -243,7 +243,7 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return 0;
 }
 
-::llc::error_t			llc::psSphereSolid
+::llc::err_t			llc::psSphereSolid
 	( const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -252,7 +252,7 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return 0;
 }
 
-::llc::error_t			llc::psSphereMeridian
+::llc::err_t			llc::psSphereMeridian
 	( const ::llc::SEngineSceneConstants	& constants
 	, const ::llc::SPSIn					& inPS
 	, ::llc::bgra							& outputPixel
@@ -303,12 +303,12 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return 0;
 }
 
-::llc::error_t			llc::psOrbit
+::llc::err_t			llc::psOrbit
 	( const ::llc::SEngineSceneConstants & constants
 	, const ::llc::SPSIn & inPS
 	, ::llc::bgra & outputPixel
 	) {
-	stacxpr float			margin						= .00025f;
+	stxp float			margin						= .00025f;
 	const float				u							= inPS.WeightedUV.x;
 	const bool				markCenter					= (u > 0 && u < margin) || ::abs(u - .25f) < margin || ::abs(u - .5f) < margin || ::abs(u - .75f) < margin || (u > 1 - margin && u < 1);
 	const float				diffuseFactor				= ::llc::max(0.0f, (float)::sin(inPS.WeightedPosition.Length() * 1200 + constants.Time * 10));
@@ -326,7 +326,7 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return 0;
 }
 
-::llc::error_t			llc::psSunfire
+::llc::err_t			llc::psSunfire
 	( const ::llc::SEngineSceneConstants & constants
 	, const ::llc::SPSIn & inPS
 	, ::llc::bgra & outputPixel
@@ -345,12 +345,12 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return 0;
 }
 
-::llc::error_t			llc::psGravityCenter
+::llc::err_t			llc::psGravityCenter
 	( const ::llc::SEngineSceneConstants & constants
 	, const ::llc::SPSIn & inPS
 	, ::llc::bgra & outputPixel
 	) {
-	stacxpr float			margin						= .00025f;
+	stxp float			margin						= .00025f;
 	const float				u							= inPS.WeightedUV.x;
 	const bool				markCenter					= (u > 0 && u < margin) || ::abs(u - .25f) < margin || ::abs(u - .5f) < margin || ::abs(u - .75f) < margin || (u > 1 - margin && u < 1);
 	float					diffuseFactor				= ::llc::max(0.0f, (float)::sin(::llc::n2f2_t{inPS.WeightedPosition.x, inPS.WeightedPosition.z}.Length() * 1200 + constants.Time * 10));
@@ -368,7 +368,7 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return 0;
 }
 
-::llc::error_t			llc::psSun
+::llc::err_t			llc::psSun
 	( const ::llc::SEngineSceneConstants & constants
 	, const ::llc::SPSIn & inPS
 	, ::llc::bgra & outputPixel
@@ -393,8 +393,8 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	return 0;
 }
 
-::llc::error_t llc::psTerrestrial(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-::llc::error_t llc::psEarth(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
+::llc::err_t llc::psTerrestrial(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
+::llc::err_t llc::psEarth(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
 	const ::llc::n3f2_t		lightVecW					= (constants.LightPosition - inPS.WeightedPosition).Normalize();
 	const float				lightFactor					= (float)inPS.WeightedNormal.Normalized().Dot(lightVecW);
 	const ::llc::rgbaf		dayTexture					= ::shaderSampleNearest(inPS, 0, inPS.WeightedUV);
@@ -406,12 +406,12 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	outputPixel				= finalColor.Clamp();
 	return 0;
 }
-::llc::error_t llc::psGasGiant  (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-::llc::error_t llc::psIceGiant  (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-::llc::error_t llc::psDwarf     (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
-::llc::error_t llc::psMassiveSolid(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
+::llc::err_t llc::psGasGiant  (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
+::llc::err_t llc::psIceGiant  (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
+::llc::err_t llc::psDwarf     (const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
+::llc::err_t llc::psMassiveSolid(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) { outputPixel = ::shaderPlanet(constants, inPS); return 0; }
 
-::llc::error_t llc::psCloud(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
+::llc::err_t llc::psCloud(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
 	const ::llc::rgbaf		cloudColor					= ::shaderSampleNearest(inPS, 0, inPS.WeightedUV);
 	const ::llc::rgbaf		cloudMask					= ::shaderSampleNearest(inPS, 1, inPS.WeightedUV);
 	const ::llc::n3f2_t		lightDelta					= constants.LightPosition - inPS.WeightedPosition;
@@ -425,11 +425,11 @@ static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constan
 	outputPixel				= finalColor.Clamp();
 	return 0;
 }
-::llc::error_t llc::psClouds(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
+::llc::err_t llc::psClouds(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS, ::llc::bgra & outputPixel) {
 	return ::llc::psCloud(constants, inPS, outputPixel);
 }
 
-::llc::error_t			llc::psBackgroundMilkyWay
+::llc::err_t			llc::psBackgroundMilkyWay
 	( const ::llc::SEngineSceneConstants & constants
 	, const ::llc::SPSIn & inPS
 	, ::llc::bgra & outputPixel

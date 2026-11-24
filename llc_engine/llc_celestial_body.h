@@ -71,15 +71,15 @@ namespace llc
 	};
 #pragma pack(pop)
 
-	stacxpr	size_t	s0						= sizeof(SDetailPlanet);
-	stacxpr	size_t	s1						= sizeof(SDetailStar);
+	stxp	size_t	s0						= sizeof(SDetailPlanet);
+	stxp	size_t	s1						= sizeof(SDetailStar);
 
-	::llc::error_t	loadStar				(::llc::SDetailStar    & body, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody);
-	::llc::error_t	loadPlanet				(::llc::SDetailPlanet  & body, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody);
-	::llc::error_t	loadCelestialBody		(::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody);
-	::llc::error_t	printStar				(const ::llc::SDetailStar    & body);
-	::llc::error_t	printPlanet				(const ::llc::SDetailPlanet  & body);
-	::llc::error_t	printCelestialBody		(const ::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type);
+	::llc::err_t	loadStar				(::llc::SDetailStar    & body, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody);
+	::llc::err_t	loadPlanet				(::llc::SDetailPlanet  & body, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody);
+	::llc::err_t	loadCelestialBody		(::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type, const ::llc::SJSONReader & jsonData, int32_t jsonIndexStellarBody);
+	::llc::err_t	printStar				(const ::llc::SDetailStar    & body);
+	::llc::err_t	printPlanet				(const ::llc::SDetailPlanet  & body);
+	::llc::err_t	printCelestialBody		(const ::llc::SCelestialBody & body, ::llc::CELESTIAL_BODY type);
 
 	CELESTIAL_BODY	bodyTypeFromString		(::llc::vcst_t bodyType);
 	PLANET_TYPE		bodySubtypeFromString	(::llc::vcst_t bodyType);

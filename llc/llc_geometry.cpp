@@ -5,7 +5,7 @@
 #include "llc_view_n3.h"
 #include "llc_sphere.h"
 
-::llc::error_t			llc::geometryBuildBox		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsBox & params) {
+::llc::err_t			llc::geometryBuildBox		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsBox & params) {
 	const ::llc::u2_t				offsetPositions				= geometry.Positions		.size(); geometry.Positions			.resize(offsetPositions			+ 24);
 	const ::llc::u2_t				offsetNormals				= geometry.Normals			.size(); geometry.Normals			.resize(offsetNormals			+ 24);
 	const ::llc::u2_t				offsetTextureCoords			= geometry.TextureCoords	.size(); geometry.TextureCoords		.resize(offsetTextureCoords		+ 24);
@@ -31,7 +31,7 @@ enum SQUARE_MODE
 	};
 
 tplt<tpnm _tIndex>
-static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionIndices, ::llc::u2_t vertexOffset, const ::llc::n2u1_t cellCount, bool counterClockwise, bool outward) {
+static	::llc::err_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionIndices, ::llc::u2_t vertexOffset, const ::llc::n2u1_t cellCount, bool counterClockwise, bool outward) {
 	const ::llc::u1_t				pitch						= cellCount.x + 1;								// 2 3 
 	const ::llc::astu2_t<4>		indices						= counterClockwise ? ::llc::astu2_t<4>{{1U, 0U, ::llc::u2_t(pitch + 1U), pitch}} : ::llc::astu2_t<4>{{0U, 1U, pitch, ::llc::u2_t(pitch + 1U)}};	// 0 1 2 3
 	const ::llc::u2_t				indices_modes[2][6]			=
@@ -53,7 +53,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	});
 	return 0;
 }
-::llc::error_t			llc::geometryBuildGrid		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsGrid & params) {
+::llc::err_t			llc::geometryBuildGrid		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsGrid & params) {
 	const ::llc::u2_t				vertexOffset				= geometry.Positions.size();
 	const ::llc::n2u1_t			vertexCount					= params.CellCount + ::llc::n2u1_t{1, 1};
 
@@ -72,7 +72,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	});
 	return ::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, params.Reverse, params.Outward); 
 }
-::llc::error_t			llc::geometryBuildSphere	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsSphere & params) {
+::llc::err_t			llc::geometryBuildSphere	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsSphere & params) {
 	const ::llc::u2_t				 vertexOffset				= geometry.Positions.size();
 	const ::llc::n2u1_t			vertexCount					= params.CellCount + ::llc::n2u1_t{1, 1};
 
@@ -90,13 +90,13 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 		for(::llc::u2_t x = 0; x < vertexCount.x; ++x) {
 			const double				currentX					= sliceScale.x * x + sliceOffset;
 			const ::llc::n3f3_t			coord 						= ::llc::n3f3_t{currentRadius * cos(currentX), -cos(currentY), currentRadius * sin(currentX)};
-			llc_necs(geometry.Normals	.push_back(params.Orientation.RotateVector((coord * reverseScale).f2())));
-			llc_necs(geometry.Positions	.push_back(params.Orientation.RotateVector((coord * params.Radius).f2() - params.Origin)));
+			if_fail_fe(geometry.Normals	.push_back(params.Orientation.RotateVector((coord * reverseScale).f2())));
+			if_fail_fe(geometry.Positions	.push_back(params.Orientation.RotateVector((coord * params.Radius).f2() - params.Origin)));
 		}
 	}
 	return ::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false); 
 }
-::llc::error_t			llc::geometryBuildCircleSide(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCircle & params) {
+::llc::err_t			llc::geometryBuildCircleSide(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCircle & params) {
 	const ::llc::u2_t				vertexOffset				= geometry.Positions.size();
 	const ::llc::u2_t				vertexCount					= (::llc::u2_t)params.Slices + 1;
 	const double				cellUnits					= 1.0 / params.Slices;
@@ -105,23 +105,23 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	const double				sliceOffset					= 0; //::llc::math_2pi * (1.0 - params.Circumference);
 
 	// -- Generate positions and texture coordinates
-	llc_necs(geometry.Positions		.push_back(params.Orientation.RotateVector(-params.Origin)));	// The first vertex is the center of the circle
-	llc_necs(geometry.TextureCoords	.push_back(::llc::n2f2_t{.5f, .5f}));					// The first vertex is the center of the circle
+	if_fail_fe(geometry.Positions		.push_back(params.Orientation.RotateVector(-params.Origin)));	// The first vertex is the center of the circle
+	if_fail_fe(geometry.TextureCoords	.push_back(::llc::n2f2_t{.5f, .5f}));					// The first vertex is the center of the circle
 	for(::llc::u2_t iVertex = 0; iVertex < vertexCount; ++iVertex) {
 		double						angle						= sliceScale * iVertex + sliceOffset;
-		llc_necs(geometry.Positions		.push_back(params.Orientation.RotateVector(::llc::n3f3_t{params.Radius}.RotateY(angle).f2() - params.Origin)));
-		llc_necs(geometry.TextureCoords	.push_back(::llc::n2f3_t{.5}.Rotate(angle).f2() + ::llc::n2f2_t{.5f, .5f}));
+		if_fail_fe(geometry.Positions		.push_back(params.Orientation.RotateVector(::llc::n3f3_t{params.Radius}.RotateY(angle).f2() - params.Origin)));
+		if_fail_fe(geometry.TextureCoords	.push_back(::llc::n2f3_t{.5}.Rotate(angle).f2() + ::llc::n2f2_t{.5f, .5f}));
 	}
 
 	// -- Generate normals
-	llc_necs(geometry.Normals.resize(geometry.Normals.size() + vertexCount + 1, params.Orientation.RotateVector({0, 1, 0})));	// The normals are all the same for a circle
+	if_fail_fe(geometry.Normals.resize(geometry.Normals.size() + vertexCount + 1, params.Orientation.RotateVector({0, 1, 0})));	// The normals are all the same for a circle
 
 	for(::llc::u2_t iSlice = 0, sliceCount = params.Slices + 1; iSlice < sliceCount; ++iSlice)
-		llc_necs(geometry.PositionIndices.append({vertexOffset + 0, vertexOffset + iSlice + 1, vertexOffset + iSlice + 0}));
+		if_fail_fe(geometry.PositionIndices.append({vertexOffset + 0, vertexOffset + iSlice + 1, vertexOffset + iSlice + 0}));
 
 	return 0; 
 }
-::llc::error_t			llc::geometryBuildCylinderWall	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall & params) {
+::llc::err_t			llc::geometryBuildCylinderWall	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall & params) {
 	const ::llc::u2_t				vertexOffset				= geometry.Positions.size();
 	const ::llc::n2u1_t			vertexCount					= params.CellCount + ::llc::n2u1_t{1, 1};
 
@@ -146,7 +146,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	return ::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false); 
 }
 //
-::llc::error_t			llc::geometryBuildFigure0	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix & params) { //(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
+::llc::err_t			llc::geometryBuildFigure0	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix & params) { //(::llc::SGeometryQuads & geometry, ::llc::u2_t stacks, ::llc::u2_t slices, float radius, const ::llc::n3f2_t & gridCenter)	{
 	const ::llc::u2_t				vertexOffset				= geometry.Positions.size();
 	const ::llc::n2u1_t			vertexCount					= params.CellCount + ::llc::n2u1_t{1, 1};
 
@@ -167,7 +167,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 		}
 	}
 	const ::llc::u2_t				indexOffset				= geometry.PositionIndices.size();
-	llc_necs(::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false)); 
+	if_fail_fe(::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false)); 
 	for(::llc::u2_t iVertexIndex = indexOffset; iVertexIndex < geometry.PositionIndices.size(); iVertexIndex += 3) {
 		const ::llc::n3f2_t	a	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 0]];
 		const ::llc::n3f2_t	b	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 1]];
@@ -176,7 +176,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	}
 	return 0;
 }
-::llc::error_t			llc::geometryBuildHelixHalf	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix & params) {
+::llc::err_t			llc::geometryBuildHelixHalf	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix & params) {
 	const ::llc::u2_t				vertexOffset				= geometry.Positions.size();
 	const ::llc::n2u1_t			vertexCount					= params.CellCount + ::llc::n2u1_t{1, 1};
 
@@ -198,7 +198,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	}
 
 	const ::llc::u2_t				indexOffset				= geometry.PositionIndices.size();
-	llc_necs(::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false)); 
+	if_fail_fe(::geometryBuildGridIndices(geometry.PositionIndices, vertexOffset, params.CellCount, false, false)); 
 	for(::llc::u2_t iVertexIndex = indexOffset; iVertexIndex < geometry.PositionIndices.size(); iVertexIndex += 3) {
 		const ::llc::n3f2_t	a	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 0]];
 		const ::llc::n3f2_t	b	= geometry.Positions[geometry.PositionIndices[iVertexIndex + 1]];
@@ -207,27 +207,27 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	}
 	return 0;
 }
-::llc::error_t			llc::geometryBuildHelix		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix & params)	{
+::llc::err_t			llc::geometryBuildHelix		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix & params)	{
 	const ::llc::u2_t				vertexOffset				= geometry.Positions.size();
 	const ::llc::u2_t				normalOffset				= geometry.Normals.size();
 	const ::llc::u2_t				indexOffset				= geometry.PositionIndices.size();
-	llc_necs(llc::geometryBuildHelixHalf(geometry, params));
+	if_fail_fe(llc::geometryBuildHelixHalf(geometry, params));
 	const ::llc::u2_t				vertexCount					= geometry.Positions.size() - vertexOffset;
 	const ::llc::u2_t				normalCount					= geometry.Normals.size() - normalOffset;
 	const ::llc::u2_t				indexCount					= geometry.PositionIndices.size() - indexOffset;
-	llc_necs(geometry.TextureCoords	.append({&geometry.TextureCoords[vertexOffset], vertexCount}));
-	llc_necs(geometry.Positions		.append({&geometry.Positions	[vertexOffset], vertexCount}));
-	llc_necs(geometry.Normals		.append({&geometry.Normals		[normalOffset], normalCount}));
+	if_fail_fe(geometry.TextureCoords	.append({&geometry.TextureCoords[vertexOffset], vertexCount}));
+	if_fail_fe(geometry.Positions		.append({&geometry.Positions	[vertexOffset], vertexCount}));
+	if_fail_fe(geometry.Normals		.append({&geometry.Normals		[normalOffset], normalCount}));
 	for(::llc::u2_t iIndex = 0; iIndex < indexCount; ++iIndex)
-		llc_necs(geometry.PositionIndices.push_back(geometry.PositionIndices[indexOffset + iIndex] + vertexCount));
+		if_fail_fe(geometry.PositionIndices.push_back(geometry.PositionIndices[indexOffset + iIndex] + vertexCount));
 	geometry.Positions	.for_each([](::llc::n3f2_t & coord){ coord.z *= -1; coord.y *= -1; return 0; }, vertexOffset + vertexCount);
 	geometry.Normals	.for_each([](::llc::n3f2_t & coord){ coord.z *= -1; coord.y *= -1; return 0; }, normalOffset + normalCount);
 	return 0;
 }
-::llc::error_t			llc::geometryBuildRingSide	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide & params) {
+::llc::err_t			llc::geometryBuildRingSide	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide & params) {
 	const ::llc::u2_t				vertexOffset				= geometry.Positions.size();
 	::llc::SParamsGrid			paramsGrid					= {{}, {params.Slices, 1}, params.Reverse};
-	llc_necall(llc::geometryBuildGrid(geometry, paramsGrid), "params.Slices: %i", params.Slices);
+	if_fail_fef(llc::geometryBuildGrid(geometry, paramsGrid), "params.Slices: %i", params.Slices);
 	const ::llc::u2_t				vertexCount					= geometry.Positions.size() - vertexOffset;
 	const double				sliceScale					= ::llc::math_2pi * params.Circumference;
 	geometry.Positions.enumerate([sliceScale, params, &geometry](const ::llc::u2_t & index, const ::llc::n3f2_t & position) {
@@ -244,21 +244,21 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	);
 	return 0;
 }
-::llc::error_t			llc::geometryBuildRingFlat	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide & params) {
-	llc_necs(llc::geometryBuildRingSide(geometry, params));
+::llc::err_t			llc::geometryBuildRingFlat	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide & params) {
+	if_fail_fe(llc::geometryBuildRingSide(geometry, params));
 	::llc::SParamsRingSide		paramsSide					= params;
 	paramsSide.Reverse		= true;
-	llc_necs(llc::geometryBuildRingSide(geometry, paramsSide));
+	if_fail_fe(llc::geometryBuildRingSide(geometry, paramsSide));
 	return 0;
 }
-::llc::error_t			llc::geometryBuildDisc(::llc::SGeometryBuffers & geometry, const ::llc::SParamsDisc & params) {
+::llc::err_t			llc::geometryBuildDisc(::llc::SGeometryBuffers & geometry, const ::llc::SParamsDisc & params) {
 	::llc::SParamsCircle		paramsSide					= params;
-	llc_necs(llc::geometryBuildCircleSide(geometry, params));
+	if_fail_fe(llc::geometryBuildCircleSide(geometry, params));
 	paramsSide.Reverse		= true;
-	llc_necs(llc::geometryBuildCircleSide(geometry, paramsSide));
+	if_fail_fe(llc::geometryBuildCircleSide(geometry, paramsSide));
 	return 0;
 }
-::llc::error_t			llc::geometryBuildRing		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTube & params) {
+::llc::err_t			llc::geometryBuildRing		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTube & params) {
 	::llc::SParamsRingSide		paramsSide					= {};
 	paramsSide.Origin		= params.Origin;
 	paramsSide.Slices		= params.CellCount.x;
@@ -266,7 +266,7 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 	paramsSide.Reverse		= !params.Reverse;	// looking down
 	paramsSide.Circumference= params.Circumference;
 	paramsSide.Orientation	= params.Orientation;
-	llc_necs(llc::geometryBuildRingSide(geometry, paramsSide));
+	if_fail_fe(llc::geometryBuildRingSide(geometry, paramsSide));
 	{
 		::llc::SParamsCylinderWall	paramsWall					= {};
 		paramsWall.Origin		= params.Origin;
@@ -276,33 +276,33 @@ static	::llc::error_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionI
 		paramsWall.Height		= params.Height;
 		paramsWall.Orientation	= params.Orientation;
 		paramsWall.Reverse		= params.Reverse;
-		llc_necs(llc::geometryBuildCylinderWall(geometry, paramsWall));
+		if_fail_fe(llc::geometryBuildCylinderWall(geometry, paramsWall));
 		////
 		paramsWall.Radius		= {params.RadiusYMin.Min, params.RadiusYMax.Min};
 		paramsWall.Reverse		= !paramsWall.Reverse;
-		llc_necs(llc::geometryBuildCylinderWall(geometry, paramsWall));
+		if_fail_fe(llc::geometryBuildCylinderWall(geometry, paramsWall));
 	}
 	//
 	paramsSide.Origin.y		-= params.Height;
 	paramsSide.Radius		= params.RadiusYMax;
 	paramsSide.Reverse		= !paramsSide.Reverse;	// looking up
-	llc_necs(llc::geometryBuildRingSide(geometry, paramsSide));
+	if_fail_fe(llc::geometryBuildRingSide(geometry, paramsSide));
 	return 0;
 }
-::llc::error_t			llc::geometryBuildCylinder		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall & params) {
+::llc::err_t			llc::geometryBuildCylinder		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall & params) {
 	::llc::SParamsCircle		cap							= {};
 	cap.Origin				= params.Origin;
 	cap.Radius				= params.Radius.Min;
 	cap.Reverse				= !params.Reverse;
 	cap.Orientation			= params.Orientation;
-	llc_necs(llc::geometryBuildCircleSide(geometry, cap));
+	if_fail_fe(llc::geometryBuildCircleSide(geometry, cap));
 
-	llc_necs(llc::geometryBuildCylinderWall(geometry, params));
+	if_fail_fe(llc::geometryBuildCylinderWall(geometry, params));
 
 	cap.Reverse				= !cap.Reverse;
 	cap.Radius				= params.Radius.Max;
 	cap.Origin.y			-= params.Height;
-	llc_necs(llc::geometryBuildCircleSide(geometry, cap));
+	if_fail_fe(llc::geometryBuildCircleSide(geometry, cap));
 	return 0;
 }
 #endif

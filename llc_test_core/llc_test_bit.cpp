@@ -242,7 +242,7 @@ sttc ::llc::err_t testBitTypeLogged(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBitField(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_bit(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testBitTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testBitTypeLogged<::llc::u1_t>(errors));

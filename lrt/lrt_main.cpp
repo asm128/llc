@@ -38,7 +38,7 @@ static llc::err_t lrt_Loop(llc::SRuntimeModule & module) {
 	// Reserve both users before starting: update may finish before the worker runs.
 	runtime.RenderThreadUsers = 2;
 	HANDLE thread = (HANDLE)_beginthreadex(0, 0, threadRender, &runtime, 0, 0);
-	if_null_ve(llc::OS_ERROR, thread);
+	if_null_ve(-1, thread);
 	info_printf("Application instance initialized successfully. Executing main loop...");
 	for(;;) {
 		result = module.Update(module.Application, false);
@@ -55,8 +55,8 @@ static llc::err_t lrt_Loop(llc::SRuntimeModule & module) {
 	// covers the worker's return path before its DLL code can be unmapped.
 	cnst DWORD waited = WaitForSingleObject(thread, INFINITE);
 	cnst BOOL closed = CloseHandle(thread);
-	if_true_ve(llc::OS_ERROR, waited != WAIT_OBJECT_0);
-	if_zero_ve(llc::OS_ERROR, closed);
+	if_true_ve(-1, waited != WAIT_OBJECT_0);
+	if_zero_ve(-1, closed);
 	if_fail_ve(runtime.RenderResult, runtime.RenderResult);
 	rtrn result;
 }

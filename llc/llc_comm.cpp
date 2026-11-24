@@ -73,22 +73,22 @@ namespace
 
 ::llc::err_t llc::commPayloadPack(view<cnst vcu0_t> payloads, au0_t & output) {
 	output.clear();
-	llc_necs(saveUInt(output, payloads.size()));
+	if_fail_fe(saveUInt(output, payloads.size()));
 	for(u2_t iPayload = 0; iPayload < payloads.size(); ++iPayload)
-		llc_necs(saveView(output, payloads[iPayload]));
+		if_fail_fe(saveView(output, payloads[iPayload]));
 	rtrn 0;
 }
 
 ::llc::err_t llc::commPayloadLoad(vcu0_t input, SCommPayloadReader & reader) {
 	reader		= {};
 	reader.Input	= input;
-	llc_necs(loadUInt(reader.Input, reader.Count));
+	if_fail_fe(loadUInt(reader.Input, reader.Count));
 	rtrn 0;
 }
 
 ::llc::err_t llc::commPayloadNext(SCommPayloadReader & reader, vcu0_t & payload) {
 	if_true_fef(reader.Index >= reader.Count, LLC_FMT_GE_U2, reader.Index, reader.Count);
-	llc_necs(loadView(reader.Input, payload));
+	if_fail_fe(loadView(reader.Input, payload));
 	++reader.Index;
 	if_true_fef(reader.Index == reader.Count && reader.Input.size(), "Unexpected trailing payload bytes: %" LLC_FMT_U2 ".", reader.Input.size());
 	rtrn 0;
@@ -105,17 +105,17 @@ namespace
 
 	view_stream<u0_t>	stream	= {output.begin(), output.size()};
 	u0_c			encoded	= commEncode(packet.Comm);
-	llc_necs(stream.write_pod(encoded));
-	llc_necs(::streamWritePacked(stream, packet.Network));
-	llc_necs(::streamWritePacked(stream, packet.Source));
-	llc_necs(::streamWritePacked(stream, packet.Target));
-	llc_necs(::streamWritePacked(stream, packet.Message));
-	llc_necs(::streamWritePacked(stream, packet.Payload.size()));
+	if_fail_fe(stream.write_pod(encoded));
+	if_fail_fe(::streamWritePacked(stream, packet.Network));
+	if_fail_fe(::streamWritePacked(stream, packet.Source));
+	if_fail_fe(::streamWritePacked(stream, packet.Target));
+	if_fail_fe(::streamWritePacked(stream, packet.Message));
+	if_fail_fe(::streamWritePacked(stream, packet.Payload.size()));
 	if(packet.Comm.Multipart) {
-		llc_necs(::streamWritePacked(stream, packet.Size));
-		llc_necs(::streamWritePacked(stream, packet.Offset));
+		if_fail_fe(::streamWritePacked(stream, packet.Size));
+		if_fail_fe(::streamWritePacked(stream, packet.Offset));
 	}
-	llc_necs(stream.write_pod(packet.Payload));
+	if_fail_fe(stream.write_pod(packet.Payload));
 	sizeOutput	= stream.CursorPosition;
 	rtrn 0;
 }
@@ -125,16 +125,16 @@ namespace
 	view_stream<u0_c>	stream	= {input.begin(), input.size()};
 	u0_t			encoded	= {};
 	u2_t			fragmentSize	= {};
-	llc_necs(stream.read_pod(encoded));
+	if_fail_fe(stream.read_pod(encoded));
 	packet.Comm	= commDecode(encoded);
-	llc_necs(::streamReadPacked(stream, packet.Network));
-	llc_necs(::streamReadPacked(stream, packet.Source));
-	llc_necs(::streamReadPacked(stream, packet.Target));
-	llc_necs(::streamReadPacked(stream, packet.Message));
-	llc_necs(::streamReadPacked(stream, fragmentSize));
+	if_fail_fe(::streamReadPacked(stream, packet.Network));
+	if_fail_fe(::streamReadPacked(stream, packet.Source));
+	if_fail_fe(::streamReadPacked(stream, packet.Target));
+	if_fail_fe(::streamReadPacked(stream, packet.Message));
+	if_fail_fe(::streamReadPacked(stream, fragmentSize));
 	if(packet.Comm.Multipart) {
-		llc_necs(::streamReadPacked(stream, packet.Size));
-		llc_necs(::streamReadPacked(stream, packet.Offset));
+		if_fail_fe(::streamReadPacked(stream, packet.Size));
+		if_fail_fe(::streamReadPacked(stream, packet.Offset));
 	}
 	else {
 		packet.Size	= fragmentSize;
@@ -174,7 +174,7 @@ namespace
 	u2_c remaining	= packetizer.Packet.Size - packetizer.Offset;
 	if(false == frame.Comm.Multipart) {
 		frame.Payload		= packetizer.Packet.Payload;
-		llc_necs(commPacketSave(frame, output, sizeOutput));
+		if_fail_fe(commPacketSave(frame, output, sizeOutput));
 		packetizer.Offset	= packetizer.Packet.Size;
 		packetizer.Complete	= true;
 		rtrn 0;
@@ -188,8 +188,8 @@ namespace
 		fragmentSize	= sizeHeader < output.size() ? ::llc::min(fragmentSize - 1, output.size() - sizeHeader) : 0;
 	}
 	if_zero_fef(fragmentSize, "%s", "The carrier frame is too small for the communication header.");
-	llc_necs(packetizer.Packet.Payload.slice(frame.Payload, packetizer.Offset, fragmentSize));
-	llc_necs(commPacketSave(frame, output, sizeOutput));
+	if_fail_fe(packetizer.Packet.Payload.slice(frame.Payload, packetizer.Offset, fragmentSize));
+	if_fail_fe(commPacketSave(frame, output, sizeOutput));
 	packetizer.Offset	+= fragmentSize;
 	packetizer.Complete	= (packetizer.Offset == packetizer.Packet.Size);
 	rtrn 0;

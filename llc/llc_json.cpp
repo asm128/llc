@@ -1,3 +1,4 @@
+#include "llc_string_compose.h"
 #ifndef LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
 #	define LLC_DISABLE_DEBUG_BREAK_ON_ERROR_LOG
 #endif
@@ -49,8 +50,9 @@ llc::err_t			llc::jsonFieldsToMap
 				break;
 			}
 		}
-		if(bNotAdded)
+		if(bNotAdded) {
 			if_fail_fe(indicesOfMaps.push_back(-1));
+		}
 	}
 	rtrn indicesOfMaps.size();
 }
@@ -73,8 +75,9 @@ llc::err_t			llc::jsonArraySplit			(cnst llc::SJSONNode & jsonArrayToSplit, llc:
 			; iPartRecord < countPartRecords
 			; ++iPartRecord) {
 			if_fail_fe(llc::jsonWrite(jsonArrayToSplit.Children[iSourceRecord++], jsonViews, outputJson));;
-			if(iPartRecord < countPartRecords - 1)
+			if(iPartRecord < countPartRecords - 1) {
 				if_fail_fe(outputJson.push_back(','));
+			}
 		}
 		if_fail_fe(outputJson.push_back(']'));
 	}
@@ -88,7 +91,7 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, llc::view<cnst vcst_t
 	case llc::JSON_TYPE_INTEGER		: {
 		sc_t					temp[64]					= {};
 		if_fail_fe(::llc::sprintf_s(temp, "%" LLC_FMT_S3, (s3_t)node->Token->Value));
-		if_fail_fe(output.append_string(temp));
+		if_fail_fe(::llc::append_string(output, temp));
 	}
 		break;
 	case llc::JSON_TYPE_DECIMAL		: {
@@ -100,7 +103,7 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, llc::view<cnst vcst_t
 		if_true_fef(lenNum >= (err_t)::llc::size(temp), "JSON decimal exceeds the formatting buffer: %.16f.", f);
 		while(lenNum > 0 && (0 == temp[lenNum] || '0' == temp[lenNum]))
 			temp[lenNum--]					= 0;
-		if_fail_fe(output.append_string(temp));
+		if_fail_fe(::llc::append_string(output, temp));
 	}
 		break;
 	case llc::JSON_TYPE_BOOLEAN			:
@@ -120,8 +123,9 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, llc::view<cnst vcst_t
 			if_fail_fe(llc::jsonWrite(node->Children[iChildren + 0], jsonViews, output));;
 			if_fail_fe(output.push_back(':'));
 			if_fail_fe(llc::jsonWrite(node->Children[iChildren + 1], jsonViews, output));;
-			if(iChildren < node->Children.size() - 2)
+			if(iChildren < node->Children.size() - 2) {
 				if_fail_fe(output.push_back(','));
+			}
 		}
 		if_fail_fe(output.push_back('}'));
 		break;
@@ -129,8 +133,9 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, llc::view<cnst vcst_t
 		if_fail_fe(output.push_back('['));
 		for(u2_t iChildren = 0; iChildren < node->Children.size(); ++iChildren) {
 			if_fail_fe(llc::jsonWrite(node->Children[iChildren], jsonViews, output));;
-			if(iChildren < node->Children.size() - 1)
+			if(iChildren < node->Children.size() - 1) {
 				if_fail_fe(output.push_back(','));
+			}
 		}
 		if_fail_fe(output.push_back(']'));
 	}
@@ -410,7 +415,7 @@ sttc	llc::err_t	parseJsonNumber				(llc::SJSONReaderState & stateReader, llc::ap
 sttc	llc::err_t	jsonCloseContainer			(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::JSON_TYPE containerType) {
 	llc::err_t				errVal						= 0;
 	cnst llc::vcst_t			labelType				= llc::get_value_label(containerType);
-	llc_necall(::jsonCloseOrDiscardEmptyKOrV(stateReader, tokens, (llc::JSON_TYPE_ARRAY == containerType) ? llc::JSON_TYPE_VALUE : llc::JSON_TYPE_KEY), "Failed to close container at index %" LLC_FMT_S2 " (%.*s).", stateReader.IndexCurrentElement, (int)labelType.size(), labelType.begin());
+	if_fail_fef(::jsonCloseOrDiscardEmptyKOrV(stateReader, tokens, (llc::JSON_TYPE_ARRAY == containerType) ? llc::JSON_TYPE_VALUE : llc::JSON_TYPE_KEY), "Failed to close container at index %" LLC_FMT_S2 " (%.*s).", stateReader.IndexCurrentElement, (int)labelType.size(), labelType.begin());
 	errVal					= ::jsonCloseElement(stateReader, tokens, stateReader.IndexCurrentChar, containerType);
 	(void)errVal;
 	stateReader.ExpectingSeparator	= false;
@@ -462,8 +467,9 @@ sttc	llc::err_t	jsonParseDocumentCharacter	(llc::SJSONReaderState & stateReader,
 	case '0': case '1'	: case '2'	: case '3'	: case '4'	: case '5'	: case '6'	: case '7'	: case '8'	: case '9'	:
 	case '.': case '-'	: case '+'	: //case 'x'	: // parse int or f2_t accordingly
 		LLC_JSON_EXPECTS_SEPARATOR();
-		if(-1 == stateReader.IndexCurrentElement)
+		if(-1 == stateReader.IndexCurrentElement) {
 			if_fail_vef(-1, ::jsonOpenElement(stateReader, tokens, llc::JSON_TYPE_VALUE, stateReader.IndexCurrentChar), "Failed to open element at index %" LLC_FMT_S2 ".", tokens.size());
+		}
 		seterr_break_if(stateReader.Escaping, "Invalid character found at index %" LLC_FMT_U2 ": %c.", stateReader.IndexCurrentChar, stateReader.CharCurrent);	// Set an error or something and skip this character.
 		seterr_break_if(llc::JSON_TYPE_VALUE != stateReader.CurrentElement->Type, "%s", "Number found outside a value.");
 		seterr_break_if_failed(::parseJsonNumber(stateReader, tokens, jsonAsString), "%s", "Error parsing JSON number.");
@@ -548,8 +554,9 @@ llc::err_t			llc::jsonTreeRebuild		(llc::view<cnst llc::SJSONToken> in_object, l
 		nodeCurrent->Parent			= ((u2_t)nodeCurrent->Token->ParentIndex < tree.size()) ? (llc::SJSONNode*)tree[nodeCurrent->Token->ParentIndex] : nullptr;
 		nodeCurrent->ObjectIndex	= iObject;
 		nodeCurrent->Children.clear();
-		if(nodeCurrent->Parent)
+		if(nodeCurrent->Parent) {
 			if_fail_fe(nodeCurrent->Parent->Children.push_back(nodeCurrent));
+		}
 	}
 
 	// -- Remove the key/value wrappers from objects.
@@ -713,7 +720,7 @@ sttc	llc::err_t	decodeUnicodeEscapeSequence	(llc::vcst_t  input, u2_t & ret_unic
 
 // this function only makes sense after reading the first `\u`
 llc::err_t			llc::jsonToCodePoint		(llc::vcst_t  input, u2_t & unicode)			{
-	llc_necall(::decodeUnicodeEscapeSequence(input, unicode), "Invalid escape sequence: %.*s.", int(input.size()), input.begin());
+	if_fail_fef(::decodeUnicodeEscapeSequence(input, unicode), "Invalid escape sequence: %.*s.", int(input.size()), input.begin());
 	if(unicode < 0xD800 || unicode > 0xDFFF)
 		rtrn 0;
 	if_true_fef(unicode > 0xDBFF, "Unexpected low surrogate: 0x%04X.", unicode);
@@ -721,7 +728,7 @@ llc::err_t			llc::jsonToCodePoint		(llc::vcst_t  input, u2_t & unicode)			{
 	if_true_fef(input.size() < 10, "expecting a \\u token for the second half of the surrogate pair. input.size(): %u", input.size());
 	if_true_fef(input[4] != '\\' || input[5] != 'u', "expecting a \\u token for the second half of the surrogate pair. input[4]: %c, input[5]: %c", input[4], input[5]);
 	u2_t						surrogatePair;
-	llc_necall(::decodeUnicodeEscapeSequence({&input[6], 4U}, surrogatePair), "Invalid escape sequence: %.*s.", int(input.size()), input.begin());
+	if_fail_fef(::decodeUnicodeEscapeSequence({&input[6], 4U}, surrogatePair), "Invalid escape sequence: %.*s.", int(input.size()), input.begin());
 	if_true_fef(surrogatePair < 0xDC00 || surrogatePair > 0xDFFF, "Invalid low surrogate: 0x%04X.", surrogatePair);
 	unicode														= 0x10000 + ((unicode & 0x3FF) << 10) + (surrogatePair & 0x3FF);
 	rtrn 0;

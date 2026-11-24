@@ -245,7 +245,7 @@ sttc ::llc::err_t testImageSerialization(::llc::ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testGridImage(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_grid_image(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	static_assert(::std::is_same_v<::llc::gsc_t, ::llc::grid<::llc::sc_t>>);
 	static_assert(::std::is_same_v<::llc::guc_t, ::llc::grid<::llc::uc_t>>);
 	static_assert(::std::is_same_v<::llc::gu0_t, ::llc::grid<::llc::u0_t>>);

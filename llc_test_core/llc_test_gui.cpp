@@ -212,7 +212,7 @@ sttc ::llc::err_t testGUIControlStateMutations(::llc::ATestError & errors) {
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Disabled, ::llc::setDisabled));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Hovered , ::llc::setHovered));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Focused , ::llc::setFocused));
-	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Selected, ::llc::setSelected));
+	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Selected, static_cast<decltype(&::llc::setHidden)>(::llc::setSelected)));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Updated , ::llc::setUpdated));
 	if_fail_fe(::testGUIControlStateSetter(errors, ::llc::GUI_CONTROL_FLAG_Action  , ::llc::setAction));
 	for(::llc::u2_t iFlag = 0; iFlag < 0x100U; ++iFlag)
@@ -987,7 +987,7 @@ sttc ::llc::err_t testGUIVisualScene(::llc::ATestError & errors, ::llc::vcst_t o
 	rtrn 0;
 }
 
-::llc::err_t testGUI(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_gui(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testGUIVisualScene(errors, outputFolder));
 	if_fail_fe(::testGUIUpdateDrawOrder(errors));
 	if_fail_fe(::testGUITextCore(errors));

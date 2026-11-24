@@ -268,7 +268,7 @@ sttc ::llc::err_t testStaticTypeLogged(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testArrayStatic(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_array_static(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
 	if_fail_fe(testStaticTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testStaticTypeLogged<::llc::u1_t>(errors));

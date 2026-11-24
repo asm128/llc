@@ -1,3 +1,4 @@
+#include "llc_string_compose.h"
 #include "llc_array_pod.h"
 #include "llc_array_static.h"
 #include "llc_stdstring.h"
@@ -106,7 +107,7 @@ sttc ::llc::err_t testStringArrayScan(::llc::ATestError & errors) {
 		for(::llc::u2_t iView = 0; iView < ::llc::size(views); ++iView)
 			LLC_TEST_CHECKF(errors, STR_TEST_RESULT_ARRAY_SCAN, views[iView] != expected, "View:%u length:%u, expected:%u.", iView, views[iView].size(), testCase.Length);
 		::llc::string appended;
-		if_fail_fe(appended.append_string(testCase.Storage));
+		if_fail_fe(::llc::append_string(appended, testCase.Storage));
 		LLC_TEST_CHECKF(errors, STR_TEST_RESULT_ARRAY_APPEND, ::llc::vcst_t(appended.begin(), appended.size()) != expected, "Appended length:%u, expected:%u.", appended.size(), testCase.Length);
 		cnst ::llc::vcst_t counted = {testCase.Storage, ::llc::size(testCase.Storage)};
 		LLC_TEST_CHECK(errors, STR_TEST_RESULT_COUNTED_VIEW_RANGE, counted.size() != ::llc::size(testCase.Storage));
@@ -118,9 +119,9 @@ sttc ::llc::err_t testStringArrayScan(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, (::llc::vcst_t{"world"} == owned) || !(::llc::vcst_t{"world"} != owned));
 	cnst ::llc::label interned = expectedOwned;
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(owned == "hello") || owned != "hello" || owned == "hell" || !(owned != "world"));
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !("hello" == owned) || "hello" != owned || "hell" == owned || !("world" != owned));
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(owned == "hello") || owned != "hello" || owned == "hell" || !(owned != "world"));
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(interned == "hello") || interned != "hello" || interned == "hell" || !(interned != "world"));
-	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !("hello" == interned) || "hello" != interned || "hell" == interned || !("world" != interned));
+	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(interned == "hello") || interned != "hello" || interned == "hell" || !(interned != "world"));
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_SCAN, ::llc::vcst_t(owned.begin(), owned.size()) != expectedOwned);
 	::llc::vstr_t measured = {padded};
 	LLC_TEST_CHECK(errors, STR_TEST_RESULT_ARRAY_COMPARE, !(measured == "hello") || measured != "hello" || measured == "hell" || !(measured != "world"));
@@ -281,7 +282,7 @@ sttc ::llc::err_t testStringFunctions(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testStr(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_str(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testStringArrayScan(errors));
 	::llc::sc_t		mutableArray[]		= "alpha";
 	::llc::sc_c		constArray[]		= "beta";

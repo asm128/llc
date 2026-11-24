@@ -10,7 +10,7 @@
 
 namespace llc 
 {
-	::llc::error_t					updateEntityTransforms			
+	::llc::err_t					updateEntityTransforms			
 		( ::llc::u2_t								iEntity
 		, const ::llc::SEntity			& entity
 		, const ::llc::SVirtualEntityManager	& managedEntities	
@@ -41,11 +41,11 @@ namespace llc
 
 		::llc::SPNGData						PNGCache		= {};
 
-		inline	::llc::error_t		GetRigidBody		(::llc::eid_t idEntity)					const	{ return Entities[idEntity].RigidBody; }
-		inline	::llc::error_t		GetRenderNode		(::llc::eid_t idEntity)					const	{ return Entities[idEntity].RenderNode; }
-		inline	::llc::error_t		GetParentIndex		(::llc::eid_t idEntity)					const	{ return Entities[idEntity].Parent; }
+		inline	::llc::err_t		GetRigidBody		(::llc::eid_t idEntity)					const	{ return Entities[idEntity].RigidBody; }
+		inline	::llc::err_t		GetRenderNode		(::llc::eid_t idEntity)					const	{ return Entities[idEntity].RenderNode; }
+		inline	::llc::err_t		GetParentIndex		(::llc::eid_t idEntity)					const	{ return Entities[idEntity].Parent; }
 
-		inline	::llc::error_t		GetChildCount		(::llc::eid_t idEntity)					const	{ const ::llc::papod<::llc::eid_t> & children = Entities.Children[idEntity]; return children ? children->size() : 0; }
+		inline	::llc::err_t		GetChildCount		(::llc::eid_t idEntity)					const	{ const ::llc::papod<::llc::eid_t> & children = Entities.Children[idEntity]; return children ? children->size() : 0; }
 		inline	::llc::vceid		GetChildren			(::llc::eid_t idEntity)					const	{ const ::llc::papod<::llc::eid_t> & children = Entities.Children[idEntity]; return children ? ::llc::vceid{*children} : ::llc::vceid{}; }
 		inline	::llc::veid			GetChildren			(::llc::eid_t idEntity)							{ ::llc::papod<::llc::eid_t> & children = Entities.Children[idEntity]; return children ? *children : ::llc::veid{}; }
 
@@ -60,27 +60,28 @@ namespace llc
 		inline	SBodyMass&			GetBodyMass			(::llc::eid_t idEntity)							{ return Integrator.GetBodyMass  (Entities[idEntity].RigidBody); }
 		inline	SBodyCenter&		GetBodyCenter		(::llc::eid_t idEntity)							{ return Integrator.GetBodyCenter(Entities[idEntity].RigidBody); }
 
-		inline	::llc::error_t		SetParent			(::llc::eid_t idEntity, ::llc::eid_t idParent)	{ return Entities.SetParent(idEntity, idParent); }
+		inline	::llc::err_t		SetParent			(::llc::eid_t idEntity, ::llc::eid_t idParent)	{ return Entities.SetParent(idEntity, idParent); }
 
-		::llc::error_t				Load				(::llc::vcu0_t & input)			{
-			llc_necs(Scene		->Load(input));
-			llc_necs(Entities	.Load(input));
-			llc_necs(Integrator	.Load(input));
+		::llc::err_t				Load				(::llc::vcu0_t & input)			{
+			if_fail_fe(Scene		->Load(input));
+			if_fail_fe(Entities	.Load(input));
+			if_fail_fe(Integrator	.Load(input));
 			return 0;
 		}
 
-		::llc::error_t				Save				(::llc::au0_t & output)	const	{
-			if(Scene)
-				llc_necs(Scene->Save(output));
+		::llc::err_t				Save				(::llc::au0_t & output)	const	{
+			if(Scene) {
+				if_fail_fe(Scene->Save(output));
+			}
 			else 
-				llc_necs(llc::SEngineScene{}.Save(output));
+				if_fail_fe(llc::SEngineScene{}.Save(output));
 
-			llc_necs(Entities	.Save(output));
-			llc_necs(Integrator	.Save(output));
+			if_fail_fe(Entities	.Save(output));
+			if_fail_fe(Integrator	.Save(output));
 			return 0;
 		}
 
-		::llc::error_t				Update				(double secondsLastFrame)		{
+		::llc::err_t				Update				(double secondsLastFrame)		{
 			Integrator.Integrate(secondsLastFrame);
 			for(::llc::u2_t iEntity = 0; iEntity < Entities.size(); ++iEntity) {
 				::llc::SEntity			& entity			= Entities[iEntity];
@@ -93,7 +94,7 @@ namespace llc
 		}
 
 		// This function messes up with the Entities array so be careful of not having any references to its contents or it may end up trying to access invalid memory
-		::llc::error_t				Clone				(::llc::u2_t iEntitySource, bool cloneSkin, bool cloneSurfaces, bool cloneShaders) {
+		::llc::err_t				Clone				(::llc::u2_t iEntitySource, bool cloneSkin, bool cloneSurfaces, bool cloneShaders) {
 			const ::llc::SEntity		entitySource		= Entities[iEntitySource];
 			int32_t							iEntityNew			= Entities.Create();
 			::llc::SEntity			& entityNew			= Entities[iEntityNew];
@@ -114,11 +115,11 @@ namespace llc
 			return iEntityNew;
 		}
 
-		inline	::llc::error_t		SetNodeSize			(::llc::u2_t iEntity, const ::llc::n3f2_t & size)					{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].NodeSize = size; return 0; }
-		inline	::llc::error_t		SetMeshScale		(::llc::u2_t iEntity, const ::llc::n3f2_t & scale, bool halfSizes)	{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].Model.Scale(scale, true); 
+		inline	::llc::err_t		SetNodeSize			(::llc::u2_t iEntity, const ::llc::n3f2_t & size)					{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].NodeSize = size; return 0; }
+		inline	::llc::err_t		SetMeshScale		(::llc::u2_t iEntity, const ::llc::n3f2_t & scale, bool halfSizes)	{ Scene->RenderNodes.BaseTransforms[GetRenderNode(iEntity)].Model.Scale(scale, true); 
 			if(halfSizes) {
-				llc_necs(SetHalfSizes(iEntity, scale * .5f));
-				llc_necs(SetNodeSize(iEntity, scale));
+				if_fail_fe(SetHalfSizes(iEntity, scale * .5f));
+				if_fail_fe(SetNodeSize(iEntity, scale));
 			}
 			return 0; 
 		}
@@ -130,38 +131,38 @@ namespace llc
 			Scene->Graphics->Shaders.Names[iShader] = name;
 			return 0;
 		}
-		inline	::llc::error_t		IsPhysicsActive		(::llc::u2_t iEntity)										const	{ return Integrator.Active	(Entities[iEntity].RigidBody) ? 1 : 0; }
+		inline	::llc::err_t		IsPhysicsActive		(::llc::u2_t iEntity)										const	{ return Integrator.Active	(Entities[iEntity].RigidBody) ? 1 : 0; }
 		inline	float				GetMass				(::llc::u2_t iEntity)										const	{ return Integrator.GetMass	(Entities[iEntity].RigidBody);	}
 
-		inline	::llc::error_t		InvalidateTransform	(::llc::u2_t iEntity)												{ Integrator.Flags[GetRigidBody(iEntity)].UpdatedTransform = false;		return 0; }
+		inline	::llc::err_t		InvalidateTransform	(::llc::u2_t iEntity)												{ Integrator.Flags[GetRigidBody(iEntity)].UpdatedTransform = false;		return 0; }
 
-		inline	::llc::error_t		GetPosition			(::llc::u2_t iEntity, ::llc::n3f2_t & position)				const	{ Integrator.GetPosition	(GetRigidBody(iEntity), position);			return 0; }
-		inline	::llc::error_t		GetVelocity			(::llc::u2_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		GetAcceleration		(::llc::u2_t iEntity, ::llc::n3f2_t & acceleration)			const	{ Integrator.GetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
-		inline	::llc::error_t		GetRotation			(::llc::u2_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		GetOrientation		(::llc::u2_t iEntity, ::llc::quatf2_t & orientation)		const	{ Integrator.GetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
-		inline	::llc::error_t		SetPhysicsActive	(::llc::u2_t iEntity, bool active)									{ Integrator.SetActive		(GetRigidBody(iEntity), active);			return 0; }
-		inline	::llc::error_t		SetCollides			(::llc::u2_t iEntity, bool collides)								{ Integrator.SetCollides	(GetRigidBody(iEntity), collides);			return 0; }
-		inline	::llc::error_t		SetHalfSizes		(::llc::u2_t iEntity, const ::llc::n3f2_t & halfSizes)				{ Integrator.SetHalfSizes	(GetRigidBody(iEntity), halfSizes);			return 0; }
-		inline	::llc::error_t		SetMass				(::llc::u2_t iEntity, float mass)									{ Integrator.SetMass		(GetRigidBody(iEntity), mass);				return 0; }
-		inline	::llc::error_t		SetMassInverse		(::llc::u2_t iEntity, float inverseMass)							{ Integrator.SetMassInverse	(GetRigidBody(iEntity), inverseMass);		return 0; }
-		inline	::llc::error_t		SetPosition			(::llc::u2_t iEntity, const ::llc::n3f2_t & position)				{ Integrator.SetPosition	(GetRigidBody(iEntity), position);			return 0; }
-		inline	::llc::error_t		SetVelocity			(::llc::u2_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		SetAcceleration		(::llc::u2_t iEntity, const ::llc::n3f2_t & acceleration)			{ Integrator.SetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
-		inline	::llc::error_t		SetRotation			(::llc::u2_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
-		inline	::llc::error_t		SetOrientation		(::llc::u2_t iEntity, const ::llc::quatf2_t & orientation)			{ Integrator.SetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
-		inline	::llc::error_t		SetDampingLinear	(::llc::u2_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].LinearDamping	= damping;	return 0; }
-		inline	::llc::error_t		SetDampingAngular	(::llc::u2_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].AngularDamping	= damping;	return 0; }
-		::llc::error_t				SetHidden			(::llc::u2_t iEntity, bool hidden)									{ Scene->RenderNodes.Flags[GetRenderNode(iEntity)].NoDraw	= hidden;	return 0; }	
+		inline	::llc::err_t		GetPosition			(::llc::u2_t iEntity, ::llc::n3f2_t & position)				const	{ Integrator.GetPosition	(GetRigidBody(iEntity), position);			return 0; }
+		inline	::llc::err_t		GetVelocity			(::llc::u2_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
+		inline	::llc::err_t		GetAcceleration		(::llc::u2_t iEntity, ::llc::n3f2_t & acceleration)			const	{ Integrator.GetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
+		inline	::llc::err_t		GetRotation			(::llc::u2_t iEntity, ::llc::n3f2_t & velocity)				const	{ Integrator.GetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
+		inline	::llc::err_t		GetOrientation		(::llc::u2_t iEntity, ::llc::quatf2_t & orientation)		const	{ Integrator.GetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
+		inline	::llc::err_t		SetPhysicsActive	(::llc::u2_t iEntity, bool active)									{ Integrator.SetActive		(GetRigidBody(iEntity), active);			return 0; }
+		inline	::llc::err_t		SetCollides			(::llc::u2_t iEntity, bool collides)								{ Integrator.SetCollides	(GetRigidBody(iEntity), collides);			return 0; }
+		inline	::llc::err_t		SetHalfSizes		(::llc::u2_t iEntity, const ::llc::n3f2_t & halfSizes)				{ Integrator.SetHalfSizes	(GetRigidBody(iEntity), halfSizes);			return 0; }
+		inline	::llc::err_t		SetMass				(::llc::u2_t iEntity, float mass)									{ Integrator.SetMass		(GetRigidBody(iEntity), mass);				return 0; }
+		inline	::llc::err_t		SetMassInverse		(::llc::u2_t iEntity, float inverseMass)							{ Integrator.SetMassInverse	(GetRigidBody(iEntity), inverseMass);		return 0; }
+		inline	::llc::err_t		SetPosition			(::llc::u2_t iEntity, const ::llc::n3f2_t & position)				{ Integrator.SetPosition	(GetRigidBody(iEntity), position);			return 0; }
+		inline	::llc::err_t		SetVelocity			(::llc::u2_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetVelocity	(GetRigidBody(iEntity), velocity);			return 0; }
+		inline	::llc::err_t		SetAcceleration		(::llc::u2_t iEntity, const ::llc::n3f2_t & acceleration)			{ Integrator.SetAcceleration(GetRigidBody(iEntity), acceleration);		return 0; }
+		inline	::llc::err_t		SetRotation			(::llc::u2_t iEntity, const ::llc::n3f2_t & velocity)				{ Integrator.SetRotation	(GetRigidBody(iEntity), velocity);			return 0; }
+		inline	::llc::err_t		SetOrientation		(::llc::u2_t iEntity, const ::llc::quatf2_t & orientation)			{ Integrator.SetOrientation	(GetRigidBody(iEntity), orientation);		return 0; }
+		inline	::llc::err_t		SetDampingLinear	(::llc::u2_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].LinearDamping	= damping;	return 0; }
+		inline	::llc::err_t		SetDampingAngular	(::llc::u2_t iEntity, float damping)								{ Integrator.Masses[GetRigidBody(iEntity)].AngularDamping	= damping;	return 0; }
+		::llc::err_t				SetHidden			(::llc::u2_t iEntity, bool hidden)									{ Scene->RenderNodes.Flags[GetRenderNode(iEntity)].NoDraw	= hidden;	return 0; }	
 
-		::llc::error_t				ToggleHidden		(::llc::u2_t iEntity) {
+		::llc::err_t				ToggleHidden		(::llc::u2_t iEntity) {
 			::llc::SRenderNodeFlags			& flags				= Scene->RenderNodes.Flags[GetRenderNode(iEntity)];
 			flags.NoDraw				= !flags.NoDraw;
 			return 0;
 		}
 
-		::llc::error_t				CreateLight			(::llc::LIGHT_TYPE type);
-		::llc::error_t				CreateCamera		();
+		::llc::err_t				CreateLight			(::llc::LIGHT_TYPE type);
+		::llc::err_t				CreateCamera		();
 
 
 		::llc::error_t				CreateBox			(const ::llc::SParamsBox			& params, ::llc::vcst_t entityName = "Box");
@@ -178,12 +179,12 @@ namespace llc
 		::llc::error_t				CreateHelix			(const ::llc::SParamsHelix			& params, ::llc::vcst_t entityName = "Helix");
 		::llc::error_t				CreateFigure0		(const ::llc::SParamsHelix			& params, ::llc::vcst_t entityName = "Figure0");
 
-		::llc::error_t				CreateImageFromFile	(const ::llc::vcst_t & fileFolder, const ::llc::vcst_t & fileName);
+		::llc::err_t				CreateImageFromFile	(const ::llc::vcst_t & fileFolder, const ::llc::vcst_t & fileName);
 
-		typedef std::function<::llc::error_t(::llc::SGeometryBuffers&)> TGeometryFunc;
+		typedef std::function<::llc::err_t(::llc::SGeometryBuffers&)> TGeometryFunc;
 
 		tplt<tpnm _tParams>
-		::llc::error_t				CreateEntityFromGeometry
+		::llc::err_t				CreateEntityFromGeometry
 			( const ::llc::vcst_t							name		
 			, const ::llc::n3f2_t						halfSizes
 			, bool										createSkin
@@ -202,7 +203,7 @@ namespace llc
 				entity.RenderNode		= Scene->Clone(recycleRenderNodeMap.Values[reuse], true, true, true);
 			else {
 				::llc::SGeometryBuffers			geometry;
-				llc_necs(funcGeometry(geometry));
+				if_fail_fe(funcGeometry(geometry));
 				entity.RenderNode			= Scene->CreateRenderNode(geometry, name, createSkin);
 				recycleRenderNodeMap.push_back(params, entity.RenderNode);
 			}
@@ -238,7 +239,7 @@ namespace llc
 	};
 #pragma pack(pop)
 
-	::llc::error_t			collisionDetect		(const ::llc::SEngine & engine, double totalSeconds, ::llc::apod<::llc::SContact> & contactsDetected);
+	::llc::err_t			collisionDetect		(const ::llc::SEngine & engine, double totalSeconds, ::llc::apod<::llc::SContact> & contactsDetected);
 
 
 } // namespace

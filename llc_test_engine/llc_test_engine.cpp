@@ -5,11 +5,11 @@ LLC_OS_ENTRY_POINT(::test_engine_entry_point);
 
 sttc ::llc::err_t test_engine_entry_point(::llc::SRuntimeValues & runtimeValues) {
 	rtrn ::llc::runSuites(runtimeValues
-		, LLC_TEST_SUITE(testD3D, "d3d")
-		, LLC_TEST_SUITE(testEngineManagers, "engine_managers")
-		, LLC_TEST_SUITE(testEngineSerialization, "engine_serialization")
+		, ::llc::testSuite(testD3D, "d3d", "d3d")
+		, ::llc::testSuite(testEngineManagers, "engine_managers", "engine_managers")
+		, ::llc::testSuite(testEngineSerialization, "engine_serialization", "engine_serialization")
 		//, LLC_TEST_SUITE(testRORSM, "ro_rsm")
-		, LLC_TEST_SUITE(testRagnarokGAT, "ragnarok_gat")
-		, LLC_TEST_SUITE(testRagnarokGND, "ragnarok_gnd")
+		, ::llc::testSuite(testRagnarokGAT, "ragnarok_gat", "ragnarok_gat")
+		, ::llc::testSuite(testRagnarokGND, "ragnarok_gnd", "ragnarok_gnd")
 		);
 }

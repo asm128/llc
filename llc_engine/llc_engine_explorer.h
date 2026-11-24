@@ -56,8 +56,8 @@ namespace llc
 	//	SEditorControlText	EditorControlText	= {};
 	//};
 
-	::llc::error_t				editorCreate	(::llc::SEditor & editor);
-	::llc::error_t				editorUpdate	(::llc::SEditor & editor, ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> systemEvents);
+	::llc::err_t				editorCreate	(::llc::SEditor & editor);
+	::llc::err_t				editorUpdate	(::llc::SEditor & editor, ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> systemEvents);
 	//::llc::error_t			editorCreate	(::llc::SGUI & gui, ::llc::SLayoutEditor & editor);
 	//::llc::error_t			editorCreate	(::llc::SGUI & gui, ::llc::SPaletteEditor & editor);
 } // namespace

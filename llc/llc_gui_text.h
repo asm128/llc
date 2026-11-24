@@ -9,10 +9,10 @@
 
 namespace llc
 {
-	stincxp	::llc::error_t	textLineCalcWidth				(::llc::n2u0_c & sizeCharCell, ::llc::vcst_c & text0)		{ return (::llc::error_t)(sizeCharCell.x * text0.size()); }
+	sinx	::llc::err_t	textLineCalcWidth				(::llc::n2u0_c & sizeCharCell, ::llc::vcst_c & text0)		{ return (::llc::err_t)(sizeCharCell.x * text0.size()); }
 
 	tplt<tpnm _tColor>
-	static	::llc::error_t	textLineDrawFixedSize			(::llc::grid<_tColor> & target, const ::llc::grid<_tColor> & viewTextureFont, ::llc::u1_t characterCellsX, int16_t dstOffsetY, const ::llc::n2u0_t & sizeCharCell, ::llc::vcst_c & text0, const ::llc::n2s1_t dstTextOffset)	{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
+	static	::llc::err_t	textLineDrawFixedSize			(::llc::grid<_tColor> & target, const ::llc::grid<_tColor> & viewTextureFont, ::llc::u1_t characterCellsX, int16_t dstOffsetY, const ::llc::n2u0_t & sizeCharCell, ::llc::vcst_c & text0, const ::llc::n2s1_t dstTextOffset)	{	// --- This function will draw some coloured symbols in each cell of the ASCII screen.
 		for(int32_t iChar = 0, charCount = (int32_t)text0.size(); iChar < charCount; ++iChar) {
 			const uc_t					charToDraw						= (uc_t)text0[iChar];
 			int16_t						coordTableX						= charToDraw % characterCellsX;
@@ -61,7 +61,7 @@ namespace llc
 	}
 
 	tplt<tpnm _tColor>
-	static	::llc::error_t	textLineRaster					(const ::llc::n2u2_t & targetMetrics, const ::llc::n2u0_t & fontCharSize, const ::llc::rect2<int16_t> & targetRect, const ::llc::imgmono<_tColor> & fontTexture, ::llc::vcst_c & textToRaster, ::llc::apod<::llc::n2u1_t> & dstCoords)		{
+	static	::llc::err_t	textLineRaster					(const ::llc::n2u2_t & targetMetrics, const ::llc::n2u0_t & fontCharSize, const ::llc::rect2<int16_t> & targetRect, const ::llc::imgmono<_tColor> & fontTexture, ::llc::vcst_c & textToRaster, ::llc::apod<::llc::n2u1_t> & dstCoords)		{
 		const int32_t				charsPerRow						= fontTexture.Pitch / fontCharSize.x;
 		for(::llc::u2_t iChar = 0, countChars = textToRaster.size(); iChar < countChars; ++iChar) {
 			const uc_t					charToDraw						= (uc_t)textToRaster[iChar];

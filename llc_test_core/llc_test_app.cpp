@@ -495,7 +495,7 @@
 //	rtrn 0;
 //}
 //
-//::llc::err_t testApp(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+//::llc::err_t test_app(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 //	::llc::SRuntimeValues runtimeValues = {};
 //	if_fail_fe(testAppEntryPoint(errors));
 //	if_fail_fe(testAppModule(errors, runtimeValues));
