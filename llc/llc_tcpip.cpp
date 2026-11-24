@@ -11,10 +11,6 @@
 
 LLC_USING_TYPEINT();
 
-namespace llc {
-	::llc::error_t			tcpipAddress		(SOCKET socket, ::llc::u2_t & ip, ::llc::u1_t & port);
-}
-
 ::llc::error_t			llc::tcpipAddress		(::llc::vcst_t strIP, ::llc::u2_t & address, ::llc::u1_t & port) {
 	::llc::u2_t					iOffset					= ::llc::tcpipAddress(strIP, address);
 	return (iOffset < strIP.size())

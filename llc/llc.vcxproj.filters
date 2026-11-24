@@ -792,21 +792,6 @@
     <ClInclude Include="llc_connection.h">
       <Filter>inet</Filter>
     </ClInclude>
-    <ClInclude Include="llc_connection_ip.h">
-      <Filter>inet</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_socket_client.h">
-      <Filter>inet</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_socket_server.h">
-      <Filter>inet</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_client_app.h">
-      <Filter>inet</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_server_app.h">
-      <Filter>inet</Filter>
-    </ClInclude>
     <ClInclude Include="llc_stdsocket.h">
       <Filter>inet</Filter>
     </ClInclude>
@@ -1110,21 +1095,6 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="llc_connection.cpp">
-      <Filter>inet</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_connection_ip.cpp">
-      <Filter>inet</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_socket_client.cpp">
-      <Filter>inet</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_socket_server.cpp">
-      <Filter>inet</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_client_app.cpp">
-      <Filter>inet</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_server_app.cpp">
       <Filter>inet</Filter>
     </ClCompile>
     <ClCompile Include="llc_tcpip.cpp">

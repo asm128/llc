@@ -61,11 +61,9 @@ namespace llc
 #	define is_zero(your_int)				(0 == (your_int))				// returns true if the parameter is equal to zero
 #	define onif_true_e_false(expression)			one_if(false == (expression))
 //
-	tplt<tpnm T, tpnm U> stxp auto round_up(T count, U denominator) nxpt { rtrn (count + denominator - 1) / denominator; }
+#	define round_up(count, denominator)		(((count) + (denominator) - 1) / (denominator))	// 
 #endif
 
 } // namespace
-
-tplt<tpnm T, tpnm U> stxp auto round_up(T count, U denominator) nxpt { rtrn ::llc::round_up(count, denominator); }
 
 #endif // LLC_EVAL_H_23627
