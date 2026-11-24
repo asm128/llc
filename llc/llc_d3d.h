@@ -1,7 +1,8 @@
-#include "llc_grid_color.h"
+#include "llc_platform_globals.h"
 
 #if defined(LLC_WINDOWS)
 
+#include "llc_grid_color.h"
 #include "llc_complus.h"
 
 #include <d3d11_3.h>

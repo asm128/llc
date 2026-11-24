@@ -108,6 +108,8 @@
     <ClInclude Include="llc_cpow.h" />
     <ClInclude Include="llc_ctti.h" />
     <ClInclude Include="llc_datatype.h" />
+    <ClInclude Include="llc_d3d.h" />
+    <ClInclude Include="llc_d3d_device_resources.h" />
     <ClInclude Include="llc_debug.h" />
     <ClInclude Include="llc_deflate.h" />
     <ClInclude Include="llc_gpio.h" />
@@ -197,6 +199,7 @@
     <ClInclude Include="llc_voxel_geometry.h" />
     <ClInclude Include="llc_wifi.h" />
     <ClInclude Include="llc_window.h" />
+    <ClInclude Include="llc_xaudio2.h" />
     <ClInclude Include="llc_framework.h" />
     <ClInclude Include="llc_gui_control_list.h" />
     <ClInclude Include="llc_gui_desktop.h" />
@@ -325,6 +328,7 @@
     <ClCompile Include="llc_datatype.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="llc_d3d.cpp" />
     <ClCompile Include="llc_deflate.cpp" />
     <ClCompile Include="llc_file_pack.cpp" />
     <ClCompile Include="llc_geometry.cpp" />
@@ -412,6 +416,7 @@
     </ClCompile>
     <ClCompile Include="llc_wifi.cpp" />
     <ClCompile Include="llc_window.cpp" />
+    <ClCompile Include="llc_xaudio2.cpp" />
     <ClCompile Include="llc_framework.cpp" />
     <ClCompile Include="llc_gui_control_list.cpp" />
     <ClCompile Include="llc_gui_desktop.cpp">

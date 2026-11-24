@@ -1,12 +1,13 @@
+#include "llc_platform_globals.h"
+
+#if defined(LLC_WINDOWS)
+
 #include "llc_complus.h"
-
-#ifdef LLC_WINDOWS
-
 #include "llc_n3.h"
 #include "llc_array_ptr.h"
 
 #define WIN32_LEAN_AND_MEAN
-#include "XAudio2Versions.h"
+#include "../llc_engine/XAudio2Versions.h"
 
 #include <wrl/client.h>
 

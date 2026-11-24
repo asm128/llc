@@ -747,6 +747,15 @@
     <ClInclude Include="llc_datatype.h">
       <Filter>type</Filter>
     </ClInclude>
+    <ClInclude Include="llc_d3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_d3d_device_resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_xaudio2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="llc_append_css.h">
       <Filter>string</Filter>
     </ClInclude>
@@ -919,6 +928,12 @@
     </ClCompile>
     <ClCompile Include="llc_datatype.cpp">
       <Filter>type</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_d3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_xaudio2.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="llc_deflate.cpp">
       <Filter>encoding</Filter>

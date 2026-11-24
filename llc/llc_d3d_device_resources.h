@@ -1,3 +1,7 @@
+#include "llc_platform_globals.h"
+
+#if defined(LLC_WINDOWS)
+
 #include "llc_d3d.h"
 #include "llc_grid.h"
 
@@ -405,3 +409,5 @@ namespace DX
 } // namespace
 
 #endif // DEVICERESOURCES_H_2387647892
+
+#endif // LLC_WINDOWS

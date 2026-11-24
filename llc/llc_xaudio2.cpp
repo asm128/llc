@@ -1,6 +1,8 @@
 #include "llc_xaudio2.h"
 
-#include "WAVFileReader.h"
+#if defined(LLC_WINDOWS)
+
+#include "../llc_engine/WAVFileReader.h"
 
 #include <cstdio>
 
@@ -573,3 +575,5 @@ HRESULT					llc::SSoundState::PrepareAudio	(::llc::vcst_t wavname, IXAudio2*	XAu
 	Playing					= true;
 	return S_OK;
 }
+
+#endif // LLC_WINDOWS
