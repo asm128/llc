@@ -36,7 +36,7 @@ LLC_USING_TYPEINT();
 
 llc::err_t		llc::with			(vcst_t filepath, vcst_t mode, const llc::function<llc::err_t(FILE*&)> & funcFile)	{ 
 	FILE					* fp				= {};
-	llc_necs(llc::fopen_s(fp, filepath, mode)); if_null_ve(-1, fp);
+	if_fail_fe(llc::fopen_s(fp, filepath, mode)); if_null_ve(-1, fp);
 	llc::err_t	result;
 	if_fail_ef(result = funcFile(fp), "filepath:'%.*s'.", (int)filepath.size(), filepath.begin());
 	if(fp)
@@ -79,7 +79,7 @@ s3_t	llc::	fileSize			(llc::vcst_t fileName)			{
 #	endif // LLC_ESP32
 #else
 	::FILE				* fp					= 0;
-	llc_necall(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
+	if_fail_fef(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
 	if_true_fef(0 == fp, "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
 	if(0 != llc::fseek(fp, 0, FSEEK_END)) {
 		error_printf("Unknown error reading '%.*s'.", (int)fileName.size(), fileName.begin());
@@ -113,73 +113,58 @@ llc::err_t	llc::fileLastWriteTime	(vcst_t fileName, s3_t & modified) {
 	rtrn 0;
 }
 
-// This function is useful for splitting files smaller than 4gb very quick.
-static	llc::err_t	fileSplitSmall	(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
-	if_zero_fef(sizePartMax, "Invalid part size:%" LLC_FMT_U2 ", fileNameSrc:%.*s.", sizePartMax, (int)fileNameSrc.size(), fileNameSrc.begin());
-	llc::as0_t					fileInMemory;
-	if_fail_fef(llc::fileToMemory(fileNameSrc, fileInMemory), "Failed to load '%.*s'.", (int)fileNameSrc.size(), fileNameSrc.begin());
-
-	// -- Write parts to disk.
-	::llc::u2_t			countParts			= fileInMemory.size() / sizePartMax + one_if(fileInMemory.size() % sizePartMax);
-	llc::string			fileNameDst			= {};
-	::llc::u2_t			iPart				= 0;
-	for(; iPart < countParts; ++iPart) {
-		u2_c					offsetPart					= sizePartMax * iPart;
+// Retain the whole-file fast path for files below the streaming threshold.
+sttc llc::err_t fileSplitSmall(llc::vcst_t fileNameSrc, u2_c sizePartMax) {
+	llc::as0_t			fileInMemory;
+	if_fail_fe(llc::fileToMemory(fileNameSrc, fileInMemory));
+	cnst u2_t			countParts = fileInMemory.size() / sizePartMax + one_if(fileInMemory.size() % sizePartMax);
+	if_true_fe(countParts > 0x7FFFFFFFU);
+	llc::string			fileNameDst;
+	for(u2_t iPart = 0; iPart < countParts; ++iPart) {
+		cnst u2_t		offsetPart = sizePartMax * iPart;
 		fileNameDst.clear();
 		if_fail_fe(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
-		info_printf("Creating part %" LLC_FMT_U2 ": '%s'.", iPart, fileNameDst.begin());
-		FILE				* fpDest					= 0;
-		if_true_fef(llc::fopen_s(fpDest, fileNameDst, LLC_OPEN_MODE_WRITE), "Failed to open file: \"%s\".", fileNameDst.begin());
-		if_null_fef(fpDest, "Failed to create or open file: \"%s\".", fileNameDst.begin());
-		::llc::u2_t			countBytes					= (iPart == countParts - 1) ? fileInMemory.size() - offsetPart : sizePartMax;
-		if_true_fef(countBytes != fwrite(&fileInMemory[offsetPart], 1, countBytes, fpDest), "Failed to write part %" LLC_FMT_U2 " of %" LLC_FMT_U2 " bytes to disk. Disk full? file: \"%s\".", iPart, countBytes, fileNameDst.begin());
-		fclose(fpDest);
+		info_printf("Creating part %u: '%s'.", iPart, fileNameDst.begin());
+		cnst u2_t		countBytes = llc::min(sizePartMax, fileInMemory.size() - offsetPart);
+		if_fail_fe(llc::fileFromMemory(fileNameDst, llc::vcs0_t{fileInMemory.begin() + offsetPart, countBytes}));
 	}
-	return countParts;
+	return (llc::err_t)countParts;
 }
 
-// This function is useful for splitting files smaller than 4gb very quick.
-static	llc::err_t	fileSplitLarge				(llc::vcst_t /*fileNameSrc*/, u2_c /*sizePartMax*/) {
-	always_printf("Not implemented.");
-	return -1;
-	//if_zero_fef(sizePartMax, "Invalid part size:%" LLC_FMT_U2 ", fileNameSrc:%.*s.", sizePartMax, fileNameSrc.size(), fileNameSrc.begin());
-	//s3_t				sizeFile;
-	//if_fail_vef(-1, sizeFile = llc::fileSize(fileNameSrc), "Failed to open file %s.", fileNameSrc.begin());
-	//FILE				* fp				= 0;
-	//if_fail_fef(llc::fopen_s(fp, fileNameSrc, LLC_OPEN_MODE_READ), "Failed to open '%s'.", fileNameSrc.begin());
-	//if_null_fef(fp, "Failed to open '%s'.", fileNameSrc.begin());
-	//
-	//llc::as0_t					partInMemory;
-	//llc_necall(partInMemory.resize(sizePartMax), "Failed to allocate buffer for file part. Out of memory? File part size: %" LLC_FMT_U2 ".", sizePartMax);
-	//
-	//// -- Write parts to disk.
-	//::llc::u2_t			countParts					= (::llc::u2_t)(sizeFile / sizePartMax + one_if(sizeFile % sizePartMax));
-	//char				fileNameDst	[1024]			= {};
-	//::llc::u2_t			iPart				= 0;
-	//for(; iPart < countParts; ++iPart) { //
-	//	u2_c					offsetPart					= sizePartMax * iPart;
-	//	llc_necall(snprintf(fileNameDst, llc::size(fileNameDst) - 2, "%s.%.2" LLC_FMT_U2, fileNameSrc.begin(), iPart), "File name too large: %.*s.", fileNameSrc.size(), fileNameSrc.begin());
-	//	info_printf("Creating part %" LLC_FMT_U2 ": '%s'.", iPart, fileNameDst);
-	//	FILE				* fpDest					= 0;
-	//	if_fail_fef(llc::fopen_s(fpDest, fileNameDst, LLC_OPEN_MODE_WRITE), "Failed to open file: %s.", fileNameDst);
-	//	if_null_fef(fpDest, "Failed to create file: %s.", fileNameDst);
-	//	s3_t				countBytes					= (iPart == countParts - 1) ? sizeFile - offsetPart : sizePartMax;
-	//	if_true_fef(countBytes != (s3_t)fwrite(partInMemory.begin(), 1, (::llc::u2_t)countBytes, fpDest), "Failed to write part %" LLC_FMT_U2 " of %" LLC_FMT_U2 " bytes to disk. Disk full? file: \"%s\".", iPart, countBytes, fileNameDst.begin());
-	//	fclose(fpDest);
-	//}
-	//return countParts;
+// Stream large files without retaining a complete part in memory.
+sttc llc::err_t fileSplitLarge(llc::vcst_t fileNameSrc, u2_c sizePartMax, u3_c sizeFile) {
+	llc::au0_t			buffer;
+	cnst u3_t			countParts = sizeFile / sizePartMax + one_if(sizeFile % sizePartMax);
+	llc::string			fileNameDst;
+	u3_t				offset = 0;
+	for(u2_t iPart = 0; iPart < countParts; ++iPart) {
+		fileNameDst.clear();
+		if_fail_fe(llc::append_strings(fileNameDst, fileNameSrc, '.', llc::str(iPart)));
+		cnst u3_t		partSize = llc::min(sizeFile - offset, (u3_t)sizePartMax);
+		u3_t			partOffset = 0;
+		while(partOffset < partSize) {
+			cnst u2_t	count = (u2_t)llc::min(partSize - partOffset, (u3_t)(1024U * 1024U));
+			if_fail_fe(llc::fileToMemory(fileNameSrc, buffer, count, offset));
+			if_true_fef(buffer.size() != count, "Short read at offset %" LLC_FMT_U3 ": '%.*s'.", offset, LLC_VIEW_ARGS(fileNameSrc));
+			if_fail_fe(llc::fileFromMemory(fileNameDst, buffer, partOffset != 0));
+			partOffset += count;
+			offset += count;
+		}
+	}
+	return (llc::err_t)countParts;
 }
 
-// Splits a file into file.## parts.
-llc::err_t	llc::	fileSplit				(vcst_t fileNameSrc, u2_c sizePartMax) {
-	// -- Get file size to determine which algorithm to use.
-	// -- For files smaller than 3gb, we use a fast algorithm that loads the entire file in memory.
-	// -- For files of, or larger than, 3gb, we use a fast algorithm that loads chunks of 1gb in memory for writing the parts.
-	stxp	u2_c			gigabyte					= 1024U*1024U*1024U;
-	stxp	u2_c			sizeSmallFileMax			= 3U * gigabyte;
-	const s3_t				sizeFile					= llc::fileSize(fileNameSrc);
-	if_true_fef(-1 == sizeFile, "Failed to get size for file: '%.*s'.", (int)fileNameSrc.size(), fileNameSrc.begin());
-	return (sizeSmallFileMax > sizeFile) ? ::fileSplitSmall(fileNameSrc, sizePartMax) : ::fileSplitLarge(fileNameSrc, sizePartMax);
+// Splits a file into file.## parts; failure retains completed/partial output.
+llc::err_t llc::fileSplit(vcst_t fileNameSrc, u2_c sizePartMax) {
+	if_zero_fef(sizePartMax, "Invalid part size for '%.*s'.", LLC_VIEW_ARGS(fileNameSrc));
+	stxp u2_c			sizeSmallFileMax = 3U * 1024U * 1024U * 1024U;
+	cnst llc::string		fileName = fileNameSrc;
+	cnst s3_t			sizeFile = llc::fileSize(fileName);
+	if_fail_fef(sizeFile, "Failed to get size for '%.*s'.", LLC_VIEW_ARGS(fileNameSrc));
+	if(0 == sizeFile)
+		return 0;
+	if_true_fef((u3_t)sizeFile / sizePartMax + one_if(sizeFile % sizePartMax) > 0x7FFFFFFFU, "Too many parts for '%.*s'.", LLC_VIEW_ARGS(fileNameSrc));
+	return (sizeSmallFileMax > sizeFile) ? ::fileSplitSmall(fileName, sizePartMax) : ::fileSplitLarge(fileName, sizePartMax, (u3_t)sizeFile);
 }
 // Joins a file split into file.## parts.
 llc::err_t	llc::	fileJoin				(vcst_t fileNameDst)	{
@@ -216,9 +201,9 @@ llc::err_t	llc::	fileToMemory			(vcst_t usfileName, llc::au0_t & fileInMemory, :
 	u2_c				fileSize					= (::llc::u2_t)fp.size();
 	fileInMemory.clear();
 #		ifdef LLC_ESP32
-	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
+	if_fail_fef(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), heap_caps_get_free_size(MALLOC_CAP_8BIT));
 #		else
-	llc_necall(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
+	if_fail_fef(fileInMemory.resize(fileSize), "Too large to load in memory? File size: %" LLC_FMT_S2 ". Available memory: %" LLC_FMT_S2 ".", fp.size(), umm_free_heap_size_lw());
 #		endif // LLC_ESP32
 	if_true_fe(fileSize != (::llc::u2_t)fp.readBytes((char*)fileInMemory.begin(), fileSize));
 	fp.close();

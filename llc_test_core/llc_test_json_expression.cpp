@@ -1,3 +1,4 @@
+#include "llc_string_compose.h"
 #include "llc_test_core.h"
 #include "llc_json_expression.h"
 #include "llc_file.h"
@@ -338,7 +339,7 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 	rtrn 0;
 }
 
-::llc::err_t testJSONExpression(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_json_expression(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testJSONExpressionHistorical(errors, outputFolder));
 	cnst ::llc::vcst_t document = "{\"application\":{\"blitter\":{\"database\":{\"name\":\"main\",\"enabled\":true,\"disabled\":false,\"negativeZero\":-0.0,\"path\":{\"database\":\"data\"},\"bind\":[\"id\",\"name\"]}}},\"selector\":\"selectorName\",\"selectorName\":\"name\"}";
 	if_fail_fe(::llc::fileFromMemory(outputFolder, "focused_input.json", document.cu8()));
@@ -419,7 +420,7 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_SOLVER_STATE, solver.Results.size() != resultCountBefore, "Steps:%u, expected:%u.", solver.Results.size(), resultCountBefore);
 
 	::llc::asc_t failedFormat = {};
-	if_fail_fe(failedFormat.append_string("preserved"));
+	if_fail_fe(::llc::append_string(failedFormat, "preserved"));
 	cnst ::llc::vcst_t failedTemplate = "prefix:{application.blitter.missing.name}";
 	cnst ::llc::err_t failedFormatResult = ::llc::jsonStringFormat(failedTemplate, reader, 0, failedFormat);
 	::testJSONExpressionTrace(reader, 0, failedTemplate, "preserved", {failedFormat.begin(), failedFormat.size()}, failedFormatResult, true, true);

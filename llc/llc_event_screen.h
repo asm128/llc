@@ -31,17 +31,17 @@ namespace llc
 #endif
 	};
 
-	stin	::llc::error_t	eventEnqueueScreenDestroy		(::llc::apobj<::llc::SEventSystem> & queue)						{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Destroy, {}); }
-	stin	::llc::error_t	eventEnqueueScreenClose			(::llc::apobj<::llc::SEventSystem> & queue)						{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Close  , {}); }
-	stin	::llc::error_t	eventEnqueueScreenCreate		(::llc::apobj<::llc::SEventSystem> & queue, const SEventArgsScreenCreate & key)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Create, key); }
-	stin	::llc::error_t	eventEnqueueScreenActivate		(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Activate	, key); }
-	stin	::llc::error_t	eventEnqueueScreenDeactivate	(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Deactivate	, key); }
-	stin	::llc::error_t	eventEnqueueScreenRedraw		(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Redraw		, key); }
-	stin	::llc::error_t	eventEnqueueScreenShow			(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Show		, key); }
-	stin	::llc::error_t	eventEnqueueScreenHide			(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Hide		, key); }
-	stin	::llc::error_t	eventEnqueueScreenConstraints	(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Constraints, key); }
-	stin	::llc::error_t	eventEnqueueScreenMove			(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2u1_t coord)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Move		, coord); }
-	stin	::llc::error_t	eventEnqueueScreenResize		(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2u1_t size)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Resize		, size); }
+	stin	::llc::err_t	eventEnqueueScreenDestroy		(::llc::apobj<::llc::SEventSystem> & queue)						{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Destroy, {}); }
+	stin	::llc::err_t	eventEnqueueScreenClose			(::llc::apobj<::llc::SEventSystem> & queue)						{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Close  , {}); }
+	stin	::llc::err_t	eventEnqueueScreenCreate		(::llc::apobj<::llc::SEventSystem> & queue, const SEventArgsScreenCreate & key)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Create, key); }
+	stin	::llc::err_t	eventEnqueueScreenActivate		(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Activate	, key); }
+	stin	::llc::err_t	eventEnqueueScreenDeactivate	(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Deactivate	, key); }
+	stin	::llc::err_t	eventEnqueueScreenRedraw		(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Redraw		, key); }
+	stin	::llc::err_t	eventEnqueueScreenShow			(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Show		, key); }
+	stin	::llc::err_t	eventEnqueueScreenHide			(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Hide		, key); }
+	stin	::llc::err_t	eventEnqueueScreenConstraints	(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Constraints, key); }
+	stin	::llc::err_t	eventEnqueueScreenMove			(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2u1_t coord)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Move		, coord); }
+	stin	::llc::err_t	eventEnqueueScreenResize		(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2u1_t size)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Resize		, size); }
 } // namespace 
 
 #endif // LLC_EVENT_SCREEN_H_23627

@@ -52,18 +52,18 @@ sttc ::llc::err_t testBlockFailures(::llc::ATestError & errors) {
 	cnst ::llc::SRecordMap originalMap = {17, 19};
 	::llc::SRecordMap outputMap = originalMap;
 	cnst ::llc::err_t zeroDecodeResult = ::llc::blockRecordIndices(37, 0, outputMap);
-	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_ZERO_BLOCK_SIZE, zeroDecodeResult != ::llc::OS_INVALID_PARAMETER, "Decode result:%i, expected:%i.", zeroDecodeResult, ::llc::OS_INVALID_PARAMETER);
+	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_ZERO_BLOCK_SIZE, zeroDecodeResult != -1, "Decode result:%i, expected:%i.", zeroDecodeResult, -1);
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_OUTPUT_STABILITY, outputMap.IdBlock != originalMap.IdBlock, "Failed decode block:%u, expected unchanged:%u.", outputMap.IdBlock, originalMap.IdBlock);
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_OUTPUT_STABILITY, outputMap.IndexRecord != originalMap.IndexRecord, "Failed decode record:%u, expected unchanged:%u.", outputMap.IndexRecord, originalMap.IndexRecord);
 
 	::llc::u3_t outputId = 0x123456789ABCDEF0ULL;
 	cnst ::llc::u3_t originalId = outputId;
 	cnst ::llc::err_t zeroEncodeResult = ::llc::blockRecordId({17, 0}, 0, outputId);
-	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_ZERO_BLOCK_SIZE, zeroEncodeResult != ::llc::OS_INVALID_PARAMETER, "Encode result:%i, expected:%i.", zeroEncodeResult, ::llc::OS_INVALID_PARAMETER);
+	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_ZERO_BLOCK_SIZE, zeroEncodeResult != -1, "Encode result:%i, expected:%i.", zeroEncodeResult, -1);
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_OUTPUT_STABILITY, outputId != originalId, "Failed zero-size encode changed id:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", outputId, originalId);
 
 	cnst ::llc::err_t recordRangeResult = ::llc::blockRecordId({17, 8}, 8, outputId);
-	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_RECORD_RANGE, recordRangeResult != ::llc::OS_INVALID_PARAMETER, "Record-range result:%i, expected:%i.", recordRangeResult, ::llc::OS_INVALID_PARAMETER);
+	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_RECORD_RANGE, recordRangeResult != -1, "Record-range result:%i, expected:%i.", recordRangeResult, -1);
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_OUTPUT_STABILITY, outputId != originalId, "Failed record-range encode changed id:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", outputId, originalId);
 
 	outputMap = originalMap;
@@ -87,7 +87,7 @@ sttc ::llc::err_t testBlockFullWidth(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testBlock(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_block(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_TYPE_LAYOUT, sizeof(::llc::SRecordMap) != sizeof(::llc::u2_t) * 2, "SRecordMap size:%u, expected:%u.", (::llc::u2_t)sizeof(::llc::SRecordMap), (::llc::u2_t)(sizeof(::llc::u2_t) * 2));
 	cnst ::llc::SRecordMap defaultMap = {};
 	LLC_TEST_CHECKF(errors, BLOCK_TEST_RESULT_DEFAULT_VALUE, defaultMap.IdBlock, "Default block:%u, expected:0.", defaultMap.IdBlock);

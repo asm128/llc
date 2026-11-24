@@ -1,4 +1,3 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                     IncDir			:= ../zlib
 Platform		:= esp32 # Linux.ARM
 ProjectName		:= llc
 Configuration	:= Release

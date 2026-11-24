@@ -30,16 +30,16 @@ namespace llc
 			Texts		.push_back(Empty.begin()); 
 		}
 
-		error_t						Save		(au0_t & output)						const	{
+		err_t						Save		(au0_t & output)						const	{
 			if_true_fe(Counts.size() != Texts.size());
-			llc_necs(llc::saveView(output, Counts));
+			if_fail_fe(llc::saveView(output, Counts));
 			for(::llc::u2_t iArray = 0; iArray < Counts.size(); ++iArray)
-				llc_necs(output.append((const u0_t*)Texts[iArray], Counts[iArray]));
+				if_fail_fe(output.append((const u0_t*)Texts[iArray], Counts[iArray]));
 
 			return 0;
 		}
 
-		error_t						Load		(vcu0_t & input) {
+		err_t						Load		(vcu0_t & input) {
 			vcu0_t						inputToRead	= input;
 			au2_t						counts		= {};
 			apod<sc_c *>			texts		= {};
@@ -69,11 +69,11 @@ namespace llc
 			rtrn 0;
 		}
 
-		inline	error_t				Size		()					const	noexcept	{ return Texts.size(); }
+		inline	err_t				Size		()					const	noexcept	{ return Texts.size(); }
 		inline	vcst_t					View		(::llc::u2_t index)	const				{ return {Texts[index], Counts[index]}; }
-		inline	error_t				View		(const char* elements, ::llc::u1_t count)	{ vcst_t out_view; return View(elements, count, out_view); }
+		inline	err_t				View		(const char* elements, ::llc::u1_t count)	{ vcst_t out_view; return View(elements, count, out_view); }
 
-		error_t						Index		(vcst_t elements) {
+		err_t						Index		(vcst_t elements) {
 			if_true_fef(elements.size() >= CLabelManager::BLOCK_SIZE, "Data too large: %" LLC_FMT_U2 ".", elements.size());
 
 			for(::llc::u2_t iView = 0, countLabels = Texts.size(); iView < countLabels; ++iView) {
@@ -87,7 +87,7 @@ namespace llc
 			return -1;
 		}
 
-		error_t						View		(const char* text, ::llc::u2_t textLen, vcst_t & out_view)		{
+		err_t						View		(const char* text, ::llc::u2_t textLen, vcst_t & out_view)		{
 			if(0 == textLen || 0 == text || 0 == text[0]) {
 				out_view							= Empty;
 				return 0;
@@ -104,8 +104,8 @@ namespace llc
 				return viewIndex;
 			}
 
-			llc_necs(Characters.push_sequence(text, ntslen, out_view));
-			llc_necs(Texts.push_back(out_view.begin()));
+			if_fail_fe(Characters.push_sequence(text, ntslen, out_view));
+			if_fail_fe(Texts.push_back(out_view.begin()));
 			cnst err_t iCount = Counts.push_back(out_view.size());
 			if(0 > iCount)
 				Texts.pop_back();

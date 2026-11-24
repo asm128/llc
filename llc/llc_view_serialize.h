@@ -43,7 +43,7 @@ namespace llc
 	}
 	tplTstin	err_t	viewRead		(view<cnst T> & headerToRead, cnst vcu0_t & input)	{ rtrn viewRead<cnst T, u0_c>(headerToRead, input); }
 	tplTstin	err_t	viewRead		(view<cnst T> & headerToRead, cnst vcs0_t  & input)	{ rtrn viewRead<cnst T, s0_c>(headerToRead, input); }
-	tplTstin	err_t	viewRead		(view<T> & headerToRead, vu8 input)					{ rtrn viewRead<T, u0_t>(headerToRead, input); }
+	tplTstin	err_t	viewRead		(view<T> & headerToRead, vu0_t input)					{ rtrn viewRead<T, u0_t>(headerToRead, input); }
 	tplTstin	err_t	viewRead		(view<T> & headerToRead, vs0_t input)					{ rtrn viewRead<T, s0_t>(headerToRead, input); }
 	//
 	tplT		err_t	loadView		(vcu0_t & input, view<cnst T> & output) { 
@@ -53,6 +53,8 @@ namespace llc
 		rtrn 0;
 	}
 	tplTstin	err_t	loadView	(vcs0_t & input, view<T> & output) { rtrn loadView(*(vcu0_t*)& input, output); }
+	tplTInTOut err_t load(view<cnst TIn> & input, view<TOut> & output) { rtrn loadView(input, output); }
+	tplTInTOut err_t load(view<cnst TIn> & input, TOut & output) { rtrn loadPOD(input, output); }
 	//
 	tplTInTOut requires(szof(TIn) == 1 && (false == is_cnst<TIn>::Value || is_cnst<TOut>::Value))
 	err_t				viewPascal	(view<TOut> & headerToRead, view<TIn> input)	{

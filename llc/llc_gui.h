@@ -26,7 +26,7 @@ namespace llc
 		::llc::papod<::llc::bgra>			Palette					= {};
 		::llc::papod<::llc::SControlTheme>	ControlThemes			= {};
 
-		::llc::asti16<::llc::GUI_CONTROL_PALETTE_COUNT>	
+		::llc::asts1_t<::llc::GUI_CONTROL_PALETTE_COUNT>	
 											DefaultColors			= {};
 
 		::llc::apod<::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>>
@@ -49,32 +49,35 @@ namespace llc
 		bool								InputModeTouch		= true;
 	};
 
-	::llc::error_t			guiProcessInput					(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> in_Events = {});
-	::llc::error_t			guiUpdateMetrics				(::llc::SGUI & gui, const ::llc::n2u1_t & targetSize, bool forceUpdate);
+	::llc::err_t			guiSave							(::llc::au0_t & output, const ::llc::SGUI & gui);
+	// Loaded text views borrow input bytes; keep the input storage alive while the GUI uses them.
+	::llc::err_t			guiLoad							(::llc::SGUI & gui, ::llc::vcu0_t & input);
+	::llc::err_t			guiProcessInput					(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> in_Events = {});
+	::llc::err_t			guiUpdateMetrics				(::llc::SGUI & gui, const ::llc::n2u1_t & targetSize, bool forceUpdate);
 	// Process input against the previous update, apply changes, then update metrics before drawing.
 	// Drawing does not update layout or adopt the render target's size.
-	::llc::error_t			guiDraw							(::llc::SGUI & gui, ::llc::g8bgra target);
-	::llc::error_t			guiGetProcessableControls		(const ::llc::SGUI & gui, ::llc::acid & controlIndices);
-	::llc::error_t			guiDeselect						(::llc::SGUI & gui);
-	::llc::error_t			guiSelect						(::llc::SGUI & gui, cid_t controlToSelect);
+	::llc::err_t			guiDraw							(::llc::SGUI & gui, ::llc::g8bgra target);
+	::llc::err_t			guiGetProcessableControls		(const ::llc::SGUI & gui, ::llc::acid & controlIndices);
+	::llc::err_t			guiDeselect						(::llc::SGUI & gui);
+	::llc::err_t			guiSelect						(::llc::SGUI & gui, cid_t controlToSelect);
 
-	::llc::error_t			controlDelete					(::llc::SGUI & gui, cid_t iControl, bool recursive = true);
+	::llc::err_t			controlDelete					(::llc::SGUI & gui, cid_t iControl, bool recursive = true);
 	::llc::cid_t 			controlCreate					(::llc::SGUI & gui);
 	::llc::cid_t			controlCreateChild				(::llc::SGUI & gui, cid_t iParent);
-	::llc::error_t			controlSetParent				(::llc::SGUI & gui, cid_t iControl, cid_t iParent);
-	::llc::error_t			controlDrawHierarchy			(::llc::SGUI & gui, cid_t iControl, ::llc::g8bgra target);
-	::llc::error_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, vcst_t text);
-	::llc::error_t			controlFontSet					(::llc::SGUI & gui, cid_t iControl, int16_t iFont);
+	::llc::err_t			controlSetParent				(::llc::SGUI & gui, cid_t iControl, cid_t iParent);
+	::llc::err_t			controlDrawHierarchy			(::llc::SGUI & gui, cid_t iControl, ::llc::g8bgra target);
+	::llc::err_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, vcst_t text);
+	::llc::err_t			controlFontSet					(::llc::SGUI & gui, cid_t iControl, int16_t iFont);
 	//::llc::error_t			controlUpdateMetrics			(::llc::SGUI & gui, int32_t iControl, const ::llc::n2<::llc::u2_t> & targetSize);
-	::llc::error_t			controlUpdateMetricsTopToDown	(::llc::SGUI & gui, cid_t iControl, const ::llc::n2u1_t & targetSize, bool forceUpdate);
-	::llc::error_t			controlMetricsInvalidate		(::llc::SGUI & gui, cid_t iControl);
-	::llc::error_t			controlHidden					(const ::llc::SGUI & gui, cid_t iControl);
-	::llc::error_t			controlDisabled					(const ::llc::SGUI & gui, cid_t iControl);
-	::llc::error_t			controlInvalid					(const ::llc::SGUI & gui, cid_t iControl);
+	::llc::err_t			controlUpdateMetricsTopToDown	(::llc::SGUI & gui, cid_t iControl, const ::llc::n2u1_t & targetSize, bool forceUpdate);
+	::llc::err_t			controlMetricsInvalidate		(::llc::SGUI & gui, cid_t iControl);
+	::llc::err_t			controlHidden					(const ::llc::SGUI & gui, cid_t iControl);
+	::llc::err_t			controlDisabled					(const ::llc::SGUI & gui, cid_t iControl);
+	::llc::err_t			controlInvalid					(const ::llc::SGUI & gui, cid_t iControl);
 
 
-	::llc::error_t			guiProcessControls				(const ::llc::SGUI & gui, const ::llc::function<::llc::error_t(::llc::cid_t iControl)> & funcOnExecute);
-	::llc::error_t			guiProcessControls				(const ::llc::SGUI & gui, ::llc::vcid controlsToProcess, const ::llc::function<::llc::error_t(::llc::cid_t iControl)> & funcOnExecute);
+	::llc::err_t			guiProcessControls				(const ::llc::SGUI & gui, const ::llc::function<::llc::err_t(::llc::cid_t iControl)> & funcOnExecute);
+	::llc::err_t			guiProcessControls				(const ::llc::SGUI & gui, ::llc::vcid controlsToProcess, const ::llc::function<::llc::err_t(::llc::cid_t iControl)> & funcOnExecute);
 } // namespace
 
 #endif // LLC_GUI_H_23627

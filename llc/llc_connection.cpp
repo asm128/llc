@@ -9,7 +9,7 @@
 
 using ::llc::sc_t, ::llc::sc_c;
 
-::llc::error_t			llc::connectionPushData				(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, const ::llc::vcu0_t & data, bool bEncrypt, bool bCompress, uint8_t retryCount) {
+::llc::err_t			llc::connectionPushData				(::llc::SUDPConnection & client, ::llc::SUDPClientQueue & queue, const ::llc::vcu0_t & data, bool bEncrypt, bool bCompress, uint8_t retryCount) {
 	if_true_fef(data.size() > ::llc::UDP_PAYLOAD_SIZE_LIMIT, "%s", "Invalid payload size.");
 
 	::llc::pobj<::llc::SUDPMessage>	message;
@@ -29,12 +29,12 @@ using ::llc::sc_t, ::llc::sc_c;
 	message->Payload					= data;
 	{
 		::std::lock_guard			lock								(queue.MutexSend);
-		llc_necs(queue.Send.push_back(message));
+		if_fail_fe(queue.Send.push_back(message));
 	}
 	return 0;
 }
 
-::llc::error_t			llc::connectionPayloadCollect		(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & receivedMessages)	{
+::llc::err_t			llc::connectionPayloadCollect		(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & receivedMessages)	{
 	if(0 == client.KeyPing || client.State == ::llc::UDP_CONNECTION_STATE_HANDSHAKE)
 		return 1;
 
@@ -46,8 +46,8 @@ using ::llc::sc_t, ::llc::sc_c;
 		 || udpCommand.Command	!= ::llc::ENDPOINT_COMMAND_PAYLOAD
 		) 
 			continue;
-		llc_necs(receivedMessages.push_back(messageReceived));
-		llc_necs(client.Queue.Received.remove_unordered(iMessage--));
+		if_fail_fe(receivedMessages.push_back(messageReceived));
+		if_fail_fe(client.Queue.Received.remove_unordered(iMessage--));
 	}
 	return 0;
 }
@@ -55,7 +55,7 @@ using ::llc::sc_t, ::llc::sc_c;
 stxp	uint64_t		hashFromTime						(uint64_t currentTime)		noexcept	{ return ::llc::noise1DBase(currentTime & 0xFFFFFFFF) + (currentTime >> 16); }
 stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 
-::llc::error_t			payloadQueueOptimize				(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & messageCacheSent, ::llc::apobj<::llc::SUDPMessage> & payloadsToSend) {
+::llc::err_t			payloadQueueOptimize				(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & messageCacheSent, ::llc::apobj<::llc::SUDPMessage> & payloadsToSend) {
 	if(payloadsToSend.size() < 2)
 		return 0;
 
@@ -88,17 +88,17 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 				continue;
 			if(currentPayloadMsg->Time == client.KeyPing)
 				keyPing						= true;
-			llc_necs(payloadSizes.push_back((uint16_t)currentPayloadView.size()));
-			llc_necs(serialized.append(currentPayloadView));
-			llc_necs(payloadsToRemove.push_back(currentPayloadMsg));
-			llc_necs(messageCacheSent.push_back(currentPayloadMsg));
+			if_fail_fe(payloadSizes.push_back((uint16_t)currentPayloadView.size()));
+			if_fail_fe(serialized.append(currentPayloadView));
+			if_fail_fe(payloadsToRemove.push_back(currentPayloadMsg));
+			if_fail_fe(messageCacheSent.push_back(currentPayloadMsg));
 		}
 		if_true_vif(0, 0 == payloadSizes.size(), "No packets to optimize. Total packets searched: %u.", payloadsToSend.size());
 		info_printf("%u packets optimized.", payloadSizes.size());
 		const uint32_t				sizeRequired						= serialized.size() + sizeof(uint16_t) * payloadSizes.size() + sizeof(uint16_t);	// payloads + sizes + packet count
 		uint16_t					packetCount							= (uint16_t)payloadSizes.size();
 		::llc::au0_t				& optimizedPayloadBuffer			= optimizedMsg->Payload;
-		llc_necall(optimizedPayloadBuffer.resize(sizeRequired), "Out of memory? Size required: %u.", sizeRequired);
+		if_fail_fef(optimizedPayloadBuffer.resize(sizeRequired), "Out of memory? Size required: %u.", sizeRequired);
 		optimizedPayloadBuffer.clear();
 		optimizedPayloadBuffer.append((const uint8_t*)&packetCount, sizeof(uint16_t));
 		optimizedPayloadBuffer.append((const uint8_t*)payloadSizes.begin(), sizeof(uint16_t) * payloadSizes.size());
@@ -106,7 +106,7 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 		if_true_fef(sizeRequired != optimizedPayloadBuffer.size(), "Invalid sizes! Size required: %u. Actual size: %u.", sizeRequired, optimizedPayloadBuffer.size());
 		optimizedMsg->Command.Compressed	= 1;
 		optimizedMsg->Command.Encrypted		= 1;
-		llc_necall(payloadsToSend.push_back(optimizedMsg), "Failed! Payload queue size: %u.", payloadsToSend.size());
+		if_fail_fef(payloadsToSend.push_back(optimizedMsg), "Failed! Payload queue size: %u.", payloadsToSend.size());
 
 		if(keyPing)
 			client.KeyPing						= optimizedMsg->Time;
@@ -122,7 +122,7 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 	return 0;
 }
 
-::llc::error_t			payloadQueueSend					(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & messageCacheSent, ::llc::apobj<::llc::SUDPMessage> & payloadsToSend) {
+::llc::err_t			payloadQueueSend					(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & messageCacheSent, ::llc::apobj<::llc::SUDPMessage> & payloadsToSend) {
 	::llc::au0_t				messageBytes;
 	sockaddr_in					sa_remote							= {};							// Information about the client
 	::llc::tcpipAddressToSockaddr(client.Address, sa_remote);
@@ -137,7 +137,7 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 		if(messageToSend.Command.Type == ::llc::ENDPOINT_COMMAND_TYPE_RESPONSE) {
 			payloadHeader.MessageId				= messageToSend.Time;
 			if_true_cef((int)sizeof(::llc::SUDPPayloadHeader) != ::sendto(client.Socket, (sc_c*)&payloadHeader, (int)sizeof(::llc::SUDPPayloadHeader), 0, (sockaddr*)&sa_remote, sizeof(sockaddr_in)), "%s", "Error sending datagram.");	// Send data back
-			llc_necs(messageCacheSent.push_back(pMessageToSend));
+			if_fail_fe(messageCacheSent.push_back(pMessageToSend));
 			info_printf("Sent response to message id: %llx", payloadHeader.MessageId);
 		}
 		else {
@@ -166,35 +166,36 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 				}
 			}
 
-			llc_necs(messageBytes.resize((uint32_t)sizeof(::llc::SUDPPayloadHeader) + payloadHeader.Size));
+			if_fail_fe(messageBytes.resize((uint32_t)sizeof(::llc::SUDPPayloadHeader) + payloadHeader.Size));
 			sendStream						= {messageBytes.begin(), messageBytes.size()};
-			llc_necs(sendStream.write_pod(payloadHeader));
+			if_fail_fe(sendStream.write_pod(payloadHeader));
 
 			if(0 != payloadHeader.Command.Encrypted) {
 				info_printf("Original packet size: %u. Final size: %u.", messageToSend.Payload.size(), ardellEncoded.size());
-				llc_necs(sendStream.write_pod(::llc::vcu0_t{ardellEncoded}));
+				if_fail_fe(sendStream.write_pod(::llc::vcu0_t{ardellEncoded}));
 			}
 			else {
-				if(0 == payloadHeader.Command.Compressed)
-					llc_necs(sendStream.write_pod(::llc::vcu0_t{messageToSend.Payload}));
+				if(0 == payloadHeader.Command.Compressed) {
+					if_fail_fe(sendStream.write_pod(::llc::vcu0_t{messageToSend.Payload}));
+				}
 				else {
 					info_printf("Original packet size: %u. Compressed size: %u.", messageToSend.Payload.size(), compressed.size());
-					llc_necs(sendStream.write_pod(::llc::vcu0_t{compressed}));
+					if_fail_fe(sendStream.write_pod(::llc::vcu0_t{compressed}));
 				}
 			}
 
 			if_true_cef((int)sendStream.CursorPosition != ::sendto(client.Socket, (const sc_t*)sendStream.begin(), (int)sendStream.CursorPosition, 0, (sockaddr*)&sa_remote, sizeof(sockaddr_in)), "%s", "Error sending datagram.");	// Send data back
 			verbose_printf("%u bytes sent.", sendStream.CursorPosition);
 			{
-				llc_necs(client.Queue.Sent.push_back(pMessageToSend));
+				if_fail_fe(client.Queue.Sent.push_back(pMessageToSend));
 			}
-			llc_necs(messageCacheSent.push_back(pMessageToSend));
+			if_fail_fe(messageCacheSent.push_back(pMessageToSend));
 		}
 	}
 	return 0;
 }
 
-::llc::error_t			llc::connectionSendQueue			(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & messageCacheSent, ::llc::apobj<::llc::SUDPMessage> & messageCacheSend, bool packPayloads)				{
+::llc::err_t			llc::connectionSendQueue			(::llc::SUDPConnection & client, ::llc::apobj<::llc::SUDPMessage> & messageCacheSent, ::llc::apobj<::llc::SUDPMessage> & messageCacheSend, bool packPayloads)				{
 	::llc::apobj<::llc::SUDPMessage>	& queueToSend						= client.Queue.Send;
 	sockaddr_in							sa_remote							= {};							// Information about the client
 	::llc::tcpipAddressToSockaddr(client.Address, sa_remote);
@@ -241,14 +242,14 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 		else {
 			if_true_cef((int)sizeof(::llc::SUDPCommand) != ::sendto(client.Socket, (const sc_t*)&messageToSend.Command, (int)sizeof(::llc::SUDPCommand), 0, (sockaddr*)&sa_remote, sizeof(sockaddr_in)), "%s", "Error sending datagram.");	// Send data back
 			//pMessageToSend->Time										= currentTime;
-			llc_necs(client.Queue.Sent.push_back(pMessageToSend));
-			llc_necs(messageCacheSent.push_back(pMessageToSend));
+			if_fail_fe(client.Queue.Sent.push_back(pMessageToSend));
+			if_fail_fe(messageCacheSent.push_back(pMessageToSend));
 		}
 	}
 	if(packPayloads) {
-		llc_necall(::payloadQueueOptimize(client, messageCacheSent, payloadsToSend), "%s", "Failed to optimize payload queue.");
+		if_fail_fef(::payloadQueueOptimize(client, messageCacheSent, payloadsToSend), "%s", "Failed to optimize payload queue.");
 	}
-	llc_necall(::payloadQueueSend(client, messageCacheSent, payloadsToSend), "%s", "Failed ");
+	if_fail_fef(::payloadQueueSend(client, messageCacheSent, payloadsToSend), "%s", "Failed ");
 	for(uint32_t iSent = 0; iSent < messageCacheSent.size(); ++iSent)
 		for(uint32_t iSend = 0; iSend < queueToSend.size(); ++iSend)
 			if(queueToSend[iSend] == messageCacheSent[iSent]) {
@@ -258,7 +259,7 @@ stxp	uint32_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 	return 0;
 }
 
-static	::llc::error_t	handleRequestDISCONNECT					(::llc::SUDPCommand & command, ::llc::SUDPConnection & client)												{
+static	::llc::err_t	handleRequestDISCONNECT					(::llc::SUDPCommand & command, ::llc::SUDPConnection & client)												{
 	if_true_fef(0 != command.Packed || 0 != command.Encrypted || 0 != command.Compressed || ::llc::UDP_CONNECTION_STATE_IDLE != client.State, "Invalid command or client state: 0x%X '%s'.", client.State, ::llc::get_value_label(client.State).begin());
 	client.FirstPing				=
 	client.KeyPing					= 0;
@@ -269,7 +270,7 @@ static	::llc::error_t	handleRequestDISCONNECT					(::llc::SUDPCommand & command,
 	return 0;
 }
 
-static	::llc::error_t	handleRequestCONNECT						(::llc::SUDPCommand & command, ::llc::SUDPConnection & client)												{
+static	::llc::err_t	handleRequestCONNECT						(::llc::SUDPCommand & command, ::llc::SUDPConnection & client)												{
 	if_true_fef(1 != command.Packed || ::llc::UDP_CONNECTION_STATE_HANDSHAKE != client.State, "Invalid client state: 0x%X '%s'.", client.State, ::llc::get_value_label(client.State).begin());
 	client.LastPing					= llc::timeCurrentInUs();
 	{
@@ -290,19 +291,19 @@ static	::llc::error_t	handleRequestCONNECT						(::llc::SUDPCommand & command, :
 typedef int socklen_t;
 #endif
 
-static	::llc::error_t	postConfirmationResponse			(::llc::SUDPClientQueue & queue, const ::llc::SUDPCommand command, const uint64_t messageId)				{
+static	::llc::err_t	postConfirmationResponse			(::llc::SUDPClientQueue & queue, const ::llc::SUDPCommand command, const uint64_t messageId)				{
 	::llc::pobj<::llc::SUDPMessage>		response							= {};
 	response->Command				= command;
 	response->Command.Type			= ::llc::ENDPOINT_COMMAND_TYPE_RESPONSE;
 	response->Time					= messageId;
 	{
 		::std::lock_guard					lock								(queue.MutexSend);
-		llc_necall(queue.Send.push_back(response), "Out of memory? Queue size: %u.", queue.Send.size());
+		if_fail_fef(queue.Send.push_back(response), "Out of memory? Queue size: %u.", queue.Send.size());
 	}
 	return 0;
 }
 
-static	::llc::error_t	handlePAYLOADResponse				(const ::llc::SUDPPayloadHeader & header, ::llc::SUDPConnection & client)		{
+static	::llc::err_t	handlePAYLOADResponse				(const ::llc::SUDPPayloadHeader & header, ::llc::SUDPConnection & client)		{
 	// Remove from sent queue.
 	::std::lock_guard					lock								(client.Queue.MutexSend);
 	info_printf("Received response to message id: %llx", header.MessageId);
@@ -338,11 +339,11 @@ static	::llc::error_t	handlePAYLOADResponse				(const ::llc::SUDPPayloadHeader &
 
 stxp	int64_t			advantage							= 1000000;
 
-static	::llc::error_t	handlePAYLOADRequest				(const ::llc::SUDPPayloadHeader & header, ::llc::SUDPCommand & command, ::llc::SUDPConnection & client, ::llc::au0_t & receiveBuffer)		{
+static	::llc::err_t	handlePAYLOADRequest				(const ::llc::SUDPPayloadHeader & header, ::llc::SUDPCommand & command, ::llc::SUDPConnection & client, ::llc::au0_t & receiveBuffer)		{
 	sockaddr_in					sa_client							= {};						// Information about the client
 	socklen_t					sa_length							= (socklen_t)sizeof(sockaddr_in);	// Length of client struct
 	int							bytes_received						= {};
-	llc_necs(receiveBuffer.resize(sizeof(::llc::SUDPPayloadHeader) + header.Size));
+	if_fail_fe(receiveBuffer.resize(sizeof(::llc::SUDPPayloadHeader) + header.Size));
 	memset(receiveBuffer.begin(), 0, receiveBuffer.size());
 	if(::llc::failed(bytes_received = ::recvfrom(client.Socket, (sc_t*)receiveBuffer.begin(), (int)receiveBuffer.size(), MSG_PEEK, (sockaddr*)&sa_client, &sa_length))) {
 #if defined(LLC_WINDOWS)
@@ -419,7 +420,7 @@ static	::llc::error_t	handlePAYLOADRequest				(const ::llc::SUDPPayloadHeader & 
 	if(0 == (header.Command.Packed & 1)) {
 		{
 			::std::lock_guard					lock								(client.Queue.MutexReceive);
-			llc_necall(client.Queue.Received.push_back(messageReceived), "Out of memory? Queue size: %u.", client.Queue.Received.size());
+			if_fail_fef(client.Queue.Received.push_back(messageReceived), "Out of memory? Queue size: %u.", client.Queue.Received.size());
 		}
 		::llc::pobj<::llc::SUDPMessage>		response							= {};
 		::postConfirmationResponse(client.Queue, header.Command, header.MessageId);
@@ -431,7 +432,7 @@ static	::llc::error_t	handlePAYLOADRequest				(const ::llc::SUDPPayloadHeader & 
 		// 3. Read payload contents
 		::llc::view_stream<uint8_t>			payload								= {messageReceived->Payload.begin(), messageReceived->Payload.size()};
 		uint16_t							packetCount							= 0;
-		llc_necall(payload.read_pod(packetCount), "%s", "Invalid data.");
+		if_fail_fef(payload.read_pod(packetCount), "%s", "Invalid data.");
 		if(0 == packetCount)
 			return 0;
 		if_true_fef((packetCount * sizeof(uint16_t)) > (payload.size() - payload.CursorPosition), "%s", "Invalid packet data.");
@@ -445,21 +446,21 @@ static	::llc::error_t	handlePAYLOADRequest				(const ::llc::SUDPPayloadHeader & 
 			messageReceivedInt->Command.Packed		= 0;	// Clear payload mode bits
 			messageReceivedInt->Command.Encrypted	= 0;
 			messageReceivedInt->Command.Compressed	= 0;
-			llc_necs(messageReceivedInt->Payload.resize(sizes[iSizes]));
-			llc_necall(payload.read_pod(::llc::vu0_t{messageReceivedInt->Payload}), "Corrupt payload data. Sizes don't match. Payload size: %u.", payload.size());
-			llc_necs(tempQueue.push_back(messageReceivedInt));
+			if_fail_fe(messageReceivedInt->Payload.resize(sizes[iSizes]));
+			if_fail_fef(payload.read_pod(::llc::vu0_t{messageReceivedInt->Payload}), "Corrupt payload data. Sizes don't match. Payload size: %u.", payload.size());
+			if_fail_fe(tempQueue.push_back(messageReceivedInt));
 		}
 		{
 			::std::lock_guard					lock								(client.Queue.MutexReceive);
 			for(uint32_t iMessage = 0; iMessage < tempQueue.size(); ++iMessage)
-				llc_necall(client.Queue.Received.push_back(tempQueue[iMessage]), "Out of memory? Queue size: %u.", client.Queue.Received.size());
+				if_fail_fef(client.Queue.Received.push_back(tempQueue[iMessage]), "Out of memory? Queue size: %u.", client.Queue.Received.size());
 		}
 		::postConfirmationResponse(client.Queue, header.Command, header.MessageId);
 	}
 	return 0;
 }
 
-static	::llc::error_t	handlePAYLOAD						(::llc::SUDPCommand & command, ::llc::SUDPConnection & client, ::llc::au0_t & receiveBuffer)		{
+static	::llc::err_t	handlePAYLOAD						(::llc::SUDPCommand & command, ::llc::SUDPConnection & client, ::llc::au0_t & receiveBuffer)		{
 	if(::llc::UDP_CONNECTION_STATE_IDLE != client.State)
 		return 1;
 	::llc::SUDPPayloadHeader			header								= {};
@@ -479,7 +480,7 @@ static	::llc::error_t	handlePAYLOAD						(::llc::SUDPCommand & command, ::llc::S
 	}
 }
 
-::llc::error_t			llc::connectionHandleCommand		(::llc::SUDPConnection & client, ::llc::SUDPCommand & command, ::llc::au0_t & receiveBuffer)		{
+::llc::err_t			llc::connectionHandleCommand		(::llc::SUDPConnection & client, ::llc::SUDPCommand & command, ::llc::au0_t & receiveBuffer)		{
 	::llc::vcst_t				labelCommand						= ::llc::get_value_label(command.Command);
 	::llc::vcst_t				labelType							= ::llc::get_value_label(command.Type	);
 	(void)labelCommand	;

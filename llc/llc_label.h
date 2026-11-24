@@ -34,8 +34,8 @@ namespace llc
 	stin err_t		loadLabel		(vcu0_t & input, vcst_t & output) {
 		vcs0_t				serialized		= {};
 		u2_t				bytesRead		= 0;
-		llc_necs(bytesRead = viewRead(serialized, input));
-		llc_necs(input.slice(input, bytesRead));
+		if_fail_fe(bytesRead = viewRead(serialized, input));
+		if_fail_fe(input.slice(input, bytesRead));
 		output					= label(vcst_t{serialized.begin(), serialized.size()});
 		return bytesRead;
 	}

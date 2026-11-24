@@ -318,6 +318,15 @@
     <ClInclude Include="llc_gui_control_state.h">
       <Filter>gui</Filter>
     </ClInclude>
+    <ClInclude Include="llc_gui_text_flag.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_checkbox.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_render.h">
+      <Filter>gui</Filter>
+    </ClInclude>
     <ClInclude Include="llc_gui_desktop.h">
       <Filter>dialog</Filter>
     </ClInclude>
@@ -328,6 +337,9 @@
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="llc_gui_viewport.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gui_composite.h">
       <Filter>gui</Filter>
     </ClInclude>
     <ClInclude Include="llc_http.h">
@@ -765,10 +777,7 @@
     <ClInclude Include="llc_ccsds.h">
       <Filter>encoding</Filter>
     </ClInclude>
-    <ClInclude Include="llc_process.h">
-      <Filter>process</Filter>
-    </ClInclude>
-    <ClInclude Include="llc_process_internal.h">
+    <ClInclude Include="llc_process_broker.h">
       <Filter>process</Filter>
     </ClInclude>
     <ClInclude Include="llc_test_core.h">
@@ -793,6 +802,12 @@
       <Filter>dialog</Filter>
     </ClInclude>
     <ClInclude Include="llc_crc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gauge_n3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_gauge_n2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -980,13 +995,10 @@
     <ClCompile Include="llc_view_color.cpp">
       <Filter>view</Filter>
     </ClCompile>
-    <ClCompile Include="llc_process.cpp">
-      <Filter>process</Filter>
+    <ClCompile Include="llc_header_checkingg.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="llc_process_win32.cpp">
-      <Filter>process</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_process_linux.cpp">
+    <ClCompile Include="llc_process_broker.cpp">
       <Filter>process</Filter>
     </ClCompile>
     <ClCompile Include="llc_ccsds.cpp">

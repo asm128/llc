@@ -222,7 +222,7 @@ sttc ::llc::err_t testInputFrame(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testInput(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_input(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testInputTypes(errors));
 	if_fail_fe(::testInputDefaults(errors));
 	if_fail_fe(::testInputTransitions(errors));

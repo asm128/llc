@@ -27,15 +27,15 @@
 
 namespace llc
 {
-	stacxpr uint8_t		INPUTCHANNELS	= 1;// number of source channels
-	stacxpr uint8_t		OUTPUTCHANNELS	= 8;// maximum number of destination channels supported in this sample
-	stacxpr uint8_t		NUM_PRESETS		= 30;
+	stxp uint8_t		INPUTCHANNELS	= 1;// number of source channels
+	stxp uint8_t		OUTPUTCHANNELS	= 8;// maximum number of destination channels supported in this sample
+	stxp uint8_t		NUM_PRESETS		= 30;
 
 	// Constants to define our world space
-	stacxpr int32_t		XMIN			= -10;
-	stacxpr int32_t		XMAX			= 10;
-	stacxpr int32_t		ZMIN			= -10;
-	stacxpr int32_t		ZMAX			= 10;
+	stxp int32_t		XMIN			= -10;
+	stxp int32_t		XMAX			= 10;
+	stxp int32_t		ZMIN			= -10;
+	stxp int32_t		ZMAX			= 10;
 
 	struct AudioDevice {
 		std::wstring	Id;
@@ -108,14 +108,14 @@ namespace llc
 		FLOAT32					matrixCoefficients		[INPUTCHANNELS * OUTPUTCHANNELS]    = {};
 
 
-		::llc::error_t			InitAudio				();
-		::llc::error_t			PrepareAudio			(::llc::vcst_t wavname);
-		::llc::error_t			UpdateAudio				(double fElapsedTime);
-		::llc::error_t			SetReverb				(int nReverb);
-		::llc::error_t			PauseAudio				(bool resume);
-		::llc::error_t			CleanupAudio			();
+		::llc::err_t			InitAudio				();
+		::llc::err_t			PrepareAudio			(::llc::vcst_t wavname);
+		::llc::err_t			UpdateAudio				(double fElapsedTime);
+		::llc::err_t			SetReverb				(int nReverb);
+		::llc::err_t			PauseAudio				(bool resume);
+		::llc::err_t			CleanupAudio			();
 
-		::llc::error_t			PlayWave				(::llc::vcst_t wavname);
+		::llc::err_t			PlayWave				(::llc::vcst_t wavname);
 	};
 } // namespace
 #endif // LLC_XAUDIO2_H_23627

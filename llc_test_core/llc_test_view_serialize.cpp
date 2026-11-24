@@ -48,6 +48,10 @@ GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_TRUNCATED_CONST_RESULT	, 
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_TRUNCATED_CONST_OUTPUT	, 41, "Const viewPascal() modified its output after rejecting truncated input.");
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MALFORMED_COUNT_RESULT	, 42, "viewPascal() accepted a count larger than the available payload.");
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LEGACY_MALFORMED_COUNT_OUTPUT	, 43, "viewPascal() modified its output after rejecting a malformed count.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_POD_DISPATCH		, 44, "load() did not restore a POD value or advance the cursor.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_VIEW_DISPATCH		, 45, "load() did not restore a non-owning view or advance the cursor.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_VARIADIC_DISPATCH	, 46, "Variadic load() did not restore consecutive POD values.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_VARIADIC_STOP		, 47, "Variadic load() continued after a failed read.");
 
 stxp ::llc::u0_t PRECEDING_FIELD[] = {0x91U, 0xE4U, 0x2BU};
 stxp ::llc::u0_t FOLLOWING_FIELD[] = {0xC3U, 0x5AU, 0x7EU, 0x19U};
@@ -395,6 +399,34 @@ sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	return 0;
 }
 
+static ::llc::err_t testLoadDispatch(::llc::ATestError & errors) {
+	stxp ::llc::u1_t FIRST = 0x1234;
+	stxp ::llc::u1_t SECOND = 0x5678;
+	::llc::au0_t serialized = {};
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_DISPATCH, ::llc::savePOD(serialized, FIRST) != szof(FIRST), "%s", "Could not serialize first POD value.");
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_DISPATCH, ::llc::savePOD(serialized, SECOND) != szof(SECOND), "%s", "Could not serialize second POD value.");
+	::llc::vcu0_t input{serialized.begin(), serialized.size()};
+	::llc::u1_t first = {}, second = {};
+	cnst ::llc::err_t firstResult = ::llc::load(input, first);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_POD_DISPATCH, firstResult != szof(first) || first != FIRST || input.size() != szof(SECOND), "POD result:%i, value:%u, remaining:%u.", firstResult, first, input.size());
+	input = {serialized.begin(), serialized.size()};
+	cnst ::llc::err_t pairResult = ::llc::load(input, first, second);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_VARIADIC_DISPATCH, pairResult != 0 || first != FIRST || second != SECOND || input.size() != 0, "Pair result:%i, values:%u/%u, remaining:%u.", pairResult, first, second, input.size());
+	input = {serialized.begin(), szof(FIRST)};
+	first = 0; second = 77;
+	::llc::u1_t untouched = 88;
+	cnst ::llc::err_t shortResult = ::llc::load(input, first, second, untouched);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_VARIADIC_STOP, shortResult >= 0 || first != FIRST || second != 77 || untouched != 88 || input.size() != 0, "Short result:%i, values:%u/%u/%u, remaining:%u.", shortResult, first, second, untouched, input.size());
+	::llc::au0_t viewBytes = {};
+	::llc::u1_t values[] = {FIRST, SECOND};
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_VIEW_DISPATCH, ::llc::failed(::llc::saveView(viewBytes, ::llc::view<cnst ::llc::u1_t>{values})), "%s", "Could not serialize view.");
+	input = {viewBytes.begin(), viewBytes.size()};
+	::llc::view<cnst ::llc::u1_t> loaded = {};
+	cnst ::llc::err_t viewResult = ::llc::load(input, loaded);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LOAD_VIEW_DISPATCH, viewResult != 0 || loaded.size() != 2 || loaded[0] != FIRST || loaded[1] != SECOND || input.size() != 0, "View result:%i, count:%u, remaining:%u.", viewResult, loaded.size(), input.size());
+	rtrn 0;
+}
+
 tplt<tpnm T>
 sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
@@ -406,8 +438,9 @@ sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	return 0;
 }
 
-::llc::err_t testViewSerialize(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_view_serialize(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
+	if_fail_fe(testLoadDispatch(errors));
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u2_t>(errors));

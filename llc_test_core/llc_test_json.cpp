@@ -328,7 +328,7 @@ sttc ::llc::err_t testJSONOptions(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testJSONReader(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_json(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testJSONOptions(errors));
 	if_fail_fe(testJSONValidDocuments(errors));
 	if_fail_fe(testJSONSignedInteger(errors));

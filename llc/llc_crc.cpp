@@ -16,7 +16,7 @@ llc::err_t			llc::crcGenerate			(vcu0_t bytes, uint64_t & crc)	{
 llc::err_t			llc::crcGenerateAndAppend	(au0_t & bytes)	{
 	uint64_t					crcToStore					= 0;
 	crcGenerate(bytes, crcToStore);
-	llc_necs(bytes.append((const u0_t*)&crcToStore, szof(uint64_t)));;
+	if_fail_fe(bytes.append((const u0_t*)&crcToStore, szof(uint64_t)));;
 	return 0;
 }
 llc::err_t			llc::crcVerifyAndRemove		(au0_t & bytes)	{
@@ -26,6 +26,6 @@ llc::err_t			llc::crcVerifyAndRemove		(au0_t & bytes)	{
 	crcGenerate({bytes.begin(), startOfCRC}, check);
 	const uint64_t				found						= *(uint64_t*)&bytes[startOfCRC];
 	if_true_fef(check != found, "CRC Check failed: Stored: %llu. Calculated: %llu.", found, check);
-	llc_necs(bytes.resize(bytes.size() - 8));
+	if_fail_fe(bytes.resize(bytes.size() - 8));
 	return 0;
 }

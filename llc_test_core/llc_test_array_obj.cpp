@@ -38,6 +38,10 @@ GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, DEFAULT_RESIZE		, 29, "array_obj<> di
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, ARRAY_APPEND		, 30, "array_obj<> did not append its source array.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, VIEW_APPEND		, 31, "array_obj<> did not append its source view.");
 GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, EMPTY_APPEND		, 32, "array_obj<> changed while appending an empty range.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, WRAP_APPEND		, 33, "Free append() did not forward array, view, or pointer/count inputs.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, WRAP_PUSH_BACK	, 34, "Free push_back() did not return the new element index.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, WRAP_REMOVE		, 35, "Free remove() did not preserve array order.");
+GDEFINE_ENUM_VALUED(ARRAY_OBJ_TEST_RESULT, WRAP_POP_BACK	, 36, "Free pop_back() did not forward its output and empty forms.");
 
 stct SArrayObjTestValue {
 	sttc ::llc::u2_t	LiveCount;
@@ -281,11 +285,30 @@ sttc ::llc::err_t testArrayObjFind(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testArrayObj(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+sttc ::llc::err_t testArrayObjFreeWrappers(::llc::ATestError & errors) {
+	::llc::aobj<SArrayObjTestValue> values = {};
+	cnst SArrayObjTestValue source[] = {SArrayObjTestValue{3}, SArrayObjTestValue{4}};
+	cnst ::llc::view<cnst SArrayObjTestValue> one{source, 1};
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_APPEND, ::llc::append(values, source) != 0 || values.size() != 2);
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_APPEND, ::llc::append(values, one) != 2 || values.size() != 3);
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_APPEND, ::llc::append(values, source, 1) != 3 || values.size() != 4);
+	cnst SArrayObjTestValue added{5};
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_PUSH_BACK, ::llc::push_back(values, added) != 4 || values[4].Index != 5);
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_REMOVE, ::llc::remove(values, (::llc::u2_t)1) != 4 || values[1].Index != 3);
+	SArrayObjTestValue popped = {};
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(values, popped) != 3 || popped.Index != 5);
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(values) != 2 || values.size() != 2);
+	::llc::aobj<SArrayObjTestValue> empty = {};
+	LLC_TEST_CHECK(errors, ARRAY_OBJ_TEST_RESULT_WRAP_POP_BACK, ::llc::pop_back(empty) >= 0);
+	rtrn 0;
+}
+
+::llc::err_t test_array_obj(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	SArrayObjTestValue::LiveCount			= {};
 	SArrayObjTestValue::ConstructorCount	= {};
 	SArrayObjTestValue::CopyCount			= {};
 	SArrayObjTestValue::DestructorCount		= {};
+	if_fail_fe(::testArrayObjFreeWrappers(errors));
 	if_fail_fe(::testArrayObjEmplace(errors));
 	if_fail_fe(::testArrayObjConstruction(errors));
 	if_fail_fe(::testArrayObjReserveResize(errors));

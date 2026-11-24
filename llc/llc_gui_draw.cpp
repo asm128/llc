@@ -7,7 +7,7 @@
 #include "llc_view_color.h"
 
 tplt<tpnm _tCoord, tpnm _tColor>
-static ::llc::error_t drawRectangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::rect2<_tCoord> & rectangle) {
+static ::llc::err_t drawRectangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::rect2<_tCoord> & rectangle) {
 	cnst ::llc::s2_t yStart = ::llc::max<::llc::s2_t>(0, rectangle.Offset.y);
 	cnst ::llc::s2_t yStop  = ::llc::min<::llc::s2_t>(target.metrics().y, (::llc::s2_t)rectangle.Offset.y + rectangle.Size.y);
 	cnst ::llc::s2_t xStart = ::llc::max<::llc::s2_t>(0, rectangle.Offset.x);
@@ -19,14 +19,14 @@ static ::llc::error_t drawRectangle(::llc::grid<_tColor> & target, cnst _tColor 
 }
 
 tplt<tpnm _tCoord, tpnm _tColor>
-static ::llc::error_t drawControlTriangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::tri2<_tCoord> & triangle) {
+static ::llc::err_t drawControlTriangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::tri2<_tCoord> & triangle) {
 	cnst ::llc::n2<int32_t> pointA = {(int32_t)triangle.A.x, (int32_t)triangle.A.y};
 	cnst ::llc::n2<int32_t> pointB = {(int32_t)triangle.B.x, (int32_t)triangle.B.y};
 	cnst ::llc::n2<int32_t> pointC = {(int32_t)triangle.C.x, (int32_t)triangle.C.y};
 	cnst ::llc::n2<int32_t> areaMin = {::llc::min(pointA.x, ::llc::min(pointB.x, pointC.x)), ::llc::min(pointA.y, ::llc::min(pointB.y, pointC.y))};
 	cnst ::llc::n2<int32_t> areaMax = {::llc::max(pointA.x, ::llc::max(pointB.x, pointC.x)), ::llc::max(pointA.y, ::llc::max(pointB.y, pointC.y))};
 	cnst int32_t xStop = ::llc::min(areaMax.x, (int32_t)target.metrics().x);
-	::llc::error_t pixelsDrawn = 0;
+	::llc::err_t pixelsDrawn = 0;
 	for(int32_t y = ::llc::max(areaMin.y, 0), yStop = ::llc::min(areaMax.y, (int32_t)target.metrics().y); y < yStop; ++y)
 	for(int32_t x = ::llc::max(areaMin.x, 0); x < xStop; ++x) {
 		cnst ::llc::n2<int32_t> cell = {x, y};
@@ -40,13 +40,14 @@ static ::llc::error_t drawControlTriangle(::llc::grid<_tColor> & target, cnst _t
 	rtrn pixelsDrawn;
 }
 
-static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::llc::g8bgra & target, bool bDisabled)				{
+static	::llc::err_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::llc::g8bgra & target, bool bDisabled)				{
 	::llc::SControlState		& controlState		= gui.Controls.States	[iControl];
 	::llc::SControlDraw			& controlDraw		= gui.Controls.Draw	[iControl];
 	::llc::bgra					colorFace			= {0xFF, 0x00, 0xFF, 0xFF};
+	::llc::bgra					colorBack			= {};
 	if(0 == gui.Controls.Draw[iControl].UseNewPalettes) {
 		const ::llc::SControlTheme	& theme				= (*gui.Colors->ControlThemes)[(0 == controlDraw.ColorTheme) ? gui.ThemeDefault : controlDraw.ColorTheme - 1];
-		const ::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	
+		const ::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	
 									& colorCombo		= theme.ColorCombos
 			[ bDisabled					? ::llc::GUI_CONTROL_PALETTE_DISABLED
 			: controlState.IsPressed () ? ::llc::GUI_CONTROL_PALETTE_PRESSED
@@ -55,7 +56,7 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 			: ::llc::GUI_CONTROL_PALETTE_NORMAL
 			];
 		colorFace				= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_TEXT_FACE]];
-		//const ::llc::bgra			colorBack			= gui.Palette[colorCombo[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND]];
+		colorBack				= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_CLIENT]];
 	}
 	else {
 		const ::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>	& colorCombo											=
@@ -68,6 +69,7 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 				]]
 				;
 		colorFace				= colorCombo[::llc::UI_CONTROL_AREA_TEXT_FACE];
+		colorBack				= colorCombo[::llc::UI_CONTROL_AREA_CLIENT];
 	}
 
 	::llc::SControlArea		& controlMetrics	= gui.Controls.Area[iControl];
@@ -81,13 +83,42 @@ static	::llc::error_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::l
 	// Changhing the state from idle to hover however doesn't cause the control metrics to become outdated (and in general it's pointless for other than the effect we're applying here).
 
 	::llc::SControlText			& controlText		= gui.Controls.Text		[iControl];
+	const ::llc::apod<::llc::STextState> & textStates = gui.Controls.TextState[iControl];
 	::llc::apod<::llc::n2u1_t>	dstCoords;
 	const ::llc::u2_t				iFont				= ::llc::in_range(controlText.FontSelected, (int16_t)0, (int16_t)gui.Fonts.size()) ? controlText.FontSelected : gui.SelectedFont;
 	const ::llc::SRasterFont	& selectedFont		= *gui.Fonts[iFont];
-	llc_necs(llc::textLineRaster(target.metrics(), selectedFont.CharSize, rectText, selectedFont.Texture, controlText.Text, dstCoords));
+	::llc::bgra colorSelectedFace = colorFace;
+	::llc::bgra colorSelectedBack = {};
+	if(0 == controlDraw.UseNewPalettes) {
+		const ::llc::SControlTheme & theme = (*gui.Colors->ControlThemes)[(0 == controlDraw.ColorTheme) ? gui.ThemeDefault : controlDraw.ColorTheme - 1];
+		const ::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT> & selectedColors = theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED];
+		colorSelectedFace = (*gui.Colors->Palette)[selectedColors[::llc::UI_CONTROL_AREA_TEXT_FACE]];
+		colorSelectedBack = (*gui.Colors->Palette)[selectedColors[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND]];
+	}
+	else {
+		const ::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT> & selectedColors = gui.Colors->Palettes[controlDraw.Palettes[::llc::GUI_CONTROL_PALETTE_SELECTED]];
+		colorSelectedFace = selectedColors[::llc::UI_CONTROL_AREA_TEXT_FACE];
+		colorSelectedBack = selectedColors[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND];
+	}
+	for(::llc::u2_t iCharacter = 0, countCharacter = ::llc::min(textStates.size(), controlText.Text.size()); iCharacter < countCharacter; ++iCharacter) {
+		if(false == textStates[iCharacter].IsSelected() && false == textStates[iCharacter].IsSwapColors())
+			continue;
+		const ::llc::rect2s1_t characterRectangle = {{(::llc::s1_t)(rectText.Offset.x + selectedFont.CharSize.x * iCharacter), rectText.Offset.y}, selectedFont.CharSize.s1()};
+		::drawRectangle(target, textStates[iCharacter].IsSwapColors() ? colorFace : colorSelectedBack, characterRectangle);
+	}
+	if_fail_fe(llc::textLineRaster(target.metrics(), selectedFont.CharSize, rectText, selectedFont.Texture, controlText.Text, dstCoords));
 	for(::llc::u2_t iCoord = 0; iCoord < dstCoords.size(); ++iCoord) {
 		const ::llc::n2u1_t			dstCoord			= dstCoords[iCoord];
-		target[dstCoord.y][dstCoord.x]	= colorFace;
+		const ::llc::s2_t characterOffsetX = (::llc::s2_t)dstCoord.x - rectText.Offset.x;
+		const ::llc::u2_t iCharacter = 0 <= characterOffsetX && selectedFont.CharSize.x ? characterOffsetX / selectedFont.CharSize.x : controlText.Text.size();
+		::llc::bgra colorGlyph = colorFace;
+		if(iCharacter < textStates.size()) {
+			if(textStates[iCharacter].IsSwapColors())
+				colorGlyph = colorBack;
+			else if(textStates[iCharacter].IsSelected())
+				colorGlyph = colorSelectedFace;
+		}
+		target[dstCoord.y][dstCoord.x] = colorGlyph;
 		//::llc::drawPixelLight(target, dstCoords[iCoord], colorFace, controlState.Pressed ? 0.75f : 0.5f, controlState.Pressed ? 1.0f : 0.95);
 	}
 	return 0;
@@ -100,7 +131,7 @@ static	::llc::GUI_CONTROL_PALETTE	paletteIndexFromState	(bool disabled, const ::
 		: ::llc::GUI_CONTROL_PALETTE_NORMAL
 		;
 }
-static	::llc::error_t	fillColorTableBorders3D			(const ::llc::SControlState & controlState, ::llc::view<::llc::bgra> & colors)					{
+static	::llc::err_t	fillColorTableBorders3D			(const ::llc::SControlState & controlState, ::llc::view<::llc::bgra> & colors)					{
 	double						bright;
 	double						shaded;
 	bright					= controlState.IsPressed() ? 0.4 : controlState.IsHovered() ? 0.8 : 1.2;
@@ -112,7 +143,7 @@ static	::llc::error_t	fillColorTableBorders3D			(const ::llc::SControlState & co
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM	]	= colorBackground * shaded;
 	return 0;					  
 }
-static	::llc::error_t	fillColorTableNew				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
+static	::llc::err_t	fillColorTableNew				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
 	const ::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>
 								& colorCombo					= gui.Colors->Palettes[controlDraw.Palettes[::paletteIndexFromState(disabled, controlState)]];
 	//colors[::llc::GUI_CONTROL_AREA_OLD_BACKGROUND	]	= colorCombo[::llc::UI_CONTROL_AREA_BACKGROUND	];
@@ -126,9 +157,9 @@ static	::llc::error_t	fillColorTableNew				(::llc::SGUI & gui, ::llc::GUI_COLOR_
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM]	= colorCombo[::llc::UI_CONTROL_AREA_BORDER_BOTTOM	];
 	return 0;
 }
-static	::llc::error_t	fillColorTableOld				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
+static	::llc::err_t	fillColorTableOld				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
 	const ::llc::SControlTheme	& theme							= (*gui.Colors->ControlThemes)[(0 == controlDraw.ColorTheme) ? gui.ThemeDefault : controlDraw.ColorTheme - 1];
-	const ::llc::astu32<::llc::UI_CONTROL_AREA_COUNT>	
+	const ::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	
 								& colorCombo					= theme.ColorCombos[::paletteIndexFromState(disabled, controlState)];
 	//colors[::llc::GUI_CONTROL_AREA_OLD_BACKGROUND	]	= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_BACKGROUND	]];
 	colors[::llc::GUI_CONTROL_AREA_OLD_CLIENT		]	= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_CLIENT		]];
@@ -141,18 +172,18 @@ static	::llc::error_t	fillColorTableOld				(::llc::SGUI & gui, ::llc::GUI_COLOR_
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM]	= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_BORDER_BOTTOM]];
 	return 0;
 }
-static	::llc::error_t	fillColorTable					(::llc::SGUI & gui, ::llc::cid_t iControl, bool disabled, ::llc::view<::llc::bgra> colors)					{
+static	::llc::err_t	fillColorTable					(::llc::SGUI & gui, ::llc::cid_t iControl, bool disabled, ::llc::view<::llc::bgra> colors)					{
 	const ::llc::SControlDraw	& draw							= gui.Controls.Draw		[iControl];
 	const ::llc::SControlState	& state							= gui.Controls.States	[iControl];
 	::llc::GUI_COLOR_MODE		colorMode						= (::llc::GUI_COLOR_MODE)((draw.ColorMode == ::llc::GUI_COLOR_MODE_Default) ? gui.ColorModeDefault : draw.ColorMode);
-	llc_necs((false == draw.UseNewPalettes) 
+	if_fail_fe((false == draw.UseNewPalettes) 
 		? fillColorTableOld(gui, colorMode, state, draw, disabled, colors) 
 		: fillColorTableNew(gui, colorMode, state, draw, disabled, colors)
 		);
 
 	return 0;
 }
-static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra & target)					{
+static	::llc::err_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra & target)					{
 	::llc::bgra					colors[::llc::GUI_CONTROL_AREA_OLD_COUNT]	= {}; // -- Fill color table
 	const bool					disabled						= ::llc::controlDisabled(gui, iControl);
 	const ::llc::SControlArea	& controlMetrics				= gui.Controls.Area[iControl];
@@ -205,7 +236,7 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 			::llc::grid_copy_blend(target, controlImage.Image, rectImage, sourceOffset);
 		else {
 			::llc::img8bgra				& inverted				= gui.Controls.Images[iControl].Temp.Color;
-			llc_necs(gui.Controls.Images[iControl].Temp.resize(controlImage.Image.metrics()));
+			if_fail_fe(gui.Controls.Images[iControl].Temp.resize(controlImage.Image.metrics()));
 			::llc::grid_mirror_y(inverted.View, controlImage.Image);
 			::llc::grid_copy_blend(target, inverted.View, rectImage, sourceOffset);
 		}
@@ -214,17 +245,17 @@ static	::llc::error_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iCon
 	if_true_e(::llc::failed(::controlTextDraw(gui, iControl, target, disabled)));
 	return 0;
 }
-::llc::error_t			llc::controlDrawHierarchy		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra target)								{
-	llc_necall(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
+::llc::err_t			llc::controlDrawHierarchy		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra target)								{
+	if_fail_fef(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
 	if(false == ::llc::controlHidden(gui, iControl)) {
-		llc_necs(::actualControlDraw(gui, iControl, target));
+		if_fail_fe(::actualControlDraw(gui, iControl, target));
 		::llc::vccid				children						= gui.Controls.Children[iControl];
 		for(::llc::u2_t iChild = 0, countChild = children.size(); iChild < countChild; ++iChild)
-			llc_necs(llc::controlDrawHierarchy(gui, children[iChild], target));
+			if_fail_fe(llc::controlDrawHierarchy(gui, children[iChild], target));
 	}
 	return 0;
 }
-::llc::error_t			llc::guiDraw					(::llc::SGUI & gui, ::llc::g8bgra target)													{
+::llc::err_t			llc::guiDraw					(::llc::SGUI & gui, ::llc::g8bgra target)													{
 	for(::llc::u2_t iControl = 0; iControl < gui.Controls.States.size(); ++iControl)
 		if(false == ::llc::controlInvalid(gui, (::llc::cid_t)iControl) && ::llc::controlInvalid(gui, gui.Controls.States[iControl].Parent))
 			if_true_e(::llc::failed(::llc::controlDrawHierarchy(gui, (::llc::cid_t)iControl, target)));

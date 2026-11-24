@@ -165,26 +165,30 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 				if_fail_fe(segments.push_back(segment));
 			}
 		}
-		else if(segment.size())
+		else if(segment.size()) {
 			if_fail_fe(segments.push_back(segment));
+		}
 		if(iChar < path.size())
 			++iChar;
 	}
 	if_true_fef(isUNC && segments.size() < 2, "Incomplete UNC root: '%.*s'.", (int)path.size(), path.begin());
 
 	::llc::string			normalized					= {};
-	if(hasDrive)
+	if(hasDrive) {
 		if_fail_fe(normalized.append(path.begin(), 2));
+	}
 	if(isUNC) {
 		if_fail_fe(normalized.push_back(separator));
 		if_fail_fe(normalized.push_back(separator));
 	}
-	else if(isAbsolute)
+	else if(isAbsolute) {
 		if_fail_fe(normalized.push_back(separator));
+	}
 	for(::llc::u2_t iSegment = 0; iSegment < segments.size(); ++iSegment) {
 		cnst bool				driveRelativeFirst		= hasDrive && false == isAbsolute && 0 == iSegment;
-		if(normalized.size() && normalized[normalized.size() - 1] != separator && false == driveRelativeFirst)
+		if(normalized.size() && normalized[normalized.size() - 1] != separator && false == driveRelativeFirst) {
 			if_fail_fe(normalized.push_back(separator));
+		}
 		if_fail_fe(normalized.append(segments[iSegment]));
 	}
 	if(isUNC && segments.size() == protectedSegments && normalized[normalized.size() - 1] != separator) {
@@ -224,15 +228,17 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 	if_fail_fe(::validatePathSeparators(path, true));
 	if_fail_fe(::validatePathSeparators(fileName, 0 == path.size()));
 	::llc::u2_t				pathLength				= 0;
-	if(path.size())
+	if(path.size()) {
 		if_fail_fe(pathLength = ::appendPathNormalized(path, out_composed));
+	}
 	if(fileName.size()) {
 		::llc::u2_t				fileOffset				= 0;
 		if(pathLength) {
 			while(fileOffset < fileName.size() && ::pathSeparator(fileName[fileOffset]))
 				++fileOffset;
-			if('/' != out_composed[out_composed.size() - 1] && fileOffset < fileName.size())
+			if('/' != out_composed[out_composed.size() - 1] && fileOffset < fileName.size()) {
 				if_fail_fef(out_composed.push_back('/'), "out_composed.size()=%" LLC_FMT_U2 ".", out_composed.size());
+			}
 		}
 		::llc::vcst_c			fileToAppend				= {fileName.begin() + fileOffset, fileName.size() - fileOffset};
 		if_fail_fe(::appendPathNormalized(fileToAppend, out_composed));
@@ -247,11 +253,12 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 		if(extension.size() && extension.size() >= fileName.size())
 			continue;
 		::llc::vcst_t			fileExtension				= {};
-		if(extension.size())
+		if(extension.size()) {
 			if_fail_fe(fileName.slice(fileExtension, fileName.size() - extension.size()));
+		}
 		if(0 == extension.size() || fileExtension == extension) {
 			llc_path_debug("fileName=\"%.*s\"", (int)fileName.size(), fileName.begin());
-			llc_necs(output.push_back(fileName));
+			if_fail_fe(output.push_back(fileName));
 		}
 	}
 	for(::llc::u2_t iFolder = 0; iFolder < input.Folders.size(); ++iFolder)
@@ -267,8 +274,9 @@ sttc	::llc::err_t 	appendPathNormalized		(::llc::vcst_t path, ::llc::string & ou
 		if(extension.size() && extension.size() >= fileName.size())
 			continue;
 		::llc::vcst_t			fileExtension				= {};
-		if(extension.size())
+		if(extension.size()) {
 			if_fail_fe(fileName.slice(fileExtension, fileName.size() - extension.size()));
+		}
 		if(0 == extension.size() || fileExtension == extension) {
 			llc_path_debug("fileName=\"%.*s\"", (int)fileName.size(), fileName.begin());
 			if_fail_fef(output.push_back(fileName), "fileName=%.*s, output.size()=%" LLC_FMT_U2, (int)fileName.size(), fileName.begin(), output.size());
@@ -321,13 +329,13 @@ sttc ::llc::err_t		pathListEntry			(::llc::vcst_t pathToList, ::llc::SPathConten
 		rtrn 0;
 	if(isFolder) {
 		::llc::err_t				newFolderIndex				= pathContents.Folders.push_back({});
-		llc_necs(newFolderIndex);
-		llc_necall(llc::pathList(sPath, pathContents.Folders[newFolderIndex], onItem, extension), "'%s'", sPath.begin());
+		if_fail_fe(newFolderIndex);
+		if_fail_fef(llc::pathList(sPath, pathContents.Folders[newFolderIndex], onItem, extension), "'%s'", sPath.begin());
 		verbose_printf("Directory: %s.", sPath.begin());
 	}
 	else {
 		int32_t						indexFile;
-		llc_necall(indexFile = pathContents.Files.push_back(sPath), "%s", "Failed to push path to output list");
+		if_fail_fef(indexFile = pathContents.Files.push_back(sPath), "%s", "Failed to push path to output list");
 		verbose_printf("File %" LLC_FMT_U2 ": %s.", indexFile, sPath.begin());
 	}
 	rtrn 0;
@@ -353,7 +361,15 @@ sttc ::llc::err_t		pathListNative			(::llc::vcst_t pathToList, ::llc::SPathConte
 	struct dirent				* drnt						= nullptr;
 	while((drnt = readdir(dir))) {
 		cnst ::llc::vcst_t		entryName						= {drnt->d_name, (::llc::u2_t)-1};
-		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, drnt->d_type == DT_DIR), "'%.*s'", (int)entryName.size(), entryName.begin());
+		bool					isFolder						= drnt->d_type == DT_DIR;
+		if(drnt->d_type == DT_UNKNOWN) {
+			::llc::string		entryPath;
+			if_fail_bef(result = ::llc::pathNameCompose(pathToList, entryName, entryPath), "%s", drnt->d_name);
+			struct stat			metadata						= {};
+			if_fail_bef(result = lstat(entryPath.begin(), &metadata), "%s", entryPath.begin());
+			isFolder											= S_ISDIR(metadata.st_mode);
+		}
+		if_fail_bef(result = ::pathListEntry(pathToList, pathContents, onItem, extension, entryName, isFolder), "'%.*s'", (int)entryName.size(), entryName.begin());
 	}
 	closedir(dir);
 #else

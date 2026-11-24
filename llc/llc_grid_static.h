@@ -11,21 +11,21 @@ namespace llc
 		typedef	T			TCell;
 		typedef	grid<T>		TGridView;
 
-		stacxpr	::llc::u2_t	Width									= (::llc::u2_t)_sizeWidth;
-		stacxpr	::llc::u2_t	Depth									= (::llc::u2_t)_sizeDepth;
+		stxp	::llc::u2_t	Width									= (::llc::u2_t)_sizeWidth;
+		stxp	::llc::u2_t	Depth									= (::llc::u2_t)_sizeDepth;
 
 				TCell		Cells	[_sizeDepth][_sizeWidth]		= {};
 
-		inlcxpr				grid_static								()																		: grid<T>(&Cells[0][0], _sizeWidth, _sizeDepth)	{}
+		inxp				grid_static								()																		: grid<T>(&Cells[0][0], _sizeWidth, _sizeDepth)	{}
 
-		::llc::error_t		read					(cnst s0_t* input, u2_t* inout_bytesRead)							{
+		::llc::err_t		read					(cnst s0_t* input, u2_t* inout_bytesRead)							{
 			if_true_fef(0 == input || 0 == inout_bytesRead, "%s", "Invalid input!");
 			*inout_bytesRead												+= sizeof(T) * Width * Depth;
 			memcpy(Cells, input, sizeof(Cells));
 			return 0;
 		}
 
-		::llc::error_t		write									(s0_t* output, u2_t* inout_bytesWritten)			const				{
+		::llc::err_t		write									(s0_t* output, u2_t* inout_bytesWritten)			const				{
 			if_true_fef(0 == output && 0 == inout_bytesWritten, "%s", "Invalid input!");
 			if(0 != inout_bytesWritten)
 				*inout_bytesWritten												+= sizeof(T) * Width * Depth;	// Just return the size required to store this.

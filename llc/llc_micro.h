@@ -6,7 +6,7 @@
 namespace llc
 {
     GDEFINE_ENUM_TYPE (ESP_ERROR, int32_t);                 
-    GDEFINE_ENUM_VALUE(ESP_ERROR, OK                            , OS_OK                                 );
+    GDEFINE_ENUM_VALUE(ESP_ERROR, OK                            , 0                                 );
     GDEFINE_ENUM_VALUE(ESP_ERROR, NO_MEM                        , ESP_NO_MEM                            );
     GDEFINE_ENUM_VALUE(ESP_ERROR, INVALID_ARG                   , ESP_INVALID_ARG                       );
     GDEFINE_ENUM_VALUE(ESP_ERROR, INVALID_STATE                 , ESP_INVALID_STATE                     );
@@ -33,7 +33,7 @@ namespace llc
     GDEFINE_ENUM_VALUE(ESP_ERROR, OTA_SMALL_SEC_VER             , ESP_OTA_SMALL_SEC_VER                 );
     GDEFINE_ENUM_VALUE(ESP_ERROR, OTA_ROLLBACK_FAILED           , ESP_OTA_ROLLBACK_FAILED               );
     GDEFINE_ENUM_VALUE(ESP_ERROR, OTA_ROLLBACK_INVALID_STATE    , ESP_OTA_ROLLBACK_INVALID_STATE        );
-    GDEFINE_ENUM_VALUE(ESP_ERROR, FAIL                          , OS_ERROR                              );
+    GDEFINE_ENUM_VALUE(ESP_ERROR, FAIL                          , -1                              );
 
     GDEFINE_ENUM_TYPE (ESP_TCP, int32_t);
     GDEFINE_ENUM_VALUE(ESP_TCP, OK                    ,  0);

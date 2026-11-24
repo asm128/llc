@@ -9,7 +9,7 @@
 namespace llc
 {
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_ex					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc)	{
+	::llc::err_t			grid_copy_ex					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc)	{
 		for(::llc::u2_t y = 0; y < (::llc::u2_t)size_.y; ++y) {
 #if defined(LLC_DEBUG_GRID_COPY_EX) && (defined(DEBUG) || defined(_DEBUG))
 			for(::llc::u2_t x = 0; x < (::llc::u2_t)size_.x; ++x)
@@ -23,7 +23,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_alpha_ex				(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc, const T& comparand)	{
+	::llc::err_t			grid_copy_alpha_ex				(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc, const T& comparand)	{
 		for(::llc::u2_t y = 0; y < (::llc::u2_t)size_.y; ++y)
 			for(::llc::u2_t x = 0; x < (::llc::u2_t)size_.x; ++x)
 				if (src[y + offsetSrc.y][x + offsetSrc.x] != comparand)
@@ -32,7 +32,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_alpha_ex				(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc, const T& comparand, const T& color)	{
+	::llc::err_t			grid_copy_alpha_ex				(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc, const T& comparand, const T& color)	{
 		for(::llc::u2_t y = 0; y < (::llc::u2_t)size_.y; ++y)
 			for(::llc::u2_t x = 0; x < (::llc::u2_t)size_.x; ++x)
 				if (src[y + offsetSrc.y][x + offsetSrc.x] != comparand)
@@ -41,7 +41,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_blend_ex				(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc)	{
+	::llc::err_t			grid_copy_blend_ex				(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc)	{
 		::llc::n2s2_t count = {int32_t(size_.x + ((offsetSrc.x < 0) ? offsetSrc.x : 0)), int32_t(size_.y + ((offsetSrc.y < 0) ? offsetSrc.y : 0))};
 		for(int32_t y = 0; y < (int32_t)count.y; ++y)
 			for(int32_t x = 0; x < (int32_t)count.x; ++x) {
@@ -59,7 +59,7 @@ namespace llc
 	}
 
 	tplt<tpnm _tCoord>
-	::llc::error_t			grid_raster_alpha_bit_ex		(const ::llc::view_bit<uint64_t> & src, const ::llc::n2u2_t & srcMetrics, const ::llc::n2u2_t & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc, ::llc::apod<::llc::n2u1_t> & dstCoords) {
+	::llc::err_t			grid_raster_alpha_bit_ex		(const ::llc::view_bit<uint64_t> & src, const ::llc::n2u2_t & srcMetrics, const ::llc::n2u2_t & size_, const ::llc::n2<_tCoord> & offsetDst, const ::llc::n2<_tCoord> & offsetSrc, ::llc::apod<::llc::n2u1_t> & dstCoords) {
 		for(::llc::u1_t y = 0; y < size_.y; ++y)
 			for(::llc::u1_t x = 0; x < size_.x; ++x)
 				if(src[(y + offsetSrc.y) * srcMetrics.x + (x + offsetSrc.x)])
@@ -67,7 +67,7 @@ namespace llc
 		return ::llc::max(size_.x * size_.y, (::llc::u2_t)0U);
 	}
 	tplt<tpnm _tCoord>
-	::llc::error_t			grid_raster_alpha_bit			(const ::llc::n2u2_t & dstMetrics, const ::llc::view_bit<uint64_t> & src, const ::llc::n2u2_t & srcMetrics, const ::llc::rect2<_tCoord>& dstRect, const ::llc::n2<_tCoord> & srcOffset, ::llc::apod<::llc::n2u1_t> & dstCoords) {
+	::llc::err_t			grid_raster_alpha_bit			(const ::llc::n2u2_t & dstMetrics, const ::llc::view_bit<uint64_t> & src, const ::llc::n2u2_t & srcMetrics, const ::llc::rect2<_tCoord>& dstRect, const ::llc::n2<_tCoord> & srcOffset, ::llc::apod<::llc::n2u1_t> & dstCoords) {
 		const ::llc::n2s2_t			offsetSrc					= srcOffset.s2()  + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstRect.Offset.x), -::llc::min((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const ::llc::n2s2_t			offsetDst					= {::llc::max((int32_t)0, (int32_t)dstRect.Offset.x),  ::llc::max((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const int32_t				stopYDst					= int32_t(srcMetrics.y) + ::llc::min((int32_t)0, (int32_t)dstRect.Offset.y) - ::llc::min<_tCoord>(srcOffset.y, 0);
@@ -79,7 +79,7 @@ namespace llc
 
 	// -----------------------------------------------
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::rect2<_tCoord>& srcRect, const T& comparand)		{
+	::llc::err_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::rect2<_tCoord>& srcRect, const T& comparand)		{
 		const ::llc::n2s2_t			offsetSrc						= srcRect.Offset.s2()  + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		const int32_t				stopYDst						= int32_t(src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstOffset.y);
@@ -90,7 +90,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::rect2<_tCoord>& srcRect)									{
+	::llc::err_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::rect2<_tCoord>& srcRect)									{
 		const ::llc::n2s2_t			offsetSrc						= srcRect.Offset.s2t()  + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		const int32_t				stopYDst						= int32_t(src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstOffset.y);
@@ -101,7 +101,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::rect2<_tCoord>& srcRect)									{
+	::llc::err_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::rect2<_tCoord>& srcRect)									{
 		const ::llc::n2s2_t			offsetSrc						= srcRect.Offset.s2t() + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		const int32_t				stopYDst						= int32_t(src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstOffset.y);
@@ -113,7 +113,7 @@ namespace llc
 
 	// -----------------------------------------------
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect, const ::llc::n2<_tCoord> & srcOffset, const T& comparand)		{
+	::llc::err_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect, const ::llc::n2<_tCoord> & srcOffset, const T& comparand)		{
 		const ::llc::n2s2_t			offsetSrc						= srcOffset.s2()  + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstRect.Offset.x), -::llc::min((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstRect.Offset.x),  ::llc::max((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const int32_t				stopYDst						= int32_t(src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstRect.Offset.y);
@@ -124,7 +124,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect, const ::llc::n2<_tCoord> & srcOffset)									{
+	::llc::err_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect, const ::llc::n2<_tCoord> & srcOffset)									{
 		const ::llc::n2s2_t			offsetSrc						= srcOffset.s2() + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstRect.Offset.x), -::llc::min((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstRect.Offset.x),  ::llc::max((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const int32_t				stopYDst						= ((int32_t)src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstRect.Offset.y);
@@ -135,7 +135,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect, const ::llc::n2<_tCoord> & srcOffset)									{
+	::llc::err_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect, const ::llc::n2<_tCoord> & srcOffset)									{
 		const ::llc::n2s2_t			offsetSrc						= srcOffset.s2() + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstRect.Offset.x), -::llc::min((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstRect.Offset.x),  ::llc::max((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const int32_t				stopYDst						= ((int32_t)src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstRect.Offset.y);
@@ -147,7 +147,7 @@ namespace llc
 
 	// -----------------------------------------------
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::n2<_tCoord> & srcOffset, const T& comparand)			{
+	::llc::err_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::n2<_tCoord> & srcOffset, const T& comparand)			{
 		const ::llc::n2s2_t			offsetSrc						= srcOffset.s2()  + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		const int32_t				stopYDst						= int32_t(src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstOffset.y);
@@ -158,7 +158,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::n2<_tCoord> & srcOffset)									{
+	::llc::err_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::n2<_tCoord> & srcOffset)									{
 		const ::llc::n2s2_t			offsetSrc						= srcOffset.s2()  + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		const int32_t				stopYDst						= int32_t(src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstOffset.y);
@@ -169,7 +169,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::n2<_tCoord> & srcOffset)									{
+	::llc::err_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const ::llc::n2<_tCoord> & srcOffset)									{
 		const ::llc::n2s2_t			offsetSrc						= srcOffset.s2()  + ::llc::n2s2_t{-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= {::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		const int32_t				stopYDst						= int32_t(src.metrics().y) + ::llc::min((int32_t)0, (int32_t)dstOffset.y);
@@ -181,7 +181,7 @@ namespace llc
 
 	// -----------------------------------------------
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect, const T& comparand)													{
+	::llc::err_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect, const T& comparand)													{
 		const ::llc::n2s2_t			offsetSrc						= {-::llc::min((int32_t)0, (int32_t)dstRect.Offset.x), -::llc::min((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const ::llc::n2s2_t			offsetDst						= { ::llc::max((int32_t)0, (int32_t)dstRect.Offset.x),  ::llc::max((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const int32_t				stopYDst						= (int32_t)src.metrics().y + ::llc::min((int32_t)0, (int32_t)dstRect.Offset.y);
@@ -192,7 +192,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect)																			{
+	::llc::err_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect)																			{
 		const ::llc::n2s2_t			offsetSrc						= {-::llc::min((int32_t)0, (int32_t)dstRect.Offset.x), -::llc::min((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const ::llc::n2s2_t			offsetDst						= { ::llc::max((int32_t)0, (int32_t)dstRect.Offset.x),  ::llc::max((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const int32_t				stopYDst						= (int32_t)src.metrics().y + ::llc::min((int32_t)0, (int32_t)dstRect.Offset.y);
@@ -203,7 +203,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect)																			{
+	::llc::err_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::rect2<_tCoord>& dstRect)																			{
 		const ::llc::n2s2_t			offsetSrc						= {-::llc::min((int32_t)0, (int32_t)dstRect.Offset.x), -::llc::min((int32_t)0, (int32_t)dstRect.Offset.y)};
 		::llc::n2s2_t				offsetDst						= { ::llc::max((int32_t)0, (int32_t)dstRect.Offset.x),  ::llc::max((int32_t)0, (int32_t)dstRect.Offset.y)};
 		const int32_t				stopYDst						= (int32_t)src.metrics().y + ::llc::min((int32_t)0, (int32_t)dstRect.Offset.y);
@@ -214,7 +214,7 @@ namespace llc
 	}
 	// -----------------------------------------------
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const T& comparand)														{
+	::llc::err_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const T& comparand)														{
 		const ::llc::n2s2_t			offsetSrc						= {-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= { ::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		::llc::n2s2_t				stopDst							= src.metrics().s2() + ::llc::n2s2_t{::llc::min((int32_t)0, (int32_t)dstOffset.x), ::llc::min((int32_t)0, (int32_t)dstOffset.y)};
@@ -224,7 +224,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const T& comparand, const T& color)														{
+	::llc::err_t			grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset, const T& comparand, const T& color)														{
 		const ::llc::n2s2_t			offsetSrc						= {-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= { ::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		::llc::n2s2_t				stopDst							= src.metrics().s2() + ::llc::n2s2_t{::llc::min((int32_t)0, (int32_t)dstOffset.x), ::llc::min((int32_t)0, (int32_t)dstOffset.y)};
@@ -234,7 +234,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset)			{
+	::llc::err_t			grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset)			{
 		const ::llc::n2s2_t			offsetSrc						= {-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= { ::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		::llc::n2s2_t				stopDst							= src.metrics().s2() + ::llc::n2s2_t{::llc::min((int32_t)0, (int32_t)dstOffset.x), ::llc::min((int32_t)0, (int32_t)dstOffset.y)};
@@ -244,7 +244,7 @@ namespace llc
 	}
 
 	tplt<tpnm T, tpnm _tCoord>
-	::llc::error_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset)			{
+	::llc::err_t			grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T>& src, const ::llc::n2<_tCoord> & dstOffset)			{
 		const ::llc::n2s2_t			offsetSrc						= {-::llc::min((int32_t)0, (int32_t)dstOffset.x), -::llc::min((int32_t)0, (int32_t)dstOffset.y)};
 		const ::llc::n2s2_t			offsetDst						= { ::llc::max((int32_t)0, (int32_t)dstOffset.x),  ::llc::max((int32_t)0, (int32_t)dstOffset.y)};
 		::llc::n2s2_t				stopDst							= src.metrics().s2() + ::llc::n2s2_t{::llc::min((int32_t)0, (int32_t)dstOffset.x), ::llc::min((int32_t)0, (int32_t)dstOffset.y)};
@@ -253,12 +253,12 @@ namespace llc
 		return (stopDst.x > 0) ? ::llc::grid_copy_ex(dst, src, stopDst, offsetDst, offsetSrc) : 0;
 	}
 
-	tplt<tpnm T> ::llc::error_t		grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const T & comparand)	{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_alpha_ex	(dst, src, metrics, {}, {}, comparand); }
-	tplt<tpnm T> ::llc::error_t		grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T> & src)						{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_blend_ex	(dst, src, metrics, {}, {}); }
-	tplt<tpnm T> ::llc::error_t		grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T> & src)						{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_ex		(dst, src, metrics, {}, {}); }
+	tplt<tpnm T> ::llc::err_t		grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const T & comparand)	{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_alpha_ex	(dst, src, metrics, {}, {}, comparand); }
+	tplt<tpnm T> ::llc::err_t		grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T> & src)						{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_blend_ex	(dst, src, metrics, {}, {}); }
+	tplt<tpnm T> ::llc::err_t		grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T> & src)						{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_ex		(dst, src, metrics, {}, {}); }
 
 	tplt<tpnm T>
-	::llc::error_t			grid_mirror_x					(::llc::grid<T> & dst, const ::llc::grid<T>& src)											{
+	::llc::err_t			grid_mirror_x					(::llc::grid<T> & dst, const ::llc::grid<T>& src)											{
 		const ::llc::n2s2_t			metrics							=
 			{ ::llc::min((int32_t)dst.metrics().x, (int32_t)src.metrics().x)
 			, ::llc::min((int32_t)dst.metrics().y, (int32_t)src.metrics().y)
@@ -271,7 +271,7 @@ namespace llc
 	}
 
 	tplt<tpnm T>
-	::llc::error_t			grid_mirror_y					(::llc::grid<T> & dst, const ::llc::grid<T>& src)		{
+	::llc::err_t			grid_mirror_y					(::llc::grid<T> & dst, const ::llc::grid<T>& src)		{
 		const ::llc::n2s2_t			metrics							=
 			{ ::llc::min((int32_t)dst.metrics().x, (int32_t)src.metrics().x)
 			, ::llc::min((int32_t)dst.metrics().y, (int32_t)src.metrics().y)

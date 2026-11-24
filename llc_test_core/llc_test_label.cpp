@@ -121,7 +121,7 @@ sttc ::llc::err_t testLabels(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-::llc::err_t testLabel(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
+::llc::err_t test_label(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testLabelManager(errors));
 	rtrn ::testLabels(errors);
 }
