@@ -15,7 +15,7 @@
 		cnst ::llc::u2_t contentBegin		= (::llc::u2_t)contentOffset + ::llc::size(environmentEnd);
 		cnst ::llc::vcs0_t environment		= {(cnst ::llc::s0_t*)request.begin(), contentBegin};
 		::llc::vcu0_t input;
-		llc_necs(request.slice(input, contentBegin, request.size() - contentBegin));
+		if_fail_fe(request.slice(input, contentBegin, request.size() - contentBegin));
 		::llc::SProcessManager<> manager;
 		rtrn manager.Execute(job.CommandLineApp, job.CommandLine, input, job.Response, job.ErrorOutput, job.ExitCode, environment);
 	}();

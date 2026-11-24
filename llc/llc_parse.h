@@ -13,7 +13,7 @@ namespace llc
 	inline	err_t	parseIntegerDecimal				(vcst_t sourceChars, _tInt & number_)	{
 		u3_t				number							= 0; 
 		err_t				countDigits; 
-		llc_necs(countDigits = parseArbitraryBaseInteger(10, vcs{"0123456789"}, sourceChars, &number)); 
+		if_fail_fe(countDigits = parseArbitraryBaseInteger(10, vcst_t{"0123456789"}, sourceChars, &number)); 
 		number_ = (_tInt)number; 
 		return countDigits; 
 	}
@@ -22,7 +22,7 @@ namespace llc
 	inline	err_t	parseIntegerHexadecimal			(vcst_t sourceChars, _tInt & number_)	{
 		u3_t				number							= 0; 
 		err_t countDigits;
-		llc_necs(countDigits = parseArbitraryBaseInteger(16, vcs{"0123456789abcdef"}, sourceChars, &number)); 
+		if_fail_fe(countDigits = parseArbitraryBaseInteger(16, vcst_t{"0123456789abcdef"}, sourceChars, &number)); 
 		number_ = (_tInt)number; 
 		return countDigits; 
 	}

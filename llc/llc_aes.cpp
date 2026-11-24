@@ -413,29 +413,29 @@ void											llc::aesCTRXCryptBuffer				(::llc::SAESContext* ctx, u0_t * buf, 
 	}
 }
 
-::llc::error_t			llc::aesEncode			(vcu0_c & messageToEncrypt, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputEncrypted)	{
+::llc::err_t			llc::aesEncode			(vcu0_c & messageToEncrypt, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputEncrypted)	{
 	u0_t													iv		[::llc::AES_SIZEIV]				= {};
 	const double											fraction								= (1.0 / (65535>>1)) * 255.0;
 	for(::llc::u2_t iVal = 0; iVal < ::llc::AES_SIZEIV; ++iVal)
 		iv[iVal]											= (u0_t)(::llc::noise1DBase(::llc::timeCurrentInUs()) * fraction);
 
-	llc_necs(llc::aesEncode(messageToEncrypt, iv, encryptionKey, level, outputEncrypted));
-	llc_necs(outputEncrypted.resize(outputEncrypted.size() + ::llc::AES_SIZEIV));
+	if_fail_fe(llc::aesEncode(messageToEncrypt, iv, encryptionKey, level, outputEncrypted));
+	if_fail_fe(outputEncrypted.resize(outputEncrypted.size() + ::llc::AES_SIZEIV));
 	memcpy(&outputEncrypted[outputEncrypted.size() - ::llc::AES_SIZEIV], iv, ::llc::AES_SIZEIV);
 	return 0;
 }
 
-::llc::error_t			llc::aesDecode			(vcu0_c & messageEncrypted, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputDecrypted)	{
+::llc::err_t			llc::aesDecode			(vcu0_c & messageEncrypted, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputDecrypted)	{
 	return ::llc::aesDecode({messageEncrypted.begin(), messageEncrypted.size() - ::llc::AES_SIZEIV}, {&messageEncrypted[messageEncrypted.size() - ::llc::AES_SIZEIV], ::llc::AES_SIZEIV}, encryptionKey, level, outputDecrypted);
 }
 
-::llc::error_t			llc::aesEncode		(vcu0_c & messageToEncrypt, vcu0_c & iv, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputEncrypted) {
+::llc::err_t			llc::aesEncode		(vcu0_c & messageToEncrypt, vcu0_c & iv, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputEncrypted) {
 	if_true_fef(0 == messageToEncrypt.size(), "Cannot encode empty message at address %p.", messageToEncrypt);
 	if_true_fef(encryptionKey.size() != 32, "Invalid key length! Key must be exactly 32 bytes long. Key size: %" LLC_FMT_U2 ".", encryptionKey.size());
 	int8_t													excedent								= messageToEncrypt.size() % ::llc::AES_SIZEBLOCK;
 	int8_t													paddingRequired							= (int8_t)(::llc::AES_SIZEBLOCK - excedent);
 	outputEncrypted.clear();
-	llc_necs(outputEncrypted.resize(messageToEncrypt.size() + (paddingRequired ? paddingRequired : ::llc::AES_SIZEBLOCK), (int8_t)0));
+	if_fail_fe(outputEncrypted.resize(messageToEncrypt.size() + (paddingRequired ? paddingRequired : ::llc::AES_SIZEBLOCK), (int8_t)0));
 	for(int8_t iPad = 0; iPad < paddingRequired; ++iPad)
 		outputEncrypted[messageToEncrypt.size() + iPad]		= paddingRequired;
 	memcpy(outputEncrypted.begin(), messageToEncrypt.begin(), messageToEncrypt.size());
@@ -446,21 +446,22 @@ void											llc::aesCTRXCryptBuffer				(::llc::SAESContext* ctx, u0_t * buf, 
 	return 0;
 }
 
-::llc::error_t			llc::aesDecode		(vcu0_c & messageEncrypted, vcu0_c & iv, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputDecrypted) {
+::llc::err_t			llc::aesDecode		(vcu0_c & messageEncrypted, vcu0_c & iv, vcu0_c & encryptionKey, ::llc::AES_LEVEL level, ::llc::au0_t & outputDecrypted) {
 	if_true_fef(0 == messageEncrypted.size(), "Cannot encode empty message at address %p.", messageEncrypted.begin());
 	if_true_fef(messageEncrypted.size() % ::llc::AES_SIZEBLOCK, "Invalid data length: %" LLC_FMT_U2 ".", messageEncrypted.size());
 	if_true_fef(encryptionKey.size() != 32, "Invalid key length! Key must be exactly 32 bytes long. Key size: %" LLC_FMT_U2 ".", encryptionKey.size());
-	llc_necs(outputDecrypted.resize(messageEncrypted.size()));
+	if_fail_fe(outputDecrypted.resize(messageEncrypted.size()));
 	memcpy(outputDecrypted.begin(), messageEncrypted.begin(), outputDecrypted.size());
 	::llc::SAESContext										aes;
 	::llc::aesInitCtxIV(&aes, (const u0_t*)encryptionKey.begin(), level, iv.begin());
 	::llc::aesCBCDecryptBuffer(&aes, (u0_t*)outputDecrypted.begin(), outputDecrypted.size());
-	if(outputDecrypted[outputDecrypted.size() - 1] == 0)
-		llc_necs(outputDecrypted.resize(outputDecrypted.size() - ::llc::AES_SIZEBLOCK));
+	if(outputDecrypted[outputDecrypted.size() - 1] == 0) {
+		if_fail_fe(outputDecrypted.resize(outputDecrypted.size() - ::llc::AES_SIZEBLOCK));
+	}
 	else {
 		const int32_t											padCunt									= outputDecrypted[outputDecrypted.size() - 1];
 		const int32_t											sizeOriginal							= outputDecrypted.size() - padCunt;
-		llc_necs(outputDecrypted.resize(sizeOriginal));
+		if_fail_fe(outputDecrypted.resize(sizeOriginal));
 	}
 	return 0;
 }

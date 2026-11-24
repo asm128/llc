@@ -19,7 +19,7 @@
 
 using ::llc::sc_t;
 
-static	::llc::error_t	updateDPI									(::llc::SFramework & framework)													{
+static	::llc::err_t	updateDPI									(::llc::SFramework & framework)													{
 #if defined(LLC_WINDOWS)
 	if(0 != framework.RootWindow.PlatformDetail.WindowHandle) {
 		RECT			rcWindow									= {};
@@ -46,7 +46,7 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 #endif
 	return 0;
 }
-::llc::error_t			llc::updateFramework						(::llc::SFramework& framework)													{
+::llc::err_t			llc::updateFramework						(::llc::SFramework& framework)													{
 	if(0 == framework.GUI.get_ref())
 		framework.GUI.create();
 	::llc::SWindow				& mainWindow								= framework.RootWindow;
@@ -123,9 +123,9 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 		}
 		}
 	}
-	::llc::error_t				updateResult		= 0;
+	::llc::err_t				updateResult		= 0;
 #else
-	::llc::error_t				updateResult		= ::llc::windowUpdate(mainWindow);
+	::llc::err_t				updateResult		= ::llc::windowUpdate(mainWindow);
 #endif
 	if_true_fe(llc::failed(updateResult));
 	if_true_vi(1, mainWindow.Closed);
@@ -351,7 +351,7 @@ static	void					initWndClass								(::HINSTANCE hInstance, const TCHAR* classNa
 	wndClassToInit.style			= CS_DBLCLKS;
 }
 #elif defined(LLC_XCB)
-static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
+static	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
 	if(0 == window.PlatformDetail.Connection) {
 		window.PlatformDetail.Connection														= xcb_connect(NULL, NULL);
 	}
@@ -389,7 +389,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 }
 #endif
 
-::llc::error_t			llc::mainWindowDestroy						(::llc::SWindow& mainWindow)				{
+::llc::err_t			llc::mainWindowDestroy						(::llc::SWindow& mainWindow)				{
 #if defined(LLC_WINDOWS)
 	::DestroyWindow(mainWindow.PlatformDetail.WindowHandle);
 	::llc::windowUpdate(mainWindow);
@@ -401,7 +401,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 	return 0;
 }
 
-::llc::error_t			llc::mainWindowCreate	(::llc::SWindow& mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput>& displayInput)	{
+::llc::err_t			llc::mainWindowCreate	(::llc::SWindow& mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput>& displayInput)	{
 	if(0 == displayInput.get_ref())
 		displayInput.create();
 
@@ -436,7 +436,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 	xcb_screen_t				* xcbScreen			= xcb_setup_roots_iterator(xcb_get_setup(mainWindow.PlatformDetail.Connection)).data;
 	::std::shared_ptr<xcb_get_geometry_reply_t>	geometry									(xcb_get_geometry_reply(mainWindow.PlatformDetail.Connection, xcb_get_geometry(mainWindow.PlatformDetail.Connection, xcbScreen->root), nullptr), free);
 	mainWindow.Size						= {geometry->width, geometry->height};
-	llc_necall(xcbWindowCreate(mainWindow), "%s", "Failed to create main window.");
+	if_fail_fef(xcbWindowCreate(mainWindow), "%s", "Failed to create main window.");
 	(void)runtimeValues;
 #else
 	(void)runtimeValues;

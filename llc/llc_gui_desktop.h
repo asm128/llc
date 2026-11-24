@@ -13,15 +13,15 @@ namespace llc
 		::llc::aobj<_tElement>		Elements;
 		::llc::au3_t				UnusedData;
 
-		inlcxpr	const _tElement&	operator[]					(::llc::u2_t index)			const				{ return Elements[index]; }
-		inlcxpr	_tElement&			operator[]					(::llc::u2_t index)								{ return Elements[index]; }
+		inxp	const _tElement&	operator[]					(::llc::u2_t index)			const				{ return Elements[index]; }
+		inxp	_tElement&			operator[]					(::llc::u2_t index)								{ return Elements[index]; }
 
-		inlcxpr	::llc::u2_t			size						()							const	noexcept	{ return Elements.size(); }
-		::llc::error_t				push_back					(const _tElement & toPush)						{
+		inxp	::llc::u2_t			size						()							const	noexcept	{ return Elements.size(); }
+		::llc::err_t				push_back					(const _tElement & toPush)						{
 			const ::llc::cid_t				elemIndex					= (::llc::cid_t)Elements.push_back(toPush);
 			if_true_fef(failed(elemIndex), "%s", "Failed to add element to container! Out of memory?");
-			stacxpr	::llc::u2_t				boolContainerElementSize	= sizeof(uint64_t) * ::llc::BYTE_SIZE;
-			llc_necs(UnusedData.resize((elemIndex + 1) / boolContainerElementSize + 1));
+			stxp	::llc::u2_t				boolContainerElementSize	= sizeof(uint64_t) * ::llc::BYTE_SIZE;
+			if_fail_fe(UnusedData.resize((elemIndex + 1) / boolContainerElementSize + 1));
 			Unused						= {UnusedData.begin(), (::llc::u2_t)(elemIndex + 1)};
 			Unused[elemIndex]			= false;
 			return elemIndex;
@@ -42,14 +42,14 @@ namespace llc
 		::llc::aobj<::llc::acid>	Children					= {}; // Keep track of control list hierarchy.
 	};
 
-	::llc::error_t				desktopCreatePaletteGrid	(::llc::SGUI & gui, ::llc::SDesktop & desktop);
-	::llc::error_t				desktopCreateControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop);
-	::llc::error_t				desktopCreateViewport		(::llc::SGUI & gui, ::llc::SDesktop & desktop);
-	::llc::error_t				desktopDeletePaletteGrid	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement);
-	::llc::error_t				desktopDeleteControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement);
-	::llc::error_t				desktopDeleteViewport		(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement);
+	::llc::err_t				desktopCreatePaletteGrid	(::llc::SGUI & gui, ::llc::SDesktop & desktop);
+	::llc::err_t				desktopCreateControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop);
+	::llc::err_t				desktopCreateViewport		(::llc::SGUI & gui, ::llc::SDesktop & desktop);
+	::llc::err_t				desktopDeletePaletteGrid	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement);
+	::llc::err_t				desktopDeleteControlList	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement);
+	::llc::err_t				desktopDeleteViewport		(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iElement);
 																							    
-	::llc::error_t				desktopControlListSetParent	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iControlList, ::llc::cid_t iParentControlList, ::llc::cid_t iParentListItem);
+	::llc::err_t				desktopControlListSetParent	(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::cid_t iControlList, ::llc::cid_t iParentControlList, ::llc::cid_t iParentListItem);
 	int64_t						desktopUpdate				(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SInput & input);
 
 } // namespace
