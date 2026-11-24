@@ -385,6 +385,14 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	return 0;
 }
 
+::llc::err_t			llc::controlToFront	(::llc::SGUI & gui, cid_t iControl) {
+	if_true_fe(::llc::controlInvalid(gui, iControl));
+	cnst ::llc::cid_t iParent = gui.Controls.States[iControl].Parent;
+	if_true_fe(::llc::controlInvalid(gui, iParent));
+	if_fail_fe(::llc::controlSetParent(gui, iControl, ::llc::CID_INVALID));
+	return ::llc::controlSetParent(gui, iControl, iParent);
+}
+
 static	::llc::err_t	buildControlGeometry	(const ::llc::SControlPlacement & control, const ::llc::SControlArea & controlMetrics, const ::llc::SGUIZoom & zoom, ::llc::view<::llc::rect2s1_t> finalRects, ::llc::view<::llc::tri2s1_t> triangles)					{
 	::llc::rects1_t				scaledBorders			= {};
 	const ::llc::n2f3_t			scaleFinal				= zoom.DPI * zoom.ZoomLevel;
@@ -576,7 +584,10 @@ static	::llc::cid_t	updateGUIControlHovered	(::llc::SGUI & gui, ::llc::cid_t iCo
 		if(inputSystem.ButtonDown(0) && false == controlState.IsPressed())
 			gui.Controls.SetPressed(iControl, true);
 		else if(inputSystem.ButtonUp(0))
+		{
 			gui.Controls.SetPressed(iControl, false);
+			gui.Controls.SetDragging(iControl, false);
+		}
 	}
 	else {
 		if(false == disabled) {
@@ -590,12 +601,11 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	//--------------------
 	::llc::SControlState		& controlState			= gui.Controls.States[iControl];
 	::llc::cid_t				controlHovered			= -1;
-	if(::llc::in_range(gui.CursorPos.s1(), gui.Controls.Area[iControl].Total.Global))
-		controlHovered			= ::updateGUIControlHovered(gui, iControl, controlState, input, ::llc::controlDisabled(gui, iControl) || ::llc::controlHidden(gui, iControl));
-	else {
-		gui.Controls.SetHovered(iControl, false);
-		if(input.ButtonUp(0))
-			gui.Controls.SetPressed(iControl, false);
+	::llc::cid_t				controlBranch			= -1;
+	if(controlState.IsPressed() && input.MouseCurrent.ButtonState[0]) {
+		if(input.MouseCurrent.Position != input.MousePrevious.Position)
+			gui.Controls.SetDragging(iControl, true);
+		return iControl;
 	}
 	{
 		::llc::vcid					& children				= gui.Controls.Children[iControl];
@@ -604,9 +614,21 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 				continue;
 			::llc::cid_t				controlPressed			= ::controlProcessInput(gui, input, children[iChild]);
 			if(gui.Controls.States.size() > (::llc::u2_t)controlPressed) {
-				gui.Controls.SetHovered(iControl, false);
+				gui.Controls.SetPressed(iControl, false);
 				controlHovered			= controlPressed;
+				controlBranch			= children[iChild];
 			}
+		}
+	}
+	if(input.ButtonDown(0) && ::llc::controlInvalid(gui, controlState.Parent) && false == ::llc::controlInvalid(gui, controlBranch))
+		if_fail_fe(::llc::controlToFront(gui, controlBranch));
+	if(controlHovered == -1 && ::llc::in_range(gui.CursorPos.s1(), gui.Controls.Area[iControl].Total.Global))
+		controlHovered = ::updateGUIControlHovered(gui, iControl, controlState, input, ::llc::controlDisabled(gui, iControl) || ::llc::controlHidden(gui, iControl));
+	else {
+		gui.Controls.SetHovered(iControl, false);
+		if(input.ButtonUp(0)) {
+			gui.Controls.SetPressed(iControl, false);
+			gui.Controls.SetDragging(iControl, false);
 		}
 	}
 	return controlHovered;
@@ -649,18 +671,31 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 		if(gui.Controls.States.size() > (::llc::u2_t)controlPressed)
 			controlHovered			= controlPressed;
 	}
-	if(controlHovered == -1)
-		return gui.Controls.States.size();
-
 	for(::llc::u2_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {
+		if(input.ButtonDown(0))
+			gui.Controls.SetFocused((::llc::cid_t)iControl, (::llc::cid_t)iControl == controlHovered);
 		if(iControl != (::llc::u2_t)controlHovered) {
 			gui.Controls.SetHovered((::llc::cid_t)iControl, false);;
-			if(0 == input.MouseCurrent.ButtonState[0])
+			if(0 == input.MouseCurrent.ButtonState[0]) {
 				gui.Controls.SetPressed((::llc::cid_t)iControl, false);
+				gui.Controls.SetDragging((::llc::cid_t)iControl, false);
+			}
+		}
+		::llc::SControlState & controlState = gui.Controls.States[iControl];
+		if(controlState.IsDragging() && ::llc::controlInvalid(gui, controlState.Parent)) {
+			::llc::n2s1_t mouseDeltas = (input.MouseCurrent.Position - input.MousePrevious.Position).s1();
+			mouseDeltas.InPlaceScale(1 / gui.Zoom.DPI.x, 1 / gui.Zoom.DPI.y);
+			mouseDeltas.InPlaceScale(1 / gui.Zoom.ZoomLevel);
+			if(mouseDeltas.x || mouseDeltas.y) {
+				::llc::SControlPlacement & placement = gui.Controls.Placement[iControl];
+				placement.Area.Offset.x += ((placement.Align & ::llc::ALIGN_HCENTER) == ::llc::ALIGN_RIGHT) ? -mouseDeltas.x : mouseDeltas.x;
+				placement.Area.Offset.y += ((placement.Align & ::llc::ALIGN_VCENTER) == ::llc::ALIGN_BOTTOM) ? -mouseDeltas.y : mouseDeltas.y;
+				if_fail_fe(::llc::controlMetricsInvalidate(gui, (::llc::cid_t)iControl));
+			}
 		}
 	}
 
-	return controlHovered;
+	return controlHovered == -1 ? gui.Controls.States.size() : controlHovered;
 }
 
 ::llc::err_t			llc::guiDeselect		(::llc::SGUI & gui)	{
