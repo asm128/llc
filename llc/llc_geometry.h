@@ -131,19 +131,19 @@ namespace llc
 #pragma pack(pop)
 
 #ifndef LLC_ATMEL
-	::llc::error_t		geometryBuildCircleSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCircle			& params);
-	::llc::error_t		geometryBuildDisc			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsDisc			& params);
-	::llc::error_t		geometryBuildBox			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsBox			& params);
-	::llc::error_t		geometryBuildSphere			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsSphere			& params);
-	::llc::error_t		geometryBuildCylinderWall	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall	& params);
-	::llc::error_t		geometryBuildCylinder		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall	& params);
-	::llc::error_t		geometryBuildGrid			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsGrid			& params);
-	::llc::error_t		geometryBuildHelixHalf		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);	// TODO: Rewrite
-	::llc::error_t		geometryBuildHelix			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
-	::llc::error_t		geometryBuildFigure0		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
-	::llc::error_t		geometryBuildRingSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
-	::llc::error_t		geometryBuildRingFlat		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
-	::llc::error_t		geometryBuildRing			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTube			& params);
+	::llc::err_t		geometryBuildCircleSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCircle			& params);
+	::llc::err_t		geometryBuildDisc			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsDisc			& params);
+	::llc::err_t		geometryBuildBox			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsBox			& params);
+	::llc::err_t		geometryBuildSphere			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsSphere			& params);
+	::llc::err_t		geometryBuildCylinderWall	(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall	& params);
+	::llc::err_t		geometryBuildCylinder		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsCylinderWall	& params);
+	::llc::err_t		geometryBuildGrid			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsGrid			& params);
+	::llc::err_t		geometryBuildHelixHalf		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);	// TODO: Rewrite
+	::llc::err_t		geometryBuildHelix			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
+	::llc::err_t		geometryBuildFigure0		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsHelix			& params);
+	::llc::err_t		geometryBuildRingSide		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
+	::llc::err_t		geometryBuildRingFlat		(::llc::SGeometryBuffers & geometry, const ::llc::SParamsRingSide		& params);
+	::llc::err_t		geometryBuildRing			(::llc::SGeometryBuffers & geometry, const ::llc::SParamsTube			& params);
 #endif
 } // namespace
 

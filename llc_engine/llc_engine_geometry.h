@@ -6,7 +6,7 @@
 
 namespace llc 
 {
-	::llc::error_t			createBuffers
+	::llc::err_t			createBuffers
 		( const ::llc::SGeometryBuffers	& geometry
 		, ::llc::pobj<SRenderBuffer>	& pIndicesVertex
 		, ::llc::pobj<SRenderBuffer>	& pVertices
@@ -14,7 +14,7 @@ namespace llc
 		, ::llc::pobj<SRenderBuffer>	& pUV
 		);
 
-	::llc::error_t			createBuffers
+	::llc::err_t			createBuffers
 		( SRenderBufferManager			& bufferManager 
 		, const ::llc::SGeometryBuffers	& geometry
 		, uint32_t						& iIndicesVertex

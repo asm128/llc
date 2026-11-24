@@ -35,10 +35,10 @@ namespace llc
 		
 												~Sample3DSceneRenderer			() { ReleaseDeviceResources(); }
 
-		::llc::error_t							Initialize		(const ::llc::pobj<DX::D3DDeviceResources> & deviceResources) {
+		::llc::err_t							Initialize		(const ::llc::pobj<DX::D3DDeviceResources> & deviceResources) {
 			DeviceResources							= deviceResources;
-			llc_necs(CreateDeviceResources(DeviceResources->GetD3DDevice()));
-			llc_necs(CreateSizeDependentResources(DeviceResources->GetLogicalSize(), DeviceResources->GetOrientationTransform3D()));
+			if_fail_fe(CreateDeviceResources(DeviceResources->GetD3DDevice()));
+			if_fail_fe(CreateSizeDependentResources(DeviceResources->GetLogicalSize(), DeviceResources->GetOrientationTransform3D()));
 			return 0;
 		}
 
@@ -57,9 +57,9 @@ namespace llc
 			BoundShaderResourceCount = 0;
 		}
 
-		::llc::error_t						Render							(uint32_t iMesh, ::llc::rangeu2_t indexRange, ::llc::vcu2_t iTextures, uint32_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel) {
+		::llc::err_t						Render							(uint32_t iMesh, ::llc::rangeu2_t indexRange, ::llc::vcu2_t iTextures, uint32_t iShader, bool alpha, const::llc::SRenderNodeConstants & constantBufferModel) {
 			if(iTextures.size() > D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT)
-				return ::llc::OS_INVALID_PARAMETER;
+				return -1;
 			auto										context							= DeviceResources->GetD3DDeviceContext();
 			context->UpdateSubresource1(ConstantBuffer[0], 0, NULL, &constantBufferModel, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
 			context->UpdateSubresource1(ConstantBuffer[1], 0, NULL, &ConstantBufferScene, 0, 0, 0);	// Prepare the constant buffer to send it to the graphics device.
@@ -89,7 +89,7 @@ namespace llc
 			ID3D11ShaderResourceView					* resources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
 			for(UINT iTexture = 0; iTexture < iTextures.size(); ++iTexture) {
 				if(iTextures[iTexture] >= ShaderResourceView.size())
-					return ::llc::OS_INVALID_PARAMETER;
+					return -1;
 				resources[iTexture]						= ShaderResourceView[iTextures[iTexture]].get();
 			}
 			const UINT								resourceCount					= ::llc::max((UINT)iTextures.size(), BoundShaderResourceCount);
@@ -106,7 +106,7 @@ namespace llc
 			return 0;
 		}
 
-		::llc::error_t							CreateSizeDependentResources	(const ::llc::n2f2_t & outputSize, const DirectX::XMFLOAT4X4 & orientation) {
+		::llc::err_t							CreateSizeDependentResources	(const ::llc::n2f2_t & outputSize, const DirectX::XMFLOAT4X4 & orientation) {
 			const float									aspectRatio						= outputSize.x / outputSize.y;
 			float										fovAngleY						= 70.0f * DirectX::XM_PI / 180.0f;
 
@@ -123,13 +123,13 @@ namespace llc
 
 			// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
 			const	DirectX::XMVECTORF32			eye								= { 0.0f, (float)sin(TotalSecondsElapsed) * 5, 5.5f, 0.0f };
-			stacxpr	DirectX::XMVECTORF32			at								= { 0.0f, -0.1f, 0.0f, 0.0f };
-			stacxpr	DirectX::XMVECTORF32			up								= { 0.0f, 1.0f, 0.0f, 0.0f };
+			stxp	DirectX::XMVECTORF32			at								= { 0.0f, -0.1f, 0.0f, 0.0f };
+			stxp	DirectX::XMVECTORF32			up								= { 0.0f, 1.0f, 0.0f, 0.0f };
 			DirectX::XMStoreFloat4x4((DirectX::XMFLOAT4X4*)&ConstantBufferScene.View, DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(eye, at, up)));
 			return 0;
 		}
 
-		::llc::error_t							CreateDeviceResources			(ID3D11Device3 * d3dDevice)	{
+		::llc::err_t							CreateDeviceResources			(ID3D11Device3 * d3dDevice)	{
 			ReleaseDeviceResources();
 			{	// Create a point sampler state for fonts 
 				D3D11_SAMPLER_DESC							samDesc						= {};
@@ -165,8 +165,8 @@ namespace llc
 				::llc::pcom<ID3D11VertexShader>				vertexShader;
 
 				::llc::string								fileVS;
-				llc_necs(llc::fileToMemory("SampleVertexShader.cso", fileVS));
-				stacxpr	D3D11_INPUT_ELEMENT_DESC			vertexDesc []			=
+				if_fail_fe(llc::fileToMemory("SampleVertexShader.cso", fileVS));
+				stxp	D3D11_INPUT_ELEMENT_DESC			vertexDesc []			=
 					{	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 00, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					,	{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 					,	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }

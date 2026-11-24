@@ -6,7 +6,7 @@
 namespace llc
 {
 	tplt<tpnm T>
-	::llc::error_t					grid_scale_fast				(::llc::grid<T> & dst, const ::llc::grid<T> & src, const float xFactor, const float yFactor) {
+	::llc::err_t					grid_scale_fast				(::llc::grid<T> & dst, const ::llc::grid<T> & src, const float xFactor, const float yFactor) {
 		for(::llc::u2_t y = 0; y < dst.metrics().y; ++y)
 		for(::llc::u2_t x = 0; x < dst.metrics().x; ++x)
 			dst[y][x]						= src[(::llc::u2_t)(y * yFactor)][(::llc::u2_t)(x * xFactor)];
@@ -14,14 +14,14 @@ namespace llc
 	}
 
 	tplt<tpnm T>
-	::llc::error_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<T> & src) {
+	::llc::err_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<T> & src) {
 		const float							xFactor						= src.metrics().x / (float)dst.metrics().x;
 		const float							yFactor						= src.metrics().y / (float)dst.metrics().y;
 		return grid_scale_fast(dst, src, xFactor, yFactor);
 	}
 
 	tplt<tpnm T>
-	::llc::error_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const float xFactor, const float yFactor) {
+	::llc::err_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const float xFactor, const float yFactor) {
 		for(::llc::u2_t y = 0; y < dst.metrics().y; ++y)
 		for(::llc::u2_t x = 0; x < dst.metrics().x; ++x) {
 			const u2_t						xSrc						= (::llc::u2_t)(x * xFactor);
@@ -35,7 +35,7 @@ namespace llc
 	}
 
 	tplt<tpnm T>
-	::llc::error_t					grid_scale_alpha			(::llc::grid<T> & dst, const ::llc::grid<T> & src, const ::llc::n2<int32_t> & dstPos, const ::llc::n2<int32_t> & dstSize) {
+	::llc::err_t					grid_scale_alpha			(::llc::grid<T> & dst, const ::llc::grid<T> & src, const ::llc::n2<int32_t> & dstPos, const ::llc::n2<int32_t> & dstSize) {
 		const ::llc::n2<int32_t>			srcSize						= {(int)src.metrics().x	, (int)src.metrics().y	};
 		for(int y = dstPos.y, yStop = ::llc::min(dstPos.y + dstSize.y, (int32_t)dst.metrics().y); y < yStop; ++y) {
 			::llc::n2<int32_t>					sourcePixelCoord			= {0, (int)((y - (double)dstPos.y) / dstSize.y * (double)srcSize.y)};
@@ -50,7 +50,7 @@ namespace llc
 	}
 
 	tplt<tpnm T>
-	::llc::error_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const ::llc::n2<int32_t> & dstPos, const ::llc::n2<int32_t> & dstSize) {
+	::llc::err_t					grid_scale					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const ::llc::n2<int32_t> & dstPos, const ::llc::n2<int32_t> & dstSize) {
 		const ::llc::n2<int32_t>			srcSize						= {(int)src.metrics().x	, (int)src.metrics().y	};
 		for(int y = dstPos.y, yStop = ::llc::min(dstPos.y + dstSize.y, (int32_t)dst.metrics().y); y < yStop; ++y) {
 			::llc::n2<int32_t>					sourcePixelCoord			= {0, (int)((y - (double)dstPos.y) / dstSize.y * (double)srcSize.y)};

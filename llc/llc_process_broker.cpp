@@ -1,26 +1,426 @@
 #include "llc_process_broker.h"
 
-::llc::err_t llc::processBrokerRun(SProcessBrokerJob & job) {
+#include "llc_safe.h"
+#include "llc_string_compose.h"
+
+#if defined(LLC_WINDOWS)
+#	include <process.h>
+#elif defined(LLC_LINUX)
+#	include <errno.h>
+#	include <fcntl.h>
+#	include <poll.h>
+#	include <sys/wait.h>
+#	include <unistd.h>
+#	include <wordexp.h>
+#endif
+
+using namespace llc;
+
+#if defined(LLC_LINUX)
+sttc ::llc::err_t	closeDescriptor			(int & descriptor) {
+	if(0 > descriptor)
+		return 0;
+	cnst int result					= ::close(descriptor);
+	descriptor						= -1;
+	if(0 != result) {
+		error_printf("Failed to close descriptor. errno: %i.", errno);
+		return -1;
+	}
+	return 0;
+}
+
+sttc ::llc::err_t	closeOnExec				(int descriptor) {
+	cnst int flags					= ::fcntl(descriptor, F_GETFD);
+	if(0 > flags || 0 > ::fcntl(descriptor, F_SETFD, flags | FD_CLOEXEC)) {
+		error_printf("Failed to set close-on-exec for descriptor %i. errno: %i.", descriptor, errno);
+		return -1;
+	}
+	return 0;
+}
+#endif
+
+::llc::err_t	llc::createChildProcess
+	( SProcess			& process
+	, vu0_t				environmentBlock
+	, vcst_t			appPath
+	, vsc_t			commandLine
+	, b8_t				debugMessageBox
+	) {
+#if defined(LLC_WINDOWS)
+	::llc::vcst_t				szCmdlineApp			= appPath;
+	::llc::vstr_t				szCmdlineFinal			= commandLine;
+	b8_t						bSuccess				= false;
+	stxp	b8_t				isUnicodeEnv			= false;
+	stxp	u2_t 				creationFlags			= CREATE_SUSPENDED | (isUnicodeEnv ? CREATE_UNICODE_ENVIRONMENT : 0);
+
+	if(INVALID_HANDLE_VALUE != process.ProcessInfo.hProcess	){ CloseHandle(process.ProcessInfo.hProcess	); }
+	bSuccess				= CreateProcessA(szCmdlineApp
+		, szCmdlineFinal.begin()
+		, nullptr
+		, nullptr
+		, true
+		, creationFlags
+		, environmentBlock.begin()
+		, NULL
+		, &process.StartInfo
+		, &process.ProcessInfo
+		) ? true : false;
+	if_true_vef(-1, false == bSuccess, "Failed to create process, because... '%s'.", "???");
+	if(debugMessageBox) {
+		::llc::string			userMessage				= {};
+		if_fail_fe(llc::append_strings(userMessage, "Attach your debugger to '", szCmdlineApp, "' and press OK to initiate the process' main thread."));
+		MessageBoxA(0, userMessage.begin(), "Last chance!", MB_OK | MB_TOPMOST);
+	}
+	info_printf("Creating process '%.*s' with command line '%.*s'", LLC_VIEW_ARGS(szCmdlineApp), LLC_VIEW_ARGS(szCmdlineFinal));
+	ResumeThread(process.ProcessInfo.hThread);
+	return 0;
+#elif defined(LLC_LINUX)
+	::llc::apod<sc_t*> environmentPointers;
+	for(::llc::u2_t offset = 0; offset < environmentBlock.size() && environmentBlock[offset]; ) {
+		if_fail_fe(environmentPointers.push_back((sc_t*)&environmentBlock[offset]));
+		while(offset < environmentBlock.size() && environmentBlock[offset])
+			++offset;
+		if_true_fef(offset >= environmentBlock.size(), "Unterminated environment entry at offset %u.", offset);
+		++offset;
+	}
+	if_fail_fe(environmentPointers.push_back(nullptr));
+
+	::wordexp_t words = {};
+	cnst int wordResult = ::wordexp(commandLine.begin(), &words, WRDE_NOCMD);
+	if(0 != wordResult) {
+		if(WRDE_NOSPACE == wordResult)
+			::wordfree(&words);
+		error_printf("Failed to parse command line '%.*s'. wordexp: %i.", LLC_VIEW_ARGS(commandLine), wordResult);
+		return -1;
+	}
+
+	cnst pid_t child = ::fork();
+	if(0 > child) {
+		cnst int error = errno;
+		::wordfree(&words);
+		error_printf("Failed to create process '%.*s'. errno: %i.", LLC_VIEW_ARGS(appPath), error);
+		return -1;
+	}
+	if(0 == child) {
+		if(0 > ::dup2(process.StartInfo.hStdInput , STDIN_FILENO )
+		|| 0 > ::dup2(process.StartInfo.hStdOutput, STDOUT_FILENO)
+		|| 0 > ::dup2(process.StartInfo.hStdError , STDERR_FILENO))
+			::_exit(126);
+		sc_t * fallbackArguments[] = {(sc_t*)appPath.begin(), nullptr};
+		sc_t ** arguments = words.we_wordc ? words.we_wordv : fallbackArguments;
+		::execve(appPath.begin(), arguments, environmentPointers.begin());
+		::_exit(127);
+	}
+
+	process.ProcessInfo.hProcess = (::llc::s2_t)child;
+	process.ProcessInfo.hThread = -1;
+	if_fail_fe(::closeDescriptor(process.StartInfo.hStdInput));
+	if_fail_fe(::closeDescriptor(process.StartInfo.hStdOutput));
+	if_fail_fe(::closeDescriptor(process.StartInfo.hStdError));
+	::wordfree(&words);
+	if(debugMessageBox)
+		warning_printf("Attach your debugger to process %i ('%.*s').", (int)child, LLC_VIEW_ARGS(appPath));
+	info_printf("Creating process '%.*s' with command line '%.*s'", LLC_VIEW_ARGS(appPath), LLC_VIEW_ARGS(commandLine));
+	return 0;
+#endif
+}
+
+#if defined(LLC_WINDOWS)
+::llc::err_t	llc::writeToPipe			(cnst SProcessHandles & handles, vcu0_t chBufToSend) {
+	DWORD						dwWritten				= 0;
+	b8_t						bSuccess				= false;
+	if_true_ef(false == (bSuccess = WriteFile(handles.ChildStd_IN_Write, chBufToSend.begin(), chBufToSend.size(), &dwWritten, NULL) ? true : false), "%s", "Failed to write to child process' standard input.");
+	if_true_vef(-1, false == (CloseHandle(handles.ChildStd_IN_Write) ? true : false), "%s", "Failed to close the pipe handle so the child process stops reading.");
+	return bSuccess ? 0 : -1;
+}
+#elif defined(LLC_LINUX)
+::llc::err_t	llc::writeToPipe			(SProcessHandles & handles, vcu0_t chBufToSend) {
+	::llc::u2_t offset = 0;
+	while(offset < chBufToSend.size()) {
+		cnst ssize_t written = ::write(handles.ChildStd_IN_Write, &chBufToSend[offset], chBufToSend.size() - offset);
+		if(0 > written) {
+			if(EINTR == errno)
+				continue;
+			error_printf("Failed to write to child process' standard input. errno: %i.", errno);
+			return -1;
+		}
+		offset += (::llc::u2_t)written;
+	}
+	return ::closeDescriptor(handles.ChildStd_IN_Write);
+}
+#endif
+
+#if defined(LLC_WINDOWS)
+::llc::err_t	llc::readFromPipe			(cnst SProcess & process, cnst SProcessHandles & handles, au0_t & readBytes) {
+	sttc	::llc::au0_t		chBuf;
+	stxp	u2_t 			BUFSIZE					= 1024 * 1024 * 50;
+	chBuf.resize(BUFSIZE);
+	for (;;) {
+		u2_t 					dwRead					= 0;
+		if_zero_fe(ReadFile(handles.ChildStd_OUT_Read, chBuf.begin(), chBuf.size(), (DWORD*)&dwRead, NULL));
+		if(0 == dwRead)
+			break;
+		if_fail_fe(readBytes.append(chBuf.begin(), dwRead));
+		DWORD						exitCode				= 0;
+		if_zero_fe(GetExitCodeProcess(process.ProcessInfo.hProcess, &exitCode));
+		if_true_bif(STILL_ACTIVE != exitCode, "exitCode: %lu", exitCode);
+		info_printf("Process output: %.*s", chBuf.size(), chBuf.begin());
+		if(0 == readBytes[readBytes.size() - 1])
+			break;
+	}
+	return 0;
+}
+#elif defined(LLC_LINUX)
+sttc ::llc::err_t	readFromPipes			(SProcess & process, SProcessHandles & handles, au0_t & readBytes, au0_t * errorBytes) {
+	sttc ::llc::au0_t chBuf;
+	stxp ::llc::u2_t BUFSIZE = 1024 * 1024;
+	if_fail_fe(chBuf.resize(BUFSIZE));
+	::pollfd descriptors[2] = {
+		{handles.ChildStd_OUT_Read, POLLIN | POLLHUP, 0},
+		{handles.ChildStd_ERR_Read, POLLIN | POLLHUP, 0},
+	};
+	::llc::u0_t descriptorsOpen = 2;
+	while(descriptorsOpen) {
+		cnst int pollResult = ::poll(descriptors, 2, -1);
+		if(0 > pollResult) {
+			if_true_fef(EINTR == errno, ("Failed waiting for child process output. errno: %i.", errno);
+			continue;
+		}
+		for(::llc::u0_t index = 0; index < 2; ++index) {
+			::pollfd & descriptor = descriptors[index];
+			if(0 > descriptor.fd || 0 == (descriptor.revents & (POLLIN | POLLHUP | POLLERR | POLLNVAL)))
+				continue;
+			cnst ssize_t bytesRead = ::read(descriptor.fd, chBuf.begin(), chBuf.size());
+			if(0 < bytesRead) {
+				if(0 == index) {
+					if_fail_fe(readBytes.append(chBuf.begin(), (::llc::u2_t)bytesRead));
+					info_printf("Process output: %.*s", (int)bytesRead, chBuf.begin());
+				}
+				else {
+					if(errorBytes)
+						if_fail_fe(errorBytes->append(chBuf.begin(), (::llc::u2_t)bytesRead));
+					warning_printf("Process error: %.*s", (int)bytesRead, chBuf.begin());
+				}
+				continue;
+			}
+			if(0 > bytesRead && EINTR == errno)
+				continue;
+			if_true_fef(0 > bytesRead && EAGAIN != errno && EWOULDBLOCK != errno, ("Failed reading child process output. errno: %i.", errno);
+			if(0 == bytesRead || descriptor.revents & (POLLHUP | POLLERR | POLLNVAL)) {
+				if(0 == index) {
+					if_fail_fe(::closeDescriptor(handles.ChildStd_OUT_Read));
+				}
+				else
+					if_fail_fe(::closeDescriptor(handles.ChildStd_ERR_Read));
+				descriptor.fd = -1;
+				--descriptorsOpen;
+			}
+		}
+	}
+
+	int status = 0;
+	pid_t waitResult = 0;
+	do
+		waitResult = ::waitpid((pid_t)process.ProcessInfo.hProcess, &status, 0);
+	while(0 > waitResult && EINTR == errno);
+	if(0 > waitResult) {
+		error_printf("Failed waiting for child process %i. errno: %i.", process.ProcessInfo.hProcess, errno);
+		return -1;
+	}
+	process.ExitCode = WIFEXITED(status) ? (::llc::u2_t)WEXITSTATUS(status) : (::llc::u2_t)(128 + WTERMSIG(status));
+	process.ProcessInfo.hProcess = -1;
+	if(0 != process.ExitCode)
+		warning_printf("exitCode: %u", process.ExitCode);
+	return 0;
+}
+
+::llc::err_t	llc::readFromPipe			(SProcess & process, SProcessHandles & handles, au0_t & readBytes) {
+	return ::readFromPipes(process, handles, readBytes, 0);
+}
+#endif
+
+#if defined(LLC_WINDOWS)
+sttc ::llc::err_t	readFromPipeHandle		(HANDLE pipe, ::llc::au0_t & readBytes) {
+	stxp	::llc::u2_t		bufferSize					= 1024 * 1024;
+	::llc::au0_t				buffer;
+	if_fail_fe(buffer.resize(bufferSize));
+	for(;;) {
+		DWORD						bytesRead					= 0;
+		if(false == (b8_t)::ReadFile(pipe, buffer.begin(), buffer.size(), &bytesRead, 0)) {
+			cnst DWORD				lastError					= ::GetLastError();
+			if_true_bw(ERROR_BROKEN_PIPE == lastError);
+			if_true_fef(true, "Failed to read child process pipe. Windows error: %lu.", lastError);
+		}
+		if_zero_bi(bytesRead);
+		if_fail_fe(readBytes.append(buffer.begin(), bytesRead));
+	}
+	return 0;
+}
+
+sttc void	threadReadError			(void * jobAddress) {
+	::llc::SProcessBrokerJob	& job						= *(::llc::SProcessBrokerJob*)jobAddress;
+	job.ErrorResult								= ::readFromPipeHandle(job.IOHandles.ChildStd_ERR_Read, job.ErrorOutput);
+	llc_sync_increment(job.ErrorDone);
+}
+#endif
+
+sttc ::llc::err_t	closeBrokerJob			(::llc::SProcessBrokerJob & job) {
+	::llc::err_t				result						= 0;
+#if defined(LLC_WINDOWS)
+	llc_safe_closehandle(job.IOHandles.ChildStd_IN_Read	);
+	llc_safe_closehandle(job.IOHandles.ChildStd_IN_Write	);
+	llc_safe_closehandle(job.IOHandles.ChildStd_OUT_Read	);
+	llc_safe_closehandle(job.IOHandles.ChildStd_OUT_Write);
+	llc_safe_closehandle(job.IOHandles.ChildStd_ERR_Read	);
+	llc_safe_closehandle(job.IOHandles.ChildStd_ERR_Write);
+#elif defined(LLC_LINUX)
+	if(0 > ::closeDescriptor(job.IOHandles.ChildStd_IN_Read	)) result = -1;
+	if(0 > ::closeDescriptor(job.IOHandles.ChildStd_IN_Write	)) result = -1;
+	if(0 > ::closeDescriptor(job.IOHandles.ChildStd_OUT_Read	)) result = -1;
+	if(0 > ::closeDescriptor(job.IOHandles.ChildStd_OUT_Write	)) result = -1;
+	if(0 > ::closeDescriptor(job.IOHandles.ChildStd_ERR_Read	)) result = -1;
+	if(0 > ::closeDescriptor(job.IOHandles.ChildStd_ERR_Write	)) result = -1;
+#endif
+	if(0 > ::llc::closeProcessIO(job.Process))
+		result									= -1;
+	if(0 > ::llc::closeProcess(job.Process))
+		result									= -1;
+	return result;
+}
+
+::llc::err_t	llc::processBrokerRun		(SProcessBrokerJob & job) {
 	job.Response.clear();
 	job.ErrorOutput.clear();
-	job.ExitCode						= 0;
-	job.ErrorDone						= 0;
-	job.ErrorResult					= 0;
-	job.Done							= 0;
-	job.Result = [&job]() -> ::llc::err_t {
-		cnst ::llc::vcu0_t request			= job.Request;
-		stxp ::llc::u0_t environmentEnd[]	= {0, 0};
-		cnst ::llc::err_t contentOffset		= request.find(::llc::vcu0_t{environmentEnd, ::llc::size(environmentEnd)});
-		if_true_fef(0 > contentOffset, "%s", "Failed to find the process environment block terminator.");
-		cnst ::llc::u2_t contentBegin		= (::llc::u2_t)contentOffset + ::llc::size(environmentEnd);
-		cnst ::llc::vcs0_t environment		= {(cnst ::llc::s0_t*)request.begin(), contentBegin};
-		::llc::vcu0_t input;
-		llc_necs(request.slice(input, contentBegin, request.size() - contentBegin));
-		::llc::SProcessManager<> manager;
-		rtrn manager.Execute(job.CommandLineApp, job.CommandLine, input, job.Response, job.ErrorOutput, job.ExitCode, environment);
+	job.ErrorDone								= 0;
+	job.ErrorResult							= 0;
+	job.Done									= 0;
+	job.Result								= [&job]() -> ::llc::err_t {
+		if_fail_fe(::llc::initHandles(job.Process, job.IOHandles));
+		::llc::vu0_t				environmentBlock				= job.Request;
+		cnst ::llc::vcu0_t		packet						= job.Request;
+		cnst ::llc::err_t	contentOffset				= packet.find(::llc::vcu0_t{(cnst u0_t*)"\0", 2});
+		if_true_fef(0 > contentOffset, "%s", "Failed to find the CGI environment block terminator.");
+		if_fail_fe(::llc::createChildProcess(job.Process, environmentBlock, job.CommandLineApp, job.CommandLine));
+		if_fail_fe(::llc::closeProcessIO(job.Process));
+#if defined(LLC_WINDOWS)
+		job.IOHandles.ChildStd_IN_Read				= INVALID_HANDLE_VALUE;
+		job.IOHandles.ChildStd_OUT_Write			= INVALID_HANDLE_VALUE;
+		job.IOHandles.ChildStd_ERR_Write			= INVALID_HANDLE_VALUE;
+		if((uP_t)-1L == ::_beginthread(::threadReadError, 0, &job)) {
+			job.ErrorResult							= -1;
+			llc_safe_closehandle(job.IOHandles.ChildStd_ERR_Read);
+			llc_sync_increment(job.ErrorDone);
+		}
+#elif defined(LLC_LINUX)
+		job.IOHandles.ChildStd_IN_Read				= -1;
+		job.IOHandles.ChildStd_OUT_Write			= -1;
+		job.IOHandles.ChildStd_ERR_Write			= -1;
+#endif
+		::llc::err_t				inputWriteResult				= 0;
+		cnst ::llc::u2_t		contentBegin					= (u2_t)contentOffset + 2;
+		if(packet.size() > contentBegin) {
+			inputWriteResult						= ::llc::writeToPipe(job.IOHandles, {&packet[contentBegin], packet.size() - contentBegin});
+#if defined(LLC_WINDOWS)
+			if(0 <= inputWriteResult)
+				job.IOHandles.ChildStd_IN_Write		= INVALID_HANDLE_VALUE;
+#endif
+		}
+		else {
+#if defined(LLC_WINDOWS)
+			llc_safe_closehandle(job.IOHandles.ChildStd_IN_Write);
+#elif defined(LLC_LINUX)
+			if_fail_fe(::closeDescriptor(job.IOHandles.ChildStd_IN_Write));
+#endif
+		}
+#if defined(LLC_WINDOWS)
+		cnst ::llc::err_t	responseReadResult			= ::readFromPipeHandle(job.IOHandles.ChildStd_OUT_Read, job.Response);
+		while(false == llc_sync_compare_exchange(job.ErrorDone, 1, 1))
+			::llc::sleep(1);
+#elif defined(LLC_LINUX)
+		cnst ::llc::err_t	responseReadResult			= ::readFromPipes(job.Process, job.IOHandles, job.Response, &job.ErrorOutput);
+		job.ErrorResult							= 0;
+		llc_sync_increment(job.ErrorDone);
+#endif
+		if_fail_fe(inputWriteResult);
+		if_fail_fe(responseReadResult);
+		if_fail_fe(job.ErrorResult);
+		return 0;
 	}();
-	job.ErrorResult						= ::llc::failed(job.Result) ? job.Result : 0;
-	job.ErrorDone						= 1;
-	job.Done							= 1;
-	rtrn job.Result;
+	cnst ::llc::err_t		closeResult					= ::closeBrokerJob(job);
+	llc_sync_increment(job.Done);
+	return ::llc::failed(job.Result) ? job.Result : closeResult;
+}
+
+::llc::err_t	llc::initHandles			(SProcess & process, SProcessHandles & handles) {
+#if defined(LLC_WINDOWS)
+	SECURITY_ATTRIBUTES			saAttr;
+	saAttr.bInheritHandle	= TRUE;
+	saAttr.lpSecurityDescriptor = NULL;
+	if_true_vef(-1, false == (b8_t)CreatePipe			(&handles.ChildStd_OUT_Read, &handles.ChildStd_OUT_Write, &saAttr, 0)	, "StdoutRd CreatePipe: '%s'."			, "Failed to create a pipe for the child process's STDOUT.");
+	if_true_vef(-1, false == (b8_t)SetHandleInformation	(handles.ChildStd_OUT_Read, HANDLE_FLAG_INHERIT, 0)						, "Stdout SetHandleInformation: '%s'."	, "Failed to ensure the read handle to the pipe for STDOUT is not inherited.");
+	if_true_vef(-1, false == (b8_t)CreatePipe			(&handles.ChildStd_ERR_Read, &handles.ChildStd_ERR_Write, &saAttr, 0)	, "StdoutRd CreatePipe: '%s'."			, "Failed to create a pipe for the child process's STDOUT.");
+	if_true_vef(-1, false == (b8_t)SetHandleInformation	(handles.ChildStd_ERR_Read, HANDLE_FLAG_INHERIT, 0)						, "Stdout SetHandleInformation: '%s'."	, "Failed to ensure the read handle to the pipe for STDOUT is not inherited.");
+	if_true_vef(-1, false == (b8_t)CreatePipe			(&handles.ChildStd_IN_Read, &handles.ChildStd_IN_Write, &saAttr, 0)		, "Stdin CreatePipe: '%s'."				, "Failed to create a pipe for the child process's STDIN.");
+	if_true_vef(-1, false == (b8_t)SetHandleInformation	(handles.ChildStd_IN_Write, HANDLE_FLAG_INHERIT, 0)						, "Stdin SetHandleInformation: '%s'."	, "Failed to ensure the write handle to the pipe for STDIN is not inherited.");
+	process.StartInfo.hStdError		= handles.ChildStd_ERR_Write;
+	process.StartInfo.hStdOutput	= handles.ChildStd_OUT_Write;
+	process.StartInfo.hStdInput		= handles.ChildStd_IN_Read;
+	process.ProcessInfo.hProcess	= INVALID_HANDLE_VALUE;
+	process.StartInfo.dwFlags		|= STARTF_USESTDHANDLES;
+#elif defined(LLC_LINUX)
+	int output[2] = {-1, -1};
+	int error [2] = {-1, -1};
+	int input [2] = {-1, -1};
+	if(0 != ::pipe(output) || 0 != ::pipe(error) || 0 != ::pipe(input)) {
+		error_printf("Failed to create child process pipes. errno: %i.", errno);
+		if(0 <= output[0]) ::close(output[0]);
+		if(0 <= output[1]) ::close(output[1]);
+		if(0 <= error [0]) ::close(error [0]);
+		if(0 <= error [1]) ::close(error [1]);
+		if(0 <= input [0]) ::close(input [0]);
+		if(0 <= input [1]) ::close(input [1]);
+		return -1;
+	}
+	handles.ChildStd_OUT_Read = output[0];
+	handles.ChildStd_OUT_Write = output[1];
+	handles.ChildStd_ERR_Read = error[0];
+	handles.ChildStd_ERR_Write = error[1];
+	handles.ChildStd_IN_Read = input[0];
+	handles.ChildStd_IN_Write = input[1];
+	if_fail_fe(::closeOnExec(handles.ChildStd_OUT_Read));
+	if_fail_fe(::closeOnExec(handles.ChildStd_OUT_Write));
+	if_fail_fe(::closeOnExec(handles.ChildStd_ERR_Read));
+	if_fail_fe(::closeOnExec(handles.ChildStd_ERR_Write));
+	if_fail_fe(::closeOnExec(handles.ChildStd_IN_Read));
+	if_fail_fe(::closeOnExec(handles.ChildStd_IN_Write));
+	process.StartInfo.hStdError		= handles.ChildStd_ERR_Write;
+	process.StartInfo.hStdOutput	= handles.ChildStd_OUT_Write;
+	process.StartInfo.hStdInput		= handles.ChildStd_IN_Read;
+	process.ProcessInfo.hProcess	= -1;
+#endif
+	return 0;
+}
+
+::llc::err_t	llc::closeProcessIO			(SProcess & process) {
+#if defined(LLC_WINDOWS)
+	llc_safe_closehandle(process.StartInfo.hStdError	);
+	llc_safe_closehandle(process.StartInfo.hStdInput	);
+	llc_safe_closehandle(process.StartInfo.hStdOutput	);
+#elif defined(LLC_LINUX)
+	if_fail_fe(::closeDescriptor(process.StartInfo.hStdError	));
+	if_fail_fe(::closeDescriptor(process.StartInfo.hStdInput	));
+	if_fail_fe(::closeDescriptor(process.StartInfo.hStdOutput	));
+#endif
+	return 0;
+}
+
+::llc::err_t	llc::closeProcess			(SProcess & process) {
+#if defined(LLC_WINDOWS)
+	llc_safe_closehandle(process.ProcessInfo.hProcess	);
+	llc_safe_closehandle(process.ProcessInfo.hThread	);
+#elif defined(LLC_LINUX)
+	process.ProcessInfo.hProcess = -1;
+	process.ProcessInfo.hThread = -1;
+#endif
+	return 0;
 }

@@ -1,7 +1,7 @@
 #include "llc_engine_d3d_app.h"
 #include "llc_view_color.h"
 
-::llc::error_t			llc::d3dGUIDraw		(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff)	{
+::llc::err_t			llc::d3dGUIDraw		(::DX::D3DDeviceResources & d3dResources, ::llc::SD3DGUIResources<::llc::bgra> & guiStuff)	{
 	if(!guiStuff.Texture2D) 
 		return 1;
 	
@@ -41,7 +41,7 @@
 	return 0;
 }
 
-static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeManager, uint32_t iNode, const ::llc::SEngineSceneConstants & constants, ::llc::SRenderNodeConstants	& nodeConstants) {
+static	::llc::err_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeManager, uint32_t iNode, const ::llc::SEngineSceneConstants & constants, ::llc::SRenderNodeConstants	& nodeConstants) {
 	nodeConstants			= nodeManager.Transforms[iNode];
 
 	nodeConstants.Model					= nodeManager.BaseTransforms[iNode].Model * nodeConstants.Model;
@@ -57,7 +57,7 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	return 0;
 }
 
-::llc::error_t			llc::d3dDrawEngineScene	(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time)	{
+::llc::err_t			llc::d3dDrawEngineScene	(::llc::Sample3DSceneRenderer & d3dScene, const ::llc::SEngineScene & engineScene, const ::llc::n2u1_t & targetMetrics, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time)	{
 	::llc::n3f2_t				cameraFront				= (cameraTarget - cameraPosition).Normalize();
 
 	::llc::SEngineSceneConstants& constants				= d3dScene.ConstantBufferScene;
@@ -74,7 +74,7 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	constants.VPS			= constants.VP * constants.Screen;
 
 	::llc::SRenderNodeList						renderList;
-	llc_necs(engineScene.BuildRenderList(cameraPosition, cameraFront, renderList));
+	if_fail_fe(engineScene.BuildRenderList(cameraPosition, cameraFront, renderList));
 	const ::llc::au2_t						& solid							= renderList.Solid;
 	const ::llc::au2_t						& alpha							= renderList.Alpha;
 	for(uint32_t iSolid = 0; iSolid < solid.size(); ++iSolid) {
@@ -96,7 +96,7 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 		nodeConstants.Material				= skin.Material;
 
 		verbose_printf("Drawing node %i, mesh %i, slice %i, mesh name: %s", iNode, node.Mesh, node.Slice, engineScene.Graphics->Meshes.Names[node.Mesh].begin());
-		llc_necs(d3dScene.Render(node.Mesh, slice.Slice, skin.Textures, node.Shader, skin.Material.Color.Diffuse.a != 1.0f, nodeConstants));
+		if_fail_fe(d3dScene.Render(node.Mesh, slice.Slice, skin.Textures, node.Shader, skin.Material.Color.Diffuse.a != 1.0f, nodeConstants));
 	}
 	for(uint32_t iAlpha  = 0; iAlpha < alpha.size(); ++iAlpha) {
 		uint32_t								iNode							= alpha[iAlpha];
@@ -116,11 +116,11 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 		nodeConstants.Material	= skin.Material;
 
 		verbose_printf("Drawing node %i, mesh %i, slice %i, mesh name: %s", iNode, node.Mesh, node.Slice, engineScene.Graphics->Meshes.Names[node.Mesh].begin());
-		llc_necs(d3dScene.Render(node.Mesh, slice.Slice, skin.Textures, node.Shader, skin.Material.Color.Diffuse.a != 1.0f, nodeConstants));
+		if_fail_fe(d3dScene.Render(node.Mesh, slice.Slice, skin.Textures, node.Shader, skin.Material.Color.Diffuse.a != 1.0f, nodeConstants));
 	}
 	return 0;
 }
-::llc::error_t							llc::d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time) {
+::llc::err_t							llc::d3dAppDraw				(::llc::SD3DApplication & d3dApp, const ::llc::SEngineScene & engineScene, const ::llc::rgbaf & clearColor, const ::llc::n3f2_t & lightPos, const ::llc::n3f2_t & cameraPosition, const llc::n3f2_t & cameraTarget, const llc::minmaxf2_t & nearFar, ::llc::f3_t time) {
 	{ // Set up render target for this frame
 		ID3D11DeviceContext3						* context							= d3dApp.DeviceResources->GetD3DDeviceContext();
 		const D3D11_VIEWPORT						viewport							= d3dApp.DeviceResources->GetScreenViewport();	// Reset the viewport to target the whole screen.
@@ -134,13 +134,13 @@ static	::llc::error_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeM
 	}
 	{ // Render 3d scene
 		//(void)engineScene; (void)lightPos; (void)cameraPosition; (void)cameraTarget; (void)nearFar;
-		llc_necs(llc::d3dDrawEngineScene(d3dApp.Scene, engineScene, d3dApp.DeviceResources->GetLogicalSize().u1(), lightPos, cameraPosition, cameraTarget, nearFar, time));
+		if_fail_fe(llc::d3dDrawEngineScene(d3dApp.Scene, engineScene, d3dApp.DeviceResources->GetLogicalSize().u1(), lightPos, cameraPosition, cameraTarget, nearFar, time));
 	}
 	{ // Render GUI
-		llc_necs(llc::d3dGUIDraw(*d3dApp.DeviceResources, d3dApp.GUIStuff)); 
+		if_fail_fe(llc::d3dGUIDraw(*d3dApp.DeviceResources, d3dApp.GUIStuff)); 
 
-		llc_necs(d3dApp.Text.Render());
+		if_fail_fe(d3dApp.Text.Render());
 	}
-	llc_necs(d3dApp.DeviceResources->Present());
+	if_fail_fe(d3dApp.DeviceResources->Present());
 	return 0;
 }
