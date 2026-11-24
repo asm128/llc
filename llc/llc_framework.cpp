@@ -14,10 +14,65 @@
 #	include <xinput.h>
 #	pragma warning(disable: 4995)
 #elif defined(LLC_XCB)
-#	include <xcb/xcb_image.h>
+#	include <xkbcommon/xkbcommon-x11.h>
+#	include <locale.h>
 #endif
 
 using ::llc::sc_t;
+
+#if defined(LLC_XCB)
+static	void		xcbInputCleanup								(::llc::SWindowPlatformDetail & detail) {
+	if(detail.XKBComposeState) xkb_compose_state_unref(detail.XKBComposeState);
+	if(detail.XKBComposeTable) xkb_compose_table_unref(detail.XKBComposeTable);
+	if(detail.XKBState) xkb_state_unref(detail.XKBState);
+	if(detail.XKBKeymap) xkb_keymap_unref(detail.XKBKeymap);
+	if(detail.XKBContext) xkb_context_unref(detail.XKBContext);
+	detail.XKBComposeState = {};
+	detail.XKBComposeTable = {};
+	detail.XKBState = {};
+	detail.XKBKeymap = {};
+	detail.XKBContext = {};
+	detail.XKBDeviceId = -1;
+}
+
+static	::llc::error_t xcbInputSetup							(::llc::SWindowPlatformDetail & detail) {
+	if(detail.XKBState)
+		return 0;
+	detail.XKBContext = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+	if(0 == detail.XKBContext)
+		return -1;
+	uint16_t				majorVersion = {};
+	uint16_t				minorVersion = {};
+	uint8_t					eventBase = {};
+	uint8_t					errorBase = {};
+	if(false == xkb_x11_setup_xkb_extension(detail.Connection
+		, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION
+		, XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS
+		, &majorVersion, &minorVersion, &eventBase, &errorBase
+		)) {
+		::xcbInputCleanup(detail);
+		return -1;
+	}
+	detail.XKBDeviceId = xkb_x11_get_core_keyboard_device_id(detail.Connection);
+	if(0 > detail.XKBDeviceId) {
+		::xcbInputCleanup(detail);
+		return -1;
+	}
+	detail.XKBKeymap = xkb_x11_keymap_new_from_device(detail.XKBContext, detail.Connection, detail.XKBDeviceId, XKB_KEYMAP_COMPILE_NO_FLAGS);
+	detail.XKBState = detail.XKBKeymap ? xkb_x11_state_new_from_device(detail.XKBKeymap, detail.Connection, detail.XKBDeviceId) : 0;
+	if(0 == detail.XKBKeymap || 0 == detail.XKBState) {
+		::xcbInputCleanup(detail);
+		return -1;
+	}
+	const char * locale = setlocale(LC_CTYPE, "");
+	if(locale) {
+		detail.XKBComposeTable = xkb_compose_table_new_from_locale(detail.XKBContext, locale, XKB_COMPOSE_COMPILE_NO_FLAGS);
+		if(detail.XKBComposeTable)
+			detail.XKBComposeState = xkb_compose_state_new(detail.XKBComposeTable, XKB_COMPOSE_STATE_NO_FLAGS);
+	}
+	return 0;
+}
+#endif
 
 static	::llc::error_t	updateDPI									(::llc::SFramework & framework)													{
 #if defined(LLC_WINDOWS)
@@ -74,59 +129,7 @@ static	::llc::error_t	updateDPI									(::llc::SFramework & framework)									
 	::llc::STimer								& timer										= framework.Timer;
 	timer		.Frame();
 	frameInfo	.Frame(::llc::min(timer.LastTimeMicroseconds, (uint64_t)200000));
-#if defined(LLC_XCB)
-	::llc::pobj<::llc::rt<::llc::bgra, uint32_t>>
-												& guiRenderTarget			= framework.RootWindow.BackBuffer;
-	if(mainWindow.Repaint) {
-		xcb_screen_t								* xcbScreen					= xcb_setup_roots_iterator(xcb_get_setup(framework.PlatformDetail.XCBConnection)).data;
-		const xcb_image_format_t					format						= XCB_IMAGE_FORMAT_Z_PIXMAP;
-		const ::llc::n2<uint32_t>				& guiRenderTargetMetrics	= guiRenderTarget->Color.View.metrics();
-		xcb_image_t									* image						= xcb_image_create_native
-			( mainWindow.PlatformDetail.Connection
-			, guiRenderTargetMetrics.x
-			, guiRenderTargetMetrics.y
-			, format
-			, xcbScreen->root_depth
-			, (uint8_t*)guiRenderTarget->Color.View.begin()
-			, guiRenderTarget->Color.View.size() * 4
-			, (uint8_t*)guiRenderTarget->Color.View.begin()
-			);
-		xcb_image_put(mainWindow.PlatformDetail.Connection, mainWindow.PlatformDetail.IdDrawable, mainWindow.PlatformDetail.GC, image, 0, 0, 0);
-		image->base						= 0;
-		xcb_image_destroy(image);
-		xcb_flush(mainWindow.PlatformDetail.Connection);
-		framework.RootWindow.Repaint	= false;
-	}
-	while (xcb_generic_event_t * ev = xcb_poll_for_event(mainWindow.PlatformDetail.Connection)) {
-		switch (ev->response_type & ~0x80) {
-		default					: break;
-		case XCB_EXPOSE			: {
-			//xcb_expose_event_t												* x					= (xcb_expose_event_t *)ev;
-			mainWindow.Repaint	= true;
-			break;
-		}
-		case XCB_KEY_PRESS		: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Key %i Down"	, iev->detail); input.KeyboardCurrent.KeyState		[iev->detail]		= 1; break;	}
-		case XCB_KEY_RELEASE	: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Key %i Up"		, iev->detail); input.KeyboardCurrent.KeyState		[iev->detail]		= 0; break;	}
-		case XCB_BUTTON_PRESS	: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Button %i Down"	, iev->detail); input.MouseCurrent   .ButtonState	[iev->detail - 1]	= 1; break;	}
-		case XCB_BUTTON_RELEASE	: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Button %i Up"	, iev->detail); input.MouseCurrent   .ButtonState	[iev->detail - 1]	= 0; break;	}
-		case XCB_MOTION_NOTIFY	: {
-			xcb_motion_notify_event_t			* mev				= (xcb_motion_notify_event_t*)ev;
-			int32_t								xPos				= mev->same_screen ? mev->event_x : mev->root_x;
-			int32_t								yPos				= mev->same_screen ? mev->event_y : mev->root_y;
-			input.MouseCurrent.Position.x	= ::llc::clamped(xPos, 0, (int32_t)mainWindow.Size.x);
-			input.MouseCurrent.Position.y	= ::llc::clamped(yPos, 0, (int32_t)mainWindow.Size.y);
-			input.MouseCurrent.Deltas.x		= input.MouseCurrent.Position.x - input.MousePrevious.Position.x;
-			input.MouseCurrent.Deltas.y		= input.MouseCurrent.Position.y - input.MousePrevious.Position.y;
-			//info_printf("Mouse position: %i, %i", input.MouseCurrent.Position.x, input.MouseCurrent.Position.y);
-			framework.RootWindow.Repaint	= true;
-			break;
-		}
-		}
-	}
-	::llc::error_t				updateResult		= 0;
-#else
 	::llc::error_t				updateResult		= ::llc::windowUpdate(mainWindow);
-#endif
 	if_true_fe(llc::failed(updateResult));
 	if_true_vi(1, mainWindow.Closed);
 	if_true_vi(1, 1 == updateResult);
@@ -355,6 +358,7 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 	if(0 == window.PlatformDetail.Connection) {
 		window.PlatformDetail.Connection														= xcb_connect(NULL, NULL);
 	}
+	if_fail_fe(::xcbInputSetup(window.PlatformDetail));
 	xcb_screen_t			* xcbScreen									= xcb_setup_roots_iterator(xcb_get_setup(window.PlatformDetail.Connection)).data;
 	window.PlatformDetail.IdDrawableBackPixmap												= xcb_generate_id(window.PlatformDetail.Connection);
 	xcb_create_pixmap(window.PlatformDetail.Connection, xcbScreen->root_depth, window.PlatformDetail.IdDrawableBackPixmap, xcbScreen->root, window.Size.x, window.Size.y);
@@ -384,7 +388,16 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 			, mask, values								// masks
 			);
 		xcb_map_window(window.PlatformDetail.Connection, window.PlatformDetail.IdDrawable);
+		xcb_intern_atom_reply_t * protocols = xcb_intern_atom_reply(window.PlatformDetail.Connection, xcb_intern_atom(window.PlatformDetail.Connection, 0, 12, "WM_PROTOCOLS"), 0);
+		xcb_intern_atom_reply_t * deleteWindow = xcb_intern_atom_reply(window.PlatformDetail.Connection, xcb_intern_atom(window.PlatformDetail.Connection, 0, 16, "WM_DELETE_WINDOW"), 0);
+		if(protocols && deleteWindow) {
+			window.PlatformDetail.WMDelete = deleteWindow->atom;
+			xcb_change_property(window.PlatformDetail.Connection, XCB_PROP_MODE_REPLACE, window.PlatformDetail.IdDrawable, protocols->atom, XCB_ATOM_ATOM, 32, 1, &window.PlatformDetail.WMDelete);
+		}
+		free(protocols);
+		free(deleteWindow);
 	}
+	xcb_flush(window.PlatformDetail.Connection);
 	return 0;
 }
 #endif
@@ -394,7 +407,18 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 	::DestroyWindow(mainWindow.PlatformDetail.WindowHandle);
 	::llc::windowUpdate(mainWindow);
 #elif defined(LLC_XCB)
-
+	::llc::SWindowPlatformDetail & detail = mainWindow.PlatformDetail;
+	if(detail.Connection) {
+		::xcbInputCleanup(detail);
+		if(detail.IdDrawable) xcb_destroy_window(detail.Connection, detail.IdDrawable);
+		if(detail.IdDrawableBackPixmap) xcb_free_pixmap(detail.Connection, detail.IdDrawableBackPixmap);
+		if(detail.GC) xcb_free_gc(detail.Connection, detail.GC);
+		xcb_flush(detail.Connection);
+		xcb_disconnect(detail.Connection);
+		detail.Connection = {};
+		detail.IdDrawable = detail.IdDrawableBackPixmap = detail.GC = detail.WMDelete = {};
+	}
+	mainWindow.Closed = true;
 #else
 	(void)mainWindow;
 #endif
@@ -404,9 +428,11 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 ::llc::error_t			llc::mainWindowCreate	(::llc::SWindow& mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput>& displayInput)	{
 	if(0 == displayInput.get_ref())
 		displayInput.create();
+#if defined(LLC_WINDOWS) || defined(LLC_XCB)
+	::llc::SWindowPlatformDetail	& displayDetail			= mainWindow.PlatformDetail;
+#endif
 
 #if defined(LLC_WINDOWS)
-	::llc::SWindowPlatformDetail	& displayDetail			= mainWindow.PlatformDetail;
 	HINSTANCE						hInstance				= runtimeValues.hInstance;
 	::initWndClass(hInstance, ::llc::SWindowPlatformDetail::DefaultRootWindowClassName.begin(), ::mainWndProc, displayDetail.WindowClass);
 	::RegisterClassEx(&displayDetail.WindowClass);
@@ -433,9 +459,6 @@ static	::llc::error_t	xcbWindowCreate								(::llc::SWindow & window) {
 	if(0 == displayDetail.Connection) {
 		displayDetail.Connection	= xcb_connect(0, 0);
 	}
-	xcb_screen_t				* xcbScreen			= xcb_setup_roots_iterator(xcb_get_setup(mainWindow.PlatformDetail.Connection)).data;
-	::std::shared_ptr<xcb_get_geometry_reply_t>	geometry									(xcb_get_geometry_reply(mainWindow.PlatformDetail.Connection, xcb_get_geometry(mainWindow.PlatformDetail.Connection, xcbScreen->root), nullptr), free);
-	mainWindow.Size						= {geometry->width, geometry->height};
 	llc_necall(xcbWindowCreate(mainWindow), "%s", "Failed to create main window.");
 	(void)runtimeValues;
 #else
