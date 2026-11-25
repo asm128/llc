@@ -66,6 +66,7 @@ namespace llc
 	::llc::cid_t 			controlCreate					(::llc::SGUI & gui);
 	::llc::cid_t			controlCreateChild				(::llc::SGUI & gui, cid_t iParent);
 	::llc::err_t			controlSetParent				(::llc::SGUI & gui, cid_t iControl, cid_t iParent);
+	::llc::err_t			controlToFront				(::llc::SGUI & gui, cid_t iControl);
 	::llc::err_t			controlDrawHierarchy			(::llc::SGUI & gui, cid_t iControl, ::llc::g8bgra target);
 	::llc::err_t			controlTextSet					(::llc::SGUI & gui, cid_t iControl, vcst_t text);
 	::llc::err_t			controlFontSet					(::llc::SGUI & gui, cid_t iControl, int16_t iFont);
