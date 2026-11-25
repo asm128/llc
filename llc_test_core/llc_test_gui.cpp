@@ -459,6 +459,36 @@ sttc ::llc::err_t testGUIHitTesting(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
+sttc ::llc::err_t testGUIAutomaticFront(::llc::ATestError & errors) {
+	::llc::SGUI gui = {};
+	cnst ::llc::cid_t root = ::llc::controlCreate(gui);
+	cnst ::llc::cid_t back = ::llc::controlCreateChild(gui, root);
+	cnst ::llc::cid_t front = ::llc::controlCreateChild(gui, root);
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, root < 0 || back < 0 || front < 0, "Root:%i back:%i front:%i.", root, back, front);
+	gui.Controls.Placement[root ].Area = {{ 0,  0}, {80, 60}};
+	gui.Controls.Placement[back ].Area = {{ 0,  0}, {40, 40}};
+	gui.Controls.Placement[front].Area = {{10, 10}, {40, 40}};
+	for(::llc::cid_t control : {root, back, front})
+		gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
+	gui.LastSize = {80, 60};
+	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, gui.LastSize, true), "%s", "Fronting metrics failed.");
+	::llc::SInput input = {};
+	input.MouseCurrent.Position = {15, 15};
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_HIT_ORDER, ::llc::guiProcessInput(gui, input) != front);
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.Position = {5, 5};
+	input.MouseCurrent.ButtonState[0] = 1;
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_HIT_ORDER, ::llc::guiProcessInput(gui, input) != back);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_HIT_ORDER, gui.Controls.Children[root][1] != back);
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.ButtonState[0] = 0;
+	::llc::guiProcessInput(gui, input);
+	::llc::inputNextFrame(input);
+	input.MouseCurrent.Position = {15, 15};
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_HIT_ORDER, ::llc::guiProcessInput(gui, input) != back);
+	rtrn 0;
+}
+
 sttc ::llc::err_t testGUIInputSequence(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
@@ -477,8 +507,8 @@ sttc ::llc::err_t testGUIInputSequence(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, false == gui.Controls.IsHovered(control) || false == gui.Controls.IsPressed(control) || gui.Controls.IsAction(control));
 	::llc::inputNextFrame(input);
 	input.MouseCurrent.Position = {70, 50};
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != (::llc::err_t)gui.Controls.States.size());
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, gui.Controls.IsHovered(control) || false == gui.Controls.IsPressed(control) || gui.Controls.IsAction(control));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != control);
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, false == gui.Controls.IsHovered(control) || false == gui.Controls.IsPressed(control) || false == gui.Controls.IsDragging(control) || gui.Controls.IsAction(control));
 	::llc::inputNextFrame(input);
 	input.MouseCurrent.Position = {20, 20};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != control, "%s", "Held return failed.");
@@ -486,7 +516,7 @@ sttc ::llc::err_t testGUIInputSequence(::llc::ATestError & errors) {
 	::llc::inputNextFrame(input);
 	input.MouseCurrent.ButtonState[0] = 0;
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, ::llc::guiProcessInput(gui, input) != control, "%s", "Release failed.");
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, false == gui.Controls.IsHovered(control) || gui.Controls.IsPressed(control) || false == gui.Controls.IsAction(control));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_SEQUENCE, false == gui.Controls.IsHovered(control) || gui.Controls.IsPressed(control) || gui.Controls.IsDragging(control) || gui.Controls.IsAction(control));
 	::llc::inputNextFrame(input);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_INPUT_STABILITY, ::llc::guiProcessInput(gui, input) != control, "%s", "Action reset failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_INPUT_STABILITY, false == gui.Controls.IsHovered(control) || gui.Controls.IsPressed(control) || gui.Controls.IsAction(control));
@@ -523,12 +553,12 @@ sttc ::llc::err_t testGUILayoutAndInput(::llc::ATestError & errors) {
 	input.MousePrevious = input.MouseCurrent;
 	input.MouseCurrent.Position = {35, 15};
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CHILD_CROSSING, 0 > ::llc::guiProcessInput(gui, input), "%s", "Child crossing failed.");
-	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_CHILD_CROSSING, false == gui.Controls.IsPressed(parent) || false == gui.Controls.IsHovered(child));
+	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_CHILD_CROSSING, false == gui.Controls.IsPressed(parent) || false == gui.Controls.IsDragging(parent) || gui.Controls.IsHovered(child));
 	input.MousePrevious = input.MouseCurrent;
 	input.MouseCurrent.Position = {95, 75};
 	cnst ::llc::err_t noHover = ::llc::guiProcessInput(gui, input);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_NO_HOVER, noHover < 0, "No-hover result:%i.", noHover);
-	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_NO_HOVER, noHover != (::llc::err_t)gui.Controls.States.size(), "Result:%i expected:%u.", noHover, gui.Controls.States.size());
+	LLC_TEST_CHECKF(errors, GUI_TEST_RESULT_NO_HOVER, noHover != parent, "Result:%i expected:%i.", noHover, parent);
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_OUTSIDE_CAPTURE, false == gui.Controls.IsPressed(parent));
 	input.MousePrevious = input.MouseCurrent;
 	input.MouseCurrent.ButtonState[0] = 0;
@@ -1000,6 +1030,7 @@ sttc ::llc::err_t testGUIVisualScene(::llc::ATestError & errors, ::llc::vcst_t o
 	if_fail_fe(::testGUIMetricHierarchy(errors));
 	if_fail_fe(::testGUIMetricConstraints(errors));
 	if_fail_fe(::testGUIHitTesting(errors));
+	if_fail_fe(::testGUIAutomaticFront(errors));
 	if_fail_fe(::testGUIInputSequence(errors));
 	if_fail_fe(::testGUILayoutAndInput(errors));
 	if_fail_fe(::testGUIDrawCore(errors, outputFolder));
