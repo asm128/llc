@@ -616,19 +616,19 @@ sttc ::llc::err_t testGUIDrawCore(::llc::ATestError & errors, ::llc::vcst_t outp
 	gui.Controls.States[parent].Flag = {};
 	cnst ::llc::bgra untouched = {1, 2, 3, 4};
 	target.View.fill(untouched);
-	gui.Controls.Draw[parent].NoClient = true;
+	gui.Controls.States[parent].Mask = ::llc::bit_set(gui.Controls.States[parent].Mask, ::llc::GUI_CONTROL_FLAG_DrawClient, false);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_CLIENT, 0 > ::llc::guiDraw(gui, target.View), "%s", "Client suppression failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIENT, target.View[6][7] != untouched);
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_BORDER, target.View[2][7] == untouched);
 	target.View.fill(untouched);
-	gui.Controls.Draw[parent].NoClient = false;
-	gui.Controls.Draw[parent].NoBorder = true;
+	gui.Controls.States[parent].Mask = ::llc::bit_set(gui.Controls.States[parent].Mask, ::llc::GUI_CONTROL_FLAG_DrawClient, true);
+	gui.Controls.States[parent].Mask = ::llc::bit_set(gui.Controls.States[parent].Mask, ::llc::GUI_CONTROL_FLAG_DrawBorder, false);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_METRICS, 0 > ::llc::guiUpdateMetrics(gui, target.metrics().u1(), false), "%s", "Pre-draw metrics failed.");
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_DRAW_BORDER, 0 > ::llc::guiDraw(gui, target.View), "%s", "Border suppression failed.");
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_BORDER, target.View[2][7] != untouched);
 	LLC_TEST_CHECK(errors, GUI_TEST_RESULT_DRAW_CLIENT, target.View[6][7] == untouched);
-	gui.Controls.Draw[parent].NoBorder = false;
+	gui.Controls.States[parent].Mask = ::llc::bit_set(gui.Controls.States[parent].Mask, ::llc::GUI_CONTROL_FLAG_DrawBorder, true);
 	gui.Controls.SetHidden(child, false);
 	gui.Controls.Draw[child].Palettes[::llc::GUI_CONTROL_PALETTE_NORMAL] = gui.Colors->DefaultColors[::llc::GUI_CONTROL_PALETTE_HOVER];
 	target.View.fill({});
@@ -667,7 +667,8 @@ sttc ::llc::err_t testGUIDrawText(::llc::ATestError & errors) {
 		gui.Colors->Palettes[iState][::llc::UI_CONTROL_AREA_TEXT_FACE] = colors[iState];
 	}
 	gui.Controls.Draw[control].UseNewPalettes = true;
-	gui.Controls.Draw[control].NoClient = gui.Controls.Draw[control].NoBorder = true;
+	gui.Controls.States[control].Mask = ::llc::bit_set(gui.Controls.States[control].Mask, ::llc::GUI_CONTROL_FLAG_DrawClient, false);
+	gui.Controls.States[control].Mask = ::llc::bit_set(gui.Controls.States[control].Mask, ::llc::GUI_CONTROL_FLAG_DrawBorder, false);
 	gui.Controls.Placement[control].Area = {{2, 2}, {10, 8}};
 	gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
 	gui.Controls.Text[control].Text = "A";
@@ -730,7 +731,8 @@ sttc ::llc::err_t testGUIDrawImage(::llc::ATestError & errors) {
 	::llc::SGUI gui = {};
 	cnst ::llc::cid_t control = ::llc::controlCreate(gui);
 	LLC_TEST_REQUIREF(errors, GUI_TEST_RESULT_CREATE, control < 0, "Control result:%i.", control);
-	gui.Controls.Draw[control].NoClient = gui.Controls.Draw[control].NoBorder = true;
+	gui.Controls.States[control].Mask = ::llc::bit_set(gui.Controls.States[control].Mask, ::llc::GUI_CONTROL_FLAG_DrawClient, false);
+	gui.Controls.States[control].Mask = ::llc::bit_set(gui.Controls.States[control].Mask, ::llc::GUI_CONTROL_FLAG_DrawBorder, false);
 	gui.Controls.Text[control].Text = {};
 	gui.Controls.Placement[control].Area = {{2, 2}, {10, 8}};
 	gui.Controls.Placement[control].Margin = gui.Controls.Placement[control].Border = {};
@@ -994,7 +996,8 @@ sttc ::llc::err_t testGUIVisualScene(::llc::ATestError & errors, ::llc::vcst_t o
 	gui.Controls.Placement[title].Area = {{20, 16}, {912, 32}};
 	gui.Controls.Placement[title].Margin = gui.Controls.Placement[title].Border = {};
 	gui.Controls.Draw[title].UseNewPalettes = true;
-	gui.Controls.Draw[title].NoClient = gui.Controls.Draw[title].NoBorder = true;
+	gui.Controls.States[title].Mask = ::llc::bit_set(gui.Controls.States[title].Mask, ::llc::GUI_CONTROL_FLAG_DrawClient, false);
+	gui.Controls.States[title].Mask = ::llc::bit_set(gui.Controls.States[title].Mask, ::llc::GUI_CONTROL_FLAG_DrawBorder, false);
 	gui.Controls.Text[title].Align = ::llc::ALIGN_CENTER;
 	::llc::img8bgra target;
 	if_fail_fe(target.resize(::llc::n2u2_t{960, 600}));

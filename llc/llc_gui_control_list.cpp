@@ -8,7 +8,7 @@
 	gui.Controls.Placement	[controlId].Border				= 
 	gui.Controls.Placement	[controlId].Margin				= {};
 	gui.Controls.Constraints[controlId].AttachSizeToControl	= {controlId, controlId};
-	gui.Controls.Draw		[controlId].NoClient			= true;
+	gui.Controls.States[controlId].Mask = ::llc::bit_set(gui.Controls.States[controlId].Mask, ::llc::GUI_CONTROL_FLAG_DrawClient, false);
 	gui.Controls.States		[controlId].Mask				&= ~::llc::GUI_CONTROL_FLAG_Hovered;
 
 	if(parent != ::llc::CID_INVALID) {

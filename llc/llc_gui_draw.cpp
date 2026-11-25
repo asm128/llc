@@ -187,13 +187,13 @@ static	::llc::err_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iContr
 	::llc::bgra					colors[::llc::GUI_CONTROL_AREA_OLD_COUNT]	= {}; // -- Fill color table
 	const bool					disabled						= ::llc::controlDisabled(gui, iControl);
 	const ::llc::SControlArea	& controlMetrics				= gui.Controls.Area[iControl];
-	const ::llc::SControlDraw	& controlDraw					= gui.Controls.Draw  [iControl];
+	const ::llc::GUI_CONTROL_FLAG drawMask				= gui.Controls.States[iControl].Mask;
 	{
 		::fillColorTable(gui, iControl, disabled, colors);
 
 		for(::llc::u2_t iElement = 0; iElement < ::llc::GUI_CONTROL_AREA_OLD_COUNT; ++iElement) {
-			if( (controlDraw.NoBorder && iElement != ::llc::GUI_CONTROL_AREA_OLD_CLIENT) // (iElement >= ::llc::GUI_CONTROL_AREA_OLD_BORDER_LEFT || iElement <= ::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM))
-			 || (controlDraw.NoClient && iElement == ::llc::GUI_CONTROL_AREA_OLD_CLIENT) //(iElement == ::llc::GUI_CONTROL_AREA_OLD_BACKGROUND || iElement == ::llc::GUI_CONTROL_AREA_OLD_CLIENT))
+			if( (false == ::llc::bit_true(drawMask, ::llc::GUI_CONTROL_FLAG_DrawBorder) && iElement != ::llc::GUI_CONTROL_AREA_OLD_CLIENT)
+			 || (false == ::llc::bit_true(drawMask, ::llc::GUI_CONTROL_FLAG_DrawClient) && iElement == ::llc::GUI_CONTROL_AREA_OLD_CLIENT)
 			)
 				continue;
 			::drawRectangle(target, colors[iElement], controlMetrics.Rectangles[iElement]);
@@ -209,7 +209,7 @@ static	::llc::err_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iContr
 		, ::llc::GUI_CONTROL_AREA_OLD_BORDER_RIGHT
 		, ::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM
 		};
-	if(false == controlDraw.NoBorder && ::llc::controlNCSpacing(gui.Controls.Placement[iControl]).Area()) {
+	if(::llc::bit_true(drawMask, ::llc::GUI_CONTROL_FLAG_DrawBorder) && ::llc::controlNCSpacing(gui.Controls.Placement[iControl]).Area()) {
 		for(::llc::u2_t iTri = 0; iTri < 8; ++iTri)
 			::drawControlTriangle(target, colors[colorIndices[iTri]], controlMetrics.Triangles[iTri]);
 	}

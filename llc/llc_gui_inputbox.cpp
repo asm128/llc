@@ -181,7 +181,7 @@ sttc ::llc::err_t virtualKeyboardSetupFail(::llc::SGUI & gui, ::llc::SVirtualKey
 	gui.Controls.States[inputBox.IdRoot].Mask &= ~::llc::GUI_CONTROL_FLAG_Hovered;
 	gui.Controls.Placement[inputBox.IdRoot].Border = {};
 	gui.Controls.Placement[inputBox.IdRoot].Margin = {};
-	gui.Controls.Draw[inputBox.IdRoot].NoClient = true;
+	gui.Controls.States[inputBox.IdRoot].Mask = ::llc::bit_set(gui.Controls.States[inputBox.IdRoot].Mask, ::llc::GUI_CONTROL_FLAG_DrawClient, false);
 	gui.Controls.Placement[inputBox.IdText].Border = {2, 2, 2, 2};
 	gui.Controls.Placement[inputBox.IdText].Margin = {1, 1, 1, 1};
 	gui.Controls.Placement[inputBox.IdText].Area.Size = {0, 22};

@@ -85,8 +85,6 @@ namespace llc
 	struct SControlDraw {
 		u0_t			ColorMode			: 2;
 		u0_t			FrameOut			: 1;
-		u0_t			NoBorder			: 1;	// skip drawing border area
-		u0_t			NoClient			: 1;	// skip drawing client area
 		
 		bool			UseNewPalettes		: 1;	// -- Legacy property (don't use in the new implementation!)
 
