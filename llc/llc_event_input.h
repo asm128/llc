@@ -34,6 +34,26 @@ namespace llc
 	stin	err_t	eventEnqueueMouseDoubleClick(apobj<SEventSystem> & queue, u0_t button)		{ return eventEnqueueChild(queue, SYSTEM_EVENT_Mouse, EVENT_MOUSE_DoubleClick	, button); }
 	stin	err_t	eventEnqueueMouseWheel		(apobj<SEventSystem> & queue, s1_t delta )		{ return eventEnqueueChild(queue, SYSTEM_EVENT_Mouse, EVENT_MOUSE_Wheel		, delta ); }
 
+	stin	err_t	eventMouseDoubleClick(const TQueueSystemEvent & events, bool & doubleClick) {
+		doubleClick = false;
+		for(u2_t iEvent = 0; iEvent < events.size(); ++iEvent) {
+			const pobj<SEventSystem> & eventSystem = events[iEvent];
+			if(0 == eventSystem.get_ref() || eventSystem->Type != SYSTEM_EVENT_Mouse)
+				continue;
+			SEView<EVENT_MOUSE> eventMouse = {};
+			if_fail_fe(eventSystem->ExtractChild(eventMouse));
+			if(eventMouse.Type != EVENT_MOUSE_DoubleClick)
+				continue;
+			vcu0_t input = eventMouse.Data;
+			u0_t button = 0;
+			if_fail_fe(loadPOD(input, button));
+			if_true_fef(input.size(), "Unexpected mouse double-click payload tail:%u.", input.size());
+			if(0 == button)
+				doubleClick = true;
+		}
+		return 0;
+	}
+
 	GDEFINE_ENUM_TYPE (EVENT_TOUCH, u0_t);
 	GDEFINE_ENUM_VALUE(EVENT_TOUCH, Begin		, 0);
 	GDEFINE_ENUM_VALUE(EVENT_TOUCH, End			, 1);
