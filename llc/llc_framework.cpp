@@ -650,8 +650,8 @@ llc::err_t 		llc::mainWindowCreate	(SWindow& mainWindow, SRuntimeValuesDetail& r
 	//		framework.PlatformDetail.XCBConnection													= xcb_connect(0, 0);
 	//	mainWindow.PlatformDetail.Connection													= framework.PlatformDetail.XCBConnection;
 	//}
-	if(0 == displayDetail.Connection) {
-		displayDetail.Connection	= xcb_connect(0, 0);
+	if(0 == mainWindow.PlatformDetail.Connection) {
+		mainWindow.PlatformDetail.Connection = xcb_connect(0, 0);
 	}
 	if_fail_fef(xcbWindowCreate(mainWindow), "%s", "Failed to create main window.");
 	(void)runtimeValues;

@@ -18,6 +18,7 @@ namespace llc
 	GDEFINE_ENUM_VALUE(EVENT_SCREEN, Show			,  8);
 	GDEFINE_ENUM_VALUE(EVENT_SCREEN, Hide			,  9);
 	GDEFINE_ENUM_VALUE(EVENT_SCREEN, Constraints	, 10);
+	GDEFINE_ENUM_VALUE(EVENT_SCREEN, SaveFramebuffer	, 11);
 
 	tydf ::llc::SEvent            <EVENT_SCREEN>	SScreenEvent;
 	tydf ::llc::SEventView        <EVENT_SCREEN>	SScreenEventView;
@@ -42,6 +43,7 @@ namespace llc
 	stin	::llc::err_t	eventEnqueueScreenConstraints	(::llc::apobj<::llc::SEventSystem> & queue, u0_t key)		{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Constraints, key); }
 	stin	::llc::err_t	eventEnqueueScreenMove			(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2u1_t coord)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Move		, coord); }
 	stin	::llc::err_t	eventEnqueueScreenResize		(::llc::apobj<::llc::SEventSystem> & queue, ::llc::n2u1_t size)	{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_Resize		, size); }
+	stin	::llc::err_t	eventEnqueueScreenSaveFramebuffer(::llc::apobj<::llc::SEventSystem> & queue)						{ return ::llc::eventEnqueueChild(queue, ::llc::SYSTEM_EVENT_Screen, ::llc::EVENT_SCREEN_SaveFramebuffer, {}); }
 } // namespace 
 
 #endif // LLC_EVENT_SCREEN_H_23627

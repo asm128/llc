@@ -7,6 +7,7 @@
 #include "llc_image.h"
 #include "llc_rect.h"
 #include "llc_grid_color.h"
+#include "llc_string.h"
 
 #if defined(LLC_WINDOWS)
 #	include <Windows.h>
@@ -96,6 +97,7 @@ nmsp llc
 		::llc::apobj<::llc::SEventSystem>	EventQueue				= {};
 		::llc::pobj<TOffscreen>				BackBuffer				= {};
 		::llc::pobj<::llc::SInput>			Input					= {};
+		::llc::string						ScreenshotFile			= {};
 		::llc::n2u1_t						PreviousSize			= {};
 		::llc::n2u1_t						Size					= {320, 200};
 		::llc::rectu1_t						WindowedWindowRect		= {0, 0, 320, 200};
@@ -109,6 +111,8 @@ nmsp llc
 	};
 
 	llc::err_t 					windowPresentTarget		(::llc::SWindow & windowInstance, cnst ::llc::g8bgra & targetToPresent);
+	llc::err_t 					windowSaveFramebuffer	(::llc::SWindow & windowInstance);
+	llc::err_t 					windowScreenshotHotkey	(::llc::SWindow & windowInstance, ::llc::vcst_t programName, ::llc::vcst_t screenshotDirectory);
 	llc::err_t 					windowUpdate			(::llc::SWindow & windowInstance);
 	llc::err_t 					windowUpdateTick		(::llc::SWindow & windowInstance);
 	llc::err_t 					fullScreenExit			(::llc::SWindow & windowInstance);
