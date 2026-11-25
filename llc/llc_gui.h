@@ -33,6 +33,11 @@ namespace llc
 											Palettes;
 	};
 
+	// The default 32 tone ramps stay at their original indices; these themes follow them.
+	stxp int16_t GUI_THEME_DARK_BLUE	= 32 * 16 + 1;
+	stxp int16_t GUI_THEME_DARK_SLATE	= GUI_THEME_DARK_BLUE + 1;
+	stxp int16_t GUI_THEME_DARK_CHROME	= GUI_THEME_DARK_SLATE + 1;
+
 	struct SGUI {
 		::llc::n2u1_t						LastSize			= {};
 		::llc::n2f2_t						CursorPos			= {};
@@ -60,6 +65,7 @@ namespace llc
 	::llc::err_t			guiGetProcessableControls		(const ::llc::SGUI & gui, ::llc::acid & controlIndices);
 	::llc::err_t			guiDeselect						(::llc::SGUI & gui);
 	::llc::err_t			guiSelect						(::llc::SGUI & gui, cid_t controlToSelect);
+	::llc::err_t			guiThemeCreate				(::llc::apod<::llc::bgra> & palette, ::llc::apod<::llc::SControlTheme> & themes, ::llc::bgra color, int16_t & colorTheme);
 
 	::llc::err_t			controlDelete					(::llc::SGUI & gui, cid_t iControl, bool recursive = true);
 	::llc::cid_t 			controlCreate					(::llc::SGUI & gui);

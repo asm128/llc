@@ -180,6 +180,31 @@ static	::llc::err_t	themeSetupDefault	(const ::llc::a8bgra & palette, ::llc::apo
 	return 0;
 }
 
+::llc::err_t llc::guiThemeCreate(::llc::a8bgra & palette, ::llc::apod<::llc::SControlTheme> & themes, ::llc::bgra color, int16_t & colorTheme) {
+	stxp ::llc::u0_t shades[::llc::GUI_CONTROL_PALETTE_COUNT] = {5, 10, 3, 2, 0, 8, 1, 2, 4, 7};
+	cnst ::llc::u2_t firstColor = palette.size(), firstTheme = themes.size();
+	if_true_fe(firstColor > 0xFFFFFFFFU - 16 || firstTheme >= 0x7FFF);
+	if_fail_fe(palette.resize(firstColor + 16));
+	for(::llc::u2_t iShade = 0; iShade < 16; ++iShade) {
+		palette[firstColor + iShade] = ::llc::rgbaf(color) * ((16.0f - iShade) / 16.0f);
+		palette[firstColor + iShade].a = 255;
+	}
+	::llc::SControlTheme theme = {};
+	for(::llc::u2_t iState = 0; iState < ::llc::GUI_CONTROL_PALETTE_COUNT; ++iState) {
+		::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT> & areas = theme.ColorCombos[iState];
+		cnst ::llc::u2_t shade = shades[iState];
+		cnst ::llc::bgra & background = palette[firstColor + shade];
+		cnst ::llc::u2_t luminance = (::llc::u2_t)background.r * 299 + (::llc::u2_t)background.g * 587 + (::llc::u2_t)background.b * 114;
+		for(auto & area : areas) area = firstColor + shade;
+		areas[::llc::UI_CONTROL_AREA_BORDER_LEFT] = areas[::llc::UI_CONTROL_AREA_BORDER_TOP]
+			= areas[::llc::UI_CONTROL_AREA_BORDER_RIGHT] = areas[::llc::UI_CONTROL_AREA_BORDER_BOTTOM] = firstColor + (shade > 1 ? shade - 2 : 0);
+		areas[::llc::UI_CONTROL_AREA_TEXT_FACE] = (luminance > 150000 ? ::llc::ASCII_COLOR_BLACK : ::llc::ASCII_COLOR_WHITE) * 16;
+	}
+	if_fail_fe(themes.push_back(theme));
+	colorTheme = (int16_t)(firstTheme + 1);
+	return 0;
+}
+
 static	::llc::err_t	initDefaults		(::llc::pobj<::llc::a8bgra> & palette, ::llc::pobj<::llc::apod<::llc::SControlTheme>> & controlThemes) {
 	stxp	::llc::u2_t			iShades				= 16;
 	static	::llc::bgra			paletteColors []	=
@@ -235,6 +260,13 @@ static	::llc::err_t	initDefaults		(::llc::pobj<::llc::a8bgra> & palette, ::llc::
 	else if(!controlThemes) {
 		if_fail_fe(::themeSetupDefault(*palette, *controlThemes.create(), iShades));
 	}
+	int16_t colorTheme = 0;
+	if_fail_fe(::llc::guiThemeCreate(*palette, *controlThemes, {80, 62, 43, 255}, colorTheme));
+	if_true_fe(colorTheme != ::llc::GUI_THEME_DARK_BLUE);
+	if_fail_fe(::llc::guiThemeCreate(*palette, *controlThemes, {88, 71, 52, 255}, colorTheme));
+	if_true_fe(colorTheme != ::llc::GUI_THEME_DARK_SLATE);
+	if_fail_fe(::llc::guiThemeCreate(*palette, *controlThemes, {55, 46, 37, 255}, colorTheme));
+	if_true_fe(colorTheme != ::llc::GUI_THEME_DARK_CHROME);
 	return 0;
 }
 
@@ -243,7 +275,7 @@ static	::llc::err_t	paletteSetupDefaultColors	(::llc::pobj<::llc::a8bgra> & pale
 	static ::llc::papod<::llc::SControlTheme>	globalDefaultTheme			= {};
 	
 	if(!globalDefaultPalette || 0 == globalDefaultPalette->size()) 
-		::initDefaults(globalDefaultPalette, globalDefaultTheme);
+		if_fail_fe(::initDefaults(globalDefaultPalette, globalDefaultTheme));
 
 	palette			= globalDefaultPalette;
 	controlThemes	= globalDefaultTheme;
