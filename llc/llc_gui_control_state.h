@@ -18,7 +18,7 @@ namespace llc
 	typedef	view<cid_t>		vcid;
 	typedef	view<ccid_t>	vccid;
 
-	GDEFINE_ENUM_TYPE(GUI_CONTROL_FLAG, u0_t)
+	GDEFINE_ENUM_TYPE(GUI_CONTROL_FLAG, u1_t)
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Hidden		, 0x01U);	// Prevents from drawing the control and its children
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Disabled	, 0x02U);	// Prevents the control from responding to user interaction
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Hovered	, 0x04U);	// Modifies behavior depending on whether the mouse pointer top is inside the control area.
@@ -27,7 +27,8 @@ namespace llc
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Selected	, 0x20U);	// 
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Updated	, 0x40U);
 	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Action		, 0x80U);
-	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Unused		, 0xFFU);
+	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Dragging	, 0x100U);
+	GDEFINE_ENUM_VALUE(GUI_CONTROL_FLAG, Unused		, 0xFFFFU);
 	stacxpr	GUI_CONTROL_FLAG	GUI_CONTROL_FLAG_All	= GUI_CONTROL_FLAG_Unused;
 
 	inlcxpr	GUI_CONTROL_FLAG	isHidden		(const GUI_CONTROL_FLAG state, const GUI_CONTROL_FLAG mask)			noexcept	{ return bit_test_masked(state, mask, GUI_CONTROL_FLAG_Hidden	); }
@@ -38,14 +39,15 @@ namespace llc
 	inlcxpr	GUI_CONTROL_FLAG	isSelected		(const GUI_CONTROL_FLAG state, const GUI_CONTROL_FLAG mask)			noexcept	{ return bit_test_masked(state, mask, GUI_CONTROL_FLAG_Selected	); }
 	inlcxpr	GUI_CONTROL_FLAG	isUpdated		(const GUI_CONTROL_FLAG state, const GUI_CONTROL_FLAG mask)			noexcept	{ return bit_test_masked(state, mask, GUI_CONTROL_FLAG_Updated	); }
 	inlcxpr	GUI_CONTROL_FLAG	isAction		(const GUI_CONTROL_FLAG state, const GUI_CONTROL_FLAG mask)			noexcept	{ return bit_test_masked(state, mask, GUI_CONTROL_FLAG_Action	); }
+	inlcxpr	GUI_CONTROL_FLAG	isDragging		(const GUI_CONTROL_FLAG state, const GUI_CONTROL_FLAG mask)			noexcept	{ return bit_test_masked(state, mask, GUI_CONTROL_FLAG_Dragging	); }
 	inlcxpr	GUI_CONTROL_FLAG	isUnused		(const GUI_CONTROL_FLAG state)										noexcept	{ return bit_test(state, GUI_CONTROL_FLAG_Unused); }
 
 	inlcxpr	GUI_CONTROL_FLAG	setFlag			(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ return state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Hidden	, value); }
 	inlcxpr	GUI_CONTROL_FLAG	setHidden		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ return state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Hidden	, value); }
 	inlcxpr	GUI_CONTROL_FLAG	setDisabled		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ return state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Disabled	, value); }
 	inlcxpr	GUI_CONTROL_FLAG	setHovered		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ return state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Hovered	, value); }
-	inlcxpr	GUI_CONTROL_FLAG	setPressed		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ 
-		return (value == false && bit_test_masked(state, mask, GUI_CONTROL_FLAG_Pressed) && bit_test_masked(state, mask, GUI_CONTROL_FLAG_Hovered)) 
+	inlcxpr	GUI_CONTROL_FLAG	setPressed		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{
+		return (value == false && bit_test_masked(state, mask, GUI_CONTROL_FLAG_Pressed) && bit_test_masked(state, mask, GUI_CONTROL_FLAG_Hovered) && false == bit_test_masked(state, mask, GUI_CONTROL_FLAG_Dragging))
 			? state = bit_set_masked(bit_set_masked(state, mask, GUI_CONTROL_FLAG_Pressed, value), mask, GUI_CONTROL_FLAG_Action, true)
 			: state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Pressed, value)
 			; 
@@ -54,6 +56,7 @@ namespace llc
 	inlcxpr	GUI_CONTROL_FLAG	setSelected		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ return state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Selected	, value); }
 	inlcxpr	GUI_CONTROL_FLAG	setUpdated		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ return state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Updated	, value); }
 	inlcxpr	GUI_CONTROL_FLAG	setAction		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ return state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Action	, value); }
+	inlcxpr	GUI_CONTROL_FLAG	setDragging		(GUI_CONTROL_FLAG & state, const GUI_CONTROL_FLAG mask, bool value)	noexcept	{ return state = bit_set_masked(state, mask, GUI_CONTROL_FLAG_Dragging	, value); }
 	inlcxpr	GUI_CONTROL_FLAG	setUnused		(GUI_CONTROL_FLAG & state, bool value)								noexcept	{ return state = bit_set(state, GUI_CONTROL_FLAG_Unused, value); }
 
 
@@ -109,6 +112,7 @@ namespace llc
 		bool				SetDisabled		(::llc::cid_t iControl, ::llc::apobj<SEventSystem> & eventQueue, bool value)	noexcept	{ return 0 != (Flag = setValue<GUI_CONTROL_FLAG>(iControl, eventQueue, Flag, [this, &value]() { return setDisabled(Flag, Mask, value); })); }
 		bool				SetUpdated		(::llc::cid_t iControl, ::llc::apobj<SEventSystem> & eventQueue, bool value)	noexcept	{ return 0 != (Flag = setValue<GUI_CONTROL_FLAG>(iControl, eventQueue, Flag, [this, &value]() { return setUpdated (Flag, Mask, value); })); }
 		bool				SetAction		(::llc::cid_t iControl, ::llc::apobj<SEventSystem> & eventQueue, bool value)	noexcept	{ return 0 != (Flag = setValue<GUI_CONTROL_FLAG>(iControl, eventQueue, Flag, [this, &value]() { return setAction  (Flag, Mask, value); })); }
+		bool				SetDragging		(::llc::cid_t iControl, ::llc::apobj<SEventSystem> & eventQueue, bool value)	noexcept	{ return 0 != (Flag = setValue<GUI_CONTROL_FLAG>(iControl, eventQueue, Flag, [this, &value]() { return setDragging(Flag, Mask, value); })); }
 		bool				SetUnused		(::llc::cid_t iControl, ::llc::apobj<SEventSystem> & eventQueue, bool value)	noexcept	{ return 0 != (Flag = setValue<GUI_CONTROL_FLAG>(iControl, eventQueue, Flag, [this, &value]() { return setUnused  (Flag, value);       })); }
 		inlcxpr	bool		IsHovered		()	const	noexcept	{ return isHovered  (Flag, Mask); }
 		inlcxpr	bool		IsPressed		()	const	noexcept	{ return isPressed  (Flag, Mask); }
@@ -118,6 +122,7 @@ namespace llc
 		inlcxpr	bool		IsDisabled		()	const	noexcept	{ return isDisabled (Flag, Mask); }
 		inlcxpr	bool		IsUpdated		()	const	noexcept	{ return isUpdated  (Flag, Mask); }
 		inlcxpr	bool		IsAction		()	const	noexcept	{ return isAction   (Flag, Mask); }
+		inlcxpr	bool		IsDragging		()	const	noexcept	{ return isDragging (Flag, Mask); }
 		inlcxpr	bool		IsUnused		()	const	noexcept	{ return isUnused   (Flag); }
 
 	};
