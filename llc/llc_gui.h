@@ -69,6 +69,24 @@ namespace llc
 
 	::llc::err_t			controlDelete					(::llc::SGUI & gui, cid_t iControl, bool recursive = true);
 	::llc::cid_t 			controlCreate					(::llc::SGUI & gui);
+	stin ::llc::cid_t controlCreate(::llc::SGUI & gui, const ::llc::FControlInitialize & funcInitialize) {
+		::llc::cid_t iControl;
+		if_fail_fe(iControl = ::llc::controlCreate(gui));
+		if_true_block_log(error_printf, ::llc::failed(funcInitialize
+			( gui.Controls.States[iControl]
+			, gui.Controls.TextState[iControl]
+			, gui.Controls.Constraints[iControl]
+			, gui.Controls.Placement[iControl]
+			, gui.Controls.Area[iControl]
+			, gui.Controls.Draw[iControl]
+			, gui.Controls.Text[iControl]
+			, gui.Controls.Images[iControl]
+			)), {
+			::llc::controlDelete(gui, iControl);
+			return -1;
+		});
+		return iControl;
+	}
 	::llc::cid_t			controlCreateChild				(::llc::SGUI & gui, cid_t iParent);
 	::llc::err_t			controlSetParent				(::llc::SGUI & gui, cid_t iControl, cid_t iParent);
 	::llc::err_t			controlToFront				(::llc::SGUI & gui, cid_t iControl);

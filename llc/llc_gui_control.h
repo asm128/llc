@@ -6,6 +6,7 @@
 #include "llc_rect2.h"
 #include "llc_align.h"
 #include "llc_array_static.h"
+#include "llc_functional.h"
 
 #include "llc_img_color.h"
 #include "llc_grid_color.h"
@@ -239,6 +240,16 @@ namespace llc
 		inline	bool		IsUnused		(cid_t iControl)		const	noexcept	{ return States[iControl].IsUnused   (); }
 	};
 
+	tydf ::llc::FError
+		< ::llc::SControlState &
+		, ::llc::apod<::llc::STextState> &
+		, ::llc::SControlConstraints &
+		, ::llc::SControlPlacement &
+		, ::llc::SControlArea &
+		, ::llc::SControlDraw &
+		, ::llc::SControlText &
+		, ::llc::SControlImage &
+		> FControlInitialize;
 	::llc::cid_t		controlCreate					(::llc::SControlTable & gui, ::llc::vs1_t defaultColors);
 } // namespace
 
