@@ -12,13 +12,8 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 	if_true_fe(iViewport >= viewports.size());
 	cnst ::llc::cid_t			idRoot				= viewports[iViewport].IdControl;
 	::llc::acid					& parentChildren		= gui.Controls.Children[idParent];
-	if(0 == parentChildren.size() || parentChildren[parentChildren.size() - 1] != idRoot) {
-		cnst ::llc::err_t			iChild				= parentChildren.find(idRoot);
-		if(iChild >= 0) {
-			if_fail_fe(parentChildren.remove((::llc::u2_t)iChild));
-		}
-		if_fail_fe(parentChildren.push_back(idRoot));
-	}
+	if(0 == parentChildren.size() || parentChildren[parentChildren.size() - 1] != idRoot)
+		if_fail_fe(::llc::controlToFront(gui, idRoot));
 	for(::llc::u0_t iOther = 0; iOther < viewports.size(); ++iOther) {
 		cnst bool					active				= iOther == iViewport;
 		gui.Controls.SetSelected(viewports[iOther].IdControl, active);
