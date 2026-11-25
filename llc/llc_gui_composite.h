@@ -87,14 +87,10 @@ namespace llc {
 		const ::llc::cid_t close = viewport.IdControls[::llc::VIEWPORT_CONTROL_CLOSE];
 		const ::llc::GUI_VIEWPORT_ACTION order[] = {GUI_VIEWPORT_ACTION_SELECT_ALL, GUI_VIEWPORT_ACTION_SAVE, GUI_VIEWPORT_ACTION_WRAP};
 		::llc::cid_t right = close;
-		::llc::s1_t buttonOffset = gui.Controls.Placement[close].Area.Offset.x;
-		const ::llc::s1_t buttonWidth = gui.Controls.Placement[close].Area.Size.x;
 		for(::llc::u0_t i = 0; i < 3; ++i) {
 			const ::llc::cid_t id = actions[order[i]];
-			gui.Controls.Constraints[id].DockToControl.Right = -1;
+			gui.Controls.Constraints[id].DockToControl.Right = right;
 			if(!gui.Controls.IsHidden(id)) {
-				buttonOffset += buttonWidth;
-				gui.Controls.Placement[id].Area.Offset.x = buttonOffset;
 				right = id;
 			}
 		}
