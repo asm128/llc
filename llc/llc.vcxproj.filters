@@ -351,9 +351,6 @@
     <ClInclude Include="llc_gui_render.h">
       <Filter>gui</Filter>
     </ClInclude>
-    <ClInclude Include="llc_gui_desktop.h">
-      <Filter>dialog</Filter>
-    </ClInclude>
     <ClInclude Include="llc_gui_inputbox.h">
       <Filter>gui</Filter>
     </ClInclude>
@@ -985,9 +982,6 @@
     </ClCompile>
     <ClCompile Include="llc_gui_control_list.cpp">
       <Filter>gui</Filter>
-    </ClCompile>
-    <ClCompile Include="llc_gui_desktop.cpp">
-      <Filter>dialog</Filter>
     </ClCompile>
     <ClCompile Include="llc_gui_draw.cpp">
       <Filter>gui</Filter>
