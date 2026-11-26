@@ -1,5 +1,6 @@
 #include "llc_test_core.h"
 #include "llc_apod_serialize.h"
+#include "llc_event.h"
 #include "llc_noise.h"
 
 
@@ -52,6 +53,9 @@ GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_POD_DISPATCH		, 44, "load()
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_VIEW_DISPATCH		, 45, "load() did not restore a non-owning view or advance the cursor.");
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_VARIADIC_DISPATCH	, 46, "Variadic load() did not restore consecutive POD values.");
 GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, LOAD_VARIADIC_STOP		, 47, "Variadic load() continued after a failed read.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, EVENT_ENQUEUE			, 48, "eventEnqueueChild() did not enqueue the event.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, EVENT_EXTRACT			, 49, "The enqueued child event could not be extracted.");
+GDEFINE_ENUM_VALUED(VIEW_SERIALIZE_TEST_RESULT, EVENT_DATA				, 50, "The enqueued event contains the wrong argument bytes.");
 
 stxp ::llc::u0_t PRECEDING_FIELD[] = {0x91U, 0xE4U, 0x2BU};
 stxp ::llc::u0_t FOLLOWING_FIELD[] = {0xC3U, 0x5AU, 0x7EU, 0x19U};
@@ -72,6 +76,29 @@ static_assert(false == canViewReadLegacy<::llc::view<::llc::u2_t>, ::llc::vcst_t
 
 sttc bool isFollowingField(cnst ::llc::vcu0_t & input) {
 	return input.size() == ::llc::size(FOLLOWING_FIELD) && 0 == memcmp(input.begin(), FOLLOWING_FIELD, ::llc::size(FOLLOWING_FIELD));
+}
+
+sttc ::llc::err_t testEventDataDispatch(::llc::ATestError & errors) {
+	cnst ::llc::vcst_t text = "asd";
+	::llc::sc_t mutableText[] = "asd";
+	cnst ::llc::vstr_t mutableView = mutableText;
+	cnst ::llc::u1_t values[] = {0x1234, 0x5678};
+	cnst ::llc::view<cnst ::llc::u1_t> typedView{values};
+	cnst ::llc::u2_t pod = 0x12345678;
+	auto check = [&errors](cnst auto & input, ::llc::vcu0_t expected, ::llc::vcst_t label) -> ::llc::err_t {
+		::llc::TEventQueue<::llc::RESULT> queue;
+		LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_ENQUEUE, ::llc::failed(::llc::eventEnqueueChild(queue, ::llc::RESULT_Connected, ::llc::RESULT_Read, input)) || queue.size() != 1, "%.*s event count:%u.", LLC_VIEW_ARGS(label), queue.size());
+		::llc::SEventView<::llc::RESULT> child;
+		LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_EXTRACT, ::llc::failed(queue[0]->ExtractChild(child)), "%.*s child extraction failed.", LLC_VIEW_ARGS(label));
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_DATA, child.Type != ::llc::RESULT_Read || child.Data.size() != expected.size() || (expected.size() && memcmp(child.Data.begin(), expected.begin(), expected.size())), "%.*s child bytes:%u expected:%u.", LLC_VIEW_ARGS(label), child.Data.size(), expected.size());
+		return 0;
+	};
+	if_fail_fe(check(text, text.cu8(), "vcst_t"));
+	if_fail_fe(check(mutableView, text.cu8(), "vstr_t"));
+	if_fail_fe(check("asd", text.cu8(), "string literal"));
+	if_fail_fe(check(typedView, typedView.cu8(), "view<const u1_t>"));
+	if_fail_fe(check(pod, {(cnst ::llc::u0_t*)&pod, szof(pod)}, "POD u2_t"));
+	return 0;
 }
 
 tplt<tpnm T>
@@ -440,6 +467,7 @@ sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 
 ::llc::err_t test_view_serialize(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);
+	if_fail_fe(testEventDataDispatch(errors));
 	if_fail_fe(testLoadDispatch(errors));
 	if_fail_fe(testTypeLogged<::llc::u0_t>(errors));
 	if_fail_fe(testTypeLogged<::llc::u1_t>(errors));
