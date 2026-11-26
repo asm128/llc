@@ -117,6 +117,10 @@ static	::llc::err_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra>
 	//const int32_t														colorBase												= iColor / iShades;
 	const int32_t														colorShade												= iColor % iShades;
 	const int32_t														colorText												= (::llc::ASCII_COLOR_WHITE * iShades);
+	const ::llc::s2_t halfShades = (::llc::s2_t)iShades / 2;
+	const ::llc::s2_t selectedShades = (::llc::s2_t)iShades / 4;
+	const ::llc::s2_t colorSelected = iColor + ((colorShade < halfShades) ? selectedShades : -selectedShades);
+	const ::llc::s2_t selectedShade = colorSelected % iShades;
 
 	colorComboDisabled	[::llc::UI_CONTROL_AREA_BACKGROUND	]	= iColor;//(colorShade > 7) ? iColor : iColor;
 	colorComboDisabled	[::llc::UI_CONTROL_AREA_BORDER_LEFT	]	= (colorShade > 7) ? iColor - 1 : iColor + 1;
@@ -132,12 +136,12 @@ static	::llc::err_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra>
 	colorComboPressed 	[::llc::UI_CONTROL_AREA_BORDER_BOTTOM	]	= (colorShade > 7) ? iColor - 3 : iColor + 3;
 	colorComboPressed 	[::llc::UI_CONTROL_AREA_TEXT_FACE		]	= (colorShade > 7) ? colorText + 7 : colorText + 9;
 //
-	colorComboSelected	[::llc::UI_CONTROL_AREA_BACKGROUND	]	= (colorShade > 7) ? colorText - 7 : colorText + 9;
-	colorComboSelected	[::llc::UI_CONTROL_AREA_BORDER_LEFT	]	= (colorShade > 7) ? colorText - 7 : colorText + 9;
-	colorComboSelected	[::llc::UI_CONTROL_AREA_BORDER_TOP	]	= (colorShade > 7) ? colorText - 7 : colorText + 9;
-	colorComboSelected	[::llc::UI_CONTROL_AREA_BORDER_RIGHT	]	= (colorShade > 7) ? colorText - 7 : colorText + 9;
-	colorComboSelected	[::llc::UI_CONTROL_AREA_BORDER_BOTTOM	]	= (colorShade > 7) ? colorText - 7 : colorText + 9;
-	colorComboSelected	[::llc::UI_CONTROL_AREA_TEXT_FACE		]	= (colorShade > 7) ? colorText : colorText + 8;
+	colorComboSelected	[::llc::UI_CONTROL_AREA_BACKGROUND	]	= colorSelected;
+	colorComboSelected	[::llc::UI_CONTROL_AREA_BORDER_LEFT	]	= colorSelected;
+	colorComboSelected	[::llc::UI_CONTROL_AREA_BORDER_TOP	]	= colorSelected;
+	colorComboSelected	[::llc::UI_CONTROL_AREA_BORDER_RIGHT	]	= colorSelected;
+	colorComboSelected	[::llc::UI_CONTROL_AREA_BORDER_BOTTOM	]	= colorSelected;
+	colorComboSelected	[::llc::UI_CONTROL_AREA_TEXT_FACE		]	= (selectedShade > 7) ? colorText + 4 : colorText + 12;
 //
 	colorComboHover 	[::llc::UI_CONTROL_AREA_BACKGROUND	]	= iColor;//(colorShade > 7) ? iColor : iColor;
 	colorComboHover 	[::llc::UI_CONTROL_AREA_BORDER_LEFT	]	= (colorShade > 7) ? iColor - 7: iColor + 7;
@@ -151,7 +155,7 @@ static	::llc::err_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra>
 	colorComboNormal	[::llc::UI_CONTROL_AREA_BORDER_TOP	]	= (colorShade > 7) ? iColor - 5: iColor + 5;
 	colorComboNormal	[::llc::UI_CONTROL_AREA_BORDER_RIGHT	]	= (colorShade > 7) ? iColor - 5: iColor + 5;
 	colorComboNormal	[::llc::UI_CONTROL_AREA_BORDER_BOTTOM	]	= (colorShade > 7) ? iColor - 5: iColor + 5;
-	colorComboNormal	[::llc::UI_CONTROL_AREA_TEXT_FACE		]	= (colorShade > 7) ? colorText : colorText + 15;
+	colorComboNormal	[::llc::UI_CONTROL_AREA_TEXT_FACE		]	= (colorShade > 7) ? colorText + 4 : colorText + 12;
 
 	colorComboDisabled	[::llc::UI_CONTROL_AREA_TEXT_BACKGROUND	]	= colorComboDisabled	[::llc::UI_CONTROL_AREA_BACKGROUND];
 	colorComboDisabled	[::llc::UI_CONTROL_AREA_CLIENT			]	= colorComboDisabled	[::llc::UI_CONTROL_AREA_BACKGROUND];
