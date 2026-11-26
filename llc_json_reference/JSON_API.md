@@ -10,7 +10,7 @@ for the section name. The compiled demo uses the root object
 `jsonParse(reader, text, buildTree, buildViews)` is the normal entry point.
 The default values for both switches are `true`. With both enabled, the demo
 gets 25 tokens, 25 views, and 25 tree nodes. With `buildTree=false`, the demo
-calls `jsonTreeRebuild(reader.Token, reader.Tree)` explicitly and gets the
+calls `jsonTreeRebuild(reader.Token, reader.Data, reader.Tree)` explicitly and gets the
 same node count. `jsonParseStep(reader, text)` is the lower-level entry point:
 set `reader.StateRead.IndexCurrentChar` to the current position, then call
 the step. It updates the reader's token and state data; a series of steps
