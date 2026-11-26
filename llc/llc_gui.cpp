@@ -4,6 +4,7 @@
 #include "llc_base64.h"
 #include "llc_rect_align.h"
 #include "llc_apod_color.h"
+#include "llc_event_input.h"
 
 ::llc::err_t llc::guiSave(::llc::au0_t & output, const ::llc::SGUI & gui) {
 	const ::llc::SControlTable & controls = gui.Controls;
@@ -635,21 +636,22 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	return controlHovered;
 }
 
-::llc::err_t			llc::guiProcessInput	(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> sysEvents)	{
+static ::llc::err_t guiProcessInputState(::llc::SGUI & gui, const ::llc::SInput & input, bool firstEvent) {
 	if(0 == gui.LastSize.LengthSquared()) 
 		return 0;
 
-	gui.Controls.EventQueue.clear();
+	if(firstEvent)
+		gui.Controls.EventQueue.clear();
 	::llc::cid_t				controlHovered			= -1;
 	::llc::acid					rootControlsToProcess	= {};
 	rootControlsToProcess.reserve(1000);
-	(void)sysEvents;
 	for(::llc::u2_t iControl = 0, countControls = gui.Controls.States.size(); iControl < countControls; ++iControl) {	// Only process root parents
 		const ::llc::SControlState	& controlState			= gui.Controls.States[iControl];
 		if(controlState.IsUnused())
 			continue;
 
-		gui.Controls.SetAction((::llc::cid_t)iControl, false);
+		if(firstEvent)
+			gui.Controls.SetAction((::llc::cid_t)iControl, false);
 
 		if(controlState.IsDisabled())
 			continue;
@@ -697,6 +699,36 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	}
 
 	return controlHovered == -1 ? gui.Controls.States.size() : controlHovered;
+}
+
+::llc::err_t llc::guiProcessInput(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::vpobj<::llc::SEventSystem> sysEvents) {
+	::llc::SInput eventInput = {};
+	eventInput.MouseCurrent = eventInput.MousePrevious = input.MousePrevious;
+	bool firstEvent = true;
+	for(const auto & event : sysEvents) {
+		if(!event || event->Type != ::llc::SYSTEM_EVENT_Mouse)
+			continue;
+		if_fail_fe(::llc::eventExtractAndHandle<::llc::EVENT_MOUSE>(*event, [&](const auto & mouseEvent) -> ::llc::err_t {
+			if(mouseEvent.Type == ::llc::EVENT_MOUSE_Position) {
+				eventInput.MousePrevious = eventInput.MouseCurrent;
+				::llc::vcu0_t data = mouseEvent.Data;
+				if_fail_fe(::llc::loadPOD(data, eventInput.MouseCurrent.Position));
+			}
+			else if(mouseEvent.Type == ::llc::EVENT_MOUSE_Down || mouseEvent.Type == ::llc::EVENT_MOUSE_Up || mouseEvent.Type == ::llc::EVENT_MOUSE_DoubleClick) {
+				if_true_fef(mouseEvent.Data.size() != 1 || mouseEvent.Data[0] >= eventInput.MouseCurrent.ButtonState.size(), "%s", "Invalid mouse button event.");
+				eventInput.MousePrevious = eventInput.MouseCurrent;
+				eventInput.MouseCurrent.ButtonState[mouseEvent.Data[0]] = mouseEvent.Type != ::llc::EVENT_MOUSE_Up;
+			}
+			else
+				return 0;
+			if_fail_fe(::guiProcessInputState(gui, eventInput, firstEvent));
+			firstEvent = false;
+			return 0;
+		}));
+	}
+	eventInput.MousePrevious = eventInput.MouseCurrent;
+	eventInput.MouseCurrent = input.MouseCurrent;
+	return ::guiProcessInputState(gui, eventInput, firstEvent);
 }
 
 ::llc::err_t			llc::guiDeselect		(::llc::SGUI & gui)	{
