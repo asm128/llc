@@ -82,6 +82,10 @@ sttc ::llc::err_t testEventDataDispatch(::llc::ATestError & errors) {
 	cnst ::llc::vcst_t text = "asd";
 	::llc::sc_t mutableText[] = "asd";
 	cnst ::llc::vstr_t mutableView = mutableText;
+	cnst ::llc::sc_t paddedText[] = {'x', 'a', 's', 'd', 'y'};
+	cnst ::llc::vcst_t countedText{paddedText + 1, 3};
+	cnst ::llc::sc_t embeddedZero[] = {'a', 0, 'd'};
+	cnst ::llc::vcst_t countedZero{embeddedZero, 3};
 	cnst ::llc::u1_t values[] = {0x1234, 0x5678};
 	cnst ::llc::view<cnst ::llc::u1_t> typedView{values};
 	cnst ::llc::u2_t pod = 0x12345678;
@@ -90,14 +94,29 @@ sttc ::llc::err_t testEventDataDispatch(::llc::ATestError & errors) {
 		LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_ENQUEUE, ::llc::failed(::llc::eventEnqueueChild(queue, ::llc::RESULT_Connected, ::llc::RESULT_Read, input)) || queue.size() != 1, "%.*s event count:%u.", LLC_VIEW_ARGS(label), queue.size());
 		::llc::SEventView<::llc::RESULT> child;
 		LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_EXTRACT, ::llc::failed(queue[0]->ExtractChild(child)), "%.*s child extraction failed.", LLC_VIEW_ARGS(label));
-		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_DATA, child.Type != ::llc::RESULT_Read || child.Data.size() != expected.size() || (expected.size() && memcmp(child.Data.begin(), expected.begin(), expected.size())), "%.*s child bytes:%u expected:%u.", LLC_VIEW_ARGS(label), child.Data.size(), expected.size());
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_DATA, queue[0]->Type != ::llc::RESULT_Connected || child.Type != ::llc::RESULT_Read || child.Data.size() != expected.size() || (expected.size() && memcmp(child.Data.begin(), expected.begin(), expected.size())), "%.*s child bytes:%u expected:%u.", LLC_VIEW_ARGS(label), child.Data.size(), expected.size());
+		return 0;
+	};
+	auto checkWrapped = [&errors](cnst auto & input, ::llc::vcu0_t expected, ::llc::vcst_t label) -> ::llc::err_t {
+		::llc::SEvent<::llc::RESULT> parent{::llc::RESULT_Connected};
+		LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_ENQUEUE, ::llc::failed(::llc::eventWrapChild(parent, ::llc::RESULT_Read, input)), "%.*s wrap failed.", LLC_VIEW_ARGS(label));
+		::llc::SEventView<::llc::RESULT> child;
+		LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_EXTRACT, ::llc::failed(parent.ExtractChild(child)), "%.*s wrapped child extraction failed.", LLC_VIEW_ARGS(label));
+		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_EVENT_DATA, parent.Type != ::llc::RESULT_Connected || child.Type != ::llc::RESULT_Read || child.Data.size() != expected.size() || (expected.size() && memcmp(child.Data.begin(), expected.begin(), expected.size())), "%.*s wrapped child bytes:%u expected:%u.", LLC_VIEW_ARGS(label), child.Data.size(), expected.size());
 		return 0;
 	};
 	if_fail_fe(check(text, text.cu8(), "vcst_t"));
 	if_fail_fe(check(mutableView, text.cu8(), "vstr_t"));
 	if_fail_fe(check("asd", text.cu8(), "string literal"));
+	if_fail_fe(check(countedText, countedText.cu8(), "counted vcst_t"));
+	if_fail_fe(check(countedZero, countedZero.cu8(), "embedded zero vcst_t"));
+	if_fail_fe(check(::llc::vcst_t{}, ::llc::vcu0_t{}, "empty vcst_t"));
 	if_fail_fe(check(typedView, typedView.cu8(), "view<const u1_t>"));
 	if_fail_fe(check(pod, {(cnst ::llc::u0_t*)&pod, szof(pod)}, "POD u2_t"));
+	if_fail_fe(checkWrapped(text, text.cu8(), "wrapped vcst_t"));
+	if_fail_fe(checkWrapped(mutableView, text.cu8(), "wrapped vstr_t"));
+	if_fail_fe(checkWrapped("asd", text.cu8(), "wrapped literal"));
+	if_fail_fe(checkWrapped(countedZero, countedZero.cu8(), "wrapped embedded zero"));
 	return 0;
 }
 
