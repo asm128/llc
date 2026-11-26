@@ -50,6 +50,7 @@ sttc ::llc::err_t test_core_entry_point(::llc::SRuntimeValues & runtimeValues) {
 		, LLC_TEST_SUITE(ctti)
 		, LLC_TEST_SUITE(deflate)
 		, LLC_TEST_SUITE(enum)
+		, LLC_TEST_SUITE(event)
 		, LLC_TEST_SUITE(expression)
 		, LLC_TEST_SUITE(geometry)
 		, LLC_TEST_SUITE(grid)
