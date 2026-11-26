@@ -367,6 +367,7 @@ namespace llc
 	stxp		vcst_t	VCC_FALSE		= "false";
 
 	nsix		vcst_t	b82vcs			(bool b)					nxpt	{ rtrn b ? VCC_TRUE : VCC_FALSE; }
+	nsix		vcst_t	b82st			(bool b)					nxpt	{ rtrn b ? VCC_TRUE : VCC_FALSE; }
 	nsix		u0_t	b82u0			(bool b)					nxpt	{ rtrn b ? 1 : 0; }
 	nsix		u0_t	b82s0			(bool b)					nxpt	{ rtrn b ? 1 : 0; }
 	nsix		sc_c*	b82sc			(bool b)					nxpt	{ rtrn b ? VCC_TRUE.begin() : VCC_FALSE.begin(); }
