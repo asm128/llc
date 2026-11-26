@@ -29,10 +29,10 @@ static	::llc::err_t	evaluateJSONBool		(const ::llc::SJSONNode & jsonToEvaluate, 
 	else if(jsonToEvaluate.Token->Type == ::llc::JSON_TYPE_BOOLEAN)
 		evalResult										= (boolView == ::llc::strBool[1]) ? 1 : 0;
 	else if(jsonToEvaluate.Token->Type == ::llc::JSON_TYPE_INTEGER)
-		evalResult										= jsonToEvaluate.Token->Value == 0 ? 0 : 1;
+		evalResult										= jsonToEvaluate.Data->Value == 0 ? 0 : 1;
 	else if(jsonToEvaluate.Token->Type == ::llc::JSON_TYPE_DECIMAL) {
 		::llc::f3_t									value									= {};
-		memcpy(&value, &jsonToEvaluate.Token->Value, sizeof(value));
+		memcpy(&value, &jsonToEvaluate.Data->Value, sizeof(value));
 		evalResult										= value == 0 ? 0 : 1;
 	}
 	else if(jsonToEvaluate.Token->Type == ::llc::JSON_TYPE_STRING)
@@ -201,27 +201,27 @@ static	::llc::err_t	evaluateExpression						(::llc::SJSONExpressionSolver& resul
 								double												valueLeft				= 0;
 								double												valueRight				= 0;
 								if(currentType == ::llc::JSON_TYPE_INTEGER) {
-									valueLeft										= (double)currentJSON->Token->Value;
-									valueRight										= (double)resultJSON->Token->Value;
+									valueLeft										= (double)currentJSON->Data->Value;
+									valueRight										= (double)resultJSON->Data->Value;
 								}
 								else {
-									memcpy(&valueLeft , &currentJSON->Token->Value, sizeof(uint64_t));
-									memcpy(&valueRight, &resultJSON ->Token->Value, sizeof(uint64_t));
+									memcpy(&valueLeft , &currentJSON->Data->Value, sizeof(uint64_t));
+									memcpy(&valueRight, &resultJSON ->Data->Value, sizeof(uint64_t));
 								}
 								lastResult.SetBoolCarry(valueLeft == valueRight, output);
 								lastResult.Output								= output;
 							}
 							else if(currentType == ::llc::JSON_TYPE_INTEGER	&& resultType == ::llc::JSON_TYPE_DECIMAL) {
-								const double 										valueLeft				= (double)currentJSON->Token->Value;
+								const double 										valueLeft				= (double)currentJSON->Data->Value;
 								double 												valueRight				= 0;
-								memcpy(&valueRight, &resultJSON->Token->Value, sizeof(uint64_t));
+								memcpy(&valueRight, &resultJSON->Data->Value, sizeof(uint64_t));
 								lastResult.SetBoolCarry(valueLeft == valueRight, output);
 								lastResult.Output								= output;
 							}
 							else if(currentType == ::llc::JSON_TYPE_DECIMAL && resultType == ::llc::JSON_TYPE_INTEGER) {
-								const double 										valueRight				= (double)resultJSON->Token->Value;
+								const double 										valueRight				= (double)resultJSON->Data->Value;
 								double 												valueLeft				= 0;
-								memcpy(&valueLeft, &currentJSON->Token->Value, sizeof(uint64_t));
+								memcpy(&valueLeft, &currentJSON->Data->Value, sizeof(uint64_t));
 								lastResult.SetBoolCarry(valueLeft == valueRight, output);
 								lastResult.Output								= output;
 							}

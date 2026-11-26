@@ -178,7 +178,7 @@ static llc::err_t demoJSONParse(llc::SJSONReader& reader, const llc::vcst_t json
 static llc::err_t demoTreeRebuild(const llc::vcst_t jsonText) {
     llc::SJSONReader reader = {};
     if_fail_fe(llc::jsonParse(reader, jsonText, false, true));
-    if_fail_fe(llc::jsonTreeRebuild(reader.Token, reader.Tree));
+    if_fail_fe(llc::jsonTreeRebuild(reader.Token, reader.Data, reader.Tree));
     printf("  jsonTreeRebuild     : %u nodes\n", reader.Tree.size());
     if_fail_fe(reader.Reset());
     printf("  Reset               : %u tokens, %u views\n", reader.Token.size(), reader.View.size());

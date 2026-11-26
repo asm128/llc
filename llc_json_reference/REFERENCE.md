@@ -12,7 +12,7 @@ corpus is in `test_gpk_json/main.cpp`.
 | --- | --- | --- |
 | `jsonParse(SJSONReader&, vcsc_c&, bool buildTree=true, bool buildViews=true)` | Reader, JSON text, two build switches; returns `err_t` | Complete JSON parse. Normal mode fills tokens, views, tree. |
 | `jsonParseStep(SJSONReader&, vcsc_c&)` | Reader state and JSON text | One scanner step at `StateRead.IndexCurrentChar`. The caller advances the cursor. |
-| `jsonTreeRebuild(view<SJSONToken>&, apobj<SJSONNode>&)` | Existing tokens and destination nodes | Build a node tree from tokens. |
+| `jsonTreeRebuild(view<SJSONToken>&, view<SJSONTokenData>&, apobj<SJSONNode>&)` | Existing tokens, custom token data, and destination nodes | Build a node tree from tokens and their sidecar data. |
 | `expressionReaderParse(SExpressionReader&, vcsc_t&)` | Reader and expression text | Complete expression parse, including tokens, views, and tree. |
 | `expressionReaderParseStep(SExpressionReader&, vcsc_t&)` | Reader state and expression text | One parsing step at `StateRead.IndexCurrentChar`. |
 | `stripLiteralParse(SStripLiteralState&, apod<SStripLiteralType>&, vcsc_c&)` | State, output spans, format text | Split literal text from `{expression}` tokens. |
