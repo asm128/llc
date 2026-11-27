@@ -69,10 +69,6 @@ namespace llc
     tydf SToken<JSON_TYPE> SJSONToken;
     tydf SReaderState<JSON_TYPE> SJSONReaderState;
     tydf u3_t SJSONTokenData;
-    err_t			jsonTreeRebuild		(view<cnst SJSONToken> in_object, apobj<SJSONNode> & out_nodes);
-    err_t			jsonTreeInvalidate	(SJSONReader & reader);
-    err_t			jsonTreeEnsure		(SJSONReader & reader);
-
     nsix	err_t	jsonArraySize		(cnst SJSONNode & node)												nxpt	{ rtrn node.Children.size(); }	// returns the index of the JSON element corresponding to the index provided as parameter.
     nsix	err_t	jsonObjectKeyCount	(cnst SJSONNode & node)												nxpt	{ rtrn node.Children.size() / 2; }
     err_t			jsonArrayValueGet	(cnst SJSONNode & node, u2_t index);	// returns the index of the JSON element corresponding to the index provided as parameter.

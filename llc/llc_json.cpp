@@ -532,27 +532,6 @@ llc::err_t			llc::jsonParseStep			(llc::SJSONReader & reader, llc::vcst_t jsonAs
 	rtrn 0;
 }
 
-llc::err_t			llc::jsonTreeRebuild		(llc::view<cnst llc::SJSONToken> in_object, llc::apobj<llc::SJSONNode> & out_nodes)								{
-	rtrn llc::readerTreeRebuild<llc::JSON_TYPE>(in_object, out_nodes);
-}
-
-llc::err_t			llc::jsonTreeInvalidate	(llc::SJSONReader & reader) {
-	if_zero_fe(reader.Reader.Tree.size());
-	if_null_fe(reader.Reader.Tree[0]);
-	rtrn truncate<err_t>(reader.Reader.Tree[0]->Token = {});
-}
-
-llc::err_t			llc::jsonTreeEnsure		(llc::SJSONReader & reader) {
-	if_zero_fe(reader.Reader.Token.size());
-	if_zero_fe(reader.Reader.Tree.size());
-	if_null_fe(reader.Reader.Tree[0]);
-	if(reader.Reader.Tree[0]->Token)
-		rtrn 0;
-	llc::err_t result;
-	if_fail_fe(result = llc::jsonTreeRebuild(reader.Reader.Token, reader.Reader.Tree));
-	rtrn result;
-}
-
 #define json_bi_if(condition, format, ...) if(condition) break; //
 
 llc::err_t			llc::jsonParse				(llc::SJSONReader & reader, llc::vcst_t jsonAsString, llc::SJSONParseOptions options)	{
@@ -573,7 +552,7 @@ llc::err_t			llc::jsonParse				(llc::SJSONReader & reader, llc::vcst_t jsonAsStr
 			if_fail_fe(jsonAsString.slice(reader.Reader.View[iView], currentElement.Span.Begin, currentElement.Span.End - currentElement.Span.Begin));
 		}
 	}	
-	rtrn options.All(llc::JSON_PARSE_OPTION_BUILD_TREE) ? llc::jsonTreeRebuild(reader.Reader.Token, reader.Reader.Tree) : 0;
+	rtrn options.All(llc::JSON_PARSE_OPTION_BUILD_TREE) ? llc::readerTreeRebuild<llc::JSON_TYPE>(reader.Reader.Token, reader.Reader.Tree) : 0;
 }
 
 llc::err_t			llc::jsonObjectKeyList		(cnst llc::SJSONNode & node_object, llc::view<cnst vcst_t> views, llc::as2_t & indices, llc::aobj<vcst_t> & keys)	{
