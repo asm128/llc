@@ -95,6 +95,12 @@ namespace llc
 		SEView<_tEvntChild>	childEvent			= {childEventType, eventData};
 		rtrn childEvent.Save(parentEvent.Data);
 	}
+	tplt <tpnm _tEvntParent, tpnm _tEvntChild>
+	static	err_t	eventWrapChild		(SEvent<_tEvntParent> & parentEvent, _tEvntChild childEventType, const vcst_t & eventData) { rtrn eventWrapChild(parentEvent, childEventType, eventData.cu8()); }
+	tplt <tpnm _tEvntParent, tpnm _tEvntChild>
+	static	err_t	eventWrapChild		(SEvent<_tEvntParent> & parentEvent, _tEvntChild childEventType, const vstr_t & eventData) { rtrn eventWrapChild(parentEvent, childEventType, eventData.cu8()); }
+	tplt <tpnm _tEvntParent, tpnm _tEvntChild, u2_t N>
+	static	err_t	eventWrapChild		(SEvent<_tEvntParent> & parentEvent, _tEvntChild childEventType, sc_c (&eventData)[N]) { rtrn eventWrapChild(parentEvent, childEventType, vcst_t{eventData}); }
 
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild>
 	static	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, vcu0_t eventData) {
@@ -103,9 +109,15 @@ namespace llc
 		if_fail_fe(eventWrapChild(*parentEvent, childEventType, eventData));
 		rtrn eventQueue.push_back(parentEvent);
 	}
+	tplt <tpnm _tEvntParent, tpnm _tEvntChild>
+	static	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, const vcst_t & eventData) { rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, eventData.cu8()); }
+	tplt <tpnm _tEvntParent, tpnm _tEvntChild>
+	static	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, const vstr_t & eventData) { rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, eventData.cu8()); }
+	tplt <tpnm _tEvntParent, tpnm _tEvntChild, u2_t N>
+	static	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, sc_c (&eventData)[N]) { rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, vcst_t{eventData}); }
 
 	tplt <tpnm _tEvntParent, tpnm _tEvntChild, tpnm _tPOD>
-	static	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, view<const _tPOD> eventData) {
+	static	err_t	eventEnqueueChild	(TEventQueue<_tEvntParent> & eventQueue, _tEvntParent parentEventType, _tEvntChild childEventType, const view<const _tPOD> & eventData) {
 		rtrn eventEnqueueChild(eventQueue, parentEventType, childEventType, vcu0_t{(const u0_t*)eventData.begin(), eventData.byte_count()});
 	}
 
