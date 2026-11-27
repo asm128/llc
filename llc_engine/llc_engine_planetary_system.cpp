@@ -13,7 +13,7 @@ LLC_USING_TYPEINT();
 stxp	double			ASTRONOMICAL_UNIT_SCALE		= 1.0 / 149597870700;
 
 ::llc::err_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, const ::llc::SJSONReader & jsonData, ::llc::vcst_t imageFolder)	{
-	if_fail_fef(llc::planetarySystemSetup(planetarySystem.PlanetarySystem, jsonData), "%.*s", (int)jsonData.View[0].size(), jsonData.View[0].begin());
+	if_fail_fef(llc::planetarySystemSetup(planetarySystem.PlanetarySystem, jsonData), "%.*s", (int)jsonData.Reader.View[0].size(), jsonData.Reader.View[0].begin());
 	return ::llc::planetarySystemSetup(planetarySystem.PlanetarySystem, planetarySystem.EntityMap, engine, imageFolder);
 }
 ::llc::err_t			llc::planetarySystemSetup(::llc::SEnginePlanetarySystem & planetarySystem, ::llc::SEngine & engine, ::llc::vcst_t jsonFilePath, ::llc::vcst_t imageFolder)				{

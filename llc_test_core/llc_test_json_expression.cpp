@@ -253,14 +253,14 @@ stxp SJSONExpressionHistoricalCase JSON_EXPRESSION_HISTORICAL_CASES[] = {LLC_JSO
 sttc void testJSONExpressionTrace(const ::llc::SJSONReader & reader, ::llc::u2_t root, ::llc::vcst_t expression, ::llc::vcst_t expected, ::llc::vcst_t actual, ::llc::err_t result, bool expectFailure = false, bool formatting = false) {
 	cnst bool resultMatches = expectFailure ? result < 0 : formatting ? result >= 0 : result != -1;
 	cnst char * type = expectFailure ? "caller output (must remain unchanged)" : formatting ? "formatted text" : result == -1 ? "resolution failed" : result == -5 ? "computed boolean" : "expression text (no JSON node)";
-	if(!expectFailure && !formatting && result >= 0 && (::llc::u2_t)result < reader.Tree.size() && reader.Tree[result] && reader.Tree[result]->Token)
-		type = ::llc::get_value_namep(reader.Tree[result]->Token->Type);
+	if(!expectFailure && !formatting && result >= 0 && (::llc::u2_t)result < reader.Reader.Tree.size() && reader.Reader.Tree[result] && reader.Reader.Tree[result]->Token)
+		type = ::llc::get_value_namep(reader.Reader.Tree[result]->Token->Type);
 	always_printf("\n--- %s: %s ---\nRoot node: %u\nExpression/template (%u bytes):\n%.*s\nExpected return: %s\nActual return: %i\nActual type/origin: %s\nExpected output (%u bytes):\n%.*s\nActual output (%u bytes):\n%.*s\n--- end case ---\n"
 		, formatting ? "FORMAT" : "RESOLVE", resultMatches && actual == expected ? "PASS" : "FAIL", root
 		, expression.size(), LLC_VIEW_ARGS(expression), expectFailure ? "negative (failure)" : formatting ? "nonnegative (success)" : "anything except -1 (node index or computed-value sentinel)"
 		, result, type, expected.size(), LLC_VIEW_ARGS(expected), actual.size(), LLC_VIEW_ARGS(actual));
-	if(root < reader.View.size())
-		always_printf("Root context:\n%.*s\n", LLC_VIEW_ARGS(reader.View[root]));
+	if(root < reader.Reader.View.size())
+		always_printf("Root context:\n%.*s\n", LLC_VIEW_ARGS(reader.Reader.View[root]));
 }
 
 sttc ::llc::err_t testJSONExpressionResolve(::llc::ATestError & errors, const ::llc::SJSONReader & reader, ::llc::u2_t indexNodeJSON, ::llc::vcst_t expression, ::llc::vcst_t expected, JSON_EXPRESSION_TEST_RESULT resultCase, JSON_EXPRESSION_TEST_RESULT valueCase, ::llc::err_t & indexResult) {
@@ -387,9 +387,9 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_MISSING_OUTPUT, preserved != "preserved", "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
 
 	preserved = "preserved";
-	cnst ::llc::err_t rootRangeResult = ::llc::jsonExpressionResolve("application", reader, reader.Tree.size(), preserved);
-	::testJSONExpressionTrace(reader, reader.Tree.size(), "application", "preserved", preserved, rootRangeResult, true);
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ROOT_RANGE_RESULT, 0 <= rootRangeResult, "Result:%i, root:%u, nodes:%u.", rootRangeResult, reader.Tree.size(), reader.Tree.size());
+	cnst ::llc::err_t rootRangeResult = ::llc::jsonExpressionResolve("application", reader, reader.Reader.Tree.size(), preserved);
+	::testJSONExpressionTrace(reader, reader.Reader.Tree.size(), "application", "preserved", preserved, rootRangeResult, true);
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ROOT_RANGE_RESULT, 0 <= rootRangeResult, "Result:%i, root:%u, nodes:%u.", rootRangeResult, reader.Reader.Tree.size(), reader.Reader.Tree.size());
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ROOT_RANGE_OUTPUT, preserved != "preserved", "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
 
 	preserved = "preserved";

@@ -888,6 +888,12 @@
     <ClInclude Include="llc_gauge_n2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="llc_index.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="llc_reader.h">
+      <Filter>script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="llc_adam7.cpp">
@@ -1174,6 +1180,12 @@
     </ClCompile>
     <ClCompile Include="llc_crc.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="llc_reader.cpp">
+      <Filter>script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

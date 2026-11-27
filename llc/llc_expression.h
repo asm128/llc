@@ -26,28 +26,20 @@ namespace llc
 
 #pragma pack(push, 1)
 	tydf SToken<EXPRESSION_READER_TYPE> SExpressionToken;
+	tydf SReaderNode<EXPRESSION_READER_TYPE> SExpressionNode;
 	struct SExpressionTokenData {
 		bool					ClosingCondition				= false;
 	};
-
-	struct SExpressionReaderState : public SReaderState<EXPRESSION_READER_TYPE> {
+	struct SExpressionReaderState {
 		sc_t					ClosingQuotes					= '0';
 	};
 #pragma pack(pop)
 
-	struct SExpressionNode {
-		SExpressionToken		* Token							= 0;
-		SExpressionNode			* Parent						= 0;
-		apobj<SExpressionNode>	Children						= {};
-		int32_t					ObjectIndex						= -1;
-	};
-
-	struct SExpressionReader : public SReader<EXPRESSION_READER_TYPE> {
-		apod<SExpressionTokenData>	Data;
-		aobj<vcst_t>			View;
-		apobj<SExpressionNode>	Tree;
-		SExpressionReaderState	StateRead;
-		pobj<SExpressionReader>	SubExpressionCache;
+	struct SExpressionReader {
+		SReader<EXPRESSION_READER_TYPE>	Reader;
+		apod<SExpressionTokenData>		Data;
+		SExpressionReaderState			State;
+		pobj<SExpressionReader>			SubExpressionCache;
 	};
 
 	err_t					expressionReaderParse			(SExpressionReader & reader, vcst_t expression);

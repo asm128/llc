@@ -35,9 +35,10 @@ namespace llc
 #pragma pack(push, 1)
 	tydf SToken<STRIP_LITERAL_TYPE> SStripLiteralType;
 
-	stct SStripLiteralState : public SReaderState<STRIP_LITERAL_TYPE> {
-		bool				InsideToken						= false;
-		s2_t				BracketsToSkip					= 0;
+	stct SStripLiteralState {
+		SReaderState<STRIP_LITERAL_TYPE>	ReaderState		= {};
+		bool								InsideToken		= {};
+		s2_t								BracketsToSkip	= {};
 	};
 #pragma pack(pop)
 	err_t				stripLiteralParse				(SStripLiteralState	& stateReading	, apod<SStripLiteralType> & out_types, vcst_t in_format);

@@ -108,17 +108,17 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	cnst ::llc::vcst_t			validExpression			= "application.test_udp";
 	::llc::SExpressionReader	validReader				= {};
 	cnst ::llc::err_t			validResult				= ::llc::expressionReaderParse(validReader, validExpression);
-	always_printf("EXPRESSION input:'%.*s'; expected parse success; result:%i, tokens:%u.", LLC_VIEW_ARGS(validExpression), validResult, validReader.Token.size());
+	always_printf("EXPRESSION input:'%.*s'; expected parse success; result:%i, tokens:%u.", LLC_VIEW_ARGS(validExpression), validResult, validReader.Reader.Token.size());
 	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_RESULT, ::llc::failed(validResult) , "Result:%i." , validResult );
-	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_TOKEN_COUNT, 0 == validReader.Token.size() , "Expression:%.*s." , LLC_VIEW_ARGS(validExpression) );
-	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_VIEW_COUNT, validReader.View.size() != validReader.Token.size() , "Views:%u, tokens:%u." , validReader.View.size(), validReader.Token.size() );
-	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_COUNT, validReader.Tree.size() != validReader.Token.size() , "Tree nodes:%u, tokens:%u." , validReader.Tree.size(), validReader.Token.size() );
-	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_ROOT_VIEW, validReader.View[0] != validExpression , "Root:%.*s, expected:%.*s." , LLC_VIEW_ARGS(validReader.View[0]), LLC_VIEW_ARGS(validExpression) );
-	for(::llc::u2_t iNode = 0; iNode < validReader.Tree.size(); ++iNode) {
-		always_printf("Token:%u type:%s parent:%i span:%u..%u text:'%.*s'.", iNode, ::llc::get_value_namep(validReader.Token[iNode].Type), validReader.Token[iNode].ParentIndex, validReader.Token[iNode].Span.Begin, validReader.Token[iNode].Span.End, LLC_VIEW_ARGS(validReader.View[iNode]));
-		LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_NODE, 0 == validReader.Tree[iNode].get_ref() , "Null node:%u." , iNode );
-		if(validReader.Tree[iNode])
-			LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_NODE, validReader.Tree[iNode]->Token != &validReader.Token[iNode] , "Node:%u, token:%p, expected:%p." , iNode, validReader.Tree[iNode]->Token, &validReader.Token[iNode] );
+	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_TOKEN_COUNT, 0 == validReader.Reader.Token.size() , "Expression:%.*s." , LLC_VIEW_ARGS(validExpression) );
+	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_VIEW_COUNT, validReader.Reader.View.size() != validReader.Reader.Token.size() , "Views:%u, tokens:%u." , validReader.Reader.View.size(), validReader.Reader.Token.size() );
+	LLC_TEST_REQUIREF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_COUNT, validReader.Reader.Tree.size() != validReader.Reader.Token.size() , "Tree nodes:%u, tokens:%u." , validReader.Reader.Tree.size(), validReader.Reader.Token.size() );
+	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_ROOT_VIEW, validReader.Reader.View[0] != validExpression , "Root:%.*s, expected:%.*s." , LLC_VIEW_ARGS(validReader.Reader.View[0]), LLC_VIEW_ARGS(validExpression) );
+	for(::llc::u2_t iNode = 0; iNode < validReader.Reader.Tree.size(); ++iNode) {
+		always_printf("Token:%u type:%s parent:%i span:%u..%u text:'%.*s'.", iNode, ::llc::get_value_namep(validReader.Reader.Token[iNode].Type), validReader.Reader.Token[iNode].ParentIndex, validReader.Reader.Token[iNode].Span.Begin, validReader.Reader.Token[iNode].Span.End, LLC_VIEW_ARGS(validReader.Reader.View[iNode]));
+		LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_NODE, 0 == validReader.Reader.Tree[iNode].get_ref() , "Null node:%u." , iNode );
+		if(validReader.Reader.Tree[iNode])
+			LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_VALID_TREE_NODE, validReader.Reader.Tree[iNode]->Token != &validReader.Reader.Token[iNode] , "Node:%u, token:%p, expected:%p." , iNode, validReader.Reader.Tree[iNode]->Token, &validReader.Reader.Token[iNode] );
 	}
 
 	::llc::SExpressionReader	invalidReader			= {};

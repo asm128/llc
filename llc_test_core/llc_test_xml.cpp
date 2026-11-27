@@ -54,12 +54,12 @@ sttc ::llc::err_t testXMLDocument
 			}
 		}
 	}
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.IndexCurrentChar != input.size() , "Final position:%u, expected:%u. Document:'%.*s'." , reader.StateRead.IndexCurrentChar, input.size(), (int)input.size(), input.begin() );
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.IndexCurrentElement != -1 , "Final element index:%i, expected:-1. Document:'%.*s'." , reader.StateRead.IndexCurrentElement, (int)input.size(), input.begin() );
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.CurrentElement , "Final current element:%p, expected:null. Document:'%.*s'." , reader.StateRead.CurrentElement, (int)input.size(), input.begin() );
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.NestLevel , "Final nesting level:%u, expected:0. Document:'%.*s'." , reader.StateRead.NestLevel, (int)input.size(), input.begin() );
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.StateRead.CharCurrent , "Final character:%i, expected:0. Document:'%.*s'." , reader.StateRead.CharCurrent, (int)input.size(), input.begin() );
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, false == reader.StateRead.DoneReading , "Final done flag:%s, expected:true. Document:'%.*s'." , reader.StateRead.DoneReading ? "true" : "false", (int)input.size(), input.begin() );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.State.IndexCurrentChar != input.size() , "Final position:%u, expected:%u. Document:'%.*s'." , reader.State.IndexCurrentChar, input.size(), (int)input.size(), input.begin() );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.State.IndexCurrentElement != -1 , "Final element index:%i, expected:-1. Document:'%.*s'." , reader.State.IndexCurrentElement, (int)input.size(), input.begin() );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.State.CurrentElement , "Final current element:%p, expected:null. Document:'%.*s'." , reader.State.CurrentElement, (int)input.size(), input.begin() );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.State.NestLevel , "Final nesting level:%u, expected:0. Document:'%.*s'." , reader.State.NestLevel, (int)input.size(), input.begin() );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, reader.State.CharCurrent , "Final character:%i, expected:0. Document:'%.*s'." , reader.State.CharCurrent, (int)input.size(), input.begin() );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_READER_STATE, false == reader.State.Flags.DoneReading , "Final done flag:%s, expected:true. Document:'%.*s'." , reader.State.Flags.DoneReading ? "true" : "false", (int)input.size(), input.begin() );
 	rtrn 0;
 }
 
@@ -95,9 +95,9 @@ sttc ::llc::err_t testXMLStorage(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, resetResult , "Reader reset result:%i, expected:0.", resetResult );
 	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, ::llc::failed(parseResult) , "Reader reuse parse result:%i, expected success.", parseResult );
 	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.Token.begin() != storage.begin() , "Reader reuse storage:%p, expected:%p.", reader.Token.begin(), storage.begin() );
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.StateRead.IndexCurrentElement != -1 , "Reader reuse element index:%i, expected:-1.", reader.StateRead.IndexCurrentElement );
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.StateRead.CurrentElement , "Reader reuse current element:%p, expected:null.", reader.StateRead.CurrentElement );
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.StateRead.NestLevel , "Reader reuse nesting level:%u, expected:0.", reader.StateRead.NestLevel );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.State.IndexCurrentElement != -1 , "Reader reuse element index:%i, expected:-1.", reader.State.IndexCurrentElement );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.State.CurrentElement , "Reader reuse current element:%p, expected:null.", reader.State.CurrentElement );
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_RESET_REUSE, reader.State.NestLevel , "Reader reuse nesting level:%u, expected:0.", reader.State.NestLevel );
 	rtrn 0;
 }
 
@@ -106,9 +106,9 @@ sttc ::llc::err_t testXMLStep(::llc::ATestError & errors) {
 	::llc::SXMLReader parsed;
 	::llc::SXMLReader stepped;
 	if_fail_fe(::llc::xmlParse(parsed, input));
-	for(stepped.StateRead.IndexCurrentChar = 0; stepped.StateRead.IndexCurrentChar < input.size(); ++stepped.StateRead.IndexCurrentChar) {
+	for(stepped.State.IndexCurrentChar = 0; stepped.State.IndexCurrentChar < input.size(); ++stepped.State.IndexCurrentChar) {
 		cnst ::llc::err_t result = ::llc::xmlParseStep(stepped, input);
-		LLC_TEST_REQUIREF(errors, XML_READER_TEST_RESULT_STEP_PARSE, ::llc::failed(result), "Step parse failed at offset:%u with result:%i.", stepped.StateRead.IndexCurrentChar, result);
+		LLC_TEST_REQUIREF(errors, XML_READER_TEST_RESULT_STEP_PARSE, ::llc::failed(result), "Step parse failed at offset:%u with result:%i.", stepped.State.IndexCurrentChar, result);
 	}
 	LLC_TEST_REQUIREF(errors, XML_READER_TEST_RESULT_STEP_PARSE, parsed.Token.size() != stepped.Token.size(), "Step token count:%u, whole parse token count:%u.", stepped.Token.size(), parsed.Token.size());
 	for(::llc::u2_t iToken = 0; iToken < parsed.Token.size(); ++iToken) {
@@ -120,10 +120,10 @@ sttc ::llc::err_t testXMLStep(::llc::ATestError & errors) {
 			, iToken, expected.ParentIndex, expected.Type, expected.Span.Begin, expected.Span.End, actual.ParentIndex, actual.Type, actual.Span.Begin, actual.Span.End
 			);
 	}
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_STEP_PARSE, false == stepped.StateRead.DoneReading, "%s", "Step reader did not set DoneReading.");
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_STEP_PARSE, stepped.StateRead.NestLevel, "Step reader nesting level:%i, expected:0.", stepped.StateRead.NestLevel);
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_STEP_PARSE, stepped.StateRead.IndexCurrentElement != -1, "Step reader element index:%i, expected:-1.", stepped.StateRead.IndexCurrentElement);
-	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_STEP_PARSE, stepped.StateRead.CurrentElement, "Step reader current element:%p, expected:null.", stepped.StateRead.CurrentElement);
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_STEP_PARSE, false == stepped.State.Flags.DoneReading, "%s", "Step reader did not set DoneReading.");
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_STEP_PARSE, stepped.State.NestLevel, "Step reader nesting level:%i, expected:0.", stepped.State.NestLevel);
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_STEP_PARSE, stepped.State.IndexCurrentElement != -1, "Step reader element index:%i, expected:-1.", stepped.State.IndexCurrentElement);
+	LLC_TEST_CHECKF(errors, XML_READER_TEST_RESULT_STEP_PARSE, stepped.State.CurrentElement, "Step reader current element:%p, expected:null.", stepped.State.CurrentElement);
 	rtrn 0;
 }
 

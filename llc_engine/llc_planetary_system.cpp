@@ -10,7 +10,7 @@
 	::llc::aobj<vcst_t>				stellarBodyNames			= {};
 	::llc::as2_t					stellarBodyIndices;
 	if_fail_fe(llc::jsonObjectKeyList(jsonData, 0, stellarBodyIndices, stellarBodyNames));
-	const ::llc::view<vcst_c>		jsonView					= jsonData.View;
+	const ::llc::view<vcst_c>		jsonView					= jsonData.Reader.View;
 	::llc::aobj<vcst_t>				bodyParentNames;
 
 	int32_t							iFurthest					= 0;
@@ -35,7 +35,7 @@
 		// Load planet properties.
 		if_fail_cw(indexProperty = ::llc::jsonObjectValueGet(jsonData, jsonIndexStellarBody + 2, "type")); // ?? no type? shouldn't happen
 
-		const ::llc::vcst_t			strType						= jsonData.View[indexProperty]; 
+		const ::llc::vcst_t			strType						= jsonData.Reader.View[indexProperty]; 
 		const ::llc::CELESTIAL_BODY	bodyType					= ::llc::bodyTypeFromString(strType);
 		::llc::SCelestialBody		bodyProperties				= {};
 		if_fail_cw(::llc::loadCelestialBody(bodyProperties, bodyType, jsonData, jsonIndexStellarBody + 2));
