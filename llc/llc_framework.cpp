@@ -4,6 +4,7 @@
 // Tip: Hold Left ALT + SHIFT while tapping or holding the arrow keys in order to select multiple columns and write on them at once.
 //		Also useful for copy & paste operations in which you need to copy a bunch of variable or function names and you can't afford the time of copying them one by one.
 #include "llc_framework.h"
+#include "llc_runtime_module.h"
 //#include "llc_safe.h"
 #include "llc_apod_serialize.h"
 
@@ -14,138 +15,91 @@
 #	include <xinput.h>
 #	pragma warning(disable: 4995)
 #elif defined(LLC_XCB)
-#	include <xcb/xcb_image.h>
+#	include <xkbcommon/xkbcommon-x11.h>
+#	include <locale.h>
+#elif defined(LLC_FRAMEBUFFER)
+#	include <fcntl.h>
+#	include <stdio.h>
+#	include <stdlib.h>
+#	include <string.h>
+#	include <sys/ioctl.h>
+#	include <sys/mman.h>
+#	include <unistd.h>
 #endif
 
-using ::llc::sc_t;
+usns llc;
 
-static	::llc::err_t	updateDPI									(::llc::SFramework & framework)													{
+sttc	llc::err_t updateDPI									(SFramework & framework)													{
 #if defined(LLC_WINDOWS)
 	if(0 != framework.RootWindow.PlatformDetail.WindowHandle) {
 		RECT			rcWindow									= {};
 		::GetWindowRect(framework.RootWindow.PlatformDetail.WindowHandle, &rcWindow);
 		POINT			point										= {rcWindow.left + 8, rcWindow.top};
-		::llc::n2<uint32_t>																	dpi											= {96, 96};
+		n2u2_t																	dpi											= {96, 96};
 #define LLC_WINDOWS7_COMPAT
 #if defined(LLC_WINDOWS7_COMPAT)
 		if((framework.GUI->Zoom.DPI * 96).u2() != dpi) {
 			framework.GUI->Zoom.DPI																	= {dpi.x / 96.0, dpi.y / 96.0};
-			::llc::pobj<::llc::SWindow::TOffscreen>												offscreen									= framework.RootWindow.BackBuffer;
-			::llc::guiUpdateMetrics(*framework.GUI, offscreen->Color.View.metrics().u1(), true);
+			pobj<SWindow::TOffscreen>												offscreen									= framework.RootWindow.BackBuffer;
+			guiUpdateMetrics(*framework.GUI, offscreen->Color.View.metrics().u1(), true);
 		}
 #else
 		HMONITOR				hMonitor									= ::MonitorFromPoint(point, MONITOR_DEFAULTTONEAREST);
 		HRESULT			hr											= ::GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpi.x, &dpi.y);
 		if(0 == hr && (framework.GUI->Zoom.DPI * 96).u2() != dpi) {
 			framework.GUI->Zoom.DPI																	= {dpi.x / 96.0, dpi.y / 96.0};
-			::llc::pobj<::llc::rt<::llc::SFramework::TTexel, uint32_t>>					offscreen									= framework.RootWindow.BackBuffer;
-			::llc::guiUpdateMetrics(*framework.GUI, offscreen->Color.View.metrics(), true);
+			pobj<rt<SFramework::TTexel, u2_t>>					offscreen									= framework.RootWindow.BackBuffer;
+			guiUpdateMetrics(*framework.GUI, offscreen->Color.View.metrics(), true);
 		}
 #endif
 	}
 #endif
 	return 0;
 }
-::llc::err_t			llc::updateFramework						(::llc::SFramework& framework)													{
+llc::err_t 		llc::updateFramework						(SFramework& framework)													{
 	if(0 == framework.GUI.get_ref())
 		framework.GUI.create();
-	::llc::SWindow				& mainWindow								= framework.RootWindow;
-	::llc::SInput				& input										= *mainWindow.Input;
+	SWindow				& mainWindow								= framework.RootWindow;
+	SInput				& input										= *mainWindow.Input;
 	input.KeyboardPrevious	= input.KeyboardCurrent;
 	input.MousePrevious		= input.MouseCurrent;
 	input.MouseCurrent.Deltas	= {};
-	for(uint32_t iJoy = 0; iJoy < input.JoystickCurrent.size(); ++iJoy) {
+	for(u2_t iJoy = 0; iJoy < input.JoystickCurrent.size(); ++iJoy) {
 		input.JoystickCurrent[iJoy].Deltas	= {};
 		//XINPUT_STATE xistate = {};
 		//HRESULT err = XInputGetState(iJoy, &xistate);
 		//if(0 == err) {
-		//	if(xistate.Gamepad.sThumbLX) { 
+		//	if(xistate.Gamepad.sThumbLX) {
 		//		input.JoystickCurrent[iJoy].Deltas.x = xistate.Gamepad.sThumbLX; }
-		//	if(xistate.Gamepad.sThumbLY) { 
+		//	if(xistate.Gamepad.sThumbLY) {
 		//		input.JoystickCurrent[iJoy].Deltas.y = xistate.Gamepad.sThumbLY; }
-		//	if(xistate.Gamepad.sThumbRX) { 
+		//	if(xistate.Gamepad.sThumbRX) {
 		//		input.JoystickCurrent[iJoy].Deltas.x = xistate.Gamepad.sThumbRX; }
-		//	if(xistate.Gamepad.sThumbRX) { 
+		//	if(xistate.Gamepad.sThumbRX) {
 		//		input.JoystickCurrent[iJoy].Deltas.y = xistate.Gamepad.sThumbRX; }
 		//}
 	}
 
-	::llc::SFrameInfo							& frameInfo									= framework.FrameInfo;
-	::llc::STimer								& timer										= framework.Timer;
+	SFrameInfo							& frameInfo									= framework.FrameInfo;
+	STimer								& timer										= framework.Timer;
 	timer		.Frame();
-	frameInfo	.Frame(::llc::min(timer.LastTimeMicroseconds, (uint64_t)200000));
-#if defined(LLC_XCB)
-	::llc::pobj<::llc::rt<::llc::bgra, uint32_t>>
-												& guiRenderTarget			= framework.RootWindow.BackBuffer;
-	if(mainWindow.Repaint) {
-		xcb_screen_t								* xcbScreen					= xcb_setup_roots_iterator(xcb_get_setup(framework.PlatformDetail.XCBConnection)).data;
-		const xcb_image_format_t					format						= XCB_IMAGE_FORMAT_Z_PIXMAP;
-		const ::llc::n2<uint32_t>				& guiRenderTargetMetrics	= guiRenderTarget->Color.View.metrics();
-		xcb_image_t									* image						= xcb_image_create_native
-			( mainWindow.PlatformDetail.Connection
-			, guiRenderTargetMetrics.x
-			, guiRenderTargetMetrics.y
-			, format
-			, xcbScreen->root_depth
-			, (uint8_t*)guiRenderTarget->Color.View.begin()
-			, guiRenderTarget->Color.View.size() * 4
-			, (uint8_t*)guiRenderTarget->Color.View.begin()
-			);
-		xcb_image_put(mainWindow.PlatformDetail.Connection, mainWindow.PlatformDetail.IdDrawable, mainWindow.PlatformDetail.GC, image, 0, 0, 0);
-		image->base						= 0;
-		xcb_image_destroy(image);
-		xcb_flush(mainWindow.PlatformDetail.Connection);
-		framework.RootWindow.Repaint	= false;
-	}
-	::llc::err_t				updateResult		= ::llc::windowUpdate(mainWindow);
-	while (xcb_generic_event_t * ev = xcb_poll_for_event(mainWindow.PlatformDetail.Connection)) {
-		switch (ev->response_type & ~0x80) {
-		default					: break;
-		case XCB_EXPOSE			: {
-			//xcb_expose_event_t												* x					= (xcb_expose_event_t *)ev;
-			mainWindow.Repaint	= true;
-			break;
-		}
-		case XCB_KEY_PRESS		: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Key %i Down"	, iev->detail); input.KeyboardCurrent.KeyState		[iev->detail]		= 1; break;	}
-		case XCB_KEY_RELEASE	: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Key %i Up"		, iev->detail); input.KeyboardCurrent.KeyState		[iev->detail]		= 0; break;	}
-		case XCB_BUTTON_PRESS	: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Button %i Down"	, iev->detail); input.MouseCurrent   .ButtonState	[iev->detail - 1]	= 1; break;	}
-		case XCB_BUTTON_RELEASE	: { framework.RootWindow.Repaint = true; const xcb_key_press_event_t * iev = (xcb_key_press_event_t *)ev; info_printf("Button %i Up"	, iev->detail); input.MouseCurrent   .ButtonState	[iev->detail - 1]	= 0; break;	}
-		case XCB_MOTION_NOTIFY	: {
-			xcb_motion_notify_event_t			* mev				= (xcb_motion_notify_event_t*)ev;
-			int32_t								xPos				= mev->same_screen ? mev->event_x : mev->root_x;
-			int32_t								yPos				= mev->same_screen ? mev->event_y : mev->root_y;
-			input.MouseCurrent.Position.x	= ::llc::clamped(xPos, 0, (int32_t)mainWindow.Size.x);
-			input.MouseCurrent.Position.y	= ::llc::clamped(yPos, 0, (int32_t)mainWindow.Size.y);
-			input.MouseCurrent.Deltas.x		= input.MouseCurrent.Position.x - input.MousePrevious.Position.x;
-			input.MouseCurrent.Deltas.y		= input.MouseCurrent.Position.y - input.MousePrevious.Position.y;
-			//info_printf("Mouse position: %i, %i", input.MouseCurrent.Position.x, input.MouseCurrent.Position.y);
-			framework.RootWindow.Repaint	= true;
-			break;
-		}
-		}
-	}
-#else
-	::llc::err_t				updateResult		= ::llc::windowUpdate(mainWindow);
-#endif
-	if_true_fe(llc::failed(updateResult));
+	frameInfo	.Frame(min(timer.LastTimeMicroseconds, (u3_t)200000));
+	llc::err_t 			updateResult		= windowUpdate(mainWindow);
+	if_true_ve(-1, llc::failed(updateResult));
 	if_true_vi(1, mainWindow.Closed);
 	if_true_vi(1, 1 == updateResult);
-	::llc::pobj<::llc::SWindow::TOffscreen>	offscreen	= framework.RootWindow.BackBuffer;
-#if defined(LLC_WINDOWS)
-	if(mainWindow.PlatformDetail.WindowHandle) {
-		if(offscreen && offscreen->Color.Texels.size())
-			if_true_e(llc::failed(::llc::windowPresentTarget(mainWindow, offscreen->Color.View)));
-	}
-#endif
-	::llc::SGUI						& gui				= *framework.GUI;
+	pobj<SWindow::TOffscreen>	offscreen	= framework.RootWindow.BackBuffer;
+	if(offscreen && offscreen->Color.Texels.size())
+		if_true_e(llc::failed(windowPresentTarget(mainWindow, offscreen->Color.View)));
+	SGUI						& gui				= *framework.GUI;
 	{
-		::std::lock_guard				lock										(framework.LockGUI);
-		::llc::guiProcessInput(gui, *mainWindow.Input, mainWindow.EventQueue);
+		::std::lock_guard<::std::mutex>	lock										(framework.LockGUI);
+		guiProcessInput(gui, *mainWindow.Input, mainWindow.EventQueue);
 	}
 
 	if(framework.Settings.GUIZoom) {
 		if(mainWindow.Input->MouseCurrent.Deltas.z) {
-			::std::lock_guard				lock										(framework.LockGUI);
+			::std::lock_guard<::std::mutex>	lock										(framework.LockGUI);
 			if(mainWindow.Input->MouseCurrent.Deltas.z > 0) {
 				if(gui.Zoom.ZoomLevel > 1)
 					++gui.Zoom.ZoomLevel;
@@ -158,18 +112,12 @@ static	::llc::err_t	updateDPI									(::llc::SFramework & framework)											
 				else
 					gui.Zoom.ZoomLevel		*= .5;
 			}
-			::llc::guiUpdateMetrics(gui, framework.RootWindow.Size, true);
+			guiUpdateMetrics(gui, framework.RootWindow.Size, true);
 		}
 	}
-	if_fail_fe(::updateDPI(framework));
-	if(gui.LastSize != mainWindow.Size || gui.LastZoom != gui.Zoom) {
-		for(::llc::u2_t iOutdated = 0; iOutdated < gui.Controls.States.size(); ++iOutdated)
-			gui.Controls.SetUpdated((::llc::cid_t)iOutdated, false);
-	}
-	{
-		::std::lock_guard lock(framework.LockGUI);
-		return ::llc::guiUpdateMetrics(gui, mainWindow.Size, false);
-	}
+	if_fail_e(::updateDPI(framework));
+	if_fail_fe(::llc::guiUpdateMetrics(gui, framework.RootWindow.Size, false));
+	rtrn 0;
 }
 
 #if defined(LLC_WINDOWS)
@@ -351,25 +299,84 @@ static	void					initWndClass								(::HINSTANCE hInstance, const TCHAR* classNa
 	wndClassToInit.style			= CS_DBLCLKS;
 }
 #elif defined(LLC_XCB)
-static	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
+sttc	void		xcbInputCleanup								(SWindowPlatformDetail & detail) {
+	if(detail.XKBComposeState) xkb_compose_state_unref(detail.XKBComposeState);
+	if(detail.XKBComposeTable) xkb_compose_table_unref(detail.XKBComposeTable);
+	if(detail.XKBState) xkb_state_unref(detail.XKBState);
+	if(detail.XKBKeymap) xkb_keymap_unref(detail.XKBKeymap);
+	if(detail.XKBContext) xkb_context_unref(detail.XKBContext);
+	detail.XKBComposeState = {};
+	detail.XKBComposeTable = {};
+	detail.XKBState = {};
+	detail.XKBKeymap = {};
+	detail.XKBContext = {};
+	detail.XKBDeviceId = -1;
+}
+
+sttc	llc::err_t xcbInputSetup								(SWindowPlatformDetail & detail) {
+	if(detail.XKBState)
+		return 0;
+
+	detail.XKBContext = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+	if(0 == detail.XKBContext)
+		return -1;
+
+	u1_t			majorVersion	= {};
+	u1_t			minorVersion	= {};
+	u0_t			eventBase		= {};
+	u0_t			errorBase		= {};
+	if(false == xkb_x11_setup_xkb_extension(detail.Connection
+		, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION
+		, XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS
+		, &majorVersion, &minorVersion, &eventBase, &errorBase
+		)) {
+		::xcbInputCleanup(detail);
+		return -1;
+	}
+
+	detail.XKBDeviceId = xkb_x11_get_core_keyboard_device_id(detail.Connection);
+	if(0 > detail.XKBDeviceId) {
+		::xcbInputCleanup(detail);
+		return -1;
+	}
+
+	detail.XKBKeymap = xkb_x11_keymap_new_from_device(detail.XKBContext, detail.Connection, detail.XKBDeviceId, XKB_KEYMAP_COMPILE_NO_FLAGS);
+	detail.XKBState = detail.XKBKeymap ? xkb_x11_state_new_from_device(detail.XKBKeymap, detail.Connection, detail.XKBDeviceId) : 0;
+	if(0 == detail.XKBKeymap || 0 == detail.XKBState) {
+		::xcbInputCleanup(detail);
+		return -1;
+	}
+
+	sc_c * locale = setlocale(LC_CTYPE, "");
+	if(locale) {
+		detail.XKBComposeTable = xkb_compose_table_new_from_locale(detail.XKBContext, locale, XKB_COMPOSE_COMPILE_NO_FLAGS);
+		if(detail.XKBComposeTable)
+			detail.XKBComposeState = xkb_compose_state_new(detail.XKBComposeTable, XKB_COMPOSE_STATE_NO_FLAGS);
+	}
+	return 0;
+}
+
+sttc	llc::err_t xcbWindowCreate								(SWindow & window) {
 	if(0 == window.PlatformDetail.Connection) {
 		window.PlatformDetail.Connection														= xcb_connect(NULL, NULL);
 	}
+	if_fail_fe(::xcbInputSetup(window.PlatformDetail));
 	xcb_screen_t			* xcbScreen									= xcb_setup_roots_iterator(xcb_get_setup(window.PlatformDetail.Connection)).data;
 	window.PlatformDetail.IdDrawableBackPixmap												= xcb_generate_id(window.PlatformDetail.Connection);
 	xcb_create_pixmap(window.PlatformDetail.Connection, xcbScreen->root_depth, window.PlatformDetail.IdDrawableBackPixmap, xcbScreen->root, window.Size.x, window.Size.y);
 	{	// create graphics context
 		window.PlatformDetail.GC																= xcb_generate_id(window.PlatformDetail.Connection);
-		const uint32_t			mask		= XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
-		const uint32_t			values[3]	= {xcbScreen->black_pixel, xcbScreen->white_pixel, 0};
+		u2_c			mask		= XCB_GC_FOREGROUND | XCB_GC_BACKGROUND | XCB_GC_GRAPHICS_EXPOSURES;
+		u2_c			values[3]	= {xcbScreen->black_pixel, xcbScreen->white_pixel, 0};
 		xcb_create_gc(window.PlatformDetail.Connection, window.PlatformDetail.GC, xcbScreen->root, mask, values);
 	}
 	{	// create the window
 		window.PlatformDetail.IdDrawable																		= xcb_generate_id(window.PlatformDetail.Connection);
-		const uint32_t			mask		= XCB_CW_BACK_PIXMAP | XCB_CW_EVENT_MASK;
-		const uint32_t			values[2]	= { window.PlatformDetail.IdDrawableBackPixmap
+		u2_c			mask		= XCB_CW_BACK_PIXMAP | XCB_CW_EVENT_MASK;
+		u2_c			values[2]	= { window.PlatformDetail.IdDrawableBackPixmap
 			, XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_STRUCTURE_NOTIFY
 			| XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS  | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_BUTTON_MOTION | XCB_EVENT_MASK_POINTER_MOTION
+			| XCB_EVENT_MASK_FOCUS_CHANGE
 		};
 		xcb_create_window
 			( window.PlatformDetail.Connection			// connection
@@ -384,27 +391,173 @@ static	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
 			, mask, values								// masks
 			);
 		xcb_map_window(window.PlatformDetail.Connection, window.PlatformDetail.IdDrawable);
+		xcb_intern_atom_reply_t * protocols = xcb_intern_atom_reply(window.PlatformDetail.Connection, xcb_intern_atom(window.PlatformDetail.Connection, 0, 12, "WM_PROTOCOLS"), 0);
+		xcb_intern_atom_reply_t * deleteWindow = xcb_intern_atom_reply(window.PlatformDetail.Connection, xcb_intern_atom(window.PlatformDetail.Connection, 0, 16, "WM_DELETE_WINDOW"), 0);
+		if(protocols && deleteWindow) {
+			window.PlatformDetail.WMDelete = deleteWindow->atom;
+			xcb_change_property(window.PlatformDetail.Connection, XCB_PROP_MODE_REPLACE, window.PlatformDetail.IdDrawable, protocols->atom, XCB_ATOM_ATOM, 32, 1, &window.PlatformDetail.WMDelete);
+		}
+		free(protocols);
+		free(deleteWindow);
 	}
+	xcb_flush(window.PlatformDetail.Connection);
+	return 0;
+}
+#elif defined(LLC_FRAMEBUFFER)
+sttc	void		framebufferCleanup						(SWindowPlatformDetail & detail) {
+	cnst u2_t		inputDeviceCount			= ::llc::min(detail.InputDeviceCount, detail.InputDeviceLimit);
+	for(u2_t iDevice = 0; iDevice < inputDeviceCount; ++iDevice)
+		if(0 <= detail.InputDevices[iDevice])
+			::close(detail.InputDevices[iDevice]);
+	detail.InputDeviceCount = {};
+
+	for(u2_t iLayout = 0; iLayout < detail.KeyboardLayoutCount; ++iLayout) {
+		if(detail.XKBStates [iLayout]) ::xkb_state_unref (detail.XKBStates [iLayout]);
+		if(detail.XKBKeymaps[iLayout]) ::xkb_keymap_unref(detail.XKBKeymaps[iLayout]);
+		detail.XKBStates [iLayout] = {};
+		detail.XKBKeymaps[iLayout] = {};
+	}
+	if(detail.XKBContext)
+		::xkb_context_unref(detail.XKBContext);
+	detail.XKBContext = {};
+
+	if(detail.FramebufferMemory && MAP_FAILED != detail.FramebufferMemory)
+		::munmap(detail.FramebufferMemory, detail.FramebufferBytes);
+	detail.FramebufferMemory = {};
+	detail.FramebufferBytes = {};
+	if(0 <= detail.Framebuffer)
+		::close(detail.Framebuffer);
+	detail.Framebuffer = -1;
+}
+
+sttc	char		* framebufferTextFileRead				(cnst char * fileName) {
+	::FILE				* input					= ::fopen(fileName, "rb");
+	if(0 == input)
+		return {};
+	if(0 != ::fseek(input, 0, SEEK_END)) {
+		::fclose(input);
+		return {};
+	}
+	cnst long			length					= ::ftell(input);
+	if(0 >= length || 1024 * 1024 < length || 0 != ::fseek(input, 0, SEEK_SET)) {
+		::fclose(input);
+		return {};
+	}
+	char				* text					= (char*)::malloc((size_t)length + 1);
+	if(0 == text) {
+		::fclose(input);
+		return {};
+	}
+	if((size_t)length != ::fread(text, 1, (size_t)length, input)) {
+		::free(text);
+		::fclose(input);
+		return {};
+	}
+	::fclose(input);
+	text[length] = 0;
+	return text;
+}
+
+sttc	llc::err_t framebufferInputSetup					(SWindowPlatformDetail & detail) {
+	stxp cnst char		* keymapPaths[detail.KeyboardLayoutCount] =
+		{ "/etc/melina-us.xkb"
+		, "/etc/melina-es.xkb"
+		, "/etc/melina-latam.xkb"
+		};
+
+	detail.XKBContext = ::xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+	if(0 == detail.XKBContext)
+		return -1;
+	for(u2_t iLayout = 0; iLayout < detail.KeyboardLayoutCount; ++iLayout) {
+		char				* keymapText				= ::framebufferTextFileRead(keymapPaths[iLayout]);
+		if(0 == keymapText) {
+			::framebufferCleanup(detail);
+			return -1;
+		}
+		detail.XKBKeymaps[iLayout] = ::xkb_keymap_new_from_string(detail.XKBContext, keymapText, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
+		::free(keymapText);
+		detail.XKBStates[iLayout] = detail.XKBKeymaps[iLayout] ? ::xkb_state_new(detail.XKBKeymaps[iLayout]) : 0;
+		if(0 == detail.XKBKeymaps[iLayout] || 0 == detail.XKBStates[iLayout]) {
+			::framebufferCleanup(detail);
+			return -1;
+		}
+	}
+
+	char				inputPath[64] = {};
+	for(u2_t iInput = 0; iInput < detail.InputDeviceLimit; ++iInput) {
+		::snprintf(inputPath, ::llc::size(inputPath), "/dev/input/event%u", iInput);
+		cnst int			inputDevice				= ::open(inputPath, O_RDONLY | O_NONBLOCK);
+		if(0 <= inputDevice)
+			detail.InputDevices[detail.InputDeviceCount++] = inputDevice;
+	}
+	return 0;
+}
+
+sttc	llc::err_t framebufferWindowCreate				(SWindow & window) {
+	SWindowPlatformDetail	& detail					= window.PlatformDetail;
+	detail.Framebuffer = ::open("/dev/fb0", O_RDWR);
+	if(0 > detail.Framebuffer
+	|| 0 > ::ioctl(detail.Framebuffer, FBIOGET_FSCREENINFO, &detail.FramebufferFixed)
+	|| 0 > ::ioctl(detail.Framebuffer, FBIOGET_VSCREENINFO, &detail.FramebufferVariable)
+	) {
+		::framebufferCleanup(detail);
+		return -1;
+	}
+	detail.FramebufferBytes = detail.FramebufferFixed.smem_len;
+	detail.FramebufferMemory = (u0_t*)::mmap(0, detail.FramebufferBytes, PROT_READ | PROT_WRITE, MAP_SHARED, detail.Framebuffer, 0);
+	if(MAP_FAILED == detail.FramebufferMemory) {
+		detail.FramebufferMemory = {};
+		::framebufferCleanup(detail);
+		return -1;
+	}
+	::memset(detail.FramebufferMemory, 0, detail.FramebufferBytes);
+	window.PreviousSize = window.Size;
+	window.Size = {(u1_t)detail.FramebufferVariable.xres, (u1_t)detail.FramebufferVariable.yres};
+	window.WindowedWindowRect = {0, 0, window.Size.x, window.Size.y};
+	window.FullScreen = true;
+	detail.PointerX = window.Size.x / 2;
+	detail.PointerY = window.Size.y / 2;
+	if_fail_fe(::framebufferInputSetup(detail));
+	info_printf("Framebuffer %ux%u, %u bpp, stride %u. Input devices: %u."
+		, detail.FramebufferVariable.xres
+		, detail.FramebufferVariable.yres
+		, detail.FramebufferVariable.bits_per_pixel
+		, detail.FramebufferFixed.line_length
+		, detail.InputDeviceCount
+		);
 	return 0;
 }
 #endif
 
-::llc::err_t			llc::mainWindowDestroy						(::llc::SWindow& mainWindow)				{
+llc::err_t 		llc::mainWindowDestroy						(SWindow& mainWindow)				{
 #if defined(LLC_WINDOWS)
 	::DestroyWindow(mainWindow.PlatformDetail.WindowHandle);
-	::llc::windowUpdate(mainWindow);
+	windowUpdate(mainWindow);
 #elif defined(LLC_XCB)
-
+	SWindowPlatformDetail & detail = mainWindow.PlatformDetail;
+	if(detail.Connection) {
+		::xcbInputCleanup(detail);
+		if(detail.IdDrawable) xcb_destroy_window(detail.Connection, detail.IdDrawable);
+		if(detail.IdDrawableBackPixmap) xcb_free_pixmap(detail.Connection, detail.IdDrawableBackPixmap);
+		if(detail.GC) xcb_free_gc(detail.Connection, detail.GC);
+		xcb_flush(detail.Connection);
+		xcb_disconnect(detail.Connection);
+		detail.Connection = {};
+		detail.IdDrawable = detail.IdDrawableBackPixmap = detail.GC = detail.WMDelete = {};
+	}
+	mainWindow.Closed = true;
+#elif defined(LLC_FRAMEBUFFER)
+	::framebufferCleanup(mainWindow.PlatformDetail);
+	mainWindow.Closed = true;
 #else
 	(void)mainWindow;
 #endif
 	return 0;
 }
 
-::llc::err_t			llc::mainWindowCreate	(::llc::SWindow& mainWindow, ::llc::SRuntimeValuesDetail & runtimeValues, ::llc::pobj<SInput>& displayInput)	{
+llc::err_t 		llc::mainWindowCreate	(SWindow& mainWindow, SRuntimeValuesDetail& runtimeValues, pobj<SInput>& displayInput)	{
 	if(0 == displayInput.get_ref())
 		displayInput.create();
-
 #if defined(LLC_WINDOWS)
 	::llc::SWindowPlatformDetail	& displayDetail			= mainWindow.PlatformDetail;
 	HINSTANCE						hInstance				= runtimeValues.hInstance;
@@ -433,10 +586,12 @@ static	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
 	if(0 == mainWindow.PlatformDetail.Connection) {
 		mainWindow.PlatformDetail.Connection = xcb_connect(0, 0);
 	}
-	xcb_screen_t				* xcbScreen			= xcb_setup_roots_iterator(xcb_get_setup(mainWindow.PlatformDetail.Connection)).data;
-	::std::shared_ptr<xcb_get_geometry_reply_t>	geometry									(xcb_get_geometry_reply(mainWindow.PlatformDetail.Connection, xcb_get_geometry(mainWindow.PlatformDetail.Connection, xcbScreen->root), nullptr), free);
-	mainWindow.Size						= {geometry->width, geometry->height};
 	if_fail_fef(xcbWindowCreate(mainWindow), "%s", "Failed to create main window.");
+	if_fail_fe(eventEnqueueScreenCreate(mainWindow.EventQueue, {mainWindow.Size}));
+	(void)runtimeValues;
+#elif defined(LLC_FRAMEBUFFER)
+	if_fail_fef(framebufferWindowCreate(mainWindow), "%s", "Failed to open the framebuffer or input devices.");
+	if_fail_fe(eventEnqueueScreenCreate(mainWindow.EventQueue, {mainWindow.Size}));
 	(void)runtimeValues;
 #else
 	(void)runtimeValues;

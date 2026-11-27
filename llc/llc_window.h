@@ -13,14 +13,19 @@
 #	include <Windows.h>
 #elif defined(LLC_XCB)
 #	include <xcb/xcb.h>
+#	include <xkbcommon/xkbcommon.h>
+#	include <xkbcommon/xkbcommon-compose.h>
+#elif defined(LLC_FRAMEBUFFER)
+#	include <linux/fb.h>
+#	include <linux/input.h>
+#	include <xkbcommon/xkbcommon.h>
 #endif
 
 #ifndef LLC_WINDOW_H_23627
 #define LLC_WINDOW_H_23627
 
-namespace llc
+nmsp llc
 {
-
 	struct SWindowPlatformDetail {
 #if defined(LLC_WINDOWS)
 		tydf	bgra				TOSWindowNativeTexel;
@@ -40,53 +45,82 @@ namespace llc
 			if(WindowHandle					) ::DestroyWindow	(WindowHandle);
 		}
 #elif defined(LLC_XCB)
-		tydf	bgra				TOSWindowNativeTexel;
-		xcb_connection_t			* Connection				= {};
-		xcb_gcontext_t				GC							= {};
-		xcb_drawable_t				IdDrawable					= {};
-		xcb_drawable_t				IdDrawableBackPixmap		= {};
+		tydf	::llc::bgra					TOSWindowNativeTexel;
+		xcb_connection_t					* Connection				= {};
+		xcb_gcontext_t						GC							= {};
+		xcb_drawable_t						IdDrawable					= {};
+		xcb_drawable_t						IdDrawableBackPixmap		= {};
+		xcb_atom_t							WMDelete					= {};
+		::xkb_context						* XKBContext				= {};
+		::xkb_keymap						* XKBKeymap				= {};
+		::xkb_state						* XKBState					= {};
+		::xkb_compose_table				* XKBComposeTable			= {};
+		::xkb_compose_state				* XKBComposeState			= {};
+		s2_t								XKBDeviceId				= -1;
 
-									~SWindowPlatformDetail		()	{
-			if(uint32_t(-1) != GC) {
+											~SWindowPlatformDetail		()	{
+			if(GC) {
 				xcb_free_gc(Connection, GC);
 				info_printf("%s.", "Window graphics context freed");
 			}
 		}
+#elif defined(LLC_FRAMEBUFFER)
+		tydf	::llc::bgra					TOSWindowNativeTexel;
+		stxp	u2_c						InputDeviceLimit			= 32;
+		stxp	u2_c						KeyboardLayoutCount		= 3;
+
+		int								Framebuffer				= -1;
+		u0_t							* FramebufferMemory		= {};
+		size_t							FramebufferBytes		= {};
+		::fb_var_screeninfo				FramebufferVariable		= {};
+		::fb_fix_screeninfo				FramebufferFixed			= {};
+		::llc::astatic<int, InputDeviceLimit>	InputDevices			= {};
+		u2_t							InputDeviceCount		= {};
+		::xkb_context					* XKBContext				= {};
+		::xkb_keymap					* XKBKeymaps[KeyboardLayoutCount]	= {};
+		::xkb_state						* XKBStates [KeyboardLayoutCount]	= {};
+		u2_t							XKBActiveLayout			= {};
+		s2_t							PointerX				= {};
+		s2_t							PointerY				= {};
+		b8_t							ControlDown			= {};
+		b8_t							AltDown					= {};
+		b8_t							LayoutSwitchHeld		= {};
 #endif // LLC_WINDOWS
 	};
 
 	struct SWindow {
-		typedef	bgra					TTexel;
-		typedef	rt<TTexel, uint32_t>	TOffscreen;
+		tydf	::llc::bgra					TTexel;
+		tydf	::llc::rt<TTexel, u2_t>	TOffscreen;
 
-		SWindowPlatformDetail			PlatformDetail			= {};
-		apobj<SEventSystem>				EventQueue				= {};
-		pobj<TOffscreen>				BackBuffer				= {};
-		pobj<SInput>					Input					= {};
-		string							ScreenshotFile		= {};
-		n2u1_t							PreviousSize			= {};
-		n2u1_t							Size					= {320, 200};
-		rectu1_t						WindowedWindowRect		= {0, 0, 320, 200};
-		bool							Resized					: 1;
-		bool							Repaint					: 1;
-		bool							NoDraw					: 1;
-		bool							MinOrMaxed				: 1;
-		bool							Closed					: 1;
-		bool							FullScreen				: 1;
+		::llc::SWindowPlatformDetail		PlatformDetail			= {};
+		::llc::apobj<::llc::SEventSystem>	EventQueue				= {};
+		::llc::pobj<TOffscreen>				BackBuffer				= {};
+		::llc::pobj<::llc::SInput>			Input					= {};
+		::llc::string						ScreenshotFile			= {};
+		::llc::n2u1_t						PreviousSize			= {};
+		::llc::n2u1_t						Size					= {320, 200};
+		::llc::rectu1_t						WindowedWindowRect		= {0, 0, 320, 200};
+
+		b8_t								Resized					: 1;
+		b8_t								Repaint					: 1;
+		b8_t								NoDraw					: 1;
+		b8_t								MinOrMaxed				: 1;
+		b8_t								Closed					: 1;
+		b8_t								FullScreen				: 1;
 	};
 
-	err_t						windowPresentTarget		(SWindow & windowInstance, const g8bgra & targetToPresent);
-	err_t						windowSaveFramebuffer	(SWindow & windowInstance);
-	err_t						windowScreenshotHotkey	(SWindow & windowInstance, vcst_t programName, vcst_t screenshotDirectory);
-	err_t						windowUpdate			(SWindow & windowInstance);
-	err_t						windowUpdateTick		(SWindow & windowInstance);
-	err_t						fullScreenExit			(SWindow & windowInstance);
-	err_t						fullScreenEnter			(SWindow & windowInstance);
+	llc::err_t 					windowPresentTarget		(::llc::SWindow & windowInstance, cnst ::llc::g8bgra & targetToPresent);
+	llc::err_t 					windowSaveFramebuffer	(::llc::SWindow & windowInstance);
+	llc::err_t 					windowScreenshotHotkey	(::llc::SWindow & windowInstance, ::llc::vcst_t programName, ::llc::vcst_t screenshotDirectory);
+	llc::err_t 					windowUpdate			(::llc::SWindow & windowInstance);
+	llc::err_t 					windowUpdateTick		(::llc::SWindow & windowInstance);
+	llc::err_t 					fullScreenExit			(::llc::SWindow & windowInstance);
+	llc::err_t 					fullScreenEnter			(::llc::SWindow & windowInstance);
 
-	stin err_t					fullScreenToggle		(SWindow & windowInstance) { 
-		return windowInstance.FullScreen ? fullScreenExit(windowInstance) : fullScreenEnter(windowInstance); 
+	stin llc::err_t 			fullScreenToggle		(::llc::SWindow & windowInstance) {
+		return windowInstance.FullScreen ? ::llc::fullScreenExit(windowInstance) : ::llc::fullScreenEnter(windowInstance);
 	}
 
-} // namespace
+} // nmsp
 
 #endif // LLC_WINDOW_H_23627
