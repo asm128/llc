@@ -91,17 +91,21 @@ nmsp llc
 
 	tplt<u2_t N>
 	stct static_string :  astsc_t<N> {
-		usng	astsc_t<N>	::Storage;
+		usng	astsc_t<N>		::Storage;
 		u2_t					Count			= {};
 
 		inxp					static_string	()							{}
 		inxp					static_string	(astsc_c<N> & other)		: astsc_t<N>(other), Count(vcst_t(other.Storage).size()) {}
 
-		ndix	static_string&	oper=			(astsc_c<N> & other)		{ Count = vcst_t(other.Storage).size(); return astsc_t<N>::oper=(other); }
 		ndix	sc_c&			oper[]			(u2_t index)		cnst	{ if_true_tef(index >= N, LLC_FMT_GE_U2, index, N); rtrn Storage[index]; }
 		ndix	sc_t&			oper[]			(u2_t index)				{ if_true_tef(index >= N, LLC_FMT_GE_U2, index, N); rtrn Storage[index]; }
 		ndix	b8_t			oper==			(vcst_c & other)	csnx	{ rtrn other == Storage; }
 		ndix	b8_t			oper!=			(vcst_c & other)	csnx	{ rtrn other != Storage; }
+		ndix	static_string&	oper=			(astsc_c<N>& other) {
+			Count		= vcst_t{other.Storage}.size();
+			astsc_t<N>::oper=(other);
+			rtrn *this;
+		}
 
 		ndix	oper			vstr_t			()							{ rtrn Storage; }
 		ndix	oper			vcst_t			()					csnx	{ rtrn Storage; }
