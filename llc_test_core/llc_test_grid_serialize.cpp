@@ -24,7 +24,7 @@ static_assert( canGridReadLegacy<::llc::grid<cnst ::llc::u2_t>, ::llc::vu0_t>);
 static_assert(false == canGridReadLegacy<::llc::grid<::llc::u2_t>, ::llc::vcu0_t>);
 static_assert(false == canGridReadLegacy<::llc::grid<::llc::u2_t>, ::llc::vcst_t>);
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testLegacyGrid(::llc::ATestError & errors) {
 	stxp ::llc::u2_t WIDTH = 3;
 	stxp ::llc::u2_t HEIGHT = 2;
@@ -36,7 +36,7 @@ sttc ::llc::err_t testLegacyGrid(::llc::ATestError & errors) {
 	};
 	::llc::au0_t serialized;
 	LLC_TEST_REQUIREF(errors, GRID_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, ::llc::savePOD(serialized, metrics) != szof(metrics), "%u-bit grid test could not serialize its dimensions.", bcof(T));
-	LLC_TEST_REQUIREF(errors, GRID_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, 0 > serialized.append(::llc::view<cnst T>{&source[0][0], CELL_COUNT}.cu8()), "%u-bit grid test could not serialize its cells.", bcof(T));
+	LLC_TEST_REQUIREF(errors, GRID_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, 0 > serialized.append(::llc::view<cnst T>{&source[0][0], CELL_COUNT}.as<u0_c>()), "%u-bit grid test could not serialize its cells.", bcof(T));
 	cnst ::llc::u2_t expectedSize = szof(metrics) + szof(source);
 
 	::llc::grid<T> mutableGrid;
@@ -75,7 +75,7 @@ sttc ::llc::err_t testLegacyGrid(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);

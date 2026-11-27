@@ -81,14 +81,14 @@ GDEFINE_ENUM_VALUED(COLLISION_TEST_RESULT, CONSUMER_RAY_F2_POINT		, 74, "The flo
 
 sttc bool collisionDiffers(::llc::f3_t actual, ::llc::f3_t expected) { rtrn false == (::llc::abs(actual - expected) <= ::llc::math_epsilon); }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t collisionCheckPoint2(::llc::ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::n2<T>& actual, cnst ::llc::n2<T>& expected, cnst char* pointName) {
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.x, expected.x), "%s.x:%f, expected:%f.", pointName, (::llc::f3_t)actual.x, (::llc::f3_t)expected.x);
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.y, expected.y), "%s.y:%f, expected:%f.", pointName, (::llc::f3_t)actual.y, (::llc::f3_t)expected.y);
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t collisionCheckPoint3(::llc::ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::n3<T>& actual, cnst ::llc::n3<T>& expected, cnst char* pointName) {
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.x, expected.x), "%s.x:%f, expected:%f.", pointName, (::llc::f3_t)actual.x, (::llc::f3_t)expected.x);
 	LLC_TEST_CHECKF(errors, result, collisionDiffers(actual.y, expected.y), "%s.y:%f, expected:%f.", pointName, (::llc::f3_t)actual.y, (::llc::f3_t)expected.y);
@@ -96,7 +96,7 @@ sttc ::llc::err_t collisionCheckPoint3(::llc::ATestError& errors, COLLISION_TEST
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t collisionCheckLine(::llc::ATestError& errors, COLLISION_TEST_RESULT result, cnst ::llc::line2<T>& actual, cnst ::llc::line2<T>& expected, cnst char* lineName) {
 	if_fail_fe(collisionCheckPoint2(errors, result, actual.A, expected.A, lineName));
 	if_fail_fe(collisionCheckPoint2(errors, result, actual.B, expected.B, lineName));

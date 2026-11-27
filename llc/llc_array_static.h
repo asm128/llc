@@ -4,8 +4,9 @@
 #ifndef LLC_ARRAY_STATIC_H_23627
 #define LLC_ARRAY_STATIC_H_23627
 
-namespace llc
+nmsp llc
 {
+#pragma pack(push, 1)
 	tpl_t_nu2 stct array_static	{
 		stxp		u2_c				N 	= 	_nu2;
 		tdfTTCnst(_t);
@@ -14,28 +15,23 @@ namespace llc
 		tydf		view<T>				V;
 		T			Storage	[N]			;
 
-		inln	oper		view<T>			()								{ rtrn {Storage, N}; }
-		inxp	oper		view<TCnst>		()						csnx	{ rtrn {Storage, N}; }
+		ndix	oper		view<T>			()								{ rtrn Storage; }
+		ndix	oper		view<TCnst>		()						csnx	{ rtrn Storage; }
 
-		inln	TCnst&		oper[]			(u2_t index)			cnst	{ if_true_tef(index >= N, LLC_FMT_GE_U2, index, N); rtrn Storage[index]; }
-		inln	T&			oper[]			(u2_t index)					{ if_true_tef(index >= N, LLC_FMT_GE_U2, index, N); rtrn Storage[index]; }
+		ndix	TCnst&		oper[]			(u2_t index)			cnst	{ if_true_tef(index >= N, LLC_FMT_GE_U2, index, N); rtrn Storage[index]; }
+		ndix	T&			oper[]			(u2_t index)					{ if_true_tef(index >= N, LLC_FMT_GE_U2, index, N); rtrn Storage[index]; }
 		LLC_DEFAULT_OPERATOR(TAStatic
 			, (this->size() != other.size()) ? false
 			: (this->begin() == other.begin()) ? true
 			: ::llc::equal(other.begin(), this->begin(), this->size())
 			);
-		inxp	u2_t		byte_count		()						csnx	{ rtrn N * szof(T);	}
-		inxp	u2_t		bit_count		()						csnx	{ rtrn byte_count() * 8U;	}
-		inln	view<u0_t>	u8				()						nxpt	{ rtrn view<T		>(Storage, N).u8	(); }
-		inxp	view<u0_c>	u8				()						csnx	{ rtrn view<TCnst	>(Storage, N).u8	(); }
-		inxp	view<u0_c>	cu8				()						csnx	{ rtrn view<TCnst	>(Storage, N).cu8	(); }
-		inln	view<sc_t>	c				()						nxpt	{ rtrn view<T		>(Storage, N).c	(); }
-		inxp	view<sc_c>	cc				()						csnx	{ rtrn view<TCnst	>(Storage, N).cc	(); }
-		inxp	u2_t		size			()						csnx	{ rtrn N; }
-		inln	T*			begin			()						nxpt	{ rtrn Storage;			}
-		inln	T*			end				()						nxpt	{ rtrn Storage + N;	}
-		inxp	TCnst*		begin			()						csnx	{ rtrn Storage;			}
-		inxp	TCnst*		end				()						csnx	{ rtrn Storage + N;	}
+		ndix	u2_t		byte_count		()						csnx	{ rtrn N * szof(T);	}
+		ndix	u2_t		bit_count		()						csnx	{ rtrn byte_count() * 8U;	}
+		ndix	u2_t		size			()						csnx	{ rtrn N; }
+		ndix	T*			begin			()						nxpt	{ rtrn Storage;			}
+		ndix	T*			end				()						nxpt	{ rtrn Storage + N;	}
+		ndix	TCnst*		begin			()						csnx	{ rtrn Storage;			}
+		ndix	TCnst*		end				()						csnx	{ rtrn Storage + N;	}
 
 		err_t				slice			(V & out, u2_t offset, u2_t count = (u2_t)-1)				{
 			if_true_fef(offset > N, LLC_FMT_GT_U2, offset, N);
@@ -54,95 +50,101 @@ namespace llc
 			rtrn out.size();
 		}
 	};
-	tplTN2usng	asttc		= ::llc::array_static<T, N>;
-	tplTN2usng	astatic		= ::llc::array_static<T, N>;
+#pragma pack(pop)
 
-	tplN2uusng	astvcst_t		= ::llc::astatic<::llc::vcst_t	, N>;	tplN2uusng astaticvcs	= ::llc::astvcst_t	<N>;
-	tplN2uusng	astvstr_t		= ::llc::astatic<::llc::vstr_t		, N>;	tplN2uusng astaticvs	= ::llc::astvstr_t	<N>;
+	tplTN2usng	asttc		= array_static<T, N>;
+	tplTN2usng	astatic		= array_static<T, N>;
 
-	tplN2uusng	astb8_t		= ::llc::astatic<b8_t, N>; tplN2uusng	astb8_c	= const ::llc::astb8_t<N>; 
-	tplN2uusng	astuc_t		= ::llc::astatic<uc_t, N>; tplN2uusng	astuc_c	= const ::llc::astuc_t<N>; tplN2uusng astuc 	= ::llc::astatic<uc_t, N>; tplN2uusng astaticuc 	= ::llc::astuc_t 	<N>; tplN2uusng astuchar	= ::llc::astatic<uc_t, N>;
-	tplN2uusng	astsc_t		= ::llc::astatic<sc_t, N>; tplN2uusng	astsc_c	= const ::llc::astsc_t<N>; tplN2uusng astc		= ::llc::astatic<sc_t, N>; tplN2uusng astaticc		= ::llc::astsc_t	<N>; tplN2uusng astchar		= ::llc::astatic<sc_t, N>;
-	tplN2uusng	astu0_t		= ::llc::astatic<u0_t, N>; tplN2uusng	astu0_c	= const ::llc::astu0_t<N>; tplN2uusng astu8 	= ::llc::astatic<u0_t, N>; tplN2uusng astaticu8 	= ::llc::astu0_t 	<N>;
-	tplN2uusng	astu1_t		= ::llc::astatic<u1_t, N>; tplN2uusng	astu1_c	= const ::llc::astu1_t<N>; tplN2uusng astu16	= ::llc::astatic<u1_t, N>; tplN2uusng astaticu16	= ::llc::astu1_t	<N>;
-	tplN2uusng	astu2_t		= ::llc::astatic<u2_t, N>; tplN2uusng	astu2_c	= const ::llc::astu2_t<N>; tplN2uusng astu32	= ::llc::astatic<u2_t, N>; tplN2uusng astaticu32	= ::llc::astu2_t	<N>;
-	tplN2uusng	astu3_t		= ::llc::astatic<u3_t, N>; tplN2uusng	astu3_c	= const ::llc::astu3_t<N>; tplN2uusng astu64	= ::llc::astatic<u3_t, N>; tplN2uusng astaticu64	= ::llc::astu3_t	<N>;
-	tplN2uusng	asts0_t		= ::llc::astatic<s0_t, N>; tplN2uusng	asts0_c	= const ::llc::asts0_t<N>; tplN2uusng asti8 	= ::llc::astatic<s0_t, N>; tplN2uusng astatici8 	= ::llc::asts0_t 	<N>;
-	tplN2uusng	asts1_t		= ::llc::astatic<s1_t, N>; tplN2uusng	asts1_c	= const ::llc::asts1_t<N>; tplN2uusng asti16	= ::llc::astatic<s1_t, N>; tplN2uusng astatici16	= ::llc::asts1_t	<N>;
-	tplN2uusng	asts2_t		= ::llc::astatic<s2_t, N>; tplN2uusng	asts2_c	= const ::llc::asts2_t<N>; tplN2uusng asti32	= ::llc::astatic<s2_t, N>; tplN2uusng astatici32	= ::llc::asts2_t	<N>;
-	tplN2uusng	asts3_t		= ::llc::astatic<s3_t, N>; tplN2uusng	asts3_c	= const ::llc::asts3_t<N>; tplN2uusng asti64	= ::llc::astatic<s3_t, N>; tplN2uusng astatici64	= ::llc::asts3_t	<N>;
-	tplN2uusng	astf2_t		= ::llc::astatic<f2_t, N>; tplN2uusng	astf2_c	= const ::llc::astf2_t<N>; tplN2uusng astf32	= ::llc::astatic<f2_t, N>; tplN2uusng astaticf32	= ::llc::astf2_t	<N>;
-	tplN2uusng	astf3_t		= ::llc::astatic<f3_t, N>; tplN2uusng	astf3_c	= const ::llc::astf3_t<N>; tplN2uusng astf64	= ::llc::astatic<f3_t, N>; tplN2uusng astaticf64	= ::llc::astf3_t	<N>;
+	tplN2uusng	astvcst_t	= astatic<vcst_t	, N>;	
+	tplN2uusng	astvstr_t	= astatic<vstr_t	, N>;	
 
-	tplN2uusng	astvcuc 	= ::llc::astatic<::llc::vcuc 	, N>; tplN2uusng astaticvcuc 	= ::llc::astvcuc <N>;
-	tplN2uusng	astvcc		= ::llc::astvcst_t<N>; tplN2uusng astaticvcc		= ::llc::astvcc<N>;
-	tplN2uusng	astvcu0_t 	= ::llc::astatic<::llc::vcu0_t 	, N>; tplN2uusng astaticvcu0_t 	= ::llc::astvcu0_t <N>;
-	tplN2uusng	astvcu16	= ::llc::astatic<::llc::vcu1_t	, N>; tplN2uusng astaticvcu16	= ::llc::astvcu16<N>;
-	tplN2uusng	astvcu32	= ::llc::astatic<::llc::vcu2_t	, N>; tplN2uusng astaticvcu32	= ::llc::astvcu32<N>;
-	tplN2uusng	astvcu64	= ::llc::astatic<::llc::vcu3_t	, N>; tplN2uusng astaticvcu64	= ::llc::astvcu64<N>;
-	tplN2uusng	astvci8 	= ::llc::astatic<::llc::vcs0_t 	, N>; tplN2uusng astaticvci8 	= ::llc::astvci8 <N>;
-	tplN2uusng	astvci16	= ::llc::astatic<::llc::vcs1_t	, N>; tplN2uusng astaticvci16	= ::llc::astvci16<N>;
-	tplN2uusng	astvci32	= ::llc::astatic<::llc::vcs2_t	, N>; tplN2uusng astaticvci32	= ::llc::astvci32<N>;
-	tplN2uusng	astvci64	= ::llc::astatic<::llc::vcs3_t	, N>; tplN2uusng astaticvci64	= ::llc::astvci64<N>;
-	tplN2uusng	astvcf32	= ::llc::astatic<::llc::vcf2_t	, N>; tplN2uusng astaticvcf32	= ::llc::astvcf32<N>;
-	tplN2uusng	astvcf64	= ::llc::astatic<::llc::vcf3_t	, N>; tplN2uusng astaticvcf64	= ::llc::astvcf64<N>;
+	tplN2uusng	astb8_t		= astatic<b8_t, N>; tplN2uusng	astb8_c	= cnst astb8_t<N>; 
+	tplN2uusng	astuc_t		= astatic<uc_t, N>; tplN2uusng	astuc_c	= cnst astuc_t<N>; 
+	tplN2uusng	astsc_t		= astatic<sc_t, N>; tplN2uusng	astsc_c	= cnst astsc_t<N>; 
+	tplN2uusng	astu0_t		= astatic<u0_t, N>; tplN2uusng	astu0_c	= cnst astu0_t<N>; 
+	tplN2uusng	astu1_t		= astatic<u1_t, N>; tplN2uusng	astu1_c	= cnst astu1_t<N>; 
+	tplN2uusng	astu2_t		= astatic<u2_t, N>; tplN2uusng	astu2_c	= cnst astu2_t<N>; 
+	tplN2uusng	astu3_t		= astatic<u3_t, N>; tplN2uusng	astu3_c	= cnst astu3_t<N>; 
+	tplN2uusng	asts0_t		= astatic<s0_t, N>; tplN2uusng	asts0_c	= cnst asts0_t<N>; 
+	tplN2uusng	asts1_t		= astatic<s1_t, N>; tplN2uusng	asts1_c	= cnst asts1_t<N>; 
+	tplN2uusng	asts2_t		= astatic<s2_t, N>; tplN2uusng	asts2_c	= cnst asts2_t<N>; 
+	tplN2uusng	asts3_t		= astatic<s3_t, N>; tplN2uusng	asts3_c	= cnst asts3_t<N>; 
+	tplN2uusng	astf2_t		= astatic<f2_t, N>; tplN2uusng	astf2_c	= cnst astf2_t<N>; 
+	tplN2uusng	astf3_t		= astatic<f3_t, N>; tplN2uusng	astf3_c	= cnst astf3_t<N>; 
+
+	tplN2uusng	astvcu0_t 	= astatic<vcu0_t 	, N>; 
+	tplN2uusng	astvcu1_t	= astatic<vcu1_t	, N>; 
+	tplN2uusng	astvcu2_t	= astatic<vcu2_t	, N>; 
+	tplN2uusng	astvcu3_t	= astatic<vcu3_t	, N>; 
+	tplN2uusng	astvcs0_t 	= astatic<vcs0_t 	, N>; 
+	tplN2uusng	astvcs1_t	= astatic<vcs1_t	, N>; 
+	tplN2uusng	astvcs2_t	= astatic<vcs2_t	, N>; 
+	tplN2uusng	astvcs3_t	= astatic<vcs3_t	, N>; 
+	tplN2uusng	astvcf2_t	= astatic<vcf2_t	, N>; 
+	tplN2uusng	astvcf3_t	= astatic<vcf3_t	, N>; 
 	
-	tplTN2sinx	u2_t	size		(::llc::astatic<T, N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N);				}
-	tplTN2sinx	u2_t	byte_count	(::llc::astatic<T, N> /*viewToTest*/)	nxpt	{ rtrn u2_t(sizeof(T) * N);	}
+	tplTN2sinx	u2_t	size		(asttc<T, N> & /*viewToTest*/)	nxpt	{ rtrn u2_t(N);				}
+	tplTN2sinx	u2_t	byte_count	(asttc<T, N> & /*viewToTest*/)	nxpt	{ rtrn u2_t(sizeof(T) * N);	}
+	tplTN2sinx	err_t	find		(cnst T & element, cnst astatic<T, N> & target, u2_t offset = 0)		{ rtrn find(element, view<cnst T>{target.begin(), target.size()}, offset); }
+	tplN2ustin	vstr_t	str			(astsc_t<N> & arg)			{ rtrn arg.Storage; }
+	tplN2usinx	vcst_t	str			(astsc_c<N> & arg)	nxpt	{ rtrn arg.Storage; }
 
-	// Is this really worth it?
-	tplN2usinx	u2_t	size(astsc_t	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	//tplN2usinx	u2_t	size(astuc 	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu0_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu1_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu2_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astu3_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(asts1_t	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(asts2_t	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(asts3_t	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astf2_t	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astf3_t	<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+	tplt<u2_t N>
+	stct static_string :  astsc_t<N> {
+		usng	astsc_t<N>	::Storage;
+		u2_t					Count			= {};
 
-	tplN2usinx	u2_t	size(astvcc	 <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	//tplN2usinx	u2_t	size(astvcuc <N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu0_t<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu16<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu32<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcu64<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvci16<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvci32<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvci64<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcf32<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
-	tplN2usinx	u2_t	size(astvcf64<N> /*viewToTest*/)	nxpt	{ rtrn u2_t(N); }
+		inxp					static_string	()							{}
+		inxp					static_string	(astsc_c<N> & other)		: astsc_t<N>(other), Count(vcst_t(other.Storage).size()) {}
 
-	tplTN2sinx	err_t	find		(cnst T & element, cnst astatic<T, N> & target, u2_t offset = 0)		{ rtrn ::llc::find(element, ::llc::view<cnst T>{target.begin(), target.size()}, offset); }
-	tplN2ustin	vstr_t		str			(astsc_t<N> & arg)		{ rtrn arg.Storage; }
-	tplN2ustin	vcst_t	str			(cnst astsc_t<N> & arg)	{ rtrn arg.Storage; }
-	stin astsc_t< 7>	str			(u1_t arg)	{ astsc_t< 7> dest = {}; sprintf_s(dest.Storage, "%u" , arg); rtrn dest; }
-	stin astsc_t<12>	str			(u2_t arg)	{ astsc_t<12> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_U2, arg); rtrn dest; }
-	stin astsc_t<22>	str			(u3_t arg)	{ astsc_t<22> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_U3, arg); rtrn dest; }
-	stin astsc_t< 8>	str			(s1_t arg)	{ astsc_t< 8> dest = {}; sprintf_s(dest.Storage, "%i", arg); rtrn dest; }
-	stin astsc_t<13>	str			(s2_t arg)	{ astsc_t<13> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_S2, arg); rtrn dest; }
-	stin astsc_t<22>	str			(s3_t arg)	{ astsc_t<22> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_S3, arg); rtrn dest; }
-	stin astsc_t<64>	str			(f2_t arg)	{ astsc_t<64> dest = {}; sprintf_s(dest.Storage, "%f", arg); rtrn dest; }
-	stin astsc_t<384>	str			(f3_t arg)	{ astsc_t<384> dest = {}; sprintf_s(dest.Storage, "%f", arg); rtrn dest; }
-	stxp astsc_t<5 >	str			(u0_t arg) {
+		ndix	static_string&	oper=			(astsc_c<N> & other)		{ Count = vcst_t(other.Storage).size(); return astsc_t<N>::oper=(other); }
+		ndix	sc_c&			oper[]			(u2_t index)		cnst	{ if_true_tef(index >= N, LLC_FMT_GE_U2, index, N); rtrn Storage[index]; }
+		ndix	sc_t&			oper[]			(u2_t index)				{ if_true_tef(index >= N, LLC_FMT_GE_U2, index, N); rtrn Storage[index]; }
+		ndix	b8_t			oper==			(vcst_c & other)	csnx	{ rtrn other == Storage; }
+		ndix	b8_t			oper!=			(vcst_c & other)	csnx	{ rtrn other != Storage; }
+
+		ndix	oper			vstr_t			()							{ rtrn Storage; }
+		ndix	oper			vcst_t			()					csnx	{ rtrn Storage; }
+		ndix	oper			sc_c* 			()					csnx	{ rtrn begin(); }
+
+		ndix	u2_t			byte_count		()					csnx	{ rtrn vcst_t{Storage}.byte_count	(); } 
+		ndix	u2_t			bit_count		()					csnx	{ rtrn vcst_t{Storage}.bit_count	(); } 
+		ndix	u2_t			size			()					csnx	{ rtrn vcst_t{Storage}.size			(); }
+		ndix	sc_t*			begin			()					nxpt	{ rtrn vstr_t{Storage}.begin(); }
+		ndix	sc_t*			end				()					nxpt	{ rtrn vstr_t{Storage}.end  (); }
+		ndix	sc_c*			begin			()					csnx	{ rtrn vcst_t{Storage}.begin(); }
+		ndix	sc_c*			end				()					csnx	{ rtrn vcst_t{Storage}.end  (); }
+	};
+	tplN2uusng			sstring		= static_string<N>;
+	tplTN2sinx	u2_t	size		(cnst sstring<N> & viewToTest)	nxpt	{ rtrn viewToTest.size(); }
+	tplTN2sinx	u2_t	byte_count	(cnst sstring<N> & viewToTest)	nxpt	{ rtrn viewToTest.size(); }
+
+	stin sstring<64>	str			(f2_t arg)	{ astsc_t< 64> dest = {}; sprintf_s(dest.Storage, "%f", arg); rtrn dest; }
+	stin sstring<384>	str			(f3_t arg)	{ astsc_t<384> dest = {}; sprintf_s(dest.Storage, "%f", arg); rtrn dest; }
+	stin sstring< 7>	str			(u1_t arg)	{ astsc_t<  7> dest = {}; sprintf_s(dest.Storage, "%u" , arg); rtrn dest; }
+	stin sstring<12>	str			(u2_t arg)	{ astsc_t< 12> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_U2, arg); rtrn dest; }
+	stin sstring<22>	str			(u3_t arg)	{ astsc_t< 22> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_U3, arg); rtrn dest; }
+	stin sstring< 8>	str			(s1_t arg)	{ astsc_t<  8> dest = {}; sprintf_s(dest.Storage, "%i", arg); rtrn dest; }
+	stin sstring<13>	str			(s2_t arg)	{ astsc_t< 13> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_S2, arg); rtrn dest; }
+	stin sstring<22>	str			(s3_t arg)	{ astsc_t< 22> dest = {}; sprintf_s(dest.Storage, "%" LLC_FMT_S3, arg); rtrn dest; }
+	stxp sstring<5 >	str			(u0_t arg) {
 		rtrn	(arg >= 100) ?	astsc_t<5>{digit<2>(arg), digit<1>(arg), digit<0>(arg), 0}
 			:	(arg >=  10) ?	astsc_t<5>{digit<1>(arg), digit<0>(arg), 0}
 			:					astsc_t<5>{digit<0>(arg), 0}
 			;
 	}
-	stxp astsc_t<5 >	str			(s0_t arg) {
+	stxp sstring<5 >	str			(s0_t arg) {
 		rtrn	(arg >=    0) ?	str(u0_t(arg))
-			:	(arg <= -100) ?	astsc_t<5>{'-', digit<2>((int16_t)-arg), digit<1>((int16_t)-arg), digit<0>((int16_t)-arg)}
-			:	(arg <=  -10) ?	astsc_t<5>{'-', digit<1>((int16_t)-arg), digit<0>((int16_t)-arg)}
-			:					astsc_t<5>{'-', digit<0>((int16_t)-arg)}
+			:	(arg <= -100) ?	astsc_t<5>{'-', digit<2>((s1_t)-arg), digit<1>((s1_t)-arg), digit<0>((s1_t)-arg)}
+			:	(arg <=  -10) ?	astsc_t<5>{'-', digit<1>((s1_t)-arg), digit<0>((s1_t)-arg)}
+			:					astsc_t<5>{'-', digit<0>((s1_t)-arg)}
 			;
 	}
-} // namespace
+} // nmsp
 
 #define LLC_USING_ASTATIC()					\
-	usng	::llc::astb8_t, ::llc::astb8_c	\
+	usng	::llc::asttc, ::llc::sstring	\
+		,	::llc::astb8_t, ::llc::astb8_c	\
 		,	::llc::astuc_t, ::llc::astuc_c	\
 		,	::llc::astsc_t, ::llc::astsc_c	\
 		,	::llc::astu0_t, ::llc::astu0_c	\

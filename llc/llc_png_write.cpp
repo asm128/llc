@@ -52,7 +52,7 @@ using llc::u0_t, llc::u2_t;
 	}
 
 	::llc::au0_t					deflated;
-	if_fail_fef(llc::arrayDeflate(filtered.Texels.cu8(), deflated), "%s", "Failed to compress! Out of memory?");
+	if_fail_fef(llc::arrayDeflate(filtered.Texels.as<u0_c>(), deflated), "%s", "Failed to compress! Out of memory?");
 
 	chunkSize					= deflated.size();
 	be2le(chunkSize);

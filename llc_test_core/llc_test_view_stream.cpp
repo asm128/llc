@@ -37,7 +37,7 @@ concept canViewStreamRead = requires(TStream & stream, T & output) { stream.read
 tplt<tpnm TStream, tpnm T>
 concept canViewStreamWrite = requires(TStream & stream, cnst T & input) { stream.write_pod(input); };
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testViewStreamType(::llc::ATestError & errors) {
 	cnst T scalarSource = T(0x35);
 	::llc::u0_t scalarStorage[szof(T)] = {};

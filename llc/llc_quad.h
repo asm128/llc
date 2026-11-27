@@ -6,7 +6,7 @@
 namespace llc
 {
 #pragma pack(push, 1)
-	tplt<tpnm T>
+	tplT 
 	struct quad {
 		T	A, B, C, D;
 

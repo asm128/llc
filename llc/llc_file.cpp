@@ -74,21 +74,21 @@ s3_t	llc::	fileSize			(llc::vcst_t fileName)			{
 #	if defined(LLC_ESP32) || defined(LLC_ESP8266)
 	FIX_SOC_PATH(fileName);
 	File				fp						= getSoCFileSystem().open(fileName.begin(), LLC_OPEN_MODE_READ);
-	if_true_fef(!fp, "Cannot open file: %.*s.", (int)fileName.size(), fileName.begin());
+	if_true_fef(!fp, "Cannot open file: %.*s.", LLC_VIEW_ARGS(fileName));
 	u2_c				fileSize				= (::llc::u2_t)fp.size();
 #	endif // LLC_ESP32
 #else
 	::FILE				* fp					= 0;
-	if_fail_fef(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
-	if_true_fef(0 == fp, "Failed to open '%.*s'.", (int)fileName.size(), fileName.begin());
+	if_fail_fef(llc::fopen_s(fp, fileName, ::LLC_OPEN_MODE_READ), "Failed to open '%.*s'.", LLC_VIEW_ARGS(fileName));
+	if_true_fef(0 == fp, "Failed to open '%.*s'.", LLC_VIEW_ARGS(fileName));
 	if(0 != llc::fseek(fp, 0, FSEEK_END)) {
-		error_printf("Unknown error reading '%.*s'.", (int)fileName.size(), fileName.begin());
+		error_printf("Unknown error reading '%.*s'.", LLC_VIEW_ARGS(fileName));
 		fclose(fp);
 		return -1;
 	}
 	const s3_t			fileSize				= llc::ftell(fp);
 	if(0 > fileSize)
-		error_printf("Unknown error reading '%.*s'.", (int)fileName.size(), fileName.begin());
+		error_printf("Unknown error reading '%.*s'.", LLC_VIEW_ARGS(fileName));
 	fclose(fp);
 #endif // LLC_ARDUINO
 	return fileSize;
@@ -291,13 +291,13 @@ llc::err_t	llc::	fileDelete				(vcst_t usfileName)	{
 }
 llc::err_t	llc::fileToMemory		(vcst_t folderPath, vcst_t fileName, llc::au0_t & fileBytes, ::llc::u2_t maxSize, uint64_t offset) {
 	llc::string			filePath			= {};
-	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());
-	if_fail_fef(llc::fileToMemory(filePath, fileBytes, maxSize, offset), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());
+	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", LLC_VIEW_ARGS(folderPath), LLC_VIEW_ARGS(fileName));
+	if_fail_fef(llc::fileToMemory(filePath, fileBytes, maxSize, offset), "folderPath: '%.*s', fileName: '%.*s'.", LLC_VIEW_ARGS(folderPath), LLC_VIEW_ARGS(fileName));
 	return 0;
 }
 llc::err_t	llc::fileFromMemory		(vcst_t folderPath, vcst_t fileName, vcu0_c fileInMemory, bool append) {
 	llc::string			filePath			= {}; 
-	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin());
-	if_fail_fef(llc::fileFromMemory(filePath, fileInMemory, append), "folderPath: '%.*s', fileName: '%.*s', append: %s.", (int)folderPath.size(), folderPath.begin(), (int)fileName.size(), fileName.begin(), llc::b82sc(append));
+	if_fail_fef(llc::pathNameCompose(folderPath, fileName, filePath), "folderPath: '%.*s', fileName: '%.*s'.", LLC_VIEW_ARGS(folderPath), LLC_VIEW_ARGS(fileName));
+	if_fail_fef(llc::fileFromMemory(filePath, fileInMemory, append), "folderPath: '%.*s', fileName: '%.*s', append: %s.", LLC_VIEW_ARGS(folderPath), LLC_VIEW_ARGS(fileName), (sc_c*)llc::b82st(append));
 	return 0;
 }

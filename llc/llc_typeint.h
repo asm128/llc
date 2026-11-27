@@ -90,23 +90,30 @@ namespace llc
 #define tplTOutN2	tplt<tpnm TOut	, ::llc::u2_t N>
 #define tplTInN2	tplt<tpnm TIn	, ::llc::u2_t N>
 #define tpl_t_nu2	tplt<tpnm _t	, ::llc::u2_t _nu2>
+
 #define tplN2ustct	tplN2u	stct
 #define tplN2usttc	tplN2u	sttc
 #define tplN2uinln	tplN2u	inln
+#define tplN2uinxp	tplN2u	inxp
 #define tplN2ustin	tplN2u	stin
 #define tplN2uusng	tplN2u	usng
 #define tplN2undsx	tplN2u	ndsx
 #define tplN2usinx	tplN2u	sinx
 #define tplN2ustxp	tplN2u	stxp
 #define tplN2unsix	tplN2u	nsix
+#define tplN2undix	tplN2u	ndix
+
 #define tplTN2stct	tplTN2	stct
 #define tplTN2sttc	tplTN2	sttc
 #define tplTN2inln	tplTN2	inln
+#define tplTN2inxp	tplTN2	inxp
 #define tplTN2usng	tplTN2	usng
 #define tplTN2ndsx	tplTN2	ndsx
 #define tplTN2sinx	tplTN2	sinx
 #define tplTN2stxp	tplTN2	stxp
 #define tplTN2nsix	tplTN2	nsix
+#define tplTN2ndix	tplTN2	ndix
+
 #if defined(LLC_ANDROID) || defined(LLC_CLANG)
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"

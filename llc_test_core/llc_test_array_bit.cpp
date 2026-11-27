@@ -26,7 +26,7 @@ GDEFINE_ENUM_VALUED(ARRAY_BIT_TEST_RESULT, SELF_VIEW_ASSIGNMENT	, 20, "Assigning
 GDEFINE_ENUM_VALUED(ARRAY_BIT_TEST_RESULT, RESIZE_PRESERVATION	, 21, "Shrinking array_bit<> did not preserve every retained logical bit.");
 GDEFINE_ENUM_VALUED(ARRAY_BIT_TEST_RESULT, EMPTY_ASSIGNMENT		, 22, "Assigning an empty bit view did not clear array_bit<>.");
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testArrayBitResize(::llc::ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS = ::llc::view_bit<T>::ELEMENT_BITS;
 	stxp ::llc::u2_t BIT_COUNTS[] = {0, 1, ELEMENT_BITS - 1, ELEMENT_BITS, ELEMENT_BITS + 1, ELEMENT_BITS * 2, ELEMENT_BITS * 2 + 3};
@@ -53,7 +53,7 @@ sttc ::llc::err_t testArrayBitResize(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testArrayBitViewCopy(::llc::ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS = ::llc::view_bit<T>::ELEMENT_BITS;
 	stxp ::llc::u2_t BIT_COUNT = ELEMENT_BITS * 2 + 3;
@@ -115,7 +115,7 @@ sttc ::llc::err_t testArrayBitViewCopy(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testArrayBitPreservation(::llc::ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS = ::llc::view_bit<T>::ELEMENT_BITS;
 	stxp ::llc::u2_t LARGE_COUNT = ELEMENT_BITS * 2 + 3;
@@ -132,7 +132,7 @@ sttc ::llc::err_t testArrayBitPreservation(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testArrayBitType(::llc::ATestError & errors) {
 	if_fail_fe(testArrayBitResize<T>(errors));
 	if_fail_fe(testArrayBitViewCopy<T>(errors));

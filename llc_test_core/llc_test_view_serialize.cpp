@@ -74,7 +74,7 @@ sttc bool isFollowingField(cnst ::llc::vcu0_t & input) {
 	return input.size() == ::llc::size(FOLLOWING_FIELD) && 0 == memcmp(input.begin(), FOLLOWING_FIELD, ::llc::size(FOLLOWING_FIELD));
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testPOD(::llc::ATestError & errors) {
 	cnst T source = T(0x5AU);
 	::llc::au0_t serialized;
@@ -106,7 +106,7 @@ sttc ::llc::err_t testPOD(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testUIntValue(::llc::ATestError & errors, ::llc::u3_c source, bool trace = true) {
 	cnst T value = (T)source;
 	cnst ::llc::packed_uint<T> packed{value};
@@ -139,7 +139,7 @@ sttc ::llc::err_t testUIntValue(::llc::ATestError & errors, ::llc::u3_c source, 
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testUIntType(::llc::ATestError & errors) {
 	stxp ::llc::u0_t MULTIPLIER_BITS = 8 - ::llc::uint_width_field_size<T>();
 	::llc::u3_t previousMaximum = 0;
@@ -169,7 +169,7 @@ sttc ::llc::err_t testUIntType(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testTruncatedUInt(::llc::ATestError & errors) {
 	stxp ::llc::u0_t VALUE_BITS = 8 - ::llc::uint_width_field_size<T>() + (szof(T) - 1) * 8;
 	cnst T value = (T)((::llc::u3_t(1) << VALUE_BITS) - 1);
@@ -188,7 +188,7 @@ sttc ::llc::err_t testTruncatedUInt(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testViewCount(::llc::ATestError & errors, ::llc::u2_c elementCount) {
 	::llc::apod<T> source;
 	cnst ::llc::err_t resizeResult = source.resize(elementCount);
@@ -216,7 +216,7 @@ sttc ::llc::err_t testViewCount(::llc::ATestError & errors, ::llc::u2_c elementC
 		: ::llc::vcu0_t{}
 		;
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_POSITION, readView.size() != elementCount , "%u-bit viewRead() count mismatch. count:%u, expected:%u." , bcof(T), readView.size(), elementCount );
-	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_POSITION, readView.cu8().begin() != expectedReadBytes.begin() , "%u-bit viewRead() alias position mismatch for %u elements. begin:%p, expected:%p." , bcof(T), elementCount, readView.begin(), expectedReadBytes.begin() );
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_POSITION, readView.as<u0_c>().begin() != expectedReadBytes.begin() , "%u-bit viewRead() alias position mismatch for %u elements. begin:%p, expected:%p." , bcof(T), elementCount, readView.begin(), expectedReadBytes.begin() );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_READ_VALUE, readView != expected , "%u-bit viewRead() value mismatch for %u elements." , bcof(T), elementCount );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_SAVE_VIEW_SIZE, 0 > serialized.append(FOLLOWING_FIELD) , "%u-bit view test could not append its following field for %u elements." , bcof(T), elementCount );
 
@@ -228,7 +228,7 @@ sttc ::llc::err_t testViewCount(::llc::ATestError & errors, ::llc::u2_c elementC
 		: ::llc::vcu0_t{}
 		;
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_RESULT, viewLoadResult , "%u-bit non-owning loadView() failed for %u elements. result:%i." , bcof(T), elementCount, viewLoadResult );
-	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, loadedView.cu8().begin() != expectedLoadBytes.begin() , "%u-bit non-owning loadView() alias position mismatch for %u elements. begin:%p, expected:%p." , bcof(T), elementCount, loadedView.begin(), expectedLoadBytes.begin() );
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, loadedView.as<u0_c>().begin() != expectedLoadBytes.begin() , "%u-bit non-owning loadView() alias position mismatch for %u elements. begin:%p, expected:%p." , bcof(T), elementCount, loadedView.begin(), expectedLoadBytes.begin() );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, loadedView.size() != elementCount , "%u-bit non-owning loadView() count mismatch. count:%u, expected:%u." , bcof(T), loadedView.size(), elementCount );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_POSITION, !isFollowingField(viewInput) , "%u-bit non-owning loadView() cursor mismatch for %u elements. remaining:%u, expected:%u." , bcof(T), elementCount, viewInput.size(), ::llc::u2_t(::llc::size(FOLLOWING_FIELD)) );
 	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_VIEW_LOAD_VALUE, loadedView != expected , "%u-bit non-owning loadView() value mismatch for %u elements." , bcof(T), elementCount );
@@ -246,7 +246,7 @@ sttc ::llc::err_t testViewCount(::llc::ATestError & errors, ::llc::u2_c elementC
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testViewType(::llc::ATestError & errors) {
 	stxp ::llc::u2_t COUNTS[] = {0, 1, 2, 63, 64, 255, 16383, 16384};
 	for(::llc::u2_c count : COUNTS)
@@ -265,7 +265,7 @@ sttc ::llc::err_t testViewType(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testTruncatedView(::llc::ATestError & errors) {
 	::llc::apod<T> source;
 	cnst ::llc::u2_t elementCount = 64;
@@ -304,7 +304,7 @@ sttc ::llc::err_t testTruncatedView(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testMalformedViewCount(::llc::ATestError & errors) {
 	if(8 != szof(T))
 		return 0;
@@ -325,13 +325,13 @@ sttc ::llc::err_t testMalformedViewCount(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testLegacyView(::llc::ATestError & errors) {
 	T source[] = {T(0x11U), T(0x22U), T(0x33U), T(0x44U)};
 	cnst ::llc::u2_t elementCount = ::llc::size(source);
 	::llc::au0_t serialized = {};
 	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, ::llc::savePOD(serialized, elementCount) != szof(elementCount), "%u-bit legacy test could not serialize its element count.", bcof(T));
-	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, 0 > serialized.append(::llc::view<cnst T>{source}.cu8()), "%u-bit legacy test could not serialize its elements.", bcof(T));
+	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, 0 > serialized.append(::llc::view<cnst T>{source}.as<u0_c>()), "%u-bit legacy test could not serialize its elements.", bcof(T));
 	cnst ::llc::u2_t expectedSize = szof(elementCount) + szof(source);
 	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, serialized.size() != expectedSize, "%u-bit legacy serialized size:%u, expected:%u.", bcof(T), serialized.size(), expectedSize);
 
@@ -339,7 +339,7 @@ sttc ::llc::err_t testLegacyView(::llc::ATestError & errors) {
 	cnst ::llc::err_t mutableResult = ::llc::viewPascal(mutableView, (::llc::vu0_t)serialized);
 	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_RESULT, mutableResult != expectedSize, "%u-bit mutable result:%i, expected:%u.", bcof(T), mutableResult, expectedSize);
 	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_ALIAS, mutableView.size() != elementCount, "%u-bit mutable count:%u, expected:%u.", bcof(T), mutableView.size(), elementCount);
-	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_ALIAS, mutableView.cu8().begin() != &serialized[szof(elementCount)], "%u-bit mutable begin:%p, expected:%p.", bcof(T), mutableView.begin(), &serialized[szof(elementCount)]);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_ALIAS, mutableView.as<u0_c>().begin() != &serialized[szof(elementCount)], "%u-bit mutable begin:%p, expected:%p.", bcof(T), mutableView.begin(), &serialized[szof(elementCount)]);
 	for(::llc::u2_t iElement = 0; iElement < elementCount; ++iElement)
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_MUTABLE_VALUE, mutableView[iElement] != source[iElement], "%u-bit mutable element:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", bcof(T), iElement, ::llc::u3_t(mutableView[iElement]), ::llc::u3_t(source[iElement]));
 	mutableView[2] = T(0x5AU);
@@ -351,7 +351,7 @@ sttc ::llc::err_t testLegacyView(::llc::ATestError & errors) {
 	cnst ::llc::err_t constResult = ::llc::viewPascal(constView, (::llc::vcu0_t)serialized);
 	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_RESULT, constResult != expectedSize, "%u-bit const result:%i, expected:%u.", bcof(T), constResult, expectedSize);
 	LLC_TEST_REQUIREF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_ALIAS, constView.size() != elementCount, "%u-bit const count:%u, expected:%u.", bcof(T), constView.size(), elementCount);
-	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_ALIAS, constView.cu8().begin() != &serialized[szof(elementCount)], "%u-bit const begin:%p, expected:%p.", bcof(T), constView.begin(), &serialized[szof(elementCount)]);
+	LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_ALIAS, constView.as<u0_c>().begin() != &serialized[szof(elementCount)], "%u-bit const begin:%p, expected:%p.", bcof(T), constView.begin(), &serialized[szof(elementCount)]);
 	for(::llc::u2_t iElement = 0; iElement < elementCount; ++iElement)
 		LLC_TEST_CHECKF(errors, VIEW_SERIALIZE_TEST_RESULT_LEGACY_CONST_VALUE, constView[iElement] != mutableView[iElement], "%u-bit const element:%u, value:%" LLC_FMT_U3 ", expected:%" LLC_FMT_U3 ".", bcof(T), iElement, ::llc::u3_t(constView[iElement]), ::llc::u3_t(mutableView[iElement]));
 	::llc::view<cnst T> constFromMutableView = {};
@@ -387,7 +387,7 @@ sttc ::llc::err_t testLegacyView(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	if_fail_fe(testPOD<T>			(errors));
 	if_fail_fe(testUIntType<T>		(errors));
@@ -427,7 +427,7 @@ static ::llc::err_t testLoadDispatch(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);

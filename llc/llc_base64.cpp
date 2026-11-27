@@ -3,7 +3,7 @@
 
 LLC_USING_TYPEINT();
 
-static	::llc::err_t	base64SymbolMapValidate						(cnst ::llc::SBase64SymbolMap & symbolMap) {
+sttc	llc::err_t base64SymbolMapValidate						(cnst ::llc::SBase64SymbolMap & symbolMap) {
 	if(0 == symbolMap.Error)
 		rtrn 0;
 	if(-1 == symbolMap.Error)
@@ -19,18 +19,18 @@ static	::llc::err_t	base64SymbolMapValidate						(cnst ::llc::SBase64SymbolMap &
 }
 
 
-static	::llc::err_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::llc::vu0_t inputTriplet, ::llc::vu0_t out_base64) {
+sttc	llc::err_t base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::llc::vu0_t inputTriplet, ::llc::vu0_t out_base64) {
 	for(::llc::u2_t iSingleIn = 0; iSingleIn < 3; ++iSingleIn) { // reverse bits of each input byte
 		::llc::view_bit<u0_t>									inputBits												= {&inputTriplet[iSingleIn], 8};
 		::llc::reverse_bits(inputBits);
 	}
-	const ::llc::view_bit<u0_t>								inputBits												= {inputTriplet.begin(), 24};
+	cnst ::llc::view_bit<u0_t>								inputBits												= {inputTriplet.begin(), 24};
 	::llc::u2_t					iBitIn													= 0;
 	u0_t														outputQuad	[4]											= {};
 	for(::llc::u2_t iSingleOut = 0; iSingleOut < ::llc::size(outputQuad); ++iSingleOut) { // encode to four output bytes
 		::llc::view_bit<u0_t>									outputBits												= {&outputQuad[iSingleOut], 6};
 		for(::llc::u2_t iBitOut = 0; iBitOut < 6; ++iBitOut) // copy the relevant input bits to the output bytes
-			outputBits[iBitOut]										= (bool)inputBits[iBitIn++];
+			outputBits[iBitOut]										= (b8_t)inputBits[iBitIn++];
 		::llc::reverse_bits(outputBits);
 	}
 	for(::llc::u2_t iSingleOut = 0; iSingleOut < ::llc::size(outputQuad); ++iSingleOut) { // encode to four output bytes
@@ -44,23 +44,23 @@ static	::llc::err_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::ll
 	return 0;
 }
 
-::llc::err_t			llc::base64Encode								(cnst SBase64SymbolMap & symbolMap, vcu0_c & inputBytes, ::llc::au0_t & out_base64) {
+llc::err_t 		llc::base64Encode								(cnst SBase64SymbolMap & symbolMap, vcu0_c & inputBytes, ::llc::asc_t & out_base64) {
 	if_fail_fe(::base64SymbolMapValidate(symbolMap));
 	cnst ::llc::vcst_t	& base64Symbols									= symbolMap.Symbols;
-	cnst char				base64PadSymbol									= symbolMap.Pad;
+	cnst sc_t				base64PadSymbol									= symbolMap.Pad;
 	if_null_vif(0, inputBytes.size(), "%s", "Empty input stream.");
 	u2_c						packsNeeded												= inputBytes.size() / 3 + one_if(inputBytes.size() % 3);
 	::llc::u2_t					iOutput64												= out_base64.size();
 	if_fail_fef(out_base64.resize(out_base64.size() + packsNeeded * 4), "Out of memory? out_base64.size() : %" LLC_FMT_U2 ". packsNeeded : %" LLC_FMT_U2 ".", iOutput64, packsNeeded);
 	for(::llc::u2_t iInputByte = 0, inputByteCount = inputBytes.size(); iInputByte < inputByteCount; iInputByte += 3) { // process each byte triplet and turn it into 4 bytes padded with 2 bit
-		const bool													use1													= ((int32_t)iInputByte) < (((int32_t)inputByteCount) - 1);
-		const bool													use2													= ((int32_t)iInputByte) < (((int32_t)inputByteCount) - 2);
+		b8_c													use1													= ((s2_t)iInputByte) < (((s2_t)inputByteCount) - 1);
+		b8_c													use2													= ((s2_t)iInputByte) < (((s2_t)inputByteCount) - 2);
 		u0_t														inputTriplet	[3]										=
 			{        (u0_t)(inputBytes[iInputByte]     & 0xFF)
 			, use1 ? (u0_t)(inputBytes[iInputByte + 1] & 0xFF) : (u0_t)0U
 			, use2 ? (u0_t)(inputBytes[iInputByte + 2] & 0xFF) : (u0_t)0U
 			};
-		::base64EncodeTriplet(base64Symbols, inputTriplet, {&out_base64[iOutput64], 4});
+		::base64EncodeTriplet(base64Symbols, inputTriplet, {&out_base64.as<u0_t>()[iOutput64], 4});
 		iOutput64													+= 4;
 	}
 	u2_c						modTriplet												= inputBytes.size() % 3;
@@ -74,12 +74,12 @@ static	::llc::err_t	base64EncodeTriplet							(::llc::vcst_t base64Symbols, ::ll
 	return 0;
 }
 
-static	::llc::err_t	base64DecodeQuad								(::llc::vu0_t inputQuad, ::llc::vu0_t outputBytes) {
+sttc	llc::err_t base64DecodeQuad								(::llc::vu0_t inputQuad, ::llc::vu0_t outputBytes) {
 	for(::llc::u2_t iSingleIn = 0; iSingleIn < 4; ++iSingleIn) { // reverse bits before extracting
 		::llc::view_bit<u0_t>									inputBits												= {&inputQuad[iSingleIn], 6};
 		::llc::reverse_bits(inputBits);
 	}
-	const ::llc::view_bit<u0_t>								inputBits												= {inputQuad.begin(), inputQuad.size() * 8};
+	cnst ::llc::view_bit<u0_t>								inputBits												= {inputQuad.begin(), inputQuad.size() * 8};
 	u0_t														outputTriplet	[3]										= {};
 	::llc::u2_t					iBitIn													= 0;
 	for(::llc::u2_t iSingleOut = 0; iSingleOut < 3; ++iSingleOut) {
@@ -94,10 +94,10 @@ static	::llc::err_t	base64DecodeQuad								(::llc::vu0_t inputQuad, ::llc::vu0_
 	return 0;
 }
 
-::llc::err_t			llc::base64Decode								(cnst SBase64SymbolMap & symbolMap, vcu0_c & in_base64, ::llc::au0_t & outputBytes) {
+llc::err_t 		llc::base64Decode								(cnst SBase64SymbolMap & symbolMap, vcst_c & in_base64, ::llc::au0_t & outputBytes) {
 	if_fail_fe(::base64SymbolMapValidate(symbolMap));
 	cnst ::llc::u0_t	(&base64SymbolRemap)[256]						= symbolMap.Decode.Storage;
-	cnst char				base64PadSymbol									= symbolMap.Pad;
+	cnst sc_t				base64PadSymbol									= symbolMap.Pad;
 	if_zero_vif(0, in_base64.size(), "%s", "Empty base64 string.");
 	::llc::u2_t				lengthInput											= in_base64.size();
 	if(::llc::u2_c remainder = lengthInput % 4) {
@@ -138,8 +138,7 @@ static	::llc::err_t	base64DecodeQuad								(::llc::vu0_t inputQuad, ::llc::vu0_
 		::base64DecodeQuad(inputQuad, {&outputBytes[iOutputByte], 3});
 		iOutputByte													+= 3;
 	}
-	if(padding) {
+	if(padding)
 		if_fail_fe(outputBytes.resize(outputBytes.size() - padding));
-	}
 	return 0;
 }

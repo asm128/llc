@@ -32,7 +32,7 @@ LLC_USING_TYPEINT();
 
 ::llc::err_t			llc::tcpipAddress		(llc::vcst_t strIP, ::llc::u2_t & ipv4)	{
 	ipv4					= 0;
-	::llc::ltrim(strIP);
+	::llc::ltrim(strIP, strIP);
 	if(0 == strIP.size()) 
 		return 0;
 

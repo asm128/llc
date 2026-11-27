@@ -349,7 +349,8 @@ namespace llc
 } // namespace
 
 #define LLC_USING_APOD()				\
-	usng	::llc::ab8_t, ::llc::ab8_c	\
+	usng	::llc::apod					\
+		,	::llc::ab8_t, ::llc::ab8_c	\
 		,	::llc::auc_t, ::llc::auc_c	\
 		,	::llc::asc_t, ::llc::asc_c	\
 		,	::llc::au0_t, ::llc::au0_c	\

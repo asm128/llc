@@ -6,7 +6,7 @@
 namespace llc
 {
 #pragma pack(push, 1)
-	tplt<tpnm T>
+	tplT 
 	struct rect2 {
 		n2<T>			Offset, Size;
 
@@ -45,7 +45,7 @@ namespace llc
 
 #pragma pack(pop)
 
-	tplt<tpnm T>
+	tplT 
 	stxp	bool	in_range	(const n2<T>& pointToTest, const rect2<T>& area)	noexcept	{
 		return	in_range(pointToTest.x, area.Offset.x, (T)(area.Offset.x + area.Size.x))
 			&&	in_range(pointToTest.y, area.Offset.y, (T)(area.Offset.y + area.Size.y))

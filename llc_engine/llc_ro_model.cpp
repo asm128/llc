@@ -138,7 +138,7 @@ static ::llc::err_t roRSMViewTake(::llc::vcu0_t & input, ::llc::u2_t size, ::llc
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 static ::llc::err_t roRSMViewTakeArray(::llc::vcu0_t & input, ::llc::u2_t count, ::llc::view<cnst T> & output, ::llc::vcst_t section) {
 	if_true_fef(count > input.size() / szof(T), "Invalid %.*s count: %u. Remaining bytes: %u.", LLC_VIEW_ARGS(section), count, input.size());
 	output = count ? ::llc::view<cnst T>{reinterpret_cast<cnst T*>(input.begin()), count} : ::llc::view<cnst T>{};

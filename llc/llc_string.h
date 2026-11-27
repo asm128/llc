@@ -6,65 +6,48 @@
 #ifndef LLC_STRING_H
 #define LLC_STRING_H
 
-namespace llc
+nmsp llc
 {
 
     struct string : asc_t {
-        using   asc_t  ::Data;
-        using   asc_t  ::Count;
-        using   asc_t  ::Size;
-        using   asc_t  ::asc_t;
-        using   asc_t  ::operator==;
-        using   asc_t  ::operator!=;
-        string & oper = (asc_c & other) { asc_t::operator=(other); rtrn *this; }
-        string & oper = (vcs0_t other) { asc_t::operator=(other); rtrn *this; }
-        tplN2u string & oper = (sc_c (&other)[N]) {
-            u2_t count = 0;
-            for(; count < N && other[count]; ++count) {}
-            if_true_te(resize(count) != (s2_t)count);
-            if(count) memcpy(Data, other, count * szof(sc_t));
-            rtrn *this;
-        }
-        tplN2u bool oper== (sc_c (&other)[N]) cnst { rtrn asc_t::operator==(vcst_t{other}); }
-        tplN2u bool oper!= (sc_c (&other)[N]) cnst { rtrn !operator==(other); }
+        usng    asc_t       ::Data;
+        usng    asc_t       ::Count;
 
-        tplt<size_t buflen>
-        inline  string      (sc_c (&other)[buflen])         : asc_t(vcst_t{other})                                  { initialize(); }
-        inline  string      (vs0_c & other)                 : asc_t(other)                                          { initialize(); }
-        inline  string      (asc_c & other)                 : asc_t(other)                                          { initialize(); }
-        inline  string      (vcst_t other)                  : asc_t(other)                                          { initialize(); }
-        inline  string      (vcs0_t other)                  : asc_t(other)                                          { initialize(); }
-        inline  string      (sc_c * unsafe)                 : asc_t(vcst_t{unsafe, (u2_t)-1})                       { initialize(); }
+        inln                string      ()                      nxpt    = dflt;
+        inln                string      (vcst_c & other)           : asc_t(other)                                          {}
+        tplN2uinln          string      (sc_c (&other)[N])              : asc_t(vcst_t(other))                                  {}
 #ifdef LLC_ARDUINO
-        inline  string      (const String & other)          : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    { initialize(); }
-        inline  string      (const IPAddress & other)       : string(other.toString())                              { initialize(); }
-
+        inln                string      (cnst String & other)           : asc_t(vcst_t{other.begin(), (u2_t)other.length()})    {}
+        inln                string      (cnst IPAddress & other)        : string(other.LLC_VIEW_ARGS())                         {}
 #   ifdef LLC_ESP8266
-        ndin operator   String      ()  const   { return String(Data); }
+        ndin        oper    String      ()                      cnst    { return String(Data); }
 #   else
-        ndin operator   String      ()  const   { return String(Data, Count); }
+        ndin        oper    String      ()                      cnst    { return String(Data, Count); }
 #   endif
 #endif
-        ndin operator   vcst_t      ()  const   { return {Data, Count}; }
-        ndin operator   const char* ()  const   { return vcst_t{Data, Count}; }
+        inln        b8_t    oper==      (vcst_c & other)         cnst    { rtrn asc_t::oper==(other); }
+        inln        b8_t    oper!=      (vcst_c & other)         cnst    { rtrn asc_t::oper!=(other); }
+        tplN2uinln  b8_t    oper==      (sc_c (&other)[N])      cnst    { rtrn oper==(vcst_t{other}); }
+        tplN2uinln  b8_t    oper!=      (sc_c (&other)[N])      cnst    { rtrn oper!=(vcst_t{other}); }
 
-        const char*     begin       ()  const   { return vcst_t{Data, Count}.begin(); }
-        const char*     end         ()  const   { return vcst_t{Data, Count}.end  (); }
+        ndin        oper    vstr_t      ()                              { return {Data, Count}; }
+        ndin        oper    vcst_t      ()                      cnst    { return {Data, Count}; }
+		ndin	    oper	sc_c* 		()			        	csnx	{ rtrn begin(); }
 
-        int32_t         initialize  ()          {
-            if_true_block_logf(error_printf, (0 == Data) && (Count || Size), Count = Size = 0, "error|Count:%i, Size:%i.", Count, Size);
-            return Count;
-        }
+        ndin        sc_c*   begin       ()                      cnst    { return vcst_t{Data, Count}.begin(); }
+        ndin        sc_c*   end         ()                      cnst    { return vcst_t{Data, Count}.end  (); }
+        ndin        sc_t*   begin       ()                              { return vstr_t{Data, Count}.begin(); }
+        ndin        sc_t*   end         ()                              { return vstr_t{Data, Count}.end  (); }
+
     }; // struct
-    tplN2u inln bool oper== (sc_c (&left)[N], cnst string & right) { rtrn right.operator==(left); }
-    tplN2u inln bool oper!= (sc_c (&left)[N], cnst string & right) { rtrn !right.operator==(left); }
 
 #ifdef LLC_ARDUINO
-    ndsi string  str (const IPAddress & s)   { return s.toString(); }
+    ndsi        string  str         (cnst IPAddress & s)            { return s.toString(); }
 #endif
+                err_t   camelCase   (vcst_t input, asc_t & camelCased);
 
-	err_t		camelCase	(vcst_t input, string & camelCased);
+} // nmsp
 
-} // namespace
+#define LLC_USING_STRING()  usng ::llc::string
 
 #endif // LLC_STRING_H
