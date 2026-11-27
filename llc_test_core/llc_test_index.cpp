@@ -34,25 +34,25 @@ sttc b8_t indexWordHas(cnst ::llc::aobj<::llc::SWordIndices> & wordSet, ::llc::v
 }
 
 sttc ::llc::err_t testIndexNormalizeAndAppend(::llc::ATestError & errors) {
-	stxp ::llc::vcst_c spanishWord[] = {"café"};
+	stxp ::llc::vcst_c spanishWord[] = {::llc::vcst_t{"café"}};
 	::llc::aobj<::llc::string> spanishNormalized = {};
 	if_fail_fe(::llc::getWordList(spanishNormalized, spanishWord));
-	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_SPANISH_ACCENT, spanishNormalized.size() < 2 || spanishNormalized[1] != "cafe");
-	stxp ::llc::vcst_c inputWords[] = {"ALPHA", "the", "Beta"};
+	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_SPANISH_ACCENT, spanishNormalized.size() < 2 || spanishNormalized[1] != ::llc::vcst_t{"cafe"});
+	stxp ::llc::vcst_c inputWords[] = {::llc::vcst_t{"ALPHA"}, ::llc::vcst_t{"the"}, ::llc::vcst_t{"Beta"}};
 	::llc::aobj<::llc::string> normalized = {};
 	cnst ::llc::err_t normalizeResult = ::llc::getWordList(normalized, inputWords);
 	LLC_TEST_REQUIREF(errors, INDEX_CORE_TEST_RESULT_NORMALIZE_RESULT, ::llc::failed(normalizeResult), "Result:%i.", normalizeResult);
 	LLC_TEST_REQUIREF(errors, INDEX_CORE_TEST_RESULT_NORMALIZE_COUNT, normalized.size() != ::llc::size(inputWords), "Count:%u.", normalized.size());
-	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_NORMALIZE_VALUE, normalized[0] != "alpha");
+	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_NORMALIZE_VALUE, normalized[0] != ::llc::vcst_t{"alpha"});
 	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_NORMALIZE_VALUE, normalized[1].size());
-	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_NORMALIZE_VALUE, normalized[2] != "beta");
+	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_NORMALIZE_VALUE, normalized[2] != ::llc::vcst_t{"beta"});
 
-	if_fail_fe(normalized.push_back("alpha"));
+	if_fail_fe(normalized.push_back(::llc::string{"alpha"}));
 	::llc::aobj<::llc::SWordIndices> wordSet = {};
 	cnst ::llc::err_t appendResult = ::llc::wordDictAppend(wordSet, 7, normalized);
 	LLC_TEST_REQUIREF(errors, INDEX_CORE_TEST_RESULT_APPEND_RESULT, ::llc::failed(appendResult), "Result:%i.", appendResult);
-	cnst ::llc::SWordIndices * alpha = ::indexWord(wordSet, "alpha");
-	cnst ::llc::SWordIndices * beta = ::indexWord(wordSet, "beta");
+	cnst ::llc::SWordIndices * alpha = ::indexWord(wordSet, ::llc::vcst_t{"alpha"});
+	cnst ::llc::SWordIndices * beta = ::indexWord(wordSet, ::llc::vcst_t{"beta"});
 	LLC_TEST_REQUIREF(errors, INDEX_CORE_TEST_RESULT_APPEND_WORD, !alpha || !beta, "Words:%u.", wordSet.size());
 	LLC_TEST_CHECKF(errors, INDEX_CORE_TEST_RESULT_APPEND_POSTING, 1 != alpha->Indices.size() || 7 != alpha->Indices[0], "Alpha postings:%u.", alpha->Indices.size());
 	LLC_TEST_CHECKF(errors, INDEX_CORE_TEST_RESULT_APPEND_POSTING, 1 != beta->Indices.size() || 7 != beta->Indices[0], "Beta postings:%u.", beta->Indices.size());
@@ -60,7 +60,7 @@ sttc ::llc::err_t testIndexNormalizeAndAppend(::llc::ATestError & errors) {
 }
 
 sttc ::llc::err_t testIndexBuildAndResolve(::llc::ATestError & errors) {
-	stxp ::llc::vcst_c items[] = {"Alpha orchard common", "Betamax relay common", "Alphabet soup common"};
+	stxp ::llc::vcst_c items[] = {::llc::vcst_t{"Alpha orchard common"}, ::llc::vcst_t{"Betamax relay common"}, ::llc::vcst_t{"Alphabet soup common"}};
 	::llc::aobj<::llc::vcst_t> itemViews = {};
 	::llc::aobj<::llc::string> itemWords = {};
 	if_fail_fe(::llc::split(items[0], ' ', itemViews));
@@ -69,8 +69,8 @@ sttc ::llc::err_t testIndexBuildAndResolve(::llc::ATestError & errors) {
 	b8_t foundAlpha = false;
 	b8_t foundOrchard = false;
 	for(::llc::u2_t iWord = 0; iWord < itemWords.size(); ++iWord) {
-		foundAlpha |= itemWords[iWord] == "alpha";
-		foundOrchard |= itemWords[iWord] == "orchard";
+		foundAlpha |= itemWords[iWord] == ::llc::vcst_t{"alpha"};
+		foundOrchard |= itemWords[iWord] == ::llc::vcst_t{"orchard"};
 	}
 	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_LIST_WORD, false == foundAlpha);
 	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_LIST_WORD, false == foundOrchard);
@@ -89,8 +89,8 @@ sttc ::llc::err_t testIndexBuildAndResolve(::llc::ATestError & errors) {
 	LLC_TEST_REQUIREF(errors, INDEX_CORE_TEST_RESULT_BUILD_RESULT, ::llc::failed(buildResult), "Result:%i.", buildResult);
 	LLC_TEST_CHECKF(errors, INDEX_CORE_TEST_RESULT_PROJECT_COUNT, projectedCount != ::llc::size(items), "Projected:%u, expected:%u.", projectedCount, ::llc::size(items));
 	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_PROJECT_CACHE, rawCacheWasDirty);
-	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_APPEND_WORD, false == ::indexWordHas(wordSet, "alpha", 2));
-	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_APPEND_POSTING, false == ::indexWordHas(wordSet, "relay", 0));
+	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_APPEND_WORD, false == ::indexWordHas(wordSet, ::llc::vcst_t{"alpha"}, 2));
+	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_APPEND_POSTING, false == ::indexWordHas(wordSet, ::llc::vcst_t{"relay"}, 0));
 	cnst ::llc::vcst_t * itemViewStorage = wordData.ItemViews.begin();
 	cnst ::llc::string * itemWordStorage = wordData.ItemWords.begin();
 	cnst ::llc::sc_t * firstWordStorage = wordData.ItemWords.size() ? wordData.ItemWords[0].begin() : 0;
@@ -104,15 +104,15 @@ sttc ::llc::err_t testIndexBuildAndResolve(::llc::ATestError & errors) {
 	LLC_TEST_CHECK(errors, INDEX_CORE_TEST_RESULT_REBUILD_STORAGE, itemViewStorage != wordData.ItemViews.begin() || itemWordStorage != wordData.ItemWords.begin() || firstWordStorage != wordData.ItemWords[0].begin());
 
 	::llc::au2_t resolved = {};
-	cnst ::llc::err_t sharedResult = ::llc::wordDictResolve(wordSet, "COMMON", ::llc::size(items), resolved);
+	cnst ::llc::err_t sharedResult = ::llc::wordDictResolve(wordSet, ::llc::vcst_t{"COMMON"}, ::llc::size(items), resolved);
 	LLC_TEST_REQUIREF(errors, INDEX_CORE_TEST_RESULT_RESOLVE_RESULT, sharedResult != 3 || resolved.size() != 3, "Result:%i, count:%u.", sharedResult, resolved.size());
 	for(::llc::u2_t iItem = 0; iItem < resolved.size(); ++iItem)
 		LLC_TEST_CHECKF(errors, INDEX_CORE_TEST_RESULT_RESOLVE_ITEM, resolved[iItem] != iItem, "Position:%u, item:%u.", iItem, resolved[iItem]);
-	cnst ::llc::err_t resolveResult = ::llc::wordDictResolve(wordSet, "PHA MAX", ::llc::size(items), resolved);
+	cnst ::llc::err_t resolveResult = ::llc::wordDictResolve(wordSet, ::llc::vcst_t{"PHA MAX"}, ::llc::size(items), resolved);
 	LLC_TEST_REQUIREF(errors, INDEX_CORE_TEST_RESULT_RESOLVE_RESULT, resolveResult != 3 || resolved.size() != 3, "Result:%i, count:%u.", resolveResult, resolved.size());
 	for(::llc::u2_t iItem = 0; iItem < resolved.size(); ++iItem)
 		LLC_TEST_CHECKF(errors, INDEX_CORE_TEST_RESULT_RESOLVE_ITEM, resolved[iItem] != iItem, "Position:%u, item:%u.", iItem, resolved[iItem]);
-	cnst ::llc::err_t emptyResult = ::llc::wordDictResolve(wordSet, "", ::llc::size(items), resolved);
+	cnst ::llc::err_t emptyResult = ::llc::wordDictResolve(wordSet, ::llc::vcst_t{""}, ::llc::size(items), resolved);
 	LLC_TEST_CHECKF(errors, INDEX_CORE_TEST_RESULT_RESOLVE_RESULT, emptyResult || resolved.size(), "Result:%i, count:%u.", emptyResult, resolved.size());
 
 	rtrn 0;

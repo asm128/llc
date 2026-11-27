@@ -102,7 +102,7 @@ sttc ::llc::err_t testXMLStorage(::llc::ATestError & errors) {
 }
 
 sttc ::llc::err_t testXMLStep(::llc::ATestError & errors) {
-	cnst ::llc::vcst_t input = "<?xml version=\"1.0\"?><Root single='quoted'><!--comment--><![CDATA[<raw>]]><Child>text</Child><Child/></Root>";
+	cnst ::llc::vcst_t input {"<?xml version=\"1.0\"?><Root single='quoted'><!--comment--><![CDATA[<raw>]]><Child>text</Child><Child/></Root>"};
 	::llc::SXMLReader parsed;
 	::llc::SXMLReader stepped;
 	if_fail_fe(::llc::xmlParse(parsed, input));

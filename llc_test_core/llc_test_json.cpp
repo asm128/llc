@@ -106,7 +106,7 @@ sttc ::llc::err_t testJSONStructure(::llc::ATestError & errors, cnst ::llc::SJSO
 	LLC_TEST_REQUIREF(errors, JSON_READER_TEST_RESULT_STORAGE_TREE_COUNT, reader.Reader.Token.size() != reader.Reader.Tree.size() , "Tokens:%u, tree nodes:%u." , reader.Reader.Token.size(), reader.Reader.Tree.size() );
 	for(::llc::u2_t iToken = 0; iToken < reader.Reader.Token.size(); ++iToken) {
 		cnst ::llc::SJSONToken & token = reader.Reader.Token[iToken];
-		cnst ::llc::vcst_t & tokenView = reader.Reader.View[iToken];
+		cnst ::llc::vcst_t & tokenView {reader.Reader.View[iToken]};
 		always_printf("JSON token:%u type:%s parent:%i span:%u..%u text:'%.*s'.", iToken, ::llc::get_value_namep(token.Type), token.ParentIndex, token.Span.Begin, token.Span.End, LLC_VIEW_ARGS(tokenView));
 		cnst ::llc::pobj<::llc::SJSONNode> & node = reader.Reader.Tree[iToken];
 		cnst bool hasParent = token.ParentIndex >= 0 && (::llc::u2_t)token.ParentIndex < reader.Reader.Tree.size();
@@ -197,7 +197,7 @@ sttc ::llc::err_t testJSONReset(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_SEPARATOR, reader.Reader.State.Flags.ExpectingSeparator , "Expecting separator after reset:%u." , (::llc::u2_t)reader.Reader.State.Flags.ExpectingSeparator );
 	LLC_TEST_CHECKF(errors, JSON_READER_TEST_RESULT_RESET_DONE, reader.Reader.State.Flags.DoneReading , "Done reading after reset:%u." , (::llc::u2_t)reader.Reader.State.Flags.DoneReading );
 
-	::llc::vcst_t input = "{\"value\":-2}";
+	::llc::vcst_t input {"{\"value\":-2}"};
 	if_fail_fe(::llc::jsonParse(reader, input));
 	cnst ::llc::u2_t structureFailures = testErrorCount(errors);
 	if_fail_fe(testJSONStructure(errors, reader, input));

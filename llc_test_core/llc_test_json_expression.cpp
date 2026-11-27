@@ -264,7 +264,7 @@ sttc void testJSONExpressionTrace(const ::llc::SJSONReader & reader, ::llc::u2_t
 }
 
 sttc ::llc::err_t testJSONExpressionResolve(::llc::ATestError & errors, const ::llc::SJSONReader & reader, ::llc::u2_t indexNodeJSON, ::llc::vcst_t expression, ::llc::vcst_t expected, JSON_EXPRESSION_TEST_RESULT resultCase, JSON_EXPRESSION_TEST_RESULT valueCase, ::llc::err_t & indexResult) {
-	::llc::vcst_t output = "unchanged";
+	::llc::vcst_t output {"unchanged"};
 	indexResult = ::llc::jsonExpressionResolve(expression, reader, indexNodeJSON, output);
 	::testJSONExpressionTrace(reader, indexNodeJSON, expression, expected, output, indexResult);
 	LLC_TEST_REQUIREF(errors, resultCase, -1 == indexResult, "Expression:'%.*s', result:%i.", LLC_VIEW_ARGS(expression), indexResult);
@@ -273,7 +273,7 @@ sttc ::llc::err_t testJSONExpressionResolve(::llc::ATestError & errors, const ::
 }
 
 sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
-	cnst ::llc::vcst_t document = "\n{\t \"name\"           : \"Carlos\""
+	cnst ::llc::vcst_t document {"\n{\t \"name\"           : \"Carlos\""
 		  "\n\t, \"height\"         : 1.60"
 		  "\n\t, \"color\"          : \"brown\""
 		  "\n\t, \"race\"           : \"red\""
@@ -292,9 +292,8 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 		  "\n\t    , \"property\" : { \"color\" : \"green\", \"age\" : 32, \"race\" : \"thin\" }"
 		  "\n\t    }]"
 		  "\n\t, \"properties\" : [{ \"name\" : \"age\", \"type\" : \"int\"}, { \"name\" : \"color\", \"type\" : \"string\"}, { \"name\" : \"race\", \"type\" : \"string\"} ]"
-		  "\n}"
-		;
-	if_fail_fe(::llc::fileFromMemory(outputFolder, "historical_input.jsonc", document.as<u0_c>()));
+		  "\n}"};
+	if_fail_fe(::llc::fileFromMemory(outputFolder, "historical_input.jsonc", document.tplt as<::llc::u0_c>()));
 	always_printf("FIXTURE: historical_input.jsonc (exact parser input, including comments)\n%.*s", LLC_VIEW_ARGS(document));
 	::llc::SJSONReader reader = {};
 	cnst ::llc::err_t parseResult = ::llc::jsonParse(reader, document);
@@ -302,7 +301,7 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 
 	for(::llc::u2_t iCase = 0; iCase < ::llc::size(JSON_EXPRESSION_HISTORICAL_CASES); ++iCase) {
 		cnst SJSONExpressionHistoricalCase & expressionCase = JSON_EXPRESSION_HISTORICAL_CASES[iCase];
-		::llc::vcst_t output = "unchanged";
+		::llc::vcst_t output {"unchanged"};
 		cnst ::llc::err_t result = ::llc::jsonExpressionResolve(expressionCase.Expression, reader, 0, output);
 		always_printf("Historical case: %u (%s)", iCase, ::llc::get_value_namep(expressionCase.ValueCase));
 		::testJSONExpressionTrace(reader, 0, expressionCase.Expression, expressionCase.Expected, output, result);
@@ -314,7 +313,7 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 	::llc::SExpressionReader expressionReader = {};
 	if_fail_fe(::llc::expressionReaderParse(expressionReader, walkthrough.Expression));
 	::llc::SJSONExpressionSolver solver = {};
-	::llc::vcst_t solved = "unchanged";
+	::llc::vcst_t solved {"unchanged"};
 	cnst ::llc::err_t solverResult = ::llc::jsonExpressionResolve(expressionReader, reader, 0, solver, solved);
 	always_printf("%s", "SOLVER WALKTHROUGH: additional evaluation of the final historical case, with retained intermediate results.");
 	::testJSONExpressionTrace(reader, 0, walkthrough.Expression, walkthrough.Expected, solved, solverResult);
@@ -325,24 +324,23 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 	LLC_TEST_CHECKF(errors, walkthrough.ResultCase, solverResult == -1, "Walkthrough result:%i.", solverResult);
 	LLC_TEST_CHECKF(errors, walkthrough.ValueCase, solved != walkthrough.Expected, "Walkthrough output:'%.*s'.", LLC_VIEW_ARGS(solved));
 
-	cnst ::llc::vcst_t format = "I want to replace this (but not \\{this}): \n{parents['1'].name}'s {properties[selection.active ? selection.index : '1'].name}: // this comment should appear here"
+	cnst ::llc::vcst_t format {"I want to replace this (but not \\{this}): \n{parents['1'].name}'s {properties[selection.active ? selection.index : '1'].name}: // this comment should appear here"
 		  "\n{parents['1'].property.(properties[selection.active ? selection.index : '1'].name // this comment should not appear here"
-		  "\n)}."
-		;
+		  "\n)}."};
 	::llc::asc_t formatted = {};
 	cnst ::llc::err_t formatResult = ::llc::jsonStringFormat(format, reader, 0, formatted);
-	cnst ::llc::vcst_t expected = "I want to replace this (but not \\{this}): \nBob's color: // this comment should appear here\ngreen.";
+	cnst ::llc::vcst_t expected {"I want to replace this (but not \\{this}): \nBob's color: // this comment should appear here\ngreen."};
 	::testJSONExpressionTrace(reader, 0, format, expected, {formatted.begin(), formatted.size()}, formatResult, false, true);
 	LLC_TEST_REQUIREF(errors, JSON_EXPRESSION_HISTORICAL_TEST_RESULT_FORMAT_RESULT, ::llc::failed(formatResult), "Result:%i, format:'%.*s'.", formatResult, LLC_VIEW_ARGS(format));
-	cnst ::llc::vcst_t formattedView = {formatted.begin(), formatted.size()};
+	cnst ::llc::vcst_t formattedView {formatted.begin(), formatted.size()};
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_HISTORICAL_TEST_RESULT_FORMAT_VALUE, formattedView != expected, "Output:'%.*s', expected:'%.*s'.", LLC_VIEW_ARGS(formattedView), LLC_VIEW_ARGS(expected));
 	rtrn 0;
 }
 
 ::llc::err_t test_json_expression(::llc::ATestError & errors, [[maybe_unused]] ::llc::vcst_t outputFolder) {
 	if_fail_fe(testJSONExpressionHistorical(errors, outputFolder));
-	cnst ::llc::vcst_t document = "{\"application\":{\"blitter\":{\"database\":{\"name\":\"main\",\"enabled\":true,\"disabled\":false,\"negativeZero\":-0.0,\"path\":{\"database\":\"data\"},\"bind\":[\"id\",\"name\"]}}},\"selector\":\"selectorName\",\"selectorName\":\"name\"}";
-	if_fail_fe(::llc::fileFromMemory(outputFolder, "focused_input.json", document.as<u0_c>()));
+	cnst ::llc::vcst_t document {"{\"application\":{\"blitter\":{\"database\":{\"name\":\"main\",\"enabled\":true,\"disabled\":false,\"negativeZero\":-0.0,\"path\":{\"database\":\"data\"},\"bind\":[\"id\",\"name\"]}}},\"selector\":\"selectorName\",\"selectorName\":\"name\"}"};
+	if_fail_fe(::llc::fileFromMemory(outputFolder, "focused_input.json", document.tplt as<::llc::u0_c>()));
 	always_printf("FIXTURE: focused_input.json (exact parser input)\n%.*s", LLC_VIEW_ARGS(document));
 	::llc::SJSONReader reader = {};
 	cnst ::llc::err_t parseResult = ::llc::jsonParse(reader, document);
@@ -365,44 +363,44 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 	if_fail_fe(testJSONExpressionResolve(errors, reader, 0, "application.blitter.database.enabled ? 'yes' : 'no'", "yes", JSON_EXPRESSION_TEST_RESULT_TERNARY_RESULT, JSON_EXPRESSION_TEST_RESULT_TERNARY_VALUE, result));
 
 	::llc::asc_t formatted = {};
-	cnst ::llc::vcst_t format = "db:{application.blitter.database.name};first:{application.blitter.database.bind['0']}";
+	cnst ::llc::vcst_t format {"db:{application.blitter.database.name};first:{application.blitter.database.bind['0']}"};
 	cnst ::llc::err_t formatResult = ::llc::jsonStringFormat(format, reader, 0, formatted);
 	::testJSONExpressionTrace(reader, 0, format, "db:main;first:id", {formatted.begin(), formatted.size()}, formatResult, false, true);
 	LLC_TEST_REQUIREF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_RESULT, ::llc::failed(formatResult), "Result:%i.", formatResult);
-	cnst ::llc::vcst_t formattedView = {formatted.begin(), formatted.size()};
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_VALUE, formattedView != "db:main;first:id", "Output:'%.*s'.", LLC_VIEW_ARGS(formattedView));
+	cnst ::llc::vcst_t formattedView {formatted.begin(), formatted.size()};
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_VALUE, formattedView != ::llc::vcst_t{"db:main;first:id"}, "Output:'%.*s'.", LLC_VIEW_ARGS(formattedView));
 
 	::llc::asc_t adjacent = {};
-	cnst ::llc::vcst_t adjacentFormat = "{application.blitter.database.name}{application.blitter.database.bind['1']}";
+	cnst ::llc::vcst_t adjacentFormat {"{application.blitter.database.name}{application.blitter.database.bind['1']}"};
 	cnst ::llc::err_t adjacentResult = ::llc::jsonStringFormat(adjacentFormat, reader, 0, adjacent);
 	::testJSONExpressionTrace(reader, 0, adjacentFormat, "mainname", {adjacent.begin(), adjacent.size()}, adjacentResult, false, true);
 	LLC_TEST_REQUIREF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_ADJACENT_RESULT, ::llc::failed(adjacentResult), "Result:%i.", adjacentResult);
-	cnst ::llc::vcst_t adjacentView = {adjacent.begin(), adjacent.size()};
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_ADJACENT_VALUE, adjacentView != "mainname", "Output:'%.*s'.", LLC_VIEW_ARGS(adjacentView));
+	cnst ::llc::vcst_t adjacentView {adjacent.begin(), adjacent.size()};
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_ADJACENT_VALUE, adjacentView != ::llc::vcst_t{"mainname"}, "Output:'%.*s'.", LLC_VIEW_ARGS(adjacentView));
 
-	::llc::vcst_t preserved = "preserved";
+	::llc::vcst_t preserved {"preserved"};
 	cnst ::llc::err_t missingResult = ::llc::jsonExpressionResolve("application.blitter.missing.name", reader, 0, preserved);
 	::testJSONExpressionTrace(reader, 0, "application.blitter.missing.name", "preserved", preserved, missingResult, true);
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_MISSING_RESULT, 0 <= missingResult, "Result:%i.", missingResult);
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_MISSING_OUTPUT, preserved != "preserved", "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_MISSING_OUTPUT, preserved != ::llc::vcst_t{"preserved"}, "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
 
 	preserved = "preserved";
 	cnst ::llc::err_t rootRangeResult = ::llc::jsonExpressionResolve("application", reader, reader.Reader.Tree.size(), preserved);
 	::testJSONExpressionTrace(reader, reader.Reader.Tree.size(), "application", "preserved", preserved, rootRangeResult, true);
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ROOT_RANGE_RESULT, 0 <= rootRangeResult, "Result:%i, root:%u, nodes:%u.", rootRangeResult, reader.Reader.Tree.size(), reader.Reader.Tree.size());
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ROOT_RANGE_OUTPUT, preserved != "preserved", "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ROOT_RANGE_OUTPUT, preserved != ::llc::vcst_t{"preserved"}, "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
 
 	preserved = "preserved";
 	cnst ::llc::err_t arrayRangeResult = ::llc::jsonExpressionResolve("application.blitter.database.bind['9']", reader, 0, preserved);
 	::testJSONExpressionTrace(reader, 0, "application.blitter.database.bind['9']", "preserved", preserved, arrayRangeResult, true);
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ARRAY_RANGE_RESULT, 0 <= arrayRangeResult, "Result:%i.", arrayRangeResult);
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ARRAY_RANGE_OUTPUT, preserved != "preserved", "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_ARRAY_RANGE_OUTPUT, preserved != ::llc::vcst_t{"preserved"}, "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
 
 	preserved = "preserved";
 	cnst ::llc::err_t stringRangeResult = ::llc::jsonExpressionResolve("application.blitter.database.name['9']", reader, 0, preserved);
 	::testJSONExpressionTrace(reader, 0, "application.blitter.database.name['9']", "preserved", preserved, stringRangeResult, true);
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_STRING_RANGE_RESULT, 0 <= stringRangeResult, "Result:%i.", stringRangeResult);
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_STRING_RANGE_OUTPUT, preserved != "preserved", "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_STRING_RANGE_OUTPUT, preserved != ::llc::vcst_t{"preserved"}, "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
 
 	::llc::SExpressionReader expressionReader = {};
 	if_fail_fe(::llc::expressionReaderParse(expressionReader, "application.blitter.missing.name"));
@@ -416,16 +414,16 @@ sttc ::llc::err_t testJSONExpressionHistorical(::llc::ATestError & errors, ::llc
 	::testJSONExpressionTrace(reader, 0, "application.blitter.missing.name", "preserved", preserved, solverResult, true);
 	always_printf("Solver rollback: expected %u retained steps; actual %u. %s.", resultCountBefore, solver.Results.size(), solver.Results.size() == resultCountBefore ? "PASS" : "FAIL");
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_SOLVER_RESULT, 0 <= solverResult, "Result:%i.", solverResult);
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_SOLVER_OUTPUT, preserved != "preserved", "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_SOLVER_OUTPUT, preserved != ::llc::vcst_t{"preserved"}, "Output:'%.*s'.", LLC_VIEW_ARGS(preserved));
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_SOLVER_STATE, solver.Results.size() != resultCountBefore, "Steps:%u, expected:%u.", solver.Results.size(), resultCountBefore);
 
 	::llc::asc_t failedFormat = {};
 	if_fail_fe(::llc::append_string(failedFormat, "preserved"));
-	cnst ::llc::vcst_t failedTemplate = "prefix:{application.blitter.missing.name}";
+	cnst ::llc::vcst_t failedTemplate {"prefix:{application.blitter.missing.name}"};
 	cnst ::llc::err_t failedFormatResult = ::llc::jsonStringFormat(failedTemplate, reader, 0, failedFormat);
 	::testJSONExpressionTrace(reader, 0, failedTemplate, "preserved", {failedFormat.begin(), failedFormat.size()}, failedFormatResult, true, true);
 	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_FAILURE_RESULT, 0 <= failedFormatResult, "Result:%i.", failedFormatResult);
-	cnst ::llc::vcst_t failedFormatView = {failedFormat.begin(), failedFormat.size()};
-	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_FAILURE_OUTPUT, failedFormatView != "preserved", "Output:'%.*s'.", LLC_VIEW_ARGS(failedFormatView));
+	cnst ::llc::vcst_t failedFormatView {failedFormat.begin(), failedFormat.size()};
+	LLC_TEST_CHECKF(errors, JSON_EXPRESSION_TEST_RESULT_FORMAT_FAILURE_OUTPUT, failedFormatView != ::llc::vcst_t{"preserved"}, "Output:'%.*s'.", LLC_VIEW_ARGS(failedFormatView));
 	rtrn 0;
 }

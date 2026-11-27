@@ -37,8 +37,8 @@ sttc ::llc::err_t testLabelManager(::llc::ATestError & errors) {
 	LLC_TEST_REQUIREF(errors, LABEL_TEST_RESULT_MANAGER_INTERN, !beta.begin() , "%s", "Manager beta has no storage." );
 	LLC_TEST_REQUIREF(errors, LABEL_TEST_RESULT_MANAGER_INTERN, alpha.size() != 5 , "Manager alpha size:%u, expected:5." , alpha.size() );
 	LLC_TEST_REQUIREF(errors, LABEL_TEST_RESULT_MANAGER_INTERN, beta.size() != 4 , "Manager beta size:%u, expected:4." , beta.size() );
-	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_MANAGER_INTERN, alpha != "alpha" , "Manager alpha:'%.*s', expected:'alpha'." , (int)alpha.size(), alpha.begin() );
-	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_MANAGER_INTERN, beta != "beta" , "Manager beta:'%.*s', expected:'beta'." , (int)beta.size(), beta.begin() );
+	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_MANAGER_INTERN, alpha != ::llc::vcst_t{"alpha"} , "Manager alpha:'%.*s', expected:'alpha'." , (int)alpha.size(), alpha.begin() );
+	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_MANAGER_INTERN, beta != ::llc::vcst_t{"beta"} , "Manager beta:'%.*s', expected:'beta'." , (int)beta.size(), beta.begin() );
 
 	::llc::au0_t serialized = {};
 	LLC_TEST_REQUIREF(errors, LABEL_TEST_RESULT_MANAGER_SERIALIZATION, ::llc::failed(manager.Save(serialized)) , "%s", "manager Save() failed." );
@@ -86,16 +86,16 @@ sttc ::llc::err_t testLabelManager(::llc::ATestError & errors) {
 
 sttc ::llc::err_t testLabels(::llc::ATestError & errors) {
 	cnst ::llc::sc_t boundedText[] = {'a', 'l', 'p', 'h', 'a'};
-	cnst ::llc::label alpha		= "alpha";
-	cnst ::llc::label repeated	= "alpha";
-	cnst ::llc::label truncated	= {"alphabet", 5};
-	cnst ::llc::label bounded	= {boundedText, ::llc::size(boundedText)};
-	cnst ::llc::label beta		= "beta";
+	cnst ::llc::label alpha		{"alpha"};
+	cnst ::llc::label repeated	{"alpha"};
+	cnst ::llc::label truncated	{"alphabet", 5};
+	cnst ::llc::label bounded	{boundedText, ::llc::size(boundedText)};
+	cnst ::llc::label beta		{"beta"};
 	LLC_TEST_REQUIREF(errors, LABEL_TEST_RESULT_LABEL_CONTENT, alpha.size() != 5 , "Alpha label size:%u, expected:5." , alpha.size() );
 	LLC_TEST_REQUIREF(errors, LABEL_TEST_RESULT_LABEL_CONTENT, !alpha.begin() , "%s", "Alpha label has no storage." );
 	LLC_TEST_REQUIREF(errors, LABEL_TEST_RESULT_LABEL_CONTENT, beta.size() != 4 , "Beta label size:%u, expected:4." , beta.size() );
 	LLC_TEST_REQUIREF(errors, LABEL_TEST_RESULT_LABEL_CONTENT, !beta.begin() , "%s", "Beta label has no storage." );
-	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_LABEL_CONTENT, false == (alpha == "alpha") , "Alpha label text:'%.*s', expected:'alpha'." , (int)alpha.size(), alpha.begin() );
+	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_LABEL_CONTENT, false == (alpha == ::llc::vcst_t{"alpha"}) , "Alpha label text:'%.*s', expected:'alpha'." , (int)alpha.size(), alpha.begin() );
 	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_LABEL_CONTENT, alpha.begin()[alpha.size()] , "Alpha label terminator:%i, expected:0." , alpha.begin()[alpha.size()] );
 	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_LABEL_INTERN, alpha.begin() != repeated.begin() , "Repeated alpha storage:%p, expected:%p." , repeated.begin(), alpha.begin() );
 	LLC_TEST_CHECKF(errors, LABEL_TEST_RESULT_LABEL_INTERN, alpha.begin() != truncated.begin() , "Truncated alpha storage:%p, expected:%p." , truncated.begin(), alpha.begin() );

@@ -72,7 +72,7 @@ namespace llc
 		u2_t						ChildChunks				= 0;	// | num bytes of children chunks (M)
 
 		inline	bool				IsType					(vcst_t riff)	const	{
-			return riff == Type;
+			return riff == vcst_t{Type.begin(), Type.size()};
 		}
 	};
 

@@ -904,7 +904,7 @@ sttc ::llc::err_t testGUIComponents(::llc::ATestError & errors) {
 	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, gui.Controls.States[inputBox.IdText].Parent != inputBox.IdRoot || gui.Controls.States[inputBox.VirtualKeyboard.IdRoot].Parent != inputBox.IdRoot);
 	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, false == gui.Controls.IsHidden(inputBox.IdRoot));
 	LLC_TEST_REQUIREF	(errors, GUI_TEST_RESULT_INPUTBOX, 0 > inputBox.SetText(gui, "TEST"), "%s", "Input text failed.");
-	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, inputBox.Text != "TEST");
+	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, inputBox.Text != ::llc::vcst_t{"TEST"});
 	LLC_TEST_CHECK		(errors, GUI_TEST_RESULT_INPUTBOX, 1 != inputBox.Edit(gui, true) || gui.Controls.IsHidden(inputBox.IdRoot));
 
 	::llc::SViewport	viewport = {};

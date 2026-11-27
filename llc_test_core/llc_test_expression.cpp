@@ -47,22 +47,22 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_FORMAT, calls != 5);
 	::llc::apod<::llc::SStripLiteralType> tokens;
 	::llc::SStripLiteralState state;
-	cnst ::llc::vcst_t format = "{hh}:{mm}";
+	cnst ::llc::vcst_t format {"{hh}:{mm}"};
 	if_fail_fe(::llc::stripLiteralParse(state, tokens, format));
 	bindings[0].Val = "23";
 	::llc::string output;
 	if_fail_fe(::llc::append_string(output, "prefix:"));
 	LLC_TEST_REQUIRE(errors, EXPRESSION_TEST_RESULT_REUSE, ::llc::failed(::llc::expressionStringFormat(format, tokens, resolve, output)));
-	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_REUSE, output != "prefix:23:04");
+	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_REUSE, output != ::llc::vcst_t{"prefix:23:04"});
 	if_fail_fe(::llc::append_strings(examples, "\nReused tokens after hh = \"", bindings[0].Val, "\"; initial output = \"prefix:\"\nTemplate: \"", format, "\"\nExpected: \"prefix:23:04\"\nActual:   \"", output, "\"\n"));
 	cnst ::llc::sc_t * before = output.begin();
 	cnst ::llc::err_t missingResult = ::llc::expressionStringFormat("{hh}:{missing}", resolve, output);
 	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_ROLLBACK, 0 <= missingResult);
-	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_ROLLBACK, output.begin() != before || output != "prefix:23:04" || output.begin()[output.size()] != 0);
+	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_ROLLBACK, output.begin() != before || output != ::llc::vcst_t{"prefix:23:04"} || output.begin()[output.size()] != 0);
 	if_fail_fe(::llc::append_strings(examples, "\nTemplate: \"{hh}:{missing}\"\nExpected: negative result; output unchanged\nResult: ", ::llc::str(missingResult), "\nActual:   \"", output, "\"\n"));
 	tokens[0].Span.End = format.size() + 1;
 	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_ROLLBACK, 0 <= ::llc::expressionStringFormat(format, tokens, resolve, output));
-	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_ROLLBACK, output.begin() != before || output != "prefix:23:04");
+	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_ROLLBACK, output.begin() != before || output != ::llc::vcst_t{"prefix:23:04"});
 
 	cnst ::llc::s3_t now = ::llc::timeCurrentInMs();
 	if_fail_fe(::llc::append_strings(examples, "\nLocal calendar bindings: yy=year, MM=month, dd=day, hh=hour, mm=minute, ss=second, ff=hundredths. All two digits.\nTimestamp (milliseconds since epoch): ", ::llc::str(now), "\n"));
@@ -73,7 +73,7 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 		LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_DATE, output.size() != 2 || ::llc::parseIntegerDecimal(output, hundredths) != 2 || hundredths != fraction / 10);
 		if_fail_fe(::llc::append_strings(examples, "Template: \"{ff}\"; milliseconds: ", ::llc::str(fraction), "; expected hundredths: ", ::llc::str(fraction / 10), "; actual: \"", output, "\"\n"));
 	}
-	cnst ::llc::vcst_t dateFormat = "{yy}{MM}{dd}_{hh}{mm}{ss}{ff}";
+	cnst ::llc::vcst_t dateFormat {"{yy}{MM}{dd}_{hh}{mm}{ss}{ff}"};
 	tokens.clear(); state = {};
 	if_fail_fe(::llc::stripLiteralParse(state, tokens, dateFormat));
 	::llc::string fresh, cached;
@@ -101,13 +101,13 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_DATE, fresh != cached);
 	always_printf("Date formatting, %u values: parse+format=%" LLC_FMT_U3 " us, reused tokens=%" LLC_FMT_U3 " us.", iterations, parseAndFormat, timer.LastTimeMicroseconds);
 	if_fail_fe(::llc::append_strings(examples, "\nTiming for ", ::llc::str(iterations), " dates (microseconds):\nParse + format: ", ::llc::str(parseAndFormat), "\nReused tokens:  ", ::llc::str(timer.LastTimeMicroseconds), "\n"));
-	if_fail_fe(::llc::fileFromMemory(outputFolder, "formatting_examples.txt", examples.as<u0_c>()));
+	if_fail_fe(::llc::fileFromMemory(outputFolder, "formatting_examples.txt", examples.tplt as<::llc::u0_c>()));
 	rtrn 0;
 }
 
 ::llc::err_t test_expression(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	if_fail_fe(::testExpressionFormatting(errors, outputFolder));
-	cnst ::llc::vcst_t			validExpression			= "application.test_udp";
+	cnst ::llc::vcst_t			validExpression			{"application.test_udp"};
 	::llc::SExpressionReader	validReader				= {};
 	cnst ::llc::err_t			validResult				= ::llc::expressionReaderParse(validReader, validExpression);
 	always_printf("EXPRESSION input:'%.*s'; expected parse success; result:%i, tokens:%u.", LLC_VIEW_ARGS(validExpression), validResult, validReader.Reader.Token.size());
@@ -128,17 +128,17 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_STEP_RANGE, 0 <= emptyStepResult , "Result:%i." , emptyStepResult );
 
 	cnst ::llc::sc_t			invalidCharacterStorage[]	= {'\"', '\x01', '\"'};
-	cnst ::llc::vcst_t			invalidCharacter			= invalidCharacterStorage;
+	cnst ::llc::vcst_t			invalidCharacter			{invalidCharacterStorage};
 	invalidReader										= {};
 	cnst ::llc::err_t			invalidCharacterResult		= ::llc::expressionReaderParse(invalidReader, invalidCharacter);
 	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_INVALID_CHARACTER, 0 <= invalidCharacterResult , "Result:%i, byte:0x%02X." , invalidCharacterResult, (::llc::u0_t)invalidCharacter[1] );
 
-	cnst ::llc::vcst_t			truncatedCodepoint			= "\"\\u12\"";
+	cnst ::llc::vcst_t			truncatedCodepoint			{"\"\\u12\""};
 	invalidReader										= {};
 	cnst ::llc::err_t			truncatedCodepointResult	= ::llc::expressionReaderParse(invalidReader, truncatedCodepoint);
 	LLC_TEST_CHECKF(errors, EXPRESSION_TEST_RESULT_TRUNCATED_CODEPOINT, 0 <= truncatedCodepointResult , "Result:%i, expression:%.*s." , truncatedCodepointResult, LLC_VIEW_ARGS(truncatedCodepoint) );
 
-	cnst ::llc::vcst_t			unclosedLevel				= "application[";
+	cnst ::llc::vcst_t			unclosedLevel				{"application["};
 	invalidReader										= {};
 	cnst ::llc::err_t			unclosedLevelResult			= ::llc::expressionReaderParse(invalidReader, unclosedLevel);
 	always_printf("EXPRESSION rejection cases (expected negative): empty parse-step=%i; quoted byte 01=%i; '%.*s'=%i; '%.*s'=%i.", emptyStepResult, invalidCharacterResult, LLC_VIEW_ARGS(truncatedCodepoint), truncatedCodepointResult, LLC_VIEW_ARGS(unclosedLevel), unclosedLevelResult);

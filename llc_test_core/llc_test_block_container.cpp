@@ -106,12 +106,12 @@ sttc ::llc::err_t testBlockContainerNTS(::llc::ATestError & errors) {
 	LLC_TEST_REQUIREF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, second.size() != 1 , "Second NTS view size:%u, expected:1." , second.size() );
 	LLC_TEST_REQUIREF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, !first.begin() , "%s", "First NTS view has no storage." );
 	LLC_TEST_REQUIREF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, !second.begin() , "%s", "Second NTS view has no storage." );
-	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, first != "four" , "First NTS view:'%.*s', expected:'four'." , (int)first.size(), first.begin() );
-	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, second != "x" , "Second NTS view:'%.*s', expected:'x'." , (int)second.size(), second.begin() );
+	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, first != ::llc::vcst_t{"four"} , "First NTS view:'%.*s', expected:'four'." , (int)first.size(), first.begin() );
+	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, second != ::llc::vcst_t{"x"} , "Second NTS view:'%.*s', expected:'x'." , (int)second.size(), second.begin() );
 	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, first.begin()[first.size()] , "First NTS terminator:%i, expected:0." , first.begin()[first.size()] );
 	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_NTS_TERMINATOR, second.begin()[second.size()] , "Second NTS terminator:%i, expected:0." , second.begin()[second.size()] );
 
-	::llc::vcst_t rejected = first;
+	::llc::vcst_t rejected {first};
 	cnst ::llc::err_t oversizedResult = ::blockContainerExpectedFailure([&]() { rtrn strings.push_sequence("12345", 5, rejected); });
 	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_BOUNDS, false == ::llc::failed(oversizedResult) , "Oversized NTS push result:%i, expected failure." , oversizedResult );
 	LLC_TEST_CHECKF(errors, BLOCK_CONTAINER_TEST_RESULT_BOUNDS, rejected.begin() != first.begin() , "Oversized NTS push changed output begin:%p, expected:%p." , rejected.begin(), first.begin() );

@@ -213,12 +213,12 @@ sttc ::llc::err_t testImageSerialization(::llc::ATestError & errors) {
 		cnst ::llc::vcu0_t originalInput = truncated;
 		::llc::img<T> preserved = {};
 		LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_OUTPUT, 0 > preserved.resize(sentinelMetrics, sentinelValue), "%u-bit truncation sentinel image could not be prepared at byte:%u.", bcof(T), byteCount);
-		cnst ::llc::vcu0_t originalTexels = preserved.Texels.as<u0_c>();
+		cnst ::llc::vcu0_t originalTexels = preserved.Texels.tplt as<::llc::u0_c>();
 		cnst ::llc::err_t truncatedResult = ::llc::loadImage(truncated, preserved);
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_RESULT, 0 <= truncatedResult, "%u-bit loadImage() accepted %u/%u bytes. result:%i.", bcof(T), byteCount, imageSize, truncatedResult);
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_CURSOR, truncated.begin() != originalInput.begin(), "%u-bit truncated cursor begin:%p, expected:%p at byte:%u.", bcof(T), truncated.begin(), originalInput.begin(), byteCount);
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_CURSOR, truncated.size() != originalInput.size(), "%u-bit truncated cursor size:%u, expected:%u at byte:%u.", bcof(T), truncated.size(), originalInput.size(), byteCount);
-		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_OUTPUT, preserved.Texels.as<u0_c>().begin() != originalTexels.begin(), "%u-bit rejected load replaced output storage at byte:%u. begin:%p, expected:%p.", bcof(T), byteCount, preserved.Texels.begin(), originalTexels.begin());
+		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_OUTPUT, preserved.Texels.tplt as<::llc::u0_c>().begin() != originalTexels.begin(), "%u-bit rejected load replaced output storage at byte:%u. begin:%p, expected:%p.", bcof(T), byteCount, preserved.Texels.begin(), originalTexels.begin());
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_OUTPUT, preserved.metrics() != sentinelMetrics, "%u-bit rejected load changed output metrics at byte:%u. metrics:%u x %u.", bcof(T), byteCount, preserved.metrics().x, preserved.metrics().y);
 		LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_TRUNCATED_OUTPUT, preserved.size() != 1, "%u-bit rejected load changed output count at byte:%u. count:%u.", bcof(T), byteCount, preserved.size());
 		if(preserved.size())
@@ -232,12 +232,12 @@ sttc ::llc::err_t testImageSerialization(::llc::ATestError & errors) {
 	cnst ::llc::vcu0_t originalInconsistentInput = inconsistentInput;
 	::llc::img<T> preserved = {};
 	LLC_TEST_REQUIREF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_OUTPUT, 0 > preserved.resize(sentinelMetrics, sentinelValue), "%u-bit inconsistent-metrics sentinel image could not be prepared.", bcof(T));
-	cnst ::llc::vcu0_t originalTexels = preserved.Texels.as<u0_c>();
+	cnst ::llc::vcu0_t originalTexels = preserved.Texels.tplt as<::llc::u0_c>();
 	cnst ::llc::err_t inconsistentResult = ::llc::loadImage(inconsistentInput, preserved);
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_RESULT, 0 <= inconsistentResult, "%u-bit loadImage() accepted metrics:%u x %u for %u texels. result:%i.", bcof(T), inconsistentMetrics.x, inconsistentMetrics.y, source.size(), inconsistentResult);
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_CURSOR, inconsistentInput.begin() != originalInconsistentInput.begin(), "%u-bit inconsistent-metrics cursor begin:%p, expected:%p.", bcof(T), inconsistentInput.begin(), originalInconsistentInput.begin());
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_CURSOR, inconsistentInput.size() != originalInconsistentInput.size(), "%u-bit inconsistent-metrics cursor size:%u, expected:%u.", bcof(T), inconsistentInput.size(), originalInconsistentInput.size());
-	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_OUTPUT, preserved.Texels.as<u0_c>().begin() != originalTexels.begin(), "%u-bit inconsistent-metrics load replaced output storage. begin:%p, expected:%p.", bcof(T), preserved.Texels.begin(), originalTexels.begin());
+	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_OUTPUT, preserved.Texels.tplt as<::llc::u0_c>().begin() != originalTexels.begin(), "%u-bit inconsistent-metrics load replaced output storage. begin:%p, expected:%p.", bcof(T), preserved.Texels.begin(), originalTexels.begin());
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_OUTPUT, preserved.metrics() != sentinelMetrics, "%u-bit inconsistent-metrics load changed output metrics to:%u x %u.", bcof(T), preserved.metrics().x, preserved.metrics().y);
 	LLC_TEST_CHECKF(errors, GRID_IMAGE_TEST_RESULT_IMAGE_METRIC_COUNT_OUTPUT, preserved.size() != 1, "%u-bit inconsistent-metrics load changed output count to:%u.", bcof(T), preserved.size());
 	if(preserved.size())

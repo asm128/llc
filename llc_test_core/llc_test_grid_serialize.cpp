@@ -36,7 +36,7 @@ sttc ::llc::err_t testLegacyGrid(::llc::ATestError & errors) {
 	};
 	::llc::au0_t serialized;
 	LLC_TEST_REQUIREF(errors, GRID_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, ::llc::savePOD(serialized, metrics) != szof(metrics), "%u-bit grid test could not serialize its dimensions.", bcof(T));
-	LLC_TEST_REQUIREF(errors, GRID_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, 0 > serialized.append(::llc::view<cnst T>{&source[0][0], CELL_COUNT}.as<u0_c>()), "%u-bit grid test could not serialize its cells.", bcof(T));
+	LLC_TEST_REQUIREF(errors, GRID_SERIALIZE_TEST_RESULT_GRID_MUTABLE_RESULT, 0 > serialized.append(::llc::view<cnst T>{&source[0][0], CELL_COUNT}.tplt as<::llc::u0_c>()), "%u-bit grid test could not serialize its cells.", bcof(T));
 	cnst ::llc::u2_t expectedSize = szof(metrics) + szof(source);
 
 	::llc::grid<T> mutableGrid;

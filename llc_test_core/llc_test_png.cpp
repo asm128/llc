@@ -24,7 +24,7 @@ stct SPNGTestPair {
 	::llc::s0_t		BitDepth		= {};
 };
 
-stxp ::llc::vcst_t PNG_SUITE_DIRECTORY = "../llc_data/pngsuite";
+stxp ::llc::vcst_t PNG_SUITE_DIRECTORY {"../llc_data/pngsuite"};
 stxp ::llc::vcst_t PNG_INVALID_SIGNATURES[] =
 	{ "xcrn0g04.png"
 	, "xlfn0g04.png"
@@ -59,7 +59,7 @@ sttc ::llc::err_t testPNGInvalidSource(::llc::ATestError & errors) {
 	for(::llc::u2_t iFile = 0; iFile < ::llc::size(PNG_INVALID_SIGNATURES); ++iFile) {
 		::llc::string path = {};
 		if_fail_fe(::llc::pathNameCompose(PNG_SUITE_DIRECTORY, PNG_INVALID_SIGNATURES[iFile], path));
-		cnst ::llc::vcst_t pathView = {path.begin(), path.size()};
+		cnst ::llc::vcst_t pathView {path.begin(), path.size()};
 		LLC_TEST_CHECKF(errors, PNG_TEST_RESULT_INVALID_SIGNATURE, 0 <= ::llc::pngFileLoad(pngData, pathView) , "File:'%.*s'." , (int)pathView.size(), pathView.begin() );
 	}
 	rtrn 0;
@@ -83,8 +83,8 @@ sttc ::llc::err_t testPNGLoadPairs(::llc::ATestError & errors, ::llc::vcst_t out
 		::llc::string interlacedPath = {}, nonInterlacedPath = {};
 		if_fail_fe(::llc::pathNameCompose(PNG_SUITE_DIRECTORY, pair.Interlaced, interlacedPath));
 		if_fail_fe(::llc::pathNameCompose(PNG_SUITE_DIRECTORY, pair.NonInterlaced, nonInterlacedPath));
-		cnst ::llc::vcst_t interlacedPathView = {interlacedPath.begin(), interlacedPath.size()};
-		cnst ::llc::vcst_t nonInterlacedPathView = {nonInterlacedPath.begin(), nonInterlacedPath.size()};
+		cnst ::llc::vcst_t interlacedPathView {interlacedPath.begin(), interlacedPath.size()};
+		cnst ::llc::vcst_t nonInterlacedPathView {nonInterlacedPath.begin(), nonInterlacedPath.size()};
 
 		::llc::img8bgra interlacedImage = {}, nonInterlacedImage = {}, sourceImage = {};
 		cnst ::llc::err_t interlacedResult = ::llc::pngFileLoad(pngData, interlacedPathView, interlacedImage);
@@ -109,7 +109,7 @@ sttc ::llc::err_t testPNGLoadPairs(::llc::ATestError & errors, ::llc::vcst_t out
 
 		::llc::au0_t source = {};
 		if_fail_fef(::llc::fileToMemory(interlacedPathView, source), "Failed to read:'%.*s'.", (int)interlacedPathView.size(), interlacedPathView.begin());
-		cnst ::llc::err_t sourceResult = ::llc::pngFileLoad(pngData, source.as<u0_c>(), sourceImage);
+		cnst ::llc::err_t sourceResult = ::llc::pngFileLoad(pngData, source.tplt as<::llc::u0_c>(), sourceImage);
 		LLC_TEST_CHECKF(errors, PNG_TEST_RESULT_SOURCE_LOAD, ::llc::failed(sourceResult) , "File:'%.*s', result:%i." , (int)interlacedPathView.size(), interlacedPathView.begin(), sourceResult );
 		if(::llc::failed(sourceResult))
 			continue;

@@ -229,8 +229,8 @@ stxp SExpectedSystemKey SYSTEM_KEYS[] = {
 		LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_REGISTRY_NAME, registry.Names[iKey] != expected.Name, "Index:%u, name:%.*s, expected:%.*s.", iKey, LLC_VIEW_ARGS(registry.Names[iKey]), LLC_VIEW_ARGS(expected.Name));
 		LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_NAME_LOOKUP, registry.get_value(expected.Name) != expected.Key, "Name:%.*s, lookup:0x%02X, expected:0x%02X.", LLC_VIEW_ARGS(expected.Name), (::llc::u2_t)registry.get_value(expected.Name), (::llc::u2_t)expected.Key);
 	}
-	LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_HANGUL_ALIAS, ::llc::get_value_namev(::llc::SYSTEM_KEY_Hangul) != "Kana", "Canonical:%.*s, expected:Kana.", LLC_VIEW_ARGS(::llc::get_value_namev(::llc::SYSTEM_KEY_Hangul)));
-	LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_HANJA_ALIAS, ::llc::get_value_namev(::llc::SYSTEM_KEY_Hanja) != "Kanji", "Canonical:%.*s, expected:Kanji.", LLC_VIEW_ARGS(::llc::get_value_namev(::llc::SYSTEM_KEY_Hanja)));
-	LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_JISHO_ALIAS, ::llc::get_value_namev(::llc::SYSTEM_KEY_OEM_FJ_jisho) != "OEM_NEC_equal", "Canonical:%.*s, expected:OEM_NEC_equal.", LLC_VIEW_ARGS(::llc::get_value_namev(::llc::SYSTEM_KEY_OEM_FJ_jisho)));
+	LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_HANGUL_ALIAS, ::llc::get_value_namev(::llc::SYSTEM_KEY_Hangul) != ::llc::vcst_t{"Kana"}, "Canonical:%.*s, expected:Kana.", LLC_VIEW_ARGS(::llc::get_value_namev(::llc::SYSTEM_KEY_Hangul)));
+	LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_HANJA_ALIAS, ::llc::get_value_namev(::llc::SYSTEM_KEY_Hanja) != ::llc::vcst_t{"Kanji"}, "Canonical:%.*s, expected:Kanji.", LLC_VIEW_ARGS(::llc::get_value_namev(::llc::SYSTEM_KEY_Hanja)));
+	LLC_TEST_CHECKF(errors, SYSTEM_KEY_TEST_RESULT_JISHO_ALIAS, ::llc::get_value_namev(::llc::SYSTEM_KEY_OEM_FJ_jisho) != ::llc::vcst_t{"OEM_NEC_equal"}, "Canonical:%.*s, expected:OEM_NEC_equal.", LLC_VIEW_ARGS(::llc::get_value_namev(::llc::SYSTEM_KEY_OEM_FJ_jisho)));
 	rtrn 0;
 }

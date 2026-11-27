@@ -135,8 +135,8 @@ sttc ::llc::err_t testDataTypeConstants(::llc::ATestError & errors) {
 
 sttc ::llc::err_t testTypeIdentifier(::llc::ATestError & errors) {
 	cnst ::llc::STypeIdentifier type = {"llc", "u2_t"}, equal = {"llc", "u2_t"}, otherNamespace = {"std", "u2_t"}, otherName = {"llc", "u3_t"};
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAMESPACE, type.NameSpace != "llc", "Namespace:'%.*s'.", LLC_VIEW_ARGS(type.NameSpace));
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAME, type.Name != "u2_t", "Name:'%.*s'.", LLC_VIEW_ARGS(type.Name));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAMESPACE, type.NameSpace != ::llc::vcst_t{"llc"}, "Namespace:'%.*s'.", LLC_VIEW_ARGS(type.NameSpace));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_NAME, type.Name != ::llc::vcst_t{"u2_t"}, "Name:'%.*s'.", LLC_VIEW_ARGS(type.Name));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_TERMINATOR, type.NameSpace.begin()[type.NameSpace.size()], "Namespace terminator:%i.", type.NameSpace.begin()[type.NameSpace.size()]);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_TERMINATOR, type.Name.begin()[type.Name.size()], "Name terminator:%i.", type.Name.begin()[type.Name.size()]);
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_IDENTIFIER_EQUALITY, false == (type == equal), "%s", "Equal identifiers compared different.");
@@ -162,9 +162,9 @@ sttc ::llc::err_t testMemberRegistry(::llc::ATestError & errors) {
 	LLC_TEST_REQUIRE(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_DESCRIPTIONS, 2 != registry.get_descriptions().size());
 	LLC_TEST_REQUIRE(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_DATA_TYPES, 2 != registry.get_data_type_ids().size());
 	LLC_TEST_REQUIRE(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_SIZES, 2 != registry.get_member_sizes().size());
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[0].NameSpace != "::llc", "Namespace:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[0].NameSpace));
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[0].Name != "u0_t", "First type:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[0].Name));
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[1].Name != "f2_t", "Second type:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[1].Name));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[0].NameSpace != ::llc::vcst_t{"::llc"}, "Namespace:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[0].NameSpace));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[0].Name != ::llc::vcst_t{"u0_t"}, "First type:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[0].Name));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_TYPES, registry.get_types()[1].Name != ::llc::vcst_t{"f2_t"}, "Second type:'%.*s'.", LLC_VIEW_ARGS(registry.get_types()[1].Name));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_NAMES, registry.get_names()[0] != ::llc::label{"Index"}, "First name:'%.*s'.", LLC_VIEW_ARGS(registry.get_names()[0]));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_NAMES, registry.get_names()[1] != ::llc::label{"Weight"}, "Second name:'%.*s'.", LLC_VIEW_ARGS(registry.get_names()[1]));
 	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_REGISTRY_DISPLAY_NAMES, registry.get_display_names()[0] != ::llc::label{"Index display"}, "First display:'%.*s'.", LLC_VIEW_ARGS(registry.get_display_names()[0]));
@@ -215,11 +215,11 @@ sttc ::llc::err_t testPODDefinition(::llc::ATestError & errors) {
 	if_fail_fe(::testPODValue(errors, definition, "f64", ::llc::f3_t{-0.5}, ::llc::DATA_TYPE_FLOAT64));
 
 	::llc::sc_t mutableName[] = {'o', 'w', 'n', 'e', 'd', 0};
-	cnst ::llc::vcst_t mutableNameView = {mutableName, 5};
+	cnst ::llc::vcst_t mutableNameView {mutableName, 5};
 	cnst ::llc::err_t ownedResult = definition.push_any(mutableNameView, ::llc::u0_t{7});
 	LLC_TEST_REQUIREF(errors, TYPE_METADATA_TEST_RESULT_POD_PUSH_RESULT, ::llc::failed(ownedResult), "Owned-label result:%i.", ownedResult);
 	mutableName[0] = 'x';
-	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_LABEL_OWNERSHIP, false == (definition.Labels[ownedResult] == "owned"), "Stored:'%.*s'.", LLC_VIEW_ARGS(definition.Labels[ownedResult]));
+	LLC_TEST_CHECKF(errors, TYPE_METADATA_TEST_RESULT_POD_LABEL_OWNERSHIP, false == (definition.Labels[ownedResult] == ::llc::vcst_t{"owned"}), "Stored:'%.*s'.", LLC_VIEW_ARGS(definition.Labels[ownedResult]));
 
 	cnst ::llc::u2_t memberCountBeforeFailure = definition.Labels.size(), byteCountBeforeFailure = definition.DefaultData.size();
 	cnst ::llc::err_t duplicateResult = ::typeMetadataExpectedFailure([&]() { rtrn definition.push_any("u8", ::llc::u0_t{9}); });

@@ -20,7 +20,7 @@ llc::err_t	llc::wordListNormalize			(aobj<string> & itemWords, view<vcst_c> uppe
 	string					fixedWord;
 	for(u2_t iWord = 0, countWords = upper.size(); iWord < countWords; ++iWord) {
 		vcst_t					originalWord						= upper[iWord];
-		trim(originalWord, originalWord);
+		trim(originalWord);
 		string					& finalWord							= itemWords[iWord];
 		finalWord.clear();
 		if_fail_fe(append_strings(finalWord, originalWord));

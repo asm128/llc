@@ -156,7 +156,7 @@ stct SPathListCounts {
 };
 
 stct SPathListFixture {
-	::llc::vcst_t			Root		= "./llc_test_path_list";
+	::llc::vcst_t			Root		{"./llc_test_path_list"};
 						~SPathListFixture	() { std::error_code error; std::filesystem::remove_all(Root.begin(), error); }
 };
 
@@ -251,7 +251,7 @@ sttc ::llc::err_t testPathNameCompose(::llc::ATestError & errors) {
 		, {"prefix:"	, "folder"			, "file.txt"	, "prefix:folder/file.txt", PATH_TEST_RESULT_COMPOSE_APPEND}
 		};
 	for(cnst SPathComposeCase & testCase : cases) {
-		::llc::string		output		= testCase.Prefix;
+		::llc::string		output		{testCase.Prefix};
 		cnst ::llc::err_t result		= ::llc::pathNameCompose(testCase.Path, testCase.FileName, output);
 		always_printf("PATH compose prefix:'%.*s', path:'%.*s', filename:'%.*s'\nExpected:'%.*s'\nActual:'%.*s'; return:%i; text:%s.", LLC_VIEW_ARGS(testCase.Prefix), LLC_VIEW_ARGS(testCase.Path), LLC_VIEW_ARGS(testCase.FileName), LLC_VIEW_ARGS(testCase.Expected), (int)output.size(), output.begin(), result, pathTextMismatch(output, testCase.Expected) ? "FAIL" : "PASS");
 		LLC_TEST_CHECKF(errors, testCase.Result, pathTextMismatch(output, testCase.Expected) , "Prefix:'%.*s', path:'%.*s', file:'%.*s' produced:'%.*s'/%u, expected:'%.*s'/%u." , (int)testCase.Prefix.size(), testCase.Prefix.begin(), (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin() , (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size() );
@@ -270,7 +270,7 @@ sttc ::llc::err_t testPathNameComposeInvalid(::llc::ATestError & errors) {
 		, {"preserved:"	, "///server/share"	, "file.txt"		, "preserved:"	, PATH_TEST_RESULT_COMPOSE_DUPLICATE_SEPARATOR}
 		};
 	for(cnst SPathComposeCase & testCase : cases) {
-		::llc::string		output		= testCase.Prefix;
+		::llc::string		output		{testCase.Prefix};
 		cnst ::llc::err_t result		= ::llc::pathNameCompose(testCase.Path, testCase.FileName, output);
 		LLC_TEST_CHECKF(errors, testCase.Result, false == ::llc::failed(result) , "Path:'%.*s', file:'%.*s' returned:%" LLC_FMT_S2 ", expected failure." , (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin(), result );
 		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_COMPOSE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', file:'%.*s' changed output to:'%.*s'/%u, expected:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), (int)testCase.FileName.size(), testCase.FileName.begin() , (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size() );
@@ -301,7 +301,7 @@ sttc ::llc::err_t testPathNormalize(::llc::ATestError & errors) {
 		, {"C:/folder/file"				, "C:\\folder\\file"		, '\\', PATH_TEST_RESULT_NORMALIZE_SEPARATOR}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
-		::llc::string		output		= "stale";
+		::llc::string		output		{"stale"};
 		cnst ::llc::err_t result		= ::llc::pathNormalize(testCase.Path, output, testCase.Separator);
 		always_printf("PATH normalize input:'%.*s', separator:'%c'\nExpected:'%.*s'\nActual:'%.*s'; return:%i; text:%s.", LLC_VIEW_ARGS(testCase.Path), testCase.Separator, LLC_VIEW_ARGS(testCase.Expected), (int)output.size(), output.begin(), result, pathTextMismatch(output, testCase.Expected) ? "FAIL" : "PASS");
 		LLC_TEST_CHECKF(errors, testCase.Result, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', separator:'%c' produced:'%.*s'/%u, expected:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size(), (int)testCase.Expected.size(), testCase.Expected.begin(), testCase.Expected.size() );
@@ -323,7 +323,7 @@ sttc ::llc::err_t testPathNormalizeInvalid(::llc::ATestError & errors) {
 		, {"folder/file"		, "preserved"	, ':', PATH_TEST_RESULT_NORMALIZE_INVALID}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
-		::llc::string		output		= testCase.Expected;
+		::llc::string		output		{testCase.Expected};
 		cnst ::llc::err_t result		= ::llc::pathNormalize(testCase.Path, output, testCase.Separator);
 		LLC_TEST_CHECKF(errors, testCase.Result, false == ::llc::failed(result) , "Path:'%.*s', separator:'%c' returned:%" LLC_FMT_S2 ", expected failure." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, result );
 		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_NORMALIZE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', separator:'%c' changed output to:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size() );
@@ -373,7 +373,7 @@ sttc ::llc::err_t testPathAbsoluteInvalid(::llc::ATestError & errors) {
 		, {"folder/file"		, "preserved"	, ':', PATH_TEST_RESULT_ABSOLUTE_INVALID}
 		};
 	for(cnst SPathNormalizeCase & testCase : cases) {
-		::llc::string		output		= testCase.Expected;
+		::llc::string		output		{testCase.Expected};
 		cnst ::llc::err_t result		= ::llc::pathAbsolute(testCase.Path, output, testCase.Separator);
 		LLC_TEST_CHECKF(errors, testCase.Result, false == ::llc::failed(result) , "Path:'%.*s', separator:'%c' returned:%" LLC_FMT_S2 ", expected failure." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, result );
 		LLC_TEST_CHECKF(errors, PATH_TEST_RESULT_ABSOLUTE_FAILURE_PRESERVE, pathTextMismatch(output, testCase.Expected) , "Path:'%.*s', separator:'%c' changed output to:'%.*s'/%u." , (int)testCase.Path.size(), testCase.Path.begin(), testCase.Separator, (int)output.size(), output.begin(), output.size() );
@@ -429,7 +429,7 @@ sttc ::llc::err_t testPathTree(::llc::ATestError & errors, ::llc::vcst_t root) {
 	if_fail_fe(::testPathTreeLayout(errors, tree));
 	::llc::string callerRoot;
 	if_fail_fe(::llc::append_strings(callerRoot, root, '/'));
-	cnst ::llc::string suppliedRoot = callerRoot;
+	cnst ::llc::string suppliedRoot {callerRoot};
 	if_fail_fe(::llc::pathList(tree, callerRoot, ".bin"));
 	if_fail_fe(callerRoot.clear());
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_ROOT, tree.Root != suppliedRoot);
@@ -442,7 +442,7 @@ sttc ::llc::err_t testPathTree(::llc::ATestError & errors, ::llc::vcst_t root) {
 	if_fail_fe(::llc::pathList(tree, root, [] (bool folder, ::llc::vcst_c & path) -> ::llc::err_t {
 		::llc::vcst_t name;
 		if_fail_fe(::llc::pathFilename(path, name));
-		rtrn folder && name == "child" ? 1 : 0;
+		rtrn folder && name == ::llc::vcst_t{"child"} ? 1 : 0;
 	}));
 	LLC_TEST_CHECK(errors, PATH_TEST_RESULT_TREE_FILTER, tree.Info.size() != 2);
 	if_fail_fe(::testPathTreeLayout(errors, tree));
@@ -496,11 +496,11 @@ sttc ::llc::err_t testPathListRecursive(::llc::ATestError & errors) {
 	if_fail_fe(::llc::fileFromMemory("./llc_test_path_list/child/child.bin", ::llc::vcu0_c{}));
 	if_fail_fe(::llc::fileFromMemory("./llc_test_path_list/child/grandchild/deep.bin", ::llc::vcu0_c{}));
 
-	cnst ::llc::vcst_t	rootPath		= fixture.Root;
+	cnst ::llc::vcst_t	rootPath		{fixture.Root};
 	::llc::u2_t			callbackFiles	= 0;
 	::llc::u2_t			callbackFolders	= 0;
 	bool					deepFileSeen	= false;
-	stxp ::llc::vcst_t	deepFileName	= "deep.bin";
+	stxp ::llc::vcst_t	deepFileName	{"deep.bin"};
 	::llc::SPathContents	callbackTree;
 	cnst ::llc::err_t	callbackResult	= ::llc::pathList(rootPath, callbackTree
 		, [&](::llc::b8_t isFolder, ::llc::vcst_c & path) -> ::llc::err_t {

@@ -44,9 +44,9 @@ GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_VIEW				, 34, "array_pod<>::in
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, INSERT_CHAIN_REALLOCATE	, 35, "array_pod<>::insert(pointer, count) failed while growing its allocation.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, ERASE						, 38, "array_pod<>::erase() did not erase the addressed element.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_CHAINS				, 39, "array_pod<>::append(view of views) did not append every source range and report the written count.");
-GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_ARRAY		, 40, "array_pod<>::append_string(array) did not append text and report the written count.");
-GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_VIEW		, 41, "array_pod<>::append_string(view) did not append text and report the written count.");
-GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_ELEMENT		, 42, "array_pod<>::append_string(element) did not append one character and report one written element.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_ARRAY		, 40, "array_pod<>::append_string(array) did not append text and report its insertion index.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_VIEW		, 41, "array_pod<>::append_string(view) did not append text and report its insertion index.");
+GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_ELEMENT		, 42, "array_pod<>::append_string(element) did not append one character and report its insertion index.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_FUNCTION	, 43, "array_pod<>::append_string(function) did not invoke the formatter and forward its result.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRING_EMPTY_FUNCTION, 44, "array_pod<>::append_string(function) changed output for an empty formatter.");
 GDEFINE_ENUM_VALUED(ARRAY_POD_TEST_RESULT, APPEND_STRINGS				, 45, "array_pod<>::append_strings() did not append every string and report the written count.");
@@ -287,22 +287,22 @@ sttc ::llc::err_t testPodAppend(::llc::ATestError & errors) {
 sttc ::llc::err_t testPodStringAppend(::llc::ATestError & errors) {
 	::llc::asc_t text = {'s', 'e', 'e', 'd'};
 	::llc::err_t result = ::llc::append_string(text, "ab");
-	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, result != 2 , "Array string append written:%i, expected:2.", result );
+	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, result != 4 , "Array string append index:%i, expected:4.", result );
 	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ARRAY, text, ::llc::vcst_t{"seedab"}));
 
 	result = ::llc::append_string(text, ::llc::vcst_t{"xyz"});
-	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, result != 3 , "View string append written:%i, expected:3.", result );
+	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, result != 6 , "View string append index:%i, expected:6.", result );
 	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_VIEW, text, ::llc::vcst_t{"seedabxyz"}));
 
 	result = ::llc::append_string(text, '!');
-	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, result != 1 , "Element string append written:%i, expected:1.", result );
+	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, result != 9 , "Element string append index:%i, expected:9.", result );
 	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_APPEND_STRING_ELEMENT, text, ::llc::vcst_t{"seedabxyz!"}));
 
 	::llc::function<::llc::err_t(::llc::asc_t&)> formatter = [](::llc::asc_t & output) {
 		if_fail_fe(::llc::append_string(output, "ok"));
 		rtrn 2;
 	};
-	::llc::string joined = "seed:";
+	::llc::string joined {"seed:"};
 	result = ::llc::join(joined, '|', {});
 	LLC_TEST_CHECKF(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, result , "Empty join written:%i, expected:0.", result );
 	if_fail_fe(podCheck(errors, ARRAY_POD_TEST_RESULT_JOIN_EMPTY, joined, ::llc::vcst_t{"seed:"}));

@@ -37,7 +37,7 @@ GDEFINE_ENUM_VALUED(ENUM_TEST_RESULT, WIFI_AUTH_ALIAS	, 17, "WIFI_AUTH_WPA2_ENTE
 	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIAS_LOOKUP , definition.get_value("ALIAS") != sampleValue);
 	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_ALIAS_INDEX , definition.get_value_index("ALIAS") != 1);
 	LLC_TEST_CHECKF(errors, ENUM_TEST_RESULT_ALIAS_COUNT , definition.Values.size() != 2, "Entry count:%u, expected:2.", definition.Values.size() );
-	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_CANONICAL_NAME , definition.get_value_label(sampleValue) != "PRIMARY");
+	LLC_TEST_CHECK(errors, ENUM_TEST_RESULT_CANONICAL_NAME , definition.get_value_label(sampleValue) != ::llc::vcst_t{"PRIMARY"});
 
 	cnst ::llc::u2_t entryCount = definition.Values.size();
 	cnst ::llc::err_t repeatResult = definition.add_value(sampleValue, "ALIAS", "ALIAS", "Alternative name.");

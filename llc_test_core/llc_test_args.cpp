@@ -60,10 +60,10 @@ sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCom
 	::llc::vcst_t singleValue = {};
 	cnst ::llc::err_t singleIndex = ::llc::argsOptionValue(args, "output", singleValue);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_OPTION_VALUE, singleIndex != 4 , "--output index:%i, expected:4.", singleIndex);
-	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_OPTION_VALUE, singleValue != "result" , "--output value:'%.*s', expected:'result'.", LLC_VIEW_ARGS(singleValue));
+	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_OPTION_VALUE, singleValue != ::llc::vcst_t{"result"} , "--output value:'%.*s', expected:'result'.", LLC_VIEW_ARGS(singleValue));
 
-	::llc::vcst_t ambiguousValue = "stale";
-	::llc::vcst_t missingValue = "stale";
+	::llc::vcst_t ambiguousValue {"stale"};
+	::llc::vcst_t missingValue {"stale"};
 	cnst ::llc::err_t ambiguous = ::llc::argsOptionValue(args, "include", ambiguousValue);
 	cnst ::llc::err_t missing = ::llc::argsOptionValue(args, "missing", missingValue);
 	cnst ::llc::err_t missingCount = ::llc::argsOptionValues(args, "missing", values);
@@ -94,10 +94,10 @@ sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCom
 		always_printf("ARGS positional[%u]:'%.*s'.", iArg, LLC_VIEW_ARGS(args.Positionals[iArg]));
 	LLC_TEST_REQUIREF(errors, ARGS_TEST_RESULT_PARSE_RESULT, 0 > parsed , "Initial argsParse() failed with result:%i.", parsed);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_PARSE_RESULT, parsed != 9 , "Parse result:%i, expected:9." , parsed );
-	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_PROGRAM_NAME, args.ProgramName != "app" , "Program:'%.*s', expected:'app'." , (int)args.ProgramName.size(), args.ProgramName.begin() );
+	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_PROGRAM_NAME, args.ProgramName != ::llc::vcst_t{"app"} , "Program:'%.*s', expected:'app'." , (int)args.ProgramName.size(), args.ProgramName.begin() );
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_ENVIRONMENT, args.Environment.size() != 1 , "Environment entry count:%u, expected:1.", args.Environment.size());
 	if(args.Environment.size()) {
-		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_ENVIRONMENT, args.Environment[0] != "A=B" , "Environment entry 0:'%.*s', expected:'A=B'." , (int)args.Environment[0].size(), args.Environment[0].begin());
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_ENVIRONMENT, args.Environment[0] != ::llc::vcst_t{"A=B"} , "Environment entry 0:'%.*s', expected:'A=B'." , (int)args.Environment[0].size(), args.Environment[0].begin());
 	}
 	if_fail_fe(::testArgsParsedValues(errors, args));
 	if_fail_fe(::testArgsAccessors(errors, args));
@@ -106,15 +106,15 @@ sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCom
 	::llc::vcst_t reuseEnvp[] = {"C=D"};
 	cnst ::llc::err_t reused = ::llc::argsParse(args, reuseArgv, reuseEnvp);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, reused != 1 , "Reused parse result:%i, expected:1.", reused);
-	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.ProgramName != "other" , "Reused program name:'%.*s', expected:'other'." , (int)args.ProgramName.size(), args.ProgramName.begin());
+	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.ProgramName != ::llc::vcst_t{"other"} , "Reused program name:'%.*s', expected:'other'." , (int)args.ProgramName.size(), args.ProgramName.begin());
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Options.size() , "Reused option count:%u, expected:0.", args.Options.size());
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Positionals.size() != 1 , "Reused positional count:%u, expected:1.", args.Positionals.size());
 	if(args.Positionals.size()) {
-		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Positionals[0] != "only" , "Reused positional 0:'%.*s', expected:'only'." , (int)args.Positionals[0].size(), args.Positionals[0].begin());
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Positionals[0] != ::llc::vcst_t{"only"} , "Reused positional 0:'%.*s', expected:'only'." , (int)args.Positionals[0].size(), args.Positionals[0].begin());
 	}
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Environment.size() != 1 , "Reused environment entry count:%u, expected:1.", args.Environment.size());
 	if(args.Environment.size()) {
-		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Environment[0] != "C=D" , "Reused environment entry 0:'%.*s', expected:'C=D'." , (int)args.Environment[0].size(), args.Environment[0].begin());
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, args.Environment[0] != ::llc::vcst_t{"C=D"} , "Reused environment entry 0:'%.*s', expected:'C=D'." , (int)args.Environment[0].size(), args.Environment[0].begin());
 	}
 	cnst ::llc::err_t cleared = ::llc::argsParse(args, ::llc::view<::llc::vcst_t>{});
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_REUSE, cleared , "Empty reused parse result:%i, expected:0.", cleared);
@@ -133,16 +133,16 @@ sttc ::llc::err_t testArgsAccessors(::llc::ATestError & errors, cnst ::llc::SCom
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, emptyParsed != 3 , "Empty-value parse result:%i, expected:3.", emptyParsed);
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Options.size() != 2 , "Empty-value option count:%u, expected:2.", args.Options.size());
 	if(1 <= args.Options.size()) {
-		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Options[0].Key != "empty" , "Empty-value option 0 key:'%.*s', expected:'empty'." , (int)args.Options[0].Key.size(), args.Options[0].Key.begin());
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Options[0].Key != ::llc::vcst_t{"empty"} , "Empty-value option 0 key:'%.*s', expected:'empty'." , (int)args.Options[0].Key.size(), args.Options[0].Key.begin());
 		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Options[0].Val.size() , "Empty-value option 0 value length:%u, expected:0.", args.Options[0].Val.size());
 	}
 	if(2 <= args.Options.size()) {
-		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Options[1].Key != "flag" , "Empty-value option 1 key:'%.*s', expected:'flag'." , (int)args.Options[1].Key.size(), args.Options[1].Key.begin());
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Options[1].Key != ::llc::vcst_t{"flag"} , "Empty-value option 1 key:'%.*s', expected:'flag'." , (int)args.Options[1].Key.size(), args.Options[1].Key.begin());
 		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Options[1].Val.size() , "Empty-value option 1 value length:%u, expected:0.", args.Options[1].Val.size());
 	}
 	LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Positionals.size() != 1 , "Empty-value positional count:%u, expected:1.", args.Positionals.size());
 	if(args.Positionals.size()) {
-		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Positionals[0] != "-" , "Empty-value positional 0:'%.*s', expected:'-'." , (int)args.Positionals[0].size(), args.Positionals[0].begin());
+		LLC_TEST_CHECKF(errors, ARGS_TEST_RESULT_EMPTY_VALUE, args.Positionals[0] != ::llc::vcst_t{"-"} , "Empty-value positional 0:'%.*s', expected:'-'." , (int)args.Positionals[0].size(), args.Positionals[0].begin());
 	}
 	rtrn 0;
 }
