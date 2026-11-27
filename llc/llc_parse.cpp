@@ -122,6 +122,7 @@ llc::err_t			stripLiteralsParseLiteral		(::llc::SStripLiteralState & work_state,
 	return 0;
 }
 llc::err_t			llc::stripLiteralParseStep		(SStripLiteralState & work_state, apod<SStripLiteralType> & out_types, vcst_t in_format)		{
+	if_fail_fef(::llc::readerStateParseStep(work_state, in_format), "Invalid literal index: %u. Format size: %u.", work_state.IndexCurrentChar, in_format.size());
 	if(work_state.InsideToken)
 		return ::stripLiteralsParseToken(work_state, out_types, in_format);
 
@@ -133,7 +134,6 @@ llc::err_t			llc::stripLiteralParseStep		(SStripLiteralState & work_state, apod<
 }
 llc::err_t			llc::stripLiteralParse			(SStripLiteralState & stateReading, apod<SStripLiteralType> & out_types, vcst_t in_format)		{
 	for(stateReading.IndexCurrentChar = 0; stateReading.IndexCurrentChar < in_format.size(); ++stateReading.IndexCurrentChar) {
-		stateReading.CharCurrent					= in_format[stateReading.IndexCurrentChar];
 		if_fail_fe(llc::stripLiteralParseStep(stateReading, out_types, in_format));
 	}
 	return 0;

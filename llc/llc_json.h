@@ -1,5 +1,6 @@
 #include "llc_enum.h"
 #include "llc_bit.h"
+#include "llc_reader.h"
 #include "llc_array_ptr.h"
 #include "llc_slice.h"
 #include "llc_string.h"
@@ -12,11 +13,10 @@ namespace llc
 #pragma pack(push, 1)
 #ifdef LLC_ARDUINO
 	tydf  s1_t json_id_t;
-	GDEFINE_ENUM_TYPE(JSON_TYPE, s0_t);
 #else
 	tydf  s2_t json_id_t;
-	GDEFINE_ENUM_TYPE(JSON_TYPE, s2_t);
 #endif
+	GDEFINE_ENUM_TYPE(JSON_TYPE, s0_t);
 	GDEFINE_ENUM_VALUE(JSON_TYPE, NULL		,  0);
 	GDEFINE_ENUM_VALUE(JSON_TYPE, INTEGER	,  1);
 	GDEFINE_ENUM_VALUE(JSON_TYPE, DECIMAL	,  2);
@@ -50,39 +50,22 @@ namespace llc
 		| JSON_PARSE_OPTION_ALLOW_LINE_COMMENTS | JSON_PARSE_OPTION_ALLOW_TRAILING_COMMAS | JSON_PARSE_OPTION_ALLOW_LEADING_PLUS
 		| JSON_PARSE_OPTION_ALLOW_LEADING_DECIMAL_POINT | JSON_PARSE_OPTION_ALLOW_TRAILING_DECIMAL_POINT | JSON_PARSE_OPTION_ALLOW_LEADING_ZEROES
 		| JSON_PARSE_OPTION_ALLOW_TRAILING_CONTENT | JSON_PARSE_OPTION_ALLOW_UNESCAPED_CONTROLS};
-	stct SJSONToken {
-		json_id_t				ParentIndex;
-		JSON_TYPE				Type;
-		sliceu2_t				Span;
-		uint64_t				Value;
+	tydf SToken<JSON_TYPE> SJSONToken;
+	stct SJSONTokenData {
+		u3_t					Value;
 	};
 	stct SJSONNode {
 		cnst SJSONToken			* Token				= 0;
+		cnst SJSONTokenData		* Data				= 0;
 		SJSONNode				* Parent			= 0;
 		apobj<SJSONNode>		Children			= {};
 		json_id_t				ObjectIndex			= -1;
 	};
-	stct SJSONReaderState {
-		u2_t					IndexCurrentChar	= 0;
-		json_id_t				IndexCurrentElement	= -1;
-		SJSONToken				* CurrentElement	= 0;
-		s1_t					NestLevel			= 0;
-		sc_t					CharCurrent			= 0;
-		b8_t					Escaping			: 1;
-		b8_t					InsideString		: 1;
-		b8_t					ExpectingSeparator	: 1;
-		b8_t					DoneReading			: 1;
-								SJSONReaderState	()
-		: Escaping			(false)
-		, InsideString		(false)
-		, ExpectingSeparator(false)
-		, DoneReading		(false)
-		{}
-	};
+	tydf SReaderState<JSON_TYPE> SJSONReaderState;
 #pragma pack(pop)
 
-	stct SJSONReader {
-		apod<SJSONToken>		Token;
+	stct SJSONReader : public SReader<JSON_TYPE> {
+		apod<SJSONTokenData>	Data;
 		aobj<vcst_t>			View;
 		apobj<SJSONNode>		Tree;
 		SJSONReaderState		StateRead;
@@ -91,7 +74,7 @@ namespace llc
 		cnst pobj<SJSONNode>*	begin	()				cnst	{ rtrn Tree.begin(); }
 		cnst pobj<SJSONNode>*	end		()				cnst	{ rtrn Tree.end(); }
 		err_t					Reset	()						{
-			::llc::clear(Token, View);
+			::llc::clear(Token, Data, View);
 			StateRead				= {};
 			rtrn 0;
 		}
@@ -106,7 +89,7 @@ namespace llc
 		options.Set(JSON_PARSE_OPTION_BUILD_VIEWS, buildViews);
 		rtrn jsonParse(reader, jsonAsString, options);
 	}
-	err_t			jsonTreeRebuild		(view<cnst SJSONToken> in_object, apobj<SJSONNode> & out_nodes);
+	err_t			jsonTreeRebuild		(view<cnst SJSONToken> in_object, view<cnst SJSONTokenData> in_data, apobj<SJSONNode> & out_nodes);
 	err_t			jsonTreeInvalidate	(SJSONReader & reader);
 	err_t			jsonTreeEnsure		(SJSONReader & reader);
 

@@ -1,5 +1,5 @@
 #include "llc_enum.h"
-#include "llc_range.h"
+#include "llc_reader.h"
 #include "llc_string.h"
 
 #ifndef LLC_XML_READER_H_23627
@@ -24,32 +24,22 @@ namespace llc
 	GDEFINE_ENUM_VALUE(XML_TOKEN, ATTR_NAME		, 0xE);
 	GDEFINE_ENUM_VALUE(XML_TOKEN, ATTR_VALUE	, 0xF);
 
-	stct SXMLToken {
-		XML_TOKEN			Type;
-		rangeu2_t			Range;
-		s2_t				Parent;
-	};
+	tydf SToken<XML_TOKEN> SXMLToken;
 
-	stct SXMLReaderState {
-		u2_t				IndexCurrentChar	= 0;
-		s2_t				IndexCurrentElement	= -1;
-		SXMLToken			* CurrentElement	= 0;
-		u2_t				NestLevel			= 0;
-		sc_t				CharCurrent			= 0;
-	};
+	tydf SReaderState<XML_TOKEN> SXMLReaderState;
 
-	stct SXMLReader {
+	stct SXMLReader : public SReader<XML_TOKEN> {
 		SXMLReaderState		StateRead;
-		apod<SXMLToken>		Token;
 
 		err_t				Reset				() {
-			Token.clear();
+			SReader<XML_TOKEN>::Reset();
 			StateRead				= {};
 			rtrn 0;
 		}
 	};
 
 	err_t			xmlParse			(SXMLReader & reader, vcst_t xmlDoc);
+	err_t			xmlParseStep		(SXMLReader & reader, vcst_t xmlDoc);
 	err_t			xmlTokenView		(vcst_t xmlDoc, cnst SXMLToken & token, vcst_t & output);
 	err_t			xmlNodeName			(cnst SXMLReader & reader, vcst_t xmlDoc, u2_t iNode, vcst_t & output);
 	err_t			xmlNodeAttribute	(cnst SXMLReader & reader, vcst_t xmlDoc, u2_t iNode, vcst_t name, vcst_t & output);

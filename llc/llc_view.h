@@ -367,6 +367,7 @@ namespace llc
 	stxp		vcst_t	VCC_FALSE		= "false";
 
 	nsix		vcst_t	b82vcs			(bool b)					nxpt	{ rtrn b ? VCC_TRUE : VCC_FALSE; }
+	nsix		vcst_t	b82st			(bool b)					nxpt	{ rtrn b ? VCC_TRUE : VCC_FALSE; }
 	nsix		u0_t	b82u0			(bool b)					nxpt	{ rtrn b ? 1 : 0; }
 	nsix		u0_t	b82s0			(bool b)					nxpt	{ rtrn b ? 1 : 0; }
 	nsix		sc_c*	b82sc			(bool b)					nxpt	{ rtrn b ? VCC_TRUE.begin() : VCC_FALSE.begin(); }
@@ -375,12 +376,12 @@ namespace llc
 	stin		sc_c*	b82sc			(bool b, vcst_t & output)	nxpt	{ rtrn (output = b ? VCC_TRUE : VCC_FALSE).begin(); }
 	stin		bool	vcs2b8			(vcst_t b)					nxpt	{ rtrn b.size() && b != VCC_FALSE; }
 
-	stin		vstr_t		str				(vstr_t & arg)					nxpt	{ rtrn arg; }
+	stin		vstr_t	str				(vstr_t & arg)					nxpt	{ rtrn arg; }
 	stin		vcst_t	str				(cnst vstr_t & arg)				nxpt	{ rtrn arg.cc(); }
 	stin		vcst_t	str				(cnst vcst_t & arg)			nxpt	{ rtrn arg; }
-	stin		vstr_t		str				(vs0_t arg)					nxpt	{ rtrn vstr_t{arg}; }
+	stin		vstr_t	str				(vs0_t arg)					nxpt	{ rtrn vstr_t{arg}; }
 	stin		vcst_t	str				(vcs0_t arg)				nxpt	{ rtrn arg; }
-	tplN2usinx	vstr_t		str				(sc_t (&arg)[N])			nxpt	{ rtrn arg; }
+	tplN2usinx	vstr_t	str				(sc_t (&arg)[N])			nxpt	{ rtrn arg; }
 	tplN2usinx	vcst_t	str				(sc_c (&arg)[N])			nxpt	{ rtrn arg; }
 	sinx		vcst_t	str				(cnst bool arg)				nxpt	{ rtrn arg ? VCC_TRUE : VCC_FALSE; }
 	//

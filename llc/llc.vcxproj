@@ -202,6 +202,7 @@
     <ClInclude Include="llc_gui_control_list.h" />
     <ClInclude Include="llc_gui_desktop.h" />
     <ClInclude Include="llc_raster_lh.h" />
+    <ClInclude Include="llc_reader.h" />
     <ClInclude Include="llc_encoding.h" />
     <ClInclude Include="llc_enum.h" />
     <ClInclude Include="llc_error.h" />
@@ -421,6 +422,7 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="llc_raster_lh.cpp" />
+    <ClCompile Include="llc_reader.cpp" />
     <ClCompile Include="llc_encoding.cpp" />
     <ClCompile Include="llc_expression.cpp" />
     <ClCompile Include="llc_scene.cpp">

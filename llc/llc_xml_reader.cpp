@@ -17,78 +17,15 @@ sttc bool xmlStartsWith(::llc::vcst_t xmlDoc, ::llc::u2_t offset, ::llc::vcst_t 
 }
 
 sttc ::llc::err_t xmlTokenAdd(::llc::SXMLReader & reader, ::llc::XML_TOKEN type, ::llc::u2_t offset, ::llc::u2_t count, ::llc::s2_t parent) {
-	rtrn reader.Token.push_back({type, {offset, count}, parent});
-}
-
-sttc ::llc::err_t xmlNameEnd(::llc::vcst_t xmlDoc, ::llc::u2_t offset, ::llc::u2_t & end) {
-	end						= offset;
-	while(end < xmlDoc.size()) {
-		cnst ::llc::sc_t current	= xmlDoc[end];
-		if(::llc::isSpaceCharacter(current) || current == '/' || current == '>' || current == '?' || current == '=')
-			break;
-		++end;
-	}
-	if_true_fef(end == offset, "Missing XML name at offset:%u.", offset);
-	rtrn 0;
-}
-
-sttc ::llc::err_t xmlSkipSpaces(::llc::vcst_t xmlDoc, ::llc::u2_t & offset) {
-	while(offset < xmlDoc.size() && ::llc::isSpaceCharacter(xmlDoc[offset]))
-		++offset;
-	rtrn offset;
-}
-
-sttc ::llc::err_t xmlAttributesParse
-	(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc, ::llc::u2_t iOwner, ::llc::u2_t & offset, bool processingInstruction, bool & selfClosing) {
-	selfClosing					= false;
-	while(offset < xmlDoc.size()) {
-		if_fail_fe(::xmlSkipSpaces(xmlDoc, offset));
-		if(processingInstruction) {
-			if(::xmlStartsWith(xmlDoc, offset, "?>")) {
-				offset					+= 2;
-				rtrn 0;
-			}
-		}
-		else {
-			if(::xmlStartsWith(xmlDoc, offset, "/>")) {
-				selfClosing				= true;
-				offset					+= 2;
-				rtrn 0;
-			}
-			if(offset < xmlDoc.size() && xmlDoc[offset] == '>') {
-				++offset;
-				rtrn 0;
-			}
-		}
-
-		cnst ::llc::u2_t iAttribute	= offset;
-		::llc::u2_t iNameEnd			= {};
-		if_fail_fe(::xmlNameEnd(xmlDoc, offset, iNameEnd));
-		offset						= iNameEnd;
-		if_fail_fe(::xmlSkipSpaces(xmlDoc, offset));
-		if_true_fef(offset >= xmlDoc.size() || xmlDoc[offset] != '=', "Missing '=' after XML attribute at offset:%u.", iAttribute);
-		if_fail_fe(::xmlSkipSpaces(xmlDoc, ++offset));
-		if_true_fef(offset >= xmlDoc.size() || (xmlDoc[offset] != '\"' && xmlDoc[offset] != '\''), "Missing quote for XML attribute at offset:%u.", iAttribute);
-		cnst ::llc::sc_t quote			= xmlDoc[offset++];
-		cnst ::llc::u2_t iValue		= offset;
-		while(offset < xmlDoc.size() && xmlDoc[offset] != quote)
-			++offset;
-		if_true_fef(offset >= xmlDoc.size(), "Unclosed XML attribute at offset:%u.", iAttribute);
-		cnst ::llc::u2_t iAttributeEnd	= ++offset;
-		cnst ::llc::err_t iToken		= ::xmlTokenAdd(reader, ::llc::XML_TOKEN_ATTR, iAttribute, iAttributeEnd - iAttribute, (::llc::s2_t)iOwner);
-		if_fail_fe(iToken);
-		if_fail_fe(::xmlTokenAdd(reader, ::llc::XML_TOKEN_ATTR_NAME , iAttribute, iNameEnd - iAttribute, iToken));
-		if_fail_fe(::xmlTokenAdd(reader, ::llc::XML_TOKEN_ATTR_VALUE, iValue, iAttributeEnd - iValue - 1, iToken));
-	}
-	rtrn -1;
+	rtrn reader.Token.push_back({parent, type, {offset, offset + count}});
 }
 
 sttc ::llc::err_t xmlOpeningName(cnst ::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc, ::llc::u2_t iNode, ::llc::vcst_t & output) {
 	for(::llc::u2_t iToken = iNode + 1; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SXMLToken & token	= reader.Token[iToken];
-		if(token.Parent == (::llc::s2_t)iNode && (token.Type == ::llc::XML_TOKEN_TAG_OPEN || token.Type == ::llc::XML_TOKEN_TAG_OPENCLOSE)) {
+		if(token.ParentIndex == (::llc::s2_t)iNode && (token.Type == ::llc::XML_TOKEN_TAG_OPEN || token.Type == ::llc::XML_TOKEN_TAG_OPENCLOSE)) {
 			for(::llc::u2_t iName = iToken + 1; iName < reader.Token.size(); ++iName)
-				if(reader.Token[iName].Parent == (::llc::s2_t)iToken && reader.Token[iName].Type == ::llc::XML_TOKEN_TAG_NAME)
+				if(reader.Token[iName].ParentIndex == (::llc::s2_t)iToken && reader.Token[iName].Type == ::llc::XML_TOKEN_TAG_NAME)
 					rtrn ::llc::xmlTokenView(xmlDoc, reader.Token[iName], output) < 0 ? -1 : (::llc::err_t)iName;
 		}
 	}
@@ -119,9 +56,192 @@ sttc ::llc::err_t xmlSpecialParse(::llc::SXMLReader & reader, ::llc::vcst_t xmlD
 	rtrn ::xmlTokenAdd(reader, type, iBegin, offset - iBegin, (::llc::s2_t)iParent) < 0 ? -1 : 0;
 }
 
+sttc ::llc::err_t xmlOpenElement(::llc::SXMLReader & reader, ::llc::XML_TOKEN type, ::llc::s2_t iStartCharacter = -1) {
+	::llc::SXMLReaderState	& state		= reader.StateRead;
+	cnst ::llc::s2_t		parent		= state.IndexCurrentElement;
+	cnst ::llc::u2_t		offset		= iStartCharacter < 0 ? state.IndexCurrentChar : (::llc::u2_t)iStartCharacter;
+	if_fail_fe(state.IndexCurrentElement = reader.Token.push_back({parent, type, {offset, offset}}));
+	state.CurrentElement					= &reader.Token[state.IndexCurrentElement];
+	rtrn ++state.NestLevel;
+}
+
+sttc ::llc::err_t xmlCloseElement(::llc::SXMLReader & reader, ::llc::s2_t iStopCharacter = -1) {
+	::llc::SXMLReaderState	& state		= reader.StateRead;
+	if_null_fef(state.CurrentElement, "%s", "No XML element is open.");
+	cnst ::llc::u2_t		stop		= iStopCharacter < 0 ? state.IndexCurrentChar : (::llc::u2_t)iStopCharacter;
+	if_true_fef(stop < state.CurrentElement->Span.Begin, "Invalid XML span:%u..%u.", state.CurrentElement->Span.Begin, stop);
+	state.CurrentElement->Span.End		= stop;
+	state.IndexCurrentElement			= state.CurrentElement->ParentIndex;
+	state.CurrentElement					= state.IndexCurrentElement < 0 ? 0 : &reader.Token[state.IndexCurrentElement];
+	rtrn --state.NestLevel;
+}
+
+sttc ::llc::err_t xmlClosingNameValidate(cnst ::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc, ::llc::u2_t iClose) {
+	if_true_fef(iClose >= reader.Token.size() || reader.Token[iClose].Type != ::llc::XML_TOKEN_TAG_CLOSE, "Invalid XML closing token:%u.", iClose);
+	::llc::vcst_t openingName;
+	if_fail_fef(::xmlOpeningName(reader, xmlDoc, reader.Token[iClose].ParentIndex, openingName), "Open XML node has no name at token:%i.", reader.Token[iClose].ParentIndex);
+	for(::llc::u2_t iName = iClose + 1; iName < reader.Token.size(); ++iName) {
+		cnst ::llc::SXMLToken & token = reader.Token[iName];
+		if(token.ParentIndex != (::llc::s2_t)iClose || token.Type != ::llc::XML_TOKEN_TAG_NAME)
+			continue;
+		::llc::vcst_t closingName;
+		if_fail_fe(::llc::xmlTokenView(xmlDoc, token, closingName));
+		if_true_fef(false == ::xmlTextEquals(openingName, closingName), "Mismatched XML closing tag:'%.*s'; expected:'%.*s'.", (int)closingName.size(), closingName.begin(), (int)openingName.size(), openingName.begin());
+		rtrn 0;
+	}
+	rtrn -1;
+}
+
+sttc ::llc::err_t xmlParseStringCharacter(::llc::SXMLReader & reader) {
+	::llc::SXMLReaderState & state = reader.StateRead;
+	cnst ::llc::sc_t quote = state.ExpectingSeparator ? '\'' : '\"';
+	if(state.CharCurrent != quote)
+		rtrn 0;
+	if_fail_fef(::xmlCloseElement(reader), "Invalid XML nesting level:%i.", state.NestLevel);
+	if_true_fef(0 == state.CurrentElement || state.CurrentElement->Type != ::llc::XML_TOKEN_ATTR, "%s", "XML attribute value has no attribute owner.");
+	if_fail_fef(::xmlCloseElement(reader, state.IndexCurrentChar + 1), "Invalid XML nesting level:%i.", state.NestLevel);
+	state.InsideString					= false;
+	state.ExpectingSeparator			= false;
+	rtrn 0;
+}
+
+sttc ::llc::err_t xmlParseTagCharacter(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
+	::llc::SXMLReaderState & state = reader.StateRead;
+	cnst ::llc::XML_TOKEN type = state.CurrentElement->Type;
+	if(::llc::isSpaceCharacter(state.CharCurrent))
+		rtrn 0;
+	switch(type) {
+	case ::llc::XML_TOKEN_TAG_OPEN:
+		if(state.CharCurrent == '/') {
+			if_true_fef(state.IndexCurrentChar + 1 >= xmlDoc.size() || xmlDoc[state.IndexCurrentChar + 1] != '>', "Invalid '/' in XML opening tag at offset:%u.", state.IndexCurrentChar);
+			state.CurrentElement->Type = ::llc::XML_TOKEN_TAG_OPENCLOSE;
+			rtrn 0;
+		}
+		if(state.CharCurrent == '>')
+			rtrn ::xmlCloseElement(reader, state.IndexCurrentChar + 1);
+		if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_ATTR));
+		if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_ATTR_NAME));
+		rtrn 0;
+	case ::llc::XML_TOKEN_TAG_OPENCLOSE:
+		if_true_fef(state.CharCurrent != '>', "Invalid character '%c' after '/' in XML opening tag.", state.CharCurrent);
+		if_fail_fe(::xmlCloseElement(reader, state.IndexCurrentChar + 1));
+		rtrn ::xmlCloseElement(reader, state.IndexCurrentChar + 1);
+	case ::llc::XML_TOKEN_TAG_CLOSE:
+		if_true_fef(state.CharCurrent != '>', "Invalid character '%c' after XML closing name.", state.CharCurrent);
+		if_fail_fe(::xmlClosingNameValidate(reader, xmlDoc, state.IndexCurrentElement));
+		if_fail_fe(::xmlCloseElement(reader, state.IndexCurrentChar + 1));
+		rtrn ::xmlCloseElement(reader, state.IndexCurrentChar + 1);
+	case ::llc::XML_TOKEN_PI:
+		if(state.CharCurrent == '?') {
+			state.ExpectingSeparator = true;
+			rtrn 0;
+		}
+		if(state.CharCurrent == '>') {
+			if_true_fef(false == state.ExpectingSeparator, "Missing '?' before XML processing-instruction close at offset:%u.", state.IndexCurrentChar);
+			state.ExpectingSeparator = false;
+			rtrn ::xmlCloseElement(reader, state.IndexCurrentChar + 1);
+		}
+		if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_ATTR));
+		if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_ATTR_NAME));
+		rtrn 0;
+	case ::llc::XML_TOKEN_ATTR:
+		if(state.CharCurrent == '=') {
+			if_true_fef(false == state.ExpectingSeparator, "Unexpected '=' in XML attribute at offset:%u.", state.IndexCurrentChar);
+			state.ExpectingSeparator = false;
+			rtrn 0;
+		}
+		if_true_fef(state.ExpectingSeparator, "Missing '=' after XML attribute name at offset:%u.", state.IndexCurrentChar);
+		if_true_fef(state.CharCurrent != '\"' && state.CharCurrent != '\'', "Missing quote for XML attribute at offset:%u.", state.IndexCurrentChar);
+		state.ExpectingSeparator = state.CharCurrent == '\'';
+		state.InsideString = true;
+		rtrn ::xmlOpenElement(reader, ::llc::XML_TOKEN_ATTR_VALUE, state.IndexCurrentChar + 1);
+	default:
+		rtrn -1;
+	}
+}
+
+sttc ::llc::err_t xmlParseNameCharacter(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
+	::llc::SXMLReaderState & state = reader.StateRead;
+	cnst ::llc::XML_TOKEN type = state.CurrentElement->Type;
+	if(::llc::isSpaceCharacter(state.CharCurrent)) {
+		if_fail_fe(::xmlCloseElement(reader));
+		state.ExpectingSeparator = state.CurrentElement && state.CurrentElement->Type == ::llc::XML_TOKEN_ATTR;
+		rtrn 0;
+	}
+	switch(state.CharCurrent) {
+	case '/':
+		if_true_fef(type != ::llc::XML_TOKEN_TAG_NAME, "Invalid '/' in XML name at offset:%u.", state.IndexCurrentChar);
+		if(state.CurrentElement->Span.Begin == state.IndexCurrentChar) {
+			state.IndexCurrentElement = reader.Token.pop_back() - 1;
+			state.IndexCurrentElement = reader.Token.pop_back() - 1;
+			state.NestLevel -= 2;
+			state.CurrentElement = &reader.Token[state.IndexCurrentElement];
+			state.CurrentElement->Type = ::llc::XML_TOKEN_TAG_CLOSE;
+			rtrn ::xmlOpenElement(reader, ::llc::XML_TOKEN_TAG_NAME, state.IndexCurrentChar + 1);
+		}
+		if_true_fef(state.IndexCurrentChar + 1 >= xmlDoc.size() || xmlDoc[state.IndexCurrentChar + 1] != '>', "Invalid '/' in XML tag name at offset:%u.", state.IndexCurrentChar);
+		reader.Token[state.CurrentElement->ParentIndex].Type = ::llc::XML_TOKEN_TAG_OPENCLOSE;
+		rtrn 0;
+	case '?':
+		if(type == ::llc::XML_TOKEN_PI_NAME) {
+			if_fail_fe(::xmlCloseElement(reader));
+			state.ExpectingSeparator = true;
+			rtrn 0;
+		}
+		if_true_fef(type != ::llc::XML_TOKEN_TAG_NAME || state.CurrentElement->Span.Begin != state.IndexCurrentChar, "Invalid '?' in XML name at offset:%u.", state.IndexCurrentChar);
+		state.IndexCurrentElement = reader.Token.pop_back() - 1;
+		state.IndexCurrentElement = reader.Token.pop_back() - 1;
+		state.NestLevel -= 2;
+		state.CurrentElement = &reader.Token[state.IndexCurrentElement];
+		state.CurrentElement->Type = ::llc::XML_TOKEN_PI;
+		rtrn ::xmlOpenElement(reader, ::llc::XML_TOKEN_PI_NAME, state.IndexCurrentChar + 1);
+	case '=':
+		if_true_fef(type != ::llc::XML_TOKEN_ATTR_NAME, "Invalid '=' in XML name at offset:%u.", state.IndexCurrentChar);
+		if_fail_fe(::xmlCloseElement(reader));
+		state.ExpectingSeparator = false;
+		rtrn 0;
+	case '>': {
+		if_true_fef(type == ::llc::XML_TOKEN_PI_NAME || type == ::llc::XML_TOKEN_ATTR_NAME, "Invalid '>' in XML name at offset:%u.", state.IndexCurrentChar);
+		if_fail_fe(::xmlCloseElement(reader));
+		cnst ::llc::XML_TOKEN ownerType = state.CurrentElement->Type;
+		if(ownerType == ::llc::XML_TOKEN_TAG_CLOSE)
+			if_fail_fe(::xmlClosingNameValidate(reader, xmlDoc, state.IndexCurrentElement));
+		if_fail_fe(::xmlCloseElement(reader, state.IndexCurrentChar + 1));
+		if(ownerType == ::llc::XML_TOKEN_TAG_CLOSE || ownerType == ::llc::XML_TOKEN_TAG_OPENCLOSE)
+			if_fail_fe(::xmlCloseElement(reader, state.IndexCurrentChar + 1));
+		rtrn 0;
+	}
+	default:
+		rtrn 0;
+	}
+}
+
+sttc ::llc::err_t xmlParseDocumentCharacter(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
+	::llc::SXMLReaderState & state = reader.StateRead;
+	if(state.CharCurrent != '<') {
+		if(state.CurrentElement->Type == ::llc::XML_TOKEN_DOCUMENT || state.CurrentElement->Type == ::llc::XML_TOKEN_TAG_NODE)
+			rtrn ::xmlOpenElement(reader, ::llc::XML_TOKEN_TAG_TEXT);
+		if_true_fef(state.CurrentElement->Type != ::llc::XML_TOKEN_TAG_TEXT, "Invalid character '%c' in XML token type:%i.", state.CharCurrent, state.CurrentElement->Type);
+		rtrn 0;
+	}
+	if(state.CurrentElement->Type == ::llc::XML_TOKEN_TAG_TEXT)
+		if_fail_fe(::xmlCloseElement(reader));
+	if_true_fef(state.CurrentElement->Type != ::llc::XML_TOKEN_DOCUMENT && state.CurrentElement->Type != ::llc::XML_TOKEN_TAG_NODE, "Invalid '<' in XML token type:%i.", state.CurrentElement->Type);
+	if(::xmlStartsWith(xmlDoc, state.IndexCurrentChar, "<!")) {
+		::llc::u2_t offset = state.IndexCurrentChar;
+		if_fail_fef(::xmlSpecialParse(reader, xmlDoc, state.IndexCurrentElement, offset), "Invalid XML special token at offset:%u.", state.IndexCurrentChar);
+		state.IndexCurrentChar = offset - 1;
+		state.CurrentElement = &reader.Token[state.IndexCurrentElement];
+		rtrn 0;
+	}
+	if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_TAG_NODE));
+	if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_TAG_OPEN));
+	rtrn ::xmlOpenElement(reader, ::llc::XML_TOKEN_TAG_NAME, state.IndexCurrentChar + 1);
+}
+
 llc::err_t llc::xmlTokenView(::llc::vcst_t xmlDoc, cnst ::llc::SXMLToken & token, ::llc::vcst_t & output) {
-	if_true_fef(token.Range.Offset > xmlDoc.size() || token.Range.Count > xmlDoc.size() - token.Range.Offset, "XML token range outside document. offset:%u, count:%u, size:%u.", token.Range.Offset, token.Range.Count, xmlDoc.size());
-	rtrn xmlDoc.slice(output, token.Range.Offset, token.Range.Count);
+	if_true_fef(token.Span.Begin > token.Span.End || token.Span.End > xmlDoc.size(), "XML token span outside document. begin:%u, end:%u, size:%u.", token.Span.Begin, token.Span.End, xmlDoc.size());
+	rtrn xmlDoc.slice(output, token.Span.Begin, token.Span.End - token.Span.Begin);
 }
 
 llc::err_t llc::xmlNodeName(cnst ::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc, ::llc::u2_t iNode, ::llc::vcst_t & output) {
@@ -133,18 +253,18 @@ llc::err_t llc::xmlNodeAttribute(cnst ::llc::SXMLReader & reader, ::llc::vcst_t 
 	if_true_fef(iNode >= reader.Token.size() || reader.Token[iNode].Type != ::llc::XML_TOKEN_TAG_NODE, "Invalid XML node index:%u.", iNode);
 	for(::llc::u2_t iToken = iNode + 1; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SXMLToken & owner	= reader.Token[iToken];
-		if(owner.Parent != (::llc::s2_t)iNode || (owner.Type != ::llc::XML_TOKEN_TAG_OPEN && owner.Type != ::llc::XML_TOKEN_TAG_OPENCLOSE))
+		if(owner.ParentIndex != (::llc::s2_t)iNode || (owner.Type != ::llc::XML_TOKEN_TAG_OPEN && owner.Type != ::llc::XML_TOKEN_TAG_OPENCLOSE))
 			continue;
 		for(::llc::u2_t iAttribute = iToken + 1; iAttribute < reader.Token.size(); ++iAttribute) {
 			cnst ::llc::SXMLToken & attribute = reader.Token[iAttribute];
-			if(attribute.Parent != (::llc::s2_t)iToken || attribute.Type != ::llc::XML_TOKEN_ATTR)
+			if(attribute.ParentIndex != (::llc::s2_t)iToken || attribute.Type != ::llc::XML_TOKEN_ATTR)
 				continue;
 			::llc::vcst_t attributeName;
 			::llc::vcst_t attributeValue;
 			::llc::err_t iValue			= -1;
 			for(::llc::u2_t iPart = iAttribute + 1; iPart < reader.Token.size(); ++iPart) {
 				cnst ::llc::SXMLToken & part = reader.Token[iPart];
-				if(part.Parent != (::llc::s2_t)iAttribute)
+				if(part.ParentIndex != (::llc::s2_t)iAttribute)
 					continue;
 				if(part.Type == ::llc::XML_TOKEN_ATTR_NAME ) if_fail_fe(::llc::xmlTokenView(xmlDoc, part, attributeName));
 				if(part.Type == ::llc::XML_TOKEN_ATTR_VALUE) { if_fail_fe(::llc::xmlTokenView(xmlDoc, part, attributeValue)); iValue = iPart; }
@@ -162,7 +282,7 @@ llc::err_t llc::xmlNodeChild(cnst ::llc::SXMLReader & reader, ::llc::vcst_t xmlD
 	if_true_fef(iNode >= reader.Token.size(), "Invalid XML parent index:%u.", iNode);
 	for(::llc::u2_t iToken = iNode + 1; iToken < reader.Token.size(); ++iToken) {
 		cnst ::llc::SXMLToken & token	= reader.Token[iToken];
-		if(token.Parent != (::llc::s2_t)iNode || token.Type != ::llc::XML_TOKEN_TAG_NODE)
+		if(token.ParentIndex != (::llc::s2_t)iNode || token.Type != ::llc::XML_TOKEN_TAG_NODE)
 			continue;
 		::llc::vcst_t nodeName;
 		if(0 <= ::llc::xmlNodeName(reader, xmlDoc, iToken, nodeName) && ::xmlTextEquals(nodeName, name))
@@ -174,7 +294,7 @@ llc::err_t llc::xmlNodeChild(cnst ::llc::SXMLReader & reader, ::llc::vcst_t xmlD
 llc::err_t llc::xmlNodeText(cnst ::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc, ::llc::u2_t iNode, ::llc::vcst_t & output) {
 	if_true_fef(iNode >= reader.Token.size(), "Invalid XML parent index:%u.", iNode);
 	for(::llc::u2_t iToken = iNode + 1; iToken < reader.Token.size(); ++iToken)
-		if(reader.Token[iToken].Parent == (::llc::s2_t)iNode && reader.Token[iToken].Type == ::llc::XML_TOKEN_TAG_TEXT)
+		if(reader.Token[iToken].ParentIndex == (::llc::s2_t)iNode && reader.Token[iToken].Type == ::llc::XML_TOKEN_TAG_TEXT)
 			rtrn ::llc::xmlTokenView(xmlDoc, reader.Token[iToken], output) < 0 ? -1 : (::llc::err_t)iToken;
 	rtrn -1;
 }
@@ -185,90 +305,58 @@ llc::err_t llc::xmlFileRead(::llc::SXMLFile & file, ::llc::vcst_t filename) {
 	rtrn ::llc::xmlParse(file.Reader, file.Bytes);
 }
 
+llc::err_t llc::xmlParseStep(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
+	::llc::SXMLReaderState & state = reader.StateRead;
+	if_true_fef(state.DoneReading, "%s", "XML reader already completed the document.");
+	if(0 == reader.Token.size())
+		if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_DOCUMENT));
+	if_fail_fef(::llc::readerStateParseStep(state, xmlDoc), "Invalid XML index:%u. Document size:%u.", state.IndexCurrentChar, xmlDoc.size());
+	switch(state.CurrentElement->Type) {
+	case ::llc::XML_TOKEN_ATTR_VALUE:
+		if_fail_fe(::xmlParseStringCharacter(reader));
+		break;
+	case ::llc::XML_TOKEN_TAG_OPEN:
+	case ::llc::XML_TOKEN_TAG_CLOSE:
+	case ::llc::XML_TOKEN_TAG_OPENCLOSE:
+	case ::llc::XML_TOKEN_PI:
+	case ::llc::XML_TOKEN_ATTR:
+		if_fail_fe(::xmlParseTagCharacter(reader, xmlDoc));
+		break;
+	case ::llc::XML_TOKEN_TAG_NAME:
+	case ::llc::XML_TOKEN_PI_NAME:
+	case ::llc::XML_TOKEN_ATTR_NAME:
+		if_fail_fe(::xmlParseNameCharacter(reader, xmlDoc));
+		break;
+	default:
+		if_fail_fe(::xmlParseDocumentCharacter(reader, xmlDoc));
+		break;
+	}
+	if(state.IndexCurrentElement >= 0)
+		state.CurrentElement = &reader.Token[state.IndexCurrentElement];
+	if(state.IndexCurrentChar + 1 == xmlDoc.size()) {
+		if(state.CurrentElement && state.CurrentElement->Type == ::llc::XML_TOKEN_TAG_TEXT)
+			if_fail_fe(::xmlCloseElement(reader, state.IndexCurrentChar + 1));
+		if(state.CurrentElement && state.CurrentElement->Type == ::llc::XML_TOKEN_DOCUMENT)
+			if_fail_fe(::xmlCloseElement(reader, state.IndexCurrentChar + 1));
+		state.DoneReading = 0 == state.CurrentElement;
+		if(state.DoneReading)
+			state.CharCurrent = 0;
+	}
+	rtrn 0;
+}
+
 llc::err_t llc::xmlParse(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
 	if_fail_fe(reader.Reset());
-	cnst ::llc::err_t iDocument	= ::xmlTokenAdd(reader, ::llc::XML_TOKEN_DOCUMENT, 0, xmlDoc.size(), -1);
-	if_fail_fe(iDocument);
-	::llc::u2_t iCurrentNode		= (::llc::u2_t)iDocument;
-	::llc::u2_t offset				= 0;
-	while(offset < xmlDoc.size()) {
-		reader.StateRead.IndexCurrentChar = offset;
-		reader.StateRead.CharCurrent	= xmlDoc[offset];
-		if(xmlDoc[offset] != '<') {
-			cnst ::llc::u2_t iText		= offset;
-			while(offset < xmlDoc.size() && xmlDoc[offset] != '<')
-				++offset;
-			if(offset > iText)
-				if_fail_fe(::xmlTokenAdd(reader, ::llc::XML_TOKEN_TAG_TEXT, iText, offset - iText, (::llc::s2_t)iCurrentNode));
-			continue;
-		}
-		if(::xmlStartsWith(xmlDoc, offset, "<!")) {
-			if_fail_fef(::xmlSpecialParse(reader, xmlDoc, iCurrentNode, offset), "Invalid XML special token at offset:%u.", offset);
-			continue;
-		}
-		if(::xmlStartsWith(xmlDoc, offset, "<?")) {
-			cnst ::llc::u2_t iBegin	= offset;
-			offset					+= 2;
-			::llc::u2_t iNameEnd		= {};
-			if_fail_fe(::xmlNameEnd(xmlDoc, offset, iNameEnd));
-			cnst ::llc::err_t iPI		= ::xmlTokenAdd(reader, ::llc::XML_TOKEN_PI, iBegin, 0, (::llc::s2_t)iCurrentNode);
-			if_fail_fe(iPI);
-			if_fail_fe(::xmlTokenAdd(reader, ::llc::XML_TOKEN_PI_NAME, offset, iNameEnd - offset, iPI));
-			offset					= iNameEnd;
-			bool ignored				= false;
-			if_fail_fe(::xmlAttributesParse(reader, xmlDoc, iPI, offset, true, ignored));
-			reader.Token[iPI].Range.Count = offset - iBegin;
-			continue;
-		}
-		if(::xmlStartsWith(xmlDoc, offset, "</")) {
-			if_true_fef(iCurrentNode == (::llc::u2_t)iDocument, "Closing XML tag without an open node at offset:%u.", offset);
-			cnst ::llc::u2_t iBegin	= offset;
-			offset					+= 2;
-			::llc::u2_t iNameEnd		= {};
-			if_fail_fe(::xmlNameEnd(xmlDoc, offset, iNameEnd));
-			::llc::vcst_t openingName;
-			if_fail_fef(::xmlOpeningName(reader, xmlDoc, iCurrentNode, openingName), "Open XML node has no name at token:%u.", iCurrentNode);
-			::llc::vcst_t closingName	= {&xmlDoc[offset], iNameEnd - offset};
-			if_true_fef(false == ::xmlTextEquals(openingName, closingName), "Mismatched XML closing tag:'%.*s'; expected:'%.*s'.", (int)closingName.size(), closingName.begin(), (int)openingName.size(), openingName.begin());
-			offset					= iNameEnd;
-			if_fail_fe(::xmlSkipSpaces(xmlDoc, offset));
-			if_true_fef(offset >= xmlDoc.size() || xmlDoc[offset] != '>', "Missing '>' for closing XML tag at offset:%u.", iBegin);
-			++offset;
-			cnst ::llc::err_t iClose	= ::xmlTokenAdd(reader, ::llc::XML_TOKEN_TAG_CLOSE, iBegin, offset - iBegin, (::llc::s2_t)iCurrentNode);
-			if_fail_fe(iClose);
-			if_fail_fe(::xmlTokenAdd(reader, ::llc::XML_TOKEN_TAG_NAME, iBegin + 2, iNameEnd - iBegin - 2, iClose));
-			reader.Token[iCurrentNode].Range.Count = offset - reader.Token[iCurrentNode].Range.Offset;
-			iCurrentNode				= (::llc::u2_t)reader.Token[iCurrentNode].Parent;
-			--reader.StateRead.NestLevel;
-			continue;
-		}
-
-		cnst ::llc::u2_t iBegin		= offset++;
-		::llc::u2_t iNameEnd			= {};
-		if_fail_fe(::xmlNameEnd(xmlDoc, offset, iNameEnd));
-		cnst ::llc::err_t iNode		= ::xmlTokenAdd(reader, ::llc::XML_TOKEN_TAG_NODE, iBegin, 0, (::llc::s2_t)iCurrentNode);
-		if_fail_fe(iNode);
-		cnst ::llc::err_t iOpen		= ::xmlTokenAdd(reader, ::llc::XML_TOKEN_TAG_OPEN, iBegin, 0, iNode);
-		if_fail_fe(iOpen);
-		if_fail_fe(::xmlTokenAdd(reader, ::llc::XML_TOKEN_TAG_NAME, offset, iNameEnd - offset, iOpen));
-		offset						= iNameEnd;
-		bool selfClosing				= false;
-		if_fail_fe(::xmlAttributesParse(reader, xmlDoc, iOpen, offset, false, selfClosing));
-		reader.Token[iOpen].Range.Count = offset - iBegin;
-		if(selfClosing) {
-			reader.Token[iOpen].Type	= ::llc::XML_TOKEN_TAG_OPENCLOSE;
-			reader.Token[iNode].Range.Count = offset - iBegin;
-		}
-		else {
-			iCurrentNode				= (::llc::u2_t)iNode;
-			++reader.StateRead.NestLevel;
-		}
+	if(0 == xmlDoc.size()) {
+		if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_DOCUMENT, 0));
+		if_fail_fe(::xmlCloseElement(reader, 0));
+		reader.StateRead.DoneReading = true;
 	}
-	if_true_fef(iCurrentNode != (::llc::u2_t)iDocument, "Unclosed XML node at token:%u.", iCurrentNode);
+	for(reader.StateRead.IndexCurrentChar = 0; reader.StateRead.IndexCurrentChar < xmlDoc.size(); ++reader.StateRead.IndexCurrentChar)
+		if_fail_fe(::llc::xmlParseStep(reader, xmlDoc));
+	if_true_fef(reader.StateRead.NestLevel, "Invalid XML nesting level:%i.", reader.StateRead.NestLevel);
+	if_true_fef(false == reader.StateRead.DoneReading, "%s", "XML document did not reach a closed state.");
 	reader.StateRead.IndexCurrentChar = xmlDoc.size();
-	reader.StateRead.IndexCurrentElement = -1;
-	reader.StateRead.CurrentElement = 0;
-	reader.StateRead.NestLevel	= 0;
-	reader.StateRead.CharCurrent	= 0;
+	reader.StateRead.CharCurrent = 0;
 	rtrn reader.Token.size();
 }

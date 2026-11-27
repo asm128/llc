@@ -1,4 +1,5 @@
 #include "llc_enum.h"
+#include "llc_reader.h"
 #include "llc_array_ptr.h"
 #include "llc_slice.h"
 #include "llc_parse.h"
@@ -24,22 +25,12 @@ namespace llc
 	GDEFINE_ENUM_VALUE(EXPRESSION_READER_TYPE, UNKNOWN		, -1);
 
 #pragma pack(push, 1)
-	struct SExpressionToken {
-		int32_t					ParentIndex;
-		EXPRESSION_READER_TYPE	Type;
-		sliceu2_t				Span;
+	tydf SToken<EXPRESSION_READER_TYPE> SExpressionToken;
+	struct SExpressionTokenData {
 		bool					ClosingCondition				= false;
 	};
 
-	struct SExpressionReaderState {
-		u2_t					IndexCurrentChar				= 0;
-		s2_t					IndexCurrentElement				= -1;
-		SExpressionToken		* CurrentElement				= 0;
-		s2_t					NestLevel						= 0;
-		sc_t					CharCurrent						= 0;
-		bool					Escaping						= false;
-		bool					ExpectsSeparator				= false;
-		bool					InsideString					= false;
+	struct SExpressionReaderState : public SReaderState<EXPRESSION_READER_TYPE> {
 		sc_t					ClosingQuotes					= '0';
 	};
 #pragma pack(pop)
@@ -51,8 +42,8 @@ namespace llc
 		int32_t					ObjectIndex						= -1;
 	};
 
-	struct SExpressionReader {
-		apod<SExpressionToken>	Token;
+	struct SExpressionReader : public SReader<EXPRESSION_READER_TYPE> {
+		apod<SExpressionTokenData>	Data;
 		aobj<vcst_t>			View;
 		apobj<SExpressionNode>	Tree;
 		SExpressionReaderState	StateRead;

@@ -107,6 +107,9 @@
 #define ndix			ndsc inxp
 #define nsix			ndsc sinx
 #define rtrn			return
+#define rtnn			rtrn 0
+#define rtn0			rtrn 0
+#define rtnz			rtrn 0
 #define dflt			default
 #define oper			operator
 #define tplt			template

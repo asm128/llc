@@ -1,5 +1,5 @@
 #include "llc_enum.h"
-#include "llc_slice.h"
+#include "llc_reader.h"
 
 #ifndef LLC_PARSE_H_23627
 #define LLC_PARSE_H_23627
@@ -33,19 +33,9 @@ namespace llc
 	GDEFINE_ENUM_VALUE(STRIP_LITERAL_TYPE, COUNT	, 2);
 	GDEFINE_ENUM_VALUE(STRIP_LITERAL_TYPE, UNKNOWN	, -1);
 #pragma pack(push, 1)
-	stct SStripLiteralType {
-		s2_t				ParentIndex;
-		STRIP_LITERAL_TYPE	Type;
-		sliceu2_t			Span;
-	};
+	tydf SToken<STRIP_LITERAL_TYPE> SStripLiteralType;
 
-	stct SStripLiteralState {
-		u2_t				IndexCurrentChar				= 0;
-		s2_t				IndexCurrentElement				= -1;
-		SStripLiteralType	* CurrentElement				= 0;
-		s2_t				NestLevel						= 0;
-		char				CharCurrent						= 0;
-		bool				Escaping						= false;
+	stct SStripLiteralState : public SReaderState<STRIP_LITERAL_TYPE> {
 		bool				InsideToken						= false;
 		s2_t				BracketsToSkip					= 0;
 	};
