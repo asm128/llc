@@ -55,13 +55,35 @@ sttc	llc::err_t	expressionReaderOpenLevel							(::llc::SReaderState<::llc::EXPR
 }
 
 sttc    llc::err_t      expressionReaderProcessStringCharacter  (::llc::SReaderState<::llc::EXPRESSION_READER_TYPE> & stateReader, ::llc::SExpressionReaderState & stateDoc, apod<::llc::SExpressionToken> & tokens, apod<::llc::SExpressionTokenData> & data, const ::llc::vcst_t & expression)	{
-    if('"' != stateReader.CharCurrent && '\'' != stateReader.CharCurrent) {
-        if_fail_fe(::llc::readerParseStringCharacter(stateReader, tokens, expression, ::llc::EXPRESSION_READER_TYPE_CODEPOINT));
-        if_fail_fe(data.resize(tokens.size()));
-        rtrn 0;
-    }
+    ::llc::SToken<::llc::EXPRESSION_READER_TYPE>    currentElement      = {0, ::llc::EXPRESSION_READER_TYPE_UNKNOWN, false, {}};
     ::llc::err_t			                        errVal		        = 0;
     switch(stateReader.CharCurrent) {
+    default:
+        seterr_break_if(stateReader.CharCurrent < 0x20 || ((u0_t)stateReader.CharCurrent) > 0xFE, "Invalid character: %i (%u) '%c'.", stateReader.CharCurrent, (::llc::uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
+        seterr_break_if(stateReader.Flags.Escaping, "Cannot escape character: %i (%u) '%c'.", stateReader.CharCurrent, (u0_t)stateReader.CharCurrent, stateReader.CharCurrent);
+        break;
+    case 'b': case 'f': case 'n': case 'r': case 't':
+        break;	// these characters are both valid as part of the string and as escapable characters.
+    case '\b': case '\f': case '\n': case '\r': case '\t':
+        break;	// these characters are both valid as part of the string and as escapable characters.
+    case 'u':
+        if(false == stateReader.Flags.Escaping)
+            break;
+        stateReader.IndexCurrentChar								+= 1;	// skip the u to get the next 4 digits.
+        seterr_break_if(expression.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. JSON length: %u. Current index: %u.", expression.size(), stateReader.IndexCurrentChar);
+        info_printf("Unicode code point found: %4.4s", &expression[stateReader.IndexCurrentChar]);
+        currentElement										= {stateReader.IndexCurrentElement, ::llc::EXPRESSION_READER_TYPE_CODEPOINT, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}};
+        seterr_if(llc::failed(tokens.push_back(currentElement)), "%s", "");
+        if_fail_fe(data.resize(tokens.size()));
+        stateReader.CurrentElement									= &tokens[stateReader.IndexCurrentElement];
+        stateReader.IndexCurrentChar								+= 3;	// Parse unicode code point
+        break;
+    case '\\'	:
+        if(false == stateReader.Flags.Escaping) {
+            stateReader.Flags.Escaping										= true;
+            return 0;
+        }
+        break;
     case '"'	:case '\''	:
         if(false == stateReader.Flags.Escaping && stateDoc.ClosingQuotes == stateReader.CharCurrent) {
             seterr_if(llc::failed(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_LITERAL, stateReader.IndexCurrentChar + 1)), "Failed to close string elment. %s", "Unknown error.");

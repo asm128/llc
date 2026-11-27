@@ -145,36 +145,6 @@ nmsp llc
     }
 
     tplt<tpnm TToken>
-    sttc err_t      readerParseStringCharacter  (SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, vcst_t document, TToken typeCodepoint) {
-        switch(stateReader.CharCurrent) {
-        default:
-            if_true_fef(((uc_t)stateReader.CharCurrent) < 0x20 || ((uc_t)stateReader.CharCurrent) > 0xFE, "Invalid character: %i (%u) '%c'.", stateReader.CharCurrent, (uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
-            if_true_fef(stateReader.Flags.Escaping, "Cannot escape character: %i (%u) '%c'.", stateReader.CharCurrent, (uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
-            break;
-        case 'b': case 'f': case 'n': case 'r': case 't':
-        case '\b': case '\f': case '\n': case '\r': case '\t':
-            break;
-        case 'u':
-            if(false == stateReader.Flags.Escaping)
-                break;
-            ++stateReader.IndexCurrentChar;
-            if_true_fef(document.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. Document length: %u. Current index: %u.", document.size(), stateReader.IndexCurrentChar);
-            if_fail_fe(tokens.push_back({stateReader.IndexCurrentElement, typeCodepoint, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}}));
-            stateReader.CurrentElement = &tokens[stateReader.IndexCurrentElement];
-            stateReader.IndexCurrentChar += 3;
-            break;
-        case '\\':
-            if(false == stateReader.Flags.Escaping) {
-                stateReader.Flags.Escaping = true;
-                rtrn 0;
-            }
-            break;
-        }
-        stateReader.Flags.Escaping = false;
-        rtrn 0;
-    }
-
-    tplt<tpnm TToken>
     sttc err_t readerDiscardLevel(SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens) {
         if_null_fef(stateReader.CurrentElement, "%s", "No reader element is open.");
         if_true_fef(stateReader.IndexCurrentElement != (s2_t)tokens.size() - 1, "Reader element %i is not the last token %u.", stateReader.IndexCurrentElement, tokens.size() - 1);

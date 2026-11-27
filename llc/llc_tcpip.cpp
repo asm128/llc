@@ -23,10 +23,10 @@ LLC_USING_TYPEINT();
 	::llc::SJSONReader			reader					= {};
 	if_fail_fef(llc::jsonParse(reader, strIP), "Failed to parse ip from string: '%.*s'.", (int)strIP.size(), strIP.begin());
 	ipv4					= 0;
-	{ int32_t iToken; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 0)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader.Data[iToken], 0); }
-	{ int32_t iToken; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 1)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader.Data[iToken], 1); }
-	{ int32_t iToken; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 2)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader.Data[iToken], 2); }
-	{ int32_t iToken; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 3)); ipv4 |= ::llc::byte_to<::llc::u2_t>((u0_t)reader.Data[iToken], 3); }
+	{ int32_t iToken; u0_t value; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 0)); if_fail_fe(::llc::jsonObjectGetInteger(reader, iToken, value)); ipv4 |= ::llc::byte_to<::llc::u2_t>(value, 0); }
+	{ int32_t iToken; u0_t value; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 1)); if_fail_fe(::llc::jsonObjectGetInteger(reader, iToken, value)); ipv4 |= ::llc::byte_to<::llc::u2_t>(value, 1); }
+	{ int32_t iToken; u0_t value; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 2)); if_fail_fe(::llc::jsonObjectGetInteger(reader, iToken, value)); ipv4 |= ::llc::byte_to<::llc::u2_t>(value, 2); }
+	{ int32_t iToken; u0_t value; if_fail_fe(iToken = ::llc::jsonArrayValueGet(reader, 0, 3)); if_fail_fe(::llc::jsonObjectGetInteger(reader, iToken, value)); ipv4 |= ::llc::byte_to<::llc::u2_t>(value, 3); }
 	return 0;
 }
 
