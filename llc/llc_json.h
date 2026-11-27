@@ -48,11 +48,10 @@ namespace llc
 
     stct SJSONReader {
         SReader<JSON_TYPE>		Reader;
-        apod<u3_t>				Data;
 
         inln err_t Reset() {
             if_fail_fe(Reader.Reset());
-            rtrn clear(Reader.View, Data);
+            rtn0; // n clear(Reader.View, Data);
         }
     };
 
