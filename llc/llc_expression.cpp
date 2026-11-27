@@ -49,12 +49,17 @@ sttc	llc::err_t	expressionReaderCloseTerm							(::llc::SReaderState<::llc::EXPR
 }
 
 sttc	llc::err_t	expressionReaderOpenLevel							(::llc::SReaderState<::llc::EXPRESSION_READER_TYPE> & stateReader, apod<::llc::SExpressionToken> & tokens, apod<::llc::SExpressionTokenData> & data, ::llc::EXPRESSION_READER_TYPE type, u2_t iChar) {
-	rtrn ::llc::readerOpenLevel(stateReader, tokens, false, type, iChar, data);
+	if_fail_fe(::llc::readerOpenLevel(stateReader, tokens, false, type, iChar));
+	if_fail_fe(data.resize(tokens.size()));
+	rtrn 0;
 }
 
 sttc    llc::err_t      expressionReaderProcessStringCharacter  (::llc::SReaderState<::llc::EXPRESSION_READER_TYPE> & stateReader, ::llc::SExpressionReaderState & stateDoc, apod<::llc::SExpressionToken> & tokens, apod<::llc::SExpressionTokenData> & data, const ::llc::vcst_t & expression)	{
-    if('"' != stateReader.CharCurrent && '\'' != stateReader.CharCurrent)
-        rtrn ::llc::readerParseStringCharacter(stateReader, tokens, data, expression, ::llc::EXPRESSION_READER_TYPE_CODEPOINT);
+    if('"' != stateReader.CharCurrent && '\'' != stateReader.CharCurrent) {
+        if_fail_fe(::llc::readerParseStringCharacter(stateReader, tokens, expression, ::llc::EXPRESSION_READER_TYPE_CODEPOINT));
+        if_fail_fe(data.resize(tokens.size()));
+        rtrn 0;
+    }
     ::llc::err_t			                        errVal		        = 0;
     switch(stateReader.CharCurrent) {
     case '"'	:case '\''	:

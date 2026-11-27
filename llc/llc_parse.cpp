@@ -5,12 +5,11 @@
 #include <ctype.h>
 
 llc::err_t			llc::skipToNextCharacter		(u2_t & indexCurrentChar, vcst_t expression)		{
-	while(indexCurrentChar < expression.size()) {
-		if(is_space(expression[indexCurrentChar]))
-			++indexCurrentChar;
-		else
-			break;
-	}
+	vcst_t trimmed;
+	if_fail_fe(expression.slice(trimmed, indexCurrentChar));
+	cnst err_t count = ltrim(trimmed, trimmed, SPACE_CHARACTERS);
+	if_fail_fe(count);
+	indexCurrentChar += count;
 	return 0;
 }
 llc::err_t			llc::parseArbitraryBaseInteger	(u2_t base, vcst_t symbolList, vcst_t sourceChars, u3_t * number_)	{

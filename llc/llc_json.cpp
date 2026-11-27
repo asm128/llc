@@ -154,12 +154,8 @@ sttc	llc::err_t	jsonCloseOrDiscardEmptyKOrV	(llc::SJSONReaderState & stateReader
 	cnst llc::vcst_t			labelType				= llc::get_value_label(containerType);
 	if(tokens[tokens.size() - 1].Type == containerType) {
 		json_info_printf("Discarding empty container element at index %" LLC_FMT_S2 " (%.*s). Level: %" LLC_FMT_S2 "", tokens.size() - 1, (int)labelType.size(), labelType.begin(), stateReader.NestLevel);
-		stateReader.IndexCurrentElement	= tokens[tokens.size() - 1].ParentIndex;
-		if_fail_fe(tokens.pop_back());
+		if_fail_fe(llc::readerDiscardLevel(stateReader, tokens));
 		if_fail_fe(data.resize(tokens.size()));
-		--stateReader.NestLevel;
-		if((u2_t)stateReader.IndexCurrentElement < tokens.size())
-			stateReader.CurrentElement	= &tokens[stateReader.IndexCurrentElement];
 	}
 	else {
 		json_info_printf("Closing container at index %" LLC_FMT_S2 " (%.*s).", tokens.size() - 1, (int)labelType.size(), labelType.begin());
@@ -188,7 +184,9 @@ sttc	llc::err_t	jsonParseStringCharacter	(llc::SJSONReaderState & stateReader, l
 	llc::err_t				errVal						= 0;
 	switch(stateReader.CharCurrent) {
 	default:
-		rtrn llc::readerParseStringCharacter(stateReader, tokens, data, jsonAsString, llc::JSON_TYPE_CODEPOINT);
+		if_fail_fe(llc::readerParseStringCharacter(stateReader, tokens, jsonAsString, llc::JSON_TYPE_CODEPOINT));
+		if_fail_fe(data.resize(tokens.size()));
+		rtrn 0;
 	case ' '	: case '\t'	: case '\r'	: case '\n'	: case '\f'	: case '\b'	: // Skip these characters without error.
 		llc::skipToNextCharacter(stateReader.IndexCurrentChar, jsonAsString);
 		--stateReader.IndexCurrentChar;
@@ -211,9 +209,10 @@ sttc	llc::err_t	jsonParseKeyword			(llc::vcst_t token, llc::JSON_TYPE jsonType, 
 	json_info_printf("JSON token found: %.*s.", int(token.size()), token.begin());
 
 	llc::SJSONToken			boolElement					= {stateReader.IndexCurrentElement, jsonType, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + token.size()}};
-	if_fail_fef(llc::readerTokenPush(object, data, boolElement, llc::SJSONTokenData(llc::vcs2b8(token))), "Failed to push! Out of memory? object count: %" LLC_FMT_U2 ".", object.size());
+	if_fail_fef(object.push_back(boolElement), "Failed to push! Out of memory? object count: %" LLC_FMT_U2 ".", object.size());
+	if_fail_fe(data.push_back(llc::SJSONTokenData(llc::vcs2b8(token))));
+	stateReader.CurrentElement = &object[stateReader.IndexCurrentElement];
 	stateReader.IndexCurrentChar	+= token.size() - 1;
-	stateReader.CurrentElement		= &object[stateReader.IndexCurrentElement];
 	rtrn 0;
 }
 
@@ -331,8 +330,9 @@ sttc	llc::err_t	parseJsonNumber				(llc::SJSONReaderState & stateReader, llc::ap
 			memcpy(&currentData, &finalValue, szof(uint64_t));
 		}
 	}
-	if_fail_fe(llc::readerTokenPush(tokens, data, currentElement, currentData));
-	stateReader.CurrentElement						= &tokens[stateReader.IndexCurrentElement];
+	if_fail_fe(tokens.push_back(currentElement));
+	if_fail_fe(data.push_back(currentData));
+	stateReader.CurrentElement = &tokens[stateReader.IndexCurrentElement];
 	json_info_printf("Number found: %.*s. Length: %" LLC_FMT_U2 ". Negative: %s. Float: %s."
 		, sizeNum, &jsonAsString[index]
 		, sizeNum
@@ -369,7 +369,9 @@ sttc	llc::err_t	jsonCloseContainer			(llc::SJSONReaderState & stateReader, llc::
 
 sttc	llc::err_t	jsonOpenElement				(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::apod<llc::SJSONTokenData> & data, llc::JSON_TYPE jsonType, u2_t indexChar) {
 	cnst b8_t				isContainer				= llc::JSON_TYPE_OBJECT == jsonType || llc::JSON_TYPE_ARRAY == jsonType;
-	rtrn llc::readerOpenLevel(stateReader, tokens, isContainer, jsonType, indexChar, data);
+	if_fail_fe(llc::readerOpenLevel(stateReader, tokens, isContainer, jsonType, indexChar));
+	if_fail_fe(data.resize(tokens.size()));
+	rtrn 0;
 }
 
 sttc	llc::err_t	jsonParseDocumentCharacter	(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::apod<llc::SJSONTokenData> & data, llc::vcst_t jsonAsString)	{

@@ -124,7 +124,7 @@ nmsp llc
         inxp    pobj<TNode>*    end		()				csnx	{ rtrn Tree.end(); }
         inln    err_t		    Reset	()						{
             State                   = {};
-            rtrn clear(Token); //, Data, View); Don't clear other than Token!!
+            rtrn clear(Token);
         }
     };
 
@@ -140,20 +140,12 @@ nmsp llc
                 rtrn -1;
             }
         );
+        reader.State.CurrentElement = (u2_t)reader.State.IndexCurrentElement < reader.Token.size() ? &reader.Token[reader.State.IndexCurrentElement] : nullptr;
         rtrn 0;
     }
 
-    tplt<tpnm TToken, tpnm TData>
-    sttc err_t      readerTokenPush             (apod<SToken<TToken>> & tokens, apod<TData> & data, cnst SToken<TToken> & token, cnst TData & tokenData = {}) {
-        cnst u2_t indexToken = tokens.size();
-        if_fail_fe(resize(indexToken + 1, tokens, data));
-        tokens[indexToken] = token;
-        data  [indexToken] = tokenData;
-        rtrn indexToken;
-    }
-
-    tplt<tpnm TToken, tpnm TData>
-    sttc err_t      readerParseStringCharacter  (SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, apod<TData> & data, vcst_t document, TToken typeCodepoint) {
+    tplt<tpnm TToken>
+    sttc err_t      readerParseStringCharacter  (SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, vcst_t document, TToken typeCodepoint) {
         switch(stateReader.CharCurrent) {
         default:
             if_true_fef(((uc_t)stateReader.CharCurrent) < 0x20 || ((uc_t)stateReader.CharCurrent) > 0xFE, "Invalid character: %i (%u) '%c'.", stateReader.CharCurrent, (uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
@@ -167,7 +159,7 @@ nmsp llc
                 break;
             ++stateReader.IndexCurrentChar;
             if_true_fef(document.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. Document length: %u. Current index: %u.", document.size(), stateReader.IndexCurrentChar);
-            if_fail_fe(readerTokenPush(tokens, data, SToken<TToken>{stateReader.IndexCurrentElement, typeCodepoint, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}}));
+            if_fail_fe(tokens.push_back({stateReader.IndexCurrentElement, typeCodepoint, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}}));
             stateReader.CurrentElement = &tokens[stateReader.IndexCurrentElement];
             stateReader.IndexCurrentChar += 3;
             break;
@@ -183,6 +175,18 @@ nmsp llc
     }
 
     tplt<tpnm TToken>
+    sttc err_t readerDiscardLevel(SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens) {
+        if_null_fef(stateReader.CurrentElement, "%s", "No reader element is open.");
+        if_true_fef(stateReader.IndexCurrentElement != (s2_t)tokens.size() - 1, "Reader element %i is not the last token %u.", stateReader.IndexCurrentElement, tokens.size() - 1);
+        stateReader.IndexCurrentElement = stateReader.CurrentElement->ParentIndex;
+        if_fail_fe(tokens.pop_back());
+        stateReader.CurrentElement = (u2_t)stateReader.IndexCurrentElement < tokens.size() ? &tokens[stateReader.IndexCurrentElement] : nullptr;
+        --stateReader.NestLevel;
+        stateReader.Flags.DoneReading = 0 == stateReader.NestLevel;
+        rtrn 0;
+    }
+
+    tplt<tpnm TToken>
     sttc	err_t	readerCloseType				(SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, TToken type, s2_t indexCurrentChar) {
         if_null_fef(stateReader.CurrentElement, "%s", "No reader element is open.");
         if_true_fef((u2_t)stateReader.IndexCurrentElement >= tokens.size(), "Invalid reader element index: %i. Token count: %u.", stateReader.IndexCurrentElement, tokens.size());
@@ -194,6 +198,8 @@ nmsp llc
         llc_reader_info_printf("Closing reader type: %s. Parent type: %s. Nest level: %i.", get_value_label(type).begin(), stateReader.CurrentElement ? get_value_label(stateReader.CurrentElement->Type).begin() : "UNKNOWN", stateReader.NestLevel);
         --stateReader.NestLevel;
         stateReader.Flags.DoneReading = 0 == stateReader.NestLevel;
+        if(stateReader.Flags.DoneReading)
+            stateReader.CharCurrent = 0;
         return 0;
     }
 
@@ -207,11 +213,10 @@ nmsp llc
         return 0;
     }
 
-    tplt<tpnm TToken, tpnm... TData>
-    sttc	err_t	readerOpenLevel		(SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, b8_t isContainer, TToken type, u2_t iChar, TData&... data)	{
-        cnst u2_t indexToken = tokens.size();
-        if_fail_fe(resize(indexToken + 1, tokens, data...));
-        tokens[indexToken] = {stateReader.IndexCurrentElement, type, isContainer, {iChar, iChar}};
+    tplt<tpnm TToken>
+    sttc	err_t	readerOpenLevel		(SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, b8_t isContainer, TToken type, u2_t iChar)	{
+        cnst err_t indexToken = tokens.push_back({stateReader.IndexCurrentElement, type, isContainer, {iChar, iChar}});
+        if_fail_fe(indexToken);
         stateReader.IndexCurrentElement = indexToken;
         stateReader.CurrentElement		        = &tokens[stateReader.IndexCurrentElement];
         ++stateReader.NestLevel;

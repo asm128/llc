@@ -163,10 +163,8 @@ sttc ::llc::err_t xmlParseNameCharacter(::llc::SXMLReader & reader, ::llc::vcst_
 	case '/':
 		if_true_fef(type != ::llc::XML_TOKEN_TAG_NAME, "Invalid '/' in XML name at offset:%u.", state.IndexCurrentChar);
 		if(state.CurrentElement->Span.Begin == state.IndexCurrentChar) {
-			state.IndexCurrentElement = reader.Token.pop_back() - 1;
-			state.IndexCurrentElement = reader.Token.pop_back() - 1;
-			state.NestLevel -= 2;
-			state.CurrentElement = &reader.Token[state.IndexCurrentElement];
+			if_fail_fe(::llc::readerDiscardLevel(state, reader.Token));
+			if_fail_fe(::llc::readerDiscardLevel(state, reader.Token));
 			state.CurrentElement->Type = ::llc::XML_TOKEN_TAG_CLOSE;
 			rtrn ::xmlOpenElement(reader, ::llc::XML_TOKEN_TAG_NAME, state.IndexCurrentChar + 1);
 		}
@@ -180,10 +178,8 @@ sttc ::llc::err_t xmlParseNameCharacter(::llc::SXMLReader & reader, ::llc::vcst_
 			rtrn 0;
 		}
 		if_true_fef(type != ::llc::XML_TOKEN_TAG_NAME || state.CurrentElement->Span.Begin != state.IndexCurrentChar, "Invalid '?' in XML name at offset:%u.", state.IndexCurrentChar);
-		state.IndexCurrentElement = reader.Token.pop_back() - 1;
-		state.IndexCurrentElement = reader.Token.pop_back() - 1;
-		state.NestLevel -= 2;
-		state.CurrentElement = &reader.Token[state.IndexCurrentElement];
+		if_fail_fe(::llc::readerDiscardLevel(state, reader.Token));
+		if_fail_fe(::llc::readerDiscardLevel(state, reader.Token));
 		state.CurrentElement->Type = ::llc::XML_TOKEN_PI;
 		rtrn ::xmlOpenElement(reader, ::llc::XML_TOKEN_PI_NAME, state.IndexCurrentChar + 1);
 	case '=':
@@ -323,16 +319,11 @@ llc::err_t llc::xmlParseStep(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
 			if_fail_fe(::xmlParseDocumentCharacter(reader, text));
 			break;
 		}
-		if(stateReader.IndexCurrentElement >= 0)
-			stateReader.CurrentElement = &tokenReader.Token[stateReader.IndexCurrentElement];
 		if(stateReader.IndexCurrentChar + 1 == text.size()) {
 			if(stateReader.CurrentElement && stateReader.CurrentElement->Type == ::llc::XML_TOKEN_TAG_TEXT)
 				if_fail_fe(::xmlCloseElement(reader, stateReader.IndexCurrentChar + 1));
 			if(stateReader.CurrentElement && stateReader.CurrentElement->Type == ::llc::XML_TOKEN_DOCUMENT)
 				if_fail_fe(::xmlCloseElement(reader, stateReader.IndexCurrentChar + 1));
-			stateReader.Flags.DoneReading = 0 == stateReader.CurrentElement;
-			if(stateReader.Flags.DoneReading)
-				stateReader.CharCurrent = 0;
 		}
 		rtn0;
 	});
@@ -343,7 +334,6 @@ llc::err_t llc::xmlParse(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
 	if(0 == xmlDoc.size()) {
 		if_fail_fe(::xmlOpenElement(reader, ::llc::XML_TOKEN_DOCUMENT, 0));
 		if_fail_fe(::xmlCloseElement(reader, 0));
-		reader.State.Flags.DoneReading = true;
 	}
 	for(reader.State.IndexCurrentChar = 0; reader.State.IndexCurrentChar < xmlDoc.size(); ++reader.State.IndexCurrentChar)
 		if_fail_fe(::llc::xmlParseStep(reader, xmlDoc));
