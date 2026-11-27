@@ -18,7 +18,7 @@ namespace llc																								\
 	};																										\
 }																											\
 		LLC_DEFINE_APP_MODULE_INTERFACE(_mainClass, _moduleTitle);											\
-		static	::llc::err_t	rtMain		(::llc::SRuntimeValues & runtimeValues);						\
+		sttc	::llc::err_t	rtMain		(::llc::SRuntimeValues & runtimeValues);						\
 		LLC_OS_ENTRY_POINT(rtMain);																			\
 		::llc::err_t			rtMain		(::llc::SRuntimeValues & runtimeValues)	{						\
 		{																									\
@@ -52,10 +52,10 @@ namespace llc																								\
 		};																										\
 	}																											\
  	LLC_DEFINE_APP_MODULE_INTERFACE(_mainClass, _moduleTitle);													\
-	static	::llc::err_t	rtMain		(::llc::SRuntimeValues & runtimeValues);								\
+	sttc	::llc::err_t	rtMain		(::llc::SRuntimeValues & runtimeValues);								\
 	LLC_OS_ENTRY_POINT(rtMain);																				\
 																												\
-	static	void				threadRender		(void * pRuntimeState)	{									\
+	sttc	void				threadRender		(void * pRuntimeState)	{									\
 		::llc::SRuntimeState			& runtimeState		= *(::llc::SRuntimeState*)pRuntimeState;			\
 		if_true_ref(!runtimeState.Application, "Main module is null:(%s)\"%s\"", #_mainClass, _moduleTitle);	\
 		llc_sync_increment(runtimeState.RenderThreadUsers);														\
@@ -67,12 +67,12 @@ namespace llc																								\
 		info_printf("%s", "Render thread done.");																\
 	}																											\
 																												\
-	static	::llc::err_t	threadRenderStart	(::llc::SRuntimeState& runtimeState)	{						\
+	sttc	::llc::err_t	threadRenderStart	(::llc::SRuntimeState& runtimeState)	{						\
 		_beginthread(threadRender, 0, &runtimeState);															\
 		return 0;																								\
 	}																											\
 																												\
-	static	::llc::err_t	lrt_Loop			(::llc::SRuntimeState & runtimeState)	{						\
+	sttc	::llc::err_t	lrt_Loop			(::llc::SRuntimeState & runtimeState)	{						\
 		::llc::err_t				updateResult	= ::update(*runtimeState.Application, false);				\
 		if(1 == updateResult || ::llc::failed(updateResult)) {													\
 			if_true_i(::llc::APPLICATION_STATE_EXIT == updateResult);											\

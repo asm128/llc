@@ -38,7 +38,7 @@ stxp ::llc::u2_t BIT_RANDOM_COUNT	= 128;
 
 // Pointer arithmetic in this suite verifies the element and one-past storage boundaries exposed by bit_iterator<>.
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testPartialWidth(::llc::ATestError & errors) {
 	T					data[2]		= {};
 	::llc::u2_c			bitCount	= szof(T) * 8 + 3;
@@ -128,7 +128,7 @@ sttc ::llc::err_t testEmpty(::llc::ATestError & errors, _dataValues (&data)[_dat
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testIteratorPosition(::llc::ATestError & errors) {
 	T equalBits = 0;
 	::llc::view_bit<T> positions{&equalBits, 2};
@@ -152,7 +152,7 @@ sttc ::llc::err_t testConstIteration(::llc::ATestError & errors, _dataValues (&d
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testRandom(::llc::ATestError & errors) {
 	stxp ::llc::u2_t DATA_COUNT	= 8;
 	stxp ::llc::u2_t ELEMENT_BITS	= szof(T) * 8;
@@ -196,7 +196,7 @@ sttc ::llc::err_t testRandom(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testReverseBits(::llc::ATestError & errors) {
 	stxp ::llc::u2_t ELEMENT_BITS	= szof(T) * 8;
 	T data[2]		= {T(0x5AU), T(0xC3U)};
@@ -227,7 +227,7 @@ sttc ::llc::err_t testReverseBits(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testInvalid(::llc::ATestError & errors) {
 #ifdef LLC_WINDOWS
 	stxp ::llc::u2_t ELEMENT_BITS = szof(T) * 8;
@@ -256,7 +256,7 @@ sttc ::llc::err_t testInvalid(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	T data[2] = {(T)0xA5U, (T)0x02U};
 	if_fail_fe(testPartial			(errors, data));
@@ -270,7 +270,7 @@ sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	return testRandom<T>(errors);
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);

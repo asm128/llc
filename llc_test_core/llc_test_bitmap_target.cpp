@@ -78,7 +78,7 @@ sttc bool pointFound(T const (&points)[N], T const& point) {
 	rtrn false;
 }
 
-tplt<tpnm T>
+tplT 
 sttc bool pointFound(::llc::apod<T> const& points, T const& point, ::llc::u2_t offset = 0) {
 	for(::llc::u2_t iPoint = offset; iPoint < points.size(); ++iPoint)
 		if(points[iPoint] == point)

@@ -24,17 +24,17 @@
 namespace llc
 {
 #pragma pack(push, 1)
-	tplt<tpnm T>	nsix	T&			min			(T & a, T & b)							noexcept	{ return (a < b) ? a : b; }
-	tplt<tpnm T>	nsix	T&			max			(T & a, T & b)							noexcept	{ return (a > b) ? a : b; }
-	tplt<tpnm T>	nsix	const T&	min			(const T & a, const T & b)				noexcept	{ return (a < b) ? a : b; }
-	tplt<tpnm T>	nsix	const T&	max			(const T & a, const T & b)				noexcept	{ return (a > b) ? a : b; }
-	tplt<tpnm T>	nsix	T			clamped		(T _value, const T _min, const T _max)	noexcept	{ return ::llc::min(_max, ::llc::max(_min, _value)); }
+	tplT 	nsix	T&			min			(T & a, T & b)							noexcept	{ return (a < b) ? a : b; }
+	tplT 	nsix	T&			max			(T & a, T & b)							noexcept	{ return (a > b) ? a : b; }
+	tplT 	nsix	const T&	min			(const T & a, const T & b)				noexcept	{ return (a < b) ? a : b; }
+	tplT 	nsix	const T&	max			(const T & a, const T & b)				noexcept	{ return (a > b) ? a : b; }
+	tplT 	nsix	T			clamped		(T _value, const T _min, const T _max)	noexcept	{ return ::llc::min(_max, ::llc::max(_min, _value)); }
 
 	// excluding the stop value
-	tplt<tpnm T>	ndsx	bool		in_range	(const T & valueToTest, const T & rangeStart, const T & rangeStop)	noexcept	{ 
+	tplT 	ndsx	bool		in_range	(const T & valueToTest, const T & rangeStart, const T & rangeStop)	noexcept	{ 
 		return (valueToTest >= rangeStart) && (valueToTest < rangeStop);
 	}
-	tplt<tpnm T>	ndsc	bool		equal		(const T * other, const T * local, ::llc::u2_t count) {
+	tplT 	ndsc	bool		equal		(const T * other, const T * local, ::llc::u2_t count) {
 		for(::llc::u2_t iElement = 0; iElement < count; ++iElement)
 			if(other[iElement] != local[iElement])
 				return false;
@@ -48,7 +48,7 @@ namespace llc
 	tplt<>	ndin	bool	equal	(const int16_t	* other, const int16_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(int16_t	)*count); }
 	tplt<>	ndin	bool	equal	(const ::llc::u1_t	* other, const ::llc::u1_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(::llc::u1_t	)*count); }
 	tplt<>	ndin	bool	equal	(const int8_t	* other, const int8_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(int8_t	)*count); }
-	tplt<>	ndin	bool	equal	(const u0_t	* other, const u0_t	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(u0_t	)*count); }
+	tplt<>	ndin	bool	equal	(u0_c	* other, u0_c	* local, ::llc::u2_t count)	{ return 0 == memcmp(other, local, szof(u0_t	)*count); }
 //#endif
 
 #pragma pack(pop)

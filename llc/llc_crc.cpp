@@ -16,7 +16,7 @@ llc::err_t			llc::crcGenerate			(vcu0_t bytes, uint64_t & crc)	{
 llc::err_t			llc::crcGenerateAndAppend	(au0_t & bytes)	{
 	uint64_t					crcToStore					= 0;
 	crcGenerate(bytes, crcToStore);
-	if_fail_fe(bytes.append((const u0_t*)&crcToStore, szof(uint64_t)));;
+	if_fail_fe(bytes.append((u0_c*)&crcToStore, szof(uint64_t)));;
 	return 0;
 }
 llc::err_t			llc::crcVerifyAndRemove		(au0_t & bytes)	{

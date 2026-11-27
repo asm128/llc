@@ -149,12 +149,12 @@ namespace llc
 
 #pragma pack(pop)
 
-	tplt<tpnm T>
+	tplT 
 	struct SVoxelChunk {
 		::llc::apobj<::llc::SVoxelLayer<T>>	Layers						= {};
 	};
 
-	tplt<tpnm T>
+	tplT 
 	struct SVoxelMap {
 		::llc::n3u0_t							Dimensions;
 		::llc::a8bgra			Palette;

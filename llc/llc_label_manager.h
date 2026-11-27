@@ -34,7 +34,7 @@ namespace llc
 			if_true_fe(Counts.size() != Texts.size());
 			if_fail_fe(llc::saveView(output, Counts));
 			for(::llc::u2_t iArray = 0; iArray < Counts.size(); ++iArray)
-				if_fail_fe(output.append((const u0_t*)Texts[iArray], Counts[iArray]));
+				if_fail_fe(output.append((u0_c*)Texts[iArray], Counts[iArray]));
 
 			return 0;
 		}

@@ -72,14 +72,14 @@
 	return 0;
 }
 
-static	::llc::err_t	displace					(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<double> & mouseDeltas)	{
+sttc	::llc::err_t	displace					(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<double> & mouseDeltas)	{
 	const ::llc::n2<double>		currentScale									= gui.Zoom.DPI * gui.Zoom.ZoomLevel;
 	::llc::n2<double>			deltasScaled									= mouseDeltas.f3().GetScaled(1.0 / currentScale.x, 1.0 / currentScale.y);
 	gui.Controls.Placement[iControl].Area.Offset								+= deltasScaled.s1();
 	return ::llc::controlMetricsInvalidate(gui, iControl);
 }
 
-static	::llc::err_t	pushToFrontAndDisplace		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::SInput & input)							{
+sttc	::llc::err_t	pushToFrontAndDisplace		(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::SInput & input)							{
 	const ::llc::cid_t			parentControlId				= gui.Controls.States[iControl].Parent;
 	for(::llc::u2_t iChild = 0, childCount = gui.Controls.Children[parentControlId].size(); iChild < childCount; ++iChild)
 		if(gui.Controls.Children[parentControlId][iChild] == iControl) {
@@ -93,7 +93,7 @@ static	::llc::err_t	pushToFrontAndDisplace		(::llc::SGUI & gui, ::llc::cid_t iCo
 	return 0;
 }
 
-static	::llc::err_t	unhideMenuHierarchy			(::llc::SGUI & gui, ::llc::SDesktop& desktop, ::llc::SControlList& menu)	{
+sttc	::llc::err_t	unhideMenuHierarchy			(::llc::SGUI & gui, ::llc::SDesktop& desktop, ::llc::SControlList& menu)	{
 	if(menu.IndexParentList != -1 && false == desktop.Items.ControlLists.Unused[menu.IndexParentList])
 		::unhideMenuHierarchy(gui, desktop, desktop.Items.ControlLists[menu.IndexParentList]);
 
@@ -113,7 +113,7 @@ static	::llc::err_t	unhideMenuHierarchy			(::llc::SGUI & gui, ::llc::SDesktop& d
 	return 0;
 }
 
-static	::llc::err_t	selectMenuHierarchy				(::llc::SGUI & gui, ::llc::SDesktop& desktop, ::llc::SControlList& menu)	{
+sttc	::llc::err_t	selectMenuHierarchy				(::llc::SGUI & gui, ::llc::SDesktop& desktop, ::llc::SControlList& menu)	{
 	if(menu.IndexParentList != -1 && false == desktop.Items.ControlLists.Unused[menu.IndexParentList]) {
 		::selectMenuHierarchy(gui, desktop, desktop.Items.ControlLists[menu.IndexParentList]);
 		desktop.Items.ControlLists[menu.IndexParentList].IdSelected	= menu.IndexParentItem;
@@ -123,7 +123,7 @@ static	::llc::err_t	selectMenuHierarchy				(::llc::SGUI & gui, ::llc::SDesktop& 
 	return 0;
 }
 
-static	::llc::err_t	unhoverMenuHierarchy						(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SControlList & menu)	{
+sttc	::llc::err_t	unhoverMenuHierarchy						(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SControlList & menu)	{
 	if(desktop.Items.ControlLists.size() > (::llc::u2_t)menu.IndexParentList)
 		::unhoverMenuHierarchy(gui, desktop, desktop.Items.ControlLists[menu.IndexParentList]);
 	
@@ -135,7 +135,7 @@ static	::llc::err_t	unhoverMenuHierarchy						(::llc::SGUI & gui, ::llc::SDeskto
 	return 0;
 }
 
-static	::llc::err_t	clearMenuHierarchy	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{
+sttc	::llc::err_t	clearMenuHierarchy	(::llc::SGUI & gui, ::llc::SDesktop & desktop)	{
 	::llc::SRecyclableElementContainer<::llc::SControlList>	& menus	= desktop.Items.ControlLists;
 	for(::llc::u2_t iMenu = 0, countMenus = menus.size(); iMenu < countMenus; ++iMenu) {
 		::llc::SControlList			& menu				= menus[iMenu];
@@ -148,7 +148,7 @@ static	::llc::err_t	clearMenuHierarchy	(::llc::SGUI & gui, ::llc::SDesktop & des
 	return 0;
 }
 
-static	int64_t			viewportUpdate		(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SInput & input, ::llc::cid_t iViewport)							{
+sttc	int64_t			viewportUpdate		(::llc::SGUI & gui, ::llc::SDesktop & desktop, ::llc::SInput & input, ::llc::cid_t iViewport)							{
 	::llc::SViewport			& vp				= desktop.Items.Viewports[iViewport];
 	if(gui.Controls.States[vp.IdControls[::llc::VIEWPORT_CONTROL_CLOSE]].IsAction())
 		::llc::desktopDeleteViewport(gui, desktop, iViewport);

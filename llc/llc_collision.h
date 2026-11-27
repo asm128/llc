@@ -9,7 +9,7 @@
 
 namespace llc
 {
-	tplt<tpnm T>
+	tplT 
 	bool	collisionCoordinateCast	(f3_t value, T& output) {
 		if(false == isfinite(value) || value < f3_t(::std::numeric_limits<T>::lowest()) || value > f3_t(::std::numeric_limits<T>::max()))
 			rtrn false;

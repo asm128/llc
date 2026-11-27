@@ -74,7 +74,7 @@ GDEFINE_FLAG_VALUE(BIT_FIELD_TEST_FLAG, FIRST	, 0x01U);
 GDEFINE_FLAG_VALUE(BIT_FIELD_TEST_FLAG, SECOND	, 0x02U);
 GDEFINE_FLAG_VALUE(BIT_FIELD_TEST_FLAG, THIRD	, 0x04U);
 
-tplt<tpnm T>
+tplT 
 sttc T reverseFieldsReference(T input, ::llc::u2_t fieldWidth) {
 	cnst ::llc::u2_t typeBits = szof(T) * ::llc::BYTE_SIZE;
 	cnst ::llc::u2_t fieldCount = typeBits / fieldWidth;
@@ -85,7 +85,7 @@ sttc T reverseFieldsReference(T input, ::llc::u2_t fieldWidth) {
 	rtrn result;
 }
 
-tplt<tpnm T>
+tplT 
 stxp ::llc::bit_field<T, 3, 4, 1> makePackedFields() {
 	::llc::bit_field<T, 3, 4, 1> fields;
 	fields.tplt Set<0>(T(5));
@@ -94,7 +94,7 @@ stxp ::llc::bit_field<T, 3, 4, 1> makePackedFields() {
 	rtrn fields;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testBitType(::llc::ATestError & errors) {
 	cnst ::llc::u2_t typeBits = szof(T) * ::llc::BYTE_SIZE;
 	T state = {};
@@ -231,7 +231,7 @@ sttc ::llc::err_t testEnumFlags(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testBitTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);

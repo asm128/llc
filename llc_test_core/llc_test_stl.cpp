@@ -114,12 +114,12 @@ sttc ::llc::err_t testSTLGeometry(::llc::ATestError & errors, ::llc::vcst_t outp
 	LLC_TEST_REQUIREF(errors, STL_TEST_RESULT_MUTABLE_HEADER, mutableHeader.size() != HEADER_SIZE , "Size:%u, expected:%u." , mutableHeader.size(), HEADER_SIZE );
 	LLC_TEST_CHECKF(errors, STL_TEST_RESULT_MUTABLE_HEADER, mutableHeader.begin() != serialized.begin() , "Begin:%p, expected:%p." , mutableHeader.begin(), serialized.begin() );
 	LLC_TEST_REQUIREF(errors, STL_TEST_RESULT_MUTABLE_TRIANGLE_COUNT, mutableTriangles.size() != triangleCount , "Count:%u, expected:%u." , mutableTriangles.size(), triangleCount );
-	LLC_TEST_CHECKF(errors, STL_TEST_RESULT_MUTABLE_TRIANGLE_COUNT, mutableTriangles.cu8().begin() != &serialized[HEADER_SIZE + COUNT_SIZE] , "Begin:%p, expected:%p." , mutableTriangles.begin(), &serialized[HEADER_SIZE + COUNT_SIZE] );
+	LLC_TEST_CHECKF(errors, STL_TEST_RESULT_MUTABLE_TRIANGLE_COUNT, mutableTriangles.as<u0_c>().begin() != &serialized[HEADER_SIZE + COUNT_SIZE] , "Begin:%p, expected:%p." , mutableTriangles.begin(), &serialized[HEADER_SIZE + COUNT_SIZE] );
 	LLC_TEST_CHECK(errors, STL_TEST_RESULT_MUTABLE_TRIANGLE_VALUE, 0 != memcmp(mutableTriangles.begin(), expected, payloadSize));
 	for(::llc::u2_t iTriangle = 0; iTriangle < triangleCount; ++iTriangle) {
 		always_printf("STL triangle:%u; normal actual:{%g,%g,%g}, expected:{%g,%g,%g}; attribute actual:0x%04X expected:0x%04X.", iTriangle, (double)mutableTriangles[iTriangle].Normal.x, (double)mutableTriangles[iTriangle].Normal.y, (double)mutableTriangles[iTriangle].Normal.z, (double)expected[iTriangle].Normal.x, (double)expected[iTriangle].Normal.y, (double)expected[iTriangle].Normal.z, mutableTriangles[iTriangle].Attribute, expected[iTriangle].Attribute);
-		::llc::testTraceBytes("Expected triangle", ::llc::view<cnst ::llc::SSTLTriangle>{&expected[iTriangle], 1}.cu8());
-		::llc::testTraceBytes("Actual triangle", ::llc::view<cnst ::llc::SSTLTriangle>{&mutableTriangles[iTriangle], 1}.cu8());
+		::llc::testTraceBytes("Expected triangle", ::llc::view<cnst ::llc::SSTLTriangle>{&expected[iTriangle], 1}.as<u0_c>());
+		::llc::testTraceBytes("Actual triangle", ::llc::view<cnst ::llc::SSTLTriangle>{&mutableTriangles[iTriangle], 1}.as<u0_c>());
 	}
 	mutableTriangles[0].Attribute								= 0xA55AU;
 	::llc::SSTLTriangle			storedTriangle			= {};
@@ -136,7 +136,7 @@ sttc ::llc::err_t testSTLGeometry(::llc::ATestError & errors, ::llc::vcst_t outp
 	LLC_TEST_REQUIREF(errors, STL_TEST_RESULT_CONST_HEADER, constHeader.size() != HEADER_SIZE , "Size:%u, expected:%u." , constHeader.size(), HEADER_SIZE );
 	LLC_TEST_CHECKF(errors, STL_TEST_RESULT_CONST_HEADER, constHeader.begin() != serialized.begin() , "Begin:%p, expected:%p." , constHeader.begin(), serialized.begin() );
 	LLC_TEST_REQUIREF(errors, STL_TEST_RESULT_CONST_TRIANGLE_COUNT, constTriangles.size() != triangleCount , "Count:%u, expected:%u." , constTriangles.size(), triangleCount );
-	LLC_TEST_CHECKF(errors, STL_TEST_RESULT_CONST_TRIANGLE_COUNT, constTriangles.cu8().begin() != &serialized[HEADER_SIZE + COUNT_SIZE] , "Begin:%p, expected:%p." , constTriangles.begin(), &serialized[HEADER_SIZE + COUNT_SIZE] );
+	LLC_TEST_CHECKF(errors, STL_TEST_RESULT_CONST_TRIANGLE_COUNT, constTriangles.as<u0_c>().begin() != &serialized[HEADER_SIZE + COUNT_SIZE] , "Begin:%p, expected:%p." , constTriangles.begin(), &serialized[HEADER_SIZE + COUNT_SIZE] );
 	LLC_TEST_CHECK(errors, STL_TEST_RESULT_CONST_TRIANGLE_VALUE, 0 != memcmp(constTriangles.begin(), expected, payloadSize));
 
 	::llc::u0_t						headerSentinelStorage[]		= {0xA5U};

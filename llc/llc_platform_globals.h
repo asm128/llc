@@ -56,8 +56,8 @@
 #endif
 
 #if defined(LLC_WINDOWS)
-//#	pragma warning(disable : 4592)		// We needed this because of a bug in the compiler causing our static const variables to throw a warning as if its constructor was defined as constexpr.
-//#	pragma warning(disable : 6326)		// Bogus potential comparison of a constant with another constant for static tplt functionality.
+//#	pragma warning(disable : 4592)		// We needed this because of a bug in the compiler causing our sttc const variables to throw a warning as if its constructor was defined as constexpr.
+//#	pragma warning(disable : 6326)		// Bogus potential comparison of a constant with another constant for sttc tplt functionality.
 #	pragma warning(disable : 4706)		// Enable assignment within conditional expression. We do this constantly inside our macros in a completely valid way.
 #endif
 

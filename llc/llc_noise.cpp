@@ -2,7 +2,7 @@
 																	// 4611686018427387904
 // Based on noiseNormal1D() returns a value between 0 and 1.
 //double						::llc::randNoise			(uint64_t seed)				noexcept	{
-//		static	::llc::SRandomGenerator		generator;
+//		sttc	::llc::SRandomGenerator		generator;
 //		if( generator.Seed != seed )
 //			generator.Reset(seed);
 //		return generator.Next();

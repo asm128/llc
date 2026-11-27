@@ -188,12 +188,12 @@
 // // 	//sttc	llc::err_t	i2c_reset_rx_fifo               (i2c_port_t i2c_num);
 // // 	//sttc	llc::err_t	i2c_isr_register                (i2c_port_t i2c_num, void (*fn)(void *), void *arg, int intr_alloc_flags, intr_handle_t *handle);
 // // 	//sttc	llc::err_t	i2c_isr_free                    (intr_handle_t handle);
-// // 	//sttc	llc::err_t	i2c_master_write_to_device      (i2c_port_t i2c_num, u0_t device_address, const u0_t* write_buffer, size_t write_size, TickType_t ticks_to_wait);
+// // 	//sttc	llc::err_t	i2c_master_write_to_device      (i2c_port_t i2c_num, u0_t device_address, u0_c* write_buffer, size_t write_size, TickType_t ticks_to_wait);
 // // 	//sttc	llc::err_t	i2c_master_read_from_device     (i2c_port_t i2c_num, u0_t device_address, u0_t* read_buffer, size_t read_size, TickType_t ticks_to_wait);
-// // 	//sttc	llc::err_t	i2c_master_write_read_device    (i2c_port_t i2c_num, u0_t device_address, const u0_t* write_buffer, size_t write_size, u0_t* read_buffer, size_t read_size, TickType_t ticks_to_wait);
+// // 	//sttc	llc::err_t	i2c_master_write_read_device    (i2c_port_t i2c_num, u0_t device_address, u0_c* write_buffer, size_t write_size, u0_t* read_buffer, size_t read_size, TickType_t ticks_to_wait);
 // // 	//sttc	llc::err_t	i2c_master_start                (i2c_cmd_handle_t cmd_handle);
 // // 	//sttc	llc::err_t	i2c_master_write_byte           (i2c_cmd_handle_t cmd_handle, u0_t data, bool ack_en);
-// // 	//sttc	llc::err_t	i2c_master_write                (i2c_cmd_handle_t cmd_handle, const u0_t *data, size_t data_len, bool ack_en);
+// // 	//sttc	llc::err_t	i2c_master_write                (i2c_cmd_handle_t cmd_handle, u0_c *data, size_t data_len, bool ack_en);
 // // 	//sttc	llc::err_t	i2c_master_read_byte            (i2c_cmd_handle_t cmd_handle, u0_t *data, i2c_ack_type_t ack);
 // // 	//sttc	llc::err_t	i2c_master_read                 (i2c_cmd_handle_t cmd_handle, u0_t *data, size_t data_len, i2c_ack_type_t ack);
 // // 	//sttc	llc::err_t	i2c_master_stop                 (i2c_cmd_handle_t cmd_handle);
@@ -259,7 +259,7 @@
 // // 		if_true_fef(i2c_driver_delete((i2c_port_t)i2c_num), "%u", i2c_num);
 // // 		return bus[i2c_num].Initialized = false;
 // // 	}
-// // 	sttc	llc::err_t	i2cWrite			(u0_t i2c_num, u1_t address, const u0_t * buff, size_t size, u2_t timeOutMillis) {
+// // 	sttc	llc::err_t	i2cWrite			(u0_t i2c_num, u1_t address, u0_c * buff, size_t size, u2_t timeOutMillis) {
 // // 		if_true_fef(i2c_num >= SOC_I2C_NUM, "%u", i2c_num);
 // // 		std::lock_guard			mutexLock			(bus[i2c_num].Lock);
 // // 		if_zero_fe(bus[i2c_num].Initialized);
@@ -286,7 +286,7 @@
 // // 		if_true_fe(i2c_master_read_from_device((i2c_port_t)i2c_num, address, buff, size, timeOutMillis / portTICK_RATE_MS));
 // // 		return *readCount = size;
 // // 	}
-// // 	sttc	llc::err_t	i2cWriteReadNonStop	(u0_t i2c_num, u1_t address, const u0_t* wbuff, size_t wsize, u0_t* rbuff, size_t rsize, u2_t timeOutMillis, size_t *readCount) {
+// // 	sttc	llc::err_t	i2cWriteReadNonStop	(u0_t i2c_num, u1_t address, u0_c* wbuff, size_t wsize, u0_t* rbuff, size_t rsize, u2_t timeOutMillis, size_t *readCount) {
 // // 		*readCount = 0;
 // // 		if_true_fef(i2c_num >= SOC_I2C_NUM, "%u", i2c_num);
 // // 		std::lock_guard			mutexLock			(bus[i2c_num].Lock);

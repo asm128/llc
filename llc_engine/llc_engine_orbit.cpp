@@ -35,7 +35,7 @@
 	return 0;
 }
 
-static	::llc::err_t	initOrbiterBodyWithGravityCenter
+sttc	::llc::err_t	initOrbiterBodyWithGravityCenter
 	( ::llc::SBodyCenter	& planetCenter
 	, ::llc::SBodyForces	& planetForces		
 	, ::llc::AXIS			orbitAxis

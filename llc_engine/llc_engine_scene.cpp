@@ -11,7 +11,7 @@
 #include <algorithm>
 
 tplt <tpnm _tIndex>
-static	::llc::err_t	transformTriangles					
+sttc	::llc::err_t	transformTriangles					
 	( ::llc::SVSOutput		& output
 	, ::llc::view<const _tIndex>	indices			
 	, ::llc::vcn3f2_t			positions	
@@ -60,7 +60,7 @@ static	::llc::err_t	transformTriangles
 	return 0; 
 }
 
-static	::llc::err_t	transformTriangles
+sttc	::llc::err_t	transformTriangles
 	( ::llc::SEngineRenderCache				& renderCache
 	, const ::llc::SEngineScene				& scene
 	, const ::llc::SEngineSceneConstants	& constants
@@ -101,7 +101,7 @@ static	::llc::err_t	transformTriangles
 	return 0;
 }
 
-static	::llc::err_t	getNodeTransform
+sttc	::llc::err_t	getNodeTransform
 	( const ::llc::SRenderNodeManager		& nodeManager
 	, ::llc::u2_t							iNode
 	, const ::llc::SEngineSceneConstants	& constants
@@ -117,7 +117,7 @@ static	::llc::err_t	getNodeTransform
 }
 
 
-static	::llc::err_t	drawBuffers
+sttc	::llc::err_t	drawBuffers
 	( ::llc::g8bgra										& backBufferColors
 	, ::llc::gu2_t										backBufferDepth
 	, ::llc::SVSOutput									& outVS
@@ -225,7 +225,7 @@ static	::llc::err_t	drawBuffers
 	constants.VP			= constants.View * constants.Perspective;
 	constants.VPS			= constants.VP * constants.Screen;
 
-	static ::std::function<::llc::TFuncPixelShader>	defaultShader			= {::llc::psSolid};
+	sttc ::std::function<::llc::TFuncPixelShader>	defaultShader			= {::llc::psSolid};
 	::llc::SRenderNodeList			renderList;
 	if_fail_fe(scene.BuildRenderList(constants.CameraPosition, constants.CameraFront, renderList));
 	const auto drawNode = [&](::llc::u2_t iRenderNode, bool alphaBlend) -> ::llc::err_t {

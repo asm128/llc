@@ -1,4 +1,4 @@
-//static void appTestPlatformDebugInit();
+//sttc void appTestPlatformDebugInit();
 //#define LLC_PLATFORM_DEBUG_INIT() ::appTestPlatformDebugInit()
 //
 //#include "llc_test_core.h"

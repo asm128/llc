@@ -179,7 +179,7 @@ sttc ::llc::err_t testMemberRegistry(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testPODValue(::llc::ATestError & errors, ::llc::SPODDefinition & definition, ::llc::vcst_t labelName, cnst T value, ::llc::DATA_TYPE expectedType) {
 	cnst ::llc::u2_t oldMemberCount = definition.Labels.size(), oldByteCount = definition.DefaultData.size();
 	cnst ::llc::err_t pushResult = definition.push_any(labelName, value);

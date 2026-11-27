@@ -23,22 +23,22 @@
 
 namespace llc
 {
-	tydf		bool		b8_t, b8u_t;
-	tydf		char		sc_t, c0s_t;
-	tydf		sc_t		s0_t, i0s_t;
-	tydf		int16_t		s1_t, i1s_t;
-	tydf		int32_t		s2_t, i2s_t;
-	tydf		int64_t		s3_t, i3s_t;
-	tydf		unsd char	uc_t, c0u_t;
-	tydf		uint8_t		u0_t, i0u_t;
-	tydf		uint16_t	u1_t, i1u_t;
-	tydf		uint32_t	u2_t, i2u_t;
-	tydf		uint64_t	u3_t, i3u_t;
-	tydf		float		f2_t, f2s_t;
-	tydf		double		f3_t, f3s_t;
-	tydf		size_t		uP_t, iPu_t;
-	tydf		intptr_t	sP_t, iPs_t;
-	tydf		void*		uV_t, iVu_t;
+	tydf	bool		b8_t; tdcs b8_t b8_c; 
+	tydf	char		sc_t; tdcs sc_t sc_c; 
+	tydf	sc_t		s0_t; tdcs s0_t s0_c; 
+	tydf	int16_t		s1_t; tdcs s1_t s1_c; 
+	tydf	int32_t		s2_t; tdcs s2_t s2_c; 
+	tydf	int64_t		s3_t; tdcs s3_t s3_c; 
+	tydf	unsd char	uc_t; tdcs uc_t uc_c; 
+	tydf	uint8_t		u0_t; tdcs u0_t u0_c; 
+	tydf	uint16_t	u1_t; tdcs u1_t u1_c; 
+	tydf	uint32_t	u2_t; tdcs u2_t u2_c; 
+	tydf	uint64_t	u3_t; tdcs u3_t u3_c; 
+	tydf	float		f2_t; tdcs f2_t f2_c; 
+	tydf	double		f3_t; tdcs f3_t f3_c; 
+	tydf	size_t		uP_t; tdcs uP_t uP_c; 
+	tydf	intptr_t	sP_t; tdcs sP_t sP_c; 
+	tydf	void*		uV_t; tdcs uV_t uV_c; 
 
 //	tplt<size_t _size>
 //	sinx auto szof() nxpt {
@@ -53,21 +53,7 @@ namespace llc
 	: ::llc::u0_t(sizeof(type) & 0xFFU)											\
 	)
 #define bcof(type) (szof(type) * 8U)
-	tdcs		b8_t	b8_c, b8u_c;
-	tdcs		uc_t	uc_c, c0u_c;
-	tdcs		sc_t	sc_c, c0s_c;
-	tdcs		u0_t	u0_c, i0u_c;
-	tdcs		u1_t	u1_c, i1u_c;
-	tdcs		u2_t	u2_c, i2u_c;
-	tdcs		u3_t	u3_c, i3u_c;
-	tdcs		s0_t	s0_c, i0s_c;
-	tdcs		s1_t	s1_c, i1s_c;
-	tdcs		s2_t	s2_c, i2s_c;
-	tdcs		s3_t	s3_c, i3s_c;
-	tdcs		f2_t	f2_c, f2s_c;
-	tdcs		f3_t	f3_c, f3s_c;
-	tdcs		uP_t	uP_c, iPu_c;
-
+	
 	tplTsinx	T			printf_arg		(T value)			nxpt	{ rtrn value; }
 	tplTsinx	void*		printf_arg		(T * value)			nxpt	{ rtrn value; }
 	tplTsinx	cnst void*	printf_arg		(cnst T * value)	nxpt	{ rtrn value; }
@@ -90,23 +76,30 @@ namespace llc
 #define tplTOutN2	tplt<tpnm TOut	, ::llc::u2_t N>
 #define tplTInN2	tplt<tpnm TIn	, ::llc::u2_t N>
 #define tpl_t_nu2	tplt<tpnm _t	, ::llc::u2_t _nu2>
+
 #define tplN2ustct	tplN2u	stct
 #define tplN2usttc	tplN2u	sttc
 #define tplN2uinln	tplN2u	inln
+#define tplN2uinxp	tplN2u	inxp
 #define tplN2ustin	tplN2u	stin
 #define tplN2uusng	tplN2u	usng
 #define tplN2undsx	tplN2u	ndsx
 #define tplN2usinx	tplN2u	sinx
 #define tplN2ustxp	tplN2u	stxp
 #define tplN2unsix	tplN2u	nsix
+#define tplN2undix	tplN2u	ndix
+
 #define tplTN2stct	tplTN2	stct
 #define tplTN2sttc	tplTN2	sttc
 #define tplTN2inln	tplTN2	inln
+#define tplTN2inxp	tplTN2	inxp
 #define tplTN2usng	tplTN2	usng
 #define tplTN2ndsx	tplTN2	ndsx
 #define tplTN2sinx	tplTN2	sinx
 #define tplTN2stxp	tplTN2	stxp
 #define tplTN2nsix	tplTN2	nsix
+#define tplTN2ndix	tplTN2	ndix
+
 #if defined(LLC_ANDROID) || defined(LLC_CLANG)
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wtautological-constant-out-of-range-compare"
@@ -156,20 +149,22 @@ namespace llc
 	tpl_tstct srcdst { tdfTTCnst(_t); T src, dst; }; 
 	tpl_tstct dstsrc { tdfTTCnst(_t); T dst, src; };
 #define LLC_USING_TYPEINT()				\
-	using	::llc::b8_t, ::llc::b8_c, ::llc::b8u_t, ::llc::b8u_c	\
-		,	::llc::uc_t, ::llc::uc_c, ::llc::c0u_t, ::llc::c0u_c	\
-		,	::llc::sc_t, ::llc::sc_c, ::llc::c0s_t, ::llc::c0s_c	\
-		,	::llc::u0_t, ::llc::u0_c, ::llc::i0u_t, ::llc::i0u_c	\
-		,	::llc::u1_t, ::llc::u1_c, ::llc::i1u_t, ::llc::i1u_c	\
-		,	::llc::u2_t, ::llc::u2_c, ::llc::i2u_t, ::llc::i2u_c	\
-		,	::llc::u3_t, ::llc::u3_c, ::llc::i3u_t, ::llc::i3u_c	\
-		,	::llc::s0_t, ::llc::s0_c, ::llc::i0s_t, ::llc::i0s_c	\
-		,	::llc::s1_t, ::llc::s1_c, ::llc::i1s_t, ::llc::i1s_c	\
-		,	::llc::s2_t, ::llc::s2_c, ::llc::i2s_t, ::llc::i2s_c	\
-		,	::llc::s3_t, ::llc::s3_c, ::llc::i3s_t, ::llc::i3s_c	\
-		,	::llc::f2_t, ::llc::f2_c, ::llc::f2s_t, ::llc::f2s_c	\
-		,	::llc::f3_t, ::llc::f3_c, ::llc::f3s_t, ::llc::f3s_c	\
-		,	::llc::uP_t, ::llc::uP_c
+	using	::llc::b8_t, ::llc::b8_c 	\
+		,	::llc::uc_t, ::llc::uc_c 	\
+		,	::llc::sc_t, ::llc::sc_c 	\
+		,	::llc::u0_t, ::llc::u0_c 	\
+		,	::llc::u1_t, ::llc::u1_c 	\
+		,	::llc::u2_t, ::llc::u2_c 	\
+		,	::llc::u3_t, ::llc::u3_c 	\
+		,	::llc::s0_t, ::llc::s0_c 	\
+		,	::llc::s1_t, ::llc::s1_c 	\
+		,	::llc::s2_t, ::llc::s2_c 	\
+		,	::llc::s3_t, ::llc::s3_c 	\
+		,	::llc::f2_t, ::llc::f2_c 	\
+		,	::llc::f3_t, ::llc::f3_c 	\
+		,	::llc::uP_t, ::llc::uP_c	\
+		,	::llc::sP_t, ::llc::sP_c	\
+		,	::llc::uV_t, ::llc::uV_c
 
 } // namespace
 

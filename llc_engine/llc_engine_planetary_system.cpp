@@ -46,7 +46,7 @@ stxp	double			ASTRONOMICAL_UNIT_SCALE		= 1.0 / 149597870700;
 	return 0;
 }
 
-static	::llc::err_t	createOrbiterOrbit	(::llc::SEngine & engine, const ::llc::vcst_t shaderName = "psOrbit") {	// Gravity cemters
+sttc	::llc::err_t	createOrbiterOrbit	(::llc::SEngine & engine, const ::llc::vcst_t shaderName = "psOrbit") {	// Gravity cemters
 	::llc::SParamsRingSide		params					= {{}, 32};
 	int32_t						iEntity;
 	if_fail_fe(iEntity = engine.CreateRingFlat(params));
@@ -55,7 +55,7 @@ static	::llc::err_t	createOrbiterOrbit	(::llc::SEngine & engine, const ::llc::vc
 	return iEntity;
 }
 
-static	::llc::err_t	createGravityCenter		(::llc::SEngine & engine, const ::llc::vcst_t shaderName = "psGravityCenter") {	// Gravity cemters
+sttc	::llc::err_t	createGravityCenter		(::llc::SEngine & engine, const ::llc::vcst_t shaderName = "psGravityCenter") {	// Gravity cemters
 	::llc::SParamsSphere		params					= {{}, {8, 8}};
 	int32_t						iEntity;
 	if_fail_fe(iEntity = engine.CreateSphere(params));
@@ -64,7 +64,7 @@ static	::llc::err_t	createGravityCenter		(::llc::SEngine & engine, const ::llc::
 	return iEntity;
 }
 
-static	::llc::err_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::vcst_t shaderName = "psSun") {	// Gravity cemters
+sttc	::llc::err_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::vcst_t shaderName = "psSun") {	// Gravity cemters
 	::llc::SParamsSphere		params					= {{}, {32, 32}};
 	int32_t						iEntity;
 	if_fail_fe(iEntity = engine.CreateSphere(params));
@@ -173,7 +173,7 @@ static	::llc::err_t	createOrbiterBody		(::llc::SEngine & engine, const ::llc::vc
 	return 0;
 }
 
-static	::llc::err_t	initOrbit				(::llc::SEngine & engine, int32_t iOrbiter, int32_t iEntity, double radius, double distanceScale) {
+sttc	::llc::err_t	initOrbit				(::llc::SEngine & engine, int32_t iOrbiter, int32_t iEntity, double radius, double distanceScale) {
 	if_fail_fe(engine.SetPhysicsActive(iEntity, iOrbiter));
 	if_fail_fe(engine.SetCollides	(iEntity, false));
 
@@ -189,7 +189,7 @@ static	::llc::err_t	initOrbit				(::llc::SEngine & engine, int32_t iOrbiter, int
 
 stxp	::llc::n3f3_t	SUN_SCALE				= {.00625f, .00625f, .00625f};
 
-static	::llc::err_t	initGravityCenter		(::llc::SEngine & engine, int32_t iEntity, bool isStar, double diameter, double distanceScale, bool ) {
+sttc	::llc::err_t	initGravityCenter		(::llc::SEngine & engine, int32_t iEntity, bool isStar, double diameter, double distanceScale, bool ) {
 	if_fail_fe(engine.SetPhysicsActive(iEntity, true));
 	if_fail_fe(engine.SetCollides		(iEntity, false));
 
@@ -201,7 +201,7 @@ static	::llc::err_t	initGravityCenter		(::llc::SEngine & engine, int32_t iEntity
 	return 0;
 }
 
-static	::llc::err_t	initBody				(::llc::SEngine & engine, int32_t iEntity, bool isStar, ::llc::PLANET_TYPE subtype, double diameter, double distanceScale, ::llc::vcst_t shaderOverride) {
+sttc	::llc::err_t	initBody				(::llc::SEngine & engine, int32_t iEntity, bool isStar, ::llc::PLANET_TYPE subtype, double diameter, double distanceScale, ::llc::vcst_t shaderOverride) {
 	if_fail_fe(engine.SetPhysicsActive(iEntity, false == isStar));
 	if_fail_fe(engine.SetCollides		(iEntity, false));
 
@@ -237,7 +237,7 @@ static	::llc::err_t	initBody				(::llc::SEngine & engine, int32_t iEntity, bool 
 	return 0;
 }
 
-static	::llc::err_t	initCloud				(::llc::SEngine & engine, int32_t iEntity, bool isStar, double diameter, double distanceScale) {
+sttc	::llc::err_t	initCloud				(::llc::SEngine & engine, int32_t iEntity, bool isStar, double diameter, double distanceScale) {
 	::llc::n3f3_t				scale					= {diameter, diameter, diameter};
 	scale					= isStar ? SUN_SCALE : scale * distanceScale;
 	scale					*= 1.01;
@@ -246,7 +246,7 @@ static	::llc::err_t	initCloud				(::llc::SEngine & engine, int32_t iEntity, bool
 	return 0;
 }
 
-static	::llc::err_t	textureNumber			(::llc::g8bgra view, uint32_t number, const ::llc::SRasterFont & font) { 
+sttc	::llc::err_t	textureNumber			(::llc::g8bgra view, uint32_t number, const ::llc::SRasterFont & font) { 
 	sc_t						strNumber[4]			= {};
 	sprintf_s(strNumber, "%i", number);
 	const ::llc::rect2s1_t		targetRect				=
@@ -262,7 +262,7 @@ static	::llc::err_t	textureNumber			(::llc::g8bgra view, uint32_t number, const 
 	return 0; 
 }
 
-static	::llc::err_t	initSkin				(::llc::SEngine & engine, ::llc::rgbaf color, int32_t iOrbiter, int32_t iEntity) {
+sttc	::llc::err_t	initSkin				(::llc::SEngine & engine, ::llc::rgbaf color, int32_t iOrbiter, int32_t iEntity) {
 	const ::llc::SEntity	& entity				= engine.Entities[iEntity];
 	const ::llc::SRenderNode	& renderNode			= engine.Scene->RenderNodes[entity.RenderNode];
 	::llc::SSkin				& skin					= *engine.Scene->Graphics->Skins[renderNode.Skin];

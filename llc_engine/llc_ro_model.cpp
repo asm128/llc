@@ -7,18 +7,18 @@
 #include "llc_file.h"
 #include "llc_view_serialize.h"
 
-static	bool			roRSMVersionAtLeast		(::llc::u0_t major, ::llc::u0_t minor, ::llc::u0_t requiredMajor, ::llc::u0_t requiredMinor) {
+sttc	bool			roRSMVersionAtLeast		(::llc::u0_t major, ::llc::u0_t minor, ::llc::u0_t requiredMajor, ::llc::u0_t requiredMinor) {
 	return major > requiredMajor || (major == requiredMajor && minor >= requiredMinor);
 }
 
 tplt<tpnm _tArray>
-static	::llc::err_t	roRSMResize				(_tArray & output, ::llc::u2_t count, ::llc::u2_t bytesPerItem, ::llc::vcu0_t input, ::llc::vcst_t section) {
+sttc	::llc::err_t	roRSMResize				(_tArray & output, ::llc::u2_t count, ::llc::u2_t bytesPerItem, ::llc::vcu0_t input, ::llc::vcst_t section) {
 	if_true_fef(bytesPerItem && count > input.size() / bytesPerItem, "Invalid %.*s count: %u. Remaining bytes: %u.", LLC_VIEW_ARGS(section), count, input.size());
 	if_fail_fef(output.resize(count, {}), "Cannot resize %.*s to %u elements.", LLC_VIEW_ARGS(section), count);
 	return 0;
 }
 
-static	::llc::err_t	roRSMNodeLoad
+sttc	::llc::err_t	roRSMNodeLoad
 	( ::llc::SRORSMNode	& output
 	, ::llc::vcu0_t		& input
 	, ::llc::u0_t			  versionMajor
@@ -132,21 +132,21 @@ static	::llc::err_t	roRSMNodeLoad
 	return 0;
 }
 
-static ::llc::err_t roRSMViewTake(::llc::vcu0_t & input, ::llc::u2_t size, ::llc::vcu0_t & output) {
+sttc ::llc::err_t roRSMViewTake(::llc::vcu0_t & input, ::llc::u2_t size, ::llc::vcu0_t & output) {
 	if_fail_fe(input.slice(output, 0, size));
 	if_fail_fe(input.slice(input, size));
 	return 0;
 }
 
-tplt<tpnm T>
-static ::llc::err_t roRSMViewTakeArray(::llc::vcu0_t & input, ::llc::u2_t count, ::llc::view<cnst T> & output, ::llc::vcst_t section) {
+tplT 
+sttc ::llc::err_t roRSMViewTakeArray(::llc::vcu0_t & input, ::llc::u2_t count, ::llc::view<cnst T> & output, ::llc::vcst_t section) {
 	if_true_fef(count > input.size() / szof(T), "Invalid %.*s count: %u. Remaining bytes: %u.", LLC_VIEW_ARGS(section), count, input.size());
 	output = count ? ::llc::view<cnst T>{reinterpret_cast<cnst T*>(input.begin()), count} : ::llc::view<cnst T>{};
 	if_fail_fe(input.slice(input, count * szof(T)));
 	return 0;
 }
 
-static ::llc::err_t roRSMViewInvalidate(::llc::SRORSMView & output) {
+sttc ::llc::err_t roRSMViewInvalidate(::llc::SRORSMView & output) {
 	output.VersionMajor = output.VersionMinor = 0;
 	output.FrameCount = 0;
 	output.ShadeType = 0;
@@ -159,7 +159,7 @@ static ::llc::err_t roRSMViewInvalidate(::llc::SRORSMView & output) {
 	return output.Nodes.clear();
 }
 
-static ::llc::err_t roRSMViewParse(::llc::vcu0_t input, ::llc::SRORSMView & output) {
+sttc ::llc::err_t roRSMViewParse(::llc::vcu0_t input, ::llc::SRORSMView & output) {
 	::llc::astsc_t<4> magic = {};
 	if_fail_fe(::llc::loadPOD(input, magic));
 	if_true_fef(0 != memcmp(magic.begin(), "GRSM", 4), "Invalid RSM magic: '%c%c%c%c'.", magic[0], magic[1], magic[2], magic[3]);

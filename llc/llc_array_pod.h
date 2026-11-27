@@ -329,22 +329,24 @@ namespace llc
 	tydf		apod<f2_t>	af2_t;	tdcs	af2_t	af2_c;
 	tydf		apod<f3_t>	af3_t;	tdcs	af3_t	af3_c;
 
-	stin	vstr_t		str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
-	stin	vcst_t	str		(asc_c & arg)	{ rtrn {arg.begin(), arg.size()}; }
+	//stin	vstr_t	str		(asc_t & arg)	{ rtrn {arg.begin(), arg.size()}; }
+	//stin	vcst_t	str		(asc_c & arg)	{ rtrn {arg.begin(), arg.size()}; }
 
-	tplt<tpnm T, tpnm TView>
-	err_t	join		(array_pod<T> & output, cnst T & separator, view<cnst TView> fields) {
+	tplT	err_t	join		(array_pod<T> & output, cnst T & separator, view<cnst view<cnst T>> fields) {
 		err_t			appended		= 0;
 		for(u2_t iField = 0; iField < fields.size(); ++iField) {
 			if(iField) {
-				if_fail_fef(output.push_back(separator), "Failed to append separator before field:%" LLC_FMT_U2 ".", iField);
+				if_fail_fe(push_back(output, separator));
 				++appended;
 			}
-			cnst TView		& field			= fields[iField];
-			if_fail_fef(output.append({field.begin(), field.size()}), "Failed to append field:%" LLC_FMT_U2 ".", iField);
+			cnst view<cnst T> & field			= fields[iField];
+			if_fail_fe(append(output, field));
 			appended			+= field.size();
 		}
 		rtrn appended;
+	}
+	stin	err_t	join		(asc_t & output, sc_c & separator, view<vcst_c> fields) {
+		rtrn join(output, separator, fields.as<vcsc_c>());
 	}
 } // namespace
 

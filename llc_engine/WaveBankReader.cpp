@@ -66,9 +66,9 @@ namespace
 
 	struct HEADER
 	{
-		static constexpr uint32_t SIGNATURE = MAKEFOURCC('W', 'B', 'N', 'D');
-		static constexpr uint32_t BE_SIGNATURE = MAKEFOURCC('D', 'N', 'B', 'W');
-		static constexpr uint32_t VERSION = 44;
+		sttc constexpr uint32_t SIGNATURE = MAKEFOURCC('W', 'B', 'N', 'D');
+		sttc constexpr uint32_t BE_SIGNATURE = MAKEFOURCC('D', 'N', 'B', 'W');
+		sttc constexpr uint32_t VERSION = 44;
 
 		enum SEGIDX
 		{
@@ -89,15 +89,15 @@ namespace
 #pragma warning( disable : 4201 4203 )
 
 	union MINIWAVEFORMAT {
-		static constexpr uint32_t TAG_PCM = 0x0;
-		static constexpr uint32_t TAG_XMA = 0x1;
-		static constexpr uint32_t TAG_ADPCM = 0x2;
-		static constexpr uint32_t TAG_WMA = 0x3;
+		sttc constexpr uint32_t TAG_PCM = 0x0;
+		sttc constexpr uint32_t TAG_XMA = 0x1;
+		sttc constexpr uint32_t TAG_ADPCM = 0x2;
+		sttc constexpr uint32_t TAG_WMA = 0x3;
 
-		static constexpr uint32_t BITDEPTH_8 = 0x0; // PCM only
-		static constexpr uint32_t BITDEPTH_16 = 0x1; // PCM only
+		sttc constexpr uint32_t BITDEPTH_8 = 0x0; // PCM only
+		sttc constexpr uint32_t BITDEPTH_16 = 0x1; // PCM only
 
-		static constexpr size_t ADPCM_BLOCKALIGN_CONVERSION_OFFSET = 22;
+		sttc constexpr size_t ADPCM_BLOCKALIGN_CONVERSION_OFFSET = 22;
 
 		struct
 		{
@@ -127,7 +127,7 @@ namespace
 			case TAG_XMA	: return (nChannels * 16 / 8); // XMA_OUTPUT_SAMPLE_BITS = 16
 			case TAG_ADPCM	: return (wBlockAlign + ADPCM_BLOCKALIGN_CONVERSION_OFFSET) * nChannels;
 			case TAG_WMA	: {
-				static const uint32_t aWMABlockAlign[17] =
+				sttc const uint32_t aWMABlockAlign[17] =
 					{ 929
 					, 1487
 					, 1280
@@ -165,7 +165,7 @@ namespace
 					return blockAlign * nSamplesPerSec / samplesPerAdpcmBlock;
 				}
 				case TAG_WMA	: {
-					static const uint32_t aWMAAvgBytesPerSec[7] =
+					sttc const uint32_t aWMAAvgBytesPerSec[7] =
 					{	12000
 					,	24000
 					,	4000
@@ -193,23 +193,23 @@ namespace
 
 		void AdpcmFillCoefficientTable(ADPCMWAVEFORMAT *fmt) const noexcept { 
 			fmt->wNumCoef = 7 /* MSADPCM_NUM_COEFFICIENTS */;// These are fixed since we are always using MS ADPCM
-			static ADPCMCOEFSET aCoef[7] = { { 256, 0}, {512, -256}, {0,0}, {192,64}, {240,0}, {460, -208}, {392,-232} };
+			sttc ADPCMCOEFSET aCoef[7] = { { 256, 0}, {512, -256}, {0,0}, {192,64}, {240,0}, {460, -208}, {392,-232} };
 			memcpy(&fmt->aCoef, aCoef, sizeof(aCoef));
 		}
 	};
 
 	struct BANKDATA {
-		static constexpr size_t BANKNAME_LENGTH = 64;
+		sttc constexpr size_t BANKNAME_LENGTH = 64;
 
-		static constexpr uint32_t TYPE_BUFFER			= 0x00000000;
-		static constexpr uint32_t TYPE_STREAMING		= 0x00000001;
-		static constexpr uint32_t TYPE_MASK				= 0x00000001;
+		sttc constexpr uint32_t TYPE_BUFFER			= 0x00000000;
+		sttc constexpr uint32_t TYPE_STREAMING		= 0x00000001;
+		sttc constexpr uint32_t TYPE_MASK				= 0x00000001;
 
-		static constexpr uint32_t FLAGS_ENTRYNAMES		= 0x00010000;
-		static constexpr uint32_t FLAGS_COMPACT			= 0x00020000;
-		static constexpr uint32_t FLAGS_SYNC_DISABLED	= 0x00040000;
-		static constexpr uint32_t FLAGS_SEEKTABLES		= 0x00080000;
-		static constexpr uint32_t FLAGS_MASK			= 0x000F0000;
+		sttc constexpr uint32_t FLAGS_ENTRYNAMES		= 0x00010000;
+		sttc constexpr uint32_t FLAGS_COMPACT			= 0x00020000;
+		sttc constexpr uint32_t FLAGS_SYNC_DISABLED	= 0x00040000;
+		sttc constexpr uint32_t FLAGS_SEEKTABLES		= 0x00080000;
+		sttc constexpr uint32_t FLAGS_MASK			= 0x000F0000;
 
 		uint32_t		dwFlags							= {}; // Bank flags
 		uint32_t		dwEntryCount					= {}; // Number of entries in the bank
@@ -222,11 +222,11 @@ namespace
 	};
 
 	struct ENTRY {
-		static constexpr uint32_t FLAGS_READAHEAD		= 0x00000001;	// Enable stream read-ahead
-		static constexpr uint32_t FLAGS_LOOPCACHE		= 0x00000002;	// One or more looping sounds use this wave
-		static constexpr uint32_t FLAGS_REMOVELOOPTAIL	= 0x00000004;	// Remove data after the end of the loop region
-		static constexpr uint32_t FLAGS_IGNORELOOP		= 0x00000008;	// Used internally when the loop region can't be used
-		static constexpr uint32_t FLAGS_MASK			= 0x0000000F;
+		sttc constexpr uint32_t FLAGS_READAHEAD		= 0x00000001;	// Enable stream read-ahead
+		sttc constexpr uint32_t FLAGS_LOOPCACHE		= 0x00000002;	// One or more looping sounds use this wave
+		sttc constexpr uint32_t FLAGS_REMOVELOOPTAIL	= 0x00000004;	// Remove data after the end of the loop region
+		sttc constexpr uint32_t FLAGS_IGNORELOOP		= 0x00000008;	// Used internally when the loop region can't be used
+		sttc constexpr uint32_t FLAGS_MASK			= 0x0000000F;
 
 		union {
 			struct {
@@ -254,7 +254,7 @@ namespace
 				length = header.Segments[HEADER::SEGIDX_ENTRYWAVEDATA].dwLength - offset - dwLengthDeviation;
 		}
 
-		static uint32_t GetDuration(DWORD length, const BANKDATA& data, const uint32_t* seekTable) noexcept {
+		sttc uint32_t GetDuration(DWORD length, const BANKDATA& data, const uint32_t* seekTable) noexcept {
 			switch (data.CompactFormat.wFormatTag) {
 				case MINIWAVEFORMAT::TAG_ADPCM: {
 					uint32_t duration = (length / data.CompactFormat.BlockAlign()) * data.CompactFormat.AdpcmSamplesPerBlock();

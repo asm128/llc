@@ -19,7 +19,7 @@
 
 using ::llc::sc_t;
 
-static	::llc::err_t	updateDPI									(::llc::SFramework & framework)													{
+sttc	::llc::err_t	updateDPI									(::llc::SFramework & framework)													{
 #if defined(LLC_WINDOWS)
 	if(0 != framework.RootWindow.PlatformDetail.WindowHandle) {
 		RECT			rcWindow									= {};
@@ -175,10 +175,10 @@ static	::llc::err_t	updateDPI									(::llc::SFramework & framework)											
 #if defined(LLC_WINDOWS)
 #	include <Windowsx.h>
 
-static	::RECT			minClientRect			= {100, 100, 100 + 320, 100 + 200};
+sttc	::RECT			minClientRect			= {100, 100, 100 + 320, 100 + 200};
 
 //extern				::SApplication				* g_ApplicationInstance						;
-static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)							{
+sttc	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)							{
 	switch(uMsg) {
 	default					: break;
 	case WM_GETMINMAXINFO	:	// Catch this message so to prevent the window from becoming too small.
@@ -191,7 +191,7 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	}
 	}
 	//::SApplication						& app						= *g_ApplicationInstance;
-	static	const int						adjustedMinRect								= ::AdjustWindowRectEx(&minClientRect, WS_OVERLAPPEDWINDOW, FALSE, 0);
+	sttc	const int						adjustedMinRect								= ::AdjustWindowRectEx(&minClientRect, WS_OVERLAPPEDWINDOW, FALSE, 0);
 	if(0 == ::GetWindowLongPtrA(hWnd, GWLP_USERDATA))
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 
@@ -340,7 +340,7 @@ static	LRESULT WINAPI	mainWndProc				(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-static	void					initWndClass								(::HINSTANCE hInstance, const TCHAR* className, WNDPROC wndProc, ::WNDCLASSEX& wndClassToInit)	{
+sttc	void					initWndClass								(::HINSTANCE hInstance, const TCHAR* className, WNDPROC wndProc, ::WNDCLASSEX& wndClassToInit)	{
 	wndClassToInit					= {sizeof(::WNDCLASSEX),};
 	wndClassToInit.lpfnWndProc		= wndProc;
 	wndClassToInit.hInstance		= hInstance;
@@ -351,7 +351,7 @@ static	void					initWndClass								(::HINSTANCE hInstance, const TCHAR* classNa
 	wndClassToInit.style			= CS_DBLCLKS;
 }
 #elif defined(LLC_XCB)
-static	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
+sttc	::llc::err_t	xcbWindowCreate								(::llc::SWindow & window) {
 	if(0 == window.PlatformDetail.Connection) {
 		window.PlatformDetail.Connection														= xcb_connect(NULL, NULL);
 	}

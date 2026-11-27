@@ -32,7 +32,7 @@ namespace llc
 
 		tplt<tpnm _tValue>
 		err_t				push_any		(vcst_t labelName, const _tValue defaultValue) {
-			return push_any(dataType(defaultValue), labelName, vcu0_t{(const u0_t*)&defaultValue, szof(_tValue)});
+			return push_any(dataType(defaultValue), labelName, vcu0_t{(u0_c*)&defaultValue, szof(_tValue)});
 		}
 
 		err_t				push_u8			(vcst_t label, u0_t defaultValue = u0_t(DEBUG_BUILD ? 0xFFU : 0U)) { return push_any(label, defaultValue); }

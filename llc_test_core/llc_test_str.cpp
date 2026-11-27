@@ -21,9 +21,9 @@ GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_VIEW_TYPE			, 6, "str() did not adapt
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, COUNTED_VIEW_RANGE		, 7, "str() did not preserve an explicitly counted character range.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, STRING_VIEW_TYPE			, 8, "str() did not preserve string-view mutability.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, STRING_VIEW_RANGE			, 9, "str() changed an existing string-view range.");
-GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_STATIC_TYPE		, 10, "str() did not adapt mutable static character storage to view_string.");
-GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STATIC_TYPE		, 11, "str() did not adapt const static character storage to view_const_string.");
-GDEFINE_ENUM_VALUED(STR_TEST_RESULT, STATIC_RANGE				, 12, "str() did not expose the text stored in a static character array.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_STATIC_TYPE		, 10, "str() did not adapt mutable sttc character storage to view_string.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STATIC_TYPE		, 11, "str() did not adapt const sttc character storage to view_const_string.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, STATIC_RANGE				, 12, "str() did not expose the text stored in a sttc character array.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_POD_TYPE			, 13, "str() did not adapt mutable POD character storage to view_string.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_POD_TYPE			, 14, "str() did not adapt const POD character storage to view_const_string.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, POD_RANGE				, 15, "str() changed the counted POD character range.");
@@ -32,7 +32,7 @@ GDEFINE_ENUM_VALUED(STR_TEST_RESULT, EMPTY_STRING				, 17, "str() did not produc
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, BOOL_TEXT					, 18, "str() did not expose the expected boolean text.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_RESULT_TYPE		, 19, "Numeric str() returned an unexpected storage type.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_TEXT				, 20, "Numeric str() produced unexpected text.");
-GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_TERMINATION		, 21, "Numeric str() did not terminate its text within its static storage.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, NUMERIC_TERMINATION		, 21, "Numeric str() did not terminate its text within its sttc storage.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CHARACTER_UPPERCASE		, 22, "toupper(char&) did not mutate only lowercase ASCII characters.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CHARACTER_LOWERCASE		, 23, "tolower(char&) did not mutate only uppercase ASCII characters.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, VIEW_UPPERCASE			, 24, "toupper(view<char>) did not transform the complete counted range.");
@@ -64,9 +64,9 @@ GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_MUTABLE_STRING_BEGIN, 49, "str() chan
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_MUTABLE_STRING_SIZE, 50, "str() changed a const mutable string-view size.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STRING_BEGIN	, 51, "str() changed a const string-view start.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STRING_SIZE	, 52, "str() changed a const string-view size.");
-GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_STATIC_BEGIN	, 53, "str() changed a mutable static array's starting address.");
-GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STATIC_TEXT	, 54, "str() changed const static array text.");
-GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STATIC_BEGIN	, 55, "str() changed a const static array's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_STATIC_BEGIN	, 53, "str() changed a mutable sttc array's starting address.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STATIC_TEXT	, 54, "str() changed const sttc array text.");
+GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_STATIC_BEGIN	, 55, "str() changed a const sttc array's starting address.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, MUTABLE_POD_BEGIN	, 56, "str() changed mutable POD storage's starting address.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_POD_TEXT		, 57, "str() changed const POD text.");
 GDEFINE_ENUM_VALUED(STR_TEST_RESULT, CONST_POD_BEGIN		, 58, "str() changed const POD storage's starting address.");
@@ -143,7 +143,7 @@ sttc ::llc::err_t testNumericStrValue(::llc::ATestError & errors, T value, ::llc
 	auto				storage	= ::llc::str(value);
 	auto				text	= ::llc::str(storage);
 	always_printf("STR numeric conversion: source width:%u bits; expected:'%.*s'; actual:'%.*s' (%u bytes); text:%s.", (::llc::u2_t)bcof(T), LLC_VIEW_ARGS(expected), (int)text.size(), text.begin(), text.size(), stringMismatch(text, expected) ? "FAIL" : "PASS");
-	::llc::testTraceBytes("Numeric source representation", ::llc::view<cnst T>{&value, 1}.cu8());
+	::llc::testTraceBytes("Numeric source representation", ::llc::view<cnst T>{&value, 1}.as<u0_c>());
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RESULT_TYPE, false == (::std::is_same_v<decltype(storage), ::llc::astsc_t<N>>) , "result type mismatch. capacity:%u, expected:%u." , storage.size(), N );
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_TEXT, stringMismatch(text, expected) , "actual:'%.*s'/%u, expected:'%.*s'/%u." , (int)text.size(), text.begin(), text.size(), (int)expected.size(), expected.begin(), expected.size());
 	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_NUMERIC_RANGE, text.begin() != storage.begin() , "numeric text begin:%p, expected:%p.", text.begin(), storage.begin());
@@ -331,12 +331,12 @@ sttc ::llc::err_t testStringFunctions(::llc::ATestError & errors) {
 	cnst ::llc::astsc_t<7> & constStaticText	= staticText;
 	auto				mutableStaticView	= ::llc::str(staticText);
 	auto				constStaticView		= ::llc::str(constStaticText);
-	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_MUTABLE_STATIC_TYPE, false == (::std::is_same_v<decltype(mutableStaticView), ::llc::vstr_t>) , "Mutable static result type mismatch. size:%u." , mutableStaticView.size() );
-	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_CONST_STATIC_TYPE, false == (::std::is_same_v<decltype(constStaticView), ::llc::vcst_t>) , "Const static result type mismatch. size:%u." , constStaticView.size() );
-	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_STATIC_RANGE, stringMismatch(mutableStaticView, "static") , "Mutable static text:'%.*s'.", (int)mutableStaticView.size(), mutableStaticView.begin());
-	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_MUTABLE_STATIC_BEGIN, mutableStaticView.begin() != staticText.begin() , "Mutable static begin:%p, expected:%p.", mutableStaticView.begin(), staticText.begin());
-	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_CONST_STATIC_TEXT, stringMismatch(constStaticView, "static") , "Const static text:'%.*s'.", (int)constStaticView.size(), constStaticView.begin());
-	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_CONST_STATIC_BEGIN, constStaticView.begin() != staticText.begin() , "Const static begin:%p, expected:%p.", constStaticView.begin(), staticText.begin());
+	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_MUTABLE_STATIC_TYPE, false == (::std::is_same_v<decltype(mutableStaticView), ::llc::vstr_t>) , "Mutable sttc result type mismatch. size:%u." , mutableStaticView.size() );
+	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_CONST_STATIC_TYPE, false == (::std::is_same_v<decltype(constStaticView), ::llc::vcst_t>) , "Const sttc result type mismatch. size:%u." , constStaticView.size() );
+	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_STATIC_RANGE, stringMismatch(mutableStaticView, "sttc") , "Mutable sttc text:'%.*s'.", (int)mutableStaticView.size(), mutableStaticView.begin());
+	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_MUTABLE_STATIC_BEGIN, mutableStaticView.begin() != staticText.begin() , "Mutable sttc begin:%p, expected:%p.", mutableStaticView.begin(), staticText.begin());
+	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_CONST_STATIC_TEXT, stringMismatch(constStaticView, "sttc") , "Const sttc text:'%.*s'.", (int)constStaticView.size(), constStaticView.begin());
+	LLC_TEST_CHECKF(errors, STR_TEST_RESULT_CONST_STATIC_BEGIN, constStaticView.begin() != staticText.begin() , "Const sttc begin:%p, expected:%p.", constStaticView.begin(), staticText.begin());
 
 	::llc::asc_t	dynamicText		= {'p', 'o', 'd'};
 	cnst ::llc::asc_t & constDynamicText	= dynamicText;

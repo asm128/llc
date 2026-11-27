@@ -61,14 +61,14 @@ sttc bool geometryDiffers(::llc::f3_t left, ::llc::f3_t right, ::llc::f3_t toler
 	rtrn false == (::llc::abs(left - right) <= tolerance);
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t geometryCheck(::llc::ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n2<T> & actual, cnst ::llc::n2<T> & expected) {
 	LLC_TEST_CHECKF(errors, result, actual.x != expected.x , "x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.x, (::llc::s3_t)expected.x );
 	LLC_TEST_CHECKF(errors, result, actual.y != expected.y , "y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.y, (::llc::s3_t)expected.y );
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t geometryCheck(::llc::ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::n3<T> & actual, cnst ::llc::n3<T> & expected) {
 	LLC_TEST_CHECKF(errors, result, actual.x != expected.x , "x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.x, (::llc::s3_t)expected.x );
 	LLC_TEST_CHECKF(errors, result, actual.y != expected.y , "y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.y, (::llc::s3_t)expected.y );
@@ -76,7 +76,7 @@ sttc ::llc::err_t geometryCheck(::llc::ATestError & errors, GEOMETRY_TEST_RESULT
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t geometryCheck(::llc::ATestError & errors, GEOMETRY_TEST_RESULT result, cnst ::llc::rect2<T> & actual, cnst ::llc::rect2<T> & expected) {
 	LLC_TEST_CHECKF(errors, result, actual.Offset.x != expected.Offset.x , "Offset.x:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Offset.x, (::llc::s3_t)expected.Offset.x );
 	LLC_TEST_CHECKF(errors, result, actual.Offset.y != expected.Offset.y , "Offset.y:%" LLC_FMT_S3 ", expected:%" LLC_FMT_S3 "." , (::llc::s3_t)actual.Offset.y, (::llc::s3_t)expected.Offset.y );
@@ -88,16 +88,16 @@ sttc ::llc::err_t geometryCheck(::llc::ATestError & errors, GEOMETRY_TEST_RESULT
 tplt<tpnm T, tpnm = void>
 stct SGeometryTransforms3 : std::false_type {};
 
-tplt<tpnm T>
+tplT 
 stct SGeometryTransforms3<T, std::void_t<decltype(std::declval<cnst T &>().Transform(std::declval<cnst ::llc::n3f2_t &>()))>> : std::true_type {};
 
 tplt<tpnm T, tpnm = void>
 stct SGeometryTransformsPoint2 : std::false_type {};
 
-tplt<tpnm T>
+tplT 
 stct SGeometryTransformsPoint2<T, std::void_t<decltype(std::declval<cnst T &>().TransformPoint(std::declval<cnst ::llc::n2f2_t &>()))>> : std::true_type {};
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testGeometryScalar(::llc::ATestError & errors) {
 	static_assert(sizeof(::llc::line<T>) == sizeof(T) * 2);
 	static_assert(sizeof(::llc::quad<T>) == sizeof(T) * 4);

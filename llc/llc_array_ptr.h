@@ -7,8 +7,8 @@
 
 namespace llc
 {
-	tplt<tpnm T> usng		papod		= pobj<apod<T>>;
-	tplt<tpnm T> usng		apapod		= aobj<papod<T>>;
+	tplT  usng		papod		= pobj<apod<T>>;
+	tplT  usng		apapod		= aobj<papod<T>>;
 
 	tydf	papod<uc_t>		pauc_t;
 	tydf	papod<sc_t>		pasc_t;

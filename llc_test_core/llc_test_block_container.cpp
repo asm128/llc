@@ -17,7 +17,7 @@ sttc ::llc::err_t blockContainerExpectedFailure(TCall call) {
 	rtrn result;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testBlockContainerType(::llc::ATestError & errors) {
 	::llc::block_container<T, 4> blocks = {};
 	cnst T firstData[]	= {T(1), T(2)};
@@ -81,7 +81,7 @@ sttc ::llc::err_t testBlockContainerType(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testBlockContainerTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);

@@ -59,6 +59,7 @@
     <ClCompile Include="llc_test_ctti.cpp" />
     <ClCompile Include="llc_test_deflate.cpp" />
     <ClCompile Include="llc_test_enum.cpp" />
+    <ClCompile Include="llc_test_event.cpp" />
     <ClCompile Include="llc_test_expression.cpp" />
     <ClCompile Include="llc_test_geometry.cpp" />
     <ClCompile Include="llc_test_grid.cpp" />

@@ -15,7 +15,7 @@ llc::err_t			llc::folderUnpack			(SFolderInMemory & out_loaded, vcst_t nameFileS
 	if_fail_fef(folderUnpack(out_loaded, rawFileInMemory), "Failed to unpack pak file: %.*s.", (int)nameFileSrc.size(), nameFileSrc.begin());
 	return 0;
 }
-llc::err_t			llc::folderToDisk			(const SFolderPackage & folderPackage, const vcst_t nameFileDst)			{
+llc::err_t			llc::folderToDisk			(const SFolderPackage & folderPackage, vcst_c nameFileDst)			{
 	const SPackHeader 	& fileHeader				= folderPackage.PackageInfo;
 	const au0_t			& compressedTableFiles		= folderPackage.CompressedTableFiles		;
 	const au0_t			& compressedContentsPacked	= folderPackage.CompressedContentsPacked	;
@@ -34,7 +34,7 @@ llc::err_t			llc::folderToDisk			(const SFolderPackage & folderPackage, const vc
 
 stxp u2_t			DEFLATE_CHUNK_SIZE			= u2_t(1024) * 1024 * 4;
 stxp u2_t			INFLATE_CHUNK_SIZE			= u2_t(1024) * 1024 * 4;
-llc::err_t			llc::folderPack				(SFolderPackage & output, const vcst_t nameFolderSrc) {
+llc::err_t			llc::folderPack				(SFolderPackage & output, vcst_c nameFolderSrc) {
 	SPackHeader 			& fileHeader			= output.PackageInfo = {};
 	// -- The following two arrays store the file table and the file contents that are going to be compressed and stored on disk
 	au0_t					tableFiles				;
@@ -111,7 +111,7 @@ llc::err_t			llc::folderToDisk			(const SFolderInMemory & virtualFolder, vcst_t 
 	FILE						* fp						= 0;
 	for(u2_t iFile = 0, countFiles = virtualFolder.Names.size(); iFile < countFiles; ++iFile) {
 		llc_safe_fclose(fp);
-		const vcst_t			& fileName					= virtualFolder.Names		[iFile];
+		vcst_c			& fileName					= virtualFolder.Names		[iFile];
 		vcu0_c			& fileContent				= virtualFolder.Contents	[iFile];
 		finalPathName.clear();
 		 if_fail_fe(append_strings(finalPathName, destinationPath, fileName));
