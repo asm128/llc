@@ -11,7 +11,7 @@ namespace llc
 {
 	tplt<tpnm T>
 	bool	collisionCoordinateCast	(f3_t value, T& output) {
-		if(false == isfinite(value) || value < f3_t(::std::numeric_limits<T>::lowest()) || value > f3_t(::std::numeric_limits<T>::max()))
+		if(false == ::std::isfinite(value) || value < f3_t(::std::numeric_limits<T>::lowest()) || value > f3_t(::std::numeric_limits<T>::max()))
 			rtrn false;
 		if(::std::numeric_limits<T>::is_integer) {
 			f3_c nearest = value < 0 ? ceil(value - 0.5) : floor(value + 0.5);
@@ -68,7 +68,7 @@ namespace llc
 			if(parameter < 0)
 				rtrn 0;
 		}
-		if(false == isfinite(parameter) || parameter > ::std::numeric_limits<f2_t>::max())
+		if(false == ::std::isfinite(parameter) || parameter > ::std::numeric_limits<f2_t>::max())
 			rtrn -1;
 		n3f3_c point = positionF3 + directionF3 * parameter;
 		n3<TAxis> result = {};

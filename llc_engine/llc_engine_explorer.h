@@ -28,7 +28,7 @@ namespace llc
 	struct SEditorUI {
 		::llc::pobj<::llc::SGUI>	GUI					= {};
 		::llc::SInputBox			InputBox			= {};
-		::llc::apachar				InputHistory;
+		::llc::apasc_t				InputHistory;
 	};
 
 	struct SEditor {
