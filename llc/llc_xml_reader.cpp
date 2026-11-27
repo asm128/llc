@@ -108,7 +108,7 @@ sttc ::llc::err_t xmlParseStringCharacter(::llc::SXMLReader & reader) {
 sttc ::llc::err_t xmlParseTagCharacter(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
 	::llc::SXMLReaderState & state = reader.State;
 	cnst ::llc::XML_TOKEN type = state.CurrentElement->Type;
-	if(::llc::isSpaceCharacter(state.CharCurrent))
+	if(::llc::is_space(state.CharCurrent))
 		rtrn 0;
 	switch(type) {
 	case ::llc::XML_TOKEN_TAG_OPEN:
@@ -163,7 +163,7 @@ sttc ::llc::err_t xmlParseTagCharacter(::llc::SXMLReader & reader, ::llc::vcst_t
 sttc ::llc::err_t xmlParseNameCharacter(::llc::SXMLReader & reader, ::llc::vcst_t xmlDoc) {
 	::llc::SXMLReaderState & state = reader.State;
 	cnst ::llc::XML_TOKEN type = state.CurrentElement->Type;
-	if(::llc::isSpaceCharacter(state.CharCurrent)) {
+	if(::llc::is_space(state.CharCurrent)) {
 		if_fail_fe(::xmlCloseElement(reader));
 		state.Flags.ExpectingSeparator = state.CurrentElement && state.CurrentElement->Type == ::llc::XML_TOKEN_ATTR;
 		rtrn 0;

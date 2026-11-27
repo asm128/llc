@@ -197,6 +197,7 @@ namespace llc
 
 	tplTnsix	u2_t		size			(cnst ::llc::view<T> & viewToTest)														nxpt	{ rtrn viewToTest.size();		}
 	tplTnsix	u2_t		byte_count		(cnst ::llc::view<T> & viewToTest)														nxpt	{ rtrn viewToTest.byte_count();	}
+	tplTnsix	b8_t		is_any_of		(cnst T & valueToTest, view<cnst T> collection)								nxpt	{ rtrn 0 <= collection.find(valueToTest); }
 
 #pragma pack(pop)
 
@@ -422,7 +423,9 @@ namespace llc
 	tydf	view<cnst vstr_t	>	vcvs;
 	tydf	view<cnst vcst_t	>	vcvcst_t;
 
+	stxp	vcst_t		SPACE_CHARACTERS	= " \t\n\r\b\f";
 	stxp	vcst_t		TRIM_CHARACTERS		= " \t\b\n\r";
+	tplTnsix	b8_t		is_space			(cnst T & character, view<cnst T> spaceCharacters = SPACE_CHARACTERS)	nxpt	{ rtrn is_any_of(character, spaceCharacters); }
 
 	err_t			rtrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);
 	err_t			ltrim				(vcst_t & trimmed, cnst vcst_t & original, cnst vcst_t & characters = TRIM_CHARACTERS);

@@ -4,17 +4,9 @@
 #include "llc_math.h"
 #include <ctype.h>
 
-bool				llc::isSpaceCharacter			(const char characterToTest)		{
-	switch(characterToTest) {
-	case ' ': case '\t': case '\r': case '\n'	: case '\f'	: case '\b'	:
-		return true;
-	default:
-		return false;
-	}
-}
 llc::err_t			llc::skipToNextCharacter		(u2_t & indexCurrentChar, vcst_t expression)		{
 	while(indexCurrentChar < expression.size()) {
-		if(isSpaceCharacter(expression[indexCurrentChar]))
+		if(is_space(expression[indexCurrentChar]))
 			++indexCurrentChar;
 		else
 			break;

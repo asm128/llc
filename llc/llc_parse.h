@@ -45,7 +45,6 @@ namespace llc
 	err_t				stripLiteralParseStep			(SStripLiteralState	& work_state	, apod<SStripLiteralType> & out_types, vcst_t in_format);
 	err_t				stripLiteralGetViews			(aobj<vcst_t>	& out_views, const view<const SStripLiteralType> & in_resultOfParser, vcst_t in_format);
 
-	bool				isSpaceCharacter				(const char characterToTest);
 	err_t				skipToNextCharacter				(u2_t & indexCurrentChar, vcst_t expression);
 
 } // namespace

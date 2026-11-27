@@ -113,32 +113,6 @@ sttc    llc::err_t      expressionReaderProcessStringCharacter  (::llc::SReaderS
     return errVal;
 }
 
-static	bool												isSpaceCharacter		(const sc_t characterToTest)		{
-    switch(characterToTest) {
-    case ' ': case '\t': case '\r': case '\n'	: case '\f'	: case '\b'	:
-        return true;
-    default:
-        return false;
-    }
-}
-
-//static	bool												isAnyOfCharacters		(const ::llc::vcst_t & charactersToFind, const sc_t characterToTest)		{
-//	for(u2_t iCharacter = 0; iCharacter < charactersToFind.size(); ++iCharacter)
-//		if(characterToTest == charactersToFind[iCharacter])
-//			return true;
-//	return false;
-//}
-
-sttc	llc::err_t	skipToNextCharacter						(u2_t & indexCurrentChar, ::llc::vcst_c & expression)		{
-    while(indexCurrentChar < expression.size()) {
-        if(::isSpaceCharacter(expression[indexCurrentChar]))
-            ++indexCurrentChar;
-        else
-            break;
-    }
-    return 0;
-}
-
 sttc	llc::err_t	expressionReaderProcessDocCharacter		(::llc::SReaderState<::llc::EXPRESSION_READER_TYPE> & stateReader, ::llc::SExpressionReaderState & stateDoc, apod<::llc::SExpressionToken> & tokens, apod<::llc::SExpressionTokenData> & data, const ::llc::vcst_t & expression)	{
     if(0 == tokens.size()) {
         if_fail_fef(::expressionReaderOpenLevel(stateReader, tokens, data, ::llc::EXPRESSION_READER_TYPE_TERM_ANY, stateReader.IndexCurrentChar), "Failed to open expression at index %i", stateReader.IndexCurrentChar);
@@ -194,7 +168,7 @@ sttc	llc::err_t	expressionReaderProcessDocCharacter		(::llc::SReaderState<::llc:
             if_fail_fef(::llc::readerCloseType(stateReader, tokens, stateReader.CurrentElement->Type, stateReader.IndexCurrentChar), "Failed to close type: %s.", ::llc::get_value_label(stateReader.CurrentElement->Type).begin(), "%s", "Failed to close type.");
             stateReader.Flags.ExpectingSeparator		= true;
         }
-        ::skipToNextCharacter(stateReader.IndexCurrentChar, expression);	// Skip blanks after this.
+        ::llc::skipToNextCharacter(stateReader.IndexCurrentChar, expression);	// Skip blanks after this.
         --stateReader.IndexCurrentChar;
         break;
     case '&':
@@ -219,7 +193,7 @@ sttc	llc::err_t	expressionReaderProcessDocCharacter		(::llc::SReaderState<::llc:
         skip_if_escaping();
         if_fail_fef(::llc::readerCloseIfType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_KEY			), "%s", "Failed to close type.");
         ++stateReader.IndexCurrentChar;
-        ::skipToNextCharacter(stateReader.IndexCurrentChar, expression);	// Skip blanks after this.
+        ::llc::skipToNextCharacter(stateReader.IndexCurrentChar, expression);	// Skip blanks after this.
         if_fail_fef(::expressionReaderOpenLevel	(stateReader, tokens, data, ::llc::EXPRESSION_READER_TYPE_KEY			, stateReader.IndexCurrentChar), "Failed to open key at index %i", stateReader.IndexCurrentChar);
         --stateReader.IndexCurrentChar;
         break;
