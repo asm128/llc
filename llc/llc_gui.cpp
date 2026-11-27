@@ -75,7 +75,7 @@
 	return 0;
 }
 
-static	::llc::err_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::llc::view<const ::llc::bgra> & colors, ::llc::u2_t iShades)	{
+sttc	::llc::err_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::llc::view<const ::llc::bgra> & colors, ::llc::u2_t iShades)	{
 	const ::llc::u2_t				newPaletteSize				= colors.size() * iShades;
 	if(palette.size() < newPaletteSize) {
 		if_fail_fe(palette.resize(newPaletteSize));
@@ -107,7 +107,7 @@ static	::llc::err_t	paletteSetupDefault			(::llc::a8bgra & palette, const ::llc:
 	return 0;
 }
 
-static	::llc::err_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra> & palette, int32_t iColor, ::llc::SControlTheme & theme, ::llc::u2_t iShades)	{
+sttc	::llc::err_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra> & palette, int32_t iColor, ::llc::SControlTheme & theme, ::llc::u2_t iShades)	{
 	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboDisabled									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_DISABLED	]	= {};
 	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboPressed 									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_PRESSED	]	= {};
 	::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>		& colorComboSelected									= theme.ColorCombos[::llc::GUI_CONTROL_PALETTE_SELECTED	]	= {};
@@ -171,7 +171,7 @@ static	::llc::err_t	themeSetupDefault						(const ::llc::view<const ::llc::bgra>
 	return 0;
 }
 
-static	::llc::err_t	themeSetupDefault	(const ::llc::a8bgra & palette, ::llc::apod<::llc::SControlTheme>& themes, ::llc::u2_t iShades)	{
+sttc	::llc::err_t	themeSetupDefault	(const ::llc::a8bgra & palette, ::llc::apod<::llc::SControlTheme>& themes, ::llc::u2_t iShades)	{
 	for(::llc::u2_t iColor = 0; iColor < palette.size(); ++iColor) {
 		const int32_t				indexTheme			= themes.push_back({});
 		::llc::SControlTheme		& theme				= themes[indexTheme];
@@ -180,9 +180,9 @@ static	::llc::err_t	themeSetupDefault	(const ::llc::a8bgra & palette, ::llc::apo
 	return 0;
 }
 
-static	::llc::err_t	initDefaults		(::llc::pobj<::llc::a8bgra> & palette, ::llc::pobj<::llc::apod<::llc::SControlTheme>> & controlThemes) {
+sttc	::llc::err_t	initDefaults		(::llc::pobj<::llc::a8bgra> & palette, ::llc::pobj<::llc::apod<::llc::SControlTheme>> & controlThemes) {
 	stxp	::llc::u2_t			iShades				= 16;
-	static	::llc::bgra			paletteColors []	=
+	sttc	::llc::bgra			paletteColors []	=
 		// 16 Base colors
 		{ ::llc::SColorRGBA{::llc::ASCII_COLOR_INDEX_0	}
 		, ::llc::SColorRGBA{::llc::ASCII_COLOR_INDEX_1	}
@@ -238,9 +238,9 @@ static	::llc::err_t	initDefaults		(::llc::pobj<::llc::a8bgra> & palette, ::llc::
 	return 0;
 }
 
-static	::llc::err_t	paletteSetupDefaultColors	(::llc::pobj<::llc::a8bgra> & palette, ::llc::pobj<::llc::apod<::llc::SControlTheme>> & controlThemes)	{
-	static ::llc::papod<::llc::bgra>			globalDefaultPalette		= {};
-	static ::llc::papod<::llc::SControlTheme>	globalDefaultTheme			= {};
+sttc	::llc::err_t	paletteSetupDefaultColors	(::llc::pobj<::llc::a8bgra> & palette, ::llc::pobj<::llc::apod<::llc::SControlTheme>> & controlThemes)	{
+	sttc ::llc::papod<::llc::bgra>			globalDefaultPalette		= {};
+	sttc ::llc::papod<::llc::SControlTheme>	globalDefaultTheme			= {};
 	
 	if(!globalDefaultPalette || 0 == globalDefaultPalette->size()) 
 		::initDefaults(globalDefaultPalette, globalDefaultTheme);
@@ -250,7 +250,7 @@ static	::llc::err_t	paletteSetupDefaultColors	(::llc::pobj<::llc::a8bgra> & pale
 	return 0;
 }
 
-static	::llc::err_t	uiColorsSetupDefault (::llc::SGUIColors & guiColors) {
+sttc	::llc::err_t	uiColorsSetupDefault (::llc::SGUIColors & guiColors) {
 	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_NORMAL				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::BLUE		, ::llc::GRAY	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,::llc::WHITE				,}});
 	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_DISABLED				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::LIGHTGRAY	, ::llc::ORANGE	, ::llc::YELLOW, ::llc::MAGENTA, ::llc::CYAN, {}, ::llc::LIGHTGRAY * 1.1	,::llc::LIGHTGRAY * 1.1	,}});::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,	 ::llc::LIGHTGRAY * 1.1	,
 	guiColors.DefaultColors[::llc::GUI_CONTROL_PALETTE_HOVER				]	= (::llc::u1_t)guiColors.Palettes.push_back({{::llc::CYAN		, ::llc::YELLOW	, ::llc::MAGENTA, ::llc::GREEN, ::llc::ORANGE, {}, ::llc::DARKCYAN / 2.0	, ::llc::DARKCYAN / 2.0	,}}); ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,	  ::llc::DARKCYAN / 2.0	,
@@ -264,9 +264,9 @@ static	::llc::err_t	uiColorsSetupDefault (::llc::SGUIColors & guiColors) {
 	return 0;
 }
 
-static	::llc::err_t	uiColorsSetupDefault (::llc::pobj<::llc::SGUIColors> & guiColors) {
+sttc	::llc::err_t	uiColorsSetupDefault (::llc::pobj<::llc::SGUIColors> & guiColors) {
 	if(!guiColors) {
-		static ::llc::pobj<::llc::SGUIColors>	globalDefaultColors			= {};
+		sttc ::llc::pobj<::llc::SGUIColors>	globalDefaultColors			= {};
 		if(!globalDefaultColors) {
 			if_fail_fe(::uiColorsSetupDefault(*globalDefaultColors.create()));
 			if_fail_fe(::paletteSetupDefaultColors(globalDefaultColors->Palette, globalDefaultColors->ControlThemes));
@@ -276,9 +276,9 @@ static	::llc::err_t	uiColorsSetupDefault (::llc::pobj<::llc::SGUIColors> & guiCo
 	return 0;
 }
 
-static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
-	static ::llc::SRasterFontManager	g_managedFonts;
-	static const ::llc::u2_t				g_resultFontsLoaded	= ::llc::rasterFontDefaults(g_managedFonts);
+sttc	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
+	sttc ::llc::SRasterFontManager	g_managedFonts;
+	sttc const ::llc::u2_t				g_resultFontsLoaded	= ::llc::rasterFontDefaults(g_managedFonts);
 	(void)g_resultFontsLoaded;
 	gui.Fonts.resize(g_managedFonts.Fonts.size());
 	for(::llc::u2_t iFont = 0; iFont < g_managedFonts.Fonts.size(); ++iFont)
@@ -394,7 +394,7 @@ static	::llc::err_t	setupDefaultFontTexture	(::llc::SGUI & gui)			{
 	return 0;
 }
 
-static	::llc::err_t	buildControlGeometry	(const ::llc::SControlPlacement & control, const ::llc::SControlArea & controlMetrics, const ::llc::SGUIZoom & zoom, ::llc::view<::llc::rect2s1_t> finalRects, ::llc::view<::llc::tri2s1_t> triangles)					{
+sttc	::llc::err_t	buildControlGeometry	(const ::llc::SControlPlacement & control, const ::llc::SControlArea & controlMetrics, const ::llc::SGUIZoom & zoom, ::llc::view<::llc::rect2s1_t> finalRects, ::llc::view<::llc::tri2s1_t> triangles)					{
 	::llc::rects1_t				scaledBorders			= {};
 	const ::llc::n2f3_t			scaleFinal				= zoom.DPI * zoom.ZoomLevel;
 	scaledBorders.Left		= (int16_t)(control.Border.Left		* scaleFinal.x);
@@ -436,7 +436,7 @@ static	::llc::err_t	buildControlGeometry	(const ::llc::SControlPlacement & contr
 	return 0;
 }
 
-static	::llc::err_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<::llc::u1_t> & _targetSize)					{
+sttc	::llc::err_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iControl, const ::llc::n2<::llc::u1_t> & _targetSize)					{
 	if_fail_fef(llc::controlInvalid(gui, iControl), "Invalid control id: %u.", iControl);
 
 	::llc::SControlState		& controlState			= gui.Controls.States[iControl];
@@ -580,7 +580,7 @@ static	::llc::err_t	controlUpdateMetrics	(::llc::SGUI & gui, ::llc::cid_t iContr
 	return 0;
 }
 
-static	::llc::cid_t	updateGUIControlHovered	(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::SControlState & controlState, const ::llc::SInput & inputSystem, bool disabled)	noexcept	{
+sttc	::llc::cid_t	updateGUIControlHovered	(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::SControlState & controlState, const ::llc::SInput & inputSystem, bool disabled)	noexcept	{
 	if(controlState.IsHovered()) {
 		if(inputSystem.ButtonDown(0) && false == controlState.IsPressed())
 			gui.Controls.SetPressed(iControl, true);
@@ -598,7 +598,7 @@ static	::llc::cid_t	updateGUIControlHovered	(::llc::SGUI & gui, ::llc::cid_t iCo
 	return controlState.IsHovered() ? iControl : -1;
 }
 
-static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::cid_t iControl)														{
+sttc	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput & input, ::llc::cid_t iControl)														{
 	//--------------------
 	::llc::SControlState		& controlState			= gui.Controls.States[iControl];
 	::llc::cid_t				controlHovered			= -1;
@@ -778,7 +778,7 @@ static	::llc::cid_t	controlProcessInput		(::llc::SGUI & gui, const ::llc::SInput
 	return 0;
 }
 
-static	::llc::err_t	controlInstanceReset	(::llc::SControlTable & controlTable, ::llc::cid_t iControl, ::llc::vs1_t defaultColors)										{
+sttc	::llc::err_t	controlInstanceReset	(::llc::SControlTable & controlTable, ::llc::cid_t iControl, ::llc::vs1_t defaultColors)										{
 	controlTable.States		[iControl]	= {};
 	controlTable.TextState	[iControl].clear();
 	controlTable.Placement	[iControl]	= {};

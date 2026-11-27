@@ -171,7 +171,7 @@ GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, RANGE_DELIMITER_SEQUENCE_FIELD_1	, 175, "R
 GDEFINE_ENUM_VALUED(VIEW_TEST_RESULT, TEXT_SUBSCRIPT			, 176, "Semantic text views did not resolve integral subscripts through the view contract.");
 
 // The expected addresses verify begin()/end() boundaries; they are never dereferenced.
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t viewRangeCheck(::llc::ATestError & errors, VIEW_TEST_RESULT result, ::llc::view<T> actual, ::llc::u2_t expectedCount, cnst void * expectedBegin, cnst void * expectedEnd) {
 	LLC_TEST_CHECKF(errors, result, actual.size() != expectedCount , "Count:%u, expected:%u." , actual.size(), expectedCount );
 	LLC_TEST_CHECKF(errors, result, actual.begin() != expectedBegin , "Begin:%p, expected:%p." , actual.begin(), expectedBegin );
@@ -181,7 +181,7 @@ sttc ::llc::err_t viewRangeCheck(::llc::ATestError & errors, VIEW_TEST_RESULT re
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testRepresentation(::llc::ATestError & errors) {
 	T data[5] = {};
 	::llc::view<T> empty;
@@ -218,7 +218,7 @@ sttc ::llc::err_t sliceExpectedFailure(TSource & source, TOutput & output, ::llc
 	return result;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testMutableSlice(::llc::ATestError & errors) {
 	T data[5] = {};
 	::llc::view<T> source{data};
@@ -263,7 +263,7 @@ sttc ::llc::err_t testMutableSlice(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testConstSlice(::llc::ATestError & errors) {
 	T data[5] = {};
 	cnst ::llc::view<T> source{data};
@@ -304,7 +304,7 @@ sttc ::llc::err_t testConstSlice(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testSubscript(::llc::ATestError & errors) {
 	T data[4] = {T(1), T(2), T(3), T(4)};
 	::llc::view<T> mutableView{data};
@@ -327,7 +327,7 @@ sttc ::llc::err_t testSubscript(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testEquality(::llc::ATestError & errors) {
 	T valuesA[4] = {T(1), T(2), T(3), T(4)};
 	T valuesB[4] = {T(1), T(2), T(3), T(4)};
@@ -356,7 +356,7 @@ sttc ::llc::err_t testEquality(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testRepresentationViews(::llc::ATestError & errors) {
 	T data[3] = {};
 	::llc::view<T> mutableView{data};
@@ -374,7 +374,7 @@ sttc ::llc::err_t testRepresentationViews(::llc::ATestError & errors) {
 	LLC_TEST_REQUIREF(errors, VIEW_TEST_RESULT_MUTABLE_CHAR_VIEW, chars.size() != expectedBytes , "Mutable character view size:%u, expected:%u." , chars.size(), expectedBytes );
 	LLC_TEST_REQUIREF(errors, VIEW_TEST_RESULT_MUTABLE_BYTE_VIEW, (::llc::uP_t)bytes.begin() != (::llc::uP_t)data , "Mutable byte view begin:%p, expected:%p." , bytes.begin(), data );
 	LLC_TEST_REQUIREF(errors, VIEW_TEST_RESULT_MUTABLE_BYTE_VIEW, bytes.size() != expectedBytes , "Mutable byte view size:%u, expected:%u." , bytes.size(), expectedBytes );
-	::llc::view<::llc::u0_c> constByteAlias = constView.cu8();
+	::llc::view<::llc::u0_c> constByteAlias = constView.as<u0_c>();
 	LLC_TEST_REQUIREF(errors, VIEW_TEST_RESULT_CONST_BYTE_ALIAS, (::llc::uP_t)constByteAlias.begin() != (::llc::uP_t)data , "Const byte alias begin:%p, expected:%p." , constByteAlias.begin(), data );
 	LLC_TEST_REQUIREF(errors, VIEW_TEST_RESULT_CONST_BYTE_ALIAS, constByteAlias.size() != expectedBytes , "Const byte alias size:%u, expected:%u." , constByteAlias.size(), expectedBytes );
 	chars[0] = 0x2A;
@@ -382,7 +382,7 @@ sttc ::llc::err_t testRepresentationViews(::llc::ATestError & errors) {
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_MUTABLE_REPRESENTATION, constByteAlias[0] != 0x2A , "Mutable character write left first byte:%u, expected:42." , constByteAlias[0] );
 	LLC_TEST_CHECKF(errors, VIEW_TEST_RESULT_MUTABLE_REPRESENTATION, constByteAlias[expectedBytes - 1] != 0x5A , "Mutable byte write left last byte:%u, expected:90." , constByteAlias[expectedBytes - 1] );
 
-	::llc::view<::llc::sc_c> constChars = constView.cc();
+	::llc::view<::llc::sc_c> constChars = constView;
 	::llc::view<::llc::u0_c> constBytes = constView.u8();
 	LLC_TEST_REQUIREF(errors, VIEW_TEST_RESULT_CONST_CHAR_VIEW, (::llc::uP_t)constChars.begin() != (::llc::uP_t)data , "Const character view begin:%p, expected:%p." , constChars.begin(), data );
 	LLC_TEST_REQUIREF(errors, VIEW_TEST_RESULT_CONST_CHAR_VIEW, constChars.size() != expectedBytes , "Const character view size:%u, expected:%u." , constChars.size(), expectedBytes );
@@ -397,16 +397,16 @@ sttc ::llc::err_t testRepresentationViews(::llc::ATestError & errors) {
 	cnst ::llc::view<T> & constNullEmpty = nullEmpty;
 	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_NULL_EMPTY_MUTABLE_CHARACTERS, nullEmpty.c(), 0, nullptr, nullptr));
 	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_NULL_EMPTY_MUTABLE_BYTES, nullEmpty.u8(), 0, nullptr, nullptr));
-	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_NULL_EMPTY_CONST_CHARACTERS, constNullEmpty.cc(), 0, nullptr, nullptr));
+	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_NULL_EMPTY_CONST_CHARACTERS, constNullEmpty, 0, nullptr, nullptr));
 	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_NULL_EMPTY_CONST_BYTES, constNullEmpty.u8(), 0, nullptr, nullptr));
-	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_NULL_EMPTY_CONST_BYTE_ALIAS, constNullEmpty.cu8(), 0, nullptr, nullptr));
+	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_NULL_EMPTY_CONST_BYTE_ALIAS, constNullEmpty.as<u0_c>(), 0, nullptr, nullptr));
 	::llc::view<T> boundaryEmpty{data, 0};
 	cnst ::llc::view<T> & constBoundaryEmpty = boundaryEmpty;
 	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_BOUNDARY_EMPTY_MUTABLE_CHARACTERS, boundaryEmpty.c(), 0, data, data));
 	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_BOUNDARY_EMPTY_MUTABLE_BYTES, boundaryEmpty.u8(), 0, data, data));
-	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_BOUNDARY_EMPTY_CONST_CHARACTERS, constBoundaryEmpty.cc(), 0, data, data));
+	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_BOUNDARY_EMPTY_CONST_CHARACTERS, constBoundaryEmpty, 0, data, data));
 	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_BOUNDARY_EMPTY_CONST_BYTES, constBoundaryEmpty.u8(), 0, data, data));
-	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_BOUNDARY_EMPTY_CONST_BYTE_ALIAS, constBoundaryEmpty.cu8(), 0, data, data));
+	if_fail_fe(viewRangeCheck(errors, VIEW_TEST_RESULT_RANGE_BOUNDARY_EMPTY_CONST_BYTE_ALIAS, constBoundaryEmpty.as<u0_c>(), 0, data, data));
 	return 0;
 }
 
@@ -417,7 +417,7 @@ sttc ::llc::err_t testMutationValues(::llc::ATestError & errors, VIEW_TEST_RESUL
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testFill(::llc::ATestError & errors) {
 	T full[6] = {T(0), T(1), T(2), T(3), T(4), T(5)};
 	T fullExpected[6] = {T(9), T(9), T(9), T(9), T(9), T(9)};
@@ -452,7 +452,7 @@ sttc ::llc::err_t testFill(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testReverse(::llc::ATestError & errors) {
 	T odd[5] = {T(0), T(1), T(2), T(3), T(4)};
 	T oddExpected[5] = {T(4), T(3), T(2), T(1), T(0)};
@@ -498,7 +498,7 @@ sttc ::llc::err_t testReverse(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testForEach(::llc::ATestError & errors) {
 	T full[5] = {T(0), T(1), T(2), T(3), T(4)};
 	T fullExpected[5] = {T(10), T(11), T(12), T(13), T(14)};
@@ -555,7 +555,7 @@ sttc ::llc::err_t testForEach(::llc::ATestError & errors) {
 	return testMutationValues(errors, VIEW_TEST_RESULT_FOREACH_EMPTY, unchanged, unchangedExpected);
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testEnumerate(::llc::ATestError & errors) {
 	T full[5] = {};
 	T fullExpected[5] = {T(10), T(11), T(12), T(13), T(14)};
@@ -604,7 +604,7 @@ sttc ::llc::err_t viewFailureCheck(::llc::ATestError & errors, VIEW_TEST_RESULT 
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testTraversalFailures(::llc::ATestError & errors) {
 	T data[5] = {T(0), T(1), T(2), T(3), T(4)};
 	::llc::view<T> mutableView{data};
@@ -640,7 +640,7 @@ sttc ::llc::err_t testTraversalFailures(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testFind(::llc::ATestError & errors) {
 	T mutableData[5] = {T(0), T(1), T(2), T(3), T(2)};
 	T mutableExpected[5] = {T(10), T(11), T(12), T(3), T(2)};
@@ -714,7 +714,7 @@ sttc ::llc::err_t testFind(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testExtrema(::llc::ATestError & errors) {
 	T data[6] = {T(3), T(7), T(1), T(7), T(2), T(6)};
 	cnst ::llc::view<T> values{data};
@@ -779,7 +779,7 @@ sttc ::llc::err_t testExtrema(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testSplit(::llc::ATestError & errors) {
 	T values[5] = {T(1), T(2), T(3), T(2), T(4)};
 	::llc::view<T> source{values};
@@ -868,7 +868,7 @@ sttc ::llc::err_t testSplit(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testSplitCollections(::llc::ATestError & errors) {
 	{
 		T values[3] = {T(1), T(0), T(2)};
@@ -992,7 +992,7 @@ sttc ::llc::err_t testStringSubscript(::llc::ATestError & errors) {
 	rtrn 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testInvalidConstruction(::llc::ATestError & errors) {
 #ifdef LLC_WINDOWS
 	LLC_TEST_CHECK(errors, VIEW_TEST_RESULT_INVALID_CONSTRUCTION, !::llc::testThrows([&]() { cnst ::llc::view<T> invalid{nullptr, 1}; (void)invalid; }));
@@ -1002,7 +1002,7 @@ sttc ::llc::err_t testInvalidConstruction(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	if_fail_fe(testRepresentation<T>(errors));
 	if_fail_fe(testMutableSlice<T>(errors));
@@ -1022,7 +1022,7 @@ sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	return testInvalidConstruction<T>(errors);
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);

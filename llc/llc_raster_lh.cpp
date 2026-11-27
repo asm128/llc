@@ -195,11 +195,11 @@
 }
 
 //https://fgiesen.wordpress.com/2013/02/08/triangle-rasterization-in-practice/
-static	double		orient2d		(const ::llc::line2s1_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
-//static	double		orient2d		(const ::llc::line3s1_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
-//static	double		orient2d		(const ::llc::line3f2_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
-static	double		orient2d		(const ::llc::line2f2_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
-static	double		orient2d		(const ::llc::n3f2_t & start, const ::llc::n2f2_t & edge, const ::llc::n2s1_t & point)	{ return edge.x * (point.y - (double)start.y) - edge.y * (point.x - (double)start.x); }
+sttc	double		orient2d		(const ::llc::line2s1_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
+//sttc	double		orient2d		(const ::llc::line3s1_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
+//sttc	double		orient2d		(const ::llc::line3f2_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
+sttc	double		orient2d		(const ::llc::line2f2_t & segment, const ::llc::n2s1_t & point)	{ return (segment.B.x - segment.A.x) * (point.y - (double)segment.A.y) - (segment.B.y - segment.A.y) * (point.x - (double)segment.A.x); }
+sttc	double		orient2d		(const ::llc::n3f2_t & start, const ::llc::n2f2_t & edge, const ::llc::n2s1_t & point)	{ return edge.x * (point.y - (double)start.y) - edge.y * (point.x - (double)start.x); }
 
 tplt <tpnm _tValue>	_tValue	max3		(_tValue & a, _tValue & b, _tValue & c)			{ return ::std::max(::std::max(a, b), c); }
 tplt <tpnm _tValue>	_tValue	min3		(_tValue & a, _tValue & b, _tValue & c)			{ return ::std::min(::std::min(a, b), c); }

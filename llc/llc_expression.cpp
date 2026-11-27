@@ -156,7 +156,7 @@ sttc	llc::err_t	expressionReaderCloseTerm							(::llc::SExpressionReaderState &
 	return errVal;
 }
 
-static	bool												isSpaceCharacter		(const sc_t characterToTest)		{
+sttc	bool												isSpaceCharacter		(const sc_t characterToTest)		{
 	switch(characterToTest) {
 	case ' ': case '\t': case '\r': case '\n'	: case '\f'	: case '\b'	:
 		return true;
@@ -165,7 +165,7 @@ static	bool												isSpaceCharacter		(const sc_t characterToTest)		{
 	}
 }
 
-//static	bool												isAnyOfCharacters		(const ::llc::vcst_t & charactersToFind, const sc_t characterToTest)		{
+//sttc	bool												isAnyOfCharacters		(const ::llc::vcst_t & charactersToFind, const sc_t characterToTest)		{
 //	for(::llc::u2_t iCharacter = 0; iCharacter < charactersToFind.size(); ++iCharacter)
 //		if(characterToTest == charactersToFind[iCharacter])
 //			return true;

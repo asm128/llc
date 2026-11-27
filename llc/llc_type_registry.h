@@ -33,7 +33,7 @@ namespace llc
 		sinx	::llc::vcsc_t	llc_type_name			()	nxpt	{ rtrn {::llc::size(#_structName) - 1, #_structName}; }	\
 		sinx	uint32_t		llc_type_name_len		()	nxpt	{ rtrn ::llc::size(#_structName) - 1; }					\
 	};																														\
-	static	const int	llc_tr_##_structName	= ::llc::STypeRegistrator<_structName>();
+	sttc	const int	llc_tr_##_structName	= ::llc::STypeRegistrator<_structName>();
 
 #define LLC_STRUCT_MEMBER_DESC_NAME(_name)	_llc_dsc_##_name
 

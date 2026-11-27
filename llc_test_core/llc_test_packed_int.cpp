@@ -25,7 +25,7 @@ GDEFINE_ENUM_VALUED(PACKED_UINT_TEST_RESULT, INVALID_VALUE		, 11, "packed_uint<>
 stxp ::llc::u3_t PACKED_RANDOM_SEED	= 0x5041434B45445549ULL;
 stxp ::llc::u2_t PACKED_RANDOM_COUNT	= 256;
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testDefault(::llc::ATestError & errors) {
 	cnst ::llc::packed_uint<T> packed{};
 	LLC_TEST_CHECKF(errors, PACKED_UINT_TEST_RESULT_DEFAULT_VALUE, packed.TailWidth , "%u-bit default tail width:%u, expected:0.", bcof(T), ::llc::u2_t(packed.TailWidth));
@@ -35,7 +35,7 @@ sttc ::llc::err_t testDefault(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testInvalidValue(::llc::ATestError & errors) {
 #ifdef LLC_WINDOWS
 	stxp ::llc::u0_t WIDTH_FIELD = ::llc::uint_width_field_size<T>();
@@ -48,7 +48,7 @@ sttc ::llc::err_t testInvalidValue(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testValue(::llc::ATestError & errors, ::llc::u3_c source, ::llc::u0_c expectedTailWidth, bool trace = true) {
 	cnst T value = (T)source;
 	cnst ::llc::packed_uint<T> packed{value};
@@ -84,7 +84,7 @@ sttc ::llc::err_t testValue(::llc::ATestError & errors, ::llc::u3_c source, ::ll
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	if_fail_fe(testDefault<T>(errors));
 	if_fail_fe(testInvalidValue<T>(errors));
@@ -120,7 +120,7 @@ sttc ::llc::err_t testType(::llc::ATestError & errors) {
 	return 0;
 }
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testTypeLogged(::llc::ATestError & errors) {
 	cnst ::llc::u2_t checkCount = testCheckCount(errors);
 	cnst ::llc::u2_t failureCount = testErrorCount(errors);

@@ -41,7 +41,7 @@
 	return 0;
 }
 
-static	::llc::err_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeManager, uint32_t iNode, const ::llc::SEngineSceneConstants & constants, ::llc::SRenderNodeConstants	& nodeConstants) {
+sttc	::llc::err_t	getNodeTransform		(const ::llc::SRenderNodeManager & nodeManager, uint32_t iNode, const ::llc::SEngineSceneConstants & constants, ::llc::SRenderNodeConstants	& nodeConstants) {
 	nodeConstants			= nodeManager.Transforms[iNode];
 
 	nodeConstants.Model					= nodeManager.BaseTransforms[iNode].Model * nodeConstants.Model;

@@ -22,6 +22,8 @@ GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, REUSE					, 12, "Reused format token
 GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, ROLLBACK					, 13, "Failed formatting changed the caller output.");
 GDEFINE_ENUM_VALUED(EXPRESSION_TEST_RESULT, DATE					, 14, "Date field formatting or cached formatting differs.");
 
+usns llc;
+
 sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vcst_t outputFolder) {
 	::llc::keyval<::llc::vcst_t> bindings[] = {{"hh", "03"}, {"mm", "04"}, {"empty", ""}};
 	::llc::string examples;
@@ -99,7 +101,7 @@ sttc ::llc::err_t testExpressionFormatting(::llc::ATestError & errors, ::llc::vc
 	LLC_TEST_CHECK(errors, EXPRESSION_TEST_RESULT_DATE, fresh != cached);
 	always_printf("Date formatting, %u values: parse+format=%" LLC_FMT_U3 " us, reused tokens=%" LLC_FMT_U3 " us.", iterations, parseAndFormat, timer.LastTimeMicroseconds);
 	if_fail_fe(::llc::append_strings(examples, "\nTiming for ", ::llc::str(iterations), " dates (microseconds):\nParse + format: ", ::llc::str(parseAndFormat), "\nReused tokens:  ", ::llc::str(timer.LastTimeMicroseconds), "\n"));
-	if_fail_fe(::llc::fileFromMemory(outputFolder, "formatting_examples.txt", examples.cc().cu8()));
+	if_fail_fe(::llc::fileFromMemory(outputFolder, "formatting_examples.txt", examples.as<u0_c>()));
 	rtrn 0;
 }
 

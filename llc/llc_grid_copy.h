@@ -253,11 +253,11 @@ namespace llc
 		return (stopDst.x > 0) ? ::llc::grid_copy_ex(dst, src, stopDst, offsetDst, offsetSrc) : 0;
 	}
 
-	tplt<tpnm T> ::llc::err_t		grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const T & comparand)	{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_alpha_ex	(dst, src, metrics, {}, {}, comparand); }
-	tplt<tpnm T> ::llc::err_t		grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T> & src)						{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_blend_ex	(dst, src, metrics, {}, {}); }
-	tplt<tpnm T> ::llc::err_t		grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T> & src)						{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_ex		(dst, src, metrics, {}, {}); }
+	tplT  ::llc::err_t		grid_copy_alpha					(::llc::grid<T> & dst, const ::llc::grid<T> & src, const T & comparand)	{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_alpha_ex	(dst, src, metrics, {}, {}, comparand); }
+	tplT  ::llc::err_t		grid_copy_blend					(::llc::grid<T> & dst, const ::llc::grid<T> & src)						{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_blend_ex	(dst, src, metrics, {}, {}); }
+	tplT  ::llc::err_t		grid_copy						(::llc::grid<T> & dst, const ::llc::grid<T> & src)						{ const ::llc::n2u2_t metrics = {(::llc::u2_t)::llc::min(dst.metrics().x, src.metrics().x), (::llc::u2_t)::llc::min(dst.metrics().y, src.metrics().y)}; return ::llc::grid_copy_ex		(dst, src, metrics, {}, {}); }
 
-	tplt<tpnm T>
+	tplT 
 	::llc::err_t			grid_mirror_x					(::llc::grid<T> & dst, const ::llc::grid<T>& src)											{
 		const ::llc::n2s2_t			metrics							=
 			{ ::llc::min((int32_t)dst.metrics().x, (int32_t)src.metrics().x)
@@ -270,7 +270,7 @@ namespace llc
 		return metrics.y * metrics.x;
 	}
 
-	tplt<tpnm T>
+	tplT 
 	::llc::err_t			grid_mirror_y					(::llc::grid<T> & dst, const ::llc::grid<T>& src)		{
 		const ::llc::n2s2_t			metrics							=
 			{ ::llc::min((int32_t)dst.metrics().x, (int32_t)src.metrics().x)

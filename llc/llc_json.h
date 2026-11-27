@@ -180,7 +180,7 @@ namespace llc
 	tydf keyval<vcst_t, SJSONFile>	TKeyValJSONFile;
 
 	err_t			jsonFileRead			(SJSONFile & file, vcst_t filename);
-	err_t			jsonWrite				(cnst SJSONNode * node, view<cnst vcst_t> jsonViews, string & output);
+	err_t			jsonWrite				(cnst SJSONNode * node, view<cnst vcst_t> jsonViews, asc_t & output);
 	err_t			jsonArraySplit			(cnst SJSONNode & jsonArrayToSplit, view<cnst vcst_t> jsonViews, u2_c blockSize, aobj<string> & outputJsons);
 
 	stct SJSONFieldBinding {

@@ -51,7 +51,7 @@ namespace llc
                                 CCSDSPayloadValue   (u2_t value)                { AssignValue(CCSDS_VALUE_U2, value); }
                                 CCSDSPayloadValue   (u3_t value)                { AssignValue(CCSDS_VALUE_U3, value); }
 
-        inline  operator        vcu0_t              ()                  cnst    { return {(u0_c*)&ValueType, ValueSizeInBytes + 1U}; }
+        inln    oper            vcu0_t              ()                  cnst    { return {(u0_c*)&ValueType, ValueSizeInBytes + 1U}; }
     };
 #pragma pack(pop)
 
@@ -67,27 +67,27 @@ namespace llc
             const err_t   results[]   = {err = (((err == -1) || failed(err)) ? -1 : AppendValue(values))..., 0};
             if_fail_e(err);
         }
-        inline  operator        vcu0_t          ()                                  const   { return EncodedPayload; }
+        inln    oper            vcu0_t          ()                                  const   { return EncodedPayload; }
 
-        inline  const ::llc::u2_t& Size            ()                                  const   { return EncodedPayload.size(); }
-        inline  err_t           Serialize       (au0_t & output)                    const   { return output.append(EncodedPayload); }
+        inln    u2_c&           Size            ()                                  const   { return EncodedPayload.size(); }
+        inln    err_t           Serialize       (au0_t & output)                    const   { return output.append(EncodedPayload); }
 
-        inline  err_t           AppendValue     (const CCSDSPayloadValue & valueToAppend)   { return failed(EncodedPayload.append(valueToAppend)) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (const CCSDSPayloadValue & valueToAppend)   { return failed(EncodedPayload.append(valueToAppend)) ? -1 : ++ValueCount; }
 
-        inline  err_t           AppendValue     (f2_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (f3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (const char                 & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (const bool                 & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (s1_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (s2_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (s3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (u0_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (u1_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (u2_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (u3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
-        inline  err_t           AppendValue     (const view<f2_c>           & values)       { for(auto value : values) if_fail_fe(AppendValue(CCSDSPayloadValue(value))); return 0; }
-        inline  err_t           AppendValue     (const view<f3_c>           & values)       { for(auto value : values) if_fail_fe(AppendValue(CCSDSPayloadValue(value))); return 0; }
-        inline  err_t           AppendValue     (vcs0_c                     & values)       { return AppendValue(values.cu8()); }
+        inln    err_t           AppendValue     (f2_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (f3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (b8_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (s0_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (s1_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (s2_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (s3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (u0_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (u1_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (u2_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (u3_c                       & value)        { return failed(EncodedPayload.append(CCSDSPayloadValue(value))) ? -1 : ++ValueCount; }
+        inln    err_t           AppendValue     (vcf2_c                     & values)       { for(auto value : values) if_fail_fe(AppendValue(CCSDSPayloadValue(value))); return 0; }
+        inln    err_t           AppendValue     (vcf3_c                     & values)       { for(auto value : values) if_fail_fe(AppendValue(CCSDSPayloadValue(value))); return 0; }
+        inln    err_t           AppendValue     (vcs0_c                     & values)       { return AppendValue(values.as<u0_c>()); }
         err_t                   AppendValue     (vcu0_c                     & values)       {
             if_fail_fe(savePOD(EncodedPayload, CCSDS_VALUE_ARRAY));
             if_fail_fe(savePOD(EncodedPayload, (u1_t)values.size()));

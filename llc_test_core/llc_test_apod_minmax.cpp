@@ -33,7 +33,7 @@ GDEFINE_ENUM_VALUED(ARRAY_MINMAX_TEST_RESULT, ARRAY_COPY_VALUE	, 25, "Copying am
 GDEFINE_ENUM_VALUED(ARRAY_MINMAX_TEST_RESULT, ARRAY_COPY_INDEPENDENCE, 26, "Mutating a copied aminmax<> changed its source.");
 GDEFINE_ENUM_VALUED(ARRAY_MINMAX_TEST_RESULT, CONST_ALIAS_TYPE		, 27, "An aminmax<> const alias did not preserve constness.");
 
-tplt<tpnm T>
+tplT 
 sttc ::llc::err_t testMinMaxType(::llc::ATestError & errors) {
 	static_assert(::std::is_same_v<::llc::aminmax<T>, ::llc::apod<::llc::minmax<T>>>);
 	cnst ::llc::minmax<T> single = ::llc::minmax<T>::from(T(7));

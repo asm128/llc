@@ -4,23 +4,21 @@
 #ifndef LLC_STRING_COMPOSE
 #define LLC_STRING_COMPOSE
 
-namespace llc
+nmsp llc
 {
-	tplTstin	err_t	append_string			(asc_t & output, cnst T & arg)			{ rtrn output.append_string(arg); }
-	tplN2ustin	err_t	append_string			(asc_t & output, sc_c (&arg)[N])		{ rtrn output.append_string(arg); }
-	tplN2ustin	err_t	append_string			(asc_t & output, cnst astchar<N> & arg)	{ rtrn output.append_string(arg.Storage); }
-	stin		err_t	append_string			(asc_t & output, u3_t arg)			{ rtrn append_string(output, str(arg)); }
-	stin		err_t	append_string			(asc_t & output, asc_c & arg)			{ rtrn output.append_string(arg.cc()); }
+	stin		err_t	append_string			(asc_t & output, vcst_t arg)		{ rtrn output.append(arg); }
+	tplTstin	err_t	append_string			(asc_t & output, view<cnst T> arg)	{ rtrn output.append(vcst_t{arg}); }
+	stin		err_t	append_string			(asc_t & output, sc_c arg)			{ rtrn output.push_back(arg); }
 	tpl_vtArgs	err_t	append_strings			(asc_t & output, _tArgs&&... args)	{ 
 		err_t					err			= 0;
 		s2_c					results[]	= {err = (failed(err) ? -1 : append_string(output, args))..., 0}; 
-		rtrn failed(err) ? err : ::llc::sum(vcs2_t{results}); 
+		rtrn failed(err) ? err : sum(vcs2_t{results}); 
 	}
 	tplT_vtArgs	err_t	append_strings_separated	(asc_t & output, T separator, _tArgs&&... args)	{
 		err_t					err			= 0;
 		u2_t					len			= 0;
-		s2_c					results[]	= {len = err = ((0 == len) ? append_string(output, args) : failed(err) ? -1 : append_string(output, separator) + append_string(output, args))..., 0}; 
-		rtrn failed(err) ? err : ::llc::sum(vcs2_t{results}); 
+		s2_c					results[]	= {len = err = ((0 == len) ? append_string(output, args) : failed(err) ? -1 : append_string(output, separator, args))..., 0}; 
+		rtrn failed(err) ? err : sum(vcs2_t{results}); 
 	}
 				err_t	appendNclosd			(string & output, vcst_t textToEnclose);
 				err_t	appendBraced			(string & output, vcst_t textToEnclose);
@@ -39,6 +37,6 @@ namespace llc
 				err_t	appendGtltedPrefixed	(string & output, vcst_t textToEnclose, b8_t prependSeparator = false, sc_t separator = ',');
 
 	tydf		function<err_t(string&)>			FAppend;
-} // namespace
+} // nmsp
 
 #endif // LLC_STRING_COMPOSE

@@ -21,7 +21,7 @@ namespace llc
 		rtrn (u0_t)(MATRIX_LAYOUT_ROW_MAJOR == _layout ? row * _width + column : column * _width + row);
 	}
 
-	tplt<tpnm T>
+	tplT 
 	stct m3 {
 		T	Value[9]	= {};
 	};

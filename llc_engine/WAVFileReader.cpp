@@ -202,7 +202,7 @@ namespace
 					case WAVE_FORMAT_EXTENSIBLE:
 						if_true_ve(E_FAIL, ((fmtChunk->Size < sizeof(WAVEFORMATEXTENSIBLE)) || (wfx->cbSize < (sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX)))))
 						else {
-							static const GUID s_wfexBase = { 0x00000000, 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+							sttc const GUID s_wfexBase = { 0x00000000, 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
 
 							auto wfex = reinterpret_cast<const WAVEFORMATEXTENSIBLE*>(ptr);
 

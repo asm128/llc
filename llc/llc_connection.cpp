@@ -100,7 +100,7 @@ stxp	u2_t		UDP_PAYLOAD_SENT_LIFETIME			= 1000000; // microseconds
 		if_fail_fef(optimizedPayloadBuffer.resize(sizeRequired), "Out of memory? Size required: %u.", sizeRequired);
 		optimizedPayloadBuffer.clear();
 		if_fail_fe(savePOD(optimizedPayloadBuffer, packetCount));
-		if_fail_fe(optimizedPayloadBuffer.append(payloadSizes.bytes()));
+		if_fail_fe(optimizedPayloadBuffer.append(payloadSizes.as<u0_c>()));
 		if_fail_fe(optimizedPayloadBuffer.append(serialized));
 		if_true_fef(sizeRequired != optimizedPayloadBuffer.size(), "Invalid sizes! Size required: %u. Actual size: %u.", sizeRequired, optimizedPayloadBuffer.size());
 		optimizedMsg->Command.Compressed	= 1;

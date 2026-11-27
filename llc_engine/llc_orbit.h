@@ -27,7 +27,7 @@ namespace llc
 
 	// Calculate the axial inclination of the planet IN RADIANS
 	tplt<tpnm _tAxis>
-	static ::llc::err_t	orientationFromEuler	(::llc::AXIS iAxis, double axialTilt, ::llc::quat<_tAxis> & orientation) {
+	sttc ::llc::err_t	orientationFromEuler	(::llc::AXIS iAxis, double axialTilt, ::llc::quat<_tAxis> & orientation) {
 		const _tAxis				rotationValue			= _tAxis(degreesToRadians(axialTilt));
 		switch(iAxis) {
 		case ::llc::AXIS_X_NEGATIVE: orientation.MakeFromEuler(-rotationValue, 0, 0); break;
@@ -43,7 +43,7 @@ namespace llc
 
 	// Calculate the rotation velocity of the planet IN EARTH DAYS
 	tplt<tpnm _tAxis, tpnm _tAxisOrientation>
-	static ::llc::err_t	orbitRotation			(::llc::AXIS iAxis, double rotation_period, double rotation_unit, const ::llc::quat<_tAxisOrientation> & orientation, ::llc::n3<_tAxis> & rotation) {
+	sttc ::llc::err_t	orbitRotation			(::llc::AXIS iAxis, double rotation_period, double rotation_unit, const ::llc::quat<_tAxisOrientation> & orientation, ::llc::n3<_tAxis> & rotation) {
 		const _tAxis				rotationValue			= _tAxis(::llc::math_2pi / rotation_period * rotation_unit);
 		switch(iAxis) {
 		case ::llc::AXIS_X_NEGATIVE: rotation = {-rotationValue, 0, 0}; break;
@@ -59,7 +59,7 @@ namespace llc
 
 	// Calculate the rotation velocity of the planet IN EARTH DAYS
 	tplt<tpnm _tAxis, tpnm _tAxisOrientation>
-	static ::llc::err_t	orbitCenter			(::llc::AXIS iAxis, double position, ::llc::n3<_tAxis> & center) {
+	sttc ::llc::err_t	orbitCenter			(::llc::AXIS iAxis, double position, ::llc::n3<_tAxis> & center) {
 		switch(iAxis) {
 		case ::llc::AXIS_X_NEGATIVE: center = {-position, 0, 0}; break;
 		case ::llc::AXIS_X_POSITIVE: center = { position, 0, 0}; break;

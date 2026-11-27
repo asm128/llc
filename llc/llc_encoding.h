@@ -11,7 +11,7 @@ namespace llc
 
 	err_t			hexDecode				(vcst_t in_hexed, au0_t & outputBinary	);
 	err_t			hexDecode				(vcst_t in_hexed, as0_t & outputBinary	);
-	stin	err_t	hexEncode				(const vcs0_t & inputBinary, string & out_hexed	)			{ return hexEncode(vcu0_t{(const u0_t*)inputBinary.begin(), inputBinary.size()}, out_hexed); }
+	stin	err_t	hexEncode				(const vcs0_t & inputBinary, string & out_hexed	)			{ return hexEncode(vcu0_t{(u0_c*)inputBinary.begin(), inputBinary.size()}, out_hexed); }
 
 	// Based on Gary Ardell's code for VB.
 	err_t			ardellEncode			(as2_t & cache, vcu0_c & input, u3_t key, bool salt, au0_t & output);

@@ -29,7 +29,7 @@ namespace llc
 		aobj<vcst_t>	Descriptions				= {};
 
 		stin	enum_definition<T>&	get				()											{
-			static	enum_definition<T>		valueRegistry;
+			sttc	enum_definition<T>		valueRegistry;
 			return valueRegistry;
 		}
 		stin	T					init			(vcst_t enumName)					{
@@ -284,7 +284,7 @@ namespace llc
 // Defines the enumeration type, the invalid value (-1) and the flag operators
 #define GDEFINE_ENUM_TYPE(EnumName, IntType)																							\
 	enum EnumName : IntType {};																											\
-	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(#EnumName);					\
+	sttc	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(#EnumName);					\
 	sinx	EnumName		oper &	(EnumName  a, EnumName b)	noexcept	{ return (EnumName)		(a & (IntType)b);				}	\
 	sinx	EnumName		oper ~	(EnumName  a)				noexcept	{ return (EnumName)		(~(IntType)a);					}	\
 	sinx	EnumName		oper ^	(EnumName  a, EnumName b)	noexcept	{ return (EnumName)		(a ^ (IntType)b);				}	\
@@ -299,7 +299,7 @@ namespace llc
 		inline	oper		IntType&		()			nxpt	{ return Value; }															\
 		inxp	oper		const IntType&	()	const	nxpt	{ return Value; }															\
 	};																																		\
-	static	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(#EnumName);								\
+	sttc	::llc::u2_c		__sei_##EnumName##enumInit	= ::llc::enum_definition<EnumName>::init(#EnumName);								\
 	sinx	EnumName		oper &	(EnumName  a, EnumName b)	noexcept	{ return {a & (IntType)b};				}	\
 	sinx	EnumName		oper ~	(EnumName  a)				noexcept	{ return {~(IntType)a};					}	\
 	sinx	EnumName		oper ^	(EnumName  a, EnumName b)	noexcept	{ return {a ^ (IntType)b};				}	\
@@ -311,30 +311,30 @@ namespace llc
 #ifdef LLC_ATMEL
 #	define GDEFINE_ENUM_VALUE(EnumName, ValueName, EnumValue)					\
 	stxp	const EnumName	EnumName##_##ValueName	= (EnumName)(EnumValue);	\
-	//static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, F(#ValueName)})
+	//sttc	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, F(#ValueName)})
 
 #	define GDEFINE_ENUM_VALUED(EnumName, ValueName, EnumValue, EnumDescription)		\
 	stxp	const EnumName	EnumName##_##ValueName	= (EnumName)(EnumValue);		\
-	//static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, F(#ValueName)})
+	//sttc	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, F(#ValueName)})
 
 #	define GDEFINE_ENUM_VALTD(EnumName, ValueName, EnumValue, EnumTitle, EnumDescription)	\
 	stxp	const EnumName	EnumName##_##ValueName	= (EnumName)(EnumValue);				\
-	//static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, F(#ValueName)})
+	//sttc	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), {szof(#ValueName) - 1, F(#ValueName)})
 	
 #else
 #	define GDEFINE_ENUM_VALUE(EnumName, ValueName, EnumValue)							\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName)
+	sttc	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName)
 
-#	define GDEFINE_ENUM_AVALUE(EnumName, ValueName) static	const EnumName	EnumName##_##ValueName	= (EnumName)::llc::genum_value_auto<EnumName>(#ValueName)
+#	define GDEFINE_ENUM_AVALUE(EnumName, ValueName) sttc	const EnumName	EnumName##_##ValueName	= (EnumName)::llc::genum_value_auto<EnumName>(#ValueName)
 
 #	define GDEFINE_ENUM_VALUED(EnumName, ValueName, EnumValue, EnumDescription)				\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName, EnumDescription)
+	sttc	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName, EnumDescription)
 
 #	define GDEFINE_ENUM_VALTD(EnumName, ValueName, EnumValue, EnumTitle, EnumDescription)				\
 	stxp	const EnumName	EnumName##_##ValueName			= (EnumName)(EnumValue);	\
-	static	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName, EnumTitle, EnumDescription)
+	sttc	const EnumName	__sei_##EnumName##_##ValueName	= (EnumName)::llc::genum_value<EnumName>((EnumName)(EnumValue), #ValueName, EnumTitle, EnumDescription)
 #endif
 
 #define GDEFINE_FLAG_TYPE		GDEFINE_ENUM_TYPE

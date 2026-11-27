@@ -31,7 +31,7 @@ enum SQUARE_MODE
 	};
 
 tplt<tpnm _tIndex>
-static	::llc::err_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionIndices, ::llc::u2_t vertexOffset, const ::llc::n2u1_t cellCount, bool counterClockwise, bool outward) {
+sttc	::llc::err_t	geometryBuildGridIndices	(::llc::apod<_tIndex> & positionIndices, ::llc::u2_t vertexOffset, const ::llc::n2u1_t cellCount, bool counterClockwise, bool outward) {
 	const ::llc::u1_t				pitch						= cellCount.x + 1;								// 2 3 
 	const ::llc::astu2_t<4>		indices						= counterClockwise ? ::llc::astu2_t<4>{{1U, 0U, ::llc::u2_t(pitch + 1U), pitch}} : ::llc::astu2_t<4>{{0U, 1U, pitch, ::llc::u2_t(pitch + 1U)}};	// 0 1 2 3
 	const ::llc::u2_t				indices_modes[2][6]			=

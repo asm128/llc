@@ -24,8 +24,8 @@ namespace llc
 	tplt<tpnm ..._tArgs>					using	FError				= ::llc::function<::llc::err_t(_tArgs&&...)>;
 	tplt<tpnm T, tpnm ..._tArgs>			using	FTransform			= ::llc::function<T(_tArgs&&...)>;
 
-	tplt<tpnm T>							using	TFuncForEach		= FError<T&>;
-	tplt<tpnm T>							using	TFuncForEachConst	= FError<const T&>;
+	tplT 							using	TFuncForEach		= FError<T&>;
+	tplT 							using	TFuncForEachConst	= FError<const T&>;
 	tplt<tpnm T, tpnm tCount = ::llc::u2_t>	using	TFuncEnumerate		= FError<tCount&, T&>;
 	tplt<tpnm T, tpnm tCount = ::llc::u2_t>	using	TFuncEnumerateConst	= FError<tCount&, const T&>;
 

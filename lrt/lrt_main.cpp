@@ -16,7 +16,7 @@ struct SRuntimeState {
 	llc::err_t			RenderResult		= 0;
 };
 
-static unsigned __stdcall threadRender(void * state) {
+sttc unsigned __stdcall threadRender(void * state) {
 	SRuntimeState & runtime = *(SRuntimeState*)state;
 	llc::SRuntimeModule & module = *runtime.MainModule;
 	// GPK's two-user handoff: the update loop releases its user, then render exits.
@@ -28,7 +28,7 @@ static unsigned __stdcall threadRender(void * state) {
 	rtrn 0;
 }
 
-static llc::err_t lrt_Loop(llc::SRuntimeModule & module) {
+sttc llc::err_t lrt_Loop(llc::SRuntimeModule & module) {
 	llc::err_t result = module.Update(module.Application, false);
 	if(llc::failed(result) || result == llc::APPLICATION_STATE_EXIT || result == llc::APPLICATION_STATE_RESTART)
 		rtrn result;
@@ -61,7 +61,7 @@ static llc::err_t lrt_Loop(llc::SRuntimeModule & module) {
 	rtrn result;
 }
 
-static llc::err_t lrt_Main(llc::SRuntimeValues & runtime) {
+sttc llc::err_t lrt_Main(llc::SRuntimeValues & runtime) {
 #if defined(LLC_WINDOWS)
 	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
 #endif

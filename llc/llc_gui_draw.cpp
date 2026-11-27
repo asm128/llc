@@ -7,7 +7,7 @@
 #include "llc_view_color.h"
 
 tplt<tpnm _tCoord, tpnm _tColor>
-static ::llc::err_t drawRectangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::rect2<_tCoord> & rectangle) {
+sttc ::llc::err_t drawRectangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::rect2<_tCoord> & rectangle) {
 	cnst ::llc::s2_t yStart = ::llc::max<::llc::s2_t>(0, rectangle.Offset.y);
 	cnst ::llc::s2_t yStop  = ::llc::min<::llc::s2_t>(target.metrics().y, (::llc::s2_t)rectangle.Offset.y + rectangle.Size.y);
 	cnst ::llc::s2_t xStart = ::llc::max<::llc::s2_t>(0, rectangle.Offset.x);
@@ -19,7 +19,7 @@ static ::llc::err_t drawRectangle(::llc::grid<_tColor> & target, cnst _tColor & 
 }
 
 tplt<tpnm _tCoord, tpnm _tColor>
-static ::llc::err_t drawControlTriangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::tri2<_tCoord> & triangle) {
+sttc ::llc::err_t drawControlTriangle(::llc::grid<_tColor> & target, cnst _tColor & color, cnst ::llc::tri2<_tCoord> & triangle) {
 	cnst ::llc::n2<int32_t> pointA = {(int32_t)triangle.A.x, (int32_t)triangle.A.y};
 	cnst ::llc::n2<int32_t> pointB = {(int32_t)triangle.B.x, (int32_t)triangle.B.y};
 	cnst ::llc::n2<int32_t> pointC = {(int32_t)triangle.C.x, (int32_t)triangle.C.y};
@@ -40,7 +40,7 @@ static ::llc::err_t drawControlTriangle(::llc::grid<_tColor> & target, cnst _tCo
 	rtrn pixelsDrawn;
 }
 
-static	::llc::err_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::llc::g8bgra & target, bool bDisabled)				{
+sttc	::llc::err_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::llc::g8bgra & target, bool bDisabled)				{
 	::llc::SControlState		& controlState		= gui.Controls.States	[iControl];
 	::llc::SControlDraw			& controlDraw		= gui.Controls.Draw	[iControl];
 	::llc::bgra					colorFace			= {0xFF, 0x00, 0xFF, 0xFF};
@@ -123,7 +123,7 @@ static	::llc::err_t	controlTextDraw		(::llc::SGUI & gui, int32_t iControl, ::llc
 	}
 	return 0;
 }
-static	::llc::GUI_CONTROL_PALETTE	paletteIndexFromState	(bool disabled, const ::llc::SControlState & controlState)					{
+sttc	::llc::GUI_CONTROL_PALETTE	paletteIndexFromState	(bool disabled, const ::llc::SControlState & controlState)					{
 	return disabled					? ::llc::GUI_CONTROL_PALETTE_DISABLED
 		: controlState.IsPressed () ? ::llc::GUI_CONTROL_PALETTE_PRESSED
 		: controlState.IsSelected() ? ::llc::GUI_CONTROL_PALETTE_SELECTED
@@ -131,7 +131,7 @@ static	::llc::GUI_CONTROL_PALETTE	paletteIndexFromState	(bool disabled, const ::
 		: ::llc::GUI_CONTROL_PALETTE_NORMAL
 		;
 }
-static	::llc::err_t	fillColorTableBorders3D			(const ::llc::SControlState & controlState, ::llc::view<::llc::bgra> & colors)					{
+sttc	::llc::err_t	fillColorTableBorders3D			(const ::llc::SControlState & controlState, ::llc::view<::llc::bgra> & colors)					{
 	double						bright;
 	double						shaded;
 	bright					= controlState.IsPressed() ? 0.4 : controlState.IsHovered() ? 0.8 : 1.2;
@@ -143,7 +143,7 @@ static	::llc::err_t	fillColorTableBorders3D			(const ::llc::SControlState & cont
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM	]	= colorBackground * shaded;
 	return 0;					  
 }
-static	::llc::err_t	fillColorTableNew				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
+sttc	::llc::err_t	fillColorTableNew				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
 	const ::llc::astatic<::llc::bgra, ::llc::UI_CONTROL_AREA_COUNT>
 								& colorCombo					= gui.Colors->Palettes[controlDraw.Palettes[::paletteIndexFromState(disabled, controlState)]];
 	//colors[::llc::GUI_CONTROL_AREA_OLD_BACKGROUND	]	= colorCombo[::llc::UI_CONTROL_AREA_BACKGROUND	];
@@ -157,7 +157,7 @@ static	::llc::err_t	fillColorTableNew				(::llc::SGUI & gui, ::llc::GUI_COLOR_MO
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM]	= colorCombo[::llc::UI_CONTROL_AREA_BORDER_BOTTOM	];
 	return 0;
 }
-static	::llc::err_t	fillColorTableOld				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
+sttc	::llc::err_t	fillColorTableOld				(::llc::SGUI & gui, ::llc::GUI_COLOR_MODE colorMode, const ::llc::SControlState & controlState, const ::llc::SControlDraw & controlDraw, bool disabled, ::llc::v8bgra & colors)					{
 	const ::llc::SControlTheme	& theme							= (*gui.Colors->ControlThemes)[(0 == controlDraw.ColorTheme) ? gui.ThemeDefault : controlDraw.ColorTheme - 1];
 	const ::llc::astu2_t<::llc::UI_CONTROL_AREA_COUNT>	
 								& colorCombo					= theme.ColorCombos[::paletteIndexFromState(disabled, controlState)];
@@ -172,7 +172,7 @@ static	::llc::err_t	fillColorTableOld				(::llc::SGUI & gui, ::llc::GUI_COLOR_MO
 	colors[::llc::GUI_CONTROL_AREA_OLD_BORDER_BOTTOM]	= (*gui.Colors->Palette)[colorCombo[::llc::UI_CONTROL_AREA_BORDER_BOTTOM]];
 	return 0;
 }
-static	::llc::err_t	fillColorTable					(::llc::SGUI & gui, ::llc::cid_t iControl, bool disabled, ::llc::view<::llc::bgra> colors)					{
+sttc	::llc::err_t	fillColorTable					(::llc::SGUI & gui, ::llc::cid_t iControl, bool disabled, ::llc::view<::llc::bgra> colors)					{
 	const ::llc::SControlDraw	& draw							= gui.Controls.Draw		[iControl];
 	const ::llc::SControlState	& state							= gui.Controls.States	[iControl];
 	::llc::GUI_COLOR_MODE		colorMode						= (::llc::GUI_COLOR_MODE)((draw.ColorMode == ::llc::GUI_COLOR_MODE_Default) ? gui.ColorModeDefault : draw.ColorMode);
@@ -183,7 +183,7 @@ static	::llc::err_t	fillColorTable					(::llc::SGUI & gui, ::llc::cid_t iControl
 
 	return 0;
 }
-static	::llc::err_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra & target)					{
+sttc	::llc::err_t	actualControlDraw				(::llc::SGUI & gui, ::llc::cid_t iControl, ::llc::g8bgra & target)					{
 	::llc::bgra					colors[::llc::GUI_CONTROL_AREA_OLD_COUNT]	= {}; // -- Fill color table
 	const bool					disabled						= ::llc::controlDisabled(gui, iControl);
 	const ::llc::SControlArea	& controlMetrics				= gui.Controls.Area[iControl];

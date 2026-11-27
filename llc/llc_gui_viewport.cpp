@@ -98,7 +98,7 @@ bool					llc::viewportIsPressed	(cnst ::llc::SGUI & gui, cnst ::llc::SViewport &
 		::llc::SControlPlacement	& control				= gui.Controls.Placement[viewport.IdControls[VIEWPORT_CONTROL_TITLE]];
 		::llc::SControlText			& controlText			= gui.Controls.Text		[viewport.IdControls[VIEWPORT_CONTROL_TITLE]];
 		control.Area.Size.y		= heightTitleBar;
-		static	int32_t				counterVPs				= 0;
+		sttc	int32_t				counterVPs				= 0;
 		++counterVPs;
 		sc_t						buffer [256];
 		const int32_t				titleLen				= snprintf(buffer, ::llc::size(buffer) - 2, "Viewport #%i", counterVPs);

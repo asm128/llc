@@ -22,7 +22,7 @@ stxp ::llc::vcst_c	HEX_DIGITS_LOWER	= "0123456789abcdef";
 llc::err_t			llc::saltDataSalt				(vcu0_c & binary, ::llc::au0_t & salted)				{
 	if_fail_fe(salted.resize(binary.size() * 2));
 	u0_t						* pSalted						= salted.begin();
-	const u0_t				* pBinary						= binary.begin();
+	u0_c				* pBinary						= binary.begin();
 	for(::llc::u2_t iBinary = 0; iBinary < binary.size(); ++iBinary) {
 		pSalted[iBinary * 2]		= pBinary[iBinary];
 		pSalted[iBinary * 2 + 1]	= (::llc::noise1DBase(::llc::timeCurrentInUs()) + ::llc::timeCurrentInUs()) & 0xFF;
@@ -32,26 +32,26 @@ llc::err_t			llc::saltDataSalt				(vcu0_c & binary, ::llc::au0_t & salted)				{
 
 llc::err_t			llc::saltDataUnsalt				(vcu0_c & salted, ::llc::au0_t & binary)				{
 	if_fail_fe(binary.resize(salted.size() / 2));
-	const u0_t				* pSalted						= salted.begin();
+	u0_c				* pSalted						= salted.begin();
 	u0_t						* pBinary						= binary.begin();
 	for(::llc::u2_t iBinary = 0; iBinary < binary.size(); ++iBinary)
 		pBinary[iBinary]		= pSalted[iBinary * 2];
 	return 0;
 }
 
-static	::llc::err_t	hexFromByte		(u0_t byteValue, char * hexed)																{
+sttc	::llc::err_t	hexFromByte		(u0_t byteValue, char * hexed)																{
 	hexed[0] = HEX_DIGITS_UPPER[byteValue >> 4];
 	hexed[1] = HEX_DIGITS_UPPER[byteValue & 0xF];
 	return 0;
 }
 
-static	::llc::err_t	hexToByte		(const char* s, u0_t & byte)															{
+sttc	::llc::err_t	hexToByte		(const char* s, u0_t & byte)															{
 	char						temp [3]		= {s[0], s[1]};
 	if_fail_fe(llc::parseIntegerHexadecimal(::llc::vcst_t{temp}, byte));
 	return 0;
 }
 
-static	::llc::err_t	hexToByte		(const char* s, ::llc::s0_t & byte)															{
+sttc	::llc::err_t	hexToByte		(const char* s, ::llc::s0_t & byte)															{
 	char						temp [3]		= {s[0], s[1]};
 	if_fail_fe(llc::parseIntegerHexadecimal(::llc::vcst_t{temp}, byte));
 	return 0;

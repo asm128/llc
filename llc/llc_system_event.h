@@ -46,8 +46,8 @@ namespace llc
 #pragma pack(push, 1)
 	stct SDeviceResult {
 		const ::llc::SYSTEM_EVENT	SystemEvent 	= {};
-		const u0_t				TailWidth		: 2;
-		const u0_t				Multiplier		: 6;
+		u0_c				TailWidth		: 2;
+		u0_c				Multiplier		: 6;
 		::llc::RESULT				DeviceEvent		= {};
 
 		cxpr						SDeviceResult	(::llc::RESULT deviceEvent = ::llc::RESULT_Error)
@@ -59,8 +59,8 @@ namespace llc
 	};
 	stct SDeviceCommand {
 		const ::llc::SYSTEM_EVENT	SystemEvent 	= {};
-		const u0_t				TailWidth		: 2;
-		const u0_t				Multiplier		: 6;
+		u0_c				TailWidth		: 2;
+		u0_c				Multiplier		: 6;
 		::llc::COMMAND				DeviceEvent		= {};
 
 		cxpr						SDeviceCommand	(::llc::COMMAND deviceEvent = ::llc::COMMAND_Ok)

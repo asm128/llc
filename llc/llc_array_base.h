@@ -40,7 +40,7 @@ namespace llc
 	// Base for arrays that keeps track of its actual size.
 #pragma pack(push, 1)
 	tplT class array_base : public view<T> {
-		static	err_t		calc_reserve_count		(u2_c newCountRequested, u2_t & outCount)	noexcept	{ 
+		sttc	err_t		calc_reserve_count		(u2_c newCountRequested, u2_t & outCount)	noexcept	{ 
 			stxp	u2_t			MAX_COUNT				= 0x3FFFFFFFU;
 			if(MAX_COUNT < newCountRequested)
 				return (u2_t)-1;
@@ -69,7 +69,7 @@ namespace llc
 		TArray&					oper =				(const TArray &	 other)					= delete;
 		TArray&					oper =				(const TArray && other)					= delete;
 		// This helper method is used to prevent redundancies. It returns a safe integer of the same or a higher value than the one passed as argument.
-		static	::llc::err_t	alloc_with_reserve		(u2_c newCount, T* & reserved)	noexcept	{ 
+		sttc	::llc::err_t	alloc_with_reserve		(u2_c newCount, T* & reserved)	noexcept	{ 
 			u2_t					newSize					= 0;
 			if_fail_fef(calc_reserve_count(newCount, newSize), "Too large. newCount: %" LLC_FMT_S2 ".", newCount);
 			u2_c				bytesToAllocate			= szof(T) * (newSize + 1);

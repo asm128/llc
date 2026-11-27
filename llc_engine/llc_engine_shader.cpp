@@ -1,12 +1,12 @@
 #include "llc_engine_shader.h"
 #include "llc_noise.h"
 
-static	float			shaderRand			(const ::llc::n2f2_t & uv);
-static	::llc::rgbaf	shaderSampleNearest	(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv);
-static	::llc::rgbaf	shaderSample			(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv);
-static	::llc::rgbaf	shaderSampleNearest	(const ::llc::SPSIn & inPS, uint32_t iSurface, const ::llc::n2f2_t & uv);
-static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, uint32_t iSurface, const ::llc::n2f2_t & uv);
-static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2_t & uv);
+sttc	float			shaderRand			(const ::llc::n2f2_t & uv);
+sttc	::llc::rgbaf	shaderSampleNearest	(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv);
+sttc	::llc::rgbaf	shaderSample			(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv);
+sttc	::llc::rgbaf	shaderSampleNearest	(const ::llc::SPSIn & inPS, uint32_t iSurface, const ::llc::n2f2_t & uv);
+sttc	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, uint32_t iSurface, const ::llc::n2f2_t & uv);
+sttc	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2_t & uv);
 
 ::llc::rgbaf			llc::lightCalcSpecular	(::llc::n3f2_t gEyePosW, float specularPower, ::llc::rgbaf specularLight, ::llc::rgbaf specularMaterial, ::llc::n3f2_t posW, ::llc::n3f2_t normalW, ::llc::n3f2_t lightVecW) {
 	const ::llc::n3f2_t			pointToEye				= (gEyePosW - posW).Normalize();
@@ -118,12 +118,12 @@ stxp	float			LIGHT_FACTOR_AMBIENT		= .025f;
 stxp	float			LIGHT_FACTOR_SPECULAR_POWER	= 30.0f;
 stxp	::llc::bgra8	PIXEL_BLACK_NUMBER			= ::llc::bgra{0, 0, 0, 255};
 
-static	float			shaderRand				(const ::llc::n2f2_t & uv) {
+sttc	float			shaderRand				(const ::llc::n2f2_t & uv) {
 	const double				value					= ::sin(uv.Dot({12.9898f, 78.233f})) * 43758.5453123;
 	return (float)(value - ::floor(value));
 }
 
-static	::llc::rgbaf	shaderSampleNearest	(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv) {
+sttc	::llc::rgbaf	shaderSampleNearest	(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv) {
 	const ::llc::n2u2_t		metrics					= surface.metrics();
 	if(0 == metrics.x || 0 == metrics.y)
 		return {};
@@ -131,7 +131,7 @@ static	::llc::rgbaf	shaderSampleNearest	(const ::llc::gc8bgra & surface, const :
 	return ::llc::rgbaf{surface[wrap((int32_t)(uv.y * metrics.y), metrics.y)][wrap((int32_t)(uv.x * metrics.x), metrics.x)]};
 }
 
-static	::llc::rgbaf	shaderSample			(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv) {
+sttc	::llc::rgbaf	shaderSample			(const ::llc::gc8bgra & surface, const ::llc::n2f2_t & uv) {
 	const ::llc::n2u2_t		metrics					= surface.metrics();
 	if(0 == metrics.x || 0 == metrics.y)
 		return {};
@@ -150,19 +150,19 @@ static	::llc::rgbaf	shaderSample			(const ::llc::gc8bgra & surface, const ::llc:
 	return ::llc::interpolate_linear(row[0], row[1], factorY);
 }
 
-static	::llc::rgbaf	shaderSampleNearest	(const ::llc::SPSIn & inPS, uint32_t iSurface, const ::llc::n2f2_t & uv) {
+sttc	::llc::rgbaf	shaderSampleNearest	(const ::llc::SPSIn & inPS, uint32_t iSurface, const ::llc::n2f2_t & uv) {
 	return iSurface < inPS.Surfaces.size() ? ::shaderSampleNearest(inPS.Surfaces[iSurface], uv) : ::llc::WHITE;
 }
 
-static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, uint32_t iSurface, const ::llc::n2f2_t & uv) {
+sttc	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, uint32_t iSurface, const ::llc::n2f2_t & uv) {
 	return iSurface < inPS.Surfaces.size() ? ::shaderSample(inPS.Surfaces[iSurface], uv) : ::llc::WHITE;
 }
 
-static	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2_t & uv) {
+sttc	::llc::rgbaf	shaderSample			(const ::llc::SPSIn & inPS, const ::llc::n2f2_t & uv) {
 	return ::shaderSample(inPS, 0, uv);
 }
 
-static	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS) {
+sttc	::llc::rgbaf	shaderPlanet			(const ::llc::SEngineSceneConstants & constants, const ::llc::SPSIn & inPS) {
 	::llc::n2f2_t			relativeToCenter			= inPS.WeightedUV - ::llc::n2f2_t{.5f, .5f};
 	relativeToCenter.x		*= 2;
 	::llc::rgbaf			materialColor				= ::shaderSample(inPS, inPS.WeightedUV);

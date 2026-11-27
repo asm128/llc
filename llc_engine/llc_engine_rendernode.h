@@ -97,15 +97,15 @@ namespace llc
 				if_fail_fef(llc::saveView(output, Lights	[iEntity] ? ::llc::v1<const ::llc::SLight >{*Lights	[iEntity]} : ::llc::v1<const ::llc::SLight >{}), "iEntity: %i", iEntity);
 				if_fail_fef(llc::saveView(output, Cameras	[iEntity] ? ::llc::v1<const ::llc::SCamera>{*Cameras[iEntity]} : ::llc::v1<const ::llc::SCamera>{}), "iEntity: %i", iEntity);
 			}
-			if_fail_fe(output.append({(const u0_t*)&LightsDirectional.size(), 4}));
+			if_fail_fe(output.append({(u0_c*)&LightsDirectional.size(), 4}));
 			for(::llc::u2_t iEntity = 0; iEntity < LightsDirectional.size(); ++iEntity)
 				if_fail_fef(llc::saveView(output, LightsDirectional[iEntity] ? ::llc::v1<const ::llc::SLightDirectional>{*LightsDirectional[iEntity]} : ::llc::v1<const ::llc::SLightDirectional>{}), "iEntity: %i", iEntity);
 
-			if_fail_fe(output.append({(const u0_t*)&LightsPoint.size(), 4}));
+			if_fail_fe(output.append({(u0_c*)&LightsPoint.size(), 4}));
 			for(::llc::u2_t iEntity = 0; iEntity < LightsPoint.size(); ++iEntity)
 				if_fail_fef(llc::saveView(output, LightsPoint[iEntity] ? ::llc::v1<const ::llc::SLightPoint>{*LightsPoint[iEntity]} : ::llc::v1<const ::llc::SLightPoint>{}), "iEntity: %i", iEntity);
 
-			if_fail_fe(output.append({(const u0_t*)&LightsSpot.size(), 4}));
+			if_fail_fe(output.append({(u0_c*)&LightsSpot.size(), 4}));
 			for(::llc::u2_t iEntity = 0; iEntity < LightsSpot.size(); ++iEntity)
 				if_fail_fef(llc::saveView(output, LightsSpot[iEntity] ? ::llc::v1<const ::llc::SLightSpot>{*LightsSpot[iEntity]} : ::llc::v1<const ::llc::SLightSpot>{}), "iEntity: %i", iEntity);
 

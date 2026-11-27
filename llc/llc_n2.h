@@ -19,33 +19,33 @@ namespace llc
 		//
 		LLC_DEFAULT_OPERATOR(Tn2, x == other.x && y == other.y);
 
-		cxpr	Tn2			oper+			(cnst Tn2 & other)		csnx	{ return {T(x + other.x), T(y + other.y)}; }
-		cxpr	Tn2			oper-			(cnst Tn2 & other)		csnx	{ return {T(x - other.x), T(y - other.y)}; }
-		cxpr	Tn2			oper*			(f3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(f3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
-		cxpr	Tn2			oper*			(s3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(s3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
-		cxpr	Tn2			oper*			(u3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(u3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
-		cxpr	Tn2			oper*			(s2_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(s2_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
-		cxpr	Tn2			oper*			(u2_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
-		cxpr	Tn2			oper/			(u2_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper+				(cnst Tn2 & other)		csnx	{ return {T(x + other.x), T(y + other.y)}; }
+		cxpr	Tn2			oper-				(cnst Tn2 & other)		csnx	{ return {T(x - other.x), T(y - other.y)}; }
+		cxpr	Tn2			oper*				(f3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
+		cxpr	Tn2			oper/				(f3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper*				(s3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
+		cxpr	Tn2			oper/				(s3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper*				(u3_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
+		cxpr	Tn2			oper/				(u3_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper*				(s2_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
+		cxpr	Tn2			oper/				(s2_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
+		cxpr	Tn2			oper*				(u2_t	scalar)			csnx	{ return {T(x * scalar), T(y * scalar)}; }
+		cxpr	Tn2			oper/				(u2_t	scalar)			cnst	{ return {T(x / scalar), T(y / scalar)}; }
 		//
-		Tn2&				oper+=			(cnst Tn2 & other)			nxpt			{ x += other.x; y += other.y; return *this; }
-		Tn2&				oper-=			(cnst Tn2 & other)			nxpt			{ x -= other.x; y -= other.y; return *this; }
-		Tn2&				oper*=			(f3_t	scalar)				nxpt			{ x = T(x * scalar); y = T(y * scalar);	return *this; }
-		Tn2&				oper/=			(f3_t	scalar)								{ x = T(x / scalar); y = T(y / scalar);	return *this; }
-		Tn2&				oper*=			(s3_t	scalar)				nxpt			{ x = T(x * scalar); y = T(y * scalar);	return *this; }
-		Tn2&				oper/=			(s3_t	scalar)								{ x = T(x / scalar); y = T(y / scalar);	return *this; }
-		Tn2&				oper*=			(s2_t	scalar)				nxpt			{ x = T(x * scalar); y = T(y * scalar);	return *this; }
-		Tn2&				oper/=			(s2_t	scalar)								{ x = T(x / scalar); y = T(y / scalar);	return *this; }
-		Tn2&				oper*=			(u2_t	scalar)				nxpt			{ x = T(x * scalar); y = T(y * scalar);	return *this; }
-		Tn2&				oper/=			(u2_t	scalar)								{ x = T(x / scalar); y = T(y / scalar);	return *this; }
-		Tn2&				oper*=			(u3_t	scalar)				nxpt			{ x = T(x * scalar); y = T(y * scalar);	return *this; }
-		Tn2&				oper/=			(u3_t	scalar)								{ x = T(x / scalar); y = T(y / scalar);	return *this; }
+		Tn2&				oper+=				(cnst Tn2 & other)		nxpt	{ x += other.x; y += other.y; return *this; }
+		Tn2&				oper-=				(cnst Tn2 & other)		nxpt	{ x -= other.x; y -= other.y; return *this; }
+		Tn2&				oper*=				(f3_t	scalar)			nxpt	{ x = T(x * scalar); y = T(y * scalar);	return *this; }
+		Tn2&				oper/=				(f3_t	scalar)					{ x = T(x / scalar); y = T(y / scalar);	return *this; }
+		Tn2&				oper*=				(s3_t	scalar)			nxpt	{ x = T(x * scalar); y = T(y * scalar);	return *this; }
+		Tn2&				oper/=				(s3_t	scalar)					{ x = T(x / scalar); y = T(y / scalar);	return *this; }
+		Tn2&				oper*=				(s2_t	scalar)			nxpt	{ x = T(x * scalar); y = T(y * scalar);	return *this; }
+		Tn2&				oper/=				(s2_t	scalar)					{ x = T(x / scalar); y = T(y / scalar);	return *this; }
+		Tn2&				oper*=				(u2_t	scalar)			nxpt	{ x = T(x * scalar); y = T(y * scalar);	return *this; }
+		Tn2&				oper/=				(u2_t	scalar)					{ x = T(x / scalar); y = T(y / scalar);	return *this; }
+		Tn2&				oper*=				(u3_t	scalar)			nxpt	{ x = T(x * scalar); y = T(y * scalar);	return *this; }
+		Tn2&				oper/=				(u3_t	scalar)					{ x = T(x / scalar); y = T(y / scalar);	return *this; }
 
-		cxpr	Tn2			oper-			()						csnx	{ return {x * -1, y * -1}; }
+		cxpr	Tn2			oper-				()						csnx	{ return {x * -1, y * -1}; }
 
 		//
 		inxp	Tn2			xx					()				csnx	{ return {x, x}; }
@@ -87,9 +87,9 @@ namespace llc
 			return -1;
 		}
 
-		inxp	::llc::u2_t	Index				(::llc::u2_t width) 						csnx	{ return y * width + x; }
+		inxp	u2_t	Index				(u2_t width) 						csnx	{ return y * width + x; }
 		inxp	T			Area				()										csnx	{ return x * y; }
-		Tn2					Clamp				(cnst Tn2 & min, cnst Tn2 & max)		csnx	{ return {::llc::clamped(x, min.x, max.x), ::llc::clamped(y, min.y, max.y)}; }
+		Tn2					Clamp				(cnst Tn2 & min, cnst Tn2 & max)		csnx	{ return {clamped(x, min.x, max.x), clamped(y, min.y, max.y)}; }
 		inxp	Tn2			GetScaled			(f3_t	scalar)							csnx	{ return {(T)(x * scalar), (T)(y * scalar)}; }
 		inxp	Tn2			GetScaled			(f3_t scalarx, f3_t scalary)			csnx	{ return {(T)(x * scalarx), (T)(y * scalary)}; }
 		inxp	Tn2			GetScaled			(cnst Tn2 & scales)						csnx	{ return {(T)(x * scales.x), (T)(y * scales.y)}; }
@@ -103,7 +103,7 @@ namespace llc
 			y					+= vectorToScaleAndAdd.y * scale;
 		}
 		Tn2&				Rotate				(f3_t theta)									nxpt	{
-			cnst ::llc::SSinCos	pairSinCos			= ::llc::getSinCos(theta);
+			cnst SSinCos	pairSinCos			= getSinCos(theta);
 			f3_c			px					= x * pairSinCos.Cos - y * pairSinCos.Sin;
 			y					= T(x * pairSinCos.Sin + y * pairSinCos.Cos);
 			x					= (T)px;
@@ -116,13 +116,13 @@ namespace llc
 		inline	Tn2&		InPlaceScale		(cnst n2<_t2>& other)							nxpt	{ return InPlaceScale(other.x, other.y); }
 		inline	Tn2&		InPlaceNormalize	()															{ cnst T sqLen = LengthSquared(); return sqLen ? *this /= ::sqrt(sqLen) : *this; }
 		inline	Tn2&		InPlaceClamp		(cnst Tn2 & min, cnst Tn2 & max)				nxpt	{
-			x					= ::llc::clamped(x, min.x, max.x);
-			y					= ::llc::clamped(y, min.y, max.y);
+			x					= clamped(x, min.x, max.x);
+			y					= clamped(y, min.y, max.y);
 			return *this;
 		}
 
 		tydf	FVoid<Tn2&>				TFuncForEach;
-		tydf	FVoid<::llc::u2_t&, Tn2&>	TFuncEnumerate;
+		tydf	FVoid<u2_t&, Tn2&>	TFuncEnumerate;
 
 		T					for_each			(cnst TFuncForEach & funcForEach, T xStart = 0)			cnst	{
 			Tn2						offset				= {};
@@ -132,8 +132,8 @@ namespace llc
 
 			return T(offset.x * offset.y);
 		}
-		::llc::u2_t			enumerate			(cnst TFuncEnumerate & funcForEach)	cnst {
-			::llc::u2_t				index				= 0;
+		u2_t			enumerate			(cnst TFuncEnumerate & funcForEach)	cnst {
+			u2_t				index				= 0;
 			Tn2						offset				= {};
 			for(; offset.y < y; ++offset.y)
 			for(offset.x = 0; offset.x < x; ++offset.x, ++index) 
@@ -141,8 +141,8 @@ namespace llc
 
 			return index;
 		}
-		::llc::u2_t			enumerate			(cnst TFuncEnumerate & funcForEachX, cnst TFuncEnumerate & funcForEachY)	cnst {
-			::llc::u2_t				index				= 0;
+		u2_t			enumerate			(cnst TFuncEnumerate & funcForEachX, cnst TFuncEnumerate & funcForEachY)	cnst {
+			u2_t				index				= 0;
 			Tn2						offset				= {};
 			for(; offset.y < y; ++offset.y) {
 				for(offset.x = 0; offset.x < x; ++offset.x, ++index) 
@@ -167,15 +167,16 @@ namespace llc
 	tydf	n2<f2_t>	n2f2_t;	tdcs	n2f2_t	n2f2_c;
 	tydf	n2<f3_t>	n2f3_t;	tdcs	n2f3_t	n2f3_c;
 
-	tplT	stxp	bool	in_range	(cnst ::llc::n2<T> & valueToTest, cnst ::llc::n2<T> & rangeStart, cnst ::llc::n2<T> & rangeStop)	nxpt	{
-		return	::llc::in_range(valueToTest.x, rangeStart.x, rangeStop.x)
-			&&	::llc::in_range(valueToTest.y, rangeStart.y, rangeStop.y)
+	tplTstxp	bool	in_range	(cnst n2<T> & valueToTest, cnst n2<T> & rangeStart, cnst n2<T> & rangeStop)	nxpt	{
+		rtrn	in_range(valueToTest.x, rangeStart.x, rangeStop.x)
+			&&	in_range(valueToTest.y, rangeStart.y, rangeStop.y)
 			;
 	}
 #pragma pack(pop)
 
 #define LLC_USING_N2()					\
-	using ::llc::n2uc_t, ::llc::n2uc_c	\
+	usng ::llc::n2						\
+		, ::llc::n2uc_t, ::llc::n2uc_c	\
 		, ::llc::n2sc_t, ::llc::n2sc_c	\
 		, ::llc::n2u0_t, ::llc::n2u0_c	\
 		, ::llc::n2u1_t, ::llc::n2u1_c	\

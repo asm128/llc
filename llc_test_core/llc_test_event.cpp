@@ -34,18 +34,18 @@ GDEFINE_ENUM_VALUED(EVENT_TEST_RESULT, ROUNDTRIP, 3, "The saved event could not 
 		LLC_TEST_CHECKF(errors, EVENT_TEST_RESULT_DATA, parent.Type != ::llc::RESULT_Connected || child.Type != ::llc::RESULT_Read || child.Data.size() != expected.size() || (expected.size() && memcmp(child.Data.begin(), expected.begin(), expected.size())), "%.*s wrapped child bytes:%u expected:%u.", LLC_VIEW_ARGS(label), child.Data.size(), expected.size());
 		rtrn 0;
 	};
-	if_fail_fe(check(text, text.cu8(), "vcst_t"));
-	if_fail_fe(check(mutableView, text.cu8(), "vstr_t"));
-	if_fail_fe(check("asd", text.cu8(), "string literal"));
-	if_fail_fe(check(countedText, countedText.cu8(), "counted vcst_t"));
-	if_fail_fe(check(countedZero, countedZero.cu8(), "embedded zero vcst_t"));
+	if_fail_fe(check(text, text.tplt as<u0_c>(), "vcst_t"));
+	if_fail_fe(check(mutableView, text.tplt as<u0_c>(), "vstr_t"));
+	if_fail_fe(check("asd", text.tplt as<u0_c>(), "string literal"));
+	if_fail_fe(check(countedText, countedText.tplt as<u0_c>(), "counted vcst_t"));
+	if_fail_fe(check(countedZero, countedZero.tplt as<u0_c>(), "embedded zero vcst_t"));
 	if_fail_fe(check(::llc::vcst_t{}, ::llc::vcu0_t{}, "empty vcst_t"));
-	if_fail_fe(check(typedView, typedView.cu8(), "view<const u1_t>"));
+	if_fail_fe(check(typedView, typedView.tplt as<u0_c>(), "view<const u1_t>"));
 	if_fail_fe(check(pod, {(cnst ::llc::u0_t*)&pod, szof(pod)}, "POD u2_t"));
-	if_fail_fe(checkWrapped(text, text.cu8(), "wrapped vcst_t"));
-	if_fail_fe(checkWrapped(mutableView, text.cu8(), "wrapped vstr_t"));
-	if_fail_fe(checkWrapped("asd", text.cu8(), "wrapped literal"));
-	if_fail_fe(checkWrapped(countedZero, countedZero.cu8(), "wrapped embedded zero"));
+	if_fail_fe(checkWrapped(text, text.tplt as<u0_c>(), "wrapped vcst_t"));
+	if_fail_fe(checkWrapped(mutableView, text.tplt as<u0_c>(), "wrapped vstr_t"));
+	if_fail_fe(checkWrapped("asd", text.tplt as<u0_c>(), "wrapped literal"));
+	if_fail_fe(checkWrapped(countedZero, countedZero.tplt as<u0_c>(), "wrapped embedded zero"));
 
 	::llc::sc_t source[] = "asd";
 	::llc::TEventQueue<::llc::RESULT> queue;
@@ -57,7 +57,7 @@ GDEFINE_ENUM_VALUED(EVENT_TEST_RESULT, ROUNDTRIP, 3, "The saved event could not 
 
 	::llc::au0_t saved;
 	LLC_TEST_REQUIREF(errors, EVENT_TEST_RESULT_ROUNDTRIP, ::llc::failed(queue[0]->Save(saved)), "Parent event save failed.");
-	::llc::vcu0_t serialized = saved.cu8();
+	::llc::vcu0_t serialized = saved.tplt as<u0_c>();
 	::llc::SEvent<::llc::RESULT> loaded;
 	LLC_TEST_REQUIREF(errors, EVENT_TEST_RESULT_ROUNDTRIP, ::llc::failed(loaded.Load(serialized)), "Parent event load failed.");
 	::llc::SEventView<::llc::RESULT> restored;

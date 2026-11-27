@@ -188,3 +188,5 @@ This file is operational memory for future work in this repository. Read it befo
   6. fix only the agreed behavior and keep the regression.
 - Do not rush to add generalized machinery. Reuse and improve what exists when repeated needs make the abstraction evident.
 - Useful context and rationale are recorded in `../../profile/when-library-diagnostics-become-a-test-framework.md`; the executable sources remain the source of truth.
+
+> **Semantic-diff rule:** Source-formatting whitespace has zero significance in every comparison and review, everywhere and every time. Before assessing a change, ignore all leading, trailing, and internal formatting whitespace across the entire file, including indentation, alignment, blank lines, tabs versus spaces, and line wrapping. Never inspect, calculate, print, count, summarize, report, or base a finding on such whitespace. Report only semantic behavior, control-flow, API, ABI, data-layout, build, and test differences. Whitespace that is program data inside a literal or generated format remains semantic.
