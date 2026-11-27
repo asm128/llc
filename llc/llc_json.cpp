@@ -10,17 +10,6 @@ LLC_USING_TYPEINT();
 #define json_info_printf(...) // info_printf
 #define json_error_printf error_printf
 
-sttc llc::err_t jsonTokenPush(llc::apod<llc::SJSONToken> & tokens, llc::apod<llc::SJSONTokenData> & data, cnst llc::SJSONToken & token, cnst llc::SJSONTokenData & tokenData = {}) {
-	cnst llc::err_t indexToken = tokens.push_back(token);
-	if_fail_fe(indexToken);
-	if(llc::failed(data.resize(tokens.size()))) {
-		tokens.pop_back();
-		rtrn -1;
-	}
-	data[indexToken] = tokenData;
-	rtrn indexToken;
-}
-
 llc::err_t			llc::jsonCompareObject		(cnst llc::SJSONNode & node, llc::view<cnst vcst_t> views, cnst llc::SJSONNode & other, llc::view<cnst vcst_t> otherViews) { if(node.Children.size() != other.Children.size()) rtrn 0; if(node.Children.size() == 0) rtrn 1; for(u2_t iChild = 0; iChild < node.Children.size(); iChild += 2)	if(node.Token->Type != other.Token->Type) rtrn 0; rtrn (views[node.ObjectIndex] == otherViews[other.ObjectIndex]) ? 1 : 0; }
 llc::err_t			llc::jsonCompareNumber		(cnst llc::SJSONNode & node, llc::view<cnst vcst_t> views, cnst llc::SJSONNode & other, llc::view<cnst vcst_t> otherViews) { if(node.Children.size() != other.Children.size()) rtrn 0; if(node.Children.size() == 0) rtrn 1; if(node.Token->Type != other.Token->Type) rtrn 0; rtrn (views[node.ObjectIndex] == otherViews[other.ObjectIndex]) ? 1 : 0; }
 
@@ -131,26 +120,12 @@ llc::err_t			llc::jsonWrite				(cnst llc::SJSONNode* node, llc::view<cnst vcst_t
 }
 
 sttc	llc::err_t	jsonCloseElement			(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, u2_t indexChar) {
-	if_true_fef(tokens.size() <= (u2_t)stateReader.IndexCurrentElement, "Invalid parser state. Cannot close element: %" LLC_FMT_S2 ".", stateReader.IndexCurrentElement);
-	llc::SJSONToken			* closing					= 0;
-	closing					= stateReader.CurrentElement; //&object[stateReader.IndexCurrentElement];
-	closing->Span.End		= (u2_t)indexChar + 1;
-	llc::vcst_t			labelType				= llc::get_value_label(closing->Type);
-	json_info_printf("%.*s closed. Index %.2i. Level: %" LLC_FMT_S2 ". Parent index: %" LLC_FMT_S2 ". Node type: %" LLC_FMT_S2 ". Begin: %" LLC_FMT_S2 ". End: %" LLC_FMT_S2 ".", (int)labelType.size(), labelType.begin(), stateReader.IndexCurrentElement, stateReader.NestLevel, closing->ParentIndex, closing->Type, closing->Span.Begin, closing->Span.End);
-	stateReader.IndexCurrentElement					= closing->ParentIndex;
-	--stateReader.NestLevel;
-	stateReader.CurrentElement						= ((u2_t)stateReader.IndexCurrentElement < tokens.size()) ? &tokens[stateReader.IndexCurrentElement] : 0;
-	if(0 == stateReader.NestLevel)
-		stateReader.Flags.DoneReading							= true;
-	rtrn 0;	// Need to report that a list has been exited
+	if_null_fe(stateReader.CurrentElement);
+	rtrn llc::readerCloseType(stateReader, tokens, stateReader.CurrentElement->Type, indexChar + 1);
 }
 
 sttc	llc::err_t	jsonCloseElement			(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & object, u2_t indexChar, llc::JSON_TYPE jsonType) {
-	cnst llc::SJSONToken		* open						= stateReader.CurrentElement; //&object[stateReader.IndexCurrentElement];
-	cnst llc::vcst_t			labelOpen					= llc::get_value_label(open->Type);
-	cnst llc::vcst_t			labelClose				= llc::get_value_label(jsonType);
-	if_true_fef(jsonType != open->Type, "Invalid object type: open: %" LLC_FMT_U2 " (%.*s). closing: %" LLC_FMT_U2 " (%.*s).", open->Type, (int)labelOpen.size(), labelOpen.begin(), jsonType, (int)labelClose.size(), labelClose.begin());
-	rtrn ::jsonCloseElement(stateReader, object, indexChar);
+	rtrn llc::readerCloseType(stateReader, object, jsonType, indexChar + 1);
 }
 
 sttc	llc::err_t	jsonTestAndCloseValue		(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::apod<llc::SJSONTokenData> & data) {
@@ -210,35 +185,13 @@ sttc	llc::err_t	jsonCloseOrDiscardEmptyKOrV	(llc::SJSONReaderState & stateReader
 #define seterr_if_failed(condition, format, ...)		seterr_if		(llc::failed(condition), format, __VA_ARGS__)
 
 sttc	llc::err_t	jsonParseStringCharacter	(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::apod<llc::SJSONTokenData> & data, llc::vcst_t jsonAsString)	{
-	llc::SJSONToken			currentElement				= {};
 	llc::err_t				errVal						= 0;
 	switch(stateReader.CharCurrent) {
 	default:
-		seterr_break_if(((llc::uc_t)stateReader.CharCurrent) < 0x20 || ((llc::uc_t)stateReader.CharCurrent) > 0xFE, "Invalid character: %" LLC_FMT_S2 " (%" LLC_FMT_U2 ") '%c'.", stateReader.CharCurrent, (llc::uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
-		seterr_break_if(stateReader.Flags.Escaping, "Cannot escape character: %" LLC_FMT_S2 " (%" LLC_FMT_U2 ") '%c'.", stateReader.CharCurrent, (llc::uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
-		break;
+		rtrn llc::readerParseStringCharacter(stateReader, tokens, data, jsonAsString, llc::JSON_TYPE_CODEPOINT);
 	case ' '	: case '\t'	: case '\r'	: case '\n'	: case '\f'	: case '\b'	: // Skip these characters without error.
 		llc::skipToNextCharacter(stateReader.IndexCurrentChar, jsonAsString);
 		--stateReader.IndexCurrentChar;
-		break;
-	case 'b': case 'f': case 'n': case 'r': case 't':
-		break;	// these characters are both valid as part of the string and as escapable characters.
-	case 'u':
-		if(false == stateReader.Flags.Escaping)
-			break;
-		stateReader.IndexCurrentChar	+= 1;	// skip the u to get the next 4 digits.
-		seterr_break_if(jsonAsString.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. JSON length: %.*s. Current index: %" LLC_FMT_U2 ".", (int)(jsonAsString.size() - stateReader.IndexCurrentChar), &jsonAsString[stateReader.IndexCurrentChar], stateReader.IndexCurrentChar);
-		json_info_printf("Unicode code point found: %4.4s", &jsonAsString[stateReader.IndexCurrentChar]);
-		currentElement		= {stateReader.IndexCurrentElement, llc::JSON_TYPE_CODEPOINT, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}};
-		seterr_if_failed(::jsonTokenPush(tokens, data, currentElement), "token count: %" LLC_FMT_S2 "", tokens.size());
-		stateReader.CurrentElement		= &tokens[stateReader.IndexCurrentElement];
-		stateReader.IndexCurrentChar	+= 3;	// Parse unicode code point
-		break;
-	case '\\'	:
-		if(false == stateReader.Flags.Escaping) {
-			stateReader.Flags.Escaping			= true;
-			rtrn 0;
-		}
 		break;
 	case '"'	:
 		if(false == stateReader.Flags.Escaping) {
@@ -258,7 +211,7 @@ sttc	llc::err_t	jsonParseKeyword			(llc::vcst_t token, llc::JSON_TYPE jsonType, 
 	json_info_printf("JSON token found: %.*s.", int(token.size()), token.begin());
 
 	llc::SJSONToken			boolElement					= {stateReader.IndexCurrentElement, jsonType, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + token.size()}};
-	if_fail_fef(::jsonTokenPush(object, data, boolElement, llc::vcs2b8(token)), "Failed to push! Out of memory? object count: %" LLC_FMT_U2 ".", object.size());
+	if_fail_fef(llc::readerTokenPush(object, data, boolElement, llc::SJSONTokenData(llc::vcs2b8(token))), "Failed to push! Out of memory? object count: %" LLC_FMT_U2 ".", object.size());
 	stateReader.IndexCurrentChar	+= token.size() - 1;
 	stateReader.CurrentElement		= &object[stateReader.IndexCurrentElement];
 	rtrn 0;
@@ -378,7 +331,7 @@ sttc	llc::err_t	parseJsonNumber				(llc::SJSONReaderState & stateReader, llc::ap
 			memcpy(&currentData, &finalValue, szof(uint64_t));
 		}
 	}
-	if_fail_fe(::jsonTokenPush(tokens, data, currentElement, currentData));
+	if_fail_fe(llc::readerTokenPush(tokens, data, currentElement, currentData));
 	stateReader.CurrentElement						= &tokens[stateReader.IndexCurrentElement];
 	json_info_printf("Number found: %.*s. Length: %" LLC_FMT_U2 ". Negative: %s. Float: %s."
 		, sizeNum, &jsonAsString[index]
@@ -416,13 +369,7 @@ sttc	llc::err_t	jsonCloseContainer			(llc::SJSONReaderState & stateReader, llc::
 
 sttc	llc::err_t	jsonOpenElement				(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::apod<llc::SJSONTokenData> & data, llc::JSON_TYPE jsonType, u2_t indexChar) {
 	cnst b8_t				isContainer				= llc::JSON_TYPE_OBJECT == jsonType || llc::JSON_TYPE_ARRAY == jsonType;
-	llc::SJSONToken			currentElement				= {stateReader.IndexCurrentElement, jsonType, isContainer, {indexChar, indexChar}};
-	if_fail_fe(stateReader.IndexCurrentElement = ::jsonTokenPush(tokens, data, currentElement));
-	stateReader.CurrentElement	= &tokens[stateReader.IndexCurrentElement];
-	llc::vcst_t				labelType					= llc::get_value_label(currentElement.Type);
-	++stateReader.NestLevel;
-	json_info_printf("%.*s open. Index %.2i. Level: %" LLC_FMT_S2 ". Parent index: %" LLC_FMT_S2 ". Node type: %" LLC_FMT_S2 ". Begin: %" LLC_FMT_S2 ".", (int)labelType.size(), labelType.begin(), stateReader.IndexCurrentElement, stateReader.NestLevel, currentElement.ParentIndex, currentElement.Type, currentElement.Span.Begin);
-	rtrn 0;
+	rtrn llc::readerOpenLevel(stateReader, tokens, isContainer, jsonType, indexChar, data);
 }
 
 sttc	llc::err_t	jsonParseDocumentCharacter	(llc::SJSONReaderState & stateReader, llc::apod<llc::SJSONToken> & tokens, llc::apod<llc::SJSONTokenData> & data, llc::vcst_t jsonAsString)	{
@@ -498,38 +445,15 @@ sttc	llc::err_t	jsonParseDocumentCharacter	(llc::SJSONReaderState & stateReader,
 
 llc::err_t			llc::jsonParseStep			(llc::SJSONReader & reader, llc::vcst_t jsonAsString, llc::SJSONParseOptions options)	{
 	(void)options;
-	llc::SJSONReaderState	& stateReader	= reader.Reader.State;
-	stateReader.CharCurrent	= jsonAsString[stateReader.IndexCurrentChar];
-	if_true_block_logf(error_printf, llc::failed(stateReader.Flags.InsideString
-		? ::jsonParseStringCharacter	(stateReader, reader.Reader.Token, reader.Data, jsonAsString)
-		: ::jsonParseDocumentCharacter	(stateReader, reader.Reader.Token, reader.Data, jsonAsString)
-		), {
-			const b8_t					validElement				= (u2_t)stateReader.IndexCurrentElement < reader.Reader.Token.size();
-			cnst llc::SJSONToken		* currentElement			= validElement ? &reader.Reader.Token[stateReader.IndexCurrentElement] : 0;
-			json_error_printf("Error during read step. Malformed JSON?"
-				"\nPosition  : %" LLC_FMT_S2 "."
-				"\nCharacter : '%c' (0x%x)."
-				"\nElement   : %" LLC_FMT_S2 "."
-				"\nString    : %s."
-				"\nEscaping  : %s."
-				"\nNestLevel : %" LLC_FMT_S2 "."
-				"\nParent    : %" LLC_FMT_S2 "."
-				"\nType      : %" LLC_FMT_S2 " (%s)."
-				"\nOffset    : %" LLC_FMT_S2 "."
-				, stateReader.IndexCurrentChar
-				, stateReader.CharCurrent, stateReader.CharCurrent
-				, stateReader.IndexCurrentElement
-				, stateReader.Flags.InsideString ? "true" : "false"
-				, stateReader.Flags.Escaping		? "true" : "false"
-				, stateReader.NestLevel
-				, validElement ? currentElement->ParentIndex					: -1
-				, validElement ? currentElement->Type							: -1
-				, validElement ? llc::get_value_namep(currentElement->Type)	: "N/A"
-				, validElement ? currentElement->Span.Begin						: -1
-				);
-			}, "InsideString:%s", stateReader.Flags.InsideString ? "true" : "false"
-		);
-	rtrn 0;
+	rtrn readerParseStep<JSON_TYPE>(reader.Reader, jsonAsString, [&reader](SReader<JSON_TYPE> & tokenReader, vcst_t text) {
+		if(tokenReader.State.Flags.InsideString) {
+			if_fail_fef(::jsonParseStringCharacter(tokenReader.State, tokenReader.Token, reader.Data, text), "text:%.*s", LLC_VIEW_ARGS(text));
+		}
+		else {
+			if_fail_fef(::jsonParseDocumentCharacter(tokenReader.State, tokenReader.Token, reader.Data, text), "text:%.*s", LLC_VIEW_ARGS(text));
+		}
+		rtn0;
+	});
 }
 
 #define json_bi_if(condition, format, ...) if(condition) break; //

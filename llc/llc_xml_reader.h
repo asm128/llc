@@ -28,12 +28,7 @@ namespace llc
 
 	tydf SReaderState<XML_TOKEN> SXMLReaderState;
 
-	stct SXMLReader : public SReader<XML_TOKEN> {
-		err_t				Reset				() {
-			SReader<XML_TOKEN>::Reset();
-			rtrn 0;
-		}
-	};
+	tydf SReader<XML_TOKEN> SXMLReader;
 
 	err_t			xmlParse			(SXMLReader & reader, vcst_t xmlDoc);
 	err_t			xmlParseStep		(SXMLReader & reader, vcst_t xmlDoc);

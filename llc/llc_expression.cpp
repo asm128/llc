@@ -5,14 +5,6 @@ LLC_USING_VIEW();
 LLC_USING_APOD();
 LLC_USING_ASTATIC();
 
-sttc ::llc::err_t expressionTokenPush(apod<::llc::SExpressionToken> & tokens, apod<::llc::SExpressionTokenData> & out_data, cnst ::llc::SExpressionToken & in_token, cnst ::llc::SExpressionTokenData & tokenData = {}) {
-    cnst ::llc::u2_t indexToken = tokens.size();
-    if_fail_fe(::llc::resize(indexToken + 1, tokens, out_data));
-    tokens[indexToken]      = in_token;
-    out_data[indexToken]    = tokenData;
-    rtrn indexToken;
-}
-
 #define llc_expression_info_printf(...) //info_printf
 
 sttc	llc::err_t	expressionReaderViews					(apod<::llc::SExpressionToken> & tokens, ::llc::aobj<::llc::vcst_t> & views, ::llc::vcst_t expression) {
@@ -41,7 +33,7 @@ sttc	llc::err_t	expressionReaderViews					(apod<::llc::SExpressionToken> & token
         error_printf(format, __VA_ARGS__);	\
     }
 
-sttc	llc::err_t	expressionReaderCloseTerm							(::llc::SReaderState<::llc::EXPRESSION_READER_TYPE> & stateReader, apod<::llc::SExpressionToken> & tokens)	{
+sttc	llc::err_t	expressionReaderCloseTerm							(::llc::SReaderState<::llc::EXPRESSION_READER_TYPE> & stateReader, apod<::llc::SExpressionToken> & tokens, bool closeBoolean = true)	{
     if_fail_fef(::llc::readerCloseIfType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_KEY), "%s", "Failed to close type.");
     while(::llc::EXPRESSION_READER_TYPE_UNARY_NOT == stateReader.CurrentElement->Type)
         if_fail_fef(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_UNARY_NOT    , stateReader.IndexCurrentChar), "%s", "Failed to close type.");
@@ -51,47 +43,20 @@ sttc	llc::err_t	expressionReaderCloseTerm							(::llc::SReaderState<::llc::EXPR
         if_fail_fef(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_OR      , stateReader.IndexCurrentChar), "%s", "Failed to close type.");
     while(::llc::EXPRESSION_READER_TYPE_TERM_EQUALS == stateReader.CurrentElement->Type)
         if_fail_fef(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_EQUALS  , stateReader.IndexCurrentChar), "%s", "Failed to close type.");
-    if_fail_fef(::llc::readerCloseIfType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_BOOL	), "Failed to open key at index %i", stateReader.IndexCurrentChar);
+    if(closeBoolean)
+        if_fail_fef(::llc::readerCloseIfType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_BOOL	), "Failed to open key at index %i", stateReader.IndexCurrentChar);
     return 0;
 }
 
 sttc	llc::err_t	expressionReaderOpenLevel							(::llc::SReaderState<::llc::EXPRESSION_READER_TYPE> & stateReader, apod<::llc::SExpressionToken> & tokens, apod<::llc::SExpressionTokenData> & data, ::llc::EXPRESSION_READER_TYPE type, u2_t iChar) {
-	stateReader.IndexCurrentElement	= ::expressionTokenPush(tokens, data, {stateReader.IndexCurrentElement, type, false, {iChar, iChar}});
-	if_fail_fe(stateReader.IndexCurrentElement);
-	stateReader.CurrentElement		= &tokens[stateReader.IndexCurrentElement];
-	++stateReader.NestLevel;
-	rtrn 0;
+	rtrn ::llc::readerOpenLevel(stateReader, tokens, false, type, iChar, data);
 }
 
 sttc    llc::err_t      expressionReaderProcessStringCharacter  (::llc::SReaderState<::llc::EXPRESSION_READER_TYPE> & stateReader, ::llc::SExpressionReaderState & stateDoc, apod<::llc::SExpressionToken> & tokens, apod<::llc::SExpressionTokenData> & data, const ::llc::vcst_t & expression)	{
-    ::llc::SToken<::llc::EXPRESSION_READER_TYPE>    currentElement      = {0, ::llc::EXPRESSION_READER_TYPE_UNKNOWN, false, {}};
+    if('"' != stateReader.CharCurrent && '\'' != stateReader.CharCurrent)
+        rtrn ::llc::readerParseStringCharacter(stateReader, tokens, data, expression, ::llc::EXPRESSION_READER_TYPE_CODEPOINT);
     ::llc::err_t			                        errVal		        = 0;
     switch(stateReader.CharCurrent) {
-    default:
-        seterr_break_if(stateReader.CharCurrent < 0x20 || ((u0_t)stateReader.CharCurrent) > 0xFE, "Invalid character: %i (%u) '%c'.", stateReader.CharCurrent, (::llc::uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
-        seterr_break_if(stateReader.Flags.Escaping, "Cannot escape character: %i (%u) '%c'.", stateReader.CharCurrent, (u0_t)stateReader.CharCurrent, stateReader.CharCurrent);
-        break;
-    case 'b': case 'f': case 'n': case 'r': case 't':
-        break;	// these characters are both valid as part of the string and as escapable characters.
-    case '\b': case '\f': case '\n': case '\r': case '\t':
-        break;	// these characters are both valid as part of the string and as escapable characters.
-    case 'u':
-        if(false == stateReader.Flags.Escaping)
-            break;
-        stateReader.IndexCurrentChar								+= 1;	// skip the u to get the next 4 digits.
-        seterr_break_if(expression.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. JSON length: %u. Current index: %u.", expression.size(), stateReader.IndexCurrentChar);
-        info_printf("Unicode code point found: %4.4s", &expression[stateReader.IndexCurrentChar]);
-        currentElement												= {stateReader.IndexCurrentElement, ::llc::EXPRESSION_READER_TYPE_CODEPOINT, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}};
-        seterr_if(llc::failed(::expressionTokenPush(tokens, data, currentElement)), "%s", "");
-        stateReader.CurrentElement									= &tokens[stateReader.IndexCurrentElement];
-        stateReader.IndexCurrentChar								+= 3;	// Parse unicode code point
-        break;
-    case '\\'	:
-        if(false == stateReader.Flags.Escaping) {
-            stateReader.Flags.Escaping										= true;
-            return 0;
-        }
-        break;
     case '"'	:case '\''	:
         if(false == stateReader.Flags.Escaping && stateDoc.ClosingQuotes == stateReader.CharCurrent) {
             seterr_if(llc::failed(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_LITERAL, stateReader.IndexCurrentChar + 1)), "Failed to close string elment. %s", "Unknown error.");
@@ -201,15 +166,7 @@ sttc	llc::err_t	expressionReaderProcessDocCharacter		(::llc::SReaderState<::llc:
         test_first_position();
         stateReader.Flags.ExpectingSeparator		= false;
         skip_if_escaping();
-        if_fail_fef(::llc::readerCloseIfType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_KEY			), "%s", "Failed to close type.");
-        while(::llc::EXPRESSION_READER_TYPE_UNARY_NOT == stateReader.CurrentElement->Type)
-            if_fail_fef(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_UNARY_NOT	, stateReader.IndexCurrentChar), "%s", "Failed to close type.");
-        while(::llc::EXPRESSION_READER_TYPE_TERM_AND == stateReader.CurrentElement->Type)
-            if_fail_fef(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_AND	, stateReader.IndexCurrentChar), "%s", "Failed to close type.");
-        while(::llc::EXPRESSION_READER_TYPE_TERM_OR == stateReader.CurrentElement->Type)
-            if_fail_fef(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_OR	, stateReader.IndexCurrentChar), "%s", "Failed to close type.");
-        while(::llc::EXPRESSION_READER_TYPE_TERM_EQUALS == stateReader.CurrentElement->Type)
-            if_fail_fef(::llc::readerCloseType(stateReader, tokens, ::llc::EXPRESSION_READER_TYPE_TERM_EQUALS	, stateReader.IndexCurrentChar), "%s", "Failed to close type.");
+        if_fail_fef(::expressionReaderCloseTerm(stateReader, tokens, false), "Failed to close term at index %i", stateReader.IndexCurrentChar);
         if_fail_fef(::expressionReaderOpenLevel	(stateReader, tokens, data, ::llc::EXPRESSION_READER_TYPE_TERM_BOOL	, stateReader.IndexCurrentChar + 1), "Failed to open evaluation at index %i", stateReader.IndexCurrentChar + 1);
         break;
     case ':':

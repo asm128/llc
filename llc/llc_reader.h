@@ -142,14 +142,58 @@ nmsp llc
         );
         rtrn 0;
     }
+
+    tplt<tpnm TToken, tpnm TData>
+    sttc err_t      readerTokenPush             (apod<SToken<TToken>> & tokens, apod<TData> & data, cnst SToken<TToken> & token, cnst TData & tokenData = {}) {
+        cnst u2_t indexToken = tokens.size();
+        if_fail_fe(resize(indexToken + 1, tokens, data));
+        tokens[indexToken] = token;
+        data  [indexToken] = tokenData;
+        rtrn indexToken;
+    }
+
+    tplt<tpnm TToken, tpnm TData>
+    sttc err_t      readerParseStringCharacter  (SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, apod<TData> & data, vcst_t document, TToken typeCodepoint) {
+        switch(stateReader.CharCurrent) {
+        default:
+            if_true_fef(((uc_t)stateReader.CharCurrent) < 0x20 || ((uc_t)stateReader.CharCurrent) > 0xFE, "Invalid character: %i (%u) '%c'.", stateReader.CharCurrent, (uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
+            if_true_fef(stateReader.Flags.Escaping, "Cannot escape character: %i (%u) '%c'.", stateReader.CharCurrent, (uc_t)stateReader.CharCurrent, stateReader.CharCurrent);
+            break;
+        case 'b': case 'f': case 'n': case 'r': case 't':
+        case '\b': case '\f': case '\n': case '\r': case '\t':
+            break;
+        case 'u':
+            if(false == stateReader.Flags.Escaping)
+                break;
+            ++stateReader.IndexCurrentChar;
+            if_true_fef(document.size() - stateReader.IndexCurrentChar < 4, "End of stream during unicode code point parsing. Document length: %u. Current index: %u.", document.size(), stateReader.IndexCurrentChar);
+            if_fail_fe(readerTokenPush(tokens, data, SToken<TToken>{stateReader.IndexCurrentElement, typeCodepoint, false, {stateReader.IndexCurrentChar, stateReader.IndexCurrentChar + 4}}));
+            stateReader.CurrentElement = &tokens[stateReader.IndexCurrentElement];
+            stateReader.IndexCurrentChar += 3;
+            break;
+        case '\\':
+            if(false == stateReader.Flags.Escaping) {
+                stateReader.Flags.Escaping = true;
+                rtrn 0;
+            }
+            break;
+        }
+        stateReader.Flags.Escaping = false;
+        rtrn 0;
+    }
+
     tplt<tpnm TToken>
     sttc	err_t	readerCloseType				(SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, TToken type, s2_t indexCurrentChar) {
+        if_null_fef(stateReader.CurrentElement, "%s", "No reader element is open.");
+        if_true_fef((u2_t)stateReader.IndexCurrentElement >= tokens.size(), "Invalid reader element index: %i. Token count: %u.", stateReader.IndexCurrentElement, tokens.size());
         if_true_fef(type != stateReader.CurrentElement->Type, "Invalid type to close: %s. Current type: %s.", get_value_label(type).begin(), get_value_label(stateReader.CurrentElement->Type).begin());
+        if_true_fef(indexCurrentChar < (s2_t)stateReader.CurrentElement->Span.Begin, "Invalid reader span: %u..%i.", stateReader.CurrentElement->Span.Begin, indexCurrentChar);
         stateReader.CurrentElement->Span.End						= indexCurrentChar;
         stateReader.IndexCurrentElement								= stateReader.CurrentElement->ParentIndex;
         stateReader.CurrentElement									= (-1 != stateReader.IndexCurrentElement) ? &tokens[stateReader.IndexCurrentElement] : nullptr;
-        llc_reader_info_printf("Closing expression type: %s. Parent type: %s. Nest level: %i.", get_value_label(type).begin(), stateReader.CurrentElement ? get_value_label(stateReader.CurrentElement->Type).begin() : "UNKNOWN", stateReader.NestLevel);
+        llc_reader_info_printf("Closing reader type: %s. Parent type: %s. Nest level: %i.", get_value_label(type).begin(), stateReader.CurrentElement ? get_value_label(stateReader.CurrentElement->Type).begin() : "UNKNOWN", stateReader.NestLevel);
         --stateReader.NestLevel;
+        stateReader.Flags.DoneReading = 0 == stateReader.NestLevel;
         return 0;
     }
 
@@ -163,12 +207,16 @@ nmsp llc
         return 0;
     }
 
-    tplt<tpnm TToken>
-    sttc	err_t	readerOpenLevel		(SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, b8_t isContainer, TToken type, u2_t iChar)	{
-        if_fail_fe(stateReader.IndexCurrentElement = tokens.push_back({stateReader.IndexCurrentElement, type, isContainer, {iChar, iChar}}));
+    tplt<tpnm TToken, tpnm... TData>
+    sttc	err_t	readerOpenLevel		(SReaderState<TToken> & stateReader, apod<SToken<TToken>> & tokens, b8_t isContainer, TToken type, u2_t iChar, TData&... data)	{
+        cnst u2_t indexToken = tokens.size();
+        if_fail_fe(resize(indexToken + 1, tokens, data...));
+        tokens[indexToken] = {stateReader.IndexCurrentElement, type, isContainer, {iChar, iChar}};
+        stateReader.IndexCurrentElement = indexToken;
         stateReader.CurrentElement		        = &tokens[stateReader.IndexCurrentElement];
         ++stateReader.NestLevel;
-        llc_reader_info_printf("Entering expression type: %s. Parent type: %s. Nest level: %u.", get_value_label(stateReader.CurrentElement->Type).begin(), stateReader.CurrentElement ? get_value_label(stateReader.CurrentElement->Type).begin() : "UNKNOWN", stateReader.NestLevel);
+        stateReader.Flags.DoneReading = false;
+        llc_reader_info_printf("Entering reader type: %s. Parent type: %s. Nest level: %u.", get_value_label(stateReader.CurrentElement->Type).begin(), stateReader.CurrentElement ? get_value_label(stateReader.CurrentElement->Type).begin() : "UNKNOWN", stateReader.NestLevel);
         return 0;
     }
 
